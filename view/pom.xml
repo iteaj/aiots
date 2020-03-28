@@ -24,10 +24,12 @@
             <artifactId>static</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-spring</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>izone-sofa-starter-web</artifactId>
