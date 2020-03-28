@@ -1,0 +1,66 @@
+package com.iteaj.framework;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.iteaj.framework.authority.tenant.TenantHandlerMethodArgumentResolver;
+import com.iteaj.framework.spring.boot.config.FrameworkConfiguration;
+import com.iteaj.framework.authority.tenant.Tenant;
+import com.iteaj.util.module.mvc.orm.Entity;
+
+import java.util.Date;
+import java.util.List;
+
+public abstract class BaseEntity implements Entity<Long> {
+
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    /**创建时间*/
+    private Date createTime;
+    /**更新时间*/
+    private Date updateTime;
+
+    /**
+     * @see TenantHandlerMethodArgumentResolver
+     * @see FrameworkConfiguration#paginationInterceptor()
+     */
+    @TableField(exist = false)
+    private Tenant tenant;
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public BaseEntity setCreateTime(Date createTime) {
+        this.createTime = createTime;
+        return this;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public BaseEntity setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+        return this;
+    }
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public BaseEntity setTenant(Tenant tenant) {
+        this.tenant = tenant;
+        return this;
+    }
+}

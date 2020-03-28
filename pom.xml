@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.iteaj</groupId>
+        <version>1.0-SNAPSHOT</version>
+        <artifactId>izone-sofa-parent</artifactId>
+    </parent>
+
+    <packaging>pom</packaging>
+    <groupId>com.iteaj</groupId>
+    <artifactId>izone</artifactId>
+    <version>1.0.2-SNAPSHOT</version>
+    <modelVersion>4.0.0</modelVersion>
+    <name>root:izone</name>
+
+    <modules>
+        <module>dao</module>    <!--数据访问层-->
+        <module>view</module>    <!--Web展示层-->
+        <module>static</module>  <!--静态资源模块-->
+        <module>service</module>  <!--业务模块-->
+        <module>framework</module><!--系统架构层-->
+
+        <!--整合项目的入口-->
+        <module>bootstrap</module> <!--启动模块-->
+    </modules>
+    <properties>
+        <classifier></classifier>
+        <java.version>1.8</java.version>
+        <guava.version>18.0</guava.version>
+        <shiro.version>1.4.0</shiro.version>
+        <iutils.version>1.1.8-SNAPSHOT</iutils.version>
+        <!-- 多环境配置文件路径 -->
+        <env.filter.file>../../deploy/env/${profiles.active.env}.properties</env.filter.file>
+    </properties>
+    <scm>
+        <url>https://gitee.com/iteaj/izone</url>
+        <connection>scm:git:https://gitee.com/iteaj/izone.git</connection>
+        <developerConnection>scm:git:https://gitee.com/iteaj/izone.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <name>iteaj</name>
+            <email>iteaj@outlook.com</email>
+            <url>http://www.iteaj.com</url>
+        </developer>
+    </developers>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>release</id>-->
+<!--            <url>https://maven.aliyun.com/repository/public</url>-->
+<!--        </repository>-->
+<!--    </repositories>-->
+    <dependencies>
+
+    </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>rdc-releases</id>
+            <url>https://repo.rdc.aliyun.com/repository/125267-release-z3FZAw/</url>
+        </repository>
+        <snapshotRepository>
+            <id>rdc-snapshots</id>
+            <url>https://repo.rdc.aliyun.com/repository/125267-snapshot-cL4hH3/</url>
+        </snapshotRepository>
+    </distributionManagement>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <version>${mybatis.plus.version}</version>
+                <artifactId>mybatis-plus-generator</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <version>${shiro.version}</version>
+                <artifactId>shiro-spring</artifactId>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <profiles>
+        <!-- 多环境配置 -->
+        <profile>
+            <id>env-dev</id> <!--开发环境-->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <profiles.active.env>dev</profiles.active.env>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>p6spy</groupId>
+                    <artifactId>p6spy</artifactId>
+                    <version>${p6spy.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>env-test</id> <!--测试环境-->
+            <properties>
+                <output.directory>../../target</output.directory>
+                <profiles.active.env>test</profiles.active.env>
+            </properties>
+        </profile>
+        <profile>
+            <id>env-prod</id> <!--正式环境-->
+            <properties>
+                <output.directory>../../target</output.directory>
+                <profiles.active.env>prod</profiles.active.env>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <filters>
+            <filter>${env.filter.file}</filter> <!--多环境时使用的过滤文件-->
+        </filters>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                </includes>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <filtering>false</filtering>
+                <includes>
+                    <include>static/**</include>
+                    <include>templates/**</include>
+                    <include>**/spring.factories</include>
+                </includes>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <filtering>false</filtering>
+                <directory>src/main/java</directory>
+            </resource>
+        </resources>
+    </build>
+</project>

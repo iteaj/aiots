@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.iteaj</groupId>
+        <artifactId>view</artifactId>
+        <version>1.0.2-SNAPSHOT</version>
+    </parent>
+
+    <name>web:admin</name>
+    <artifactId>admin</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <description>后台管理项目</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>admin-dao</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>kaptcha</artifactId>
+            <groupId>com.github.penggle</groupId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-ark-maven-plugin</artifactId>
+                <configuration>
+                    <priority>5</priority>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>izone</artifactId>
+        <groupId>com.iteaj</groupId>
+        <version>1.0.2-SNAPSHOT</version>
+    </parent>
+
+    <name>boot:bootstrap</name>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>bootstrap</artifactId>
+
+    <properties>
+        <env.filter.file>../deploy/env/${profiles.active.env}.properties</env.filter.file>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>izone-sofa-starter-web</artifactId>
+        </dependency>
+
+        <!--后台管理模块 - 管理端(必选)-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>admin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>admin-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!--以下是可选后台web模块-->
+        <!--后台管理模块 - 开发端-->
+    </dependencies>
+</project>

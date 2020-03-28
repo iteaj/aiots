@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="libs :: header('角色管理')"></th:block>
+</head>
+<body>
+  <div id="RolePage">
+    <ivz-basic-view ref="vbt" :metas="metas" :config="config"
+                    :search-metas="searchMetas"></ivz-basic-view>
+  </div>
+</body>
+<th:block th:include="libs :: footer"></th:block>
+<script>
+    let status = [
+        {value: '正常', label: '正常'},
+        {value: '禁用', label: '禁用'},
+    ]
+  let vue = new Vue({
+      el: "#RolePage",
+      data: {
+          metas: [
+              {field: 'base', title: '基础信息', metas: [
+                      {field: 'name', title: '角色名称', width: 180, required: true},
+                      {field: 'status', title: '状态', clear: true, width:100
+                          , type: 'select', data: status, default: '正常'},
+                      {field: 'remark', title: '备注', width: 380},
+                  ]},
+              {field: 'role', title: '权限列表', metas: [
+                      {field: 'menuIds', title: '权限列表', type: 'stree', isTable: false
+                          , span: [3, 21, 22], clear: true, url: '/core/menu/view'
+                          , default: [], config: {
+                              treeCheckable: true
+                              , treeDefaultExpandAll: true
+                              , showCheckedStrategy:'SHOW_PARENT'
+                              , dropdownStyle: {maxHeight: '320px'}
+                            }
+                          , event: {
+                              change (row) {
+                                  console.log(vue.editModel)
+                              }
+                          }
+                      }
+                  ]},
+              {field: 'createTime', title: '创建时间', type: 'date', width: 180, isForm: false},
+              {field: 'action', title: '操作', type: 'action'}
+          ],
+          editModel: null,
+          searchMetas: [
+              {field: 'name', title: '角色名称', clear: true},
+              {field: 'status', title: '状态', type: 'select', data: status, clear: true},
+          ],
+          actionMetas: null,
+          config: {
+              form: {
+                  type: 'group',
+                  editSource: 'remote' // 声明编辑的数据来自于远程服务器
+              }
+          },
+      },
+      created() {},
+      methods: {
+
+      }
+  });
+</script>
+</html>

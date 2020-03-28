@@ -1,0 +1,149 @@
+/*容器样式*/
+.iz-container {
+    padding: 5px;
+    height: 100%;
+}
+/*组件之间的间隔*/
+.iz-component-gutter {
+    margin: 5px 0px;
+}
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    display: -webkit-flex;
+}
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    display: -webkit-flex;
+}
+.flex-grow-normal {
+    flex-grow: 0;
+}
+.flex-grow-remain {
+    flex-grow: 1;
+}
+.justify-start {
+    justify-content: start;
+}
+.justify-between {
+    justify-content: space-between;
+}
+.justify-end {
+    justify-content: end;
+}
+.justify-center {
+    justify-content: center;
+}
+/*操作项样式*/
+.iz-opera-icon:hover {
+    font-size: 18px;
+}
+.iz-opera-icon.disabled {
+    cursor: not-allowed;
+}
+/*边框样式*/
+.iz-basic-border {
+    border: 1px solid #d7dde4;
+}
+.iz-border-radius {
+    border-radius: 3px;
+}
+/*搜索组件样式*/
+.iz-basic-search {
+    padding: 4px;
+    background-color: #FFFFFF;
+}
+.iz-basic-search .iz-search-form {
+
+}
+.iz-basic-search .iz-basic-opera {
+    height: 32px;
+}
+.iz-basic-search .ant-form.ant-form-horizontal {
+    padding: 3px 8px 3px 12px;
+}
+.iz-basic-search .ant-form-item {
+    margin: 0px;
+}
+/*表单组件*/
+.ant-form-item {
+    margin-bottom: 20px;
+}
+.ant-form-item-with-help {
+    margin-bottom: 1px;
+}
+.ant-form-item-label label:after {
+    margin: 0px 1px;
+}
+/*表组件样式*/
+.ant-table-small>.ant-table-content>.ant-table-scroll>.ant-table-header>table>.ant-table-thead>tr>th,
+.ant-table-small > .ant-table-content > .ant-table-fixed-left > .ant-table-header > table > .ant-table-thead > tr > th,
+.ant-table-small > .ant-table-content > .ant-table-fixed-right > .ant-table-header > table > .ant-table-thead > tr > th{
+    background: #eaedf1 !important;
+}
+.ant-table-pagination.ant-pagination {
+    margin: 8px!important;
+}
+.iz-empty-column {
+    display: none;
+    padding: 0px!important;
+    border-right: 0px!important;
+}
+.iz-basic-table {
+    margin: 0px;
+    padding: 7px;
+    background-color: #FFFFFF;
+}
+.iz-opera {
+    float: left;
+    height: 24px;
+    cursor: pointer;
+    line-height: 24px;
+    margin: 0px 3px;
+}
+.iz-opera.iz-t{
+
+}
+.iz-opera.iz-tm{
+
+}
+/*抽屉表单组件*/
+/*抽屉表单操作按钮样式*/
+.iz-drawer-form-wrap .iz-opera-row {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    position: absolute;
+    padding: 10px 16px;
+    background: #fff;
+    text-align: left;
+    border-top: 1px solid #e9e9e9;
+}
+.iz-drawer-form-wrap { /*抽屉外层样式*/
+
+}
+.iz-drawer-form-wrap .ant-drawer-header {
+    width: 100%;
+    z-index: 100;
+    padding: 12px;
+    position: absolute;
+}
+.iz-drawer-form-wrap .ant-drawer-body {
+    padding: 16px;
+    margin-top: 38px;
+    margin-bottom: 32px;
+}
+
+.ant-drawer-body .ant-spin-nested-loading, .ant-drawer-body .ant-spin-container {
+    position: static!important;
+}
+
+/*树组件样式*/
+.iz-tree-node {
+}
+.iz-tree-col {
+    float: left;
+    height: 24px;
+    line-height: 12px;
+}

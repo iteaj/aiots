@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <th:block th:include="libs :: header('字典管理')"></th:block>
+</head>
+<body>
+  <div id="DictComponent">
+    <ivz-edit-view ref="vbt" :metas="metas" :config="config" :search-metas="searchMetas"></ivz-edit-view>
+    <ivz-drawer-edit-table :metas="dictData.metas" :action-metas="dictData.actionMetas"
+        :config="dictData.config" ref="det" :height="300"></ivz-drawer-edit-table>
+  </div>
+  <th:block th:include="libs :: footer"></th:block>
+</body>
+<script>
+  let vue = new Vue({
+      el: "#DictComponent",
+      data: {
+          editRow: null,
+          metas: [
+              {field: 'name', title: '字典名称', width: 180, required: true, editable: true},
+              {field: 'type', title: '字典类型', required: true, editable: true},
+              {field: 'status', title: '状态', type: 'select', data: [
+                      {label: '启用', value: '正常'}, {label: '禁用', value: '禁用'}
+                  ], default: '正常', editable: true, width: 180},
+              {field: 'remark', title: '备注', width: 280, editable: true},
+              {field: 'createTime', title: '创建时间', width: 160, type: 'date', isForm: false},
+              {field: 'action', title: '操作', type: 'action'},
+          ],
+          searchMetas: [
+              {field: 'status', title: '状态', type: 'select', data: [
+                      {label: '启用', value: '正常'}, {label: '禁用', value: '禁用'}
+                  ], span: 8},
+          ],
+          dictData: {
+              metas: [
+                  {field: 'type', title: '字典类型', width: 120},
+                  {field: 'label', title: '标签', type: 'text', width: 120, editable: true},
+                  {field: 'value', title: '字典值', type: 'text', width: 100, editable: true},
+                  {field: 'remark', title: '备注', type: 'text', width: 160, editable: true},
+                  {field: 'action', title: '操作', type: 'action', width: 160}
+              ],
+              config: {
+                  table: {
+                      scroll: {y: 180}
+                  }
+              },
+              actionMetas: {}
+          },
+          config: {
+              form: {}
+          }
+      },
+      created() {
+          this.$page.addActionMeta("DictData", {id: 'dictData', position: 'T'
+            , label: '字典数据', color: 'green', callBack: (row) => {
+              return new Promise((resolve, reject) => {
+                if(row['id']) {
+                  vue.editRow = row
+                  this.$refs['det'].open()
+                }
+                return reject();
+              })
+            }
+          })
+          this.dictData.actionMetas['Del'] = this.$page.getActionMeta('Del', {url: '/core/dictData/del'})
+          this.dictData.actionMetas['Edit'] = this.$page.getActionMeta('Edit', {url: '/core/dictData/edit'})
+          this.dictData.actionMetas['Save'] = this.$page.getActionMeta('Save', {})
+          this.dictData.actionMetas['Add'] = this.$page.getActionMeta('Add', {
+              url: '/core/dictData/add',
+              callBack: (row) => {
+                  return new Promise((resolve, reject) => {
+                      row['type'] = this.editRow['type'];
+                      return resolve()
+                  })
+              }
+          });
+          this.dictData.actionMetas['View'] = this.$page.getActionMeta('View', {
+              url: '/core/dictData/view',
+              callBack: (row) => {
+                  return new Promise((resolve, reject) => {
+                      row['type'] = this.editRow['type'];
+                      return resolve()
+                  })
+              }
+          });
+          this.dictData.actionMetas['Cancel'] = this.$page.getActionMeta('Cancel', {})
+      },
+      mounted() { },
+      methods: {
+
+      }
+  });
+</script>
+</html>

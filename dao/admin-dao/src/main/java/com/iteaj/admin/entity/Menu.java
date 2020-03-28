@@ -1,0 +1,160 @@
+package com.iteaj.admin.entity;
+
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.iteaj.admin.enums.MenuType;
+import com.iteaj.admin.enums.ViewType;
+import com.iteaj.framework.TreeEntity;
+import com.iteaj.framework.UrlResource;
+import com.iteaj.framework.consts.PermStatus;
+import com.iteaj.framework.consts.Position;
+
+public class Menu extends TreeEntity implements UrlResource {
+
+    /**菜单地址*/
+    private String url;
+    /**菜单名称*/
+    @TableField(condition = SqlCondition.LIKE)
+    private String name;
+    /**所属模块的模块编码*/
+    private String msn;
+    /**排序*/
+    private Integer sort;
+    /**图标*/
+    private String icon;
+    /**是否显示*/
+    private PermStatus status;
+    /**权限列表, Shiro使用的格式*/
+    private String perms;
+    /**备注*/
+    private String remark;
+    /**菜单类型*/
+    private MenuType type;
+    /**权限类型*/
+    private String permType;
+    /**功能点放置的位置*/
+    @TableField(fill = FieldFill.UPDATE)
+    private Position position;
+
+    public Menu() {  }
+
+    public Menu(Long pid, String url, String name, String msn
+            , Integer sort, String permType, String perms, Position position) {
+        setPid(pid);
+        this.url = url;
+        this.name = name;
+        this.msn = msn;
+        this.sort = sort;
+        this.perms = perms;
+        this.permType = permType;
+        this.position = position;
+    }
+
+    public static Menu AuthMenu(Long pid, String url, String name
+            , String msn, String permType, String perms, Position position) {
+        return new Menu(pid, url, name, msn, null
+                , permType, perms, position).setType(MenuType.A);
+    }
+
+    @Override
+    public String getUrl() {
+        return url;
+    }
+
+    @Override
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getMsn() {
+        return msn;
+    }
+
+    public Menu setMsn(String msn) {
+        this.msn = msn;
+        return this;
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public Menu setSort(Integer sort) {
+        this.sort = sort;
+        return this;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public Menu setIcon(String icon) {
+        this.icon = icon;
+        return this;
+    }
+
+    public PermStatus getStatus() {
+        return status;
+    }
+
+    public Menu setStatus(PermStatus status) {
+        this.status = status;
+        return this;
+    }
+
+    public String getPerms() {
+        return perms;
+    }
+
+    public Menu setPerms(String perms) {
+        this.perms = perms;
+        return this;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public Menu setRemark(String remark) {
+        this.remark = remark;
+        return this;
+    }
+
+    public MenuType getType() {
+        return type;
+    }
+
+    public Menu setType(MenuType type) {
+        this.type = type;
+        return this;
+    }
+
+    public String getPermType() {
+        return permType;
+    }
+
+    public Menu setPermType(String permType) {
+        this.permType = permType;
+        return this;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public Menu setPosition(Position position) {
+        this.position = position;
+        return this;
+    }
+}

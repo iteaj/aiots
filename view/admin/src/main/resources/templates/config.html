@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <th:block th:include="libs :: header('系统配置')"></th:block>
+</head>
+<body>
+  <div id="UserPage">
+    <ivz-drawer-view ref="vbt" :metas="metas" :config="config" :search-metas="searchMetas"></ivz-drawer-view>
+  </div>
+</body>
+<th:block th:include="libs :: footer"></th:block>
+<script>
+    let status = [
+        {value: '正常', label: '正常'},
+        {value: '禁用', label: '禁用'},
+    ];
+    let ConfigType = [
+        {value: 'def', label: '默认'},
+        {value: 'sys', label: '系统'}
+    ];
+  let vue = new Vue({
+      el: "#UserPage",
+      data: {
+          metas: [
+              {field: 'name', title: '配置名称', required: true},
+              {field: 'label', title: '配置标签', required: true, disabled: (row) => {
+                      if(row) return row['id']
+                      else return false
+                  }},
+              {field: 'value', title: '配置值', required: true},
+              {field: 'type', title: '配置类型', type: 'radio', default: 'def', data: ConfigType},
+              {field: 'remark', title: '备注'},
+              {field: 'createTime', title: '创建时间', type: 'date', width: 160, isForm: false},
+              {field: 'action', title: '操作', type: 'action', width: 220}
+          ],
+          searchMetas: [
+              {field: 'name', title: '配置名称', clear: true},
+              {field: 'type', title: '配置类型', type: 'radio', data: ConfigType}
+          ],
+          actionMetas: null,
+          config: {
+              form: {
+
+              },
+              table: {
+
+              }
+          },
+      },
+      created() {
+          this.$page.setActionMeta("Del", {disabled: function(row){
+              // 如果是系统配置不能删除
+              return row['type'] === 'sys';
+          }});
+      },
+      methods: {
+
+      }
+  });
+</script>
+</html>
