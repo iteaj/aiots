@@ -1,13 +1,12 @@
-package com.iteaj.framework.shiro;
+package com.iteaj.admin.service;
 
 import com.google.code.kaptcha.Constants;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.api.AuthorizingService;
-import com.iteaj.framework.authority.DefaultAuthToken;
-import com.iteaj.framework.consts.AuthEventType;
-import com.iteaj.framework.observer.event.AuthEvent;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
-import com.iteaj.framework.utils.EventUtils;
+import com.iteaj.izone.spi.DefaultAuthToken;
+import com.iteaj.izone.web.shiro.CommonAuthenticationException;
+import com.iteaj.izone.web.shiro.ShiroTokenDecorate;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
@@ -67,7 +66,6 @@ public class UserPasswordRealm extends AuthorizingRealm {
         clearAuthenticationInfo(session, token);
 
         // 触发登录认证事件
-        triggerAuthEvent(admin, AuthEventType.LOGIN);
         return new SimpleAuthenticationInfo(admin, password, getName());
     }
 
@@ -89,15 +87,5 @@ public class UserPasswordRealm extends AuthorizingRealm {
     @Override
     public void onLogout(PrincipalCollection principals) {
         super.onLogout(principals);
-        this.triggerAuthEvent((BaseEntity) principals.getPrimaryPrincipal(), AuthEventType.LOGOUT);
-    }
-
-    /**
-     * 触发认证事件
-     * @param admin
-     * @param type
-     */
-    public void triggerAuthEvent(BaseEntity admin, AuthEventType type) {
-        EventUtils.getEventBus().publish(new AuthEvent(admin,  type));
     }
 }

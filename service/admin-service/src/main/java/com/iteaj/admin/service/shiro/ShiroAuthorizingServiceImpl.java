@@ -14,9 +14,8 @@ import com.iteaj.framework.Resource;
 import com.iteaj.framework.UrlResource;
 import com.iteaj.framework.api.AuthorizingService;
 import com.iteaj.framework.authority.AuthException;
-import com.iteaj.framework.authority.AuthToken;
-import com.iteaj.framework.authority.ModuleResource;
 import com.iteaj.framework.utils.ShiroUtils;
+import com.iteaj.izone.spi.AuthToken;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.util.module.mvc.ServiceException;
 import com.iteaj.util.module.mvc.result.ListResult;
@@ -78,11 +77,6 @@ public class ShiroAuthorizingServiceImpl implements AuthorizingService<AuthToken
                     , Admin.class.getSimpleName());
             return false;
         }
-    }
-
-    @Override
-    public ModuleResource getModuleResource(BaseEntity admin, String msn) {
-        return null;
     }
 
     @Override

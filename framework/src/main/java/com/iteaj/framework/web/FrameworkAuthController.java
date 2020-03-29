@@ -6,15 +6,14 @@ import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.Producer;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.api.AuthorityManager;
 import com.iteaj.framework.api.AuthorizingService;
 import com.iteaj.framework.authority.AuthException;
 import com.iteaj.framework.authority.AuthService;
-import com.iteaj.framework.authority.DefaultAuthToken;
-import com.iteaj.framework.shiro.CommonAuthenticationException;
-import com.iteaj.framework.shiro.ShiroTokenDecorate;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.utils.ShiroUtils;
+import com.iteaj.izone.spi.DefaultAuthToken;
+import com.iteaj.izone.web.shiro.CommonAuthenticationException;
+import com.iteaj.izone.web.shiro.ShiroTokenDecorate;
 import com.iteaj.util.Result;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -48,16 +47,13 @@ public class FrameworkAuthController extends BaseController {
     private final Producer producer;
     private final AuthService authService;
     private final FrameworkProperties properties;
-    private final AuthorityManager authorityManager;
     @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
     private AuthorizingService authorizingService;
 
-    public FrameworkAuthController(AuthorityManager authorityManager,
-                                   FrameworkProperties properties, Producer producer, AuthService authService) {
+    public FrameworkAuthController(FrameworkProperties properties, Producer producer, AuthService authService) {
         this.producer = producer;
         this.properties = properties;
         this.authService = authService;
-        this.authorityManager = authorityManager;
     }
 
     /**
@@ -168,7 +164,7 @@ public class FrameworkAuthController extends BaseController {
     @GetMapping("/resources")
     public Result resources() {
         BaseEntity principal = ShiroUtils.getPrincipal();
-        return success().add("resources", authorityManager.getResources(principal));
+        return success().add("resources", authorizingService.getResources(principal));
     }
 
     /**
@@ -179,7 +175,7 @@ public class FrameworkAuthController extends BaseController {
     @ResponseBody
     @GetMapping("/point")
     public Result getFunctionPoint(Long id) {
-        return success().add("rows", authorityManager.getFunctionPoint(id));
+        return success().add("rows", authorizingService.getFunctionPoint(id));
     }
 
     private void handleResponseHeader(HttpServletResponse response) {

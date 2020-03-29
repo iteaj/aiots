@@ -3,17 +3,22 @@ package com.iteaj.admin;
 import com.alipay.sofa.runtime.api.annotation.SofaReference;
 import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.google.code.kaptcha.Producer;
+import com.iteaj.admin.service.UserPasswordRealm;
 import com.iteaj.framework.api.AuthorizingService;
 import com.iteaj.framework.captcha.KaptchaCreator;
-import com.iteaj.framework.shiro.UserPasswordRealm;
-import com.iteaj.framework.spring.boot.config.ShiroConfiguration;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.izone.web.shiro.OrderShiroFilterChainDefinition;
+import com.iteaj.izone.web.shiro.ShiroAuthUrl;
+import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 
 /**
  * create time: 2020/3/29
@@ -23,19 +28,41 @@ import org.springframework.context.annotation.Primary;
  */
 @Configuration
 @MapperScan(basePackages = {"com.iteaj.admin.dao"})
-@ImportAutoConfiguration(value = ShiroConfiguration.class)
 public class AdminAuthzConfiguration {
-
+    @Autowired
+    private FrameworkProperties properties;
     @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
     private AuthorizingService authorizingService;
+
+    /**
+     * Shiro权限认证的主路径拦截声明
+     * @return
+     */
+    @Bean
+    @Order(value = 88) //用来声明权限路径的拦截
+    public OrderShiroFilterChainDefinition adminFilterChainDefinition() {
+        OrderShiroFilterChainDefinition chain = new OrderShiroFilterChainDefinition();
+
+        chain.addPathDefinition("/login", "anon");
+        chain.addPathDefinition("/captcha", "anon");
+        return chain;
+    }
 
     /**
      *  以用户名密码方式登录的权限Realm
      * @return
      */
     @Bean
-    public Realm userPasswordRealm() {
-        return new UserPasswordRealm(authorizingService);
+    public Realm userPasswordRealm(@Qualifier("securityManager") RealmSecurityManager securityManager) {
+        UserPasswordRealm userPasswordRealm = new UserPasswordRealm(authorizingService);
+        securityManager.setRealm(userPasswordRealm);
+        return userPasswordRealm;
+    }
+
+    @Bean
+    public ShiroAuthUrl shiroAuthUrl() {
+        FrameworkProperties.Auth auth = properties.getAuth();
+        return new ShiroAuthUrl(auth.getLoginUrl(), auth.getSuccessUrl(), auth.getUnauthorizedUrl());
     }
 
     /**

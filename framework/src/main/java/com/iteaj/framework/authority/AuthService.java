@@ -1,5 +1,8 @@
 package com.iteaj.framework.authority;
 
+
+import com.iteaj.izone.spi.AuthToken;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

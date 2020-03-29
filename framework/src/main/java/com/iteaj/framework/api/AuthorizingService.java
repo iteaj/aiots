@@ -4,8 +4,7 @@ import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.Resource;
 import com.iteaj.framework.UrlResource;
 import com.iteaj.framework.authority.AuthException;
-import com.iteaj.framework.authority.AuthToken;
-import com.iteaj.framework.authority.ModuleResource;
+import com.iteaj.izone.spi.AuthToken;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -32,14 +31,6 @@ public interface AuthorizingService<T extends AuthToken> {
      * @return
      */
     boolean validCredentials(BaseEntity admin, T token);
-
-    /**
-     * 获取指定管理员下面的指定Url权限资源列表
-     * @param admin
-     * @param msn
-     * @return
-     */
-    ModuleResource getModuleResource(BaseEntity admin, String msn);
 
     /**
      * 返回指定用戶的权限资源
