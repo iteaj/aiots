@@ -50,10 +50,10 @@
               form: {}
           }
       },
-      created() {
+      created: function() {
           this.$page.addActionMeta("DictData", {id: 'dictData', position: 'T'
-            , label: '字典数据', color: 'green', callBack: (row) => {
-              return new Promise((resolve, reject) => {
+            , label: '字典数据', color: 'green', callBack: function(row) {
+              return new Promise(function(resolve, reject) {
                 if(row['id']) {
                   vue.editRow = row
                   this.$refs['det'].open()
@@ -67,8 +67,8 @@
           this.dictData.actionMetas['Save'] = this.$page.getActionMeta('Save', {})
           this.dictData.actionMetas['Add'] = this.$page.getActionMeta('Add', {
               url: '/core/dictData/add',
-              callBack: (row) => {
-                  return new Promise((resolve, reject) => {
+              callBack: function(row) {
+                  return new Promise(function(resolve, reject) {
                       row['type'] = this.editRow['type'];
                       return resolve()
                   })
@@ -76,8 +76,8 @@
           });
           this.dictData.actionMetas['View'] = this.$page.getActionMeta('View', {
               url: '/core/dictData/view',
-              callBack: (row) => {
-                  return new Promise((resolve, reject) => {
+              callBack: function(row) {
+                  return new Promise(function(resolve, reject) {
                       row['type'] = this.editRow['type'];
                       return resolve()
                   })
@@ -85,10 +85,6 @@
           });
           this.dictData.actionMetas['Cancel'] = this.$page.getActionMeta('Cancel', {})
       },
-      mounted() { },
-      methods: {
-
-      }
   });
 </script>
 </html>

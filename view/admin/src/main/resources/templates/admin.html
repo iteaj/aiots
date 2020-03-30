@@ -48,7 +48,7 @@
               metas: [
                   {field: 'password', title: '密码', type: 'password', required: true, span: [8, 16, 18]},
                   {field: 'surePassword', title: '确认密码', type: 'password'
-                      , required: true, span: [8, 16, 18], validator: (rule, value, call) => {
+                      , required: true, span: [8, 16, 18], validator: function(rule, value, call) {
                           let editModel = vue.$refs['mf'].$basicForm.getEditModel();
                           if(editModel['password'] === editModel['surePassword']) {
                               call()
@@ -64,20 +64,13 @@
           config: {
               form: {
                   type: 'group',
-                  editSource: 'remote',
-                  mountedFinished: (formVue) => {
-                      console.log(formVue)
-                      formVue.basicFormRef.$nextTick(() => {
-                          formVue.basicFormRef.$forceUpdate()
-                      })
-                  }
               },
               table: {
 
               }
           },
       },
-      created() {
+      created: function() {
           let _this = this;
           this.$page.setActionMeta("Pwd", {callBack: function(model) {
                   return new Promise(function(resolve, reject) {

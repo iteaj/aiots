@@ -23,7 +23,7 @@
       data: {
           metas: [
               {field: 'name', title: '配置名称', required: true},
-              {field: 'label', title: '配置标签', required: true, disabled: (row) => {
+              {field: 'label', title: '配置标签', required: true, disabled: function(row) {
                       if(row) return row['id']
                       else return false
                   }},
@@ -47,7 +47,7 @@
               }
           },
       },
-      created() {
+      created: function() {
           this.$page.setActionMeta("Del", {disabled: function(row){
               // 如果是系统配置不能删除
               return row['type'] === 'sys';

@@ -35,7 +35,7 @@
                               , dropdownStyle: {maxHeight: '320px'}
                             }
                           , event: {
-                              change (row) {
+                              change: function(row) {
                                   console.log(vue.editModel)
                               }
                           }
@@ -57,10 +57,6 @@
               }
           },
       },
-      created() {},
-      methods: {
-
-      }
   });
 </script>
 </html>
