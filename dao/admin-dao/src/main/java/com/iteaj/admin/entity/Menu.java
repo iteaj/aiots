@@ -4,11 +4,10 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.admin.enums.MenuType;
-import com.iteaj.admin.enums.ViewType;
 import com.iteaj.framework.TreeEntity;
-import com.iteaj.framework.UrlResource;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.consts.Position;
+import com.iteaj.izone.spi.UrlResource;
 
 public class Menu extends TreeEntity implements UrlResource {
 

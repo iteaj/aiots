@@ -4,11 +4,11 @@ import com.alipay.sofa.runtime.api.annotation.SofaReference;
 import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.google.code.kaptcha.Producer;
 import com.iteaj.admin.service.UserPasswordRealm;
-import com.iteaj.framework.api.AuthorizingService;
 import com.iteaj.framework.captcha.KaptchaCreator;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.izone.spi.AuthorizingService;
+import com.iteaj.izone.spi.AuthzUrl;
 import com.iteaj.izone.web.shiro.OrderShiroFilterChainDefinition;
-import com.iteaj.izone.web.shiro.ShiroAuthUrl;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.mybatis.spring.annotation.MapperScan;
@@ -60,9 +60,9 @@ public class AdminAuthzConfiguration {
     }
 
     @Bean
-    public ShiroAuthUrl shiroAuthUrl() {
+    public AuthzUrl shiroAuthUrl() {
         FrameworkProperties.Auth auth = properties.getAuth();
-        return new ShiroAuthUrl(auth.getLoginUrl(), auth.getSuccessUrl(), auth.getUnauthorizedUrl());
+        return new AuthzUrl(auth.getLoginUrl(), auth.getSuccessUrl(), auth.getUnauthorizedUrl());
     }
 
     /**

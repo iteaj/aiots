@@ -5,10 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.admin.enums.Status;
 import com.iteaj.admin.enums.ViewType;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.authority.TreeResource;
+import com.iteaj.izone.spi.TreeResource;
 import com.iteaj.util.CommonUtils;
-import org.apache.ibatis.type.ArrayTypeHandler;
-import org.apache.ibatis.type.JdbcType;
 
 import java.util.ArrayList;
 import java.util.Collection;

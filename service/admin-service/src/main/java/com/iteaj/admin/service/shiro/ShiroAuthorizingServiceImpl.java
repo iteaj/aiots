@@ -10,15 +10,23 @@ import com.iteaj.admin.service.IAdminService;
 import com.iteaj.admin.service.IConfigService;
 import com.iteaj.admin.service.IMenuService;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.Resource;
-import com.iteaj.framework.UrlResource;
-import com.iteaj.framework.api.AuthorizingService;
 import com.iteaj.framework.authority.AuthException;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.utils.ShiroUtils;
-import com.iteaj.izone.spi.AuthToken;
+import com.iteaj.izone.spi.AuthorizingService;
+import com.iteaj.izone.spi.Resource;
+import com.iteaj.izone.spi.UrlResource;
+import com.iteaj.izone.web.shiro.ShiroAuthToken;
 import com.iteaj.util.DigestUtils;
+import com.iteaj.util.Result;
+import com.iteaj.util.module.mvc.HttpResult;
 import com.iteaj.util.module.mvc.ServiceException;
+import com.iteaj.util.module.mvc.orm.Entity;
 import com.iteaj.util.module.mvc.result.ListResult;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.CredentialsException;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.EnvironmentAware;
@@ -35,40 +43,76 @@ import java.util.stream.Collectors;
  */
 @Service
 @SofaService(interfaceType = AuthorizingService.class, bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
-public class ShiroAuthorizingServiceImpl implements AuthorizingService<AuthToken>, EnvironmentAware {
+public class ShiroAuthorizingServiceImpl implements AuthorizingService<ShiroAuthToken>, EnvironmentAware {
 
     private final IMenuService menuService;
     private final IAdminService adminService;
     private final IConfigService configService;
+    private final FrameworkProperties properties;
 
     private Environment environment;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     public ShiroAuthorizingServiceImpl(IMenuService menuService
-            , IAdminService adminService, IConfigService configService) {
+            , IAdminService adminService, IConfigService configService, FrameworkProperties properties) {
         this.menuService = menuService;
         this.adminService = adminService;
         this.configService = configService;
+        this.properties = properties;
     }
 
     @Override
-    public BaseEntity getAdmin(AuthToken token) {
+    public Result login(ShiroAuthToken token) {
+        try {
+            // 登录
+            SecurityUtils.getSubject().login(token);
+        } catch (UnknownAccountException e) {
+            logger.error("账号不存在", e);
+            return HttpResult.Fail("账号不存在");
+        } catch (CredentialsException e) {
+            logger.error("账号密码不匹配", e);
+            return HttpResult.Fail("账号密码不匹配");
+        } catch (AuthenticationException e) {
+            logger.error("认证失败", e);
+            return HttpResult.Fail(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return HttpResult.Fail("认证失败");
+        }
+
+        return HttpResult.Success("认证成功").add("successUrl"
+                , properties.getAuth().getSuccessUrl());
+    }
+
+    @Override
+    public Result logout(Entity admin) {
+        try {
+            SecurityUtils.getSubject().logout();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return HttpResult.Fail("注销失败");
+        }
+        return HttpResult.Success("注销成功").add("loginUrl"
+                , properties.getAuth().getLoginUrl());
+    }
+
+    @Override
+    public BaseEntity getAdmin(ShiroAuthToken token) {
         if(null == token) throw new AuthException("错误的token");
 
         long start = System.currentTimeMillis();
-        Admin byAccount = adminService.getByAccount((String) token.getPrincipal());
+        Admin byAccount = adminService.getByAccount(token.getPrincipal());
         System.out.println(System.currentTimeMillis() - start);
         return byAccount;
     }
 
     @Override
-    public boolean validCredentials(BaseEntity admin, AuthToken token) {
+    public boolean validCredentials(Entity admin, ShiroAuthToken token) {
         if(admin instanceof Admin) {
-            char[] tokenPassword = ((String) token.getCredentials()).toCharArray();
             String password = ((Admin) admin).getPassword().toUpperCase();
 
-            String toString = String.valueOf(tokenPassword);
+            String toString = String.valueOf(token.getPassword());
             String md5Hex = DigestUtils.md5Hex(toString.getBytes()).toUpperCase();
 
             return Objects.equals(password, md5Hex);
@@ -80,11 +124,11 @@ public class ShiroAuthorizingServiceImpl implements AuthorizingService<AuthToken
     }
 
     @Override
-    public List<Resource> getResources(BaseEntity principal) {
+    public List<Resource> getResources(Entity principal) {
         if(null == principal) throw new ServiceException("用户未登录");
         ListResult<Menu> menuTrees = menuService
-                .selectMenuBarTrees(principal.getId()
-                        , ShiroUtils.isSuper(principal.getId()));
+                .selectMenuBarTrees((Long) principal.getId()
+                        , ShiroUtils.isSuper((Long) principal.getId()));
 
         return menuTrees.get().stream().collect(Collectors.toList());
     }
@@ -98,17 +142,17 @@ public class ShiroAuthorizingServiceImpl implements AuthorizingService<AuthToken
     }
 
     @Override
-    public Collection<String> getRoles(BaseEntity admin) {
+    public Collection<String> getRoles(Entity admin) {
         return null;
     }
 
     @Override
-    public Collection<String> getPermissions(BaseEntity admin) {
+    public Collection<String> getPermissions(Entity admin) {
         return null;
     }
 
     @Override
-    public Map<String, Object> getEnvConfig(BaseEntity entity) {
+    public Map<String, Object> getEnvConfig(Entity entity) {
         Map<String, Object> config = new HashMap<>();
         // 当前登录用户
         Admin admin = (Admin)entity;

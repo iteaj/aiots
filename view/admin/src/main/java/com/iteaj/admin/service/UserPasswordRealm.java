@@ -2,11 +2,10 @@ package com.iteaj.admin.service;
 
 import com.google.code.kaptcha.Constants;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.api.AuthorizingService;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
-import com.iteaj.izone.spi.DefaultAuthToken;
-import com.iteaj.izone.web.shiro.CommonAuthenticationException;
-import com.iteaj.izone.web.shiro.ShiroTokenDecorate;
+import com.iteaj.izone.spi.AuthorizingService;
+import com.iteaj.izone.web.shiro.ShiroAuthToken;
+import com.iteaj.util.module.mvc.orm.Entity;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
@@ -44,18 +43,18 @@ public class UserPasswordRealm extends AuthorizingRealm {
             throw new UnsupportedTokenException("暂不支持使用其他token登录");
 
         Session session = SecurityUtils.getSubject().getSession();
-        ShiroTokenDecorate tokenDecorate = (ShiroTokenDecorate) token;
-        DefaultAuthToken authToken = tokenDecorate.getAuthToken();
+        ShiroAuthToken authToken = (ShiroAuthToken) token;
+
         if(frameworkProperties.getAuth().isCaptchaEnabled()) {
             String kaptcha = (String)session.getAttribute(Constants.KAPTCHA_SESSION_KEY);
             if(!Objects.equals(kaptcha, authToken.getCaptcha())) {
-                throw new CommonAuthenticationException("验证码错误");
+                throw new AuthenticationException("验证码错误");
             }
         }
 
         // 验证账号是否存在
-        String username = tokenDecorate.getUsername();
-        BaseEntity admin = authorizingService.getAdmin(authToken);
+        String username = authToken.getUsername();
+        Entity admin = authorizingService.getAdmin(authToken);
         if(null == admin) throw new UnknownAccountException("账号不存在：" + username);
 
         // 校验密码
