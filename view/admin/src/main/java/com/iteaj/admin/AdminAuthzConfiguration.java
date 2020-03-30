@@ -12,7 +12,6 @@ import com.iteaj.izone.web.shiro.OrderShiroFilterChainDefinition;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -29,10 +28,14 @@ import org.springframework.core.annotation.Order;
 @Configuration
 @MapperScan(basePackages = {"com.iteaj.admin.dao"})
 public class AdminAuthzConfiguration {
-    @Autowired
-    private FrameworkProperties properties;
+
+    private final FrameworkProperties properties;
     @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
     private AuthorizingService authorizingService;
+
+    public AdminAuthzConfiguration(FrameworkProperties properties) {
+        this.properties = properties;
+    }
 
     /**
      * Shiro权限认证的主路径拦截声明
