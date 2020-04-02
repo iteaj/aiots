@@ -21,17 +21,17 @@ import org.springframework.util.Assert;
 
 import java.util.Objects;
 
-public class UserPasswordRealm extends AuthorizingRealm {
+public class AdminUserPasswordRealm extends AuthorizingRealm {
 
     @Autowired
     private FrameworkProperties frameworkProperties;
     private AuthorizingService authorizingService;
 
-    public UserPasswordRealm(AuthorizingService authorizingService) {
+    public AdminUserPasswordRealm(AuthorizingService authorizingService) {
         this(null, null, authorizingService);
     }
 
-    public UserPasswordRealm(CacheManager cacheManager, CredentialsMatcher matcher, AuthorizingService authorizingService) {
+    public AdminUserPasswordRealm(CacheManager cacheManager, CredentialsMatcher matcher, AuthorizingService authorizingService) {
         super(cacheManager, matcher);
         this.authorizingService = authorizingService;
         Assert.notNull(authorizingService, "为创建授权服务："+AuthorizingService.class);

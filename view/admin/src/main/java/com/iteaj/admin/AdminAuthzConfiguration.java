@@ -1,9 +1,7 @@
 package com.iteaj.admin;
 
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.google.code.kaptcha.Producer;
-import com.iteaj.admin.service.UserPasswordRealm;
+import com.iteaj.admin.service.AdminUserPasswordRealm;
 import com.iteaj.framework.captcha.KaptchaCreator;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.izone.spi.AuthorizingService;
@@ -30,11 +28,11 @@ import org.springframework.core.annotation.Order;
 public class AdminAuthzConfiguration {
 
     private final FrameworkProperties properties;
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private AuthorizingService authorizingService;
+    private final AuthorizingService authorizingService;
 
-    public AdminAuthzConfiguration(FrameworkProperties properties) {
+    public AdminAuthzConfiguration(FrameworkProperties properties, AuthorizingService authorizingService) {
         this.properties = properties;
+        this.authorizingService = authorizingService;
     }
 
     /**
@@ -57,7 +55,7 @@ public class AdminAuthzConfiguration {
      */
     @Bean
     public Realm userPasswordRealm(@Qualifier("securityManager") RealmSecurityManager securityManager) {
-        UserPasswordRealm userPasswordRealm = new UserPasswordRealm(authorizingService);
+        AdminUserPasswordRealm userPasswordRealm = new AdminUserPasswordRealm(authorizingService);
         securityManager.setRealm(userPasswordRealm);
         return userPasswordRealm;
     }

@@ -8,6 +8,7 @@ import com.iteaj.framework.utils.ShiroUtils;
 import com.iteaj.izone.spi.AuthorizingService;
 import com.iteaj.izone.web.shiro.ShiroAuthToken;
 import com.iteaj.util.Result;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ import java.util.Map;
 
 /**
  * create time: 2019/12/6
- *  认证服务
+ *  框架权限认证服务
  * @author iteaj
  * @since 1.0
  */
@@ -25,8 +26,11 @@ import java.util.Map;
 @ConditionalOnBean(AuthorizingService.class)
 public class FrameworkAuthController extends BaseController {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private AuthorizingService authorizingService;
+    private final AuthorizingService authorizingService;
+
+    public FrameworkAuthController(AuthorizingService authorizingService) {
+        this.authorizingService = authorizingService;
+    }
 
     @GetMapping("/login")
     public String login() {

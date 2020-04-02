@@ -1,4 +1,4 @@
-package com.iteaj.admin.service.shiro;
+package com.iteaj.admin.service;
 
 import com.alipay.sofa.runtime.api.annotation.SofaService;
 import com.alipay.sofa.runtime.api.annotation.SofaServiceBinding;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @SofaService(interfaceType = AuthorizingService.class, bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
-public class ShiroAuthorizingServiceImpl implements AuthorizingService<ShiroAuthToken>, EnvironmentAware {
+public class AdminShiroAuthorizingService implements AuthorizingService<ShiroAuthToken>, EnvironmentAware {
 
     private final IMenuService menuService;
     private final IAdminService adminService;
@@ -54,7 +54,7 @@ public class ShiroAuthorizingServiceImpl implements AuthorizingService<ShiroAuth
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public ShiroAuthorizingServiceImpl(IMenuService menuService
+    public AdminShiroAuthorizingService(IMenuService menuService
             , IAdminService adminService, IConfigService configService, FrameworkProperties properties) {
         this.menuService = menuService;
         this.adminService = adminService;
@@ -99,11 +99,9 @@ public class ShiroAuthorizingServiceImpl implements AuthorizingService<ShiroAuth
 
     @Override
     public BaseEntity getAdmin(ShiroAuthToken token) {
-        if(null == token) throw new AuthException("错误的token");
+        if(null == token) throw new AuthException("错误的参数token");
 
-        long start = System.currentTimeMillis();
         Admin byAccount = adminService.getByAccount(token.getPrincipal());
-        System.out.println(System.currentTimeMillis() - start);
         return byAccount;
     }
 
