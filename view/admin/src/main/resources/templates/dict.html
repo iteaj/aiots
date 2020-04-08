@@ -29,7 +29,7 @@
           searchMetas: [
               {field: 'status', title: '状态', type: 'select', data: [
                       {label: '启用', value: '正常'}, {label: '禁用', value: '禁用'}
-                  ], span: 8},
+                  ]},
           ],
           dictData: {
               metas: [
@@ -56,7 +56,7 @@
               return new Promise(function(resolve, reject) {
                 if(row['id']) {
                   vue.editRow = row
-                  this.$refs['det'].open()
+                  vue.$refs['det'].open()
                 }
                 return reject();
               })
@@ -69,7 +69,7 @@
               url: '/core/dictData/add',
               callBack: function(row) {
                   return new Promise(function(resolve, reject) {
-                      row['type'] = this.editRow['type'];
+                      row['type'] = vue.editRow['type'];
                       return resolve()
                   })
               }
@@ -78,7 +78,7 @@
               url: '/core/dictData/view',
               callBack: function(row) {
                   return new Promise(function(resolve, reject) {
-                      row['type'] = this.editRow['type'];
+                      row['type'] = vue.editRow['type'];
                       return resolve()
                   })
               }

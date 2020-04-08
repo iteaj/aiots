@@ -152,8 +152,8 @@
           });
           this.$page.setActionMeta('Del', {callBack: function(model) {
               return new Promise(function(resolve, reject) {
-                  if(this.isNotBlank(model['children'])) {
-                      this.$msg.warningMessage('请先删除子级菜单');
+                  if(vue.isNotBlank(model['children'])) {
+                      vue.$msg.warningMessage('请先删除子级菜单');
                       return reject();
                   }
                   return resolve();

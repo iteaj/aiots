@@ -29,8 +29,8 @@
                       {field: 'status', title: '状态', clear: true, width:70, type: 'select', data: status},
                   ]},
               {field: 'role', title: '用户角色', metas: [
-                      {field: 'roleIds', title: '角色列表', type: 'checkbox', isTable: false, span: 24
-                          , ls:2, fs: 20, url: '/core/role/list'}
+                      {field: 'roleIds', title: '角色列表', type: 'checkbox', isTable: false
+                          , span: [2, 21, 24], url: '/core/role/list'}
                   ]},
               {field: 'other', title: '其他信息', metas: [
                       {field: 'email', title: '邮箱', width: 160, type: 'email'},
@@ -46,9 +46,9 @@
           ],
           modal: {
               metas: [
-                  {field: 'password', title: '密码', type: 'password', required: true, span: [8, 16, 18]},
+                  {field: 'password', title: '密码', type: 'password', required: true, span: [8, 14, 24]},
                   {field: 'surePassword', title: '确认密码', type: 'password'
-                      , required: true, span: [8, 16, 18], validator: function(rule, value, call) {
+                      , required: true, span: [8, 14, 24], validator: function(rule, value, call) {
                           let editModel = vue.$refs['mf'].$basicForm.getEditModel();
                           if(editModel['password'] === editModel['surePassword']) {
                               call()
