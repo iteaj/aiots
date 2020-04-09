@@ -34,13 +34,13 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
     public AdminUserPasswordRealm(CacheManager cacheManager, CredentialsMatcher matcher, AuthorizingService authorizingService) {
         super(cacheManager, matcher);
         this.authorizingService = authorizingService;
-        Assert.notNull(authorizingService, "为创建授权服务："+AuthorizingService.class);
+        Assert.notNull(authorizingService, "未创建授权服务："+AuthorizingService.class);
     }
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         if(!(token instanceof UsernamePasswordToken))
-            throw new UnsupportedTokenException("暂不支持使用其他token登录");
+            throw new UnsupportedTokenException("不支持的token");
 
         Session session = SecurityUtils.getSubject().getSession();
         ShiroAuthToken authToken = (ShiroAuthToken) token;

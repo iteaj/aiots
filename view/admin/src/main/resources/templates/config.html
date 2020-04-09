@@ -24,8 +24,7 @@
           metas: [
               {field: 'name', title: '配置名称', required: true},
               {field: 'label', title: '配置标签', required: true, disabled: function(row) {
-                      if(row) return row['id']
-                      else return false
+                      return row && row['id'] ? true : false;
                   }},
               {field: 'value', title: '配置值', required: true},
               {field: 'type', title: '配置类型', type: 'radio', default: 'def', data: ConfigType},
@@ -37,7 +36,6 @@
               {field: 'name', title: '配置名称', clear: true},
               {field: 'type', title: '配置类型', type: 'radio', data: ConfigType}
           ],
-          actionMetas: null,
           config: {
               form: {
 

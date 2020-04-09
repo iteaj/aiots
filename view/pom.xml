@@ -16,7 +16,7 @@
     <artifactId>view</artifactId>
 
     <modelVersion>4.0.0</modelVersion>
-    <description>后台管理系统各个web视图模块</description>
+    <description>管理端系统各个web视图模块</description>
 
     <dependencies>
         <dependency> <!--静态资源模块-->
