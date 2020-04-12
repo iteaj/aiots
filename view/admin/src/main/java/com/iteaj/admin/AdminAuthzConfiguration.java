@@ -9,7 +9,6 @@ import com.iteaj.izone.spi.AuthzUrl;
 import com.iteaj.izone.web.shiro.OrderShiroFilterChainDefinition;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +23,6 @@ import org.springframework.core.annotation.Order;
  * @since 1.0
  */
 @Configuration
-@MapperScan(basePackages = {"com.iteaj.admin.dao"})
 public class AdminAuthzConfiguration {
 
     private final FrameworkProperties properties;

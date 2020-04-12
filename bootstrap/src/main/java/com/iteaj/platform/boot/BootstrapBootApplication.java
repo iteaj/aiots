@@ -1,9 +1,11 @@
 package com.iteaj.platform.boot;
 
 import com.iteaj.izone.spi.IzoneApplication;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@MapperScan(basePackages = {"com.iteaj.admin.dao"})
 @SpringBootApplication(scanBasePackages = "com.iteaj.**")
 public class BootstrapBootApplication implements IzoneApplication {
 
