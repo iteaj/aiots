@@ -64,20 +64,20 @@
                           , data: MenuTypeOptions, width: 80, event: {
                               change: function(menuType, args) {
                                   if(menuType == 'V') {
-                                      args.bind({permType: 'View'});
+                                      vue.$page.bind({permType: 'View'});
                                       vue.typeValue = 'View';
                                       vue.typeDisabled = true;
                                       vue.$page.getMeta('position').disabled = true;
                                       vue.$page.getMeta('permType').disabled = true;
                                   } else if(menuType == 'M') {
-                                      args.bind({permType: ''});
+                                      vue.$page.bind({permType: ''});
                                       vue.typeValue = 'Customer';
                                       vue.typeDisabled = true;
                                       vue.$page.getMeta('position').disabled = true;
                                       vue.$page.getMeta('permType').disabled = true
                                   } else {
                                       vue.typeDisabled = false;
-                                      args.bind({permType: ''});
+                                      vue.$page.bind({permType: ''});
                                       vue.typeValue = 'Customer';
                                       vue.$page.getMeta('position').disabled = false;
                                       vue.$page.getMeta('permType').disabled = false
@@ -86,13 +86,13 @@
                           }
                       },
                       {field: 'url', title: '功能链接', width: 280, required: false, event: {
-                              change: function (val, args) {
-                                  vue.fuzzyMatch(val, args.model);
+                              change: function (val, model) {
+                                  vue.fuzzyMatch(val, model);
                               }
                           }},
                       {field: 'perms', title: '权限标识', event: {
-                              change: function (val, args) {
-                                  vue.fuzzyMatch(val, args.model);
+                              change: function (val, model) {
+                                  vue.fuzzyMatch(val, model);
                               }
                           }},
                       {field: 'permType', alias: 'permtype', title: '权限类型', disabled: false, event: {

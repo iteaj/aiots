@@ -12,6 +12,9 @@ import java.util.List;
  */
 public class AdminDto extends Admin {
 
+    /**
+     * 是否是超级管理员
+     */
     private List<Long> roleIds;
 
     public List<Long> getRoleIds() {

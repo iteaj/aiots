@@ -39,15 +39,18 @@
                   {field: 'remark', title: '备注', type: 'text', width: 160, editable: true},
                   {field: 'action', title: '操作', type: 'action', width: 160}
               ],
+              actionMetas: {},
               config: {
                   table: {
                       scroll: {y: 180}
                   }
               },
-              actionMetas: {}
           },
           config: {
-              form: {}
+              form: {},
+              table: {
+                pagination: {}
+              }
           }
       },
       created: function() {
@@ -61,7 +64,7 @@
                 return reject();
               })
             }
-          })
+          });
           this.dictData.actionMetas['Del'] = this.$page.getActionMeta('Del', {url: '/core/dictData/del'})
           this.dictData.actionMetas['Edit'] = this.$page.getActionMeta('Edit', {url: '/core/dictData/edit'})
           this.dictData.actionMetas['Save'] = this.$page.getActionMeta('Save', {})

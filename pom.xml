@@ -6,12 +6,12 @@
         <artifactId>izone-sofa-parent</artifactId>
     </parent>
 
+    <name>root:izone</name>
     <packaging>pom</packaging>
     <groupId>com.iteaj</groupId>
     <artifactId>izone</artifactId>
     <version>1.0.2-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
-    <name>root:izone</name>
 
     <modules>
         <module>dao</module>    <!--数据访问层-->
@@ -21,10 +21,9 @@
         <module>framework</module><!--系统架构层-->
 
         <!--整合项目的入口-->
-        <module>bootstrap</module> <!--启动模块-->
+        <module>bootstrap</module>
     </modules>
     <properties>
-        <classifier></classifier>
         <java.version>1.8</java.version>
         <guava.version>18.0</guava.version>
         <shiro.version>1.4.0</shiro.version>
@@ -32,9 +31,9 @@
         <env.filter.file>../../deploy/env/${profiles.active.env}.properties</env.filter.file>
     </properties>
     <scm>
-        <url>https://gitee.com/iteaj/izone</url>
-        <connection>scm:git:https://gitee.com/iteaj/izone.git</connection>
-        <developerConnection>scm:git:https://gitee.com/iteaj/izone.git</developerConnection>
+        <url>https://gitee.com/iteaj/izone-sboot.git</url>
+        <connection>scm:git:https://gitee.com/iteaj/izone-sboot.git</connection>
+        <developerConnection>scm:git:https://gitee.com/iteaj/izone-sboot.git</developerConnection>
     </scm>
     <developers>
         <developer>
@@ -43,12 +42,7 @@
             <url>http://www.iteaj.com</url>
         </developer>
     </developers>
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>release</id>-->
-<!--            <url>https://maven.aliyun.com/repository/public</url>-->
-<!--        </repository>-->
-<!--    </repositories>-->
+
     <dependencies>
 
     </dependencies>
@@ -62,6 +56,7 @@
             <url>https://repo.rdc.aliyun.com/repository/125267-snapshot-cL4hH3/</url>
         </snapshotRepository>
     </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

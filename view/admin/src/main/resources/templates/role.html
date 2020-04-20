@@ -25,22 +25,26 @@
                           , type: 'select', data: status, default: '正常'},
                       {field: 'remark', title: '备注', width: 380},
                   ]},
-              {field: 'role', title: '权限列表', metas: [
-                      {field: 'menuIds', title: '权限列表', type: 'stree', isTable: false
-                          , span: [3, 21, 22], clear: true, url: '/core/menu/view'
-                          , default: [], config: {
-                              treeCheckable: true
-                              , treeDefaultExpandAll: true
-                              , showCheckedStrategy:'SHOW_PARENT'
-                              , dropdownStyle: {maxHeight: '320px'}
+              {field: 'function', title: '权限设置', metas: [
+                      {field: 'menuIds', title: '功能权限', type: 'tree', isTable: false
+                          , clear: true, url: '/core/menu/view', default: [], config: {
+                              showLine: true
                             }
                           , event: {
-                              change: function(row) {
-                                  console.log(vue.editModel)
+                              // url数据加载完成事件
+                              loadFinished: function(data, meta) {
+                                  let expandKeys = [];
+                                  vue.$resolver.resolverTree(data, function (data) {
+                                      if(data.type == 'M') {
+                                          expandKeys.push(data.id);
+                                      }
+                                  });
+                                  meta.config.expandedKeys = expandKeys;
                               }
                           }
-                      }
-                  ]},
+                      },
+                  ]
+              },
               {field: 'createTime', title: '创建时间', type: 'date', width: 180, isForm: false},
               {field: 'action', title: '操作', type: 'action'}
           ],
@@ -49,7 +53,6 @@
               {field: 'name', title: '角色名称', clear: true},
               {field: 'status', title: '状态', type: 'select', data: status, clear: true},
           ],
-          actionMetas: null,
           config: {
               form: {
                   type: 'group',

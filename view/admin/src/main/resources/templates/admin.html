@@ -5,8 +5,12 @@
 </head>
 <body>
   <div id="UserPage">
-    <ivz-basic-view ref="vbt" :metas="metas" :config="config" :search-metas="searchMetas"></ivz-basic-view>
-      <ivz-modal-form ref="mf" title="修改密码" :save-meta="saveMeta"
+    <ivz-basic-view ref="vbt" :metas="metas" :config="config" :search-metas="searchMetas">
+        <template #status_t="params">
+            <a-badge :count="params.value" :number-style="{backgroundColor: params.row.status=='正常' ? '#52c41a' : '' }"></a-badge>
+        </template>
+    </ivz-basic-view>
+    <ivz-modal-form ref="mf" title="修改密码" :save-meta="saveMeta"
           :metas="modal.metas" :width="380" :config="{bodyStyle: {height: '180px', padding: '28px 18px 3px 3px'}}"></ivz-modal-form>
   </div>
 </body>
@@ -15,28 +19,35 @@
     let status = [
         {value: '正常', label: '正常'},
         {value: '禁用', label: '禁用'},
+    ];
+    let sex = [
+        {label: '男', value: '男'},
+        {label: '女', value: '女'},
+        {label: '未知', value: '未知'},
     ]
   let vue = new Vue({
       el: "#UserPage",
       data: {
           metas: [
-              {field: 'base', title: '用户基础信息', metas: [
+              {field: 'base', title: '基础信息', metas: [
                       {field: 'name', title: '用户名称', required: true},
                       {field: 'account', title: '登录账号', required: true},
-                      {field: 'orgId', title: '所属部门', type: 'stree', url: '/core/org/view'},
-                      {field: 'sex', title: '性别', width: 70},
+                      {field: 'orgId', title: '所属部门', type: 'stree'
+                          , url: '/core/org/view'},
+                      {field: 'sex', title: '性别', width: 70, type: 'radio', data: sex},
                       {field: 'phone', title: '手机号'},
-                      {field: 'status', title: '状态', clear: true, width:70, type: 'select', data: status},
-                  ]},
-              {field: 'role', title: '用户角色', metas: [
-                      {field: 'roleIds', title: '角色列表', type: 'checkbox', isTable: false
-                          , span: [2, 21, 24], url: '/core/role/list'}
-                  ]},
-              {field: 'other', title: '其他信息', metas: [
                       {field: 'email', title: '邮箱', width: 160, type: 'email'},
-                      {field: 'remark', title: '备注', width: 180},
+                      {field: 'status', title: '状态', clear: true, width:70
+                          , type: 'select', data: status, default: '正常', required: true},
+                      {field: 'remark', title: '备注', width: 220},
+                      {field: 'createTime', title: '创建时间', type: 'date', width: 160, isForm: false},
                   ]},
-              {field: 'createTime', title: '创建时间', type: 'date', width: 160, isForm: false},
+              {field: 'role', title: '用户角色 (超级管理员不可用)', metas: [
+                      {field: 'roleIds', title: '角色列表', type: 'checkbox', isTable: false
+                          , span: [2, 21, 24], url: '/core/role/list', disabled: function (model) {
+                              return model['superUser'];
+                          }}
+                  ]},
               {field: 'action', title: '操作', type: 'action', width: 220, fixed: 'right'}
           ],
           searchMetas: [
@@ -63,10 +74,10 @@
           actionMetas: null,
           config: {
               form: {
-                  type: 'group',
+                  editSource: 'remote' // 声明编辑的数据来自于远程服务器
               },
               table: {
-
+                  pagination: {}
               }
           },
       },

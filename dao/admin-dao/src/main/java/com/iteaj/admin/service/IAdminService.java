@@ -6,6 +6,8 @@ import com.iteaj.admin.entity.Admin;
 import com.iteaj.util.module.mvc.IBaseService;
 import com.iteaj.util.module.mvc.result.DetailResult;
 
+import java.util.List;
+
 public interface IAdminService extends IBaseService<IAdminDao, Admin> {
 
     /**
@@ -29,4 +31,6 @@ public interface IAdminService extends IBaseService<IAdminDao, Admin> {
      * 更新密码
      */
     void updatePwdById(Long id, String password);
+
+    void deleteAllJoinByIds(List<Long> list);
 }

@@ -39,6 +39,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 </foreach>
         </if>
     </update>
+    <delete id="deleteAllJoinByIds">
+        delete from t_role where id in (
+        <foreach collection="list" item="item" separator=",">
+            #{item}
+        </foreach>);
+        delete from t_role_menu where rid in (
+            <foreach collection="list" item="item" separator=",">
+                #{item}
+            </foreach>
+        );
+    </delete>
     <select id="joinRoleMenuById" resultMap="JoinRoleMenuMap">
         select a.*, rm.mid mid,rm.rid aid from t_role a
             left join t_role_menu rm on a.id = rm.rid

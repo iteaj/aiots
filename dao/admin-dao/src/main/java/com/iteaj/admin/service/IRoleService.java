@@ -7,6 +7,8 @@ import com.iteaj.util.module.mvc.IBaseService;
 import com.iteaj.util.module.mvc.OptionalResult;
 import com.iteaj.util.module.mvc.result.DetailResult;
 
+import java.util.List;
+
 /**
  * create time: 2019/11/27
  *
@@ -14,6 +16,8 @@ import com.iteaj.util.module.mvc.result.DetailResult;
  * @since 1.0
  */
 public interface IRoleService extends IBaseService<IRoleDao, Role> {
+
+    void deleteAllJoinByIds(List<Long> list);
 
     DetailResult<RoleDto> detail(Long id);
 

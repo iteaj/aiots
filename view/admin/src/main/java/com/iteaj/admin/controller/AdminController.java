@@ -66,8 +66,9 @@ public class AdminController extends BaseController {
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:admin:del")
-    public Result del(List<Long> list) {
-        return this.adminService.deleteByIds(list).response(success());
+    public Result del(@RequestBody List<Long> list) {
+        this.adminService.deleteAllJoinByIds(list);
+        return success();
     }
 
     /**

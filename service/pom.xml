@@ -16,6 +16,7 @@
     <modules>
         <!--业务模块-->
         <module>admin-service</module>
+        <module>develop-service</module>
     </modules>
 
     <dependencies>

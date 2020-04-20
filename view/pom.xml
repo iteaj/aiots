@@ -8,6 +8,7 @@
 
     <modules>
         <module>admin</module>
+        <module>develop</module>
     </modules>
 
     <name>izone:view</name>

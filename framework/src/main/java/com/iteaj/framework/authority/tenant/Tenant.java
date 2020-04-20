@@ -1,7 +1,6 @@
 package com.iteaj.framework.authority.tenant;
 
 import net.sf.jsqlparser.expression.Expression;
-import org.apache.ibatis.mapping.StatementType;
 
 import java.io.Serializable;
 

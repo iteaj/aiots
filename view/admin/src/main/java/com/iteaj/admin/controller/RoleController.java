@@ -70,7 +70,8 @@ public class RoleController extends BaseController {
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:del:view")
-    public Result del(List<Long> list) {
-        return this.roleService.deleteByIds(list).response(success());
+    public Result del(@RequestBody List<Long> list) {
+        this.roleService.deleteAllJoinByIds(list);
+        return success();
     }
 }

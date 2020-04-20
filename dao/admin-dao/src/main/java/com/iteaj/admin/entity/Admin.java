@@ -30,14 +30,13 @@ public class Admin extends BaseEntity {
     private String avatar;
     private String remark;
     /*用户账号, 不进行更新操作*/
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     private String account;
     /*登录ip*/
     private String loginIp;
     /*登录时间*/
     private Date loginDate;
     /*密码, 不进行密码更新*/
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String password;
     /*账号使用状态*/
     private UseStatus status;
@@ -139,5 +138,9 @@ public class Admin extends BaseEntity {
 
     public void setLoginDate(Date loginDate) {
         this.loginDate = loginDate;
+    }
+
+    public boolean isSuperUser() {
+        return this.getId() == 1l;
     }
 }

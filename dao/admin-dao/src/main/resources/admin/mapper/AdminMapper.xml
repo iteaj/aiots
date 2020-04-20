@@ -52,6 +52,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updatePwdById">
         update t_admin set password=#{password} where id=#{id}
     </update>
+    <delete id="deleteAllJoinByIds">
+        delete from t_admin where id in (
+        <foreach collection="list" item="item" separator=",">
+            #{item}
+        </foreach>);
+        delete from t_admin_role where aid in (
+        <foreach collection="list" item="item" separator=",">
+            #{item}
+        </foreach>
+        );
+    </delete>
     <select id="getAdminDetailById" resultMap="JoinAdminRoleMap">
         select a.*, ar.aid aid, ar.rid rid from t_admin a
            left join t_admin_role ar on a.id = ar.aid

@@ -12,6 +12,7 @@
     <name>izone:dao</name>
     <modules>
         <module>admin-dao</module>
+        <module>develop-dao</module>
     </modules>
 
     <dependencies>

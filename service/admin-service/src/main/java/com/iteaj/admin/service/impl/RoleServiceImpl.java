@@ -6,9 +6,11 @@ import com.iteaj.admin.dao.IRoleDao;
 import com.iteaj.admin.dto.RoleDto;
 import com.iteaj.admin.entity.Role;
 import com.iteaj.admin.service.IRoleService;
+import com.iteaj.util.CommonUtils;
 import com.iteaj.util.module.mvc.BaseServiceImpl;
 import com.iteaj.util.module.mvc.result.DetailResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +23,14 @@ import java.util.List;
 @Service
 @SofaService(bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
 public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements IRoleService {
+
+    @Override
+    @Transactional
+    public void deleteAllJoinByIds(List<Long> list) {
+        if(CommonUtils.isNotEmpty(list)) {
+            getBaseDao().deleteAllJoinByIds(list);
+        }
+    }
 
     @Override
     public DetailResult<RoleDto> detail(Long id) {

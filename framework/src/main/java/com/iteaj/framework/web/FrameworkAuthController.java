@@ -42,8 +42,8 @@ public class FrameworkAuthController extends BaseController {
      * @param token
      * @return
      */
-    @PostMapping("/login")
     @ResponseBody
+    @PostMapping("/login")
     public Result login(@RequestBody ShiroAuthToken token) {
         return this.authorizingService.login(token);
     }
@@ -51,6 +51,7 @@ public class FrameworkAuthController extends BaseController {
     /**
      * 注销
      */
+    @ResponseBody
     @RequestMapping("/logout")
     public Result logout() {
         return this.authorizingService.logout(ShiroUtils.getPrincipal());

@@ -18,7 +18,7 @@
 
     <dependencies>
 
-        <!--后台管理模块 - 管理端(必选)-->
+        <!--管理端 - 管理模块-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>admin</artifactId>
@@ -30,8 +30,17 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!--以下是可选后台web模块-->
-        <!--后台管理模块 - 开发端-->
+        <!--管理端 - 开发模块-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>develop</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>develop-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 

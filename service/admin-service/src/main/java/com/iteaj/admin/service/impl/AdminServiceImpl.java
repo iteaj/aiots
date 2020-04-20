@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.MessageDigest;
+import java.util.List;
 
 @Service
 @SofaService(bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
@@ -70,5 +71,12 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
         String md5Hex = DigestUtils.md5Hex(password.getBytes());
         getBaseDao().updatePwdById(id, md5Hex);
+    }
+
+    @Override
+    public void deleteAllJoinByIds(List<Long> list) {
+        if(CommonUtils.isNotEmpty(list)) {
+            getBaseDao().deleteAllJoinByIds(list);
+        }
     }
 }
