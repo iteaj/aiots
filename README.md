@@ -21,7 +21,7 @@
 #### 项目说明
 1. 虽然是单体项目, 但是项目结构使用maven多模块定义, 分为dao层、service层、view层、公用的static模块和启动模块bootstrap；dao、service、view模块属于pom模块，他们的子模块才是具体的业务模块，结构图如下：
 ![项目结构](https://images.gitee.com/uploads/images/2020/0421/112815_aa08898e_1230742.jpeg "1587439669(1).jpg")
-2. 环境使用maven的环境定义配合spring的profile, 这样做的好处是减少环境相关配置文件
+2. 环境使用maven的环境定义配合spring的profile, 这样做的好处是减少环境相关配置文件![环境配置](https://images.gitee.com/uploads/images/2020/0421/113451_53993420_1230742.jpeg "1587440060(1).jpg")
 
 #### 参与贡献
 
