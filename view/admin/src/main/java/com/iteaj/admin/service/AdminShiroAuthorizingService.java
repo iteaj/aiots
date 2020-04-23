@@ -14,8 +14,11 @@ import com.iteaj.framework.authority.AuthException;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.utils.ShiroUtils;
 import com.iteaj.izone.spi.AuthorizingService;
+import com.iteaj.izone.spi.AuthzUrl;
 import com.iteaj.izone.spi.Resource;
 import com.iteaj.izone.spi.UrlResource;
+import com.iteaj.izone.spi.event.EventPublisher;
+import com.iteaj.izone.web.shiro.AbstractShiroAuthorService;
 import com.iteaj.izone.web.shiro.ShiroAuthToken;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.util.Result;
@@ -29,6 +32,8 @@ import org.apache.shiro.authc.CredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -42,67 +47,37 @@ import java.util.stream.Collectors;
  * @see AuthorizingService
  */
 @Service
-@SofaService(interfaceType = AuthorizingService.class, bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
-public class AdminShiroAuthorizingService implements AuthorizingService<ShiroAuthToken>, EnvironmentAware {
+@SofaService(interfaceType = AuthorizingService.class
+        , bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
+public class AdminShiroAuthorizingService extends
+        AbstractShiroAuthorService implements EnvironmentAware {
 
+    private final ObjectProvider<AuthzUrl> authzUrl;
+    private final IRoleService roleService;
     private final IMenuService menuService;
     private final IAdminService adminService;
     private final IConfigService configService;
-    private final FrameworkProperties properties;
 
     private Environment environment;
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
-
-    public AdminShiroAuthorizingService(IMenuService menuService
-            , IAdminService adminService, IConfigService configService, FrameworkProperties properties) {
+    public AdminShiroAuthorizingService(ObjectProvider<AuthzUrl> authzUrl, IRoleService roleService
+            , IMenuService menuService, IAdminService adminService, IConfigService configService) {
+        this.authzUrl = authzUrl;
+        this.roleService = roleService;
         this.menuService = menuService;
         this.adminService = adminService;
         this.configService = configService;
-        this.properties = properties;
     }
 
     @Override
-    public Result login(ShiroAuthToken token) {
-        try {
-            // 登录
-            SecurityUtils.getSubject().login(token);
-        } catch (UnknownAccountException e) {
-            logger.error("账号不存在", e);
-            return HttpResult.Fail("账号不存在");
-        } catch (CredentialsException e) {
-            logger.error("账号密码不匹配", e);
-            return HttpResult.Fail("账号密码不匹配");
-        } catch (AuthenticationException e) {
-            logger.error("认证失败", e);
-            return HttpResult.Fail(e.getMessage());
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return HttpResult.Fail("认证失败");
-        }
-
-        return HttpResult.Success("认证成功").add("successUrl"
-                , properties.getAuth().getSuccessUrl());
-    }
-
-    @Override
-    public Result logout(Entity admin) {
-        try {
-            SecurityUtils.getSubject().logout();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return HttpResult.Fail("注销失败");
-        }
-        return HttpResult.Success("注销成功").add("loginUrl"
-                , properties.getAuth().getLoginUrl());
+    public AuthzUrl getAuthzUrl() {
+        return this.authzUrl.getIfAvailable();
     }
 
     @Override
     public BaseEntity getAdmin(ShiroAuthToken token) {
         if(null == token) throw new AuthException("错误的参数token");
-
-        Admin byAccount = adminService.getByAccount(token.getPrincipal());
-        return byAccount;
+        return adminService.getByAccount(token.getPrincipal());
     }
 
     @Override
@@ -141,12 +116,13 @@ public class AdminShiroAuthorizingService implements AuthorizingService<ShiroAut
 
     @Override
     public Collection<String> getRoles(Entity admin) {
-        return null;
+        List<Long> roleIds = this.roleService.selectByAdminId(admin.getId());
+        return roleIds.stream().map(id->String.valueOf(id)).collect(Collectors.toList());
     }
 
     @Override
     public Collection<String> getPermissions(Entity admin) {
-        return null;
+        return this.adminService.selectPermsById(admin.getId());
     }
 
     @Override

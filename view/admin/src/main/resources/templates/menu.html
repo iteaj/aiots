@@ -8,7 +8,7 @@
     <ivz-basic-view ref="vbt" :metas="mates" :config="config" :search-metas="searchMetas">
         <template #perm_type_f="params">
             <a-input v-decorator="[params.meta.field, params.meta['decorate']]"
-                     :disabled="params.meta.disabled">
+                     :disabled="params.meta.disabled" @change="(e)=>{typeChange(e, params)}">
                 <a-select slot="addonAfter" :options="PermTypeOptions"
                     style="width: 88px" :value="typeValue" :disabled="typeDisabled"
                     @change="permTypeHandler"></a-select>
@@ -19,6 +19,10 @@
 </body>
 <th:block th:include="libs :: footer"></th:block>
 <script>
+    let LogOptions = [
+        {label: '是', value: true},
+        {label: '否', value: false},
+    ];
     let MenuTypeOptions = [
         {label: '菜单', value: 'M'},
         {label: '视图', value: 'V'},
@@ -30,6 +34,7 @@
         {label: '新增', value: 'Add'},
         {label: '删除', value: 'Del'},
         {label: '修改', value: 'Edit'},
+        {label: '详情', value: 'Detail'},
         {label: '导入', value: 'Import'},
         {label: '导出', value: 'Export'},
     ];
@@ -57,28 +62,36 @@
                                   maxHeight: '200px'
                               }
                           }},
-                      {field: 'msn', title: '所属模块', required: true}
+                      {field: 'msn', title: '所属模块', required: true, event: {
+                            change: function (val, model) {
+                                if(model['menuType'] != 'M') {
+                                    if(!model['url']) vue.$page.bind({url: '/'+val+'/'});
+                                    if(!model['perms']) vue.$page.bind({perms: val+':'});
+                                }
+                            }
+                          }}
                   ]},
               {field: 'menu', title: '菜单信息', metas: [
                       {field: 'type', title: '菜单类型', type: 'select', required: true
                           , data: MenuTypeOptions, width: 80, event: {
                               change: function(menuType, args) {
-                                  if(menuType == 'V') {
-                                      vue.$page.bind({permType: 'View'});
+                                  if(menuType == 'V') { // 视图
                                       vue.typeValue = 'View';
                                       vue.typeDisabled = true;
                                       vue.$page.getMeta('position').disabled = true;
                                       vue.$page.getMeta('permType').disabled = true;
-                                  } else if(menuType == 'M') {
+                                      vue.$page.bind({permType: 'View', position: 'M'});
+                                  } else if(menuType == 'M') { // 菜单
                                       vue.$page.bind({permType: ''});
                                       vue.typeValue = 'Customer';
                                       vue.typeDisabled = true;
+                                      vue.$page.bind({permType: null, position: null, log: false});
                                       vue.$page.getMeta('position').disabled = true;
                                       vue.$page.getMeta('permType').disabled = true
-                                  } else {
+                                  } else { // 功能
                                       vue.typeDisabled = false;
-                                      vue.$page.bind({permType: ''});
                                       vue.typeValue = 'Customer';
+                                      vue.$page.bind({log: true});
                                       vue.$page.getMeta('position').disabled = false;
                                       vue.$page.getMeta('permType').disabled = false
                                   }
@@ -89,21 +102,29 @@
                               change: function (val, model) {
                                   vue.fuzzyMatch(val, model);
                               }
+                          }, disabled: function (row) {
+                              return row['type'] == 'M'
                           }},
                       {field: 'perms', title: '权限标识', event: {
                               change: function (val, model) {
                                   vue.fuzzyMatch(val, model);
                               }
+                          }, disabled: function (row) {
+                              return row['type'] == 'M'
                           }},
-                      {field: 'permType', alias: 'permtype', title: '权限类型', disabled: false, event: {
+                      {field: 'permType', alias: 'permtype', title: '权限类型', event: {
                               change: function (val, args) {
                                   if(val == 'View' && args.model['type'] != 'V') {
                                       vue.$page.bind({position: 'M'});
                                   }
                               }
+                          }, disabled: function (row) {
+                              return row['type'] == 'M'
                           }},
-                      {field: 'position', title: '功能位置', type: 'select', disabled: false
-                          , data: PositionOptions
+                      {field: 'position', title: '功能位置', type: 'select'
+                          , data: PositionOptions, disabled: function (row) {
+                              return row['type'] == 'M'
+                          }
                       },
                       {field: 'status', title: '状态', type: 'radio', data: [
                               {label: '显示', value: 'view'}
@@ -113,10 +134,17 @@
                   ]},
               {field: 'other', title: '其他信息', metas: [
                       {field: 'icon', title: '图标', width: 160},
-                      {field: 'remark', title: '备注', width: 120},
-                      {field: 'sort', title: '排序', fixed: 'right', width: 60, type: 'number'}
+                      {field: 'remark', title: '备注', width: 180},
+                      {field: 'sort', title: '排序', fixed: 'right', width: 60, type: 'number'},
+                      {field: 'log', title: '记录日志', type: 'radio'
+                          , data: LogOptions, default: false, isTable: false, config: {
+                              extra: '是否需要记录此功能的操作日志'
+                          }},
+                      {field: 'logDesc', title: '日志说明', isTable: false, config: {
+                            extra: '此字段将作为访问日志的标题'
+                          }},
                   ]},
-              {field: 'action', title: '操作', type: 'action', width: 300, fixed: 'right'},
+              {field: 'action', title: '操作', type: 'action', width: 260, fixed: 'right'},
           ],
           searchMetas: [
               {field: 'name', title: '菜单名称'},
@@ -161,6 +189,10 @@
           }});
       },
       methods: {
+          typeChange: function(e, params) {
+              let model = params['model'];
+              model[params.meta.field] = e.target.value;
+          },
           menuTypeHandler: function(menuType, model) {
 
           },

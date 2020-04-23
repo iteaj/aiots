@@ -68,4 +68,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
            left join t_admin_role ar on a.id = ar.aid
         where a.id=#{id}
     </select>
+    <!--查询指定用户下拥有的权限-->
+    <select id="selectPermsById" resultType="java.lang.String">
+        select m.perms from t_role_menu a
+            left join t_menu m on a.mid = m.id
+            left join t_admin_role ar on a.rid=ar.rid
+        where ar.aid=#{id}
+    </select>
 </mapper>

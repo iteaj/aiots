@@ -15,6 +15,7 @@ import com.iteaj.util.module.mvc.result.DetailResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.util.List;
 
@@ -78,5 +79,10 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
         if(CommonUtils.isNotEmpty(list)) {
             getBaseDao().deleteAllJoinByIds(list);
         }
+    }
+
+    @Override
+    public List<String> selectPermsById(Serializable id) {
+        return getBaseDao().selectPermsById(id);
     }
 }

@@ -1,6 +1,7 @@
 package com.iteaj.framework;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -27,6 +28,8 @@ public abstract class BaseEntity implements Entity<Long> {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    @TableField(exist = false)
+    private Object[] section;
     /**
      * @see TenantHandlerMethodArgumentResolver
      * @see FrameworkConfiguration#paginationInterceptor()
@@ -68,6 +71,15 @@ public abstract class BaseEntity implements Entity<Long> {
 
     public BaseEntity setTenant(Tenant tenant) {
         this.tenant = tenant;
+        return this;
+    }
+
+    public Object[] getSection() {
+        return section;
+    }
+
+    public BaseEntity setSection(Object[] section) {
+        this.section = section;
         return this;
     }
 }

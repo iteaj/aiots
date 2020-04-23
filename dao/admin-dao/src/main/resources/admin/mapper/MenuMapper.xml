@@ -11,10 +11,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="pid"    column="pid"  />
         <result property="sort"    column="sort"  />
         <result property="url"    column="url"  />
+        <result property="log"    column="log"  />
         <result property="type"    column="type"  />
         <result property="view"    column="view"  />
-        <result property="perms"    column="perms"  />
         <result property="icon"    column="icon"  />
+        <result property="perms"    column="perms"  />
         <result property="remark"    column="remark"  />
         <result property="createBy"    column="create_by"  />
         <result property="updateBy"    column="update_by"  />

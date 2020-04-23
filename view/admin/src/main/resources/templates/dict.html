@@ -65,6 +65,12 @@
               })
             }
           });
+          this.$page.addActionMeta("Del", {id: 'del', callBack: function (row) {
+                return new Promise(resolve => {
+                  resolve();
+                })
+            }, url: '/core/dictType/del'});
+
           this.dictData.actionMetas['Del'] = this.$page.getActionMeta('Del', {url: '/core/dictData/del'})
           this.dictData.actionMetas['Edit'] = this.$page.getActionMeta('Edit', {url: '/core/dictData/edit'})
           this.dictData.actionMetas['Save'] = this.$page.getActionMeta('Save', {})

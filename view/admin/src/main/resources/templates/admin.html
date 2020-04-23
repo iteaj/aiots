@@ -83,6 +83,9 @@
       },
       created: function() {
           let _this = this;
+          this.$page.setActionMeta("Del", {disabled: function (row) {
+                  return row['superUser']
+              }});
           this.$page.setActionMeta("Pwd", {callBack: function(model) {
                   return new Promise(function(resolve, reject) {
                       _this.$refs['mf'].open({password: null, surePassword: null, id: model['id']});

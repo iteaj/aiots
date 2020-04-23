@@ -20,6 +20,10 @@ public class Menu extends TreeEntity implements UrlResource {
     private String msn;
     /**排序*/
     private Integer sort;
+    /*是否记录日志*/
+    private Boolean log;
+    /*操作日志描述*/
+    private String logDesc;
     /**图标*/
     private String icon;
     /**是否显示*/
@@ -154,6 +158,24 @@ public class Menu extends TreeEntity implements UrlResource {
 
     public Menu setPosition(Position position) {
         this.position = position;
+        return this;
+    }
+
+    public Boolean getLog() {
+        return log;
+    }
+
+    public Menu setLog(Boolean log) {
+        this.log = log;
+        return this;
+    }
+
+    public String getLogDesc() {
+        return logDesc;
+    }
+
+    public Menu setLogDesc(String logDesc) {
+        this.logDesc = logDesc;
         return this;
     }
 }

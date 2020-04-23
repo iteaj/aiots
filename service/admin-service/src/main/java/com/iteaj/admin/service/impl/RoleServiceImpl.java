@@ -12,6 +12,7 @@ import com.iteaj.util.module.mvc.result.DetailResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -45,5 +46,10 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
     @Override
     public void updateRoleAndPermsById(Role role) {
         getBaseDao().updateRoleAndPermsById(role);
+    }
+
+    @Override
+    public List<Long> selectByAdminId(Serializable id) {
+        return this.getBaseDao().selectByAdminId(id);
     }
 }

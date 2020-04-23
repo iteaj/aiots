@@ -46,4 +46,10 @@ public interface IMenuService extends IBaseService<IMenuDao, Menu> {
      */
     void createDefaultAuth(Menu menu);
 
+    /**
+     * 通过url地址获取菜单
+     * @param url
+     * @return
+     */
+    Menu getByUrl(String url);
 }

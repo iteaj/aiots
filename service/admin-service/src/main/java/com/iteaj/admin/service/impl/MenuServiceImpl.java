@@ -17,14 +17,19 @@ import com.iteaj.util.module.mvc.ServiceException;
 import com.iteaj.util.module.mvc.result.BooleanResult;
 import com.iteaj.util.module.mvc.result.ListResult;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
 @SofaService(bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
 public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService {
+
+    private Map<String, Menu> urlMenuMap = new HashMap<>(128);
 
     @Override
     public BooleanResult insert(Menu entity) {
@@ -58,6 +63,8 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
         List<Menu> allMenus = this.getBaseDao()
                 .selectList(Wrappers.<Menu>query().ne("status"
                         , PermStatus.disabled).orderByAsc("sort"));
+        convertToUrlMap(allMenus);
+
         if(isSuper) { // 超级管理员拥有所有菜单
             // 转成树结构
             List<Menu> menus = (List<Menu>) TreeUtils.toTrees(allMenus, 0l);
@@ -66,6 +73,15 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
             List<String> adminMenuIds = this.getBaseDao().selectAdminMenus(aid);
             return new ListResult<>((List<Menu>) TreeUtils.toAdminMenuTrees(allMenus, adminMenuIds));
         }
+    }
+
+    private void convertToUrlMap(List<Menu> allMenus) {
+        allMenus.forEach(menu -> {
+            if(menu.getType() != MenuType.M
+                    && StringUtils.hasText(menu.getPerms())) {
+                urlMenuMap.put(menu.getUrl(), menu);
+            }
+        });
     }
 
     @Override
@@ -110,10 +126,16 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                     position = Position.M;
                     break;
             }
+
             Menu authMenu = Menu.AuthMenu(menu.getId(), urlPrefix + "/" + item, name
                     , menu.getMsn(), permType, permPrefix + ":" + item, position);
             this.insert(authMenu);
         });
+    }
+
+    @Override
+    public Menu getByUrl(String url) {
+        return urlMenuMap.get(url);
     }
 
     private String permPrefix(String url) {

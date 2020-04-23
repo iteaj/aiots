@@ -55,4 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             left join t_role_menu rm on a.id = rm.rid
         where a.id=#{id}
     </select>
+    <select id="selectByAdminId" resultType="java.lang.Long">
+        select rid from t_admin_role where aid=#{id}
+    </select>
 </mapper>

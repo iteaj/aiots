@@ -26,11 +26,11 @@
               {field: 'label', title: '配置标签', required: true, disabled: function(row) {
                       return row && row['id'] ? true : false;
                   }},
-              {field: 'value', title: '配置值', required: true},
-              {field: 'type', title: '配置类型', type: 'radio', default: 'def', data: ConfigType},
-              {field: 'remark', title: '备注'},
+              {field: 'value', title: '配置值', required: true, width: 280},
+              {field: 'type', title: '配置类型', type: 'radio', default: 'def', data: ConfigType, width: 90},
+              {field: 'remark', title: '备注', width: '300'},
               {field: 'createTime', title: '创建时间', type: 'date', width: 160, isForm: false},
-              {field: 'action', title: '操作', type: 'action', width: 220}
+              {field: 'action', title: '操作', type: 'action', width: 160, fixed: 'right'}
           ],
           searchMetas: [
               {field: 'name', title: '配置名称', clear: true},

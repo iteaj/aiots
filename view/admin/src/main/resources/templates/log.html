@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <th:block th:include="libs :: header('操作日志')"></th:block>
+</head>
+<body>
+  <div id="LogPage">
+    <ivz-drawer-view ref="vbt" :metas="metas" :config="config" :search-metas="searchMetas">
+        <template #user_name_t="params">
+            <a @click="jumpUser(params.row)" title="查看用户详情">{{params.value}}</a>
+        </template>
+    </ivz-drawer-view>
+  </div>
+</body>
+<th:block th:include="libs :: footer"></th:block>
+<script>
+    let PermTypeOptions = [
+        {label: '登录', value: 'Login'},
+        {label: '注销', value: 'Logout'},
+        {label: '新增', value: 'Add'},
+        {label: '删除', value: 'Del'},
+        {label: '修改', value: 'Edit'},
+        {label: '浏览', value: 'View'},
+        {label: '导入', value: 'Import'},
+        {label: '导出', value: 'Export'},
+    ];
+  let vue = new Vue({
+      el: "#LogPage",
+      data: {
+          metas: [
+              {field: 'title', title: '日志标题', width: 180},
+              {field: 'userName', title: '操作用户'},
+              {field: 'createTime', title: '访问时间', type: 'date', width: 140, config: {viewFormat: 'YYYY-MM-DD HH:mm'}},
+              {field: 'type', title: '功能类型', type: 'select', data: PermTypeOptions, clear: true},
+              {field: 'url', title: '功能链接', width: 240},
+              {field: 'shortName', title: '操作方法', width: 300},
+              {field: 'millis', title: '响应时间', fixed: 'right', width: 100, formatter: function (val) {
+                      return val!=null ? val+'毫秒' : '--'
+                  }},
+              {field: 'errMsg', title: '执行信息', width: 280, fixed: 'right'},
+          ],
+          searchMetas: [
+              {field: 'type', title: '功能类型', type: 'select', data: PermTypeOptions, clear: true},
+              {field: 'millis', title: '响应时间(>=)', type: 'number'},
+              {field: 'section', title: '访问时间', type: 'dateRange', clear: true, span: [6, 18, 8]
+                  , config: {format: 'YYYY-MM-DD'}, default: ['2019-10-20']},
+          ],
+          config: {
+              form: { },
+              table: {
+                  selection: {},
+                  pagination: {}
+              }
+          },
+      },
+      created: function() {
+          this.$page.setActionMeta("View", {callBack: function (searchModel) {
+                  return new Promise(resolve => {
+                      // 升序
+                      searchModel['orders'] = [{column: 'create_time', asc: false}];
+                      resolve();
+                  })
+              }})
+      },
+      methods: {
+          jumpUser: function (row) {
+              this.$nav({path: "/core/admin", params: {id: row['userId']}});
+          }
+      }
+  });
+</script>
+</html>

@@ -6,6 +6,7 @@ import com.iteaj.admin.entity.Admin;
 import com.iteaj.util.module.mvc.IBaseService;
 import com.iteaj.util.module.mvc.result.DetailResult;
 
+import java.io.Serializable;
 import java.util.List;
 
 public interface IAdminService extends IBaseService<IAdminDao, Admin> {
@@ -33,4 +34,6 @@ public interface IAdminService extends IBaseService<IAdminDao, Admin> {
     void updatePwdById(Long id, String password);
 
     void deleteAllJoinByIds(List<Long> list);
+
+    List<String> selectPermsById(Serializable id);
 }

@@ -4,6 +4,7 @@ import com.iteaj.admin.dto.RoleDto;
 import com.iteaj.admin.entity.Role;
 import com.iteaj.util.module.mvc.orm.IBaseDao;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -21,4 +22,6 @@ public interface IRoleDao extends IBaseDao<Role> {
     void createRoleAndPerms(RoleDto role);
 
     void deleteAllJoinByIds(List<Long> list);
+
+    List<Long> selectByAdminId(Serializable id);
 }

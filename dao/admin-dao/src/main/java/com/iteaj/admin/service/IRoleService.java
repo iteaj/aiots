@@ -7,6 +7,7 @@ import com.iteaj.util.module.mvc.IBaseService;
 import com.iteaj.util.module.mvc.OptionalResult;
 import com.iteaj.util.module.mvc.result.DetailResult;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -24,4 +25,6 @@ public interface IRoleService extends IBaseService<IRoleDao, Role> {
     void createRoleAndPerms(RoleDto role);
 
     void updateRoleAndPermsById(Role role);
+
+    List<Long> selectByAdminId(Serializable id);
 }
