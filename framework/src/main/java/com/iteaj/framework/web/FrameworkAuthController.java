@@ -49,22 +49,8 @@ public class FrameworkAuthController extends BaseController {
      */
     @ResponseBody
     @PostMapping("/login")
-    public Result login(@RequestBody ShiroAuthToken token, HttpServletRequest request) {
-        long start = System.currentTimeMillis();
-        String msg = "";
-        try {
-            Result result = this.authorizingService.login(token);
-            msg = result.getMessage();
-            return result;
-        } finally {
-            long time = System.currentTimeMillis() - start;
-
-            if(eventPublisher != null) {
-                ShiroAuthorEvent event = new ShiroAuthorEvent(ShiroUtils.getPrincipal(), request, LoggerType.Login)
-                        .setMethod(null).setErrMsg(msg).setOperaTimeMillis(time).setArgs(new Object[]{token});
-                this.eventPublisher.publish(event);
-            }
-        }
+    public Result login(@RequestBody ShiroAuthToken token) {
+        return this.authorizingService.login(token);
     }
 
     /**
@@ -72,21 +58,8 @@ public class FrameworkAuthController extends BaseController {
      */
     @ResponseBody
     @RequestMapping("/logout")
-    public Result logout(HttpServletRequest request) {
-        String msg = "";
-        Object source = ShiroUtils.getPrincipal();
-        try {
-            Result result = this.authorizingService.logout(ShiroUtils.getPrincipal());
-            msg = result.getMessage();
-            return result;
-        } finally {
-            if(eventPublisher != null) {
-                ShiroAuthorEvent event = new ShiroAuthorEvent(source, request, LoggerType.Logout)
-                        .setMethod(null).setErrMsg(msg).setOperaTimeMillis(0).setArgs(null);
-
-                this.eventPublisher.publish(event);
-            }
-        }
+    public Result logout() {
+        return this.authorizingService.logout(ShiroUtils.getPrincipal());
     }
 
     /**

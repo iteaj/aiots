@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 public class AdminShiroAuthorizingService extends
         AbstractShiroAuthorService implements EnvironmentAware {
 
-    private final ObjectProvider<AuthzUrl> authzUrl;
+    private final AuthzUrl authzUrl;
     private final IRoleService roleService;
     private final IMenuService menuService;
     private final IAdminService adminService;
@@ -60,18 +60,18 @@ public class AdminShiroAuthorizingService extends
 
     private Environment environment;
 
-    public AdminShiroAuthorizingService(ObjectProvider<AuthzUrl> authzUrl, IRoleService roleService
-            , IMenuService menuService, IAdminService adminService, IConfigService configService) {
-        this.authzUrl = authzUrl;
+    public AdminShiroAuthorizingService(IRoleService roleService, IMenuService menuService
+            , IAdminService adminService, IConfigService configService, AuthzUrl authzUrl) {
         this.roleService = roleService;
         this.menuService = menuService;
         this.adminService = adminService;
         this.configService = configService;
+        this.authzUrl = authzUrl;
     }
 
     @Override
     public AuthzUrl getAuthzUrl() {
-        return this.authzUrl.getIfAvailable();
+        return this.authzUrl;
     }
 
     @Override

@@ -43,13 +43,13 @@
               {field: 'type', title: '功能类型', type: 'select', data: PermTypeOptions, clear: true},
               {field: 'millis', title: '响应时间(>=)', type: 'number'},
               {field: 'section', title: '访问时间', type: 'dateRange', clear: true, span: [6, 18, 8]
-                  , config: {format: 'YYYY-MM-DD'}, default: ['2019-10-20']},
+                  , config: {format: 'YYYY-MM-DD'}, default: [moment().subtract(3, 'd')]},
           ],
           config: {
               form: { },
               table: {
                   selection: {},
-                  pagination: {}
+                  pagination: {},
               }
           },
       },

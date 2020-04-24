@@ -51,6 +51,7 @@
           permtype: 'permType',
           typeValue: 'Customer',
           typeDisabled: false,
+          dataSource: null,
           mates: [
               {field: 'basic', title: '基础信息', metas: [
                       {field: 'name', title: '菜单名称', align: 'left'
@@ -156,7 +157,21 @@
                   type: 'group'
               },
               table: {
-
+                  // 数据加载完成事件
+                  loadFinished: function (data) {
+                      let expandedRowKeys = [];
+                      // 展开所有菜单
+                      vue.$resolver.resolverTree(data, function (row) {
+                          if(row['type'] == 'M') {
+                              expandedRowKeys.push(row['id'])
+                          }
+                      });
+                      vue.config.table.expandedRowKeys = expandedRowKeys;
+                  },
+                  expandRowByClick: true,
+                  expandedRowsChange: function (expandRowKeys) {
+                      vue.config.table.expandedRowKeys = expandRowKeys;
+                  }
               }
           },
       },

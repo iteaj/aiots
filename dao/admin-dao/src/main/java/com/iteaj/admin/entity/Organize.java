@@ -1,5 +1,6 @@
 package com.iteaj.admin.entity;
 
+import com.iteaj.admin.enums.OrgType;
 import com.iteaj.admin.enums.Status;
 import com.iteaj.framework.TreeEntity;
 
@@ -18,6 +19,7 @@ public class Organize extends TreeEntity {
     private String leader;
     private Integer level;
     private Status status;
+    private OrgType type;
 
     public Integer getLevel() {
         return level;
@@ -79,6 +81,15 @@ public class Organize extends TreeEntity {
 
     public Organize setStatus(Status status) {
         this.status = status;
+        return this;
+    }
+
+    public OrgType getType() {
+        return type;
+    }
+
+    public Organize setType(OrgType type) {
+        this.type = type;
         return this;
     }
 }

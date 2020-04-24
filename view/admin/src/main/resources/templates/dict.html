@@ -54,22 +54,16 @@
           }
       },
       created: function() {
-          this.$page.addActionMeta("DictData", {id: 'dictData', position: 'T'
-            , label: '字典数据', color: 'green', callBack: function(row) {
+          this.$page.setActionMeta("DictData", {
+            color: 'green', callBack: function(row) {
               return new Promise(function(resolve, reject) {
                 if(row['id']) {
-                  vue.editRow = row
+                  vue.editRow = row;
                   vue.$refs['det'].open()
                 }
-                return reject();
               })
             }
           });
-          this.$page.addActionMeta("Del", {id: 'del', callBack: function (row) {
-                return new Promise(resolve => {
-                  resolve();
-                })
-            }, url: '/core/dictType/del'});
 
           this.dictData.actionMetas['Del'] = this.$page.getActionMeta('Del', {url: '/core/dictData/del'})
           this.dictData.actionMetas['Edit'] = this.$page.getActionMeta('Edit', {url: '/core/dictData/edit'})

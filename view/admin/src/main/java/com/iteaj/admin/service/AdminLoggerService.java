@@ -6,7 +6,6 @@ import com.iteaj.admin.entity.OperaLog;
 import com.iteaj.izone.api.LoggerEntity;
 import com.iteaj.izone.api.LoggerService;
 import com.iteaj.izone.api.LoggerType;
-import org.springframework.stereotype.Component;
 
 /**
  * create time: 2020/4/21
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
  * @author iteaj
  * @since 1.0
  */
-@Component
 public class AdminLoggerService implements LoggerService {
 
     private final IMenuService menuService;
@@ -28,10 +26,9 @@ public class AdminLoggerService implements LoggerService {
     @Override
     public void record(LoggerEntity entity) {
         OperaLog operaLog = new OperaLog()
-                .setStatus(entity.getType().name())
-                .setErrMsg(entity.getErrMsg())
-                .setMillis(entity.getOperaTime())
-                .setUrl(entity.getUrl());
+                .setStatus(entity.getType().name()).setErrMsg(entity.getErrMsg())
+                .setMillis(entity.getOperaTime()).setUrl(entity.getUrl())
+                .setShortName(entity.getShortName());
 
         if(entity.getSource() instanceof Admin) {
             Admin source = (Admin) entity.getSource();
@@ -50,8 +47,7 @@ public class AdminLoggerService implements LoggerService {
         } else {
             Menu menu = getMenu(entity.getUrl());
             if(menu != null && menu.getLog()) {
-                operaLog.setShortName(entity.getShortName())
-                        .setTitle(menu.getLogDesc())
+                operaLog.setTitle(menu.getLogDesc())
                         .setType(menu.getPermType());
 
                 operaLogService.insert(operaLog);

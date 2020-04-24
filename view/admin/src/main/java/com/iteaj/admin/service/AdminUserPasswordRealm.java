@@ -6,14 +6,16 @@ import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.captcha.KaptchaCreator;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.utils.ShiroUtils;
+import com.iteaj.izone.IzoneConfiguration;
+import com.iteaj.izone.api.LoggerService;
 import com.iteaj.izone.spi.AuthorizingService;
 import com.iteaj.izone.spi.AuthzUrl;
-import com.iteaj.izone.spi.event.AsyncPublisher;
 import com.iteaj.izone.spi.event.EventPublisher;
+import com.iteaj.izone.spi.event.Listener;
 import com.iteaj.izone.web.shiro.AuthorizingLogMethodInterceptor;
 import com.iteaj.izone.web.shiro.OrderShiroFilterChainDefinition;
 import com.iteaj.izone.web.shiro.ShiroAuthToken;
-import com.iteaj.izone.web.shiro.ShiroAuthorEvent;
+import com.iteaj.izone.web.shiro.ShiroAuthorLogListener;
 import com.iteaj.util.module.mvc.orm.Entity;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -27,8 +29,12 @@ import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSource
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,25 +47,16 @@ import org.springframework.util.Assert;
 import java.util.Objects;
 
 @Configuration
+@AutoConfigureBefore(IzoneConfiguration.class)
 public class AdminUserPasswordRealm extends AuthorizingRealm {
 
+    @Autowired
     private FrameworkProperties properties;
+    @Autowired
     private AuthorizingService authorizingService;
 
-    public AdminUserPasswordRealm(AuthorizingService authorizingService
-            , @Qualifier("securityManager") RealmSecurityManager securityManager) {
-        this.authorizingService = authorizingService;
+    public AdminUserPasswordRealm(@Qualifier("securityManager") RealmSecurityManager securityManager) {
         securityManager.setRealm(this);
-        Assert.notNull(authorizingService, "未创建授权服务："+AuthorizingService.class);
-    }
-
-    @Bean
-    public AuthzUrl authzUrl(FrameworkProperties properties) {
-        this.properties = properties;
-        FrameworkProperties.Auth auth = properties.getAuth();
-
-        return new AuthzUrl(auth.getLoginUrl()
-                , auth.getSuccessUrl(), auth.getUnauthorizedUrl());
     }
 
     /**
@@ -84,6 +81,16 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
     }
 
     @Bean
+    @ConditionalOnMissingBean(TaskExecutor.class)
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setMaxPoolSize(20);
+        taskExecutor.setCorePoolSize(10);
+        taskExecutor.setKeepAliveSeconds(600);
+        return taskExecutor;
+    }
+
+    @Bean
     public DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator() {
         DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator = new DefaultAdvisorAutoProxyCreator();
         advisorAutoProxyCreator.setProxyTargetClass(true);
@@ -93,23 +100,27 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor
             (@Qualifier("securityManager") RealmSecurityManager securityManager
-                    , ObjectFactory<EventPublisher> objectFactory) {
+                    , EventPublisher eventPublisher) {
         AuthorizationAttributeSourceAdvisor sourceAdvisor
                 = new AuthorizationAttributeSourceAdvisor();
 
-        EventPublisher publisher = objectFactory.getObject();
         sourceAdvisor.setSecurityManager(securityManager);
-        sourceAdvisor.setAdvice(new AuthorizingLogMethodInterceptor(publisher));
+        sourceAdvisor.setAdvice(new AuthorizingLogMethodInterceptor(eventPublisher));
         return sourceAdvisor;
     }
 
     @Bean
-    public TaskExecutor taskExecutor() {
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(20);
-        taskExecutor.setCorePoolSize(10);
-        taskExecutor.setKeepAliveSeconds(600);
-        return taskExecutor;
+    public LoggerService loggerService(IOperaLogService logService, IMenuService menuService) {
+        return new AdminLoggerService(logService, menuService);
+    }
+
+    /**
+     * shiro权限监听器, 用于记录访问日志
+     * @return
+     */
+    @Bean
+    public Listener authorLogListener(LoggerService loggerService) {
+        return new ShiroAuthorLogListener(loggerService);
     }
 
     /**
