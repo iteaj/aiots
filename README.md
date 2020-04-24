@@ -6,9 +6,11 @@
 1. 对于一个后台管理系统，功能的变化很少，页面相对固定(甚至有些基本功能在上线之后就不会在改变)，但是传统开发方式一个功能不可避免的增删改查就需要四个页面设置更多，而对于现在流行的单页面开发方式也有很多不足的地方，比如新增一个功能就必须在开发之后重新编译、打包、发布。如果这个时候对于某个组件的修改涉及到了其他功能还需要完整的功能测试， 费事费力。此项目前端是基于vue和antd-vue自研的[多页面项目](https://gitee.com/iteaj/ivzone)，组件化，一个页级组件相当于一个页面(包含了增删改查详情)
 2. 本项目属于另外一个分布式项目的单体版本, 且此[分布式项目](https://gitee.com/iteaj/izone)和普通的分布式有本质上的区别, 在部署上可以将多个应用打成同一个zip包一起发布， 在数据交互方面，不同应用之间可以使用同一个jvm进行数据交互(有别于rpc), 也可以使用rpc远程调用, 且提供应用在线启动、卸载、更新(基于蚂蚁金服sofa-ark框架，类加载隔离)
 
-
-#### 软件架构
-软件架构说明
+#### 软件语言和框架
+1. 后端：java1.8、spring boot2、sofa boot(蚂蚁金服)、mybatis、mybatis-plus、shiro、thymeleaf、hikaricp
+2. 前端：vue2.6、antd、axios、qs、moment、validate
+3. 数据： mysql5.7+
+4. 开发工具：idea
 
 #### 安装教程
 
@@ -16,9 +18,10 @@
 2. xxxx
 3. xxxx
 
-#### 使用说明
-1. maven模块项目命名规则
-  
+#### 项目说明
+1. 虽然是单体项目, 但是项目结构使用maven多模块定义, 分为dao层、service层、view层、公用的static模块和启动模块bootstrap；dao、service、view模块属于pom模块，他们的子模块才是具体的业务模块，结构图如下：
+![项目结构](https://images.gitee.com/uploads/images/2020/0421/112815_aa08898e_1230742.jpeg "1587439669(1).jpg")
+2. 环境使用maven的环境定义配合spring的profile, 这样做的好处是减少环境相关配置文件![环境配置](https://images.gitee.com/uploads/images/2020/0421/113451_53993420_1230742.jpeg "1587440060(1).jpg")
 
 #### 参与贡献
 
