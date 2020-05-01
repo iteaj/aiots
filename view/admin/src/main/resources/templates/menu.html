@@ -63,11 +63,22 @@
                                   maxHeight: '200px'
                               }
                           }},
-                      {field: 'msn', title: '所属模块', required: true, event: {
+                      {field: 'msn', title: '所属模块', type: 'select', dictType: 'sys.module'
+                          , required: true, event: {
                             change: function (val, model) {
-                                if(model['menuType'] != 'M') {
-                                    if(!model['url']) vue.$page.bind({url: '/'+val+'/'});
-                                    if(!model['perms']) vue.$page.bind({perms: val+':'});
+                                if(model['type'] == 'V' || model['type'] == 'A') {
+                                    if(!model['url']) {
+                                        vue.$page.bind({url: '/'+val+'/'});
+                                    } else {
+                                        let replace = model['url'].replace(/^\/(\w*)\/(.*)/, '/'+val+'/$2');
+                                        vue.$page.bind({url: replace});
+                                    }
+                                    if(!model['perms']) {
+                                        vue.$page.bind({perms: val+':'});
+                                    } else {
+                                        let replace = model['perms'].replace(/(\w*):(.*)/, val+':$2');
+                                        vue.$page.bind({perms: replace});
+                                    }
                                 }
                             }
                           }}
@@ -143,7 +154,7 @@
                           }},
                       {field: 'logDesc', title: '日志说明', isTable: false, config: {
                             extra: '此字段将作为访问日志的标题'
-                          }},
+                          }}
                   ]},
               {field: 'action', title: '操作', type: 'action', width: 260, fixed: 'right'},
           ],

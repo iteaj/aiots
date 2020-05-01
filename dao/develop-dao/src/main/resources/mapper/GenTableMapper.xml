@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.develop.dao.IGenTableDao">
+
+    <resultMap type="GenTable" id="OriMap">
+        <id property="id"    column="id"  />
+        <result property="msn"    column="msn"  />
+        <result property="name"    column="name"  />
+        <result property="cover"    column="cover"  />
+        <result property="status"    column="status"  />
+        <result property="prefix"    column="prefix"  />
+        <result property="remark"    column="remark"  />
+        <result property="xmlName"    column="xml_name"  />
+        <result property="viewType"    column="view_type"  />
+        <result property="mapperName"    column="mapper_name"  />
+        <result property="entityName"    column="entity_name"  />
+        <result property="serviceName"    column="service_name"  />
+        <result property="controllerName"   column="controller_name"  />
+        <result property="serviceImplName"   column="service_impl_name"  />
+        <result property="createTime"    column="create_time"  />
+        <result property="updateTime"    column="update_time"  />
+    </resultMap>
+    <resultMap id="JoinFieldsMap" type="GenTableDto" extends="OriMap">
+        <collection property="fieldList" columnPrefix="gf_"
+                    resultMap="com.iteaj.develop.dao.IGenFieldDao.OriMap" />
+    </resultMap>
+    <sql id="OriSql">
+        gt.id gt_id, gt.msn gt_msg, gt.mapper_name gt_mapper_name, gt.name gt_name, gt.entity_name gt_entity_name
+        , gt.xml_name gt_xml_name, gt.service_name gt_service_name, gt.controller_name gt_controller_name
+        , gt.service_impl_name gt_service_impl_name, gt.view_type gt_view_type,gt.prefix gt_prefix
+        , gt.cover gt_cover, gt.status gt_status
+    </sql>
+
+    <insert id="insertAsBatch">
+        insert into t_gen_table (msn, name, comment, entity_name, service_name, mapper_name
+            , service_impl_name, controller_name, xml_name, remark, view_type, prefix) VALUES
+        <foreach collection="list" separator="," item="item">
+            (#{item.msn},#{item.name},#{item.comment},#{item.entityName},#{item.serviceName},#{item.mapperName}
+            ,#{item.serviceImplName},#{item.controllerName},#{item.xmlName},#{item.remark},#{item.viewType},#{item.prefix})
+        </foreach>
+    </insert>
+    <delete id="deleteByMsnAndName">
+        delete from t_gen_table where msn=#{msn} and name=#{name};
+        delete from t_gen_field where msn=#{msn} and table_name=#{name}
+    </delete>
+    <select id="selectByJoinFields" resultMap="JoinFieldsMap">
+        select a.*,<include refid="com.iteaj.develop.dao.IGenFieldDao.JoinSql" />
+               from t_gen_table a left join t_gen_field gf on a.msn=gf.msn and a.name=gf.table_name
+        where a.id in
+    <foreach collection="list" item="item" separator="," open="(" close=")">
+        #{item}
+    </foreach>
+    </select>
+</mapper>

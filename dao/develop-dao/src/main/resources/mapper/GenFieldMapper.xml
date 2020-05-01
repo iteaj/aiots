@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.develop.dao.IGenFieldDao">
+
+    <resultMap type="GenField" id="OriMap">
+        <id property="id"    column="id"  />
+        <result property="msn" column="msn" />
+        <result property="title" column="title" />
+        <result property="ctype" column="ctype" />
+        <result property="name"    column="name"  />
+        <result property="type"    column="type"  />
+        <result property="keyFlag"    column="key_flag"  />
+        <result property="comment"    column="comment"  />
+        <result property="dictType"    column="dict_type"  />
+        <result property="tableName"    column="table_name"  />
+        <result property="searchFlag"    column="search_flag"  />
+        <result property="columnType"    column="column_type"  />
+        <result property="createTime"    column="create_time"  />
+        <result property="updateTime"    column="update_time"  />
+        <result property="propertyName"    column="property_name"  />
+        <result property="identityFlag"    column="identity_flag"  />
+    </resultMap>
+
+    <sql id="JoinSql">
+        gf.id gf_id, gf.msn gf_msn,gf.type gf_type,gf.key_flag gf_key_flag,gf.comment gf_comment
+        ,gf.table_name gf_table_name,gf.column_type gf_column_type,gf.property_name gf_property_name
+        ,gf.identity_flag gf_identity_flag,gf.name gf_name,gf.title gf_title,gf.dict_type gf_dict_type
+        ,gf.search_flag gf_search_flag, gf.ctype gf_ctype
+    </sql>
+
+    <insert id="insertAsBatch">
+        insert into t_gen_field (name, msn,title,dict_type,table_name, property_name
+        , ctype, type, column_type, comment, key_flag, identity_flag, remark) VALUES
+        <foreach collection="list" separator="," item="item">
+            (#{item.name},#{item.msn},#{item.title},#{item.dictType},#{item.tableName},#{item.propertyName}
+            ,#{item.ctype}, #{item.type},#{item.columnType},#{item.comment},#{item.keyFlag},#{item.identityFlag},#{item.remark})
+        </foreach>
+    </insert>
+</mapper>

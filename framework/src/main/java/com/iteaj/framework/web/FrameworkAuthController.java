@@ -3,18 +3,15 @@ package com.iteaj.framework.web;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.utils.ShiroUtils;
-import com.iteaj.izone.api.LoggerType;
 import com.iteaj.izone.spi.AuthorizingService;
 import com.iteaj.izone.spi.event.EventPublisher;
 import com.iteaj.izone.web.shiro.ShiroAuthToken;
-import com.iteaj.izone.web.shiro.ShiroAuthorEvent;
 import com.iteaj.util.Result;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -28,18 +25,10 @@ import java.util.Map;
 @ConditionalOnBean(AuthorizingService.class)
 public class FrameworkAuthController extends BaseController {
 
-    private EventPublisher eventPublisher;
     private final AuthorizingService authorizingService;
 
-    public FrameworkAuthController(ObjectProvider<EventPublisher> provider
-            , AuthorizingService authorizingService) {
+    public FrameworkAuthController(AuthorizingService authorizingService) {
         this.authorizingService = authorizingService;
-        this.eventPublisher = provider.getIfAvailable();
-    }
-
-    @GetMapping("/login")
-    public String login() {
-        return "login";
     }
 
     /**
@@ -61,6 +50,8 @@ public class FrameworkAuthController extends BaseController {
     public Result logout() {
         return this.authorizingService.logout(ShiroUtils.getPrincipal());
     }
+
+//    public
 
     /**
      * 返回环境相关配置

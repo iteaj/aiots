@@ -17,10 +17,5 @@
             <artifactId>admin-dao</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <artifactId>kaptcha</artifactId>
-            <groupId>com.github.penggle</groupId>
-        </dependency>
     </dependencies>
 </project>

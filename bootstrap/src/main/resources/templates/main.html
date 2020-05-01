@@ -4,12 +4,14 @@
     <th:block th:include="libs :: header('主页')"></th:block>
 </head>
 <body>
-  <div id="MainComponent"></div>
+  <div id="MainComponent">
+
+  </div>
 </body>
 <th:block th:include="libs :: footer"></th:block>
 <script>
   let vue = new Vue({
-      el: "#MenuComponent",
+      el: "#MainComponent",
       data: {
 
       },

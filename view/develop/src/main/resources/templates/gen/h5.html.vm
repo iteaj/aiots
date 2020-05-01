@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <th:block th:include="libs :: header('${table.comment}')"></th:block>
+</head>
+<body>
+<div id="${table.entityName}Page">
+    <${table.viewType} :metas="metas" :config="config" :search-metas="searchMetas"></${table.viewType}>
+</div>
+</body>
+<th:block th:include="libs :: footer"></th:block>
+<script>
+    let vue = new Vue({
+        el: "#${table.entityName}Page",
+        data: {
+            metas: [
+        #foreach($field in ${table.fields})
+                {field: '${field.propertyName}', title: '${field.title}', type: '${field.ctype}'#if(${field.dictType}), dictType: '${field.dictType}'#end},
+        #end
+        #foreach($field in ${table.commonFields})
+            #if(!${field.keyFlag})
+                {field: '${field.propertyName}', title: '${field.title}', type: '${field.ctype}'#if(${field.dictType}), dictType: '${field.dictType}'#end #if(${field.name}=='create_time'), isForm: false#end},
+            #end
+        #end
+            ],
+            searchMetas: [
+        #foreach($field in ${table.fields})
+            #if(${field.searchFlag})
+                {field: '${field.propertyName}', title: '${field.title}', type: '${field.ctype}'#if(${field.dictType}), dictType: '${field.dictType}'#end},
+            #end
+        #end
+            ],
+            config: {
+                form: {
+                    column: ${table.column}
+                },
+                table: {
+                    // selection: {}, 表格多选
+                    // pagination: {} 表格分页
+                }
+            },
+        },
+        created: function() { },
+        methods: { }
+    });
+</script>
+</html>
+

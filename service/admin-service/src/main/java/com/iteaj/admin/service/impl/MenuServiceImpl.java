@@ -76,12 +76,19 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
     }
 
     private void convertToUrlMap(List<Menu> allMenus) {
-        allMenus.forEach(menu -> {
-            if(menu.getType() != MenuType.M
-                    && StringUtils.hasText(menu.getPerms())) {
-                urlMenuMap.put(menu.getUrl(), menu);
-            }
-        });
+        if(urlMenuMap.size() > 0) return;
+
+        synchronized (allMenus) {
+            if(urlMenuMap.size() > 0) return;
+
+            allMenus.forEach(menu -> {
+                if(menu.getType() != MenuType.M
+                        && StringUtils.hasText(menu.getUrl())) {
+                    urlMenuMap.put(menu.getUrl(), menu);
+                }
+            });
+        }
+
     }
 
     @Override

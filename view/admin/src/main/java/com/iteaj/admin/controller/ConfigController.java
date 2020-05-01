@@ -10,6 +10,7 @@ import com.iteaj.admin.service.IConfigService;
 import com.iteaj.admin.service.IRoleService;
 import com.iteaj.framework.BaseController;
 import com.iteaj.util.Result;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,21 +32,21 @@ public class ConfigController extends BaseController {
     private IConfigService configService;
 
     @GetMapping
-    @RequiresPermissions("core:admin:view")
+    @RequiresPermissions(value = {"core:config:view", "core:config:test"}, logical = Logical.AND)
     public String view() {
         return "config";
     }
 
     @ResponseBody
     @GetMapping("/view")
-    @RequiresPermissions("core:admin:view")
+    @RequiresPermissions("core:config:view")
     public Result view(Page page, Config config) {
         return this.configService.selectByPage(page, config).response(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
-    @RequiresPermissions("core:admin:add")
+    @RequiresPermissions("core:config:add")
     public Result add(@RequestBody Config config) {
         return this.configService.insert(config).response(success());
     }
@@ -58,14 +59,14 @@ public class ConfigController extends BaseController {
 
     @ResponseBody
     @PostMapping("/edit")
-    @RequiresPermissions("core:admin:edit")
+    @RequiresPermissions("core:config:edit")
     public Result edit(@RequestBody Config config) {
         return this.configService.updateById(config).response(success());
     }
 
     @ResponseBody
     @PostMapping("/del")
-    @RequiresPermissions("core:admin:del")
+    @RequiresPermissions("core:config:del")
     public Result del(@RequestBody List<Long> list) {
         return this.configService.deleteByIds(list).response(success());
     }

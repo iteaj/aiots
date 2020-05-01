@@ -1,25 +1,3 @@
-<!-- 首页类库 -->
-<div th:fragment="index(title)">
-    <meta charset="utf-8">
-    <meta name="keywords" content="">
-    <meta name="description" content="">
-    <title th:text="${title}"></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link href="/static/libs/antd.min.css" th:href="@{/libs/antd.min.css}" rel="stylesheet"/>
-    <script th:inline="javascript">
-        var izCtx = [[${#request.contextPath}]]; // 当前应用上下文路径
-        var izStx = izCtx; // 静态资源上下文路径
-        window.ivzGlobalConfig = {iconUrl: '//at.alicdn.com/t/font_1174643_xxec2jh2mb8.js', izCtx: izCtx, izStx: izCtx}
-    </script>
-    <script src="/static/libs/polyfill.min.js" th:src="@{/libs/polyfill.min.js}"></script>
-    <script src="/static/libs/vue.min.js" th:src="@{/libs/vue.min.js}"></script>
-    <script src="/static/libs/axios.min.js" th:src="@{/libs/axios.min.js}"></script>
-    <script src="/static/libs/moment.min.js" th:src="@{/libs/moment.min.js}"></script>
-    <script src="/static/libs/zh-cn.js" th:src="@{/libs/zh-cn.js}"></script>
-    <script src="/static/libs/antd.min.js" th:src="@{/libs/antd.min.js}"></script>
-</div>
 <!-- iframe页css类库 -->
 <head th:fragment="header(title)">
     <meta charset="utf-8">
@@ -37,8 +15,24 @@
     <script src="/static/libs/polyfill.min.js" th:src="@{/libs/polyfill.min.js}"></script>
     <script src="/static/libs/vue.min.js" th:src="@{/libs/vue.min.js}"></script>
     <script src="/static/libs/axios.min.js" th:src="@{/libs/axios.min.js}"></script>
+    <script src="/static/libs/tinymce/tinymce.min.js" th:src="@{/libs/tinymce/tinymce.min.js}"></script>
     <script src="/static/libs/moment.min.js" th:src="@{/libs/moment.min.js}"></script>
     <script src="/static/libs/zh-cn.js" th:src="@{/libs/zh-cn.js}"></script>
     <script src="/static/libs/antd.min.js" th:src="@{/libs/antd.min.js}"></script>
     <script src="/static/libs/ivzone.min.js" th:src="@{/libs/ivzone.min.js}"></script>
+</div>
+
+<!-- error页js类库 -->
+<div th:fragment="error(title)">
+    <style>
+        .ant-result {
+            background-color: #fcfcfc;
+        }
+    </style>
+    <link href="/static/libs/antd.min.css" th:href="@{/libs/antd.min.css}" rel="stylesheet"/>
+
+    <script src="/static/libs/vue.min.js" th:src="@{/libs/vue.min.js}"></script>
+    <script src="/static/libs/axios.min.js" th:src="@{/libs/axios.min.js}"></script>
+    <script src="/static/libs/moment.min.js" th:src="@{/libs/moment.min.js}"></script>
+    <script src="/static/libs/antd.min.js" th:src="@{/libs/antd.min.js}"></script>
 </div>

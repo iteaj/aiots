@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <th:block th:include="libs :: header('代码生成字段配置')"></th:block>
+</head>
+<body>
+  <div id="FieldPage">
+    <ivz-edit-view ref="vbt" :metas="metas" :config="config"
+                     :search-metas="searchMetas"></ivz-edit-view>
+  </div>
+</body>
+<th:block th:include="libs :: footer"></th:block>
+<script>
+    let Flag = [
+        {label: '是', value: true}, {label: '否', value: false}
+    ]
+    let CType = [
+        {label: 'text', value: 'text'},{label: 'number', value: 'number'},
+        {label: 'select', value: 'select'},{label: 'stree', value: 'stree'},
+        {label: 'radio', value: 'radio'},{label: 'checkbox', value: 'checkbox'},
+        {label: 'tree', value: 'tree'},{label: 'upload', value: 'upload'},
+        {label: 'rate', value: 'teat'},{label: 'slider', value: 'slider'},
+        {label: 'date', value: 'date'},{label: 'dateRange', value: 'dateRange'},
+        {label: 'switch', value: 'switch'},{label: 'cascade', value: 'cascade'},
+        {label: 'editor', value: 'editor'},{label: 'textarea', value: 'textarea'},
+    ]
+  let vue = new Vue({
+      el: "#FieldPage",
+      data: {
+          metas: [
+              {field: 'code', title: '生成信息', children: [
+                      {field: 'propertyName', title: '属性', editable: true},
+                      {field: 'title', title: '属性标题', width: 140, editable: true},
+                      {field: 'columnType', title: '属性类型', width: 100, editable: true},
+                      {field: 'ctype', title: '组件类型',  width: 120, type: 'select'
+                          , data: CType, config: {showSearch: true}, editable: true},
+                      {field: 'dictType', title: '字典类型', type: 'select', width: 150, editable: true},
+                      {field: 'searchFlag', title: '是否搜索', type: 'radio', data: Flag, editable: true},
+                  ]},
+              {field: 'field', title: '表信息', children: [
+                      {field: 'keyFlag', title: '是否主键', type: 'radio', data: Flag},
+                      {field: 'name', title: '字段名'},
+                      {field: 'type', title: '字段类型', ellipsis: true},
+                  ]},
+              {field: 'action', title: '操作', type: 'action', width: 200, fixed: 'right'}
+          ],
+          searchMetas: [
+              {field: 'msn', title: '模块编号', type: 'select', dictType: 'sys.module', clear: true},
+              {field: 'tableName', title: '表名', clear: true}
+          ],
+          config: {
+              form: {
+                  column: 4
+              },
+              table: {
+                  pagination: {}
+              }
+          },
+      },
+      created: function() {
+
+      },
+      methods: {
+
+      }
+  });
+</script>
+</html>

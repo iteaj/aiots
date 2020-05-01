@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.develop.dao.IGenModuleDao">
+
+    <resultMap type="GenModule" id="OriMap">
+        <id property="id"    column="id"  />
+        <result property="msn"    column="msn"  />
+        <result property="name"    column="name"  />
+        <result property="remark"    column="remark"  />
+        <result property="project"    column="project"  />
+        <result property="account"    column="account"  />
+        <result property="password"    column="password"  />
+        <result property="tablePrefix"    column="table_prefix"  />
+        <result property="databaseName"   column="database_name"  />
+        <result property="createTime"    column="create_time"  />
+        <result property="updateTime"    column="update_time"  />
+    </resultMap>
+    <resultMap id="JoinGenTable" type="GenModuleDto" extends="OriMap">
+        <collection property="tables" column="msn" columnPrefix="gt_"
+                    resultMap="com.iteaj.develop.dao.IGenTableDao.OriMap" />
+    </resultMap>
+    <select id="joinGenTableById" resultMap="JoinGenTable">
+        select a.*, <include refid="com.iteaj.develop.dao.IGenTableDao.OriSql" /> from t_gen_module a
+            left join t_gen_table gt on a.msn=gt.msn
+        where a.id=#{id}
+    </select>
+
+</mapper>

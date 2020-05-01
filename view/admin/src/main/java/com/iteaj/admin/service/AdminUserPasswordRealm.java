@@ -1,140 +1,39 @@
 package com.iteaj.admin.service;
 
 import com.google.code.kaptcha.Constants;
-import com.google.code.kaptcha.Producer;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.captcha.KaptchaCreator;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.utils.ShiroUtils;
-import com.iteaj.izone.IzoneConfiguration;
-import com.iteaj.izone.api.LoggerService;
 import com.iteaj.izone.spi.AuthorizingService;
-import com.iteaj.izone.spi.AuthzUrl;
-import com.iteaj.izone.spi.event.EventPublisher;
-import com.iteaj.izone.spi.event.Listener;
-import com.iteaj.izone.web.shiro.AuthorizingLogMethodInterceptor;
-import com.iteaj.izone.web.shiro.OrderShiroFilterChainDefinition;
 import com.iteaj.izone.web.shiro.ShiroAuthToken;
-import com.iteaj.izone.web.shiro.ShiroAuthorLogListener;
 import com.iteaj.util.module.mvc.orm.Entity;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.pam.UnsupportedTokenException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.Session;
-import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.util.Assert;
+import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
-@Configuration
-@AutoConfigureBefore(IzoneConfiguration.class)
+@Component
 public class AdminUserPasswordRealm extends AuthorizingRealm {
 
-    @Autowired
-    private FrameworkProperties properties;
-    @Autowired
-    private AuthorizingService authorizingService;
+    private final FrameworkProperties properties;
+    private final AuthorizingService authorizingService;
 
-    public AdminUserPasswordRealm(@Qualifier("securityManager") RealmSecurityManager securityManager) {
+    public AdminUserPasswordRealm(@Qualifier("securityManager") RealmSecurityManager securityManager
+            , FrameworkProperties properties, AuthorizingService authorizingService) {
         securityManager.setRealm(this);
-    }
-
-    /**
-     * 字符格式的验证码
-     * @return
-     */
-    @Bean(name = "charCaptcha")
-    @ConditionalOnProperty(value = "izb.auth.captcha-type", havingValue = "char")
-    public Producer charCaptcha(){
-        return KaptchaCreator.charInstance();
-    }
-
-    /**
-     * 数学计算加、减、乘格式的验证码
-     * @return
-     */
-    @Primary
-    @Bean(name = "mathCaptcha")
-    @ConditionalOnProperty(value = "izb.auth.captcha-type", havingValue = "math")
-    public Producer mathCaptcha(){
-        return KaptchaCreator.mathInstance();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(TaskExecutor.class)
-    public TaskExecutor taskExecutor() {
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(20);
-        taskExecutor.setCorePoolSize(10);
-        taskExecutor.setKeepAliveSeconds(600);
-        return taskExecutor;
-    }
-
-    @Bean
-    public DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator() {
-        DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator = new DefaultAdvisorAutoProxyCreator();
-        advisorAutoProxyCreator.setProxyTargetClass(true);
-        return advisorAutoProxyCreator;
-    }
-
-    @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor
-            (@Qualifier("securityManager") RealmSecurityManager securityManager
-                    , EventPublisher eventPublisher) {
-        AuthorizationAttributeSourceAdvisor sourceAdvisor
-                = new AuthorizationAttributeSourceAdvisor();
-
-        sourceAdvisor.setSecurityManager(securityManager);
-        sourceAdvisor.setAdvice(new AuthorizingLogMethodInterceptor(eventPublisher));
-        return sourceAdvisor;
-    }
-
-    @Bean
-    public LoggerService loggerService(IOperaLogService logService, IMenuService menuService) {
-        return new AdminLoggerService(logService, menuService);
-    }
-
-    /**
-     * shiro权限监听器, 用于记录访问日志
-     * @return
-     */
-    @Bean
-    public Listener authorLogListener(LoggerService loggerService) {
-        return new ShiroAuthorLogListener(loggerService);
-    }
-
-    /**
-     * Shiro权限认证的主路径拦截声明
-     * @return
-     */
-    @Bean
-    @Order(value = 88) //用来声明权限路径的拦截
-    public OrderShiroFilterChainDefinition adminFilterChainDefinition() {
-        OrderShiroFilterChainDefinition chain = new OrderShiroFilterChainDefinition();
-
-        chain.addPathDefinition("/login", "anon");
-        chain.addPathDefinition("/captcha", "anon");
-        return chain;
+        this.properties = properties;
+        this.authorizingService = authorizingService;
     }
 
     @Override

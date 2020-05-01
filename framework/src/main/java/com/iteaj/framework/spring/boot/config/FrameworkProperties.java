@@ -8,6 +8,18 @@ public class FrameworkProperties {
 
     private Auth auth;
 
+    /**
+     * 文件上传的跟目录
+     * @see #uploadRootUri 此uri将映射到此目录
+     * 注：只有 uploadRootDir 和 uploadRootDir 都不为空才会生效
+     */
+    private String uploadRootDir;
+    /**
+     * 上传的文件访问的路径前缀
+     * @see #uploadRootDir 此访问路径将映射到此目录
+     */
+    private String uploadRootUri;
+
     public static class Auth {
 
         /**登录页面的Url*/
@@ -80,6 +92,24 @@ public class FrameworkProperties {
 
     public FrameworkProperties setAuth(Auth auth) {
         this.auth = auth;
+        return this;
+    }
+
+    public String getUploadRootDir() {
+        return uploadRootDir;
+    }
+
+    public String getUploadRootUri() {
+        return uploadRootUri;
+    }
+
+    public FrameworkProperties setUploadRootUri(String uploadRootUri) {
+        this.uploadRootUri = uploadRootUri;
+        return this;
+    }
+
+    public FrameworkProperties setUploadRootDir(String uploadRootDir) {
+        this.uploadRootDir = uploadRootDir;
         return this;
     }
 }

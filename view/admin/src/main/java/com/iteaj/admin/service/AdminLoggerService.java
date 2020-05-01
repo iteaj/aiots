@@ -44,6 +44,12 @@ public class AdminLoggerService implements LoggerService {
             operaLog.setType(entity.getType().name());
             operaLog.setTitle("注销登录");
             operaLogService.insert(operaLog);
+        } else if(entity.getType() == LoggerType.UnAuthor) {
+            operaLog.setTitle("访问未授权的页面");
+            operaLog.setType(LoggerType.UnAuthor.name());
+        } else if(entity.getType() == LoggerType.UnAuth) {
+            operaLog.setType(entity.getType().name());
+            operaLog.setTitle("访问需认证的页面");
         } else {
             Menu menu = getMenu(entity.getUrl());
             if(menu != null && menu.getLog()) {
