@@ -59,26 +59,28 @@
 
           // 通过重写字典数据的方式, 获取当前要查看字典数据的行
           this.$page.setActionMeta("DictData", {
-            color: 'green', callBack: function(row) {
-              return new Promise(function(resolve, reject) {
-                if(row['id']) {
-                  vue.editRow = row;
-                  vue.$refs['det'].open()
-                }
-              })
-            }
+              color: 'green', callBack: function(row) {
+                  return new Promise(function(resolve, reject) {
+                      if(row['id']) {
+                          vue.editRow = row;
+                          vue.$refs['det'].open()
+                      }
+                  })
+              }
           });
 
           // 新增字典数据时, 添加指定的字典类型
-          this.dictData.actionMetas['Add'].callBack = function(row) {
+          let addMeta = this.dictData.actionMetas['Add'] || {};
+          addMeta.callBack = function(row) {
               return new Promise(function(resolve, reject) {
                   row['type'] = vue.editRow['type'];
                   return resolve();
               })
           };
 
-          // 根据字典类型查询字典数据
-          this.dictData.actionMetas['View'].callBack = function(row) {
+          // 查询字典数据时, 根据字典类型查询字典数据
+          let viewMeta = this.dictData.actionMetas['View'] || {};
+          viewMeta.callBack = function(row) {
               return new Promise(function(resolve, reject) {
                   row['type'] = vue.editRow['type'];
                   return resolve()
