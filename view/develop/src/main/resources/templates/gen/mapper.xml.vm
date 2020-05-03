@@ -36,8 +36,15 @@
 #end
 #if(${baseColumnList})
     <!-- 表字段关联列表 -->
-    <sql id="OriJoin">
-        ${table.oriJoin}
+    <sql id="OriJoinSql">
+        ${table.oriJoinSql}
     </sql>
 #end
+    <!-- 批量插入 -->
+    <insert id="insertAsBatch">
+        insert into ${table.name} (${table.fieldNames}) VALUES
+        <foreach collection="list" separator="," item="item">
+            ${table.insertSql}
+        </foreach>
+    </insert>
 </mapper>

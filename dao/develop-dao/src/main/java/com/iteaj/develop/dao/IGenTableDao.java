@@ -3,6 +3,7 @@ package com.iteaj.develop.dao;
 import com.iteaj.develop.entity.GenTable;
 import com.iteaj.develop.entity.dto.GenTableDto;
 import com.iteaj.util.module.mvc.orm.IBaseDao;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,5 +17,5 @@ public interface IGenTableDao extends IBaseDao<GenTable> {
 
     List<GenTableDto> selectByJoinFields(List<Long> ids);
 
-    void deleteByMsnAndName(String msn, String name);
+    void deleteByDbNameAndName(String dbName, String name);
 }

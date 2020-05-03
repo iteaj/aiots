@@ -16,6 +16,7 @@ public class GenTable extends BaseEntity {
     private Boolean cover;
     private String prefix;
     private String remark;
+    private String dbName;
     private String comment;
     private String xmlName;
     private String viewType;
@@ -26,9 +27,7 @@ public class GenTable extends BaseEntity {
     private String controllerName;
     private String serviceImplName;
 
-    public GenTable() {
-
-    }
+    public GenTable() { }
 
     public GenTable(GenStatus status) {
         this.status = status;
@@ -161,6 +160,15 @@ public class GenTable extends BaseEntity {
 
     public GenTable setStatus(GenStatus status) {
         this.status = status;
+        return this;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public GenTable setDbName(String dbName) {
+        this.dbName = dbName;
         return this;
     }
 }

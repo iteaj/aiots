@@ -8,7 +8,6 @@ import com.iteaj.develop.entity.dto.GenTableDto;
 import com.iteaj.develop.enums.GenStatus;
 import com.iteaj.develop.service.IGenFieldService;
 import com.iteaj.develop.service.IGenTableService;
-import com.iteaj.util.CommonUtils;
 import com.iteaj.util.module.mvc.BaseServiceImpl;
 import com.iteaj.util.module.mvc.result.BooleanResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +66,7 @@ public class GenTableServiceImpl extends BaseServiceImpl<IGenTableDao, GenTable>
         if(CollectionUtils.isEmpty(genTables))return;
 
         // 删除原来的数据
-        genTables.forEach(item->this.deleteByMsnAndName(item.getMsn(), item.getName()));
+        genTables.forEach(item->this.deleteByDbNameAndName(item.getDbName(), item.getName()));
 
         // 添加最新的数据
         this.insertAsBatch(genTables);
@@ -79,8 +78,8 @@ public class GenTableServiceImpl extends BaseServiceImpl<IGenTableDao, GenTable>
      * @param name
      */
     @Override
-    public void deleteByMsnAndName(String msn, String name) {
-        getBaseDao().deleteByMsnAndName(msn, name);
+    public void deleteByDbNameAndName(String msn, String name) {
+        getBaseDao().deleteByDbNameAndName(msn, name);
     }
 
     @Override

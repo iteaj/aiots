@@ -20,6 +20,8 @@ import com.iteaj.develop.service.IGenTableService;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.spring.boot.config.DevelopProperties;
 import com.iteaj.util.Result;
+import com.iteaj.util.module.mvc.result.DetailResult;
+import com.iteaj.util.module.mvc.result.ListResult;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
@@ -43,10 +45,6 @@ public class ModuleController extends BaseController {
     private final DevelopProperties properties;
     private final IGenTableService genTableService;
     private final IGenModuleService genModuleService;
-    private static String ParentPackageName = "com.iteaj";
-    private static String titleRegex = "[\\s（($#@&,，。.].*";
-    private static String SQLDriver = "com.mysql.cj.jdbc.Driver";
-    private static String SQLUrl = "jdbc:mysql://localhost/%s?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT";
 
     public ModuleController(IGenModuleService genModuleService, IGenTableService genTableService, DevelopProperties properties) {
         this.genModuleService = genModuleService;
@@ -74,7 +72,7 @@ public class ModuleController extends BaseController {
     @ResponseBody
     @PostMapping("/edit")
     public Result edit(@RequestBody GenModule module) {
-        return genModuleService.updateById(module).response(success());
+        return genModuleService.updateById(module).response(success("更新成功"));
     }
 
     /**
@@ -85,14 +83,28 @@ public class ModuleController extends BaseController {
     @ResponseBody
     @PostMapping("/import")
     public Result genTable(@RequestBody GenModule module) {
-        GenModuleDto genModuleDto = this.genModuleService.joinGenTableById(module.getId());
-        List<GenTable> tables = genModuleDto.getTables();
-        if(CollectionUtils.isEmpty(tables)) {
+        ListResult<GenTable> existsTables = genTableService
+                .selectList(new GenTable().setDbName(module.getDbName()));
+
+        if(CollectionUtils.isEmpty(existsTables.get())) {
             List<GenTable> genTables = GenUtils.importTablesAndFields(module, null);
             return genTableService.insertAsBatch(genTables).response(success("成功导入表"+genTables.size()+"张"));
         } else {
-            return fail("此模块数据已经导入");
+            return fail("数据库("+module.getDbName()+")的表已经导入");
         }
+    }
+
+    /**
+     * 查询指定模块下面的所有表
+     * @param module
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("/tables")
+    public Result getTableName(GenModule module) {
+        GenModule genModule = genModuleService.getById(module.getId()).get();
+        List<String> dbAllTableName = GenUtils.getDbAllTableName(genModule);
+        return new ListResult(dbAllTableName).response(success("查询成功"));
     }
 
     /**

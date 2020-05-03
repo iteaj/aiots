@@ -5,16 +5,19 @@
 </head>
 <body>
   <div id="ModulePage">
-    <ivz-edit-view ref="vbt" :metas="metas" :config="config"
-                     :search-metas="searchMetas" placement="top" height="400">
-        <template #name_t="params">
-            <a @click="jumpField(params)">{{params.value}}</a>
-        </template>
-        <template #status_t="params">
-            <a-tag v-if="params.value == '已生成'" color="#87d068">{{params.value}}</a-tag>
-            <a-tag v-else color="#f50">{{params.value}}</a-tag>
-        </template>
-    </ivz-edit-view>
+        <ivz-edit-view ref="vbt" :metas="metas" :config="config"
+                         :search-metas="searchMetas" placement="top" height="400">
+            <template #name_t="params">
+                <a @click="jumpField(params)">{{params.value}}</a>
+            </template>
+            <template #status_t="params">
+                <a-tag v-if="params.value == '已生成'" color="#87d068">{{params.value}}</a-tag>
+                <a-tag v-else color="#f50">{{params.value}}</a-tag>
+            </template>
+        </ivz-edit-view>
+      <ivz-modal-form :width="480" title="请选择要覆盖的文件" :metas="sure.metas" ref="imf"
+            :save-meta="sure.saveMeta" :config="{bodyStyle: {height: '80px', padding: '15px 8px 3px 3px'}}">
+      </ivz-modal-form>
   </div>
 </body>
 <th:block th:include="libs :: footer"></th:block>
@@ -31,25 +34,58 @@
     let Status = [
         {label: '已生成', value: '已生成'},
         {label: '未生成', value: '未生成'},
-    ]
+    ];
+    let WriteType = [
+        {label: 'xml', value: 'XML'},
+        {label: 'h5', value: 'OTHER'},
+        {label: 'entity', value: 'ENTITY'},
+        {label: 'mapper', value: 'MAPPER'},
+        {label: 'service', value: 'SERVICE'},
+        {label: 'controller', value: 'CONTROLLER'},
+        {label: 'serviceImpl', value: 'SERVICE_IMPL'},
+    ];
   let vue = new Vue({
       el: "#ModulePage",
       data: {
           metas: [
               {field: 'basic', title: '表基础信息', metas: [
-                      {field: 'name', title: '表名', width: 160, fixed: 'left', disabled: true},
-                      {field: 'msn', title: '所属模块', type: 'select', dictType: 'sys.module', width: 90},
-                      {field: 'prefix', title: 'Join前缀', width: 72, editable: true},
+                      {field: 'name', title: '表名', width: 160, fixed: 'left'
+                          , disabled: true, sorter: function (a, b) {
+                              return a.name.localeCompare(b.name);
+                          }},
+                      {field: 'prefix', title: 'Join前缀', width: 72},
+                      {field: 'msn', title: '所属模块', editable: true, type: 'select'
+                          , dictType: 'sys.module', width: 120},
                   ]},
               {field: 'code', title: '要生成的代码信息', metas: [
                       {field: 'entityName', title: '实体名', width: 140, editable: true},
                       {field: 'viewType', title: '视图类型', width: 130, type: 'select', data: ViewType, editable: true},
-                      {field: 'cover', title: '是否覆盖', type: 'radio', data: Cover, width: 120, editable: true},
                       {field: 'status', title: '生成状态', type: 'radio', data: Status, width: 80},
                   ]},
               {field: 'remark', title: '表信息备注', width: -1},
               {field: 'action', title: '操作', type: 'action', width: 280, fixed: 'right'}
           ],
+          sure: {
+              metas: [
+                  {field: 'writeType', title: '类型', type: 'select', data: WriteType
+                      , config: {mode: 'tags', maxTagCount: 6, extra: '注: 选择的文件生成之后将覆盖原来的'}, span: [3, 20, 24]}
+              ],
+              saveMeta: {
+                  id: 'save', url: '/dev/table/gen', callBack: function (model) {
+                      return new Promise(function (resolve) {
+                          vue.$http.post('/dev/table/gen', [model]).then(function (resp) {
+                              vue.$msg.successNotify("覆盖文件操作", resp['IvzMsg']);
+                              vue.$refs['imf'].trigger();
+                          }).catch(function (reason) {
+                              vue.$msg.errorNotify("覆盖文件操作", reason);
+                          })
+                      })
+                  }
+              },
+              config: {
+
+              }
+          },
           searchMetas: [
               {field: 'msn', title: '模块编号', type: 'select', dictType: 'sys.module', clear: true},
               {field: 'name', title: '表名', clear: true}
@@ -59,6 +95,7 @@
                   column: 4
               },
               table: {
+                  submitType: 'entity',
                   selection: {fixed: 'left'},
                   pagination: {}
               }
@@ -67,7 +104,8 @@
       created: function() {
           this.$page.setActionMeta("import", {callBack: function (row) {
               return new Promise((resolve) => {
-                  resolve({tipTitle: '确定要重新导入表配置('+row.name+")", tipContent: '此动作将会删除原来的表、表字段配置'});
+                  resolve({tipTitle: '确定要重新导入表配置('+row.name+")"
+                      , tipContent: '此动作将会删除原来的表、表字段配置, 生成状态将重置为未生成'});
               })
           }});
 
@@ -75,10 +113,10 @@
               return new Promise(resolve => {
                   if(params.length == 1) {
                       let row = params[0];
-                      if(row.status == '已生成' && !row['cover']) {
-                          vue.$msg.warningMessage("此表文件不能被覆盖("+row.name+")");
+                      if(row.status == '未生成') {
+                          return resolve();
                       } else {
-                          resolve();
+                          vue.$refs['imf'].open(row);
                       }
                   } else {
                       resolve();

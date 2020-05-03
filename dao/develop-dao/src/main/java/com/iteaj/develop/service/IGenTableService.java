@@ -21,7 +21,8 @@ public interface IGenTableService extends IBaseService<IGenTableDao, GenTable> {
 
     void reImportTables(List<GenTable> genTables);
 
-    void deleteByMsnAndName(String msn, String name);
+    void deleteByDbNameAndName(String msn, String name);
 
     void updateStatusByBatch(List<? extends GenTable> genTables, GenStatus status);
+
 }

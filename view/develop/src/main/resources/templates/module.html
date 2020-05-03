@@ -6,7 +6,7 @@
 <body>
   <div id="ModulePage">
     <ivz-drawer-view ref="vbt" :metas="metas" :config="config"
-                     :search-metas="searchMetas" placement="top" height="280">
+                     :search-metas="searchMetas" placement="top" height="360">
         <template #name_t="params">
             <a @click="jumpTables(params)">{{params.value}}</a>
         </template>
@@ -20,17 +20,17 @@
       data: {
           metas: [
               {field: 'name', title: '模块名称', editable: true},
-              {field: 'msn', title: '模块编号', editable: true, config: {extra: '作为地址开头: /core'}},
-              {field: 'project', title: '项目名称', editable: true, config: {extra: '作为目录开头: admin-dao'}},
+              {field: 'msn', title: '模块编号', type: 'select', dictType: 'sys.module'},
+              {field: 'project', title: '项目名称', editable: true},
               {field: 'tablePrefix', title: '表前缀', editable: true, width: 80},
-              {field: 'databaseName', title: '数据库', editable: true, width: 120},
+              {field: 'dbName', title: '数据库', editable: true, width: 120},
               {field: 'account', title: '数据库账号', editable: true, width: 120},
               {field: 'password', title: '数据库密码', editable: true, width: 120},
-              {field: 'remark', title: '备注', width: '300'},
+              {field: 'remark', title: '备注', width: -1},
               {field: 'action', title: '操作', type: 'action', width: 280, fixed: 'right'}
           ],
           searchMetas: [
-              {field: 'msn', title: '模块编号'},
+              {field: 'msn', title: '模块编号', type: 'select', dictType: 'sys.module'},
               {field: 'name', title: '模块名称', clear: true}
           ],
           config: {
@@ -42,9 +42,7 @@
               }
           },
       },
-      created: function() {
-
-      },
+      created: function() { },
       methods: {
           jumpTables: function (params) {
               let row = params['row'];

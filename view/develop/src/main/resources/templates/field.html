@@ -32,10 +32,11 @@
                       {field: 'propertyName', title: '属性', editable: true},
                       {field: 'title', title: '属性标题', width: 140, editable: true},
                       {field: 'columnType', title: '属性类型', width: 100, editable: true},
-                      {field: 'ctype', title: '组件类型',  width: 120, type: 'select'
+                      {field: 'ctype', title: '组件类型',  width: 100, type: 'select'
                           , data: CType, config: {showSearch: true}, editable: true},
                       {field: 'dictType', title: '字典类型', type: 'select', width: 150, editable: true},
-                      {field: 'searchFlag', title: '是否搜索', type: 'radio', data: Flag, editable: true},
+                      {field: 'editFlag', title: '是否编辑', type: 'checkbox', data: Flag, editable: true},
+                      {field: 'searchFlag', title: '是否搜索', type: 'checkbox', data: Flag, editable: true},
                   ]},
               {field: 'field', title: '表信息', children: [
                       {field: 'keyFlag', title: '是否主键', type: 'radio', data: Flag},

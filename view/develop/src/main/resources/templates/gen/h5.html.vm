@@ -15,18 +15,18 @@
         data: {
             metas: [
         #foreach($field in ${table.fields})
-                {field: '${field.propertyName}', title: '${field.title}', type: '${field.ctype}'#if(${field.dictType}), dictType: '${field.dictType}'#end},
+                {field: '${field.propertyName}', title: '${field.title}'#if(${field.ctype}!='text'), type: '${field.ctype}'#end#if(${field.dictType}), dictType: '${field.dictType}'#end},
         #end
         #foreach($field in ${table.commonFields})
-            #if(!${field.keyFlag})
-                {field: '${field.propertyName}', title: '${field.title}', type: '${field.ctype}'#if(${field.dictType}), dictType: '${field.dictType}'#end #if(${field.name}=='create_time'), isForm: false#end},
+            #if(!${field.keyFlag} && ${field.name}=='update_time')
+                {field: '${field.propertyName}', title: '${field.title}'#if(${field.ctype}!='text'), type: '${field.ctype}'#end#if(${field.dictType}), dictType: '${field.dictType}'#end #if(${field.name}=='create_time'), isForm: false#end},
             #end
         #end
             ],
             searchMetas: [
         #foreach($field in ${table.fields})
             #if(${field.searchFlag})
-                {field: '${field.propertyName}', title: '${field.title}', type: '${field.ctype}'#if(${field.dictType}), dictType: '${field.dictType}'#end},
+                {field: '${field.propertyName}', title: '${field.title}'#if(${field.ctype}!='text'), type: '${field.ctype}'#end#if(${field.dictType}), dictType: '${field.dictType}'#end},
             #end
         #end
             ],

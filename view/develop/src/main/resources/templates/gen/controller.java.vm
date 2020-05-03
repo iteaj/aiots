@@ -1,8 +1,15 @@
 package ${package.Controller};
 
-
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import java.util.List;
+import com.iteaj.util.Result;
+import ${package.Entity}.${entity};
+import ${package.Service}.${table.serviceName};
+import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.alipay.sofa.runtime.api.annotation.SofaReference;
+import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 #if(${restControllerStyle})
 import org.springframework.web.bind.annotation.RestController;
 #else
@@ -14,7 +21,7 @@ import ${superControllerClassPackage};
 
 /**
  * <p>
- * $!{table.comment} 前端控制器
+ * $!{table.comment} 控制器
  * </p>
  *
  * @author ${author}
@@ -32,6 +39,50 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
 #else
 #if(${superControllerClass})
 public class ${table.controllerName} extends ${superControllerClass} {
+
+    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
+    private ${table.serviceName} ${table.serviceFieldName}
+
+    @GetMapping
+    @RequiresPermissions("core:${table.lowerFirstEntity}:view")
+    public String view() {
+        return "${table.lowerFirstEntity}";
+    }
+
+    @ResponseBody
+    @GetMapping("/view")
+    @RequiresPermissions("core:${table.lowerFirstEntity}:view")
+    public Result view(${table.entityName} entity, Page page) {
+        return this.${table.serviceFieldName}.selectByPage(page, entity).response(success());
+    }
+
+    @ResponseBody
+    @PostMapping("/add")
+    @RequiresPermissions("core:${table.lowerFirstEntity}:add")
+    public Result add(@RequestBody ${table.entityName} entity) {
+        return this.${table.serviceFieldName}.insert(entity).response(success("新增记录成功"));
+    }
+
+    @ResponseBody
+    @PostMapping("/edit")
+    @RequiresPermissions("core:${table.lowerFirstEntity}:edit")
+    public Result edit(@RequestBody ${table.entityName} entity) {
+        return this.${table.serviceFieldName}.updateById(entity).response(success("修改记录成功"));
+    }
+
+    @ResponseBody
+    @GetMapping("/detail")
+    @RequiresPermissions("core:${table.lowerFirstEntity}:detail")
+    public Result detail(Long id) {
+        return this.${table.serviceFieldName}.getById(id).response(success());
+    }
+
+    @ResponseBody
+    @PostMapping("/del")
+    @RequiresPermissions("core:${table.lowerFirstEntity}:del")
+    public Result del(@RequestBody List<Long> ids) {
+        return this.${table.serviceFieldName}.deleteByIds(ids).response(success("删除记录成功"));
+    }
 #else
 public class ${table.controllerName} {
 #end

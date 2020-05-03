@@ -1,10 +1,12 @@
 package com.iteaj.develop.gen.controller;
 
+import com.iteaj.develop.entity.GenField;
 import com.iteaj.develop.entity.GenModule;
 import com.iteaj.develop.entity.GenTable;
 import com.iteaj.develop.entity.dto.GenTableDto;
 import com.iteaj.develop.enums.GenStatus;
 import com.iteaj.develop.gen.GenUtils;
+import com.iteaj.develop.service.IGenFieldService;
 import com.iteaj.develop.service.IGenModuleService;
 import com.iteaj.develop.service.IGenTableService;
 import com.iteaj.framework.BaseController;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * create time: 2020/4/27
@@ -28,6 +31,8 @@ import java.util.List;
 @RequestMapping("/dev/table")
 public class GenTableController extends BaseController {
 
+    @Autowired
+    private IGenFieldService genFieldService;
     @Autowired
     private IGenTableService genTableService;
     @Autowired
@@ -64,25 +69,35 @@ public class GenTableController extends BaseController {
 
     /**
      * 代码生成
-     * @param ids
      * @return
      */
     @ResponseBody
     @PostMapping("/gen")
-    public Result gen(@RequestBody List<Long> ids) {
-        if(CommonUtils.isNotEmpty(ids)) {
-            List<GenTableDto> genTables = genTableService.selectByJoinFields(ids);
-            if(CollectionUtils.isEmpty(genTables)) {
-                return fail("查找不到要生成的表信息");
+    public Result gen(@RequestBody List<GenTableDto> genTables) {
+        if(CommonUtils.isNotEmpty(genTables)) {
+            GenTableDto genTableDto = genTables.get(0);
+
+            // 生成单表信息, 会指定要生成文件
+            if(genTables.size() == 1) {
+                List<GenField> genFields = genFieldService
+                        .selectByDbNameAndTableName(genTableDto
+                                .getDbName(), genTableDto.getName());
+
+                genTableDto.setFieldList(genFields);
+            } else { // 批量生成表信息
+                List<Long> list = genTables.stream().map(item ->
+                        item.getId()).collect(Collectors.toList());
+                genTables = genTableService.selectByJoinFields(list);
+            }
+
+            String msn = genTableDto.getMsn();
+            GenModule module = genModuleService.getByMsn(msn);
+            if(module == null) {
+                return fail("查找不到表信息对应的模块");
             } else {
-                String msn = genTables.get(0).getMsn();
-                GenModule module = genModuleService.getByMsn(msn);
-                if(module == null) {
-                    return fail("查找不到表信息对应的模块");
-                } else {
-                    GenUtils.GenCode(module, genTables);
-                    genTableService.updateStatusByBatch(genTables, GenStatus.已生成);
-                }
+
+                GenUtils.GenCode(module, genTables);
+                genTableService.updateStatusByBatch(genTables, GenStatus.已生成);
             }
             return success();
         } else {

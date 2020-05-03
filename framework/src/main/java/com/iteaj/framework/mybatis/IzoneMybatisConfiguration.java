@@ -1,4 +1,4 @@
-package com.iteaj.framework.mybatis.handler;
+package com.iteaj.framework.mybatis;
 
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;

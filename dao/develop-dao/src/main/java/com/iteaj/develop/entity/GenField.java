@@ -10,11 +10,11 @@ import com.iteaj.framework.BaseEntity;
  */
 public class GenField extends BaseEntity {
 
-    private String msn;
     private String name;
     private String type;
     private String ctype;
     private String title;
+    private String dbName;
     private String remark;
     private String comment;
     private String dictType;
@@ -107,12 +107,12 @@ public class GenField extends BaseEntity {
         return this;
     }
 
-    public String getMsn() {
-        return msn;
+    public String getDbName() {
+        return dbName;
     }
 
-    public GenField setMsn(String msn) {
-        this.msn = msn;
+    public GenField setDbName(String dbName) {
+        this.dbName = dbName;
         return this;
     }
 

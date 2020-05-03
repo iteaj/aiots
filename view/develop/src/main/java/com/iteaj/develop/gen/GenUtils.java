@@ -19,6 +19,7 @@ import com.iteaj.develop.enums.GenStatus;
 import com.iteaj.framework.gen.GenInjectionConfig;
 import com.iteaj.framework.gen.GenTableField;
 import com.iteaj.framework.gen.GenTableInfo;
+import com.iteaj.framework.gen.GenVelocityTemplateEngine;
 import com.iteaj.framework.spring.boot.config.DevelopProperties;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -41,11 +42,11 @@ import java.util.stream.Collectors;
 public class GenUtils implements InitializingBean {
 
     private static String outputDir = "";
-    private static String MAVEN_JAVA = "src/main/java";
-    private static String MAVEN_RESOURCE = "src/main/resources";
     private static DevelopProperties properties;
     private static DevelopProperties.CodeGen codeGen;
+    private static String MAVEN_JAVA = "src/main/java";
     private static String titleRegex = "[\\s（($#@&,，。.].*";
+    private static String MAVEN_RESOURCE = "src/main/resources";
     private static Map<String, IColumnType> columnTypeMap = new HashMap<>();
 
     /**
@@ -56,6 +57,7 @@ public class GenUtils implements InitializingBean {
     public static void GenCode(GenModule module, List<GenTableDto> tables) {
         GlobalConfig globalConfig = getGlobalConfig(module);
         StrategyConfig strategyConfig = getStrategyConfig(module, tables);
+
         PackageConfig packageConfig = getPackageConfig(module);
         DataSourceConfig dataSourceConfig = getDataSourceConfig(module);
         TemplateConfig templateConfig = getTemplateConfig(module);
@@ -73,7 +75,8 @@ public class GenUtils implements InitializingBean {
         handleTableInfo(builder, tables);
 
         injectionConfig.setConfig(builder);
-        new AutoGenerator().setCfg(injectionConfig).setConfig(builder).execute();
+        new AutoGenerator().setTemplateEngine(new GenVelocityTemplateEngine())
+                .setCfg(injectionConfig).setConfig(builder).execute();
     }
 
     /**
@@ -87,6 +90,7 @@ public class GenUtils implements InitializingBean {
         DataSourceConfig sourceConfig = getDataSourceConfig(module);
         StrategyConfig strategyConfig = getStrategyConfig(module, tables)
                 .setSuperEntityColumns(null);
+
         GlobalConfig globalConfig = getGlobalConfig(module);
         ConfigBuilder configBuilder = new ConfigBuilder(packageConfig
                 , sourceConfig, strategyConfig, null, globalConfig);
@@ -97,6 +101,7 @@ public class GenUtils implements InitializingBean {
         tableInfoList.forEach(tableInfo -> {
             GenTableDto genTable = new GenTableDto(module.getMsn());
             BeanUtils.copyProperties(tableInfo, genTable);
+            genTable.setDbName(module.getDbName());
             genTable.setPrefix(getPrefix(genTable.getEntityName()));
             genTables.add(genTable.setStatus(GenStatus.未生成));
 
@@ -112,8 +117,8 @@ public class GenUtils implements InitializingBean {
                 GenField genField = new GenField(item.isKeyIdentityFlag(), item.getColumnType().getType());
                 BeanUtils.copyProperties(item, genField);
 
-                genField.setMsn(module.getMsn());
                 genField.setCtype(getCType(item));
+                genField.setDbName(module.getDbName());
                 genField.setTableName(genTable.getName());
                 genField.setTitle(getTitle(genField));
 
@@ -122,6 +127,22 @@ public class GenUtils implements InitializingBean {
         });
 
         return genTables;
+    }
+
+    /**
+     * 获取此数据库下的所有表的表明
+     * @param module
+     * @return
+     */
+    public static List<String> getDbAllTableName(GenModule module) {
+        PackageConfig packageConfig = getPackageConfig(module);
+        DataSourceConfig sourceConfig = getDataSourceConfig(module);
+
+        ConfigBuilder configBuilder = new ConfigBuilder(packageConfig
+                , sourceConfig, null, null, null);
+
+        return configBuilder.getTableInfoList().stream()
+                .map(item->item.getName()).collect(Collectors.toList());
     }
 
     private static String getPrefix(String name) {
@@ -184,9 +205,9 @@ public class GenUtils implements InitializingBean {
                     }
                 });
 
-                infoList.add(tableInfo);
                 tableInfo.setFields(newTableFields);
                 tableInfo.setCommonFields(newCommonFields);
+                infoList.add(tableInfo.buildOriSql(genTable.getWriteType()));
             });
 
             builder.setTableInfoList(infoList);
@@ -233,7 +254,7 @@ public class GenUtils implements InitializingBean {
     private static DataSourceConfig getDataSourceConfig(GenModule genModuleDto) {
         return new DataSourceConfig().setDbType(DbType.MYSQL).setUsername(genModuleDto.getAccount())
                 .setPassword(genModuleDto.getPassword()).setDriverName(codeGen.getSqlDriver())
-                .setUrl(String.format(codeGen.getSqlUrl(), genModuleDto.getDatabaseName()));
+                .setUrl(String.format(codeGen.getSqlUrl(), genModuleDto.getDbName()));
     }
 
     private static PackageConfig getPackageConfig(GenModule genModuleDto) {

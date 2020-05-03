@@ -15,9 +15,9 @@ public class GenModule extends BaseEntity {
     private String remark;
     private String project;
     private String account;
+    private String dbName;
     private String password;
     private String tablePrefix;
-    private String databaseName;
 
     public String getMsn() {
         return msn;
@@ -82,12 +82,12 @@ public class GenModule extends BaseEntity {
         return this;
     }
 
-    public String getDatabaseName() {
-        return databaseName;
+    public String getDbName() {
+        return dbName;
     }
 
-    public GenModule setDatabaseName(String databaseName) {
-        this.databaseName = databaseName;
+    public GenModule setDbName(String dbName) {
+        this.dbName = dbName;
         return this;
     }
 }
