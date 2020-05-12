@@ -27,11 +27,11 @@
         {label: 'EditView', value: 'ivz-edit-view'},
         {label: 'DrawerView', value: 'ivz-drawer-view'}
     ];
-    let Cover = [
-        {label: '是', value: true},
-        {label: '否', value: false},
+    let DisabledFlag = [
+        {label: '', value: true},
+        // {label: '否', value: false},
     ];
-    let Status = [
+    let GenStatus = [
         {label: '已生成', value: '已生成'},
         {label: '未生成', value: '未生成'},
     ];
@@ -60,7 +60,9 @@
               {field: 'code', title: '要生成的代码信息', metas: [
                       {field: 'entityName', title: '实体名', width: 140, editable: true},
                       {field: 'viewType', title: '视图类型', width: 130, type: 'select', data: ViewType, editable: true},
-                      {field: 'status', title: '生成状态', type: 'radio', data: Status, width: 80},
+                      {field: 'disabled', title: '禁用', type: 'switch', width: 56, editable: true
+                          , config: {checkedChildren: '是', unCheckedChildren: '否'}},
+                      {field: 'status', title: '生成状态', type: 'radio', data: GenStatus, width: 80},
                   ]},
               {field: 'remark', title: '表信息备注', width: -1},
               {field: 'action', title: '操作', type: 'action', width: 280, fixed: 'right'}
@@ -82,12 +84,11 @@
                       })
                   }
               },
-              config: {
-
-              }
+              config: {  }
           },
           searchMetas: [
               {field: 'msn', title: '模块编号', type: 'select', dictType: 'sys.module', clear: true},
+              {field: 'status', title: '生成状态', type: 'select', data: GenStatus, clear: true},
               {field: 'name', title: '表名', clear: true}
           ],
           config: {
@@ -95,13 +96,14 @@
                   column: 4
               },
               table: {
-                  submitType: 'entity',
+                  submitType: 'entity', // 提交整个实体对象
                   selection: {fixed: 'left'},
                   pagination: {}
               }
           },
       },
       created: function() {
+          // 重新修改导入表功能的回调, 添加操作提醒
           this.$page.setActionMeta("import", {callBack: function (row) {
               return new Promise((resolve) => {
                   resolve({tipTitle: '确定要重新导入表配置('+row.name+")"
@@ -109,6 +111,7 @@
               })
           }});
 
+          // 修改生成代码的回调功能, 未生成状态的直接生成, 已经生成的提醒操作用户
           this.$page.setActionMeta("gen", {callBack: function (params) {
               return new Promise(resolve => {
                   if(params.length == 1) {

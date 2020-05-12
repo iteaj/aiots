@@ -11,9 +11,6 @@
 </body>
 <th:block th:include="libs :: footer"></th:block>
 <script>
-    let Flag = [
-        {label: '是', value: true}, {label: '否', value: false}
-    ]
     let CType = [
         {label: 'text', value: 'text'},{label: 'number', value: 'number'},
         {label: 'select', value: 'select'},{label: 'stree', value: 'stree'},
@@ -35,8 +32,10 @@
                       {field: 'ctype', title: '组件类型',  width: 100, type: 'select'
                           , data: CType, config: {showSearch: true}, editable: true},
                       {field: 'dictType', title: '字典类型', type: 'select', width: 150, editable: true},
-                      {field: 'editFlag', title: '是否编辑', type: 'checkbox', data: Flag, editable: true},
-                      {field: 'searchFlag', title: '是否搜索', type: 'checkbox', data: Flag, editable: true},
+                      {field: 'editFlag', title: '可编辑', type: 'switch', editable: true
+                          , config: {checkedChildren: '是', unCheckedChildren: '否'}, width: 72},
+                      {field: 'searchFlag', title: '可搜索', type: 'switch', editable: true
+                          , config: {checkedChildren: '是', unCheckedChildren: '否'}, width: 72},
                   ]},
               {field: 'field', title: '表信息', children: [
                       {field: 'keyFlag', title: '是否主键', type: 'radio', data: Flag},

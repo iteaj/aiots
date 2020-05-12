@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,6 +52,8 @@ public class GenTableServiceImpl extends BaseServiceImpl<IGenTableDao, GenTable>
 
     @Override
     public List<GenTableDto> selectByJoinFields(List<Long> ids) {
+        if(CollectionUtils.isEmpty(ids)) return Collections.EMPTY_LIST;
+
         return this.getBaseDao().selectByJoinFields(ids);
     }
 

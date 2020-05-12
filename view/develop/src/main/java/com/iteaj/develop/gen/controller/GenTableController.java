@@ -76,6 +76,9 @@ public class GenTableController extends BaseController {
     public Result gen(@RequestBody List<GenTableDto> genTables) {
         if(CommonUtils.isNotEmpty(genTables)) {
             GenTableDto genTableDto = genTables.get(0);
+            // 过滤掉禁用的
+            genTables = genTables.stream().filter(item->
+                    !item.getDisabled()).collect(Collectors.toList());
 
             // 生成单表信息, 会指定要生成文件
             if(genTables.size() == 1) {
@@ -87,6 +90,7 @@ public class GenTableController extends BaseController {
             } else { // 批量生成表信息
                 List<Long> list = genTables.stream().map(item ->
                         item.getId()).collect(Collectors.toList());
+
                 genTables = genTableService.selectByJoinFields(list);
             }
 
@@ -95,11 +99,11 @@ public class GenTableController extends BaseController {
             if(module == null) {
                 return fail("查找不到表信息对应的模块");
             } else {
-
                 GenUtils.GenCode(module, genTables);
+
                 genTableService.updateStatusByBatch(genTables, GenStatus.已生成);
             }
-            return success();
+            return success("生成表信息("+genTables.size()+"张)");
         } else {
             return fail("请选择要生成的表");
         }

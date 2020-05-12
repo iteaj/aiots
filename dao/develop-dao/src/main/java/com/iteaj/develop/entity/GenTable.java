@@ -21,6 +21,7 @@ public class GenTable extends BaseEntity {
     private String xmlName;
     private String viewType;
     private GenStatus status;
+    private Boolean disabled;
     private String entityName;
     private String mapperName;
     private String serviceName;
@@ -169,6 +170,15 @@ public class GenTable extends BaseEntity {
 
     public GenTable setDbName(String dbName) {
         this.dbName = dbName;
+        return this;
+    }
+
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    public GenTable setDisabled(Boolean disabled) {
+        this.disabled = disabled;
         return this;
     }
 }

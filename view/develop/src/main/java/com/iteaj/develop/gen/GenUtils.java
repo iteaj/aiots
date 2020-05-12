@@ -184,6 +184,8 @@ public class GenUtils implements InitializingBean {
             List<TableInfo> infoList = new ArrayList<>();
             tableInfos.forEach(item->{
                 GenTableDto genTable = tableMap.get(item.getName());
+                if(null == genTable) return;
+
                 GenTableInfo tableInfo = new GenTableInfo();
 
                 // 将数据库里面的表集合转成生成器需要的表集合

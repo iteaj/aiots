@@ -13,7 +13,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="prefix"    column="prefix"  />
         <result property="remark"    column="remark"  />
         <result property="dbName"    column="dbName"  />
-        <result property="xmlName"    column="xml_name"  />
+        <result property="xmlName"   column="xml_name"  />
+        <result property="disabled"  column="disabled"  />
         <result property="viewType"    column="view_type"  />
         <result property="mapperName"    column="mapper_name"  />
         <result property="entityName"    column="entity_name"  />
@@ -31,16 +32,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         gt.id gt_id, gt.msn gt_msn, gt.mapper_name gt_mapper_name, gt.name gt_name, gt.entity_name gt_entity_name
         , gt.xml_name gt_xml_name, gt.service_name gt_service_name, gt.controller_name gt_controller_name
         , gt.service_impl_name gt_service_impl_name, gt.view_type gt_view_type,gt.prefix gt_prefix
-        , gt.cover gt_cover, gt.status gt_status, gt.db_name gt_db_name
+        , gt.cover gt_cover, gt.status gt_status, gt.db_name gt_db_name, gt.disabled gt_disabled
     </sql>
 
     <insert id="insertAsBatch">
         insert into t_gen_table (msn, name, comment, entity_name, service_name, mapper_name
-            , service_impl_name, controller_name, xml_name, remark, view_type, prefix, db_name) VALUES
+            , service_impl_name, controller_name, xml_name, remark, view_type, prefix, db_name, disabled) VALUES
         <foreach collection="list" separator="," item="item">
             (#{item.msn},#{item.name},#{item.comment},#{item.entityName},#{item.serviceName},#{item.mapperName}
             ,#{item.serviceImplName},#{item.controllerName},#{item.xmlName},#{item.remark},#{item.viewType}
-            ,#{item.prefix}, #{item.dbName})
+            ,#{item.prefix}, #{item.dbName}, #{item.disabled})
         </foreach>
     </insert>
     <delete id="deleteByDbNameAndName">
