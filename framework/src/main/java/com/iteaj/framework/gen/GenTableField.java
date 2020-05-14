@@ -14,6 +14,7 @@ public class GenTableField extends TableField {
     private String ctype;
     private String dictType;
     private String validate;
+    private Boolean editFlag;
     private Boolean searchFlag;
 
     public String getTitle() {
@@ -40,6 +41,15 @@ public class GenTableField extends TableField {
 
     public GenTableField setValidate(String validate) {
         this.validate = validate;
+        return this;
+    }
+
+    public Boolean getEditFlag() {
+        return editFlag;
+    }
+
+    public GenTableField setEditFlag(Boolean editFlag) {
+        this.editFlag = editFlag;
         return this;
     }
 

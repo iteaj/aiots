@@ -14,11 +14,8 @@
         el: "#${table.entityName}Page",
         data: {
             metas: [
-        #foreach($field in ${table.fields})
-                {field: '${field.propertyName}', title: '${field.title}'#if(${field.ctype}!='text'), type: '${field.ctype}'#end#if(${field.dictType}), dictType: '${field.dictType}'#end},
-        #end
-        #foreach($field in ${table.commonFields})
-            #if(!${field.keyFlag} && ${field.name}=='update_time')
+        #foreach($field in ${table.allFields})
+            #if(${field.editFlag})
                 {field: '${field.propertyName}', title: '${field.title}'#if(${field.ctype}!='text'), type: '${field.ctype}'#end#if(${field.dictType}), dictType: '${field.dictType}'#end #if(${field.name}=='create_time'), isForm: false#end},
             #end
         #end

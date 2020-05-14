@@ -15,6 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="comment"    column="comment"  />
         <result property="dictType"    column="dict_type"  />
         <result property="tableName"    column="table_name"  />
+        <result property="editFlag"    column="edit_flag"  />
         <result property="searchFlag"    column="search_flag"  />
         <result property="columnType"    column="column_type"  />
         <result property="createTime"    column="create_time"  />
@@ -27,15 +28,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         gf.id gf_id, gf.db_name gf_db_name,gf.type gf_type,gf.key_flag gf_key_flag,gf.comment gf_comment
         ,gf.table_name gf_table_name,gf.column_type gf_column_type,gf.property_name gf_property_name
         ,gf.identity_flag gf_identity_flag,gf.name gf_name,gf.title gf_title,gf.dict_type gf_dict_type
-        ,gf.search_flag gf_search_flag, gf.ctype gf_ctype
+        ,gf.search_flag gf_search_flag, gf.ctype gf_ctype, gf.edit_flag gf_edit_flag
     </sql>
 
     <insert id="insertAsBatch">
         insert into t_gen_field (name, db_name,title,dict_type,table_name, property_name
-        , ctype, type, column_type, comment, key_flag, identity_flag, remark) VALUES
+        , ctype, type, column_type, comment, key_flag, identity_flag, remark, search_flag, edit_flag) VALUES
         <foreach collection="list" separator="," item="item">
             (#{item.name},#{item.dbName},#{item.title},#{item.dictType},#{item.tableName},#{item.propertyName}
-            ,#{item.ctype}, #{item.type},#{item.columnType},#{item.comment},#{item.keyFlag},#{item.identityFlag},#{item.remark})
+            ,#{item.ctype}, #{item.type},#{item.columnType},#{item.comment},#{item.keyFlag},#{item.identityFlag}
+            ,#{item.remark}, #{item.searchFlag}, #{item.editFlag})
         </foreach>
     </insert>
 </mapper>

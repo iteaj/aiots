@@ -47,7 +47,20 @@ public class GenUtils implements InitializingBean {
     private static String MAVEN_JAVA = "src/main/java";
     private static String titleRegex = "[\\s（($#@&,，。.].*";
     private static String MAVEN_RESOURCE = "src/main/resources";
+    private static Set<String> excludeEditField = new HashSet<>();
+    private static Set<String> includeSearchField = new HashSet<>();
     private static Map<String, IColumnType> columnTypeMap = new HashMap<>();
+
+    static {
+        // 匹配以下名称的将不作为编辑字段
+        excludeEditField.add("create_time");
+        excludeEditField.add("update_time");
+
+        // 包含以下关键字的会被作为搜索字段
+        includeSearchField.add("name");
+        includeSearchField.add("phone");
+        includeSearchField.add("status");
+    }
 
     /**
      * 生成指定模块下指定的表
@@ -101,6 +114,7 @@ public class GenUtils implements InitializingBean {
         tableInfoList.forEach(tableInfo -> {
             GenTableDto genTable = new GenTableDto(module.getMsn());
             BeanUtils.copyProperties(tableInfo, genTable);
+            genTable.setDisabled(false);
             genTable.setDbName(module.getDbName());
             genTable.setPrefix(getPrefix(genTable.getEntityName()));
             genTables.add(genTable.setStatus(GenStatus.未生成));
@@ -118,15 +132,28 @@ public class GenUtils implements InitializingBean {
                 BeanUtils.copyProperties(item, genField);
 
                 genField.setCtype(getCType(item));
+                genField.setTitle(getTitle(genField));
                 genField.setDbName(module.getDbName());
                 genField.setTableName(genTable.getName());
-                genField.setTitle(getTitle(genField));
+                genField.setEditFlag(editFlagHandle(item));
+                genField.setSearchFlag(searchFlagHandle(item));
 
                 genTable.addGenField(genField);
             });
         });
 
         return genTables;
+    }
+
+    private static Boolean searchFlagHandle(TableField item) {
+        if(item.isKeyFlag()) return false;
+        return includeSearchField.stream()
+                .anyMatch(s->item.getName().contains(s));
+    }
+
+    private static Boolean editFlagHandle(TableField item) {
+        if(item.isKeyFlag()) return false;
+        return !excludeEditField.contains(item.getName());
     }
 
     /**

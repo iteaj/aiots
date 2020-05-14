@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.generator.config.po.TableField;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.FileType;
 import com.iteaj.util.CommonUtils;
-import org.apache.commons.collections.SetUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +26,7 @@ public class GenTableInfo extends TableInfo {
     private List<String> writeFlag;
     private String lowerFirstEntity;
     private String serviceFieldName;
-    private List<TableField> allList;
+    private List<TableField> allFields;
 
     public String getPrefix() {
         return prefix;
@@ -39,7 +38,7 @@ public class GenTableInfo extends TableInfo {
     }
 
     public GenTableInfo buildOriSql(String[] writeType) {
-        if(CommonUtils.isNotEmpty(getAllList())) {
+        if(CommonUtils.isNotEmpty(getAllFields())) {
             this.oriSql = handleOriSql();
             this.oriJoinSql = handleOriJoinSql();
             this.insertSql = handleInsertSql();
@@ -55,7 +54,7 @@ public class GenTableInfo extends TableInfo {
     }
 
     public String handleOriSql() {
-        List<TableField> tableFieldList = getAllList();
+        List<TableField> tableFieldList = getAllFields();
 
         int i=0, num = 10; // 5个字段换行
         StringBuilder sb = new StringBuilder();
@@ -73,7 +72,7 @@ public class GenTableInfo extends TableInfo {
     public String handleOriJoinSql() {
         if(CommonUtils.isBlank(getPrefix())) return "";
 
-        List<TableField> tableFieldList = getAllList();
+        List<TableField> tableFieldList = getAllFields();
 
         int i=0, num = 6; // 5个字段换行
         StringBuilder sb = new StringBuilder();
@@ -106,7 +105,7 @@ public class GenTableInfo extends TableInfo {
     }
 
     public int getColumn() {
-        List<TableField> tableFieldList = getAllList();
+        List<TableField> tableFieldList = getAllFields();
 
         if(tableFieldList.size()>15) {
             return 4;
@@ -121,18 +120,6 @@ public class GenTableInfo extends TableInfo {
         if(this.writeFlag == null) return true;
 
         return this.writeFlag.contains(fileType.name());
-    }
-
-    private List<TableField> getAllList() {
-        if(allList == null) {
-            allList = new ArrayList<>();
-            List<TableField> commonFields = getCommonFields();
-            if(null != commonFields) allList.addAll(commonFields);
-            List<TableField> fields = getFields();
-            if(null != fields) allList.addAll(fields);
-        }
-
-        return allList;
     }
 
     public String getLowerFirstEntity() {
@@ -195,6 +182,23 @@ public class GenTableInfo extends TableInfo {
 
     public GenTableInfo setWriteFlag(List<String> writeFlag) {
         this.writeFlag = writeFlag;
+        return this;
+    }
+
+    public List<TableField> getAllFields() {
+        if(this.allFields == null) {
+            this.allFields = new ArrayList<>();
+            List<TableField> commonFields = getCommonFields();
+            if(null != commonFields) this.allFields.addAll(commonFields);
+            List<TableField> fields = getFields();
+            if(null != fields) this.allFields.addAll(fields);
+        }
+
+        return this.allFields;
+    }
+
+    public GenTableInfo setAllFields(List<TableField> allFields) {
+        this.allFields = allFields;
         return this;
     }
 }

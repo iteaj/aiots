@@ -22,6 +22,7 @@ public class GenField extends BaseEntity {
     private String validate;
     private String tableName;
     private String columnType;
+    private Boolean editFlag;
     private Boolean searchFlag;
     private String propertyName;
     private boolean identityFlag;
@@ -167,6 +168,15 @@ public class GenField extends BaseEntity {
 
     public GenField setTitle(String title) {
         this.title = title;
+        return this;
+    }
+
+    public Boolean getEditFlag() {
+        return editFlag;
+    }
+
+    public GenField setEditFlag(Boolean editFlag) {
+        this.editFlag = editFlag;
         return this;
     }
 }
