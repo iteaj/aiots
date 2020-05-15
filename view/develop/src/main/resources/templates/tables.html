@@ -88,7 +88,7 @@
           },
           searchMetas: [
               {field: 'msn', title: '模块编号', type: 'select', dictType: 'sys.module', clear: true},
-              {field: 'status', title: '生成状态', type: 'select', data: GenStatus, clear: true},
+              {field: 'status', title: '生成状态', type: 'select', data: GenStatus, clear: true, default: '未生成'},
               {field: 'name', title: '表名', clear: true}
           ],
           config: {
@@ -107,7 +107,10 @@
           this.$page.setActionMeta("import", {callBack: function (row) {
               return new Promise((resolve) => {
                   resolve({tipTitle: '确定要重新导入表配置('+row.name+")"
-                      , tipContent: '此动作将会删除原来的表、表字段配置, 生成状态将重置为未生成'});
+                      , tipContent: '此动作将会删除原来的表、表字段配置, 生成状态将重置为未生成'
+                      , success: function (resp) {
+                            vue.$page.query(); // 重新导入成功后的回调, 重新加载页面数据
+                      }});
               })
           }});
 
@@ -122,7 +125,8 @@
                           vue.$refs['imf'].open(row);
                       }
                   } else {
-                      resolve();
+                      resolve({tipTitle: '您确定做批量生成的操作吗'
+                          , tipContent: '此动作将会覆盖原先已经生成的文件, 不可恢复'});
                   }
               })
           }})
