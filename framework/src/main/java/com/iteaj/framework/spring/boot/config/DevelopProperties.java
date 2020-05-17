@@ -17,6 +17,9 @@ public class DevelopProperties {
 
     private CodeGen gen;
 
+    /**
+     * 代码生成器配置
+     */
     public static class CodeGen {
 
         private String sqlUrl; // url的数据库用%s替代
