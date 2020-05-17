@@ -3,7 +3,7 @@
     <parent>
         <artifactId>izone</artifactId>
         <groupId>com.iteaj</groupId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <name>izone:static</name>
@@ -14,38 +14,10 @@
     <properties>
         <env.filter.file>../deploy/env/${profiles.active.env}.properties</env.filter.file>
     </properties>
-    <repositories>
-        <repository>
-            <id>cksource-mvn-repo</id>
-            <name>CKSource Maven Repository</name>
-            <url>https://maven.cksource.com/</url>
-        </repository>
-    </repositories>
     <dependencies>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>framework</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>kaptcha</artifactId>
-            <groupId>com.github.penggle</groupId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-spring</artifactId>
-        </dependency>
-        <dependency>
-            <artifactId>spring-web</artifactId>
-            <groupId>org.springframework</groupId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
         </dependency>
     </dependencies>
 
