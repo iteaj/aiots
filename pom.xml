@@ -45,8 +45,7 @@
         <url>https://gitee.com/iteaj/izone-sboot.git</url>
         <connection>scm:git:https://gitee.com/iteaj/izone-sboot.git</connection>
         <developerConnection>scm:git:https://gitee.com/iteaj/izone-sboot.git</developerConnection>
-      <tag>izone-1.1.0</tag>
-  </scm>
+    </scm>
     <developers>
         <developer>
             <name>iteaj</name>
