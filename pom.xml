@@ -224,7 +224,7 @@
                     <username>${gitee.user}</username>
                     <password>${gitee.password}</password>
                     <tagBase>${project.version}-release</tagBase>
-                    <goals>-f pom.xml deploy</goals>
+<!--                    <goals>-f pom.xml deploy</goals>-->
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -233,6 +233,41 @@
                         <artifactId>maven-scm-provider-jgit</artifactId>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <doclint>none</doclint>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <passphrase>${gpg.passphrase}</passphrase>
+                </configuration>
             </plugin>
         </plugins>
     </build>
