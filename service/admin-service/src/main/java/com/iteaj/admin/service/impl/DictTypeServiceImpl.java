@@ -1,7 +1,5 @@
 package com.iteaj.admin.service.impl;
 
-import com.alipay.sofa.runtime.api.annotation.SofaService;
-import com.alipay.sofa.runtime.api.annotation.SofaServiceBinding;
 import com.iteaj.admin.dao.IDictTypeDao;
 import com.iteaj.admin.entity.DictType;
 import com.iteaj.admin.service.IDictTypeService;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Service;
  * create time：2019/7/13
  */
 @Service
-@SofaService(bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
 public class DictTypeServiceImpl extends BaseServiceImpl<IDictTypeDao, DictType>
         implements IDictTypeService {
 

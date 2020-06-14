@@ -1,7 +1,5 @@
 package com.iteaj.admin.service.impl;
 
-import com.alipay.sofa.runtime.api.annotation.SofaService;
-import com.alipay.sofa.runtime.api.annotation.SofaServiceBinding;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.iteaj.admin.dao.IAdminDao;
 import com.iteaj.admin.dto.AdminDto;
@@ -16,11 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.security.MessageDigest;
 import java.util.List;
 
 @Service
-@SofaService(bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
 public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implements IAdminService {
 
     @Override

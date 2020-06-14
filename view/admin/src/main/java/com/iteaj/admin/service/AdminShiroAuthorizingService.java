@@ -1,7 +1,5 @@
 package com.iteaj.admin.service;
 
-import com.alipay.sofa.runtime.api.annotation.SofaService;
-import com.alipay.sofa.runtime.api.annotation.SofaServiceBinding;
 import com.iteaj.admin.entity.Admin;
 import com.iteaj.admin.entity.Config;
 import com.iteaj.admin.entity.Menu;
@@ -31,8 +29,6 @@ import java.util.stream.Collectors;
  * @see AuthorizingService
  */
 @Service
-@SofaService(interfaceType = AuthorizingService.class
-        , bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
 public class AdminShiroAuthorizingService extends
         AbstractShiroAuthorService implements EnvironmentAware {
 

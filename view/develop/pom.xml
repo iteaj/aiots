@@ -9,11 +9,27 @@
 
     <artifactId>develop</artifactId>
 
+    <properties>
+        <!--代码生成器-->
+        <project.gen.path>${project.basedir}</project.gen.path>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>develop-dao</artifactId>
+            <artifactId>develop-service</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <version>2.2</version>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -1,7 +1,5 @@
 package com.iteaj.admin.service.impl;
 
-import com.alipay.sofa.runtime.api.annotation.SofaService;
-import com.alipay.sofa.runtime.api.annotation.SofaServiceBinding;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.admin.dao.IDictDataDao;
 import com.iteaj.admin.entity.DictData;
@@ -19,7 +17,6 @@ import java.util.List;
  * create time：2019/6/24
  */
 @Service
-@SofaService(bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
 public class DictDataServiceImpl extends BaseServiceImpl<IDictDataDao, DictData> implements IDictDataService {
 
     @Override

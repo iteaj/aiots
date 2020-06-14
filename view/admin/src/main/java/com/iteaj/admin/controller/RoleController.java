@@ -1,7 +1,5 @@
 package com.iteaj.admin.controller;
 
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.admin.dto.RoleDto;
 import com.iteaj.admin.entity.Role;
@@ -24,8 +22,11 @@ import java.util.List;
 @RequestMapping("/core/role")
 public class RoleController extends BaseController {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private IRoleService roleService;
+    private final IRoleService roleService;
+
+    public RoleController(IRoleService roleService) {
+        this.roleService = roleService;
+    }
 
     @GetMapping
     public String view() {

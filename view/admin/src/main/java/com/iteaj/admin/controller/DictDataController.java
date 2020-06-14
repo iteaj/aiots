@@ -1,7 +1,5 @@
 package com.iteaj.admin.controller;
 
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.iteaj.admin.entity.DictData;
 import com.iteaj.admin.service.IDictDataService;
 import com.iteaj.framework.BaseController;
@@ -21,8 +19,11 @@ import java.util.List;
 @RequestMapping("/core/dictData")
 public class DictDataController extends BaseController {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private IDictDataService dictDataService;
+    private final IDictDataService dictDataService;
+
+    public DictDataController(IDictDataService dictDataService) {
+        this.dictDataService = dictDataService;
+    }
 
     @GetMapping()
     public String view(){

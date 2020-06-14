@@ -1,7 +1,5 @@
 package com.iteaj.admin.service.impl;
 
-import com.alipay.sofa.runtime.api.annotation.SofaService;
-import com.alipay.sofa.runtime.api.annotation.SofaServiceBinding;
 import com.iteaj.admin.dao.IRoleDao;
 import com.iteaj.admin.dto.RoleDto;
 import com.iteaj.admin.entity.Role;
@@ -22,7 +20,6 @@ import java.util.List;
  * @since 1.0
  */
 @Service
-@SofaService(bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
 public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements IRoleService {
 
     @Override

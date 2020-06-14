@@ -1,7 +1,5 @@
 package com.iteaj.admin.service.impl;
 
-import com.alipay.sofa.runtime.api.annotation.SofaService;
-import com.alipay.sofa.runtime.api.annotation.SofaServiceBinding;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.iteaj.admin.dao.IOperaLogDao;
@@ -11,8 +9,6 @@ import com.iteaj.util.module.mvc.BaseServiceImpl;
 import com.iteaj.util.module.mvc.result.PageResult;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 /**
  * create time: 2020/4/22
  *
@@ -20,7 +16,6 @@ import java.util.Date;
  * @since 1.0
  */
 @Service
-@SofaService(bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
 public class OperaLogServiceImpl extends BaseServiceImpl<IOperaLogDao, OperaLog> implements IOperaLogService {
 
     @Override

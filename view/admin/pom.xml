@@ -14,13 +14,8 @@
     <dependencies>
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>admin-dao</artifactId>
+            <artifactId>admin-service</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <artifactId>kaptcha</artifactId>
-            <groupId>com.github.penggle</groupId>
         </dependency>
     </dependencies>
 </project>

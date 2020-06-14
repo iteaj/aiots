@@ -1,8 +1,5 @@
 package com.iteaj.admin.controller;
 
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.admin.entity.Organize;
 import com.iteaj.admin.service.IOrganizeService;
 import com.iteaj.framework.BaseController;
@@ -24,8 +21,11 @@ import java.util.List;
 @RequestMapping("/core/org")
 public class OrganizeController extends BaseController {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private IOrganizeService organizeService;
+    private final IOrganizeService organizeService;
+
+    public OrganizeController(IOrganizeService organizeService) {
+        this.organizeService = organizeService;
+    }
 
     @GetMapping
     @RequiresPermissions("core:org:view")

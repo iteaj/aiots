@@ -1,7 +1,5 @@
 package com.iteaj.admin.service.impl;
 
-import com.alipay.sofa.runtime.api.annotation.SofaService;
-import com.alipay.sofa.runtime.api.annotation.SofaServiceBinding;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.admin.dao.IMenuDao;
@@ -26,7 +24,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
-@SofaService(bindings = {@SofaServiceBinding(bindingType = "${bind.type}")})
 public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService {
 
     private Map<String, Menu> urlMenuMap = new HashMap<>(128);

@@ -22,21 +22,11 @@
             <artifactId>admin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>admin-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!--管理端 - 开发模块-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>develop</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>develop-service</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

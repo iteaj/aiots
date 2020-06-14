@@ -1,7 +1,5 @@
 package com.iteaj.admin.controller;
 
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.admin.dto.AdminDto;
 import com.iteaj.admin.entity.Admin;
@@ -9,7 +7,6 @@ import com.iteaj.admin.service.IAdminService;
 import com.iteaj.framework.BaseController;
 import com.iteaj.util.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +22,11 @@ import java.util.List;
 @RequestMapping("/core/admin")
 public class AdminController extends BaseController {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private IAdminService adminService;
+    private final IAdminService adminService;
+
+    public AdminController(IAdminService adminService) {
+        this.adminService = adminService;
+    }
 
     @GetMapping
     @RequiresPermissions("core:admin:view")

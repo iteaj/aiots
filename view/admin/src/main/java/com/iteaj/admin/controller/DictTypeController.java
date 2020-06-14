@@ -1,13 +1,12 @@
 package com.iteaj.admin.controller;
 
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.admin.entity.DictType;
 import com.iteaj.admin.service.IDictTypeService;
 import com.iteaj.framework.BaseController;
 import com.iteaj.util.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +22,11 @@ import java.util.List;
 @RequestMapping("/core/dictType")
 public class DictTypeController extends BaseController {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private IDictTypeService dictTypeService;
+    private final IDictTypeService dictTypeService;
+
+    public DictTypeController(IDictTypeService dictTypeService) {
+        this.dictTypeService = dictTypeService;
+    }
 
     @GetMapping
     @RequiresPermissions("core:dictType:view")

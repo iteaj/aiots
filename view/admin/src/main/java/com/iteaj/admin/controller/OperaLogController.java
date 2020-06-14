@@ -1,15 +1,12 @@
 package com.iteaj.admin.controller;
 
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.admin.entity.Config;
 import com.iteaj.admin.entity.OperaLog;
-import com.iteaj.admin.service.IConfigService;
 import com.iteaj.admin.service.IOperaLogService;
 import com.iteaj.framework.BaseController;
 import com.iteaj.util.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +22,11 @@ import java.util.List;
 @RequestMapping("/core/log")
 public class OperaLogController extends BaseController {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private IOperaLogService operaLogService;
+    private final IOperaLogService operaLogService;
+
+    public OperaLogController(IOperaLogService operaLogService) {
+        this.operaLogService = operaLogService;
+    }
 
     @GetMapping
     @RequiresPermissions("core:log:view")

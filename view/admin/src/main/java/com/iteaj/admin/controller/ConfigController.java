@@ -1,18 +1,12 @@
 package com.iteaj.admin.controller;
 
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.admin.dto.RoleDto;
 import com.iteaj.admin.entity.Config;
-import com.iteaj.admin.entity.Role;
 import com.iteaj.admin.service.IConfigService;
-import com.iteaj.admin.service.IRoleService;
 import com.iteaj.framework.BaseController;
 import com.iteaj.util.Result;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +22,11 @@ import java.util.List;
 @RequestMapping("/core/config")
 public class ConfigController extends BaseController {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private IConfigService configService;
+    private final IConfigService configService;
+
+    public ConfigController(IConfigService configService) {
+        this.configService = configService;
+    }
 
     @GetMapping
     @RequiresPermissions(value = {"core:config:view", "core:config:test"}, logical = Logical.AND)

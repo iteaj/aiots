@@ -1,7 +1,5 @@
 package com.iteaj.admin.controller;
 
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.iteaj.admin.entity.Menu;
 import com.iteaj.admin.service.IMenuService;
 import com.iteaj.framework.BaseController;
@@ -23,8 +21,11 @@ import java.util.List;
 @RequestMapping("/core/menu")
 public class MenuController extends BaseController {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private IMenuService menuService;
+    private final IMenuService menuService;
+
+    public MenuController(IMenuService menuService) {
+        this.menuService = menuService;
+    }
 
     @GetMapping
     @RequiresPermissions("core:menu:view")
