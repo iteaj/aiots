@@ -42,10 +42,10 @@
     </properties>
 
     <scm>
+        <tag>HEAD</tag>
         <url>https://gitee.com/iteaj/izone-sboot.git</url>
         <connection>scm:git:https://gitee.com/iteaj/izone-sboot.git</connection>
         <developerConnection>scm:git:https://gitee.com/iteaj/izone-sboot.git</developerConnection>
-      <tag>izone-1.1.2</tag>
   </scm>
     <developers>
         <developer>
@@ -198,7 +198,7 @@
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <useReleaseProfile>false</useReleaseProfile>
-                    <arguments>-Poss-release</arguments>
+<!--                    <arguments>-Poss-release</arguments>-->
                     <providerImplementations>
                         <git>jgit</git>
                     </providerImplementations>
