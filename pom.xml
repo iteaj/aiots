@@ -32,7 +32,7 @@
         <guava.version>18.0</guava.version>
         <shiro.version>1.4.1</shiro.version>
         <iutils.version>1.1.9</iutils.version>
-        <izone.boot.version>1.2.2-SNAPSHOT</izone.boot.version>
+        <izone.boot.version>1.2.1</izone.boot.version>
         <mybatis.plus.version>3.3.1</mybatis.plus.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
