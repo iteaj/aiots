@@ -10,19 +10,19 @@ import com.iteaj.izone.spi.event.EventPublisher;
 import com.iteaj.izone.spi.event.Listener;
 import com.iteaj.izone.web.shiro.AuthorizingLogMethodInterceptor;
 import com.iteaj.izone.web.shiro.ShiroAuthorLogListener;
+import com.iteaj.izone.web.shiro.ShiroAutoConfiguration;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -34,6 +34,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @since 1.0
  */
 @Configuration
+@ImportAutoConfiguration(ShiroAutoConfiguration.class)
 public class AdminAutoConfiguration implements WebMvcConfigurer {
 
     private final ObjectProvider<DemoEnvInterceptor> provider;

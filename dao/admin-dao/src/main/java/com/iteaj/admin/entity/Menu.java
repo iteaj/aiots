@@ -7,9 +7,10 @@ import com.iteaj.admin.enums.MenuType;
 import com.iteaj.framework.TreeEntity;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.consts.Position;
+import com.iteaj.izone.spi.MenuResource;
 import com.iteaj.izone.spi.UrlResource;
 
-public class Menu extends TreeEntity implements UrlResource {
+public class Menu extends TreeEntity implements MenuResource {
 
     /**菜单地址*/
     private String url;
