@@ -8,7 +8,6 @@ import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.authority.AuthException;
 import com.iteaj.framework.utils.ShiroUtils;
 import com.iteaj.izone.spi.AuthorizingService;
-import com.iteaj.izone.spi.MenuResource;
 import com.iteaj.izone.spi.Resource;
 import com.iteaj.izone.spi.UrlResource;
 import com.iteaj.izone.web.shiro.AbstractShiroAuthorService;
@@ -71,7 +70,7 @@ public class AdminShiroAuthorizingService extends
     }
 
     @Override
-    public List<MenuResource> getResources(Entity principal) {
+    public List<Resource> getResources(Entity principal) {
         if(null == principal) throw new ServiceException("用户未登录");
         ListResult<Menu> menuTrees = menuService
                 .selectMenuBarTrees((Long) principal.getId()
