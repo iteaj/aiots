@@ -1,10 +1,9 @@
 package com.iteaj.develop.service;
 
-import com.iteaj.develop.dao.IGenModuleDao;
+import com.iteaj.develop.mapper.IGenModuleDao;
 import com.iteaj.develop.entity.GenModule;
 import com.iteaj.develop.entity.dto.GenModuleDto;
 import com.iteaj.util.module.mvc.IBaseService;
-import com.iteaj.util.module.mvc.OptionalResult;
 
 import java.io.Serializable;
 

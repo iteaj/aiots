@@ -27,10 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * create time: 2020/4/13
@@ -86,11 +83,18 @@ public class ModuleController extends BaseController {
         ListResult<GenTable> existsTables = genTableService
                 .selectList(new GenTable().setDbName(module.getDbName()));
 
-        if(CollectionUtils.isEmpty(existsTables.get())) {
-            List<GenTable> genTables = GenUtils.importTablesAndFields(module, null);
-            return genTableService.insertAsBatch(genTables).response(success("成功导入表"+genTables.size()+"张"));
+        List<GenTable> genTables = GenUtils.importTablesAndFields(module, null);
+
+        //对数据库的所有表和已经导入的表进行求余
+        ArrayList subtract = (ArrayList)org.apache.commons.collections
+                .CollectionUtils.subtract(genTables, existsTables.get());
+
+        // 导入新增的表
+        if(!CollectionUtils.isEmpty(subtract)) {
+            return genTableService.insertAsBatch(subtract)
+                    .response(success("成功导入表"+subtract.size()+"张"));
         } else {
-            return fail("数据库("+module.getDbName()+")的表已经导入");
+            return success("成功导入表0张");
         }
     }
 
@@ -105,19 +109,5 @@ public class ModuleController extends BaseController {
         GenModule genModule = genModuleService.getById(module.getId()).get();
         List<String> dbAllTableName = GenUtils.getDbAllTableName(genModule);
         return new ListResult(dbAllTableName).response(success("查询成功"));
-    }
-
-    /**
-     * 生成代码
-     * @param module
-     * @return
-     */
-    @ResponseBody
-    @PostMapping("/gen")
-    public Result gen(@RequestBody GenModule module) {
-        // 生成表和表字段信息
-
-//        genTableService.insertAsBatch(genTables);
-        return success();
     }
 }

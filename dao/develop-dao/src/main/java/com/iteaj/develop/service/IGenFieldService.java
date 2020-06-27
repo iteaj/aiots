@@ -1,6 +1,6 @@
 package com.iteaj.develop.service;
 
-import com.iteaj.develop.dao.IGenFieldDao;
+import com.iteaj.develop.mapper.IGenFieldDao;
 import com.iteaj.develop.entity.GenField;
 import com.iteaj.util.module.mvc.IBaseService;
 

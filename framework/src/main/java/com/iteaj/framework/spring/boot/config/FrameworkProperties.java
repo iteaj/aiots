@@ -29,10 +29,15 @@ public class FrameworkProperties {
         /** 认证失败后要跳转的Url */
         private String unauthorizedUrl;
 
+
         /** 验证码类型, 默认数字相加 e.g. 3+3*/
         private String captchaType = "math";
         /** 是否开启验证码 */
         private boolean captchaEnabled = true;
+
+        /**app 放在header里面的token名称*/
+        private String appTokenKey ="access_token";
+
         /**认证类型*/
         private AuthType type = AuthType.shiro;
 
@@ -42,6 +47,15 @@ public class FrameworkProperties {
 
         public Auth setType(AuthType type) {
             this.type = type;
+            return this;
+        }
+
+        public String getAppTokenKey() {
+            return appTokenKey;
+        }
+
+        public Auth setAppTokenKey(String appTokenKey) {
+            this.appTokenKey = appTokenKey;
             return this;
         }
 
@@ -112,4 +126,5 @@ public class FrameworkProperties {
         this.uploadRootDir = uploadRootDir;
         return this;
     }
+
 }

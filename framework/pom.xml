@@ -16,12 +16,26 @@
     </properties>
 
     <dependencies>
+        <!--shiro 权限认证(security二者选其一)-->
         <dependency>
             <scope>provided</scope>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-spring</artifactId>
         </dependency>
 
+        <!--spring-security 权限认证-->
+        <dependency>
+            <scope>provided</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <scope>compile</scope>
+            <version>18.0</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
         <dependency>
             <scope>provided</scope>
             <artifactId>spring-jdbc</artifactId>
@@ -32,6 +46,11 @@
             <artifactId>kaptcha</artifactId>
             <version>${kaptcha.version}</version>
             <groupId>com.github.penggle</groupId>
+        </dependency>
+        <dependency>
+            <version>1.21</version>
+            <groupId>eu.bitwalker</groupId>
+            <artifactId>UserAgentUtils</artifactId>
         </dependency>
         <dependency>
             <scope>provided</scope>

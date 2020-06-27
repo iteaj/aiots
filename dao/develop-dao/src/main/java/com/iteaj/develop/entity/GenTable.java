@@ -181,4 +181,10 @@ public class GenTable extends BaseEntity {
         this.disabled = disabled;
         return this;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        GenTable genTable = (GenTable) obj;
+        return genTable.getName().equals(this.getName());
+    }
 }

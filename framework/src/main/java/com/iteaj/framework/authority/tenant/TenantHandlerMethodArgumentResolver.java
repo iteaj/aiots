@@ -1,7 +1,7 @@
 package com.iteaj.framework.authority.tenant;
 
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.utils.ShiroUtils;
+import com.iteaj.framework.spi.admin.SecurityUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -30,7 +30,7 @@ public class TenantHandlerMethodArgumentResolver implements HandlerMethodArgumen
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         Object argument = methodProcessor.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
         // 未登录或者是超级管理员, 多不做租户处理
-        if(!ShiroUtils.isLogin() || ShiroUtils.isSuper()) return argument;
+        if(!SecurityUtils.isLogin() || SecurityUtils.isSuper()) return argument;
 
         BaseEntity baseEntity = null;
         if(null != argument) {

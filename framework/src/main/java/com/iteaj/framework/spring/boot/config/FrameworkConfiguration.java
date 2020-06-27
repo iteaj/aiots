@@ -1,6 +1,6 @@
 package com.iteaj.framework.spring.boot.config;
 
-import com.iteaj.izone.spi.AuthzUrl;
+import com.iteaj.framework.security.AuthzUrl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

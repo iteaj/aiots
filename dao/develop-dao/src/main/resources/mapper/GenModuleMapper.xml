@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.develop.dao.IGenModuleDao">
+<mapper namespace="com.iteaj.develop.mapper.IGenModuleDao">
 
     <resultMap type="GenModule" id="OriMap">
         <id property="id"    column="id"  />
@@ -19,10 +19,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
     <resultMap id="JoinGenTable" type="GenModuleDto" extends="OriMap">
         <collection property="tables" column="msn" columnPrefix="gt_"
-                    resultMap="com.iteaj.develop.dao.IGenTableDao.OriMap" />
+                    resultMap="com.iteaj.develop.mapper.IGenTableDao.OriMap" />
     </resultMap>
     <select id="joinGenTableById" resultMap="JoinGenTable">
-        select a.*, <include refid="com.iteaj.develop.dao.IGenTableDao.OriSql" /> from t_gen_module a
+        select a.*, <include refid="com.iteaj.develop.mapper.IGenTableDao.OriSql" /> from t_gen_module a
             left join t_gen_table gt on a.db_name=gt.db_name
         where a.id=#{id}
     </select>

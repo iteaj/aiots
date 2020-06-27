@@ -7,8 +7,6 @@ import ${package.Service}.${table.serviceName};
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import com.alipay.sofa.runtime.api.annotation.SofaReference;
-import com.alipay.sofa.runtime.api.annotation.SofaReferenceBinding;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 #if(${restControllerStyle})
 import org.springframework.web.bind.annotation.RestController;
@@ -40,8 +38,8 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
 #if(${superControllerClass})
 public class ${table.controllerName} extends ${superControllerClass} {
 
-    @SofaReference(binding = @SofaReferenceBinding(bindingType = "${bind.type}"))
-    private ${table.serviceName} ${table.serviceFieldName}
+    @Autowired
+    private ${table.serviceName} ${table.serviceFieldName};
 
     @GetMapping
     @RequiresPermissions("core:${table.lowerFirstEntity}:view")

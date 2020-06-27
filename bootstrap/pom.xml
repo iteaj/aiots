@@ -6,7 +6,7 @@
         <version>1.1.3</version>
     </parent>
 
-    <name>boot:bootstrap</name>
+    <name>bootstrap</name>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bootstrap</artifactId>
 
@@ -28,6 +28,28 @@
             <groupId>com.iteaj</groupId>
             <artifactId>develop</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!--选用的权限框架实现-->
+        <!--shiro 权限实现-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>shiro</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!--spring security 权限实现-->
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>security</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+
+
+        <!--启用缓存-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
     </dependencies>
 

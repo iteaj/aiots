@@ -1,0 +1,60 @@
+package com.iteaj.security.shiro;
+
+import com.iteaj.framework.spi.admin.LoggerType;
+import com.iteaj.framework.spi.event.EventPublisher;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.UnauthenticatedException;
+import org.apache.shiro.authz.UnauthorizedException;
+import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthorizingMethodInterceptor;
+import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
+import org.apache.shiro.web.subject.WebSubject;
+
+import java.lang.reflect.Method;
+
+/**
+ * create time: 2020/4/21
+ *
+ * @author iteaj
+ * @since 1.0
+ */
+public class AuthorizingLogMethodInterceptor extends AopAllianceAnnotationsAuthorizingMethodInterceptor {
+
+    private EventPublisher eventPublisher;
+
+    public AuthorizingLogMethodInterceptor(EventPublisher asyncPublisher) {
+        this.eventPublisher = asyncPublisher;
+    }
+
+    @Override
+    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+        LoggerType status = LoggerType.Success;
+        WebSubject subject = (WebSubject) SecurityUtils.getSubject();
+        Object source = subject.getPrincipal();
+        long startTime = System.currentTimeMillis();
+        try {
+            return super.invoke(methodInvocation);
+        } catch (UnauthorizedException ae) { // 无权限访问
+            status = LoggerType.UnAuthor;
+            throw ae;
+        } catch (UnauthenticatedException ue) { // 未认证
+            status = LoggerType.UnAuth;
+            throw ue;
+        } catch (Throwable throwable) {
+            status = LoggerType.Error;
+            status.desc = throwable.getMessage();
+            throw throwable;
+        } finally {
+            if(eventPublisher != null) {
+                ShiroHttpServletRequest servletRequest = (ShiroHttpServletRequest) subject.getServletRequest();
+
+                long operaTime = System.currentTimeMillis()-startTime;
+                Method method = methodInvocation.getMethod();
+                Object[] arguments = methodInvocation.getArguments();
+                eventPublisher.publish(new ShiroAuthorEvent(source, servletRequest, status)
+                        .setMethod(method).setArgs(arguments)
+                        .setOperaTimeMillis(operaTime));
+            }
+        }
+    }
+}

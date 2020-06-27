@@ -1,7 +1,7 @@
 package com.iteaj.develop.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.iteaj.develop.dao.IGenTableDao;
+import com.iteaj.develop.mapper.IGenTableDao;
 import com.iteaj.develop.entity.GenField;
 import com.iteaj.develop.entity.GenTable;
 import com.iteaj.develop.entity.dto.GenTableDto;
@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class GenTableServiceImpl extends BaseServiceImpl<IGenTableDao, GenTable>
 
     @Override
     @Transactional
-    public BooleanResult insertAsBatch(List<GenTable> entityList) {
+    public BooleanResult insertAsBatch(Collection<GenTable> entityList) {
         if(CollectionUtils.isEmpty(entityList))
             return new BooleanResult(false).setMessage("不存在要导入的表");
 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <th:block th:include="libs :: header('在线用户')"></th:block>
+</head>
+<body>
+<div id="OnlineUserPage">
+    <ivz-basic-view :metas="metas" :config="config" :search-metas="searchMetas">
+        <template #status_t="params">
+            <a-tag v-if="params.value=='Guest'" color="orange">访 客</a-tag>
+            <a-tag v-else-if="params.value=='On'" color="#87d068"
+                   @click="online(params)" style="cursor: pointer">在 线</a-tag>
+            <a-tag v-else color="#f50" style="cursor: not-allowed" @click="online(params)">离 线</a-tag>
+        </template>
+    </ivz-basic-view>
+</div>
+</body>
+<th:block th:include="libs :: footer"></th:block>
+<script>
+    let Status = [
+        {label: '访客', value: 'Guest'},
+        {label: '在线', value: 'On'},
+        {label: '离线', value: 'Off'},
+    ];
+    let AppType = [
+        {label: 'pc/web', value: 'Web'},
+        {label: 'app/web', value: 'WebApp'},
+        {label: 'app', value: 'App'},
+        {label: '未知', value: 'Unknown'},
+    ]
+    let vue = new Vue({
+        el: "#OnlineUserPage",
+        data: {
+            metas: [
+                {field: 'userNick', title: '用户昵称', fixed: 'left' },
+                {field: 'os', title: '操作系统'},
+                {field: 'appType', title: '应用类型', type: 'select', data: AppType},
+                {field: 'browse', title: '浏览器', width: 150},
+                {field: 'accessIp', title: '访问ip', width: 152},
+                {field: 'location', title: '访问位置' },
+                {field: 'status', title: '在线状态', type: 'select', data: Status, width: 80},
+                {field: 'createTime', title: '访问时间', type: 'date'
+                    , config: {viewFormat: 'YYYY-MM-DD HH:mm:ss'}, width: 150 },
+                {field: 'loginTime', title: '登录时间', type: 'date'
+                    , config: {viewFormat: 'YYYY-MM-DD HH:mm:ss'}, width: 150 },
+                {field: 'updateTime', title: '最后访问时间', type: 'date'
+                    , config: {viewFormat: 'YYYY-MM-DD HH:mm:ss'}, width: 150 },
+            ],
+            searchMetas: [
+                // {field: 'deptName', title: '所属部门'},
+                // {field: 'status', title: '用户状态'},
+            ],
+            config: {
+                form: {
+                    column: 3
+                },
+                table: {
+                    // selection: {}, 表格多选
+                    pagination: {} // 表格分页
+                }
+            },
+        },
+        created: function() {
+            this.$page.setActionMeta("Del", {
+                callBack: function (row) {
+                    return new Promise(function(resolve) {
+                        resolve({tipTitle: '下线此用户(当前用户将不被允许)', tipContent: '此动作将迫使此用户直接下线'});
+                    })},
+                disabled: function (row) {
+                    return row['status'] == 'Off';
+                }
+            })
+        },
+        methods: {
+            online: function (params) {
+                this.$page.del(params.row)
+            }
+        }
+    });
+</script>
+</html>
+
