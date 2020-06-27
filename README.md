@@ -10,7 +10,7 @@ izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和sprin
 * 角色管理 - 管理角色所拥有的权限, 包括视图权限和功能权限
 * 代码生产 - 生成前后端(java, html, xml)等功能文件， 生成符合ivzone框架的前端页面
 * 自动登录功能 - 基于shiro实现(非rememberme实现)， 如果用户的会话未过期，用户无需再次登录(如：后台重启，原生app认证)
-* 原生app会话功能 - 基于shiro实现， 登录时将access_token放入请求header，在会话的有效期内， 将无需重新登录(采用数据库实现，如果系统开启spring-redis缓存， shiro将会委托给spring的缓存管理实现)
+* 原生app会话功能 - 基于shiro实现， 登录时将access_token放入请求header(属于app访问)，在会话的有效期内， 将无需重新登录(采用数据库实现，如果系统开启spring-redis缓存， shiro将会委托给spring的缓存管理实现)
 #### [项目预览地址](http://izone.iteaj.com) 用户名：admin 密码：admin123456
 #### 项目介绍目录
 1. [项目介绍](#项目介绍)
