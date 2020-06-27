@@ -108,6 +108,12 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         return sessionId;
     }
 
+    /**
+     * 此方法主要用来保存request和response对象, 由于第一次访问的时候Subject还未创建, 所以获取不到web上下文对象
+     * @see OnlineSessionSessionDAO#doReadSession(Serializable)
+     * @param request
+     * @param response
+     */
     protected void createWebDelegatingSubject(ServletRequest request, ServletResponse response) {
         WebDelegatingSubject subject = new WebDelegatingSubject(null
                 , false, null, null, request, response, SecurityUtils.getSecurityManager());
