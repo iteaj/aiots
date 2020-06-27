@@ -3,6 +3,8 @@ package com.iteaj.security.shiro;
 import com.iteaj.framework.spi.admin.auth.AuthToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 
+import java.io.Serializable;
+
 /**
  * create time: 2020/6/27
  *
@@ -11,8 +13,20 @@ import org.apache.shiro.authc.UsernamePasswordToken;
  */
 public class AutoLoginToken extends UsernamePasswordToken implements AuthToken {
 
-    public AutoLoginToken(String username) {
+    private Serializable sessionId;
+
+    public AutoLoginToken(String username, Serializable sessionId) {
         super(username, new char[]{});
+        this.sessionId = sessionId;
+    }
+
+    public Serializable getSessionId() {
+        return sessionId;
+    }
+
+    public AutoLoginToken setSessionId(Serializable sessionId) {
+        this.sessionId = sessionId;
+        return this;
     }
 
     @Override

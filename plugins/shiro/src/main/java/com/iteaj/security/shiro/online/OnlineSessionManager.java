@@ -108,7 +108,7 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         return sessionId;
     }
 
-    private void createWebDelegatingSubject(ServletRequest request, ServletResponse response) {
+    protected void createWebDelegatingSubject(ServletRequest request, ServletResponse response) {
         WebDelegatingSubject subject = new WebDelegatingSubject(null
                 , false, null, null, request, response, SecurityUtils.getSecurityManager());
 

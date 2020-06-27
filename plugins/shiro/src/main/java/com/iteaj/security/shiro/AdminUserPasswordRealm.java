@@ -114,6 +114,12 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
 
     private AuthenticationInfo autoLoginAuthenticationInfo(AutoLoginToken token) {
         Entity admin = userAccountService.getAdmin(token);
+        if(null == admin) throw new UnknownAccountException("账号不存在：" + token.getUsername());
+
+        // 发送登录事件
+        this.eventPublisher.publish(new OnlineEvent(token
+                .getSessionId(), OnlineType.On).setAdmin(admin));
+
         return new SimpleAuthenticationInfo(admin, null, getName());
     }
 
@@ -158,6 +164,12 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
         return authorizationInfo;
     }
 
+    /**
+     * 如果是自动登录无需校验密码
+     * @param token
+     * @param info
+     * @throws AuthenticationException
+     */
     @Override
     protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
         if(token instanceof AutoLoginToken) {

@@ -17,6 +17,7 @@ import org.apache.shiro.subject.SubjectContext;
 import org.apache.shiro.util.CollectionUtils;
 import org.apache.shiro.util.StringUtils;
 import org.apache.shiro.web.subject.WebSubject;
+import org.apache.shiro.web.subject.support.WebDelegatingSubject;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -62,11 +63,20 @@ public class OnlineSessionSessionDAO extends EnterpriseCacheSessionDAO implement
                      * @see com.iteaj.security.shiro.AdminUserPasswordRealm#assertCredentialsMatch 去除自动登录的密码认证
                      * @see com.iteaj.security.shiro.AdminUserPasswordRealm#autoLoginAuthenticationInfo(AutoLoginToken)
                      */
-                    AutoLoginToken autoLoginToken = new AutoLoginToken(onlineSession.getAccount());
-                    SecurityUtils.getSubject().login(autoLoginToken); // 自动登录
+                    AutoLoginToken autoLoginToken = new AutoLoginToken(onlineSession.getAccount(), sessionId);
+
+                    /**
+                     * @see OnlineSessionManager#createWebDelegatingSubject ori再此处创建
+                     */
+                    WebDelegatingSubject ori = (WebDelegatingSubject)SecurityUtils.getSubject();
+
+                    // 此处必须重新创建一个WebDelegatingSubject对象, 并且指定传入当前登录的session
+                    WebDelegatingSubject subject = new WebDelegatingSubject(ori.getPrincipals(), ori.isAuthenticated(), ori.getHost()
+                            , session, ori.getServletRequest(), ori.getServletResponse(), ori.getSecurityManager());
+                    SecurityUtils.getSecurityManager().login(subject, autoLoginToken); // 自动登录
 
                     // 复制已经登录的session信息
-                    copyLoginSessionAttrs(session);
+                    copyLoginSessionAttrs(subject.getSession(), session);
                 }
             } catch (InvalidSessionException e) {
                 e.printStackTrace();
@@ -80,16 +90,16 @@ public class OnlineSessionSessionDAO extends EnterpriseCacheSessionDAO implement
      * 复制登录的属性
      * @see SubjectContext#isAuthenticated() 验证是否登录
      * @see SubjectContext#resolvePrincipals() 获取登录的用户
+     * @param subjectSession
      * @param session
      */
-    private void copyLoginSessionAttrs(SimpleSession session) {
-        Session loginSession = SecurityUtils.getSubject().getSession(false);
-        Collection<Object> attributeKeys = loginSession.getAttributeKeys();
+    private void copyLoginSessionAttrs(Session subjectSession, SimpleSession session) {
+        Collection<Object> attributeKeys = subjectSession.getAttributeKeys();
 
         if(CollectionUtils.isEmpty(attributeKeys)) return;
 
         attributeKeys.forEach(key->{
-            session.setAttribute(key, loginSession.getAttribute(key));
+            session.setAttribute(key, subjectSession.getAttribute(key));
         });
     }
 
