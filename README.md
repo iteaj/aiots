@@ -1,14 +1,16 @@
 ## izone-sboot
-izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和springboot2结合开发的后台管理系统，特点是一个功能一个页面， 且每个页面包含完整的增删改查(基于vue和ant-design-vue). 后台包含有如下功能
+izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和springboot2结合开发的后台管理系统，前端特点是采用基于vue的多页面解决方案， 一个功能一个页面， 且每个页面包含完整的增删改查(基于vue和ant-design-vue). 后台采用springboot2开发， 已完成的包含如下功能：
+* 用户管理 - 管理系统的使用用户
+* 组织机构 - 配置系统组织机构（机构、公司、部门）
 * 菜单管理 - 管理系统菜单、视图、功能权限
 * 系统配置 - 管理系统运行时的配置参数
 * 字典管理 - 维护系统常用的参数数据
 * 访问日志 - 管理用户对系统功能的操作记录
 * 在线用户 - 监控当前系统的活跃用户
-* 用户管理 - 管理系统的使用用户
-* 组织机构 - 配置系统组织机构（机构、公司、部门）
 * 角色管理 - 管理角色所拥有的权限, 包括视图权限和功能权限
 * 代码生产 - 生成前后端(java, html, xml)等功能文件， 生成符合ivzone框架的前端页面
+* 自动登录功能 - 基于shiro实现(非rememberme实现)， 如果用户的会话未过期，用户无需再次登录(如：后台重启，原生app认证)
+* 原生app会话功能 - 基于shiro实现， 登录时将access_token放入请求header，在会话的有效期内， 将无需重新登录(采用数据库实现，如果系统开启spring-redis缓存， shiro将会委托给spring的缓存管理实现)
 #### [项目预览地址](http://izone.iteaj.com) 用户名：admin 密码：admin123456
 #### 项目介绍目录
 1. [项目介绍](#项目介绍)
