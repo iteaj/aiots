@@ -30,7 +30,7 @@ izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和sprin
 3. 数据： mysql5.7+
 4. 开发工具：idea
 #### 更新日志
-当前最新版本1.1.1
+当前最新版本1.1.3
 1. 更新ivzone到最新版[ivzone更新日志](https://gitee.com/iteaj/ivzone/wikis/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97?sort_id=2131566)
 2. 新增403 404 500 等错误页面
 3. 新增代码生成器, 支持多模块, 直接导入到项目路径
