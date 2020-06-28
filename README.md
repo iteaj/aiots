@@ -1,4 +1,4 @@
-## izone-sboot [预览地址](http://izone.iteaj.com) 用户名：admin 密码：admin123456
+### izone-sboot [预览地址](http://izone.iteaj.com) 用户名：admin 密码：admin123456
 izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和springboot2结合开发的后台管理系统，前端特点是采用基于vue的多页面解决方案， 一个功能一个页面， 且每个页面包含完整的增删改查(基于vue和ant-design-vue). 后台采用springboot2开发， 已完成的包含如下功能：
 * 用户管理 - 管理系统的使用用户
 * 组织机构 - 配置系统组织机构（机构、公司、部门）
