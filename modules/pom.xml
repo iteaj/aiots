@@ -11,20 +11,15 @@
         <module>develop</module>
     </modules>
 
-    <name>izone:view</name>
+    <name>izone:modules</name>
     <packaging>pom</packaging>
     <groupId>com.iteaj</groupId>
-    <artifactId>view</artifactId>
+    <artifactId>modules</artifactId>
 
     <modelVersion>4.0.0</modelVersion>
-    <description>管理端系统各个web视图模块</description>
+    <description>管理端系统功能模块</description>
 
     <dependencies>
-        <dependency> <!--静态资源模块-->
-            <groupId>com.iteaj</groupId>
-            <artifactId>static</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -52,10 +47,4 @@
         </dependency>
 
     </dependencies>
-
-    <build>
-        <plugins>
-
-        </plugins>
-    </build>
 </project>
