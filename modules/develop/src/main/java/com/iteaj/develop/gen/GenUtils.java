@@ -14,7 +14,7 @@ import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
 import com.iteaj.develop.entity.GenField;
 import com.iteaj.develop.entity.GenModule;
 import com.iteaj.develop.entity.GenTable;
-import com.iteaj.develop.entity.dto.GenTableDto;
+import com.iteaj.develop.dto.GenTableDto;
 import com.iteaj.develop.enums.GenStatus;
 import com.iteaj.framework.gen.GenInjectionConfig;
 import com.iteaj.framework.gen.GenTableField;

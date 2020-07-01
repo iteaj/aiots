@@ -1,4 +1,4 @@
-package com.iteaj.develop.entity.dto;
+package com.iteaj.develop.dto;
 
 import com.iteaj.develop.entity.GenField;
 import com.iteaj.develop.entity.GenTable;

@@ -1,7 +1,7 @@
 package com.iteaj.develop.mapper;
 
 import com.iteaj.develop.entity.GenTable;
-import com.iteaj.develop.entity.dto.GenTableDto;
+import com.iteaj.develop.dto.GenTableDto;
 import com.iteaj.util.module.mvc.orm.IBaseDao;
 
 import java.util.List;

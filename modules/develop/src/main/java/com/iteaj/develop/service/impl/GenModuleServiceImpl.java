@@ -3,7 +3,7 @@ package com.iteaj.develop.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.develop.mapper.IGenModuleDao;
 import com.iteaj.develop.entity.GenModule;
-import com.iteaj.develop.entity.dto.GenModuleDto;
+import com.iteaj.develop.dto.GenModuleDto;
 import com.iteaj.develop.service.IGenModuleService;
 import com.iteaj.develop.service.IGenTableService;
 import com.iteaj.util.module.mvc.BaseServiceImpl;

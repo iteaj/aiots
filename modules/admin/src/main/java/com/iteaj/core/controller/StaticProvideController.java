@@ -1,9 +1,8 @@
-package com.iteaj.statics.controller;
+package com.iteaj.core.controller;
 
 import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.Producer;
 import com.iteaj.framework.BaseController;
-import com.iteaj.statics.StaticAutoConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +34,6 @@ public class StaticProvideController extends BaseController {
 
     /**
      * 登录页
-     * @see StaticAutoConfiguration#staticFilterChainDefinition()
      */
     @GetMapping("${izb.auth.login-url}")
     public String login() {

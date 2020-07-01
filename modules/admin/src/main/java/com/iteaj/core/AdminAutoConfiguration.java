@@ -9,17 +9,19 @@ import com.iteaj.core.service.AdminLoggerService;
 import com.iteaj.core.service.IMenuService;
 import com.iteaj.core.service.IOnlineUserService;
 import com.iteaj.core.service.IOperaLogService;
+import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.event.OnlineListener;
 import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.event.AsyncGuavaEventBus;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.Listener;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
-import eu.bitwalker.useragentutils.DeviceType;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +29,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -40,11 +43,17 @@ import java.util.List;
  * @since 1.0
  */
 @Configuration
+@ImportAutoConfiguration(classes = {
+        CaptchaConfiguration.class,
+})
 public class AdminAutoConfiguration implements WebMvcConfigurer {
 
+    private final FrameworkProperties properties;
     private final ObjectProvider<DemoEnvInterceptor> provider;
 
-    public AdminAutoConfiguration(ObjectProvider<DemoEnvInterceptor> provider) {
+    public AdminAutoConfiguration(FrameworkProperties properties
+            , ObjectProvider<DemoEnvInterceptor> provider) {
+        this.properties = properties;
         this.provider = provider;
     }
 
@@ -99,6 +108,30 @@ public class AdminAutoConfiguration implements WebMvcConfigurer {
     @Bean
     public EventPublisher eventPublisher(TaskExecutor taskExecutor, List<Listener> listeners) {
         return new AsyncGuavaEventBus(listeners, taskExecutor);
+    }
+
+    /**
+     * 用户处理上传文件的访问路径问题
+     * @see com.iteaj.core.controller.CommonUploadController 文件上传
+     * @param registry
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String uploadRootUri = properties.getUploadRootUri();
+        String uploadRootDir = properties.getUploadRootDir();
+        if(uploadRootUri != null && uploadRootDir != null) {
+            if(uploadRootUri.endsWith("/")) {
+                uploadRootUri = uploadRootUri+"**";
+            } else {
+                uploadRootUri = uploadRootUri+"/**";
+            }
+            if(!uploadRootDir.endsWith("/")) {
+                uploadRootDir = uploadRootDir + "/";
+            }
+
+            registry.addResourceHandler(uploadRootUri)
+                    .addResourceLocations("file:"+uploadRootDir);
+        }
     }
 
     /**

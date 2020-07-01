@@ -1,4 +1,4 @@
-package com.iteaj.statics.controller;
+package com.iteaj.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
@@ -25,7 +25,7 @@ import java.util.UUID;
 /**
  * create time: 2020/4/26
  *  通用的文件上传
- * @see com.iteaj.statics.StaticAutoConfiguration#addResourceHandlers(ResourceHandlerRegistry) 已上传的文件的访问映射
+ * @see com.iteaj.core.AdminAutoConfiguration#addResourceHandlers(ResourceHandlerRegistry) 已上传的文件的访问映射
  * @author iteaj
  * @since 1.0
  */

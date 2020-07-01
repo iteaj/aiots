@@ -2,7 +2,7 @@ package com.iteaj.develop.service;
 
 import com.iteaj.develop.mapper.IGenTableDao;
 import com.iteaj.develop.entity.GenTable;
-import com.iteaj.develop.entity.dto.GenTableDto;
+import com.iteaj.develop.dto.GenTableDto;
 import com.iteaj.develop.enums.GenStatus;
 import com.iteaj.util.module.mvc.IBaseService;
 

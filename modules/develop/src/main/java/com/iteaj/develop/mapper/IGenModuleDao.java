@@ -1,7 +1,7 @@
 package com.iteaj.develop.mapper;
 
 import com.iteaj.develop.entity.GenModule;
-import com.iteaj.develop.entity.dto.GenModuleDto;
+import com.iteaj.develop.dto.GenModuleDto;
 import com.iteaj.util.module.mvc.orm.IBaseDao;
 
 import java.io.Serializable;

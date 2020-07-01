@@ -6,13 +6,13 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output url="file://$MODULE_DIR$/../shiro/target/classes" />
-    <output-test url="file://$MODULE_DIR$/../shiro/target/test-classes" />
-    <content url="file://$MODULE_DIR$/../shiro">
-      <sourceFolder url="file://$MODULE_DIR$/../shiro/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../shiro/src/main/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/../shiro/src/test/java" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/../shiro/target" />
+    <output url="file://$MODULE_DIR$/target/classes" />
+    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

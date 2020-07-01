@@ -3,7 +3,7 @@ package com.iteaj.develop.gen.controller;
 import com.iteaj.develop.entity.GenField;
 import com.iteaj.develop.entity.GenModule;
 import com.iteaj.develop.entity.GenTable;
-import com.iteaj.develop.entity.dto.GenTableDto;
+import com.iteaj.develop.dto.GenTableDto;
 import com.iteaj.develop.enums.GenStatus;
 import com.iteaj.develop.gen.GenUtils;
 import com.iteaj.develop.service.IGenFieldService;
@@ -14,7 +14,6 @@ import com.iteaj.util.CommonUtils;
 import com.iteaj.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;

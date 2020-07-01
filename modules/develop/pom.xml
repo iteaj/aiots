@@ -17,6 +17,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>framework</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <version>2.2</version>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
