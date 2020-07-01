@@ -14,10 +14,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
-        <module>dao</module>    <!--数据访问层-->
-        <module>view</module>    <!--Web展示层-->
         <module>static</module>  <!--静态资源模块-->
-        <module>service</module>  <!--业务模块-->
+        <module>modules</module>    <!--Web展示层-->
         <module>framework</module><!--系统架构层-->
 
         <module>plugins</module> <!-- 可选插件 -->
