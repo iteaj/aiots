@@ -14,8 +14,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
-        <module>modules</module>    <!--应用模块-->
-        <module>plugins</module> <!-- 可选插件 -->
+        <module>plugins</module>    <!-- 可选插件 -->
+        <module>backstage</module>  <!--后台管理应用模块-->
+        <module>resources</module>  <!--静态资源模块-->
 
         <module>framework</module><!--系统架构层-->
 
@@ -97,6 +98,13 @@
             <groupId>com.baomidou</groupId>
             <version>${mybatis.plus.version}</version>
             <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <scope>provided</scope>
+            <artifactId>lombok</artifactId>
+            <groupId>org.projectlombok</groupId>
         </dependency>
     </dependencies>
 
