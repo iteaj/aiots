@@ -70,20 +70,12 @@ public class GenTableServiceImpl extends BaseServiceImpl<IGenTableDao, GenTable>
         if(CollectionUtils.isEmpty(genTables))return;
 
         // 删除原来的数据
-//        genTables.forEach(item->this.deleteByDbNameAndName(item.getDbName(), item.getName()));
+        Object[] tableNames = genTables.stream()
+                .map(item -> item.getName()).toArray();
+        this.delete(Wrappers.<GenTable>query().in("name", tableNames));
 
         // 添加最新的数据
         this.insertAsBatch(genTables);
-    }
-
-    /**
-     * 根据模块名称和表明删除
-     * @param msn
-     * @param name
-     */
-    @Override
-    public void deleteByDbNameAndName(String msn, String name) {
-        getBaseDao().deleteByDbNameAndName(msn, name);
     }
 
     @Override

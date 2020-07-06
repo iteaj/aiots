@@ -1,6 +1,5 @@
 package com.iteaj.develop.gen;
 
-import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
@@ -41,12 +40,11 @@ import java.util.stream.Collectors;
 @Component
 public class GenUtils implements InitializingBean {
 
-    private static String outputDir = "";
     private static DevelopProperties properties;
     private static DevelopProperties.CodeGen codeGen;
-    private static String MAVEN_JAVA = "src/main/java";
+    private static String MAVEN_JAVA = "src"+File.separator+"main"+File.separator+"java";
     private static String titleRegex = "[\\s（($#@&,，。.].*";
-    private static String MAVEN_RESOURCE = "src/main/resources";
+    private static String MAVEN_RESOURCE = "src"+File.separator+"main"+File.separator+"resources";
     private static Set<String> excludeEditField = new HashSet<>();
     private static Set<String> includeSearchField = new HashSet<>();
     private static Map<String, IColumnType> columnTypeMap = new HashMap<>();
@@ -68,11 +66,26 @@ public class GenUtils implements InitializingBean {
      */
     public static void GenCode(GenConfig config, List<GenTableDto> tables) {
 
-        GlobalConfig globalConfig = codeGen.getGlobal();
+        GlobalConfig globalConfig = new GlobalConfig();
         StrategyConfig strategyConfig = codeGen.getStrategy();
-        PackageConfig packageConfig = codeGen.getPackageConfig();
+        PackageConfig packageConfig = new PackageConfig();
         DataSourceConfig dataSourceConfig = codeGen.getSource();
         TemplateConfig templateConfig = codeGen.getTemplate();
+
+        BeanUtils.copyProperties(codeGen.getPackageConfig(), packageConfig);
+        packageConfig.setModuleName(config.getAlias());
+
+        BeanUtils.copyProperties(codeGen.getGlobal(), globalConfig);
+        globalConfig.setFileOverride(config.isOverwrite());
+
+        String outputDir;
+        if(config.isWrite()) { // 输出到项目里
+            outputDir = codeGen.getRootDir() + File.separator + config.getParent();
+        } else { // 输出到其他路径
+            outputDir = codeGen.getGlobal().getOutputDir() + File.separator;
+        }
+        config.setOutRootDir(outputDir);
+        globalConfig.setOutputDir(outputDir);
 
         // h5模板注入
         InjectionConfig injectionConfig = new GenInjectionConfig(codeGen);
@@ -81,10 +94,10 @@ public class GenUtils implements InitializingBean {
                 , dataSourceConfig, strategyConfig, templateConfig, globalConfig);
 
         // 处理代码生成器要生成的文件的路径
-        handlePathInfo(builder, null);
+        handlePathInfo(builder, config);
 
         // 转换数据库的表信息到代码生成器的表信息
-        handleTableInfo(builder, tables);
+        handleTableInfo(config, builder, tables);
 
         injectionConfig.setConfig(builder);
         new AutoGenerator().setTemplateEngine(new GenVelocityTemplateEngine())
@@ -93,13 +106,14 @@ public class GenUtils implements InitializingBean {
 
     /**
      * 导入表和表字段
+     * @param tables 要导入的表信息
      * @return
      */
-    public static List<GenTable> importTablesAndFields() {
+    public static List<GenTable> importTablesAndFields(List<GenTable> tables) {
 
 
         DataSourceConfig source = codeGen.getSource();
-        StrategyConfig strategy = codeGen.getStrategy();
+        StrategyConfig strategy = getStrategyConfig(tables);
         GlobalConfig global = codeGen.getGlobal();
         PackageConfig packageConfig = new PackageConfig();
         ConfigBuilder configBuilder = new ConfigBuilder(packageConfig
@@ -113,7 +127,7 @@ public class GenUtils implements InitializingBean {
             BeanUtils.copyProperties(tableInfo, genTable);
 
             genTable.setDisabled(false);
-            genTable.setPrefix(getPrefix(genTable.getEntityName()));
+            genTable.setPrefix(getPrefix(tableInfo.getEntityName()));
             genTables.add(genTable.setStatus(GenStatus.未生成));
 
             // 生成字段信息
@@ -192,7 +206,7 @@ public class GenUtils implements InitializingBean {
      * @param builder
      * @param tables 用户自定要要生成的表信息
      */
-    private static void handleTableInfo(ConfigBuilder builder, List<GenTableDto> tables) {
+    private static void handleTableInfo(GenConfig config, ConfigBuilder builder, List<GenTableDto> tables) {
         List<TableInfo> tableInfos = builder.getTableInfoList();
         if(!CollectionUtils.isEmpty(tableInfos)) {
             Map<String, GenTableDto> tableMap = tables.stream().
@@ -232,41 +246,32 @@ public class GenUtils implements InitializingBean {
 
                 tableInfo.setFields(newTableFields);
                 tableInfo.setCommonFields(newCommonFields);
-                infoList.add(tableInfo.buildOriSql(genTable.getWriteType()));
+                infoList.add(tableInfo.buildOriSql(config.getWriteType()));
             });
 
             builder.setTableInfoList(infoList);
         }
     }
 
-    private static void handlePathInfo(ConfigBuilder builder, GenModule module) {
+    private static void handlePathInfo(ConfigBuilder builder, GenConfig config) {
         Map<String, String> pathInfo = builder.getPathInfo();
         Map<String, String> packageInfo = builder.getPackageInfo();
         // h5页面放在templates目录下面
-        pathInfo.put(GenInjectionConfig.H5_PATH, joinPath(module, "H5", "templates"));
+        pathInfo.put(GenInjectionConfig.H5_PATH, joinPath(config, "H5", "templates"));
         // xml配置文件放在mapper目录下面
-        pathInfo.put(ConstVal.XML_PATH, joinPath(module, ConstVal.XML, "mapper"));
+        pathInfo.put(ConstVal.XML_PATH, joinPath(config, ConstVal.XML, "mapper.xml"));
 
-        pathInfo.put(ConstVal.ENTITY_PATH, joinPath(module, ConstVal.ENTITY, packageInfo.get(ConstVal.ENTITY)));
-        pathInfo.put(ConstVal.MAPPER_PATH, joinPath(module, ConstVal.MAPPER, packageInfo.get(ConstVal.MAPPER)));
-        pathInfo.put(ConstVal.SERVICE_PATH, joinPath(module, ConstVal.SERVICE, packageInfo.get(ConstVal.SERVICE)));
-        pathInfo.put(ConstVal.CONTROLLER_PATH, joinPath(module, ConstVal.CONTROLLER, packageInfo.get(ConstVal.CONTROLLER)));
-        pathInfo.put(ConstVal.SERVICE_IMPL_PATH, joinPath(module, ConstVal.SERVICE_IMPL, packageInfo.get(ConstVal.SERVICE_IMPL)));
+        pathInfo.put(ConstVal.ENTITY_PATH, joinPath(config, ConstVal.ENTITY, packageInfo.get(ConstVal.ENTITY)));
+        pathInfo.put(ConstVal.MAPPER_PATH, joinPath(config, ConstVal.MAPPER, packageInfo.get(ConstVal.MAPPER)));
+        pathInfo.put(ConstVal.SERVICE_PATH, joinPath(config, ConstVal.SERVICE, packageInfo.get(ConstVal.SERVICE)));
+        pathInfo.put(ConstVal.CONTROLLER_PATH, joinPath(config, ConstVal.CONTROLLER, packageInfo.get(ConstVal.CONTROLLER)));
+        pathInfo.put(ConstVal.SERVICE_IMPL_PATH, joinPath(config, ConstVal.SERVICE_IMPL, packageInfo.get(ConstVal.SERVICE_IMPL)));
     }
 
-    private static TemplateConfig getTemplateConfig(GenModule module) {
-        return codeGen.getTemplate();
-    }
-
-    private static GlobalConfig getGlobalConfig(GenModule genModuleDto) {
-        return properties.getGen().getGlobal().setOutputDir("").setFileOverride(false);
-    }
-
-    private static StrategyConfig getStrategyConfig(GenModule genModuleDto, Collection<? extends GenTable> tables) {
+    private static StrategyConfig getStrategyConfig(Collection<? extends GenTable> tables) {
         StrategyConfig strategyConfig = new StrategyConfig();
         BeanUtils.copyProperties(properties.getGen().getStrategy(), strategyConfig);
         strategyConfig.setSuperEntityColumns(strategyConfig.getSuperEntityColumns());
-        strategyConfig.setTablePrefix(genModuleDto.getTablePrefix());
 
         // 处理所有的表
         if(CollectionUtils.isEmpty(tables)) return strategyConfig;
@@ -279,12 +284,12 @@ public class GenUtils implements InitializingBean {
     /**
      * 连接路径字符串
      *
-     * @param module   路径常量字符串
+     * @param config   路径常量字符串
      * @param packageName 包名
      * @return 连接后的路径
      */
-    public static String joinPath(GenModule module, String type, String packageName) {
-        String parentDir = getParentDir(type, module.getProject());
+    public static String joinPath(GenConfig config, String type, String packageName) {
+        String parentDir = getParentDir(config.getOutRootDir(), type, config.getProject());
         if (StringUtils.isBlank(parentDir)) {
             parentDir = System.getProperty(ConstVal.JAVA_TMPDIR);
         }
@@ -295,13 +300,14 @@ public class GenUtils implements InitializingBean {
         return parentDir + packageName;
     }
 
-    private static String getParentDir(String type, String project) {
+    private static String getParentDir(String outRootDir, String type, String project) {
         switch (type) {
-            case "H5": return String.format("%s\\view\\%s\\%s", outputDir, project, MAVEN_RESOURCE);
-            case ConstVal.XML: return String.format("%s\\dao\\%s-dao\\%s", outputDir, project, MAVEN_RESOURCE);
-            case ConstVal.CONTROLLER: return String.format("%s\\view\\%s\\%s", outputDir, project, MAVEN_JAVA);
-            case ConstVal.SERVICE_IMPL: return String.format("%s\\service\\%s-service\\%s", outputDir, project, MAVEN_JAVA);
-            default: return String.format("%s\\dao\\%s-dao\\%s", outputDir, project, MAVEN_JAVA);
+            case "H5":
+            case ConstVal.XML:
+                return String.format("%s%s%s%s%s", outRootDir, File.separator, project, File.separator, MAVEN_RESOURCE);
+            case ConstVal.SERVICE_IMPL:
+            case ConstVal.CONTROLLER:
+            default: return String.format("%s%s%s%s%s", outRootDir, File.separator, project, File.separator, MAVEN_JAVA);
         }
     }
 
@@ -395,21 +401,6 @@ public class GenUtils implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        GenUtils.outputDir = codeGen.getRootDir();
-
-        // 如果没有指定代码输出目录, 则使用当前项目开发目录
-        if(StringUtils.isBlank(codeGen.getRootDir())) {
-            File file = new File(GenUtils.outputDir);
-
-            if(file.exists()) {
-                if(!file.isDirectory())
-                    throw new BeanInitializationException("生成的代码的输出路径必须是目录");
-
-                File parentFile = file.getParentFile().getParentFile();
-                GenUtils.outputDir = parentFile.getPath();
-            }
-        }
-
         columnTypeMap = Arrays.asList(DbColumnType.values()).stream()
                 .collect(Collectors.toMap(item->item.getType(), item->item, (v1,v2)-> v2));
     }

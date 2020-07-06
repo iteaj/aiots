@@ -6,13 +6,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="GenTable" id="OriMap">
         <id property="id"    column="id"  />
-        <result property="msn"    column="msn"  />
         <result property="name"    column="name"  />
         <result property="cover"    column="cover"  />
         <result property="status"    column="status"  />
         <result property="prefix"    column="prefix"  />
         <result property="remark"    column="remark"  />
-        <result property="dbName"    column="dbName"  />
         <result property="xmlName"   column="xml_name"  />
         <result property="disabled"  column="disabled"  />
         <result property="viewType"    column="view_type"  />
@@ -32,25 +30,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         gt.id gt_id, gt.msn gt_msn, gt.mapper_name gt_mapper_name, gt.name gt_name, gt.entity_name gt_entity_name
         , gt.xml_name gt_xml_name, gt.service_name gt_service_name, gt.controller_name gt_controller_name
         , gt.service_impl_name gt_service_impl_name, gt.view_type gt_view_type,gt.prefix gt_prefix
-        , gt.cover gt_cover, gt.status gt_status, gt.db_name gt_db_name, gt.disabled gt_disabled
+        , gt.cover gt_cover, gt.status gt_status, gt.disabled gt_disabled
     </sql>
 
     <insert id="insertAsBatch">
-        insert into t_gen_table (msn, name, comment, entity_name, service_name, mapper_name
-            , service_impl_name, controller_name, xml_name, remark, view_type, prefix, db_name, disabled) VALUES
+        insert into t_gen_table (name, comment, entity_name, service_name, mapper_name
+            , service_impl_name, controller_name, xml_name, remark, view_type, prefix, disabled) VALUES
         <foreach collection="list" separator="," item="item">
-            (#{item.msn},#{item.name},#{item.comment},#{item.entityName},#{item.serviceName},#{item.mapperName}
+            (#{item.name},#{item.comment},#{item.entityName},#{item.serviceName},#{item.mapperName}
             ,#{item.serviceImplName},#{item.controllerName},#{item.xmlName},#{item.remark},#{item.viewType}
-            ,#{item.prefix}, #{item.dbName}, #{item.disabled})
+            ,#{item.prefix}, #{item.disabled})
         </foreach>
     </insert>
     <delete id="deleteByDbNameAndName">
-        delete from t_gen_table where db_name=#{dbName} and name=#{name};
-        delete from t_gen_field where db_name=#{dbName} and table_name=#{name}
+        delete from t_gen_table where name=#{name};
+        delete from t_gen_field where table_name=#{name}
     </delete>
     <select id="selectByJoinFields" resultMap="JoinFieldsMap">
         select a.*,<include refid="com.iteaj.develop.mapper.IGenFieldDao.JoinSql" />
-               from t_gen_table a left join t_gen_field gf on a.db_name=gf.db_name and a.name=gf.table_name
+               from t_gen_table a left join t_gen_field gf on a.name=gf.table_name
         where a.id in
     <foreach collection="list" item="item" separator="," open="(" close=")">
         #{item}

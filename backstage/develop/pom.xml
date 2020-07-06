@@ -13,7 +13,7 @@
 
     <properties>
         <!--使用此路径, 代码将直接生成到项目中, 无需再复制进项目-->
-        <dev.gen.root>${project.parent.parent.basedir}</dev.gen.root>
+        <dev.gen.root>${project.basedir}</dev.gen.root>
     </properties>
 
     <dependencies>

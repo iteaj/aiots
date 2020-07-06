@@ -2,6 +2,12 @@
 <html lang="zh">
 <head>
     <th:block th:include="libs :: header('代码生成模块配置')"></th:block>
+    <style>
+        .ant-modal-body .ant-form-item {
+            margin: 0px 0px 6px!important;
+            overflow: unset;
+        }
+    </style>
 </head>
 <body>
   <div id="ModulePage">
@@ -15,21 +21,31 @@
                 <a-tag v-else color="#f50">{{params.value}}</a-tag>
             </template>
         </ivz-edit-view>
-      <ivz-modal-form :width="480" title="请选择要覆盖的文件" :metas="sure.metas" ref="imf"
-            :save-meta="sure.saveMeta" :config="{bodyStyle: {height: '80px', padding: '15px 8px 3px 3px'}}">
+      <ivz-modal-form :width="680" title="代码生成配置" :metas="sure.metas" ref="imf"
+            :save-meta="sure.saveMeta" :config="sure.config" class="ivz-gen-modal">
+          <template #mapper_f><label>{{genPathRoot}}</label></template>
+          <template #package_f><label>{{packagePathRoot}}</label></template>
       </ivz-modal-form>
   </div>
 </body>
 <th:block th:include="libs :: footer"></th:block>
 <script>
+    let defaultConfig = {
+        write: true,
+        alias: 'core',
+        project: 'admin', // 要生成的代码所在的项目名称
+        overwrite: false,
+        moduleName: 'backstage', // 要生成项目的父项目
+        mavenPath: '\\src\\main\\(java | resources)'
+    };
     let ViewType = [
         {label: 'BasicView', value: 'ivz-basic-view'},
         {label: 'EditView', value: 'ivz-edit-view'},
         {label: 'DrawerView', value: 'ivz-drawer-view'}
     ];
-    let DisabledFlag = [
-        {label: '', value: true},
-        // {label: '否', value: false},
+    let modules = [
+        {label: 'admin', value: 'core'},
+        {label: 'develop', value: 'develop'},
     ];
     let GenStatus = [
         {label: '已生成', value: '已生成'},
@@ -69,28 +85,63 @@
           ],
           sure: {
               metas: [
-                  {field: 'writeType', title: '类型', type: 'select', data: WriteType
-                      , config: {mode: 'tags', maxTagCount: 6, extra: '注: 选择的文件生成之后将覆盖原来的'}, span: [3, 20, 24]}
+                  {field: 'write', title: '生成到项目', type: 'switch', default: 'true', event: {
+                            change: function (val, model) {
+                                vue.genPathRootHandle(model)
+                            }
+                      }},
+                  {field: 'overwrite', title: '覆写文件', type: 'switch', default: defaultConfig.overwrite},
+                  {field: 'project', title: '选择子项目', type: 'select', default: defaultConfig.project
+                      , data: modules, event: {
+                        change: function (val, model) {
+                            model['alias'] = val;
+                            vue.genPathRootHandle(model)
+                        }
+                      }},
+                  {field: 'alias', title: '模块别名', default: defaultConfig.alias, event: {
+                        change: function (val, model) {
+                            vue.genPathRootHandle(model)
+                        }
+                      }},
+                  {field: 'writeType', title: '类型', type: 'select', data: WriteType, placeholder: '请选择要生成的代码类型'
+                      , config: {mode: 'tags', maxTagCount: 6, extra: '注: 用来指定要生成的类型代码, 不选代表生成所有类型代码'}, span: [3, 20, 24]},
+                  {field: 'mapper', title: '生成根目录', span: [4, 20, 24], config: {extra: '说明: 根目录+子路径 = 文件的生成路径'}},
+                  {field: 'package', title: '子路径(包)', span: [4, 20, 24], config: {extra: ''}}
               ],
               saveMeta: {
                   id: 'save', url: '/dev/table/gen', callBack: function (model) {
-                      return new Promise(function (resolve) {
-                          vue.$http.post('/dev/table/gen', [model]).then(function (resp) {
-                              vue.$msg.successNotify("覆盖文件操作", resp['IvzMsg']);
-                              vue.$refs['imf'].trigger();
+                      return new Promise(function () {
+                          let writeType = model['writeType'] ? model['writeType'] : null;
+                          let url = '/dev/table/gen?alias='+model.alias+"&write="
+                              + model.write+"&project="+model.project+"&overwrite="+model['overwrite']
+                                  + "&parent=" + defaultConfig.moduleName
+                              + (writeType ? ("&writeType="+writeType) : "");
+
+                          vue.$http.post(url, vue.current).then(function (resp) {
+                              vue.$msg.successNotify("生成代码操作", resp['IvzMsg']);
+                              vue.$refs['imf'].trigger(); // 关掉弹框
+                              vue.$page.query(); // 重新刷新数据
                           }).catch(function (reason) {
-                              vue.$msg.errorNotify("覆盖文件操作", reason);
+                              vue.$msg.errorNotify("生成代码操作", reason);
                           })
                       })
                   }
               },
-              config: {  }
+              config: {
+                  form: {
+                      column: 2
+                  },
+                  bodyStyle: {padding: '15px 8px 3px 3px', height: '360px'}
+              }
           },
           searchMetas: [
-              {field: 'msn', title: '模块编号', type: 'select', dictType: 'sys.module', clear: true},
-              {field: 'status', title: '生成状态', type: 'select', data: GenStatus, clear: true, default: '未生成'},
+              {field: 'status', title: '生成状态', type: 'select', data: GenStatus, clear: true},
               {field: 'name', title: '表名', clear: true}
           ],
+          current: null,
+          genPathRoot: "",
+          packagePathRoot: '',
+          genConfig: null,
           config: {
               form: {
                   column: 4
@@ -107,35 +158,44 @@
           this.$page.setActionMeta("import", {callBack: function (row) {
               return new Promise((resolve) => {
                   resolve({tipTitle: '确定要重新导入表配置('+row.name+")"
-                      , tipContent: '此动作将会删除原来的表、表字段配置, 生成状态将重置为未生成'
+                      , tipContent: '此动作将会删除原来的表、表字段配置, 生成状态'
                       , success: function (resp) {
                             vue.$page.query(); // 重新导入成功后的回调, 重新加载页面数据
                       }});
               })
           }});
-
+          this.$page.setActionMeta("Del", {callBack: function (row) {
+                    return new Promise(function (resolve, reject) {
+                        resolve();
+                    })
+              }});
           // 修改生成代码的回调功能, 未生成状态的直接生成, 已经生成的提醒操作用户
-          this.$page.setActionMeta("gen", {callBack: function (params) {
+          this.$page.setActionMeta("gen", {callBack: function (row) {
+              vue.current = row;
               return new Promise(resolve => {
-                  if(params.length == 1) {
-                      let row = params[0];
-                      if(row.status == '未生成') {
-                          return resolve();
-                      } else {
-                          vue.$refs['imf'].open(row);
-                      }
-                  } else {
-                      resolve({tipTitle: '您确定做批量生成的操作吗'
-                          , tipContent: '此动作将会覆盖原先已经生成的文件, 不可恢复'});
-                  }
+                  vue.$refs['imf'].open();
               })
-          }})
+          }});
+          this.$http.get("/dev/table/config").then(function (data) {
+              vue.genConfig = data;
+              vue.genPathRootHandle(defaultConfig)
+          })
       },
       methods: {
           jumpField: function (params) {
               let row = params.row;
               // 打开字段配置页面, 并且重新刷新
               this.$nav({path: '/dev/field', params: {tableName: params.value, msn: row.msn}, refresh: true});
+          },
+          genPathRootHandle(model) {
+              let module = model['project'] ? model['project'] : '\\';
+              if(model['write']) { // 使用根项目路径
+                  this.genPathRoot = this.genConfig.rootPath+"\\"+defaultConfig.moduleName+"\\"+module+defaultConfig.mavenPath;
+              } else {
+                  this.genPathRoot = this.genConfig.genPath + "\\" + module + defaultConfig.mavenPath;
+              }
+              this.packagePathRoot = this.genConfig.parent + "." + model['alias']
+                  + ".*.*.java, mapper/xml/*.xml, templates/*.html, /" + model['alias']+"/*(url)"
           }
       }
   });

@@ -11,10 +11,9 @@ import com.iteaj.framework.BaseEntity;
  */
 public class GenTable extends BaseEntity {
 
-    private String msn;
     private String name;
-    private Boolean cover;
     private String prefix;
+    private Boolean cover;
     private String remark;
     private String comment;
     private String xmlName;
@@ -31,19 +30,6 @@ public class GenTable extends BaseEntity {
 
     public GenTable(GenStatus status) {
         this.status = status;
-    }
-
-    public GenTable(String msn) {
-        this.msn = msn;
-    }
-
-    public String getMsn() {
-        return msn;
-    }
-
-    public GenTable setMsn(String msn) {
-        this.msn = msn;
-        return this;
     }
 
     public String getName() {
@@ -127,15 +113,6 @@ public class GenTable extends BaseEntity {
         return this;
     }
 
-    public String getPrefix() {
-        return prefix;
-    }
-
-    public GenTable setPrefix(String prefix) {
-        this.prefix = prefix;
-        return this;
-    }
-
     public String getViewType() {
         return viewType;
     }
@@ -176,5 +153,14 @@ public class GenTable extends BaseEntity {
     public boolean equals(Object obj) {
         GenTable genTable = (GenTable) obj;
         return genTable.getName().equals(this.getName());
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public GenTable setPrefix(String prefix) {
+        this.prefix = prefix;
+        return this;
     }
 }

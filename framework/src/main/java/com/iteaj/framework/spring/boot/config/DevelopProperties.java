@@ -2,7 +2,11 @@ package com.iteaj.framework.spring.boot.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.generator.config.*;
+import com.iteaj.util.CommonUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.io.File;
 
 /**
  * create time: 2020/4/27
@@ -11,7 +15,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 1.0
  */
 @ConfigurationProperties(prefix = "dev")
-public class DevelopProperties {
+public class DevelopProperties implements InitializingBean {
 
     private CodeGen gen;
 
@@ -105,4 +109,33 @@ public class DevelopProperties {
         return this;
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        handleProjectRootForDev();
+    }
+
+    /**
+     * 处理开发环境的项目根路径
+     */
+    private void handleProjectRootForDev() {
+        if(this.getGen() == null) return;
+        String rootDir = this.getGen().getRootDir();
+        if(CommonUtils.isBlank(rootDir)) return;
+
+        String rootPom = "/pom.xml";
+        File file = new File(rootDir), pomFile;
+        while (true) {
+            File parentFile = file.getParentFile();
+            if(parentFile == null) return;
+
+            // 如果目录下存在pom文件, 继续查找, 直到找不到pom文件
+            // 无pom文件的目录的下一级就是项目根路径
+            pomFile = new File(parentFile + rootPom);
+            if(pomFile.exists() && pomFile.isFile()) {
+                file = parentFile; continue;
+            } else {
+                this.getGen().setRootDir(file.getPath()); break;
+            }
+        }
+    }
 }

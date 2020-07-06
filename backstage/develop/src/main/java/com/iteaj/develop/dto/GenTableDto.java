@@ -14,19 +14,10 @@ import java.util.List;
  */
 public class GenTableDto extends GenTable {
 
-    /**
-     * 要生成的文件
-     * ENTITY、MAPPER、XML、SERVICE、SERVICE_IMPL、CONTROLLER、OTHER
-     */
-    private String[] writeType;
     private List<GenField> fieldList;
 
     public GenTableDto() {
 
-    }
-
-    public GenTableDto(String msn) {
-        super(msn);
     }
 
     public List<GenField> getFieldList() {
@@ -43,15 +34,6 @@ public class GenTableDto extends GenTable {
 
         fieldList.add(field);
 
-        return this;
-    }
-
-    public String[] getWriteType() {
-        return writeType;
-    }
-
-    public GenTableDto setWriteType(String[] writeType) {
-        this.writeType = writeType;
         return this;
     }
 }

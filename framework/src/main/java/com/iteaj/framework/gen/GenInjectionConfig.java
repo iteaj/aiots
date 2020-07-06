@@ -37,22 +37,7 @@ public class GenInjectionConfig extends InjectionConfig {
 
     @Override
     public IFileCreate getFileCreate() {
-        return new IFileCreate() {
-            @Override
-            public boolean isCreate(ConfigBuilder configBuilder, FileType fileType, String filePath) {
-                if(fileType != FileType.OTHER) return true;
-                File file = new File(filePath);
-                if(!file.exists()) {
-                    file.getParentFile().mkdirs();
-                }
-                return true;
-            }
-
-            @Override
-            public void checkDir(String filePath) {
-
-            }
-        };
+        return null;
     }
 
     public class H5FileOut extends FileOutConfig {
