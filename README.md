@@ -38,9 +38,7 @@ izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和sprin
 5. 修改其他bug
 
 #### 项目说明
-1. 虽然是单体项目, 但是项目结构使用maven多模块定义, 分为dao层、service层、view层、公用的static模块和启动模块bootstrap；dao、service、view模块属于pom模块，他们的子模块才是具体的业务模块，结构图如下：
-![项目结构](https://images.gitee.com/uploads/images/2020/0421/112815_aa08898e_1230742.jpeg "1587439669(1).jpg")
-2. 环境使用maven的环境定义配合spring的profile, 这样做的好处是减少环境相关配置文件![环境配置](https://images.gitee.com/uploads/images/2020/0421/113451_53993420_1230742.jpeg "1587440060(1).jpg")
+1. 环境使用maven的环境定义配合spring的profile, 这样做的好处是减少环境相关配置文件![环境配置](https://images.gitee.com/uploads/images/2020/0421/113451_53993420_1230742.jpeg "1587440060(1).jpg")
 
 #### 参与贡献
 
@@ -48,13 +46,3 @@ izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和sprin
 2. 新建 Feat_xxx 分支
 3. 提交代码
 4. 新建 Pull Request
-
-
-#### 码云特技
-
-1. 使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2. 码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3. 你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4. [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5. 码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6. 码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
