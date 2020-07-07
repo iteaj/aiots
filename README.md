@@ -30,15 +30,13 @@ izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和sprin
 3. 数据： mysql5.7+
 4. 开发工具：idea
 #### 更新日志
+
 当前最新版本1.1.3
 1. 更新ivzone到最新版[ivzone更新日志](https://gitee.com/iteaj/ivzone/wikis/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97?sort_id=2131566)
 2. 新增403 404 500 等错误页面
 3. 新增代码生成器, 支持多模块, 直接导入到项目路径
 4. 新增演示环境拦截
 5. 修改其他bug
-
-#### 项目说明
-1. 环境使用maven的环境定义配合spring的profile, 这样做的好处是减少环境相关配置文件![环境配置](https://images.gitee.com/uploads/images/2020/0421/113451_53993420_1230742.jpeg "1587440060(1).jpg")
 
 #### 参与贡献
 
