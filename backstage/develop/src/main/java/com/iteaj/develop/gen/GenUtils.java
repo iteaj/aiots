@@ -207,8 +207,8 @@ public class GenUtils implements InitializingBean {
      */
     private static void handleTableInfo(GenConfig config, ConfigBuilder builder, List<GenTableDto> tables) {
         if(!CollectionUtils.isEmpty(tables)) {
-            Map<String, GenTableDto> tableMap = tables.stream().
-                    collect(Collectors.toMap(item -> item.getName(), item -> item));
+//            Map<String, GenTableDto> tableMap = tables.stream().
+//                    collect(Collectors.toMap(item -> item.getName(), item -> item));
 
             // 通用的列
             Set<String> commonList = new HashSet<>();
@@ -216,10 +216,10 @@ public class GenUtils implements InitializingBean {
             if(null != columns) Arrays.asList(columns).forEach(item->commonList.add(item));
 
             List<TableInfo> infoList = new ArrayList<>();
-            tables.forEach(item->{
+            tables.forEach(genTable->{
                 // tableMap里面如果不包含此张表, 则此表不需要生成
-                GenTableDto genTable = tableMap.get(item.getName());
-                if(null == genTable) return;
+//                GenTableDto genTable = tableMap.get(item.getName());
+//                if(null == genTable) return;
 
                 GenTableInfo tableInfo = new GenTableInfo();
 
