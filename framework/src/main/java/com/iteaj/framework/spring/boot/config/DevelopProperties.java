@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.generator.config.*;
 import com.iteaj.util.CommonUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * create time: 2020/4/27
@@ -15,9 +18,16 @@ import java.io.File;
  * @since 1.0
  */
 @ConfigurationProperties(prefix = "dev")
-public class DevelopProperties implements InitializingBean {
+public class DevelopProperties implements InitializingBean, EnvironmentAware {
 
     private CodeGen gen;
+    private boolean isDev; // 是否是开发环境
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        String[] activeProfiles = environment.getActiveProfiles();
+        this.isDev = Arrays.asList(activeProfiles).contains("dev");
+    }
 
     /**
      * 代码生成器配置
@@ -121,6 +131,12 @@ public class DevelopProperties implements InitializingBean {
         if(this.getGen() == null) return;
         String rootDir = this.getGen().getRootDir();
         if(CommonUtils.isBlank(rootDir)) return;
+
+        if(!this.isDev) {
+            String outputDir = this.getGen().getGlobal().getOutputDir();
+            this.getGen().setRootDir(outputDir); // 非开发环境, 生成的路径为用户配置的路径
+            return;
+        }
 
         String rootPom = "/pom.xml";
         File file = new File(rootDir), pomFile;

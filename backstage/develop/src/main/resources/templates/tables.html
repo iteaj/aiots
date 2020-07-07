@@ -2,12 +2,6 @@
 <html lang="zh">
 <head>
     <th:block th:include="libs :: header('代码生成模块配置')"></th:block>
-    <style>
-        .ant-modal-body .ant-form-item {
-            margin: 0px 0px 6px!important;
-            overflow: unset;
-        }
-    </style>
 </head>
 <body>
   <div id="ModulePage">
@@ -21,7 +15,7 @@
                 <a-tag v-else color="#f50">{{params.value}}</a-tag>
             </template>
         </ivz-edit-view>
-      <ivz-modal-form :width="680" title="代码生成配置" :metas="sure.metas" ref="imf"
+      <ivz-modal-form :width="720" title="代码生成配置" :metas="sure.metas" ref="imf"
             :save-meta="sure.saveMeta" :config="sure.config" class="ivz-gen-modal">
           <template #mapper_f><label>{{genPathRoot}}</label></template>
           <template #package_f><label>{{packagePathRoot}}</label></template>
@@ -44,8 +38,11 @@
         {label: 'DrawerView', value: 'ivz-drawer-view'}
     ];
     let modules = [
-        {label: 'admin', value: 'core'},
-        {label: 'develop', value: 'develop'},
+        {label: 'admin', value: 'admin', alias: 'core'},
+        {label: 'develop', value: 'develop', alias: 'develop'},
+    ];
+    let parents = [
+        {label: 'backstage', value: 'backstage'}
     ];
     let GenStatus = [
         {label: '已生成', value: '已生成'},
@@ -85,16 +82,26 @@
           ],
           sure: {
               metas: [
-                  {field: 'write', title: '生成到项目', type: 'switch', default: 'true', event: {
+                  {field: 'write', title: '写入项目', type: 'switch', default: 'true', event: {
                             change: function (val, model) {
                                 vue.genPathRootHandle(model)
                             }
                       }},
                   {field: 'overwrite', title: '覆写文件', type: 'switch', default: defaultConfig.overwrite},
-                  {field: 'project', title: '选择子项目', type: 'select', default: defaultConfig.project
+                  {field: 'parent', title: '父模块', type: 'select', data: parents, disabled: true
+                      , default: defaultConfig.moduleName, config: {extra: '注:子项目的父级'}},
+                  {field: 'menuId', title: '父菜单', type: 'stree', placeholder: '不选则将不导入数据库'
+                      , url: '/core/menu/parent', config: {
+                        extra: '注: 指定要生成的菜单的父菜单'
+                      }},
+                  {field: 'project', title: '子项目', type: 'select', default: defaultConfig.project
                       , data: modules, event: {
                         change: function (val, model) {
-                            model['alias'] = val;
+                            let meta = vue.$refs['imf'].getMeta('project');
+                            let obj = meta.DataMap[val];
+                            if(obj) {
+                                model['alias'] = obj ? obj['alias'] : '';
+                            }
                             vue.genPathRootHandle(model)
                         }
                       }},
@@ -103,19 +110,18 @@
                             vue.genPathRootHandle(model)
                         }
                       }},
-                  {field: 'writeType', title: '类型', type: 'select', data: WriteType, placeholder: '请选择要生成的代码类型'
-                      , config: {mode: 'tags', maxTagCount: 6, extra: '注: 用来指定要生成的类型代码, 不选代表生成所有类型代码'}, span: [3, 20, 24]},
-                  {field: 'mapper', title: '生成根目录', span: [4, 20, 24], config: {extra: '说明: 根目录+子路径 = 文件的生成路径'}},
-                  {field: 'package', title: '子路径(包)', span: [4, 20, 24], config: {extra: ''}}
+                  {field: 'writeType', title: '类型', type: 'select', data: WriteType
+                      , placeholder: '用来指定要生成的类型代码, 不选代表生成所有类型代码'
+                      , config: {mode: 'tags', maxTagCount: 6}, span: [3, 20, 24]
+                  },
+                  {field: 'package', title: '包路径', span: [4, 20, 24], config: {extra: ''}},
+                  {field: 'mapper', title: '文件路径', span: [4, 20, 24], config: {extra: '注: 写入项目的文件路径=根目录+父模块+子项目+包路径'}}
               ],
               saveMeta: {
                   id: 'save', url: '/dev/table/gen', callBack: function (model) {
                       return new Promise(function () {
-                          let writeType = model['writeType'] ? model['writeType'] : null;
-                          let url = '/dev/table/gen?alias='+model.alias+"&write="
-                              + model.write+"&project="+model.project+"&overwrite="+model['overwrite']
-                                  + "&parent=" + defaultConfig.moduleName
-                              + (writeType ? ("&writeType="+writeType) : "");
+                          let queryString = vue.$qs.stringify(model);
+                          let url = '/dev/table/gen?'+queryString;
 
                           vue.$http.post(url, vue.current).then(function (resp) {
                               vue.$msg.successNotify("生成代码操作", resp['IvzMsg']);
@@ -189,6 +195,7 @@
           },
           genPathRootHandle(model) {
               let module = model['project'] ? model['project'] : '\\';
+
               if(model['write']) { // 使用根项目路径
                   this.genPathRoot = this.genConfig.rootPath+"\\"+defaultConfig.moduleName+"\\"+module+defaultConfig.mavenPath;
               } else {

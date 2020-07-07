@@ -9,4 +9,8 @@
 
     <artifactId>resources</artifactId>
     <description>静态资源模块</description>
+
+    <properties>
+        <env.filter.file>../deploy/env/${profiles.active.env}.properties</env.filter.file>
+    </properties>
 </project>

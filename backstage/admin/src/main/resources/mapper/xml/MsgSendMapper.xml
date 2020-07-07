@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.core.mapper.IMsgSendMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="OriMap" type="com.iteaj.core.entity.MsgSend">
+        <id column="id" property="id" />
+        <result column="content" property="content" />
+        <result column="priority" property="priority" />
+        <result column="title" property="title" />
+        <result column="type" property="type" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 表字段列表 -->
+    <sql id="OriSql">
+         a.create_time, a.id, a.update_time, a.content, a.priority, a.title, a.type, a.user_id, a.user_name
+    </sql>
+    <!-- 表字段关联列表 -->
+    <sql id="OriJoinSql">
+         msd.create_time msd_create_time, msd.id msd_id, msd.update_time msd_update_time, msd.content msd_content, msd.priority msd_priority, msd.title msd_title,		 msd.type msd_type, msd.user_id msd_user_id, msd.user_name msd_user_name
+    </sql>
+    <!-- 批量插入 -->
+    <insert id="insertAsBatch">
+        insert into t_msg_send (content, priority, title, type, user_id, user_name) VALUES
+        <foreach collection="list" separator="," item="item">
+            (#{item.content},#{item.priority},#{item.title},#{item.type},#{item.userId},#{item.userName})
+        </foreach>
+    </insert>
+</mapper>

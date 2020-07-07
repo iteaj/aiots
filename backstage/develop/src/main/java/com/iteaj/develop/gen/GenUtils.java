@@ -200,15 +200,13 @@ public class GenUtils implements InitializingBean {
     }
 
     /**
-     * 用来处理h5页面需要的数据
      * 将表字段信息转成生成器所需要的表字段
      * @see com.iteaj.develop.entity.GenField 转成 {@link com.iteaj.framework.gen.GenTableField}
      * @param builder
      * @param tables 用户自定要要生成的表信息
      */
     private static void handleTableInfo(GenConfig config, ConfigBuilder builder, List<GenTableDto> tables) {
-        List<TableInfo> tableInfos = builder.getTableInfoList();
-        if(!CollectionUtils.isEmpty(tableInfos)) {
+        if(!CollectionUtils.isEmpty(tables)) {
             Map<String, GenTableDto> tableMap = tables.stream().
                     collect(Collectors.toMap(item -> item.getName(), item -> item));
 
@@ -218,7 +216,7 @@ public class GenUtils implements InitializingBean {
             if(null != columns) Arrays.asList(columns).forEach(item->commonList.add(item));
 
             List<TableInfo> infoList = new ArrayList<>();
-            tableInfos.forEach(item->{
+            tables.forEach(item->{
                 // tableMap里面如果不包含此张表, 则此表不需要生成
                 GenTableDto genTable = tableMap.get(item.getName());
                 if(null == genTable) return;

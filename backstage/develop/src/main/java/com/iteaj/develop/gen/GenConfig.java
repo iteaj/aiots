@@ -8,7 +8,10 @@ package com.iteaj.develop.gen;
  */
 public class GenConfig {
 
-
+    /**
+     * 要挂载的父菜单
+     */
+    private Integer menuId;
 
     /**
      * 模块别名, 默认为项目名称
@@ -104,6 +107,15 @@ public class GenConfig {
 
     public GenConfig setParent(String parent) {
         this.parent = parent;
+        return this;
+    }
+
+    public Integer getMenuId() {
+        return menuId;
+    }
+
+    public GenConfig setMenuId(Integer menuId) {
+        this.menuId = menuId;
         return this;
     }
 }

@@ -69,11 +69,11 @@ public class GenTableServiceImpl extends BaseServiceImpl<IGenTableDao, GenTable>
     public void reImportTables(List<GenTable> genTables) {
         if(CollectionUtils.isEmpty(genTables))return;
 
-        // 删除原来的数据
         Object[] tableNames = genTables.stream()
                 .map(item -> item.getName()).toArray();
+        // 重新导入前必须删除原来的数据(包括表以及对应的字段)
         this.delete(Wrappers.<GenTable>query().in("name", tableNames));
-
+        genFieldService.delete(Wrappers.<GenField>query().in("table_name", tableNames));
         // 添加最新的数据
         this.insertAsBatch(genTables);
     }
