@@ -1,6 +1,8 @@
 package com.iteaj.core.controller;
 
+import com.iteaj.core.entity.Admin;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.Result;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -82,6 +85,23 @@ public class CommonUploadController extends BaseController implements Initializi
         return success("上传成功").add("url", urls);
     }
 
+    /**
+     * 上传用户头像
+     * @param avatar
+     * @return
+     */
+    @PostMapping("avatar")
+    public Result avatar(MultipartFile avatar) {
+        try {
+            Admin admin = (Admin) SecurityUtils.getPrincipal();
+            String fileUrl = this.createFile(avatar, "avatar_"+admin.getId(), "/avatar");
+            return success("上传成功").add("url", fileUrl);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return fail("上传失败");
+        }
+    }
+
     private String createFile(MultipartFile file, String subPath) throws IOException {
         String filePath = genFilePath(file.getOriginalFilename(), subPath);
 
@@ -96,8 +116,55 @@ public class CommonUploadController extends BaseController implements Initializi
         return uploadRootUri + filePath;
     }
 
+    /**
+     * 创建文件
+     * @param file
+     * @param fileName
+     * @param subPath
+     * @return
+     * @throws IOException
+     */
+    private String createFile(MultipartFile file, String fileName, String subPath) throws IOException {
+        String filePath = genFilePath(file.getOriginalFilename(), fileName, subPath);
+
+        InputStream inputStream = file.getInputStream();
+
+        File outFile = new File(this.rootDir, filePath);
+        if(!outFile.getParentFile().exists())
+            outFile.mkdirs();
+
+        // 文件不存在创建
+        if(!outFile.exists()) outFile.createNewFile();
+
+        FileCopyUtils.copy(inputStream, new FileOutputStream(outFile));
+
+        return uploadRootUri + filePath;
+    }
+
+    /**
+     * 生成文件路径, 文件名使用uuid
+     * @param originalFilename
+     * @param subPath
+     * @return
+     */
     private String genFilePath(String originalFilename, String subPath) {
-        String fileName = UUID.randomUUID().toString() + getFileType(originalFilename);
+        return this.genFilePath(originalFilename, null, subPath);
+    }
+
+    /**
+     * 生成文件路径, 使用指定的文件名
+     * @param originalFilename 上传的文件名, 用来获取文件类型
+     * @param fileName // 要创建的文件的文件名
+     * @param subPath // 生成文件路径的子路径
+     * @return
+     */
+    private String genFilePath(String originalFilename, String fileName, String subPath) {
+        // 生成文件名
+        String fileType = getFileType(originalFilename);
+        fileName = CommonUtils.isNotBlank(fileName) ? fileName + fileType
+                :  UUID.randomUUID().toString() + fileType;
+
+        // 生成文件路径
         if(CommonUtils.isBlank(subPath)) subPath = commonSubPath;
         else if(!subPath.endsWith("/")) subPath = subPath + "/";
 

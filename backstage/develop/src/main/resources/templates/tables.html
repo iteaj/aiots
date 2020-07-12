@@ -88,27 +88,27 @@
                             }
                       }},
                   {field: 'overwrite', title: '覆写文件', type: 'switch', default: defaultConfig.overwrite},
+                  {field: 'project', title: '子项目', type: 'select', default: defaultConfig.project
+                      , data: modules, event: {
+                          change: function (val, model) {
+                              let meta = vue.$refs['imf'].getMeta('project');
+                              let obj = meta.DataMap[val];
+                              if(obj) {
+                                  model['alias'] = obj ? obj['alias'] : '';
+                              }
+                              vue.genPathRootHandle(model)
+                          }
+                      }},
+                  {field: 'alias', title: '模块别名', default: defaultConfig.alias, event: {
+                          change: function (val, model) {
+                              vue.genPathRootHandle(model)
+                          }
+                      }},
                   {field: 'parent', title: '父模块', type: 'select', data: parents, disabled: true
                       , default: defaultConfig.moduleName, config: {extra: '注:子项目的父级'}},
                   {field: 'menuId', title: '父菜单', type: 'stree', placeholder: '不选则将不导入数据库'
                       , url: '/core/menu/parent', config: {
                         extra: '注: 指定要生成的菜单的父菜单'
-                      }},
-                  {field: 'project', title: '子项目', type: 'select', default: defaultConfig.project
-                      , data: modules, event: {
-                        change: function (val, model) {
-                            let meta = vue.$refs['imf'].getMeta('project');
-                            let obj = meta.DataMap[val];
-                            if(obj) {
-                                model['alias'] = obj ? obj['alias'] : '';
-                            }
-                            vue.genPathRootHandle(model)
-                        }
-                      }},
-                  {field: 'alias', title: '模块别名', default: defaultConfig.alias, event: {
-                        change: function (val, model) {
-                            vue.genPathRootHandle(model)
-                        }
                       }},
                   {field: 'writeType', title: '类型', type: 'select', data: WriteType
                       , placeholder: '用来指定要生成的类型代码, 不选代表生成所有类型代码'

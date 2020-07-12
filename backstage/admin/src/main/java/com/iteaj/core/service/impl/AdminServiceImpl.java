@@ -5,6 +5,8 @@ import com.iteaj.core.dto.AdminDto;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.mapper.IAdminDao;
 import com.iteaj.core.service.IAdminService;
+import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.util.module.mvc.BaseServiceImpl;
@@ -79,6 +81,22 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
     @Override
     public List<String> selectPermsById(Serializable id) {
         return getBaseDao().selectPermsById(id);
+    }
+
+    @Override
+    public void updateCurrentUserInfo(Admin admin) {
+        if(CommonUtils.isNotBlank(admin.getPassword())) {
+            String md5Hex = DigestUtils.md5Hex(admin.getPassword().getBytes());
+            admin.setPassword(md5Hex);
+        }
+
+        // 更新当前登录的信息
+        Admin principal = (Admin) SecurityUtils.getPrincipal();
+        principal.setAvatar(admin.getAvatar()).setEmail(admin.getEmail())
+                .setPhone(admin.getPhone()).setRemark(admin.getRemark())
+                .setName(admin.getName()).setSex(admin.getSex());
+
+        this.updateById(admin);
     }
 
 }

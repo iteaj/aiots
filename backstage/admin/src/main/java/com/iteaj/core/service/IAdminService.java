@@ -36,4 +36,6 @@ public interface IAdminService extends IBaseService<IAdminDao, Admin> {
     void deleteAllJoinByIds(List<Long> list);
 
     List<String> selectPermsById(Serializable id);
+
+    void updateCurrentUserInfo(Admin admin);
 }

@@ -5,6 +5,8 @@ import com.iteaj.core.dto.AdminDto;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.service.IAdminService;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.util.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
@@ -69,6 +71,17 @@ public class AdminController extends BaseController {
     public Result del(@RequestBody List<Long> list) {
         this.adminService.deleteAllJoinByIds(list);
         return success();
+    }
+
+    @ResponseBody
+    @PostMapping("/modUserInfo")
+    public Result modUserInfo(@RequestBody Admin admin) {
+        BaseEntity principal = SecurityUtils.getPrincipal();
+        if(principal == null) return fail("未登录");
+
+        admin.setId(principal.getId());
+        this.adminService.updateCurrentUserInfo(admin);
+        return success("修改成功");
     }
 
     /**

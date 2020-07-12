@@ -41,6 +41,15 @@ public class Admin extends BaseEntity {
     /*账号使用状态*/
     private UseStatus status;
 
+    public Sex getSex() {
+        return sex;
+    }
+
+    public Admin setSex(Sex sex) {
+        this.sex = sex;
+        return this;
+    }
+
     public Long getOrgId() {
         return orgId;
     }
@@ -48,14 +57,6 @@ public class Admin extends BaseEntity {
     public Admin setOrgId(Long orgId) {
         this.orgId = orgId;
         return this;
-    }
-
-    public String getAccount() {
-        return account;
-    }
-
-    public void setAccount(String account) {
-        this.account = account;
     }
 
     public String getName() {
@@ -71,40 +72,27 @@ public class Admin extends BaseEntity {
         return email;
     }
 
-    public void setEmail(String email) {
+    public Admin setEmail(String email) {
         this.email = email;
+        return this;
     }
 
     public String getPhone() {
         return phone;
     }
 
-    public void setPhone(String phone) {
+    public Admin setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public Sex getSex() {
-        return sex;
-    }
-
-    public void setSex(Sex sex) {
-        this.sex = sex;
+        return this;
     }
 
     public String getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(String avatar) {
+    public Admin setAvatar(String avatar) {
         this.avatar = avatar;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+        return this;
     }
 
     public String getRemark() {
@@ -116,28 +104,49 @@ public class Admin extends BaseEntity {
         return this;
     }
 
-    public UseStatus getStatus() {
-        return status;
+    public String getAccount() {
+        return account;
     }
 
-    public void setStatus(UseStatus status) {
-        this.status = status;
+    public Admin setAccount(String account) {
+        this.account = account;
+        return this;
     }
 
     public String getLoginIp() {
         return loginIp;
     }
 
-    public void setLoginIp(String loginIp) {
+    public Admin setLoginIp(String loginIp) {
         this.loginIp = loginIp;
+        return this;
     }
 
     public Date getLoginDate() {
         return loginDate;
     }
 
-    public void setLoginDate(Date loginDate) {
+    public Admin setLoginDate(Date loginDate) {
         this.loginDate = loginDate;
+        return this;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Admin setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public UseStatus getStatus() {
+        return status;
+    }
+
+    public Admin setStatus(UseStatus status) {
+        this.status = status;
+        return this;
     }
 
     public boolean isSuperUser() {

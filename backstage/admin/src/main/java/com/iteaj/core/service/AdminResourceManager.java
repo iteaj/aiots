@@ -64,10 +64,14 @@ public class AdminResourceManager implements ResourceManager, EnvironmentAware {
         Admin admin = (Admin)entity;
         Map<String, Object> user = new HashMap<>();
         user.put("id", admin.getId());
+        user.put("sex", admin.getSex());
         user.put("name", admin.getName());
+        user.put("email", admin.getEmail());
+        user.put("phone", admin.getPhone());
         user.put("orgId", admin.getOrgId());
-        user.put("status", admin.getStatus());
+        user.put("remark", admin.getRemark());
         user.put("avatar", admin.getAvatar());
+        user.put("account", admin.getAccount());
         config.put("user", user);
 
         // 系统当前环境
@@ -80,7 +84,6 @@ public class AdminResourceManager implements ResourceManager, EnvironmentAware {
         config.put("config", configMap);
         return config;
     }
-
 
     @Override
     public void setEnvironment(Environment environment) {
