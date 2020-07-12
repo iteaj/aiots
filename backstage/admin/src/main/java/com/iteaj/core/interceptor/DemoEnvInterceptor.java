@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
 import com.iteaj.core.entity.Menu;
 import com.iteaj.core.service.IMenuService;
+import com.iteaj.framework.security.AuthzUrl;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.util.module.mvc.HttpResult;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.security.auth.message.config.AuthConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,23 +21,21 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class DemoEnvInterceptor implements HandlerInterceptor {
 
-    private IMenuService menuService;
+    private AuthzUrl authzUrl;
     private ObjectMapper objectMapper;
 
-    public DemoEnvInterceptor(ObjectMapper objectMapper, IMenuService menuService) {
-        this.menuService = menuService;
+    public DemoEnvInterceptor(ObjectMapper objectMapper, AuthzUrl authzUrl) {
+        this.authzUrl = authzUrl;
         this.objectMapper = objectMapper;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Menu requestMenu = menuService.getByUrl(request.getRequestURI());
-        if(null == requestMenu) return true;
-
         String method = request.getMethod();
-        // 演示环境视图类型和查询接口不拦截, 其余接口全部不能访问
-        if(Objects.equal(requestMenu.getPermType(), "View")
-                || Objects.equal("GET", method)) {
+
+        // 演示环境视放行GET接口和登录接口, 其余接口全部不能访问
+        if(Objects.equal("GET", method) || authzUrl
+                .getLoginUrl().contains(request.getRequestURI())) {
             return true;
         } else {
 

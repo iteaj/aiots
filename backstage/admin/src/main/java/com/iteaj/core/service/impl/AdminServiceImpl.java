@@ -90,13 +90,13 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
             admin.setPassword(md5Hex);
         }
 
+        this.updateById(admin);
+
         // 更新当前登录的信息
         Admin principal = (Admin) SecurityUtils.getPrincipal();
         principal.setAvatar(admin.getAvatar()).setEmail(admin.getEmail())
                 .setPhone(admin.getPhone()).setRemark(admin.getRemark())
                 .setName(admin.getName()).setSex(admin.getSex());
-
-        this.updateById(admin);
     }
 
 }

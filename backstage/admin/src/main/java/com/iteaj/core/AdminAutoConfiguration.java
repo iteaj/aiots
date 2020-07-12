@@ -10,6 +10,7 @@ import com.iteaj.core.service.IMenuService;
 import com.iteaj.core.service.IOnlineUserService;
 import com.iteaj.core.service.IOperaLogService;
 import com.iteaj.framework.captcha.CaptchaConfiguration;
+import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.event.OnlineListener;
 import com.iteaj.framework.spi.admin.event.OnlineType;
@@ -79,8 +80,8 @@ public class AdminAutoConfiguration implements WebMvcConfigurer {
      */
     @Bean
     @ConditionalOnProperty(name = {"izb.env.demon"}, havingValue = "true")
-    public DemoEnvInterceptor demoHandlerInterceptor(ObjectMapper objectMapper, IMenuService menuService) {
-        return new DemoEnvInterceptor(objectMapper, menuService);
+    public DemoEnvInterceptor demoHandlerInterceptor(ObjectMapper objectMapper, AuthzUrl authzUrl) {
+        return new DemoEnvInterceptor(objectMapper, authzUrl);
     }
 
     /**
