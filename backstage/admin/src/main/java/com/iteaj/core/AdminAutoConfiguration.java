@@ -64,7 +64,7 @@ public class AdminAutoConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/main").setViewName("/main");
+        registry.addViewController("/core/main").setViewName("/main");
     }
 
     @Override
