@@ -21,6 +21,7 @@ izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和sprin
 ### 下一步开发计划
 1. 通知、公告
 2. 定时任务
+3. 修改IvzBasicView编辑功能，提高切换编辑页响应速度和加入过渡动画
 #### [预览地址](http://izone.iteaj.com) 用户名：admin 密码：admin123456
 #### 项目介绍目录
 1. [项目介绍](#项目介绍)
