@@ -30,7 +30,7 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!--选用的权限框架实现-->
+        <!--以下是选用的插件-->
         <!--shiro 权限实现-->
         <dependency>
             <groupId>com.iteaj</groupId>
@@ -38,19 +38,25 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!--spring security 权限实现-->
+        <!--spring security 权限实现(未实现)-->
 <!--        <dependency>-->
 <!--            <groupId>com.iteaj</groupId>-->
 <!--            <artifactId>security</artifactId>-->
 <!--            <version>${project.version}</version>-->
 <!--        </dependency>-->
 
+        <!--启用定时任务插件-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>quartz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!--启用缓存-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-cache</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
 
 

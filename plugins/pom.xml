@@ -13,6 +13,7 @@
 
     <modules>
         <module>shiro</module>
+        <module>quartz</module>
         <module>security</module>
     </modules>
 
