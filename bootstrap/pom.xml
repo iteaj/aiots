@@ -16,49 +16,56 @@
 
     <dependencies>
 
-        <!--管理端 - 管理模块-->
-        <dependency>
+        <!-- ####################################################### -->
+        <!--                     后台管理模块 开始                      -->
+        <!-- ####################################################### -->
+
+        <dependency> <!-- 管理端 - 系统核心模块(必选) -->
             <groupId>com.iteaj</groupId>
             <artifactId>admin</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!--管理端 - 开发模块-->
-        <dependency>
+        <dependency><!-- 管理端 - 开发模块(可选) -->
             <groupId>com.iteaj</groupId>
             <artifactId>develop</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!--以下是选用的插件-->
-        <!--shiro 权限实现-->
-        <dependency>
+
+        <!-- ####################################################### -->
+        <!--                     可选 plugins开始                      -->
+        <!-- ####################################################### -->
+
+        <dependency><!--  shiro 权限管理插件  -->
             <groupId>com.iteaj</groupId>
             <artifactId>shiro</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!--spring security 权限实现(未实现)-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>security</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
-
-        <!--启用定时任务插件-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>quartz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!-- ####################################################### -->
+        <!--                     可选 plugins 结束                    -->
+        <!-- ####################################################### -->
 
         <!--启用缓存-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-cache</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
     </dependencies>
 
+    <profiles>
+        <profile><!-- 开发环境下引入开发模块 -->
+            <id>env-dev</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.iteaj</groupId>
+                    <artifactId>develop</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
