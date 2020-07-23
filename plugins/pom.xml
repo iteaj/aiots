@@ -14,6 +14,7 @@
     <modules>
         <module>shiro</module>
         <module>security</module>
+        <module>knife4j</module>
     </modules>
 
     <dependencies>

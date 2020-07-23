@@ -16,35 +16,36 @@
 
     <dependencies>
 
-        <!--管理端 - 管理模块-->
-        <dependency>
+        <!-- ####################################################### -->
+        <!--                     后台管理模块 开始                      -->
+        <!-- ####################################################### -->
+
+        <dependency> <!-- 管理端 - 系统核心模块(必选) -->
             <groupId>com.iteaj</groupId>
             <artifactId>admin</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!--管理端 - 开发模块-->
-        <dependency>
+        <dependency><!-- 管理端 - 开发模块(可选) -->
             <groupId>com.iteaj</groupId>
             <artifactId>develop</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!--选用的权限框架实现-->
-        <!--shiro 权限实现-->
-        <dependency>
+
+        <!-- ####################################################### -->
+        <!--                     可选 plugins开始                      -->
+        <!-- ####################################################### -->
+
+        <dependency><!--  shiro 权限管理插件  -->
             <groupId>com.iteaj</groupId>
             <artifactId>shiro</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!--spring security 权限实现-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>security</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
-
+        <!-- ####################################################### -->
+        <!--                     可选 plugins 结束                    -->
+        <!-- ####################################################### -->
 
         <!--启用缓存-->
         <dependency>
@@ -53,6 +54,18 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile><!-- 开发环境下引入开发模块 -->
+            <id>env-dev</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.iteaj</groupId>
+                    <artifactId>develop</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>

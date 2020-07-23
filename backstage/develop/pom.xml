@@ -9,7 +9,10 @@
 
     <name>backstage:develop</name>
     <artifactId>develop</artifactId>
-    <description>后台管理 - 开发模块</description>
+    <description>
+        后台管理 - 开发模块
+        主要包括: 1. 代码生存器  2. Api文档管理
+    </description>
 
     <properties>
         <!--使用此路径, 代码将直接生成到项目中, 无需再复制进项目-->
@@ -32,6 +35,12 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
+        </dependency>
+
+        <dependency><!--  knife4j api 文档管理调试插件  -->
+            <groupId>com.iteaj</groupId>
+            <artifactId>knife4j</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
