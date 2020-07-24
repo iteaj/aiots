@@ -10,7 +10,7 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
 
     <!--<property>用来定义变量值，它有两个属性name和value，定义的值会被插入到logger上下文中，可以使“${}”来使用变量。-->
     <property name="root.level" value="INFO"></property>
-    <property name="log.home" value="/mnt/logs"></property>
+    <property name="log.home" value="/home/jubo/logs"></property>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoder 默认配置为PatternLayoutEncoder -->
@@ -23,7 +23,7 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${log.home}/Izone.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${log.home}/%d{yyyy-MM-dd}.log</FileNamePattern>
             <!--日志文件保留天数-->
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>

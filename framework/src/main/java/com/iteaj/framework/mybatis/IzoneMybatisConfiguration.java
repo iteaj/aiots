@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass(MybatisPlusAutoConfiguration.class)
 public class IzoneMybatisConfiguration {
     @Bean
-    @ConditionalOnClass(name = "com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration")
     public PaginationInterceptor paginationInterceptor() {
         return getPaginationInterceptor();
     }

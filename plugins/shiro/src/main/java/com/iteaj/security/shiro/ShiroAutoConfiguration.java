@@ -1,5 +1,6 @@
 package com.iteaj.security.shiro;
 
+import com.iteaj.framework.authority.OrderFilterChainDefinition;
 import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
@@ -51,7 +52,7 @@ public class ShiroAutoConfiguration {
     private FrameworkProperties properties;
 
     @Bean
-    public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderShiroFilterChainDefinition> definitions
+    public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions
             , SecurityManager securityManager, List<NameableFilter> filters, AuthzUrl authzUrl) {
 
         ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean() {
@@ -113,8 +114,8 @@ public class ShiroAutoConfiguration {
      */
     @Bean
     @Order(value = 8) //
-    public OrderShiroFilterChainDefinition staticFilterChainDefinition() {
-        OrderShiroFilterChainDefinition chain = new OrderShiroFilterChainDefinition();
+    public OrderFilterChainDefinition staticFilterChainDefinition() {
+        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
 
         // 静态资源这里配置所有请求路径都可以匿名访问
         chain.addPathDefinition("/js/**", "anon");
@@ -130,8 +131,8 @@ public class ShiroAutoConfiguration {
     @Order(value = 999)
     @Bean("allFilterChainDefinition")
     @ConditionalOnMissingBean(name = {"allFilterChainDefinition"})
-    public OrderShiroFilterChainDefinition allFilterChainDefinition() {
-        OrderShiroFilterChainDefinition chain = new OrderShiroFilterChainDefinition();
+    public OrderFilterChainDefinition allFilterChainDefinition() {
+        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
 
         chain.addPathDefinition("/**", "ajax,user");
         return chain;
