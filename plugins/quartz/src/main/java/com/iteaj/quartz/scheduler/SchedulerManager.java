@@ -11,8 +11,8 @@ import org.quartz.*;
 public class SchedulerManager {
 
     private final Scheduler scheduler;
-    private String JOB_GROUP_NAME;
-    private String TRIGGER_GROUP_NAME;
+    private final String JOB_GROUP_NAME;
+    private final String TRIGGER_GROUP_NAME;
 
     public SchedulerManager(Scheduler scheduler, String JOB_GROUP_NAME, String TRIGGER_GROUP_NAME) {
         this.scheduler = scheduler;
@@ -21,7 +21,7 @@ public class SchedulerManager {
     }
 
     /**
-     * @Description: 添加一个定时任务，使用默认的任务组名，触发器名，触发器组名
+     * 添加一个定时任务，使用默认的任务组名，触发器名，触发器组名
      * @param jobName
      *            任务名
      * @param cls
@@ -32,7 +32,7 @@ public class SchedulerManager {
     }
 
     /**
-     * @Description: 添加一个定时任务
+     * 添加一个定时任务
      * @param jobName
      *            任务名
      * @param jobGroupName
@@ -100,7 +100,6 @@ public class SchedulerManager {
      * @param jobName
      * @param jobClass
      * @param cron
-     * @date 2018年5月23日 上午9:13:10
      */
     public void updateJob(String oldJobName, String jobName, Class jobClass, String cron) {
 

@@ -37,7 +37,7 @@
             <artifactId>mybatis-plus-generator</artifactId>
         </dependency>
 
-        <dependency><!--  knife4j api 文档管理调试插件  -->
+        <dependency><!--  knife4j api 文档管理、接口调试插件  -->
             <groupId>com.iteaj</groupId>
             <artifactId>knife4j</artifactId>
             <version>${project.version}</version>

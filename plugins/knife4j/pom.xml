@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>plugin:knife4j</name>
     <artifactId>knife4j</artifactId>
     <description>
         基于swagger2的一个在线接口管理文档系模块, 主要做了功能增强和提供新的ui以及调试方式

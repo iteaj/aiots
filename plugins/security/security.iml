@@ -26,9 +26,10 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:5.1.12.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-web:5.1.12.RELEASE" level="project" />
     <orderEntry type="module" module-name="framework" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:18.0" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context-support:5.1.12.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: eu.bitwalker:UserAgentUtils:1.21" level="project" />
     <orderEntry type="library" name="Maven: com.iteaj:iutils:1.1.10" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:20.0" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.1.11.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.1.11.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:2.1.11.RELEASE" level="project" />

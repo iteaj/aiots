@@ -29,7 +29,7 @@
         <kaptcha.version>2.3.2</kaptcha.version>
         <servlet.version>3.1.0</servlet.version>
 
-        <guava.version>18.0</guava.version>
+        <guava.version>20.0</guava.version>
         <shiro.version>1.4.1</shiro.version>
         <iutils.version>1.1.10</iutils.version>
         <izone.boot.version>1.2.1</izone.boot.version>
@@ -60,6 +60,11 @@
             <groupId>com.iteaj</groupId>
             <artifactId>iutils</artifactId>
             <version>${iutils.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+            <groupId>com.google.guava</groupId>
         </dependency>
         <!--spring boot-->
         <dependency>
