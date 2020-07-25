@@ -1,6 +1,7 @@
 package com.iteaj.knife4j;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
+import com.iteaj.framework.authority.OrderFilterChainDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -15,6 +16,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableKnife4j
 @Configuration
 public class Knife4jConfiguration {
+
+    @Bean
+    public OrderFilterChainDefinition knife4jOrderFilterChain() {
+        return new OrderFilterChainDefinition()
+                .addPathDefinition("/v2/api-docs-ext", "anon")
+                .addPathDefinition("/v2/api-docs", "anon");
+    }
 
     @Bean
     public Docket createRestApi() {
