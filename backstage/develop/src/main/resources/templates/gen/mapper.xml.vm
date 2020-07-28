@@ -40,11 +40,4 @@
         ${table.oriJoinSql}
     </sql>
 #end
-    <!-- 批量插入 -->
-    <insert id="insertAsBatch">
-        insert into ${table.name} (${table.fieldNames}) VALUES
-        <foreach collection="list" separator="," item="item">
-            ${table.insertSql}
-        </foreach>
-    </insert>
 </mapper>

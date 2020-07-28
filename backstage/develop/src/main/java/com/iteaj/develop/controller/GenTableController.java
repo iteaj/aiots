@@ -2,10 +2,8 @@ package com.iteaj.develop.controller;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.develop.entity.GenField;
-import com.iteaj.develop.entity.GenModule;
-import com.iteaj.develop.entity.GenTable;
 import com.iteaj.develop.dto.GenTableDto;
+import com.iteaj.develop.entity.GenTable;
 import com.iteaj.develop.enums.GenStatus;
 import com.iteaj.develop.gen.GenConfig;
 import com.iteaj.develop.gen.GenUtils;
@@ -17,15 +15,12 @@ import com.iteaj.framework.spring.boot.config.DevelopProperties;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.Result;
 import com.iteaj.util.module.mvc.result.ListResult;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +32,6 @@ import java.util.stream.Collectors;
  */
 @Controller
 @RequestMapping("/dev/table")
-@Api("表生成器接口")
 public class GenTableController extends BaseController {
 
     @Autowired
@@ -56,7 +50,6 @@ public class GenTableController extends BaseController {
 
     @ResponseBody
     @GetMapping("/view")
-    @ApiOperation("浏览未生成的表接口")
     public Result view(Page page, GenTable table) {
         page.addOrder(OrderItem.desc("status"));
         return this.genTableService.selectByPage(page, table).build(success());

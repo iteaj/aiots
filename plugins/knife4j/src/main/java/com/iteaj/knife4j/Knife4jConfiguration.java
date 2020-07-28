@@ -4,8 +4,10 @@ import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import com.github.xiaoymin.knife4j.spring.extension.ApiOrderExtension;
 import com.iteaj.framework.authority.OrderFilterChainDefinition;
 import io.swagger.annotations.Api;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -20,6 +22,7 @@ import java.util.Arrays;
 @EnableSwagger2
 @EnableKnife4j
 @Configuration
+@PropertySource("classpath:application-knife4j.properties")
 public class Knife4jConfiguration {
 
     /**

@@ -27,25 +27,20 @@ public class SchedulerManager {
      * @param cls
      *            任务
      */
-    public void addJob(String jobName, Class cls, String cron, JobDataMap map) {
-        addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, cls, cron, map);
+    public void addJob(String jobName, Class cls, String cron) {
+        addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, cls, cron, null, null);
     }
 
-    /**
-     * 添加一个定时任务
-     * @param jobName
-     *            任务名
-     * @param jobGroupName
-     *            任务组名
-     * @param triggerName
-     *            触发器名
-     * @param triggerGroupName
-     *            触发器组名
-     * @param jobClass
-     *            任务
-     */
-    public void addJob(String jobName, String jobGroupName, String triggerName
-            , String triggerGroupName, Class jobClass, String cron, JobDataMap map) {
+    public void addJob(String jobName, Class cls, String cron, String desc) {
+        addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, cls, cron, null, desc);
+    }
+
+    public void addJob(String jobName, Class jobClass, String cron, JobDataMap map, String desc) {
+        addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, jobClass, cron, map, desc);
+    }
+
+    protected void addJob(String jobName, String jobGroupName, String triggerName
+            , String triggerGroupName, Class jobClass, String cron, JobDataMap map, String desc) {
         try {
             JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
             JobDetail jobDetail = scheduler.getJobDetail(jobKey);
@@ -53,7 +48,7 @@ public class SchedulerManager {
 
             map = map == null ? new JobDataMap() : map;
             JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName
-                    , jobGroupName).usingJobData(map).build();
+                    , jobGroupName).usingJobData(map).withDescription(desc).build();
 
             // 表达式调度构建器
             CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cron);
@@ -93,7 +88,6 @@ public class SchedulerManager {
         }
     }
 
-
     /**
      * 修改任务名，任务类，触发时间
      * @param oldJobName ：原任务名
@@ -117,7 +111,7 @@ public class SchedulerManager {
             scheduler.unscheduleJob(triggerKey);// 移除触发器
             scheduler.deleteJob(jobKey);// 删除任务
 
-            addJob(jobName, jobClass, cron, oriDataMap);
+            addJob(jobName, jobClass, cron, oriDataMap, jobDetail.getDescription());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -127,11 +121,10 @@ public class SchedulerManager {
 
     /**
      * 修改一个任务的触发时间
-     * @param triggerName
-     * @param triggerGroupName
+     * @param jobName
      */
-    public void updateTriggerCron(String triggerName, String triggerGroupName, String cron) {
-        TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
+    public void updateTrigger(String jobName, String cron) {
+        TriggerKey triggerKey = TriggerKey.triggerKey(jobName, TRIGGER_GROUP_NAME);
         try {
 
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
@@ -144,10 +137,11 @@ public class SchedulerManager {
                 CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cron);
 
                 // 按新的cronExpression表达式重新构建trigger
-                trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
+                CronTrigger newTrigger = trigger.getTriggerBuilder().withIdentity(triggerKey)
+                        .withSchedule(scheduleBuilder).build();
 
                 // 按新的trigger重新设置job执行
-                scheduler.resumeTrigger(triggerKey);
+                scheduler.rescheduleJob(triggerKey, newTrigger);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -170,7 +164,7 @@ public class SchedulerManager {
      * @param triggerGroupName
      */
     public void removeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName) {
-        TriggerKey triggerKey = TriggerKey.triggerKey(jobName, triggerGroupName);
+        TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
         JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
         try {
 
@@ -185,26 +179,22 @@ public class SchedulerManager {
         }
     }
 
-    /**
-     * 暂停一个任务(使用默认组名)
-     * @param jobName
-     */
-    public void pauseJob(String jobName) {
-        JobKey jobKey = JobKey.jobKey(jobName, JOB_GROUP_NAME);
+    public boolean exists(String jobName) {
         try {
-            scheduler.pauseJob(jobKey);
+            JobDetail jobDetail = scheduler.getJobDetail(JobKey.jobKey(jobName, JOB_GROUP_NAME));
+
+            return jobDetail != null;
         } catch (SchedulerException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
     /**
-     * 暂停一个任务
+     * 暂停一个作业
      * @param jobName
-     * @param jobGroupName
      */
-    public void pauseJob(String jobName, String jobGroupName) {
-        JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
+    public void pauseJob(String jobName) {
+        JobKey jobKey = JobKey.jobKey(jobName, JOB_GROUP_NAME);
         try {
             scheduler.pauseJob(jobKey);
         } catch (SchedulerException e) {
@@ -225,7 +215,7 @@ public class SchedulerManager {
      * @param jobName
      * @param jobGroupName
      */
-    public void resumeJob(String jobName, String jobGroupName) {
+    protected void resumeJob(String jobName, String jobGroupName) {
         JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
         try {
             scheduler.resumeJob(jobKey);
@@ -263,7 +253,16 @@ public class SchedulerManager {
      * @param jobName
      */
     public void fireJob(String jobName) {
-        fireJob(jobName, JOB_GROUP_NAME);
+        fireJob(jobName, JOB_GROUP_NAME, null);
+    }
+
+    /**
+     * 立即运行一次, 带参数
+     * @param jobName
+     * @param data
+     */
+    public void fireJob(String jobName, JobDataMap data) {
+        fireJob(jobName, JOB_GROUP_NAME, data);
     }
 
     /**
@@ -271,10 +270,10 @@ public class SchedulerManager {
      * @param jobName
      * @param jobGroupName
      */
-    public void fireJob(String jobName, String jobGroupName) {
+    protected void fireJob(String jobName, String jobGroupName, JobDataMap data) {
         JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
         try {
-            scheduler.triggerJob(jobKey);
+            scheduler.triggerJob(jobKey, data);
         } catch (SchedulerException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -294,12 +293,16 @@ public class SchedulerManager {
         return getTriggerState(jobName, TRIGGER_GROUP_NAME);
     }
 
-    public Trigger.TriggerState getTriggerState(String triggerName, String triggerGroup){
+    protected Trigger.TriggerState getTriggerState(String triggerName, String triggerGroup){
         TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroup);
         try {
             return scheduler.getTriggerState(triggerKey);
         } catch (SchedulerException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    public Scheduler getSysScheduler() {
+        return scheduler;
     }
 }

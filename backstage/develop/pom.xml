@@ -37,10 +37,10 @@
             <artifactId>mybatis-plus-generator</artifactId>
         </dependency>
 
-        <dependency><!--  knife4j api 文档管理、接口调试插件  -->
-            <groupId>com.iteaj</groupId>
-            <artifactId>knife4j</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>&lt;!&ndash;  knife4j api 文档管理、接口调试插件  &ndash;&gt;-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>knife4j</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
     </dependencies>
 </project>

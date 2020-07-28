@@ -51,5 +51,10 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>quartz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

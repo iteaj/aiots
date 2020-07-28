@@ -13,7 +13,6 @@ public class GenTable extends BaseEntity {
 
     private String name;
     private String prefix;
-    private Boolean cover;
     private String remark;
     private String comment;
     private String xmlName;
@@ -119,15 +118,6 @@ public class GenTable extends BaseEntity {
 
     public GenTable setViewType(String viewType) {
         this.viewType = viewType;
-        return this;
-    }
-
-    public Boolean getCover() {
-        return cover;
-    }
-
-    public GenTable setCover(Boolean cover) {
-        this.cover = cover;
         return this;
     }
 

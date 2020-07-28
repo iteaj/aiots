@@ -23,5 +23,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>resources</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

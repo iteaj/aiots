@@ -32,8 +32,8 @@
                     column: ${table.column}
                 },
                 table: {
-                    // selection: {}, 表格多选
-                    // pagination: {} 表格分页
+                    // selection: {}, // 表格多选
+                    // pagination: {} // 表格分页
                 }
             },
         },

@@ -20,6 +20,7 @@ import com.iteaj.framework.gen.GenTableField;
 import com.iteaj.framework.gen.GenTableInfo;
 import com.iteaj.framework.gen.GenVelocityTemplateEngine;
 import com.iteaj.framework.spring.boot.config.DevelopProperties;
+import com.iteaj.util.module.mvc.ServiceException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
@@ -207,8 +208,8 @@ public class GenUtils implements InitializingBean {
      */
     private static void handleTableInfo(GenConfig config, ConfigBuilder builder, List<GenTableDto> tables) {
         if(!CollectionUtils.isEmpty(tables)) {
-//            Map<String, GenTableDto> tableMap = tables.stream().
-//                    collect(Collectors.toMap(item -> item.getName(), item -> item));
+            Map<String, TableInfo> tableInfoMap = builder.getTableInfoList().stream().
+                    collect(Collectors.toMap(item -> item.getName(), item -> item));
 
             // 通用的列
             Set<String> commonList = new HashSet<>();
@@ -218,13 +219,22 @@ public class GenUtils implements InitializingBean {
             List<TableInfo> infoList = new ArrayList<>();
             tables.forEach(genTable->{
                 // tableMap里面如果不包含此张表, 则此表不需要生成
-//                GenTableDto genTable = tableMap.get(item.getName());
-//                if(null == genTable) return;
+                TableInfo info = tableInfoMap.get(genTable.getName());
+                if(null == info) throw new ServiceException("表信息不存在: " + genTable.getName());
 
                 GenTableInfo tableInfo = new GenTableInfo();
 
                 // 将数据库里面的表集合转成生成器需要的表集合
-                BeanUtils.copyProperties(genTable, tableInfo);
+                BeanUtils.copyProperties(info, tableInfo);
+                tableInfo.setPrefix(genTable.getPrefix());
+                tableInfo.setXmlName(genTable.getXmlName());
+                tableInfo.setComment(genTable.getComment());
+                tableInfo.setViewType(genTable.getViewType());
+                tableInfo.setEntityName(genTable.getEntityName());
+                tableInfo.setMapperName(genTable.getMapperName());
+                tableInfo.setServiceName(genTable.getServiceName());
+                tableInfo.setControllerName(genTable.getControllerName());
+                tableInfo.setServiceImplName(genTable.getServiceImplName());
 
                 List<TableField> newTableFields = new ArrayList<>();
                 List<TableField> newCommonFields = new ArrayList<>();

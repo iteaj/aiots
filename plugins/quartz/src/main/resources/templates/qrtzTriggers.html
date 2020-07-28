@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <th:block th:include="libs :: header('')"></th:block>
+    <style>
+        .status-tag {
+            cursor: pointer;
+            margin: 0px !important;
+        }
+    </style>
+</head>
+<body>
+<div id="QrtzTriggersPage">
+    <ivz-basic-view :metas="metas" :config="config" :search-metas="searchMetas">
+        <template #trigger_state_t="args" v-if="pausedMeta">
+            <a-tag v-if="args.value=='PAUSED'" color="orange" class="status-tag" @click="trigger(args)">
+                <span title="点击恢复">暂 停</span>
+            </a-tag>
+            <a-tag v-else color="green" class="status-tag" @click="trigger(args)">
+                <span title="点击暂停">恢 复</span>
+            </a-tag>
+        </template>
+    </ivz-basic-view>
+</div>
+</body>
+<th:block th:include="libs :: footer"></th:block>
+<script>
+    let State = [
+        {label: '等待', value: 'WAITING'},
+        {label: '错误', value: 'ERROR'},
+        {label: '暂停', value: 'PAUSED'},
+        {label: '阻塞', value: 'BLOCKED'},
+        {label: '执行', value: 'ACQUIRED'},
+        {label: '完成', value: 'COMPLETE'},
+    ]
+    let vue = new Vue({
+        el: "#QrtzTriggersPage",
+        data: {
+            metas: [
+                {field: 'jobName', title: '名称', width: 180, disabled: true, fixed: 'left' },
+                {field: 'jobGroup', title: '分组', width: 100, disabled: true, fixed: 'left' },
+                {field: 'cronExpression', title: '表达式', width: 158},
+                {field: 'prevFireTime', title: '上一次', type: 'date', config: {
+                        viewFormat: 'YYYY-MM-DD HH:mm:ss'
+                    }, width: 160, isForm: false},
+                {field: 'nextFireTime', title: '下一次', type: 'date', config: {
+                        viewFormat: 'YYYY-MM-DD HH:mm:ss'
+                    }, width: 160, isForm: false},
+                {field: 'startTime', title: '开始时间', type: 'date', config: {
+                        viewFormat: 'YYYY-MM-DD HH:mm:ss'
+                    }, width: 160, isForm: false},
+                {field: 'description', title: '作业描述', width: 280, disabled: true },
+                {field: 'triggerState', title: '状态', type: 'select', data: State
+                    , width: 88, isForm: false, fixed: 'right'},
+                {field: 'action', type: 'action', title: '操作', fixed: 'right', width: 220}
+            ],
+            pausedMeta: null,
+            searchMetas: [
+            ],
+            config: {
+                form: {
+                    column: 1
+                },
+                table: {
+                    // selection: {}, // 表格多选
+                    pagination: {}
+                }
+            },
+        },
+        created: function() {
+            this.$page.setActionMeta("Del", {callBack: function (model) {
+                    return new Promise(function (resolve) {
+                        resolve({submitType: 'entity'}); // 提交实体
+                    })
+                }});
+
+            // 暂定/恢复权限
+            this.pausedMeta = this.$page.getActionMetaById("Paused");
+        },
+        methods: {
+            trigger: function (args) {
+                let model = args['row'];
+
+                if(model['triggerState'] == "PAUSED") { // 当前是暂停就调用恢复接口
+                    vue.$http.post("/quartz/triggers/resume", model).then(function (resp) {
+                        vue.$msg.successNotify("作业操作", "恢复成功")
+                        vue.$page.query();
+                    });
+                } else { // 其他接口调用暂停接口
+                    vue.$http.post("/quartz/triggers/paused", model).then(function (resp) {
+                        vue.$msg.successNotify("作业操作", "暂停成功")
+                        vue.$page.query();
+                    });
+                }
+            }
+        }
+    });
+</script>
+</html>
+
