@@ -11,6 +11,7 @@ izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和sprin
 * 定时任务 - 使用quartz提供集群或者分布式的定时任务管理
 * Api文档  - 集成swagger、knife4j插件。用来管理、调试前后端Api接口
 * 代码生产 - 生成前后端, 提供更加简洁直观的设置方式生成代码
+* 模块化   - 基于springboot的核心思想jar即模块， 且可动态增减模块提供的功能菜单
 * 自动登录功能 - 基于shiro实现(非rememberme实现)， 如果用户的会话未过期，用户无需再次登录(如：后台重启，原生app认证)
 * 原生app会话功能 - 基于shiro实现， 登录时将access_token放入请求header(属于app访问)，在会话的有效期内， 将无需重新登录(采用数据库实现，如果系统开启spring-redis缓存， shiro将会委托给spring的缓存管理实现)
 #### 更新日志
