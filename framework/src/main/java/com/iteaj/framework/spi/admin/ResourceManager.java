@@ -33,4 +33,10 @@ public interface ResourceManager {
      * @return
      */
     List<UrlResource> getFunctionPoint(Serializable id);
+
+    /**
+     * 获取模块列表
+     * @return
+     */
+    List<Module> getModules();
 }

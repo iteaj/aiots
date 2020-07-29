@@ -1,7 +1,9 @@
 package com.iteaj.develop;
 
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spring.boot.config.DevelopProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -14,4 +16,18 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(DevelopProperties.class)
 public class DevelopAutoConfiguration {
 
+    @Bean
+    public Module devModule() {
+        return new Module() {
+            @Override
+            public String getMsn() {
+                return "dev";
+            }
+
+            @Override
+            public String getName() {
+                return "开发模块";
+            }
+        };
+    }
 }

@@ -1,5 +1,6 @@
 package com.iteaj.quartz;
 
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.quartz.demo.DemoJob;
 import com.iteaj.quartz.jobs.AutowireJobFactory;
 import com.iteaj.quartz.scheduler.SchedulerManager;
@@ -29,6 +30,21 @@ public class QuartzConfiguration implements InitializingBean {
 
     @Autowired()
     private SchedulerManager sysSchedulerManager;
+
+    @Bean
+    public Module quartzModule() {
+        return new Module() {
+            @Override
+            public String getMsn() {
+                return "quartz";
+            }
+
+            @Override
+            public String getName() {
+                return "定时任务";
+            }
+        };
+    }
 
     @Bean("sysSchedulerFactoryBean")
     public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory){

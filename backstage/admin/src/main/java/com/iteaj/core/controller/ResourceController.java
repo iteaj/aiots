@@ -2,13 +2,16 @@ package com.iteaj.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.util.Result;
+import com.iteaj.util.module.mvc.result.ListResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,6 +49,16 @@ public class ResourceController extends BaseController {
     public Result resources() {
         BaseEntity principal = SecurityUtils.getPrincipal();
         return success().add("resources", resourceManager.getResources(principal));
+    }
+
+    /**
+     * 返回当前系统已经注册过的模块列表
+     * @return
+     */
+    @GetMapping("/modules")
+    public Result modules() {
+        List<Module> modules = resourceManager.getModules();
+        return new ListResult(modules).build(success());
     }
 
     /**

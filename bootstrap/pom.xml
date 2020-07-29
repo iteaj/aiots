@@ -15,16 +15,19 @@
     </properties>
 
     <dependencies>
-
-        <!-- ####################################################### -->
-        <!--                     后台管理模块 开始                      -->
-        <!-- ####################################################### -->
-
-        <dependency> <!-- 管理端 - 系统核心模块(必选) -->
+        <dependency> <!-- 管理端 - 系统核心 -->
             <groupId>com.iteaj</groupId>
             <artifactId>admin</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!--启用缓存-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+<!-- ################################# 可选模块 ######################## -->
 
         <dependency><!-- 管理端 - 开发模块(可选) -->
             <groupId>com.iteaj</groupId>
@@ -33,9 +36,7 @@
         </dependency>
 
 
-        <!-- ####################################################### -->
-        <!--                     可选 plugins开始                      -->
-        <!-- ####################################################### -->
+<!-- ################################ 可选plugins ############################## -->
 
         <dependency><!--  shiro 权限管理插件  -->
             <groupId>com.iteaj</groupId>
@@ -43,14 +44,10 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- ####################################################### -->
-        <!--                     可选 plugins 结束                    -->
-        <!-- ####################################################### -->
-
-        <!--启用缓存-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
+        <dependency><!--  quartz定时任务插件  -->
+            <groupId>com.iteaj</groupId>
+            <artifactId>quartz</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

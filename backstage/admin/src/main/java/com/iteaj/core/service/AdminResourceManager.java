@@ -4,10 +4,7 @@ import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.Config;
 import com.iteaj.core.entity.Menu;
 import com.iteaj.core.enums.ConfigType;
-import com.iteaj.framework.spi.admin.MenuResource;
-import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.spi.admin.SecurityUtils;
-import com.iteaj.framework.spi.admin.UrlResource;
+import com.iteaj.framework.spi.admin.*;
 import com.iteaj.util.module.mvc.ServiceException;
 import com.iteaj.util.module.mvc.orm.Entity;
 import com.iteaj.util.module.mvc.result.ListResult;
@@ -23,7 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * create time: 2020/6/26
- *  系统资源管理
+ *  后台系统资源管理
  * @author iteaj
  * @since 1.0
  */
@@ -31,10 +28,13 @@ import java.util.stream.Collectors;
 public class AdminResourceManager implements ResourceManager, EnvironmentAware {
 
     private Environment environment;
+    private final List<Module> modules;
     private final IMenuService menuService;
     private final IConfigService configService;
 
-    public AdminResourceManager(IMenuService menuService, IConfigService configService) {
+    public AdminResourceManager(IMenuService menuService
+            , IConfigService configService, List<Module> modules) {
+        this.modules = modules;
         this.menuService = menuService;
         this.configService = configService;
     }
@@ -42,6 +42,7 @@ public class AdminResourceManager implements ResourceManager, EnvironmentAware {
     @Override
     public List<MenuResource> getResources(Entity principal) {
         if(null == principal) throw new ServiceException("用户未登录");
+
         ListResult<Menu> menuTrees = menuService
                 .selectMenuBarTrees((Long) principal.getId()
                         , SecurityUtils.isSuper((Long) principal.getId()));
@@ -55,6 +56,11 @@ public class AdminResourceManager implements ResourceManager, EnvironmentAware {
         menu.setPid((Long) id);
         return menuService.selectList(menu)
                 .get().stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Module> getModules() {
+        return modules;
     }
 
     @Override

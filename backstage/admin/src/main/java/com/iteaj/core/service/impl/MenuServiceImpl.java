@@ -8,12 +8,15 @@ import com.iteaj.core.enums.MenuType;
 import com.iteaj.core.service.IMenuService;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.consts.Position;
+import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.module.mvc.BaseServiceImpl;
 import com.iteaj.util.module.mvc.ServiceException;
 import com.iteaj.util.module.mvc.result.BooleanResult;
 import com.iteaj.util.module.mvc.result.ListResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -26,6 +29,8 @@ import java.util.stream.Stream;
 @Service
 public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService {
 
+    @Autowired
+    private ResourceManager resourceManager;
     private Map<String, Menu> urlMenuMap = new HashMap<>(128);
 
     @Override
@@ -49,17 +54,34 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
     @Override
     public ListResult<Menu> selectMenuTrees(Menu menu) {
+        List<Module> modules = resourceManager.getModules();
+
+        // 获取已经注册的模块
+        String[] toArray = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
+
+        // 只查询已经注册过的模块的菜单列表
         List<Menu> menuList = this.getBaseDao() // 根据sort排序后的数据
-                .selectList(Wrappers.query(menu).orderByAsc("sort"));
+                .selectList(Wrappers.query(menu)
+                        .in("msn", toArray)
+                        .orderByAsc("sort"));
+
         List<Menu> menus = (List<Menu>) TreeUtils.toTrees(menuList, 0l);
         return new ListResult<>(menus);
     }
 
     @Override
     public ListResult<Menu> selectMenuBarTrees(Long aid, boolean isSuper) {
+        List<Module> modules = resourceManager.getModules();
+
+        // 获取已经注册的模块
+        String[] msnList = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
+
+        // 只查询已经注册过的模块的菜单列表
         List<Menu> allMenus = this.getBaseDao()
                 .selectList(Wrappers.<Menu>query().ne("status"
-                        , PermStatus.disabled).orderByAsc("sort"));
+                        , PermStatus.disabled).in("msn", msnList)
+                        .orderByAsc("sort"));
+
         convertToUrlMap(allMenus);
 
         if(isSuper) { // 超级管理员拥有所有菜单

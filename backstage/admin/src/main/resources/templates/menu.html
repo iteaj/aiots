@@ -64,7 +64,7 @@
                                   maxHeight: '200px'
                               }
                           }},
-                      {field: 'msn', title: '所属模块', type: 'select', dictType: 'sys.module'
+                      {field: 'msn', title: '所属模块(插件)', type: 'select', url: '/modules'
                           , required: true, event: {
                             change: function (val, model) {
                                 if(model['type'] == 'V' || model['type'] == 'A') {
@@ -82,7 +82,7 @@
                                     }
                                 }
                             }
-                          }}
+                          }, config: {labelField: 'name', valueField: 'msn'}}
                   ]},
               {field: 'menu', title: '菜单信息', metas: [
                       {field: 'type', title: '菜单类型', type: 'select', required: true

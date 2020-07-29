@@ -12,6 +12,7 @@ import com.iteaj.core.service.IOperaLogService;
 import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.LoggerService;
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.event.OnlineListener;
 import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.event.AsyncGuavaEventBus;
@@ -82,6 +83,25 @@ public class AdminAutoConfiguration implements WebMvcConfigurer {
     @ConditionalOnProperty(name = {"izb.env.demon"}, havingValue = "true")
     public DemoEnvInterceptor demoHandlerInterceptor(ObjectMapper objectMapper, AuthzUrl authzUrl) {
         return new DemoEnvInterceptor(objectMapper, authzUrl);
+    }
+
+    /**
+     * 声明此模块的信息
+     * @return
+     */
+    @Bean
+    public Module coreModule() {
+        return new Module() {
+            @Override
+            public String getMsn() {
+                return "core";
+            }
+
+            @Override
+            public String getName() {
+                return "核心模块";
+            }
+        };
     }
 
     /**
