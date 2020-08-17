@@ -44,9 +44,15 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency><!--  quartz定时任务插件  -->
+        <dependency><!--  quartz 定时任务插件  -->
             <groupId>com.iteaj</groupId>
             <artifactId>quartz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency><!-- knife4j 文档接口-->
+            <groupId>com.iteaj</groupId>
+            <artifactId>knife4j</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

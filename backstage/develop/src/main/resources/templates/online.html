@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>在线生成器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link href="/static/libs/antd.min.css" th:href="@{/libs/antd.min.css}" rel="stylesheet"/>
+    <link href="/static/libs/online.min.css" th:href="@{/libs/online.min.css}" rel="stylesheet"/>
+
+    <style>
+        .ivz-gen-modal .ant-form-item { /*代码生成器弹框表单样式*/
+            margin: 0px 0px 8px!important;
+        }
+    </style>
+</head>
+<body>
+    <div id="online"></div>
+</body>
+<script th:inline="javascript">
+    var izCtxValue = [[${#request.contextPath}]]; // 当前应用上下文路径
+    var izStxValue = izCtxValue; // 静态资源上下文路径
+    window.ivzGlobalConfig = {
+        izCtx: izCtxValue, // 访问路径的 context_path
+        izStx: izStxValue, // 访问静态资源的context_path
+        modUserUrl: '/core/admin/modUserInfo', // 修改用户信息
+        avatarUrl: '/common/upload/avatar', // 上传用户头像
+        iconUrl: '//at.alicdn.com/t/font_1174643_54pugbfflwa.js' // icon链接地址, 采用阿里图标库
+    }
+</script>
+
+<script src="/static/libs/mock.js" th:src="@{/libs/mock.js}"></script>
+<script src="/static/libs/polyfill.min.js" th:src="@{/libs/polyfill.min.js}"></script>
+<script src="/static/libs/vue.min.js" th:src="@{/libs/vue.min.js}"></script>
+<script src="/static/libs/axios.min.js" th:src="@{/libs/axios.min.js}"></script>
+<script src="/static/libs/moment.min.js" th:src="@{/libs/moment.min.js}"></script>
+<script src="/static/libs/zh-cn.js" th:src="@{/libs/zh-cn.js}"></script>
+<script src="/static/libs/antd.min.js" th:src="@{/libs/antd.min.js}"></script>
+<script src="/static/libs/online.min.js" th:src="@{/libs/online.min.js}"></script>
+</html>

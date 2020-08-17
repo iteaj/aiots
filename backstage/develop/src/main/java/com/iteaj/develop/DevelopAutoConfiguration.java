@@ -1,5 +1,6 @@
 package com.iteaj.develop;
 
+import com.iteaj.framework.authority.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spring.boot.config.DevelopProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -15,6 +16,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(DevelopProperties.class)
 public class DevelopAutoConfiguration {
+
+    /**
+     * 开放下面的路径, 不能被权限管理器拦截
+     * @return
+     */
+    @Bean
+    public OrderFilterChainDefinition developOrderFilterChain() {
+        return new OrderFilterChainDefinition()
+                .addPathDefinition("/dev/online", "anon");
+    }
 
     @Bean
     public Module devModule() {
