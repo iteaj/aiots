@@ -41,6 +41,12 @@ public class DictTypeController extends BaseController {
     }
 
     @ResponseBody
+    @GetMapping("/list")
+    public Result list(DictType dictType) {
+        return dictTypeService.selectList(dictType).build(success());
+    }
+
+    @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:dictType:add")
     public Result add(@RequestBody DictType dictType) {
