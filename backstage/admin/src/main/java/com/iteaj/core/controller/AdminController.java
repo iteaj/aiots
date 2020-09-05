@@ -40,7 +40,7 @@ public class AdminController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:admin:view")
     public Result view(Page page, Admin admin) {
-        return this.adminService.selectByPage(page, admin).response(success());
+        return this.adminService.selectByPage(page, admin).build(success());
     }
 
     @ResponseBody
@@ -54,7 +54,7 @@ public class AdminController extends BaseController {
     @ResponseBody
     @GetMapping("/edit")
     public Result edit(Long id) {
-        return this.adminService.getAdminDetailById(id).response(success());
+        return this.adminService.getAdminDetailById(id).build(success());
     }
 
     @ResponseBody

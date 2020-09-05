@@ -11,7 +11,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -47,14 +46,15 @@ public class CommonUploadController extends BaseController implements Initializi
 
     /**
      * 文件上传
+     * todo url
      * @param file
      * @return
      */
     @PostMapping
-    public Result upload(MultipartFile file, String subPath) {
+    public Result<String> upload(MultipartFile file, String subPath) {
         try {
             String fileUrl = this.createFile(file, subPath);
-            return success("上传成功").add("url", fileUrl);
+            return success(fileUrl, "上传成功");
         } catch (IOException e) {
             return fail("上传失败");
         }
@@ -66,7 +66,7 @@ public class CommonUploadController extends BaseController implements Initializi
      * @return
      */
     @PostMapping("/batch")
-    public Result batch(MultipartFile[] file, String subPath) {
+    public Result<List<String>> batch(MultipartFile[] file, String subPath) {
         List<String> urls = new ArrayList<>();
 
         try {
@@ -82,7 +82,7 @@ public class CommonUploadController extends BaseController implements Initializi
             return fail("上传失败");
         }
 
-        return success("上传成功").add("url", urls);
+        return success(urls);
     }
 
     /**
@@ -95,7 +95,7 @@ public class CommonUploadController extends BaseController implements Initializi
         try {
             Admin admin = (Admin) SecurityUtils.getPrincipal();
             String fileUrl = this.createFile(avatar, "avatar_"+admin.getId(), "/avatar");
-            return success("上传成功").add("url", fileUrl);
+            return success(fileUrl, "上传成功");
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return fail("上传失败");

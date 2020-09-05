@@ -1,6 +1,7 @@
 package com.iteaj.security.shiro;
 
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.LoggerType;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
 import com.iteaj.framework.spi.event.EventPublisher;
@@ -25,13 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 public class ShiroAdminAuthenticationController extends BaseController {
 
+    private final AuthzUrl authzUrl;
     private final EventPublisher eventPublisher;
     private final AuthenticatingService authenticatingService;
 
     public ShiroAdminAuthenticationController(EventPublisher eventPublisher
-            , AuthenticatingService authenticatingService) {
+            , AuthenticatingService authenticatingService, AuthzUrl authzUrl) {
         this.eventPublisher = eventPublisher;
         this.authenticatingService = authenticatingService;
+        this.authzUrl = authzUrl;
     }
 
     /**
@@ -40,7 +43,7 @@ public class ShiroAdminAuthenticationController extends BaseController {
      * @return
      */
     @PostMapping("/login")
-    public Result login(@RequestBody ShiroAuthToken token) {
+    public Result<AuthzUrl> login(@RequestBody ShiroAuthToken token) {
         try {
             // 登录
             SecurityUtils.getSubject().login(token);
@@ -52,8 +55,7 @@ public class ShiroAdminAuthenticationController extends BaseController {
             return HttpResult.Fail("认证失败");
         }
 
-        return HttpResult.Success("认证成功").add("successUrl"
-                , authenticatingService.getAuthzUrl().getSuccessUrl());
+        return HttpResult.Success(authzUrl, "认证成功");
     }
 
     /**
@@ -80,8 +82,7 @@ public class ShiroAdminAuthenticationController extends BaseController {
                     .setOperaTimeMillis(time).setArgs(new Object[]{admin});
             eventPublisher.publish(event);
         }
-        return HttpResult.Success("注销成功").add("loginUrl"
-                , authenticatingService.getAuthzUrl().getLoginUrl());
+        return HttpResult.Success(authzUrl, "注销成功");
     }
 
 }

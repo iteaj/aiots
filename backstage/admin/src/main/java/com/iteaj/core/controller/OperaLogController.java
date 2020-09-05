@@ -37,13 +37,13 @@ public class OperaLogController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:log:view")
     public Result view(Page page, OperaLog operaLog) {
-        return this.operaLogService.selectByPage(page, operaLog).response(success());
+        return this.operaLogService.selectByPage(page, operaLog).build(success());
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:log:del")
     public Result del(@RequestBody List<Long> list) {
-        return this.operaLogService.deleteByIds(list).response(success());
+        return this.operaLogService.deleteByIds(list).build(success());
     }
 }

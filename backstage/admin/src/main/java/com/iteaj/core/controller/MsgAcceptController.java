@@ -36,35 +36,35 @@ public class MsgAcceptController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:msgAccept:view")
     public Result view(MsgAccept entity, Page page) {
-        return this.msgAcceptService.selectByPage(page, entity).response(success());
+        return this.msgAcceptService.selectByPage(page, entity).build(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:msgAccept:add")
     public Result add(@RequestBody MsgAccept entity) {
-        return this.msgAcceptService.insert(entity).response(success("新增记录成功"));
+        return this.msgAcceptService.insert(entity).build(success("新增记录成功"));
     }
 
     @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:msgAccept:edit")
     public Result edit(@RequestBody MsgAccept entity) {
-        return this.msgAcceptService.updateById(entity).response(success("修改记录成功"));
+        return this.msgAcceptService.updateById(entity).build(success("修改记录成功"));
     }
 
     @ResponseBody
     @GetMapping("/detail")
     @RequiresPermissions("core:msgAccept:detail")
     public Result detail(Long id) {
-        return this.msgAcceptService.getById(id).response(success());
+        return this.msgAcceptService.getById(id).build(success());
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:msgAccept:del")
     public Result del(@RequestBody List<Long> ids) {
-        return this.msgAcceptService.deleteByIds(ids).response(success("删除记录成功"));
+        return this.msgAcceptService.deleteByIds(ids).build(success("删除记录成功"));
     }
 
 }

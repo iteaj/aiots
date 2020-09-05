@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class OperaLogServiceImpl extends BaseServiceImpl<IOperaLogDao, OperaLog> implements IOperaLogService {
 
     @Override
-    public PageResult<OperaLog> selectByPage(IPage<OperaLog> page, OperaLog condition) {
+    public PageResult<IPage<OperaLog>> selectByPage(IPage<OperaLog> page, OperaLog condition) {
         Object[] section = condition.getSection();
         Object start = section != null && section.length>0 ? section[0] : null;
         Object end = section != null && section.length>1 ? section[1] : null;

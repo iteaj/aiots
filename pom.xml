@@ -31,7 +31,7 @@
 
         <guava.version>20.0</guava.version>
         <shiro.version>1.4.1</shiro.version>
-        <iutils.version>1.1.10</iutils.version>
+        <iutils.version>1.1.11</iutils.version>
         <knife4j.version>2.0.4</knife4j.version>
         <izone.boot.version>1.2.1</izone.boot.version>
         <mybatis.plus.version>3.3.1</mybatis.plus.version>

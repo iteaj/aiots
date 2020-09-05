@@ -2,9 +2,7 @@ package com.iteaj.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.spi.admin.Module;
-import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.spi.admin.SecurityUtils;
+import com.iteaj.framework.spi.admin.*;
 import com.iteaj.util.Result;
 import com.iteaj.util.module.mvc.result.ListResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +36,7 @@ public class ResourceController extends BaseController {
     public Result envConfig() {
         Map<String, Object> config =  resourceManager
                 .getEnvConfig(SecurityUtils.getPrincipal());
-        return success().add("env", config);
+        return success(config);
     }
 
     /**
@@ -48,7 +46,8 @@ public class ResourceController extends BaseController {
     @GetMapping("/resources")
     public Result resources() {
         BaseEntity principal = SecurityUtils.getPrincipal();
-        return success().add("resources", resourceManager.getResources(principal));
+        List<MenuResource> resources = resourceManager.getResources(principal);
+        return success(resources);
     }
 
     /**
@@ -68,6 +67,7 @@ public class ResourceController extends BaseController {
      */
     @GetMapping("/point")
     public Result getFunctionPoint(Long id) {
-        return success().add("rows", resourceManager.getFunctionPoint(id));
+        List<UrlResource> resources = resourceManager.getFunctionPoint(id);
+        return success(resources);
     }
 }

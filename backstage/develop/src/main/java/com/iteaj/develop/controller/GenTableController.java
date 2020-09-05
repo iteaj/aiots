@@ -1,5 +1,6 @@
 package com.iteaj.develop.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.develop.dto.GenTableDto;
@@ -50,7 +51,7 @@ public class GenTableController extends BaseController {
 
     @ResponseBody
     @GetMapping("/view")
-    public Result view(Page page, GenTable table) {
+    public Result<IPage<GenTable>> view(Page page, GenTable table) {
         page.addOrder(OrderItem.desc("status"));
         return this.genTableService.selectByPage(page, table).build(success());
     }
@@ -86,11 +87,12 @@ public class GenTableController extends BaseController {
      */
     @ResponseBody
     @GetMapping("/config")
-    public Result config() {
+    public Result<Config> config() {
         DevelopProperties.CodeGen gen = properties.getGen();
-        return success().add("parent", gen.getPackageConfig().getParent())
-                .add("rootPath", gen.getRootDir())
-                .add("genPath", gen.getGlobal().getOutputDir());
+        String rootDir = gen.getRootDir();
+        String outputDir = gen.getGlobal().getOutputDir();
+        String parent = gen.getPackageConfig().getParent();
+        return success(new Config(parent, outputDir, rootDir));
     }
 
 
@@ -103,13 +105,13 @@ public class GenTableController extends BaseController {
     @ResponseBody
     @PostMapping("/edit")
     public Result edit(@RequestBody GenTable table) {
-        return genTableService.updateById(table).build(success());
+        return genTableService.updateById(table);
     }
 
     @ResponseBody
     @PostMapping("/del")
     public Result del(@RequestBody List<Long> ids) {
-        return genTableService.deleteByIds(ids).build(success());
+        return genTableService.deleteByIds(ids);
     }
 
     /**
@@ -170,4 +172,42 @@ public class GenTableController extends BaseController {
         }
     }
 
+    public static class Config {
+        private String parent;
+        private String genPath;
+        private String rootPath;
+
+        public Config(String parent, String genPath, String rootPath) {
+            this.parent = parent;
+            this.genPath = genPath;
+            this.rootPath = rootPath;
+        }
+
+        public String getParent() {
+            return parent;
+        }
+
+        public Config setParent(String parent) {
+            this.parent = parent;
+            return this;
+        }
+
+        public String getGenPath() {
+            return genPath;
+        }
+
+        public Config setGenPath(String genPath) {
+            this.genPath = genPath;
+            return this;
+        }
+
+        public String getRootPath() {
+            return rootPath;
+        }
+
+        public Config setRootPath(String rootPath) {
+            this.rootPath = rootPath;
+            return this;
+        }
+    }
 }

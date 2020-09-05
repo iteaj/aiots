@@ -36,35 +36,35 @@ public class MsgSendController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:msgSend:view")
     public Result view(MsgSend entity, Page page) {
-        return this.msgSendService.selectByPage(page, entity).response(success());
+        return this.msgSendService.selectByPage(page, entity).build(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:msgSend:add")
     public Result add(@RequestBody MsgSend entity) {
-        return this.msgSendService.insert(entity).response(success("新增记录成功"));
+        return this.msgSendService.insert(entity).build(success("新增记录成功"));
     }
 
     @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:msgSend:edit")
     public Result edit(@RequestBody MsgSend entity) {
-        return this.msgSendService.updateById(entity).response(success("修改记录成功"));
+        return this.msgSendService.updateById(entity).build(success("修改记录成功"));
     }
 
     @ResponseBody
     @GetMapping("/detail")
     @RequiresPermissions("core:msgSend:detail")
     public Result detail(Long id) {
-        return this.msgSendService.getById(id).response(success());
+        return this.msgSendService.getById(id).build(success());
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:msgSend:del")
     public Result del(@RequestBody List<Long> ids) {
-        return this.msgSendService.deleteByIds(ids).response(success("删除记录成功"));
+        return this.msgSendService.deleteByIds(ids).build(success("删除记录成功"));
     }
 
 }

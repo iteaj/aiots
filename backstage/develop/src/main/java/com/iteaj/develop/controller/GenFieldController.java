@@ -31,19 +31,19 @@ public class GenFieldController extends BaseController {
 
     @ResponseBody
     @GetMapping("/view")
-    public Result view(GenField field) {
+    public Result<GenField> view(GenField field) {
         return this.genFieldService.selectList(field).build(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
-    public Result add(@RequestBody GenField field) {
+    public Result<Boolean> add(@RequestBody GenField field) {
         return genFieldService.insert(field).build(success());
     }
 
     @ResponseBody
     @PostMapping("/edit")
-    public Result edit(@RequestBody GenField field) {
+    public Result<Boolean> edit(@RequestBody GenField field) {
         return genFieldService.updateById(field).build(success());
     }
 

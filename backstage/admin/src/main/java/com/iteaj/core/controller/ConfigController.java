@@ -38,33 +38,33 @@ public class ConfigController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:config:view")
     public Result view(Page page, Config config) {
-        return this.configService.selectByPage(page, config).response(success());
+        return this.configService.selectByPage(page, config).build(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:config:add")
-    public Result add(@RequestBody Config config) {
-        return this.configService.insert(config).response(success());
+    public Result<Boolean> add(@RequestBody Config config) {
+        return this.configService.insert(config).build(success());
     }
 
     @ResponseBody
     @GetMapping("/edit")
-    public Result edit(Long id) {
-        return this.configService.getById(id).response(success());
+    public Result<Config> edit(Long id) {
+        return this.configService.getById(id).build(success());
     }
 
     @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:config:edit")
-    public Result edit(@RequestBody Config config) {
-        return this.configService.updateById(config).response(success());
+    public Result<Boolean> edit(@RequestBody Config config) {
+        return this.configService.updateById(config).build(success());
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:config:del")
-    public Result del(@RequestBody List<Long> list) {
-        return this.configService.deleteByIds(list).response(success());
+    public Result<Boolean> del(@RequestBody List<Long> list) {
+        return this.configService.deleteByIds(list).build(success());
     }
 }

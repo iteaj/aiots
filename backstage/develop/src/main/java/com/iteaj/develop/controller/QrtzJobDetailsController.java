@@ -36,35 +36,35 @@ public class QrtzJobDetailsController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:qrtzJobDetails:view")
     public Result view(QrtzJobDetails entity, Page page) {
-        return this.qrtzJobDetailsService.selectByPage(page, entity).response(success());
+        return this.qrtzJobDetailsService.selectByPage(page, entity).build(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:qrtzJobDetails:add")
     public Result add(@RequestBody QrtzJobDetails entity) {
-        return this.qrtzJobDetailsService.insert(entity).response(success("新增记录成功"));
+        return this.qrtzJobDetailsService.insert(entity).build(success("新增记录成功"));
     }
 
     @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:qrtzJobDetails:edit")
     public Result edit(@RequestBody QrtzJobDetails entity) {
-        return this.qrtzJobDetailsService.updateById(entity).response(success("修改记录成功"));
+        return this.qrtzJobDetailsService.updateById(entity).build(success("修改记录成功"));
     }
 
     @ResponseBody
     @GetMapping("/detail")
     @RequiresPermissions("core:qrtzJobDetails:detail")
     public Result detail(Long id) {
-        return this.qrtzJobDetailsService.getById(id).response(success());
+        return this.qrtzJobDetailsService.getById(id).build(success());
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:qrtzJobDetails:del")
     public Result del(@RequestBody List<Long> ids) {
-        return this.qrtzJobDetailsService.deleteByIds(ids).response(success("删除记录成功"));
+        return this.qrtzJobDetailsService.deleteByIds(ids).build(success("删除记录成功"));
     }
 
 }

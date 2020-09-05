@@ -37,13 +37,13 @@ public class RoleController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:role:view")
     public Result view(Page page, Role role) {
-        return this.roleService.selectByPage(page, role).response(success());
+        return this.roleService.selectByPage(page, role).build(success());
     }
 
     @ResponseBody
     @GetMapping("/list")
     public Result view(Role role) {
-        return this.roleService.selectList(role).response(success());
+        return this.roleService.selectList(role).build(success());
     }
 
     @ResponseBody
@@ -57,7 +57,7 @@ public class RoleController extends BaseController {
     @ResponseBody
     @GetMapping("/edit")
     public Result edit(Long id) {
-        return this.roleService.detail(id).response(success());
+        return this.roleService.detail(id).build(success());
     }
 
     @ResponseBody

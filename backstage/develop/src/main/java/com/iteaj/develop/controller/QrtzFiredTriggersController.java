@@ -36,35 +36,35 @@ public class QrtzFiredTriggersController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:qrtzFiredTriggers:view")
     public Result view(QrtzFiredTriggers entity, Page page) {
-        return this.qrtzFiredTriggersService.selectByPage(page, entity).response(success());
+        return this.qrtzFiredTriggersService.selectByPage(page, entity);
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:qrtzFiredTriggers:add")
     public Result add(@RequestBody QrtzFiredTriggers entity) {
-        return this.qrtzFiredTriggersService.insert(entity).response(success("新增记录成功"));
+        return this.qrtzFiredTriggersService.insert(entity).build(success("新增记录成功"));
     }
 
     @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:qrtzFiredTriggers:edit")
     public Result edit(@RequestBody QrtzFiredTriggers entity) {
-        return this.qrtzFiredTriggersService.updateById(entity).response(success("修改记录成功"));
+        return this.qrtzFiredTriggersService.updateById(entity).build(success("修改记录成功"));
     }
 
     @ResponseBody
     @GetMapping("/detail")
     @RequiresPermissions("core:qrtzFiredTriggers:detail")
     public Result detail(Long id) {
-        return this.qrtzFiredTriggersService.getById(id).response(success());
+        return this.qrtzFiredTriggersService.getById(id).build(success());
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:qrtzFiredTriggers:del")
     public Result del(@RequestBody List<Long> ids) {
-        return this.qrtzFiredTriggersService.deleteByIds(ids).response(success("删除记录成功"));
+        return this.qrtzFiredTriggersService.deleteByIds(ids).build(success("删除记录成功"));
     }
 
 }

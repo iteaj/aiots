@@ -22,7 +22,7 @@ public enum ErrorCode implements IErrorCode {
     }
 
     @Override
-    public Serializable getCode() {
+    public long getCode() {
         return code;
     }
 }

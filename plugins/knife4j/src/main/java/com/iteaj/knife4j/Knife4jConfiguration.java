@@ -51,7 +51,7 @@ public class Knife4jConfiguration {
                 .groupName("开发模块")
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.iteaj.develop"))
-                .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
+//                .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
                 .paths(PathSelectors.any())
                 .build();
     }

@@ -36,27 +36,27 @@ public class OrganizeController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:org:view")
     public Result view(Organize organize) {
-        return this.organizeService.selectTrees(organize).response(success());
+        return this.organizeService.selectTrees(organize).build(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:org:add")
     public Result add(@RequestBody Organize organize) {
-        return this.organizeService.insert(organize).response(success());
+        return this.organizeService.insert(organize).build(success());
     }
 
     @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:org:edit")
     public Result edit(@RequestBody Organize organize) {
-        return this.organizeService.updateById(organize).response(success());
+        return this.organizeService.updateById(organize).build(success());
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:org:del")
     public Result add(List<Long> list) {
-        return this.organizeService.deleteByIds(list).response(success());
+        return this.organizeService.deleteByIds(list).build(success());
     }
 }
