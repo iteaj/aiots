@@ -50,13 +50,6 @@
 <!--            <artifactId>quartz</artifactId>-->
 <!--            <version>${project.version}</version>-->
 <!--        </dependency>-->
-
-        <!-- knife4j 文档接口-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>knife4j</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
