@@ -200,8 +200,8 @@
                   vue.$refs['imf'].open();
               })
           }});
-          this.$http.get("/dev/table/config").then(function (data) {
-              vue.genConfig = data;
+          this.$http.get("/dev/table/config").then(function (resp) {
+              vue.genConfig = resp.data;
               vue.genPathRootHandle(defaultConfig)
           })
       },

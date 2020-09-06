@@ -45,7 +45,7 @@ public class GenInjectionConfig extends InjectionConfig {
         public String outputFile(TableInfo tableInfo) {
             Map<String, String> pathInfo = getConfig().getPathInfo();
             GenTableInfo genTableInfo = (GenTableInfo) tableInfo;
-            return String.format("%s\\%s.html", pathInfo.get(H5_PATH)
+            return String.format("%s/%s.html", pathInfo.get(H5_PATH)
                     , genTableInfo.getLowerFirstEntity());
         }
 
