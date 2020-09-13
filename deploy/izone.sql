@@ -155,7 +155,7 @@ CREATE TABLE `qrtz_job_details` (
 
 LOCK TABLES `qrtz_job_details` WRITE;
 /*!40000 ALTER TABLE `qrtz_job_details` DISABLE KEYS */;
-INSERT INTO `qrtz_job_details` VALUES ('ClusterQuartz','demo','ç³»ç»Ÿ','ç³»ç»Ÿä½œä¸šè°ƒåº¦æµ‹è¯•','com.iteaj.quartz.demo.DemoJob','0','0','0','0','¬\í\0sr\0org.quartz.JobDataMapŸ°ƒè¿©°\Ë\0\0xr\0&org.quartz.utils.StringKeyDirtyFlagMap‚\è\Ãû\Å](\0Z\0allowsTransientDataxr\0org.quartz.utils.DirtyFlagMap\æ.­(v\n\Î\0Z\0dirtyL\0mapt\0Ljava/util/Map;xpsr\0java.util.HashMap\ÚÁ\Ã`\Ñ\0F\0\nloadFactorI\0	thresholdxp?@\0\0\0\0\0w\0\0\0\0\0\0t\0authort\0iteajt\0demosr\0java.lang.Boolean\Í r€Õœú\î\0Z\0valuexpx\0');
+INSERT INTO `qrtz_job_details` VALUES ('ClusterQuartz','demo','ç³»ç»Ÿ','ç³»ç»Ÿä½œä¸šè°ƒåº¦æµ‹è¯•','com.iteaj.quartz.demo.DemoJob','0','0','0','0','ï¿½\ï¿½\0sr\0org.quartz.JobDataMapï¿½ï¿½ï¿½è¿©ï¿½\ï¿½\0\0xr\0&org.quartz.utils.StringKeyDirtyFlagMapï¿½\ï¿½\ï¿½ï¿½\ï¿½](\0Z\0allowsTransientDataxr\0org.quartz.utils.DirtyFlagMap\ï¿½.ï¿½(v\n\ï¿½\0Z\0dirtyL\0mapt\0Ljava/util/Map;xpsr\0java.util.HashMap\ï¿½ï¿½\ï¿½`\ï¿½\0F\0\nloadFactorI\0	thresholdxp?@\0\0\0\0\0w\0\0\0\0\0\0t\0authort\0iteajt\0demosr\0java.lang.Boolean\ï¿½ rï¿½Õœï¿½\ï¿½\0Z\0valuexpx\0');
 /*!40000 ALTER TABLE `qrtz_job_details` ENABLE KEYS */;
 UNLOCK TABLES;
 

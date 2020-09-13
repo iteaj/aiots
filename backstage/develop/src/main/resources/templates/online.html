@@ -9,7 +9,7 @@
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link href="/static/libs/antd.min.css" th:href="@{/libs/antd.min.css}" rel="stylesheet"/>
-    <link href="/static/libs/online.min.css" th:href="@{/libs/online.min.css}" rel="stylesheet"/>
+    <link href="/static/libs/ivonline.min.css" th:href="@{/libs/ivonline.min.css}" rel="stylesheet"/>
 
     <style>
         .ivz-gen-modal .ant-form-item { /*代码生成器弹框表单样式*/
@@ -18,19 +18,23 @@
     </style>
 </head>
 <body>
-    <div id="online"></div>
+    <div id="online">
+        <a-spin :spinning="spinning" :tip="tip">
+            <ivz-online :save-callback="saveCallback"></ivz-online>
+        </a-spin>
+    </div>
 </body>
 <script th:inline="javascript">
     var izCtxValue = [[${#request.contextPath}]]; // 当前应用上下文路径
     var izStxValue = izCtxValue; // 静态资源上下文路径
-    window.ivzGlobalConfig = {
+    window.ivzOnlineConfig = {
         izCtx: izCtxValue, // 访问路径的 context_path
         izStx: izStxValue, // 访问静态资源的context_path
         // dictLabelField: 'name', // 字典名称字段
         // dictValueField: 'type', // 字典值字段
-        dictListUrl: '/ovt/dictList', // 获取字典列表
-        dictUrl: '/ovt/listByType', // 获取字典数据url
-        iconUrl: '//at.alicdn.com/t/font_1174643_5uzfvfaika8.js' // icon链接地址, 采用阿里图标库
+        dictListUrl: '/ovt/dictList', // 获取字典列表(模拟地址)
+        dictUrl: '/ovt/listByType', // 获取字典数据url(模拟地址)
+        iconUrl: '//at.alicdn.com/t/font_1174643_hp1sy1rmyd5.js', // icon链接地址, 采用阿里图标库
     }
 </script>
 
@@ -41,5 +45,21 @@
 <script src="/static/libs/moment.min.js" th:src="@{/libs/moment.min.js}"></script>
 <script src="/static/libs/zh-cn.js" th:src="@{/libs/zh-cn.js}"></script>
 <script src="/static/libs/antd.min.js" th:src="@{/libs/antd.min.js}"></script>
-<script src="/static/libs/online.min.js" th:src="@{/libs/online.min.js}"></script>
+<script src="/static/libs/ivonline.min.js" th:src="@{/libs/ivonline.min.js}"></script>
+
+<script>
+    new Vue({
+        el: '#online',
+        data: {
+            tip: '数据提交中...',
+            spinning: false,
+        },
+        methods: {
+            saveCallback(config) {
+                console.log(config)
+                this.spinning = true;
+            }
+        }
+    });
+</script>
 </html>
