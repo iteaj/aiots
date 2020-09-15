@@ -37,7 +37,8 @@ public class JacksonTypeHandler extends BaseTypeHandler<ContainerNode> {
     public void setNonNullParameter(PreparedStatement ps, int i, ContainerNode parameter, JdbcType jdbcType) throws SQLException {
         if(parameter != null) {
             try {
-                mapper.writeValueAsString(parameter);
+                String json = mapper.writeValueAsString(parameter);
+                ps.setString(i, json);
             } catch (JsonProcessingException e) {
                 logger.error(e.getMessage());
             }
