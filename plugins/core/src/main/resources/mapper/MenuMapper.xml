@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.modules.core.mapper.IMenuDao">
+<mapper namespace="com.iteaj.core.mapper.IMenuDao">
 
-    <resultMap type="com.iteaj.modules.core.entity.Menu" id="OriMap">
+    <resultMap type="com.iteaj.core.entity.Menu" id="OriMap">
         <id property="id"    column="id"  />
         <result property="msn"    column="msn"  />
         <result property="name"    column="name"  />

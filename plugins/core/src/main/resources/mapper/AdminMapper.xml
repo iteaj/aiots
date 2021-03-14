@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.modules.core.mapper.IAdminDao">
+<mapper namespace="com.iteaj.core.mapper.IAdminDao">
 
-    <resultMap type="com.iteaj.modules.core.entity.Admin" id="OriMap">
+    <resultMap type="com.iteaj.core.entity.Admin" id="OriMap">
         <id property="id"    column="id"  />
         <result property="sex" column="sex" />
 <!--        <result property="sort" column="sort" />-->
@@ -22,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"  />
         <result property="updateTime"    column="update_time"  />
     </resultMap>
-    <resultMap id="JoinAdminRoleMap" type="com.iteaj.modules.core.dto.AdminDto" extends="OriMap">
+    <resultMap id="JoinAdminRoleMap" type="com.iteaj.core.dto.AdminDto" extends="OriMap">
         <collection property="roleIds" ofType="long">
             <result property="roleIds" column="rid" />
         </collection>

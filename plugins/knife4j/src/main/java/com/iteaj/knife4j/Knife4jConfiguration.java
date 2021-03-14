@@ -4,7 +4,6 @@ import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import com.github.xiaoymin.knife4j.spring.extension.ApiOrderExtension;
 import com.iteaj.framework.authority.OrderFilterChainDefinition;
 import io.swagger.annotations.Api;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -15,13 +14,13 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 
 import java.util.Arrays;
 
-@EnableSwagger2
 @EnableKnife4j
 @Configuration
+@EnableSwagger2WebMvc
 @PropertySource("classpath:application-knife4j.properties")
 public class Knife4jConfiguration {
 
@@ -50,7 +49,7 @@ public class Knife4jConfiguration {
                         , "包含knife4j文档管理、代码生成器等开发环境需要用到的开发功能 (develop)"))
                 .groupName("开发模块")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.iteaj.develop"))
+                .apis(RequestHandlerSelectors.basePackage("com.iteaj.dev.controller"))
 //                .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
                 .paths(PathSelectors.any())
                 .build();
@@ -67,8 +66,8 @@ public class Knife4jConfiguration {
                         , 2, "包含用户管理、角色管理、系统设置、权限管理等核心系统功能 (admin)"))
                 .groupName("核心模块")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.iteaj.core"))
-                .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
+                .apis(RequestHandlerSelectors.basePackage("com.iteaj.core.controller"))
+//                .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
                 .paths(PathSelectors.any())
                 .build();
     }

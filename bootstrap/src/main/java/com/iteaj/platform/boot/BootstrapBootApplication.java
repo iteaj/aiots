@@ -7,11 +7,11 @@ import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.event.Listener;
 import com.iteaj.framework.spring.boot.config.FrameworkWebAutoConfiguration;
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
-import com.iteaj.modules.core.entity.Admin;
-import com.iteaj.modules.core.entity.OnlineUser;
-import com.iteaj.modules.core.enums.AppType;
-import com.iteaj.modules.core.interceptor.DemoEnvInterceptor;
-import com.iteaj.modules.core.service.IOnlineUserService;
+import com.iteaj.core.entity.Admin;
+import com.iteaj.core.entity.OnlineUser;
+import com.iteaj.core.enums.AppType;
+import com.iteaj.core.interceptor.DemoEnvInterceptor;
+import com.iteaj.core.service.IOnlineUserService;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -77,7 +77,7 @@ public class BootstrapBootApplication implements WebMvcConfigurer {
 
     /**
      * 用户处理上传文件的访问路径问题
-     * @see com.iteaj.modules.core.controller.CommonUploadController 文件上传
+     * @see com.iteaj.core.controller.CommonUploadController 文件上传
      * @param registry
      */
     @Override

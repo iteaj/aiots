@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.modules.core.mapper.IMsgSendMapper">
+<mapper namespace="com.iteaj.core.mapper.IMsgSendMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="OriMap" type="com.iteaj.modules.core.entity.MsgSend">
+    <resultMap id="OriMap" type="com.iteaj.core.entity.MsgSend">
         <id column="id" property="id" />
         <result column="content" property="content" />
         <result column="priority" property="priority" />

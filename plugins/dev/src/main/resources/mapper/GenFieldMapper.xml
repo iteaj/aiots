@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.modules.dev.mapper.IGenFieldDao">
+<mapper namespace="com.iteaj.dev.mapper.IGenFieldDao">
 
-    <resultMap type="com.iteaj.modules.dev.entity.GenField" id="OriMap">
+    <resultMap type="com.iteaj.dev.entity.GenField" id="OriMap">
         <id property="id"    column="id"  />
         <result property="title" column="title" />
         <result property="ctype" column="ctype" />

@@ -1,6 +1,7 @@
 package com.iteaj.framework.spring.boot.config;
 
 import com.iteaj.framework.mybatis.MybatisPlusConfiguration;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -12,7 +13,9 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @ComponentScan({
         "com.iteaj.*.config", // 注入所有模块的自动配置类
+        "com.iteaj.*.service.*" // 注入业务层
 })
+@MapperScan(basePackages = {"com.iteaj.*.mapper"}) // 注入dao层
 @ImportAutoConfiguration(MybatisPlusConfiguration.class)
 public class FrameworkAutoConfiguration {
 

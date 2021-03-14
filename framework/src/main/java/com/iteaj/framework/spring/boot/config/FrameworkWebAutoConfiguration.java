@@ -1,5 +1,6 @@
 package com.iteaj.framework.spring.boot.config;
 
+import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.security.AuthzUrl;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -10,9 +11,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @ComponentScan({
-        "com.iteaj.modules.*.controller" // 扫描所有web模块的controller层
+        "com.iteaj.*.controller" // 扫描注入所有web模块的controller层
 })
-@ImportAutoConfiguration(FrameworkAutoConfiguration.class)
+@ImportAutoConfiguration({
+        CaptchaConfiguration.class,
+        FrameworkAutoConfiguration.class
+})
 @EnableConfigurationProperties({FrameworkWebProperties.class})
 public class FrameworkWebAutoConfiguration {
 
