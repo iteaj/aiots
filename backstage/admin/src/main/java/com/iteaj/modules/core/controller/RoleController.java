@@ -1,4 +1,4 @@
-package com.iteaj.core.controller;
+package com.iteaj.modules.core.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.core.dto.RoleDto;

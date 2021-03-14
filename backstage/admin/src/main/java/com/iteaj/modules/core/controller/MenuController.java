@@ -1,4 +1,4 @@
-package com.iteaj.core.controller;
+package com.iteaj.modules.core.controller;
 
 import com.iteaj.core.entity.Menu;
 import com.iteaj.core.service.IMenuService;

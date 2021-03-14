@@ -24,12 +24,10 @@
                 {field: 'name', title: '功能名称'},
             ],
             config: {
-                form: {
-                    column: 3
-                },
+                form: { },
                 table: {
-                    // selection: {}, // 表格多选
-                    // pagination: {} // 表格分页
+                    selection: {}, // 表格多选
+                    pagination: {} // 表格分页
                 }
             },
         },
@@ -46,6 +44,12 @@
                     return new Promise(resolve => {
                         window.open("/dev/online?id="+row.id);
                     })
+                }
+            });
+
+            this.$page.setActionMeta("Gen", {
+                callBack(row) {
+                    return new Promise(resolve => resolve({submitType: 'default'}))
                 }
             });
         },

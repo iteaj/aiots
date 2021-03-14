@@ -133,7 +133,7 @@ public class AdminAutoConfiguration implements WebMvcConfigurer {
 
     /**
      * 用户处理上传文件的访问路径问题
-     * @see com.iteaj.core.controller.CommonUploadController 文件上传
+     * @see com.iteaj.modules.core.controller.CommonUploadController 文件上传
      * @param registry
      */
     @Override

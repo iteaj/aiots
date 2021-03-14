@@ -1,9 +1,8 @@
-package com.iteaj.core.controller;
+package com.iteaj.modules.core.controller;
 
 import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.Producer;
 import com.iteaj.framework.BaseController;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +46,11 @@ public class StaticProvideController extends BaseController {
     @GetMapping("${izb.auth.success-url}")
     public String index() {
         return "index";
+    }
+
+    @GetMapping("tindex")
+    public String tindex() {
+        return "tindex";
     }
 
     /**

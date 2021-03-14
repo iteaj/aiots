@@ -36,6 +36,11 @@ public class OnlineSessionSessionDAO extends EnterpriseCacheSessionDAO implement
     private OnlineService onlineService;
 
     @Override
+    public Serializable create(Session session) {
+        return super.create(session);
+    }
+
+    @Override
     protected Session doReadSession(Serializable sessionId) {
         Session cachedSession = getCachedSession(sessionId);
         if(cachedSession != null) return cachedSession;
