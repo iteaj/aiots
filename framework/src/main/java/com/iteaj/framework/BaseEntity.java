@@ -1,18 +1,16 @@
 package com.iteaj.framework;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.authority.tenant.TenantHandlerMethodArgumentResolver;
-import com.iteaj.framework.spring.boot.config.FrameworkConfiguration;
+import com.iteaj.framework.spring.boot.config.FrameworkWebAutoConfiguration;
 import com.iteaj.framework.authority.tenant.Tenant;
 import com.iteaj.util.module.mvc.orm.Entity;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
-import java.util.List;
 
 public abstract class BaseEntity implements Entity<Long> {
 
@@ -33,7 +31,7 @@ public abstract class BaseEntity implements Entity<Long> {
     private Object[] section;
     /**
      * @see TenantHandlerMethodArgumentResolver
-     * @see FrameworkConfiguration#paginationInterceptor()
+     * @see FrameworkWebAutoConfiguration#paginationInterceptor()
      */
     @TableField(exist = false)
     private Tenant tenant;

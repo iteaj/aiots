@@ -37,15 +37,5 @@
             <version>${project.version}</version>
         </dependency>
 
-
-        <!-- ####################################################### -->
-          <!--                   以下是需要使用定时任务的模块           -->
-        <!-- ####################################################### -->
-        <dependency> <!--后台核心模块-->
-            <groupId>com.iteaj</groupId>
-            <artifactId>admin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
     </dependencies>
 </project>

@@ -1,7 +1,7 @@
 package com.iteaj.security.shiro.online;
 
 import com.iteaj.framework.spi.admin.AdminConsts;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -27,12 +27,12 @@ import java.time.Duration;
 public class OnlineSessionManager extends DefaultWebSessionManager {
 
     private TaskScheduler taskScheduler;
-    private FrameworkProperties properties;
+    private FrameworkWebProperties properties;
 
     public OnlineSessionManager(TaskScheduler taskScheduler
-            , FrameworkProperties frameworkProperties) {
+            , FrameworkWebProperties frameworkWebProperties) {
         this.taskScheduler = taskScheduler;
-        this.properties = frameworkProperties;
+        this.properties = frameworkWebProperties;
     }
 
     /**
@@ -97,7 +97,7 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
             BrowserType browserType = browser.getBrowserType();
 
             if(browserType == BrowserType.APP) { // 原生App
-                FrameworkProperties.Auth auth = properties.getAuth();
+                FrameworkWebProperties.Auth auth = properties.getAuth();
 
                 // 请求头包含access_token, 说明是app请求
                 sessionId = servletRequest.getHeader(auth.getAppTokenKey());

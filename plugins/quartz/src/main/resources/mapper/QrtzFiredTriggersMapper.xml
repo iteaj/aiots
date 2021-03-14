@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.modules.dev.mapper.IQrtzFiredTriggersMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="OriMap" type="com.iteaj.quartz.entity.QrtzFiredTriggers">
+        <result column="ENTRY_ID" property="entryId" />
+        <result column="FIRED_TIME" property="firedTime" />
+        <result column="INSTANCE_NAME" property="instanceName" />
+        <result column="IS_NONCONCURRENT" property="isNonconcurrent" />
+        <result column="JOB_GROUP" property="jobGroup" />
+        <result column="JOB_NAME" property="jobName" />
+        <result column="PRIORITY" property="priority" />
+        <result column="REQUESTS_RECOVERY" property="requestsRecovery" />
+        <result column="SCHED_TIME" property="schedTime" />
+        <result column="STATE" property="state" />
+        <result column="TRIGGER_GROUP" property="triggerGroup" />
+        <result column="TRIGGER_NAME" property="triggerName" />
+    </resultMap>
+
+    <!-- 表字段列表 -->
+    <sql id="OriSql">
+         a.ENTRY_ID, a.FIRED_TIME, a.INSTANCE_NAME, a.IS_NONCONCURRENT, a.JOB_GROUP, a.JOB_NAME, a.PRIORITY, a.REQUESTS_RECOVERY, a.SCHED_NAME, a.SCHED_TIME,
+		 a.STATE, a.TRIGGER_GROUP, a.TRIGGER_NAME
+    </sql>
+    <!-- 表字段关联列表 -->
+    <sql id="OriJoinSql">
+         qft.ENTRY_ID qft_ENTRY_ID, qft.FIRED_TIME qft_FIRED_TIME, qft.INSTANCE_NAME qft_INSTANCE_NAME, qft.IS_NONCONCURRENT qft_IS_NONCONCURRENT, qft.JOB_GROUP qft_JOB_GROUP, qft.JOB_NAME qft_JOB_NAME,
+		 qft.PRIORITY qft_PRIORITY, qft.REQUESTS_RECOVERY qft_REQUESTS_RECOVERY, qft.SCHED_NAME qft_SCHED_NAME, qft.SCHED_TIME qft_SCHED_TIME, qft.STATE qft_STATE, qft.TRIGGER_GROUP qft_TRIGGER_GROUP,
+		 qft.TRIGGER_NAME qft_TRIGGER_NAME
+    </sql>
+    <!-- 批量插入 -->
+    <insert id="insertAsBatch">
+        insert into qrtz_fired_triggers (ENTRY_ID, FIRED_TIME, INSTANCE_NAME, IS_NONCONCURRENT, JOB_GROUP, JOB_NAME, PRIORITY, REQUESTS_RECOVERY, SCHED_NAME, SCHED_TIME, STATE, TRIGGER_GROUP, TRIGGER_NAME) VALUES
+        <foreach collection="list" separator="," item="item">
+            (#{item.entryId},#{item.firedTime},#{item.instanceName},#{item.isNonconcurrent},#{item.jobGroup},#{item.jobName},#{item.priority},
+		#{item.requestsRecovery},#{item.schedName},#{item.schedTime},#{item.state},#{item.triggerGroup},#{item.triggerName})
+        </foreach>
+    </insert>
+</mapper>

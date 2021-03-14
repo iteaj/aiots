@@ -28,7 +28,7 @@ import java.util.List;
 @EnableScheduling
 public class QuartzConfiguration implements InitializingBean {
 
-    @Autowired()
+    @Autowired
     private SchedulerManager sysSchedulerManager;
 
     @Bean

@@ -8,7 +8,7 @@ import com.iteaj.framework.spi.admin.auth.UserAccountService;
 import com.iteaj.framework.spi.admin.event.OnlineEvent;
 import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.event.EventPublisher;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.admin.auth.AuthorizingService;
 import com.iteaj.util.module.mvc.orm.Entity;
@@ -37,12 +37,12 @@ import java.util.Objects;
 public class AdminUserPasswordRealm extends AuthorizingRealm {
 
     private final EventPublisher eventPublisher;
-    private final FrameworkProperties properties;
+    private final FrameworkWebProperties properties;
     private final AuthorizingService authorizingService;
     private final UserAccountService userAccountService;
 
     public AdminUserPasswordRealm(RealmSecurityManager securityManager
-            , EventPublisher eventPublisher, FrameworkProperties properties
+            , EventPublisher eventPublisher, FrameworkWebProperties properties
             , AuthorizingService authorizingService, UserAccountService userAccountService) {
         this.properties = properties;
         securityManager.setRealm(this);
@@ -136,7 +136,7 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
         if(null != browser) {
             BrowserType browserType = browser.getBrowserType();
             if(browserType == BrowserType.APP) {
-                FrameworkProperties.Auth auth = properties.getAuth();
+                FrameworkWebProperties.Auth auth = properties.getAuth();
 
                 // 写入access_token到header
                 response.addHeader(auth.getAppTokenKey()

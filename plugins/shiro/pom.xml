@@ -12,9 +12,8 @@
     <description>权限认证管理 - shiro实现</description>
 
     <dependencies>
-        <!--shiro 权限认证(security二者选其一)-->
+        <!--shiro 权限认证-->
         <dependency>
-            <scope>provided</scope>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-spring</artifactId>
         </dependency>

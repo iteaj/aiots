@@ -15,7 +15,6 @@
 
     <modules>
         <module>plugins</module>    <!-- 可选插件 -->
-        <module>backstage</module>  <!--后台管理应用模块-->
         <module>resources</module>  <!--静态资源模块-->
 
         <module>framework</module><!--系统架构层-->
