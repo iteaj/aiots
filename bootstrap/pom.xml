@@ -6,7 +6,7 @@
         <version>1.1.4-SNAPSHOT</version>
     </parent>
 
-    <name>boot:bootstrap</name>
+    <name>admin:bootstrap</name>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bootstrap</artifactId>
 
@@ -15,7 +15,7 @@
     </properties>
 
     <dependencies>
-        <dependency> <!-- 管理端 - 系统核心 -->
+        <dependency> <!-- 系统核心 -->
             <groupId>com.iteaj</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>
@@ -25,7 +25,7 @@
             <artifactId>shiro</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <dependency><!--静态资源和web页面-->
             <groupId>com.iteaj</groupId>
             <artifactId>resources</artifactId>
             <version>${project.version}</version>
@@ -37,18 +37,7 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
-<!-- ################################# 可选模块 ######################## -->
-        <!-- 管理端 - 开发模块(可选) -->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>dev</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-
 <!-- ################################ 可选plugins ############################## -->
-
-
 
         <!--  quartz 定时任务插件  -->
 <!--        <dependency>-->
@@ -57,12 +46,26 @@
 <!--            <version>${project.version}</version>-->
 <!--        </dependency>-->
 
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <!--开发环境启用的依赖-->
+            <dependencies>
+                <dependency>
+                    <groupId>com.iteaj</groupId>
+                    <artifactId>dev</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>

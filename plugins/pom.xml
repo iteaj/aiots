@@ -10,45 +10,23 @@
     <name>izone:plugins</name>
     <packaging>pom</packaging>
     <artifactId>plugins</artifactId>
+    <description>系统可选插件</description>
 
     <modules>
         <module>shiro</module>
         <module>quartz</module>
         <module>knife4j</module>
-        <module>core</module>
-        <module>dev</module>
     </modules>
+
+    <properties>
+        <env.filter.file>../../deploy/env/${profiles.active.env}.properties</env.filter.file>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>framework</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <optional>true</optional>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-spring</artifactId>
-        </dependency>
-
-        <dependency>
-            <optional>true</optional>
-            <groupId>com.iteaj</groupId>
-            <artifactId>resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <version>1.5.24</version>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-annotations</artifactId>
-        </dependency>
-
-        <dependency>
-            <optional>true</optional>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
     </dependencies>
 </project>

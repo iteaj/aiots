@@ -18,6 +18,14 @@
 
     <dependencies>
         <dependency>
+            <artifactId>spring-plugin-core</artifactId>
+            <groupId>org.springframework.plugin</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>spring-plugin-metadata</artifactId>
+            <groupId>org.springframework.plugin</groupId>
+        </dependency>
+        <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-spring-boot-starter</artifactId>
         </dependency>

@@ -26,15 +26,21 @@
         </dependency>
 
         <dependency>
+            <optional>true</optional>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
         </dependency>
 
-        <!--静态资源-->
         <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>resources</artifactId>
-            <version>${project.version}</version>
+            <version>${shiro.version}</version>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.shiro</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>

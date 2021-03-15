@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <version>2.1.11.RELEASE</version>
+        <version>2.2.4.RELEASE</version>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
     </parent>
@@ -14,6 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
+        <module>module</module> <!--业务模块-->
         <module>plugins</module>    <!-- 可选插件 -->
         <module>resources</module>  <!--静态资源模块-->
 
@@ -31,21 +32,21 @@
         <guava.version>20.0</guava.version>
         <shiro.version>1.4.1</shiro.version>
         <iutils.version>1.1.11</iutils.version>
-        <knife4j.version>2.0.7</knife4j.version>
+        <knife4j.version>3.0.2</knife4j.version>
         <izone.boot.version>1.2.1</izone.boot.version>
         <mybatis.plus.version>3.3.1</mybatis.plus.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
         <!-- 多环境配置文件路径 -->
-        <env.filter.file>../../deploy/env/${profiles.active.env}.properties</env.filter.file>
+        <env.filter.file>../deploy/env/${profiles.active.env}.properties</env.filter.file>
     </properties>
 
     <scm>
         <url>https://gitee.com/iteaj/izone-sboot.git</url>
         <connection>scm:git:https://gitee.com/iteaj/izone-sboot.git</connection>
         <developerConnection>scm:git:https://gitee.com/iteaj/izone-sboot.git</developerConnection>
-      <tag>izone-1.1.3</tag>
   </scm>
     <developers>
         <developer>
@@ -104,7 +105,10 @@
             <version>${mybatis.plus.version}</version>
             <artifactId>mybatis-plus-boot-starter</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <scope>provided</scope>
@@ -129,6 +133,26 @@
                 <version>${knife4j.version}</version>
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-spring-boot-starter</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.plugin</groupId>
+                        <artifactId>spring-plugin-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.plugin</groupId>
+                        <artifactId>spring-plugin-metadata</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <version>2.0.0.RELEASE</version>
+                <artifactId>spring-plugin-core</artifactId>
+                <groupId>org.springframework.plugin</groupId>
+            </dependency>
+            <dependency>
+                <version>2.0.0.RELEASE</version>
+                <artifactId>spring-plugin-metadata</artifactId>
+                <groupId>org.springframework.plugin</groupId>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -145,7 +169,7 @@
     <profiles>
         <!-- 多环境配置 -->
         <profile>
-            <id>env-dev</id> <!--开发环境-->
+            <id>dev</id> <!--开发环境-->
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -161,16 +185,14 @@
             </dependencies>
         </profile>
         <profile>
-            <id>env-test</id> <!--测试环境-->
+            <id>test</id> <!--测试环境-->
             <properties>
-                <output.directory>../../target</output.directory>
                 <profiles.active.env>test</profiles.active.env>
             </properties>
         </profile>
         <profile>
-            <id>env-prod</id> <!--正式环境-->
+            <id>prod</id> <!--正式环境-->
             <properties>
-                <output.directory>../../target</output.directory>
                 <profiles.active.env>prod</profiles.active.env>
             </properties>
         </profile>
@@ -180,7 +202,7 @@
         <filters>
             <filter>${env.filter.file}</filter> <!--多环境时使用的过滤文件-->
         </filters>
-        <finalName>izone-${project.artifactId}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <resources>
             <resource>
                 <filtering>true</filtering>
@@ -218,7 +240,7 @@
                     <username>${gitee.user}</username>
                     <password>${gitee.password}</password>
                     <tagBase>${project.version}-release</tagBase>
-                    <!--                    <goals>-f pom.xml deploy</goals>-->
+                    <!--<goals>-f pom.xml deploy</goals>-->
                 </configuration>
                 <dependencies>
                     <dependency>

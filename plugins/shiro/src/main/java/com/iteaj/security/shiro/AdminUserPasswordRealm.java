@@ -33,7 +33,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
-@Component
 public class AdminUserPasswordRealm extends AuthorizingRealm {
 
     private final EventPublisher eventPublisher;

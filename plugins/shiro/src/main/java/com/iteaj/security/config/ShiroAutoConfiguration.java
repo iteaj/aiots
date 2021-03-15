@@ -4,6 +4,8 @@ import com.iteaj.framework.authority.OrderFilterChainDefinition;
 import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
+import com.iteaj.framework.spi.admin.auth.AuthorizingService;
+import com.iteaj.framework.spi.admin.auth.UserAccountService;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.Listener;
 import com.iteaj.framework.spi.event.VoidEventPublisher;
@@ -13,6 +15,7 @@ import com.iteaj.security.shiro.online.OnlineSessionManager;
 import com.iteaj.security.shiro.online.OnlineSessionSessionDAO;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -145,6 +148,13 @@ public class ShiroAutoConfiguration {
     }
 
     @Bean
+    public AuthorizingRealm authorizingRealm(RealmSecurityManager securityManager
+            , EventPublisher eventPublisher, FrameworkWebProperties properties
+            , AuthorizingService authorizingService, UserAccountService userAccountService) {
+        return new AdminUserPasswordRealm(securityManager, eventPublisher, properties, authorizingService, userAccountService);
+    }
+
+    @Bean
     public RealmSecurityManager securityManager(ObjectProvider<CacheManager> provider
             , Collection<SessionListener> listeners, ObjectProvider<TaskScheduler> executors
             , SessionDAO sessionDAO, FrameworkWebProperties frameworkWebProperties) {
@@ -166,6 +176,11 @@ public class ShiroAutoConfiguration {
         sessionManager.setSessionListeners(listeners);
         webSecurityManager.setSessionManager(sessionManager);
         return webSecurityManager;
+    }
+
+    @Bean
+    public ShiroAdminAuthenticationController shiroAdminAuthenticationController() {
+        return new ShiroAdminAuthenticationController();
     }
 
     /**

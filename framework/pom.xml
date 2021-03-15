@@ -17,18 +17,11 @@
 
     <dependencies>
         <!--shiro 权限认证(security二者选其一)-->
-        <dependency>
-            <scope>provided</scope>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-spring</artifactId>
-        </dependency>
-
-        <!--spring-security 权限认证-->
-        <dependency>
-            <scope>provided</scope>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <scope>provided</scope>-->
+<!--            <groupId>org.apache.shiro</groupId>-->
+<!--            <artifactId>shiro-spring</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework</groupId>

@@ -1,6 +1,7 @@
 package com.iteaj.security.shiro;
 
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.security.AuthenticationController;
 import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.LoggerType;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
@@ -11,10 +12,14 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.apache.shiro.web.subject.WebSubject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * create time: 2019/12/6
@@ -24,18 +29,12 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping
-public class ShiroAdminAuthenticationController extends BaseController {
+public class ShiroAdminAuthenticationController extends BaseController implements AuthenticationController<ShiroAuthToken> {
 
-    private final AuthzUrl authzUrl;
-    private final EventPublisher eventPublisher;
-    private final AuthenticatingService authenticatingService;
-
-    public ShiroAdminAuthenticationController(EventPublisher eventPublisher
-            , AuthenticatingService authenticatingService, AuthzUrl authzUrl) {
-        this.eventPublisher = eventPublisher;
-        this.authenticatingService = authenticatingService;
-        this.authzUrl = authzUrl;
-    }
+    @Autowired
+    private AuthzUrl authzUrl;
+    @Autowired
+    private EventPublisher eventPublisher;
 
     /**
      * 表单提交登录功能
@@ -62,7 +61,7 @@ public class ShiroAdminAuthenticationController extends BaseController {
      * 注销
      */
     @RequestMapping("/logout")
-    public Result logout() {
+    public Result logout(HttpServletRequest request, HttpServletResponse response) {
         String msg = "注销成功";
         WebSubject subject = (WebSubject) org.apache.shiro.SecurityUtils.getSubject();
         Object admin = subject.getPrincipal();
