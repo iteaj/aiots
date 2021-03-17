@@ -56,6 +56,9 @@
     <profiles>
         <profile>
             <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <!--开发环境启用的依赖-->
             <dependencies>
                 <dependency>

@@ -2,6 +2,8 @@ package com.iteaj.framework.spring.boot.config;
 
 import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.security.AuthzUrl;
+import com.iteaj.framework.spi.admin.SecurityUtils;
+import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,6 +28,11 @@ public class FrameworkWebAutoConfiguration {
 
         return new AuthzUrl(auth.getLoginUrl()
                 , auth.getSuccessUrl(), auth.getUnauthorizedUrl());
+    }
+
+    @Bean
+    public SecurityUtils securityUtils(AuthenticatingService authenticatingService) {
+        return new SecurityUtils(authenticatingService);
     }
 
     /**

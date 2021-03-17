@@ -1,4 +1,4 @@
-package com.iteaj.platform.boot;
+package com.iteaj.boot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iteaj.framework.security.AuthzUrl;

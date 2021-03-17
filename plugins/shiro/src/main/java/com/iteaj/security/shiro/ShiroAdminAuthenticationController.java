@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * create time: 2019/12/6
- *  框架权限认证服务
+ *  Shiro框架权限认证服务
  * @author iteaj
  * @since 1.0
  */

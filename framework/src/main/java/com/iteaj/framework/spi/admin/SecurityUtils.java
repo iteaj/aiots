@@ -4,14 +4,15 @@ import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SecurityUtils {
 
     private static AuthenticatingService authenticatingService;
     public static Logger LOGGER = LoggerFactory.getLogger("SecurityService");
+
+    public SecurityUtils(AuthenticatingService authenticatingService) {
+        SecurityUtils.authenticatingService = authenticatingService;
+    }
 
     /**
      * 返回当前登录的用户
@@ -46,8 +47,4 @@ public class SecurityUtils {
         return id == 1l;
     }
 
-    @Autowired
-    public void setAuthenticatingService(AuthenticatingService authenticatingService) {
-        SecurityUtils.authenticatingService = authenticatingService;
-    }
 }

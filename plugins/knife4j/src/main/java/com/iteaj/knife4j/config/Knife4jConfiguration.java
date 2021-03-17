@@ -16,7 +16,6 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 
 import java.util.Arrays;
 
@@ -48,7 +47,7 @@ public class Knife4jConfiguration {
     public Docket coreRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo("系统核心 Api接口文档管理"
-                        , 2, "包含用户管理、角色管理、系统设置、权限管理等核心系统功能 (admin)"))
+                        , 1, "包含用户管理、角色管理、系统设置、权限管理等核心系统功能 (admin)"))
                 .groupName("核心模块")
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.iteaj.core.controller"))
@@ -65,7 +64,7 @@ public class Knife4jConfiguration {
     @Bean
     public Docket devRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .apiInfo(apiInfo("系统开发模块 Api接口文档管理", 1
+                .apiInfo(apiInfo("系统开发模块 Api接口文档管理", 10
                         , "包含knife4j文档管理、代码生成器等开发环境需要用到的开发功能 (develop)"))
                 .groupName("开发模块")
                 .select()
@@ -76,15 +75,14 @@ public class Knife4jConfiguration {
                 .build();
     }
 
-
-
     private ApiInfo apiInfo(String title, int order, String desc) {
         return new ApiInfoBuilder()
                 .title(title)
                 .version("1.0")
                 .description(desc)
                 .extensions(Arrays.asList(new ApiOrderExtension(order)))
-                .contact(new Contact("iteaj", "http://www.iteaj.com", "iteaj@outlook.com"))
+                .contact(new Contact("厦门由创源智能科技"
+                        , "http://www.iteaj.com", "iteaj@outlook.com"))
                 .build();
     }
 }

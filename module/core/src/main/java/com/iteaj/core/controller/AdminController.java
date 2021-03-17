@@ -33,7 +33,7 @@ public class AdminController extends BaseController {
     @GetMapping
     @RequiresPermissions("core:admin:view")
     public String view() {
-        return "core/admin";
+        return "admin";
     }
 
     @ResponseBody

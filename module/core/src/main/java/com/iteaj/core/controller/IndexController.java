@@ -26,13 +26,12 @@ import java.io.IOException;
 
 @Controller
 @RequestMapping()
-public class StaticProvideController extends BaseController {
+public class IndexController extends BaseController {
 
     private final Producer producer;
-    private final AuthenticationController authenticationController;
-    public StaticProvideController(Producer producer, AuthenticationController authenticationController) {
+
+    public IndexController(Producer producer) {
         this.producer = producer;
-        this.authenticationController = authenticationController;
     }
 
     /**
@@ -42,7 +41,7 @@ public class StaticProvideController extends BaseController {
      */
     @GetMapping("${izb.auth.login-url}")
     public String login() {
-        return "core/login";
+        return "login";
     }
 
     /**
@@ -51,12 +50,12 @@ public class StaticProvideController extends BaseController {
      */
     @GetMapping("${izb.auth.success-url}")
     public String index() {
-        return "core/index";
+        return "index";
     }
 
     @GetMapping("tindex")
     public String tindex() {
-        return "core/tindex";
+        return "tindex";
     }
 
     /**
