@@ -15,16 +15,15 @@ import com.iteaj.framework.spi.event.AsyncGuavaEventBus;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.Listener;
 import com.iteaj.core.service.*;
-import com.iteaj.framework.spring.boot.config.FrameworkWebAutoConfiguration;
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.spring.condition.ConditionalOnFramework;
+import com.iteaj.framework.spring.condition.Type;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
@@ -44,9 +43,6 @@ import java.util.List;
  * @since 1.0
  */
 @Configuration
-@ComponentScan({
-        "com.iteaj.core.service.*"
-})
 public class CoreAutoConfiguration {
 
     /**
@@ -71,22 +67,6 @@ public class CoreAutoConfiguration {
                 return "核心模块";
             }
         };
-    }
-
-    /**
-     * 管理端日志记录服务
-     * @param logService
-     * @param menuService
-     * @return
-     */
-    @Bean
-    public LoggerService loggerService(IOperaLogService logService, IMenuService menuService) {
-        return new AdminLoggerService(logService, menuService);
-    }
-
-    @Bean
-    public AdminAuthorizingService authorizingService() {
-        return new AdminAuthorizingService();
     }
 
     @Bean
@@ -115,7 +95,7 @@ public class CoreAutoConfiguration {
      * 后台web管理端核心配置
      */
     @Configuration
-    @ConditionalOnBean(FrameworkWebAutoConfiguration.class)
+    @ConditionalOnFramework(Type.Web)
     public static class CoreWebAutoConfiguration implements WebMvcConfigurer {
 
         private final FrameworkWebProperties properties;
@@ -125,6 +105,22 @@ public class CoreAutoConfiguration {
                 , ObjectProvider<DemoEnvInterceptor> provider) {
             this.properties = properties;
             this.provider = provider;
+        }
+
+        /**
+         * 管理端日志记录服务
+         * @param logService
+         * @param menuService
+         * @return
+         */
+        @Bean
+        public LoggerService loggerService(IOperaLogService logService, IMenuService menuService) {
+            return new AdminLoggerService(logService, menuService);
+        }
+
+        @Bean
+        public AdminAuthorizingService authorizingService() {
+            return new AdminAuthorizingService();
         }
 
         /**

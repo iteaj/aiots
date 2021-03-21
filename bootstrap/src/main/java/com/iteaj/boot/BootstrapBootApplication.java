@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @ImportAutoConfiguration({
 //        FrameworkAutoConfiguration.class
-//        FrameworkAppAutoConfiguration.class,
+        FrameworkAppAutoConfiguration.class,
         FrameworkWebAutoConfiguration.class
 })
 @SpringBootApplication

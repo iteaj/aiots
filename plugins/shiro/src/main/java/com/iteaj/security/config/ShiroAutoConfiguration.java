@@ -10,6 +10,8 @@ import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.Listener;
 import com.iteaj.framework.spi.event.VoidEventPublisher;
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.spring.condition.ConditionalOnFramework;
+import com.iteaj.framework.spring.condition.Type;
 import com.iteaj.security.shiro.*;
 import com.iteaj.security.shiro.online.OnlineSessionManager;
 import com.iteaj.security.shiro.online.OnlineSessionSessionDAO;
@@ -53,6 +55,7 @@ import java.util.stream.Collectors;
  * @since 1.0
  */
 @Configuration
+@ConditionalOnFramework(Type.Web)
 public class ShiroAutoConfiguration {
 
     @Autowired

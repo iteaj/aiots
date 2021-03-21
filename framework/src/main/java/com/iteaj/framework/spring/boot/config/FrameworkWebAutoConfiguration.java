@@ -4,6 +4,7 @@ import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,7 +24,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         FrameworkAutoConfiguration.class
 })
 @EnableConfigurationProperties({FrameworkWebProperties.class})
-public class FrameworkWebAutoConfiguration {
+public class FrameworkWebAutoConfiguration implements BeanPostProcessor {
 
     @Bean
     public AuthzUrl authzUrl(FrameworkWebProperties properties) {

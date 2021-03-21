@@ -2,6 +2,8 @@ package com.iteaj.ehcache.config;
 
 import com.iteaj.framework.cache.CacheEntry;
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.spring.condition.ConditionalOnFramework;
+import com.iteaj.framework.spring.condition.Type;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.ResourcePools;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -11,7 +13,6 @@ import org.ehcache.config.units.MemoryUnit;
 import org.ehcache.jsr107.Eh107Configuration;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.jcache.JCacheCacheManager;
@@ -59,6 +60,7 @@ public class EhcacheCacheAutoConfiguration implements BeanClassLoaderAware {
     }
 
     @Bean
+    @ConditionalOnFramework(Type.Web)
     @ConditionalOnProperty(prefix = "izone.web", value = "admin.cache-enable", havingValue = "true")
     public CacheEntry<javax.cache.configuration.Configuration> sessionCache
             (CacheConfiguration authCacheConfiguration, FrameworkWebProperties properties) {
@@ -74,6 +76,7 @@ public class EhcacheCacheAutoConfiguration implements BeanClassLoaderAware {
      * @return
      */
     @Bean
+    @ConditionalOnFramework(Type.Web)
     @ConditionalOnProperty(prefix = "izone.web", value = "admin.cache-enable", havingValue = "true")
     public CacheEntry<javax.cache.configuration.Configuration> authorCache(CacheConfiguration
             authCacheConfiguration, FrameworkWebProperties properties) {
@@ -89,6 +92,7 @@ public class EhcacheCacheAutoConfiguration implements BeanClassLoaderAware {
      * @return
      */
     @Bean
+    @ConditionalOnFramework(Type.Web)
     @ConditionalOnProperty(prefix = "izone.web", value = "admin.cache-enable", havingValue = "true")
     public CacheEntry<javax.cache.configuration.Configuration> createAuthCache(CacheConfiguration
             authCacheConfiguration, FrameworkWebProperties properties) {
