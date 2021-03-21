@@ -22,7 +22,6 @@ import java.util.Arrays;
 @EnableKnife4j
 @Configuration
 @EnableSwagger2
-@PropertySource("classpath:application-knife4j.properties")
 public class Knife4jConfiguration {
 
     /**
@@ -48,7 +47,7 @@ public class Knife4jConfiguration {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo("系统核心 Api接口文档管理"
                         , 1, "包含用户管理、角色管理、系统设置、权限管理等核心系统功能 (admin)"))
-                .groupName("核心模块")
+                .groupName("系统管理模块")
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.iteaj.core.controller"))
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
