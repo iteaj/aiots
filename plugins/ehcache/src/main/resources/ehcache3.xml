@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<eh:config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns:eh='http://www.ehcache.org/v3'
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core.xsd">
+
+    <!--指定缓存目录-->
+    <eh:persistence directory="${java.io.tmpdir}/ehcache"/>
+
+    <!--缓存模板-->
+    <eh:cache-template name="default">
+        <eh:expiry>
+            <eh:ttl>600</eh:ttl>
+        </eh:expiry>
+        <eh:resources>
+            <!--堆内内存可以放2000个条目，超出部分堆外500MB-->
+<!--            <eh:heap unit="MB">200</eh:heap>-->
+            <!--堆外内存, 必须大于堆内存-->
+<!--            <eh:offheap unit="MB">500</eh:offheap>-->
+            <!--缓存并持久化到磁盘-->
+            <eh:disk persistent="true" unit="MB">500</eh:disk>
+        </eh:resources>
+    </eh:cache-template>
+</eh:config>

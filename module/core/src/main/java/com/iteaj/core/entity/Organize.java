@@ -1,8 +1,16 @@
 package com.iteaj.core.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.core.enums.OrgType;
 import com.iteaj.core.enums.Status;
 import com.iteaj.framework.TreeEntity;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * create time: 2019/11/26
@@ -10,6 +18,10 @@ import com.iteaj.framework.TreeEntity;
  * @author iteaj
  * @since 1.0
  */
+@Data
+@ApiModel
+@TableName("t_organize")
+@Accessors(chain = true)
 public class Organize extends TreeEntity {
 
     private String name;
@@ -21,75 +33,14 @@ public class Organize extends TreeEntity {
     private Status status;
     private OrgType type;
 
-    public Integer getLevel() {
-        return level;
-    }
+    /**创建时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createTime;
 
-    public Organize setLevel(Integer level) {
-        this.level = level;
-        return this;
-    }
+    /**更新时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date updateTime;
 
-    public String getName() {
-        return name;
-    }
-
-    public Organize setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public Integer getSort() {
-        return sort;
-    }
-
-    public Organize setSort(Integer sort) {
-        this.sort = sort;
-        return this;
-    }
-
-    public String getLeader() {
-        return leader;
-    }
-
-    public Organize setLeader(String leader) {
-        this.leader = leader;
-        return this;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public Organize setPhone(String phone) {
-        this.phone = phone;
-        return this;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public Organize setEmail(String email) {
-        this.email = email;
-        return this;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public Organize setStatus(Status status) {
-        this.status = status;
-        return this;
-    }
-
-    public OrgType getType() {
-        return type;
-    }
-
-    public Organize setType(OrgType type) {
-        this.type = type;
-        return this;
-    }
 }

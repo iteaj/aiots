@@ -7,5 +7,5 @@ public interface UrlResource extends TreeResource {
 
     String getUrl();
 
-    void setUrl(String url);
+    UrlResource setUrl(String url);
 }

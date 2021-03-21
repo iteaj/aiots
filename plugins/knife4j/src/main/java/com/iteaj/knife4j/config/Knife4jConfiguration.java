@@ -2,7 +2,7 @@ package com.iteaj.knife4j.config;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import com.github.xiaoymin.knife4j.spring.extension.ApiOrderExtension;
-import com.iteaj.framework.authority.OrderFilterChainDefinition;
+import com.iteaj.framework.security.OrderFilterChainDefinition;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Bean;

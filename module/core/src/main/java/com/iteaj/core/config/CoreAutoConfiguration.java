@@ -1,6 +1,5 @@
 package com.iteaj.core.config;
 
-import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
@@ -8,8 +7,6 @@ import com.iteaj.framework.spi.event.AsyncGuavaEventBus;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.Listener;
 import com.iteaj.core.service.*;
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -88,8 +85,8 @@ public class CoreAutoConfiguration {
     }
 
     @Bean
-    public ResourceManager resourceManager(IMenuService menuService
+    public ResourceManager menuResourceManager(IMenuService menuService
             , IConfigService configService, List<Module> modules) {
-        return new AdminResourceManager(menuService, configService, modules);
+        return new MenuResourceManager(menuService, configService, modules);
     }
 }

@@ -3,12 +3,24 @@ package com.iteaj.core.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.core.enums.MenuType;
 import com.iteaj.framework.TreeEntity;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.consts.Position;
 import com.iteaj.framework.spi.admin.MenuResource;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.Date;
+
+@Data
+@ApiModel
+@TableName("t_menu")
+@Accessors(chain = true)
 public class Menu extends TreeEntity implements MenuResource {
 
     /**菜单地址*/
@@ -40,6 +52,16 @@ public class Menu extends TreeEntity implements MenuResource {
     @TableField(fill = FieldFill.UPDATE)
     private Position position;
 
+    /**创建时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createTime;
+
+    /**更新时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date updateTime;
+
     public Menu() {  }
 
     public Menu(Long pid, String url, String name, String msn
@@ -60,122 +82,12 @@ public class Menu extends TreeEntity implements MenuResource {
                 , permType, perms, position).setType(MenuType.A);
     }
 
-    @Override
     public String getUrl() {
         return url;
     }
 
-    @Override
-    public void setUrl(String url) {
+    public Menu setUrl(String url) {
         this.url = url;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getMsn() {
-        return msn;
-    }
-
-    public Menu setMsn(String msn) {
-        this.msn = msn;
-        return this;
-    }
-
-    public Integer getSort() {
-        return sort;
-    }
-
-    public Menu setSort(Integer sort) {
-        this.sort = sort;
-        return this;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public Menu setIcon(String icon) {
-        this.icon = icon;
-        return this;
-    }
-
-    public PermStatus getStatus() {
-        return status;
-    }
-
-    public Menu setStatus(PermStatus status) {
-        this.status = status;
-        return this;
-    }
-
-    public String getPerms() {
-        return perms;
-    }
-
-    public Menu setPerms(String perms) {
-        this.perms = perms;
-        return this;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public Menu setRemark(String remark) {
-        this.remark = remark;
-        return this;
-    }
-
-    public MenuType getType() {
-        return type;
-    }
-
-    public Menu setType(MenuType type) {
-        this.type = type;
-        return this;
-    }
-
-    public String getPermType() {
-        return permType;
-    }
-
-    public Menu setPermType(String permType) {
-        this.permType = permType;
-        return this;
-    }
-
-    public Position getPosition() {
-        return position;
-    }
-
-    public Menu setPosition(Position position) {
-        this.position = position;
-        return this;
-    }
-
-    public Boolean getLog() {
-        return log;
-    }
-
-    public Menu setLog(Boolean log) {
-        this.log = log;
-        return this;
-    }
-
-    public String getLogDesc() {
-        return logDesc;
-    }
-
-    public Menu setLogDesc(String logDesc) {
-        this.logDesc = logDesc;
         return this;
     }
 }

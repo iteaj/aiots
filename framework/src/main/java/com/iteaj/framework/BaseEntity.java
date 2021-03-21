@@ -3,35 +3,19 @@ package com.iteaj.framework;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.iteaj.framework.authority.tenant.TenantHandlerMethodArgumentResolver;
-import com.iteaj.framework.spring.boot.config.FrameworkWebAutoConfiguration;
-import com.iteaj.framework.authority.tenant.Tenant;
+import com.iteaj.framework.mybatis.tenant.Tenant;
+import com.iteaj.framework.mybatis.tenant.TenantHandlerMethodArgumentResolver;
 import com.iteaj.util.module.mvc.orm.Entity;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 public abstract class BaseEntity implements Entity<Long> {
 
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /**创建时间*/
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date createTime;
-
-    /**更新时间*/
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
-    private Date updateTime;
-
     @TableField(exist = false)
     private Object[] section;
     /**
      * @see TenantHandlerMethodArgumentResolver
-     * @see FrameworkWebAutoConfiguration#paginationInterceptor()
      */
     @TableField(exist = false)
     private Tenant tenant;
@@ -44,24 +28,6 @@ public abstract class BaseEntity implements Entity<Long> {
     @Override
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public BaseEntity setCreateTime(Date createTime) {
-        this.createTime = createTime;
-        return this;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public BaseEntity setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-        return this;
     }
 
     public Tenant getTenant() {

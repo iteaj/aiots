@@ -1,7 +1,14 @@
 package com.iteaj.core.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.core.enums.ConfigType;
 import com.iteaj.framework.BaseEntity;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * create time: 2019/12/4
@@ -9,6 +16,9 @@ import com.iteaj.framework.BaseEntity;
  * @author iteaj
  * @since 1.0
  */
+@Data
+@TableName("t_config")
+@Accessors(chain = true)
 public class Config extends BaseEntity {
 
     private String name;
@@ -17,54 +27,20 @@ public class Config extends BaseEntity {
     private String remark;
     private ConfigType type;
 
+    /**创建时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createTime;
+
+    /**更新时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date updateTime;
+
     public Config() { }
 
     public Config(ConfigType type) {
         this.type = type;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Config setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public Config setValue(String value) {
-        this.value = value;
-        return this;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public Config setRemark(String remark) {
-        this.remark = remark;
-        return this;
-    }
-
-    public ConfigType getType() {
-        return type;
-    }
-
-    public Config setType(ConfigType type) {
-        this.type = type;
-        return this;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public Config setLabel(String label) {
-        this.label = label;
-        return this;
-    }
 }

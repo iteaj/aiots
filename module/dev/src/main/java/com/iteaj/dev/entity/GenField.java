@@ -1,8 +1,15 @@
 package com.iteaj.dev.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * create time: 2020/4/27
@@ -10,6 +17,9 @@ import io.swagger.annotations.ApiModelProperty;
  * @author iteaj
  * @since 1.0
  */
+@Data
+@Accessors(chain = true)
+@TableName("t_gen_filed")
 @ApiModel("生成器字段实体")
 public class GenField extends BaseEntity {
 
@@ -35,6 +45,16 @@ public class GenField extends BaseEntity {
     private String propertyName;
     private boolean identityFlag;
 
+    /**创建时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createTime;
+
+    /**更新时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date updateTime;
+
     public GenField() {
 
     }
@@ -44,138 +64,4 @@ public class GenField extends BaseEntity {
         this.columnType = columnType;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public GenField setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public String getPropertyName() {
-        return propertyName;
-    }
-
-    public GenField setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
-        return this;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public GenField setType(String type) {
-        this.type = type;
-        return this;
-    }
-
-    public String getColumnType() {
-        return columnType;
-    }
-
-    public GenField setColumnType(String columnType) {
-        this.columnType = columnType;
-        return this;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public GenField setComment(String comment) {
-        this.comment = comment;
-        return this;
-    }
-
-    public boolean isKeyFlag() {
-        return keyFlag;
-    }
-
-    public GenField setKeyFlag(boolean keyFlag) {
-        this.keyFlag = keyFlag;
-        return this;
-    }
-
-    public boolean isIdentityFlag() {
-        return identityFlag;
-    }
-
-    public GenField setIdentityFlag(boolean identityFlag) {
-        this.identityFlag = identityFlag;
-        return this;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public GenField setRemark(String remark) {
-        this.remark = remark;
-        return this;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public GenField setTableName(String tableName) {
-        this.tableName = tableName;
-        return this;
-    }
-
-    public String getCtype() {
-        return ctype;
-    }
-
-    public GenField setCtype(String ctype) {
-        this.ctype = ctype;
-        return this;
-    }
-
-    public String getDictType() {
-        return dictType;
-    }
-
-    public GenField setDictType(String dictType) {
-        this.dictType = dictType;
-        return this;
-    }
-
-    public String getValidate() {
-        return validate;
-    }
-
-    public GenField setValidate(String validate) {
-        this.validate = validate;
-        return this;
-    }
-
-    public Boolean getSearchFlag() {
-        return searchFlag;
-    }
-
-    public GenField setSearchFlag(Boolean searchFlag) {
-        this.searchFlag = searchFlag;
-        return this;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public GenField setTitle(String title) {
-        this.title = title;
-        return this;
-    }
-
-    public Boolean getEditFlag() {
-        return editFlag;
-    }
-
-    public GenField setEditFlag(Boolean editFlag) {
-        this.editFlag = editFlag;
-        return this;
-    }
 }

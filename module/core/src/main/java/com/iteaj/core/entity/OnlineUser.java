@@ -1,8 +1,14 @@
 package com.iteaj.core.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.core.enums.AppType;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.OnlineSession;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -14,6 +20,10 @@ import java.util.Date;
  * @author iteaj
  * @since 2020-06-20
  */
+@Data
+@ApiModel
+@TableName("t_online_user")
+@Accessors(chain = true)
 public class OnlineUser extends BaseEntity implements OnlineSession {
 
     private String account;
@@ -68,85 +78,18 @@ public class OnlineUser extends BaseEntity implements OnlineSession {
      */
     private String userNick;
 
+    /**创建时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createTime;
+
+    /**更新时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date updateTime;
+
     public OnlineUser(String sessionId) {
         this.sessionId = sessionId;
-    }
-
-    public String getBrowse() {
-        return browse;
-    }
-
-    public OnlineUser setBrowse(String browse) {
-        this.browse = browse;
-        return this;
-    }
-
-    public Long getExpireTime() {
-        return expireTime;
-    }
-
-    public OnlineUser setExpireTime(Long expireTime) {
-        this.expireTime = expireTime;
-        return this;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public OnlineUser setLocation(String location) {
-        this.location = location;
-        return this;
-    }
-
-    public String getAccessIp() {
-        return accessIp;
-    }
-
-    public OnlineUser setAccessIp(String accessIp) {
-        this.accessIp = accessIp;
-        return this;
-    }
-
-    public Date getLoginTime() {
-        return loginTime;
-    }
-
-    public OnlineUser setLoginTime(Date loginTime) {
-        this.loginTime = loginTime;
-        return this;
-    }
-
-    public String getOs() {
-        return os;
-    }
-
-    public OnlineUser setOs(String os) {
-        this.os = os;
-        return this;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public OnlineUser setStatus(String status) {
-        this.status = status;
-        return this;
-    }
-
-    public String getUserNick() {
-        return userNick;
-    }
-
-    public OnlineUser setUserNick(String userNick) {
-        this.userNick = userNick;
-        return this;
-    }
-
-    @Override
-    public OnlineUser setCreateTime(Date createTime) {
-        return (OnlineUser) super.setCreateTime(createTime);
     }
 
     @Override
@@ -168,19 +111,9 @@ public class OnlineUser extends BaseEntity implements OnlineSession {
         return this.account;
     }
 
-    public OnlineUser setAccount(String account) {
-        this.account = account;
-        return this;
-    }
-
     @Override
     public String getSessionId() {
         return sessionId;
-    }
-
-    public OnlineUser setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-        return this;
     }
 
     @Override
@@ -198,12 +131,4 @@ public class OnlineUser extends BaseEntity implements OnlineSession {
         return getUpdateTime();
     }
 
-    public AppType getAppType() {
-        return appType;
-    }
-
-    public OnlineUser setAppType(AppType appType) {
-        this.appType = appType;
-        return this;
-    }
 }

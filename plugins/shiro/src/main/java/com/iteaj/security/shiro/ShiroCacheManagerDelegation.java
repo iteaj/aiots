@@ -1,5 +1,6 @@
 package com.iteaj.security.shiro;
 
+import org.apache.shiro.cache.AbstractCacheManager;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
 import org.apache.shiro.cache.CacheManager;
@@ -14,7 +15,7 @@ import java.util.Set;
  * @author iteaj
  * @since 1.0
  */
-public class ShiroCacheManagerDelegation implements CacheManager {
+public class ShiroCacheManagerDelegation extends AbstractCacheManager {
 
     private org.springframework.cache.CacheManager cacheManager;
 
@@ -24,9 +25,22 @@ public class ShiroCacheManagerDelegation implements CacheManager {
 
     @Override
     public <K, V> Cache<K, V> getCache(String s) throws CacheException {
-        org.springframework.cache.Cache cache = cacheManager.getCache(s);
+        Cache<Object, Object> objectCache = super.getCache(s);
+        if(objectCache != null) {
+            return (Cache<K, V>) objectCache;
+        }
 
-        return new CacheDelegation(cache);
+        return null;
+    }
+
+    @Override
+    protected Cache createCache(String s) throws CacheException {
+        org.springframework.cache.Cache cache = cacheManager.getCache(s);
+        if(cache != null) {
+            return new CacheDelegation(cache);
+        }
+
+        return null;
     }
 
     protected class CacheDelegation implements Cache {
@@ -40,23 +54,25 @@ public class ShiroCacheManagerDelegation implements CacheManager {
         @Override
         public Object get(Object o) throws CacheException {
             org.springframework.cache.Cache.ValueWrapper valueWrapper = this.delegation.get(o);
-            if(valueWrapper == null) return null;
-            else return valueWrapper.get();
+            if(valueWrapper == null) {
+                return null;
+            } else {
+                return valueWrapper.get();
+            }
         }
 
         @Override
         public Object put(Object o, Object o2) throws CacheException {
-            org.springframework.cache.Cache.ValueWrapper valueWrapper = this.delegation.putIfAbsent(o, o2);
-            if(valueWrapper != null)
-                return valueWrapper.get();
-            else return o2;
+            this.delegation.put(o, o2);
+            return o2;
         }
 
         @Override
         public Object remove(Object o) throws CacheException {
             Object o1 = this.get(o);
-            if(o1 != null)
+            if(o1 != null) {
                 this.delegation.evict(o);
+            }
             return o1;
         }
 

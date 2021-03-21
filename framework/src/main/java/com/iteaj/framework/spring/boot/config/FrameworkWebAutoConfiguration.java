@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @ComponentScan({
-        "com.iteaj.*.controller" // 扫描注入所有web模块的controller层
+        "com.iteaj.*.web.**" // 扫描注入所有web模块
 })
 @ImportAutoConfiguration({
         CaptchaConfiguration.class,
@@ -24,7 +24,7 @@ public class FrameworkWebAutoConfiguration {
 
     @Bean
     public AuthzUrl authzUrl(FrameworkWebProperties properties) {
-        FrameworkWebProperties.Auth auth = properties.getAuth();
+        FrameworkWebProperties.Admin auth = properties.getAdmin();
 
         return new AuthzUrl(auth.getLoginUrl()
                 , auth.getSuccessUrl(), auth.getUnauthorizedUrl());

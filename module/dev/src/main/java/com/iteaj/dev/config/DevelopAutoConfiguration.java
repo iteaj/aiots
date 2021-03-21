@@ -1,6 +1,6 @@
 package com.iteaj.dev.config;
 
-import com.iteaj.framework.authority.OrderFilterChainDefinition;
+import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.Module;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

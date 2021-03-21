@@ -19,7 +19,6 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.pam.UnsupportedTokenException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
-import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
@@ -27,7 +26,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.apache.shiro.web.subject.WebSubject;
 import org.apache.shiro.web.util.WebUtils;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,11 +38,10 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
     private final AuthorizingService authorizingService;
     private final UserAccountService userAccountService;
 
-    public AdminUserPasswordRealm(RealmSecurityManager securityManager
-            , EventPublisher eventPublisher, FrameworkWebProperties properties
+    public AdminUserPasswordRealm(
+            EventPublisher eventPublisher, FrameworkWebProperties properties
             , AuthorizingService authorizingService, UserAccountService userAccountService) {
         this.properties = properties;
-        securityManager.setRealm(this);
         this.eventPublisher = eventPublisher;
         this.authorizingService = authorizingService;
         this.userAccountService = userAccountService;
@@ -68,7 +65,7 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
             Session session = subject.getSession();
             ShiroAuthToken authToken = (ShiroAuthToken) token;
 
-            if(properties.getAuth().isCaptchaEnabled()) {
+            if(properties.getAdmin().isCaptchaEnabled()) {
                 String kaptcha = (String)session.getAttribute(Constants.KAPTCHA_SESSION_KEY);
                 if(!Objects.equals(kaptcha, authToken.getCaptcha())) {
                     throw new AuthenticationException("验证码错误");
@@ -135,11 +132,11 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
         if(null != browser) {
             BrowserType browserType = browser.getBrowserType();
             if(browserType == BrowserType.APP) {
-                FrameworkWebProperties.Auth auth = properties.getAuth();
+                FrameworkWebProperties.Admin auth = properties.getAdmin();
 
                 // 写入access_token到header
-                response.addHeader(auth.getAppTokenKey()
-                        , (String) subject.getSession().getId());
+//                response.addHeader(authed.getAppTokenKey()
+//                        , (String) subject.getSession().getId());
             }
         }
     }
@@ -171,9 +168,7 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
      */
     @Override
     protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
-        if(token instanceof AutoLoginToken) {
-
-        } else {
+        if(!(token instanceof AutoLoginToken)) {
             super.assertCredentialsMatch(token, info);
         }
     }
@@ -186,15 +181,15 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
      */
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
-        BaseEntity admin = (BaseEntity)principals.getPrimaryPrincipal();
-        return SecurityUtils.isSuper(admin.getId())
+        Entity admin = (Entity)principals.getPrimaryPrincipal();
+        return SecurityUtils.isSuper((Long) admin.getId())
                 || super.isPermitted(principals, permission);
     }
 
     @Override
     public boolean hasRole(PrincipalCollection principal, String roleIdentifier) {
-        BaseEntity admin = (BaseEntity)principal.getPrimaryPrincipal();
-        return SecurityUtils.isSuper(admin.getId())
+        Entity admin = (Entity)principal.getPrimaryPrincipal();
+        return SecurityUtils.isSuper((Long) admin.getId())
                 || super.hasRole(principal, roleIdentifier);
     }
 }

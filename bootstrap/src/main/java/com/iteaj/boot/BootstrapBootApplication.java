@@ -10,7 +10,7 @@ import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.OnlineUser;
 import com.iteaj.core.enums.AppType;
-import com.iteaj.core.interceptor.DemoEnvInterceptor;
+import com.iteaj.core.web.interceptor.DemoEnvInterceptor;
 import com.iteaj.core.service.IOnlineUserService;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
@@ -20,6 +20,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -28,11 +29,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Date;
 
-//@EnableCaching
+@EnableCaching
 @ImportAutoConfiguration({
         FrameworkWebAutoConfiguration.class
 })
-@SpringBootApplication()
+@SpringBootApplication
 public class BootstrapBootApplication implements WebMvcConfigurer {
 
 
@@ -77,7 +78,7 @@ public class BootstrapBootApplication implements WebMvcConfigurer {
 
     /**
      * 用户处理上传文件的访问路径问题
-     * @see com.iteaj.core.controller.CommonUploadController 文件上传
+     * @see com.iteaj.core.web.controller.CommonUploadController 文件上传
      * @param registry
      */
     @Override

@@ -6,17 +6,14 @@ import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.session.mgt.SessionValidationScheduler;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.apache.shiro.web.subject.support.WebDelegatingSubject;
-import org.springframework.scheduling.TaskScheduler;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import java.time.Duration;
 
 /**
  * create time: 2020/6/25
@@ -26,50 +23,12 @@ import java.time.Duration;
  */
 public class OnlineSessionManager extends DefaultWebSessionManager {
 
-    private TaskScheduler taskScheduler;
     private FrameworkWebProperties properties;
 
-    public OnlineSessionManager(TaskScheduler taskScheduler
-            , FrameworkWebProperties frameworkWebProperties) {
-        this.taskScheduler = taskScheduler;
+    public OnlineSessionManager(FrameworkWebProperties frameworkWebProperties) {
         this.properties = frameworkWebProperties;
-    }
-
-    /**
-     * session验证的调度器交由spring的任务调度
-     * @see TaskScheduler
-     * @return
-     */
-    protected SessionValidationScheduler createSessionValidationScheduler() {
-        if(taskScheduler == null) {
-            return super.createSessionValidationScheduler();
-        } else { // 使用spring 任务调度
-            return new SessionValidationScheduler() {
-                private boolean enabled = false;
-
-                @Override
-                public void enableSessionValidation() {
-                    this.enabled = true;
-
-                    OnlineSessionManager sessionManager = OnlineSessionManager.this;
-                    if (sessionManager.getSessionValidationInterval() > 0l) {
-                        sessionManager.taskScheduler.scheduleAtFixedRate(() -> {
-                            sessionManager.validateSessions();
-                        }, Duration.ofMillis(sessionManager.getSessionValidationInterval()));
-                    }
-                }
-
-                @Override
-                public void disableSessionValidation() {
-                    /*do nothing*/
-                }
-
-                @Override
-                public boolean isEnabled() {
-                    return enabled;
-                }
-            };
-        }
+        long timeToLiveSeconds = this.properties.getAdmin().getTimeToLiveSeconds();
+        this.setGlobalSessionTimeout(timeToLiveSeconds * 1000);
     }
 
     /**
@@ -86,38 +45,25 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
 
         servletRequest.setAttribute(AdminConsts.USER_AGENT, userAgent);
 
-        // 从cookie中获取
-        Serializable sessionId = super.getSessionId(request, response);
-        createWebDelegatingSubject(request, response);
-        if(null != sessionId) return sessionId;
-
         // cookie中没有， 如果是原生App 尝试从header获取access_token作为sessionId
         Browser browser = userAgent.getBrowser();
         if(browser != null) {
             BrowserType browserType = browser.getBrowserType();
+            FrameworkWebProperties.Admin admin = properties.getAdmin();
 
-            if(browserType == BrowserType.APP) { // 原生App
-                FrameworkWebProperties.Auth auth = properties.getAuth();
+            if(browserType == BrowserType.APP ||
+                    browserType == BrowserType.MOBILE_BROWSER ||
+                    browserType == BrowserType.WEB_BROWSER) {
 
-                // 请求头包含access_token, 说明是app请求
-                sessionId = servletRequest.getHeader(auth.getAppTokenKey());
+                // 先从请求头里面获取token, 作为sessionId
+                String accessToken = servletRequest.getHeader(admin.getTokenName());
+                if (accessToken != null) {
+                    return accessToken;
+                }
             }
         }
 
-
-        return sessionId;
-    }
-
-    /**
-     * 此方法主要用来保存request和response对象, 由于第一次访问的时候Subject还未创建, 所以获取不到web上下文对象
-     * @see OnlineSessionSessionDAO#doReadSession(Serializable)
-     * @param request
-     * @param response
-     */
-    protected void createWebDelegatingSubject(ServletRequest request, ServletResponse response) {
-        WebDelegatingSubject subject = new WebDelegatingSubject(null
-                , false, null, null, request, response, SecurityUtils.getSecurityManager());
-
-        ThreadContext.bind(subject);
+        // 从cookie中获取
+        return super.getSessionId(request, response);
     }
 }

@@ -1,6 +1,9 @@
 package com.iteaj.framework;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -10,6 +13,8 @@ import java.util.TreeSet;
 /**
  * 树结构的实体类.有父子之分的
  */
+@Data
+@Accessors(chain = true)
 public class TreeEntity extends BaseEntity {
 
     /**当前树节点的父节点*/

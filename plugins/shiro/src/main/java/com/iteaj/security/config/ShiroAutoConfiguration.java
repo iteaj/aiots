@@ -1,6 +1,6 @@
 package com.iteaj.security.config;
 
-import com.iteaj.framework.authority.OrderFilterChainDefinition;
+import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
@@ -13,10 +13,13 @@ import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import com.iteaj.security.shiro.*;
 import com.iteaj.security.shiro.online.OnlineSessionManager;
 import com.iteaj.security.shiro.online.OnlineSessionSessionDAO;
+import com.iteaj.security.shiro.online.OnlineSubjectDao;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.SessionListener;
+import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
@@ -25,9 +28,9 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
 import org.apache.shiro.web.servlet.NameableFilter;
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -35,7 +38,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.scheduling.TaskScheduler;
 
 import javax.servlet.Filter;
 import java.util.Collection;
@@ -53,6 +55,7 @@ import java.util.stream.Collectors;
 @Configuration
 public class ShiroAutoConfiguration {
 
+    @Autowired
     private FrameworkWebProperties properties;
 
     @Bean
@@ -144,38 +147,57 @@ public class ShiroAutoConfiguration {
 
     @Bean
     public SessionDAO sessionDAO() {
-        return new OnlineSessionSessionDAO();
+        OnlineSessionSessionDAO sessionDAO = new OnlineSessionSessionDAO();
+        sessionDAO.setActiveSessionsCacheName(properties.getAdmin().getTokenCacheName());
+        return sessionDAO;
     }
 
     @Bean
-    public AuthorizingRealm authorizingRealm(RealmSecurityManager securityManager
-            , EventPublisher eventPublisher, FrameworkWebProperties properties
+    public AuthorizingRealm authorizingRealm(EventPublisher eventPublisher
             , AuthorizingService authorizingService, UserAccountService userAccountService) {
-        return new AdminUserPasswordRealm(securityManager, eventPublisher, properties, authorizingService, userAccountService);
+
+        FrameworkWebProperties.Admin admin = properties.getAdmin();
+
+        AdminUserPasswordRealm adminUserPasswordRealm = new AdminUserPasswordRealm(
+                eventPublisher, properties, authorizingService, userAccountService);
+
+        // 权限信息缓存
+        adminUserPasswordRealm.setAuthorizationCacheName(admin.getAuthorCacheName());
+
+        // 认证信息缓存
+        adminUserPasswordRealm.setAuthenticationCacheName(admin.getAuthCacheName());
+
+        return adminUserPasswordRealm;
     }
 
     @Bean
     public RealmSecurityManager securityManager(ObjectProvider<CacheManager> provider
-            , Collection<SessionListener> listeners, ObjectProvider<TaskScheduler> executors
-            , SessionDAO sessionDAO, FrameworkWebProperties frameworkWebProperties) {
-        DefaultWebSessionManager sessionManager = new OnlineSessionManager
-                (executors.getIfAvailable(), frameworkWebProperties);
-        DefaultWebSecurityManager webSecurityManager = new DefaultWebSecurityManager();
+            , Collection<SessionListener> listeners, SessionDAO sessionDAO
+            , Collection<Realm> realms) {
 
-        // 设置缓存管理， 委托使用spring缓存
-        provider.ifAvailable((cacheManager -> {
-            webSecurityManager.setCacheManager(new ShiroCacheManagerDelegation(cacheManager));
-        }));
+        DefaultSessionManager sessionManager = new OnlineSessionManager(properties);
 
         // 开启session校验
         sessionManager.setSessionValidationSchedulerEnabled(true);
-        // session校验周期 指定十分钟校验一次
-        sessionManager.setSessionValidationInterval(10 * 60 * 1000);
+        // session校验周期 指定五分钟校验一次
+        sessionManager.setSessionValidationInterval(5 * 60 * 1000);
 
         sessionManager.setSessionDAO(sessionDAO);
         sessionManager.setSessionListeners(listeners);
-        webSecurityManager.setSessionManager(sessionManager);
-        return webSecurityManager;
+
+        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+        securityManager.setSessionManager(sessionManager);
+        securityManager.setSubjectDAO(new OnlineSubjectDao());
+        securityManager.setRealms(realms);
+
+        // 设置缓存管理, 如果允许缓存则委托使用spring缓存
+        if(properties.getAdmin() != null & properties.getAdmin().isCacheEnable()) {
+            provider.ifAvailable((cacheManager -> {
+                securityManager.setCacheManager(new ShiroCacheManagerDelegation(cacheManager));
+            }));
+        }
+
+        return securityManager;
     }
 
     @Bean

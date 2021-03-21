@@ -1,7 +1,11 @@
 package com.iteaj.dev.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.dev.enums.GenStatus;
 import com.iteaj.framework.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * create time: 2020/4/27
@@ -9,6 +13,10 @@ import com.iteaj.framework.BaseEntity;
  * @author iteaj
  * @since 1.0
  */
+@Data
+@ApiModel
+@TableName("t_gen_table")
+@Accessors(chain = true)
 public class GenTable extends BaseEntity {
 
     private String name;

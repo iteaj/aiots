@@ -12,5 +12,22 @@ import java.io.Serializable;
  */
 public interface OnlineService {
 
-    OnlineSession getOnlineSession(Serializable sessionId);
+    /**
+     * 获取会话
+     * @param sessionId
+     * @return
+     */
+    OnlineSession getSession(Serializable sessionId);
+
+    /**
+     * 移除会话
+     * @param sessionId
+     */
+    void removeBySessionId(Serializable sessionId);
+
+    /**
+     * 更新会话
+     * @param session
+     */
+    void update(OnlineSession session);
 }

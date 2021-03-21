@@ -16,6 +16,8 @@
         <module>shiro</module>
         <module>quartz</module>
         <module>knife4j</module>
+        <module>ehcache</module>
+        <module>redis</module>
     </modules>
 
     <properties>

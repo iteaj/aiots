@@ -1,7 +1,11 @@
 package com.iteaj.core.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * create time: 2020/4/22
@@ -9,6 +13,10 @@ import com.iteaj.framework.BaseEntity;
  * @author iteaj
  * @since 1.0
  */
+@Data
+@ApiModel
+@Accessors(chain = true)
+@TableName("t_opera_log")
 public class OperaLog extends BaseEntity {
 
     private String ip;
@@ -24,9 +32,7 @@ public class OperaLog extends BaseEntity {
     private String errMsg;
     private String title;
 
-    public OperaLog() {
-
-    }
+    public OperaLog() { }
 
     public OperaLog(String type, String userName, String shortName, String status) {
         this.type = type;
@@ -35,102 +41,4 @@ public class OperaLog extends BaseEntity {
         this.status = status;
     }
 
-    public String getIp() {
-        return ip;
-    }
-
-    public OperaLog setIp(String ip) {
-        this.ip = ip;
-        return this;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public OperaLog setUrl(String url) {
-        this.url = url;
-        return this;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public OperaLog setType(String type) {
-        this.type = type;
-        return this;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public OperaLog setUserId(Long userId) {
-        this.userId = userId;
-        return this;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public OperaLog setUserName(String userName) {
-        this.userName = userName;
-        return this;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public OperaLog setShortName(String shortName) {
-        this.shortName = shortName;
-        return this;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public OperaLog setStatus(String status) {
-        this.status = status;
-        return this;
-    }
-
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public OperaLog setErrMsg(String errMsg) {
-        this.errMsg = errMsg;
-        return this;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public OperaLog setTitle(String title) {
-        this.title = title;
-        return this;
-    }
-
-    public String getMsn() {
-        return msn;
-    }
-
-    public OperaLog setMsn(String msn) {
-        this.msn = msn;
-        return this;
-    }
-
-    public Long getMillis() {
-        return millis;
-    }
-
-    public OperaLog setMillis(Long millis) {
-        this.millis = millis;
-        return this;
-    }
 }

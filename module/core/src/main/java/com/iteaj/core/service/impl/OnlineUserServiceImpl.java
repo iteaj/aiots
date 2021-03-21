@@ -32,8 +32,18 @@ public class OnlineUserServiceImpl extends BaseServiceImpl<IOnlineUserMapper, On
     }
 
     @Override
-    public OnlineSession getOnlineSession(Serializable sessionId) {
+    public OnlineSession getSession(Serializable sessionId) {
         return getBaseDao().selectOne(Wrappers.<OnlineUser>query()
                 .eq("session_id", sessionId));
+    }
+
+    @Override
+    public void removeBySessionId(Serializable sessionId) {
+        getBaseDao().delete(Wrappers.<OnlineUser>query().eq("session_id", sessionId));
+    }
+
+    @Override
+    public void update(OnlineSession session) {
+        updateById((OnlineUser) session);
     }
 }

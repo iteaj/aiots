@@ -1,7 +1,14 @@
 package com.iteaj.core.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.core.enums.Status;
 import com.iteaj.framework.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * jdk：1.8
@@ -9,69 +16,26 @@ import com.iteaj.framework.BaseEntity;
  * @author iteaj
  * create time：2019/6/24
  */
+@Data
+@ApiModel
+@TableName("t_dict_data")
 public class DictData extends BaseEntity {
 
     private Integer sort;
     private String label;
     private String value;
     private String type;
-    private boolean izDefault;
     private Status status;
     private String remark;
+    private boolean izDefault;
 
-    public Integer getSort() {
-        return sort;
-    }
+    /**创建时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createTime;
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public boolean getIzDefault() {
-        return izDefault;
-    }
-
-    public void setIzDefault(boolean izDefault) {
-        this.izDefault = izDefault;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
+    /**更新时间*/
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date updateTime;
 }

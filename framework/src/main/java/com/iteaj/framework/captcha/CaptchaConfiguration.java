@@ -18,7 +18,7 @@ public class CaptchaConfiguration {
      * @return
      */
     @Bean(name = "charCaptcha")
-    @ConditionalOnProperty(value = "izb.auth.captcha-type", havingValue = "char")
+    @ConditionalOnProperty(value = "izone.web.admin.captcha-type", havingValue = "char")
     public Producer charCaptcha(){
         return KaptchaCreator.charInstance();
     }
@@ -29,7 +29,7 @@ public class CaptchaConfiguration {
      */
     @Primary
     @Bean(name = "mathCaptcha")
-    @ConditionalOnProperty(value = "izb.auth.captcha-type", havingValue = "math")
+    @ConditionalOnProperty(value = "izone.web.admin.captcha-type", havingValue = "math")
     public Producer mathCaptcha(){
         return KaptchaCreator.mathInstance();
     }
