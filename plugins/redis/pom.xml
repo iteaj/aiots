@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>plugin:redis</name>
     <artifactId>redis</artifactId>
     <description>redis缓存模块</description>
 
