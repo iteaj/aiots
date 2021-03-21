@@ -1,22 +1,23 @@
 package com.iteaj.ehcache.config;
 
+import com.iteaj.framework.cache.CacheEntry;
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.ResourcePools;
-import org.ehcache.config.ResourceUnit;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ExpiryPolicyBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.MemoryUnit;
 import org.ehcache.jsr107.Eh107Configuration;
 import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
 import java.net.URI;
@@ -34,16 +35,13 @@ public class EhcacheCacheAutoConfiguration implements BeanClassLoaderAware {
 
     private ClassLoader classLoader;
 
-    @Autowired
-    private FrameworkWebProperties properties;
-
     /**
      * 如果redis缓存存在则使用redis缓存
      * @return
      */
     @Bean({"cacheManager", "ehcache3CacheManager"})
     @ConditionalOnMissingBean(name = "org.springframework.data.redis.cache.RedisCacheManager")
-    public JCacheCacheManager ehcache3CacheManager() throws URISyntaxException {
+    public JCacheCacheManager ehcache3CacheManager(ObjectProvider<CacheEntry<javax.cache.configuration.Configuration>>  caches) throws URISyntaxException {
 
         CachingProvider cachingProvider = Caching.getCachingProvider(
                 "org.ehcache.jsr107.EhcacheCachingProvider", this.classLoader);
@@ -52,69 +50,57 @@ public class EhcacheCacheAutoConfiguration implements BeanClassLoaderAware {
         URI ehcacheResource = this.classLoader.getResource("ehcache3.xml").toURI();
         javax.cache.CacheManager cacheManager = cachingProvider.getCacheManager(ehcacheResource, this.classLoader);
 
-        // 创建权限认证信息和令牌信息缓存
-        this.createAuthAndTokenCache(cacheManager);
+        // 初始化缓存
+        caches.forEach(item -> {
+            cacheManager.createCache(item.getName(), item.getValue());
+        });
 
         return new JCacheCacheManager(cacheManager);
     }
 
-    private void createAuthAndTokenCache(CacheManager cacheManager) {
-        // 后台管理端的配置信息
-        FrameworkWebProperties.Admin admin = properties.getAdmin();
-
-        if(admin != null && admin.isCacheEnable()) {
-
-            CacheConfiguration cacheConfiguration = createAuthCacheConfiguration();
-
-            this.createAuthCache(cacheManager, cacheConfiguration);
-            this.createTokenCache(cacheManager, cacheConfiguration);
-            this.createAuthorCache(cacheManager, cacheConfiguration);
-        }
-    }
-
-    public void createTokenCache(CacheManager cacheManager, CacheConfiguration authCacheConfiguration) {
-        // 后台管理端的配置信息
-        FrameworkWebProperties.Admin admin = properties.getAdmin();
-
-        javax.cache.configuration.Configuration jcacheConfiguration =
+    @Bean
+    @ConditionalOnProperty(prefix = "izone.web", value = "admin.cache-enable", havingValue = "true")
+    public CacheEntry<javax.cache.configuration.Configuration> sessionCache
+            (CacheConfiguration authCacheConfiguration, FrameworkWebProperties properties) {
+        javax.cache.configuration.Configuration configuration =
                 Eh107Configuration.fromEhcacheCacheConfiguration(authCacheConfiguration);
 
-        cacheManager.createCache(admin.getTokenCacheName(), jcacheConfiguration);
+        return new CacheEntry(properties.getAdmin().getTokenCacheName(), configuration);
     }
 
     /**
      * 权限信息缓存
-     * @param cacheManager
      * @param authCacheConfiguration
      * @return
      */
-    public void createAuthorCache(CacheManager cacheManager, CacheConfiguration authCacheConfiguration) {
-        // 后台管理端的配置信息
-        FrameworkWebProperties.Admin admin = properties.getAdmin();
-
+    @Bean
+    @ConditionalOnProperty(prefix = "izone.web", value = "admin.cache-enable", havingValue = "true")
+    public CacheEntry<javax.cache.configuration.Configuration> authorCache(CacheConfiguration
+            authCacheConfiguration, FrameworkWebProperties properties) {
         javax.cache.configuration.Configuration jcacheConfiguration =
                 Eh107Configuration.fromEhcacheCacheConfiguration(authCacheConfiguration);
 
-        cacheManager.createCache(admin.getAuthorCacheName(), jcacheConfiguration);
+        return new CacheEntry<>(properties.getAdmin().getAuthorCacheName(), jcacheConfiguration);
     }
 
     /**
      * 认证信息缓存
-     * @param cacheManager
      * @param authCacheConfiguration
      * @return
      */
-    public void createAuthCache(CacheManager cacheManager, CacheConfiguration authCacheConfiguration) {
-        // 后台管理端的配置信息
-        FrameworkWebProperties.Admin admin = properties.getAdmin();
-
+    @Bean
+    @ConditionalOnProperty(prefix = "izone.web", value = "admin.cache-enable", havingValue = "true")
+    public CacheEntry<javax.cache.configuration.Configuration> createAuthCache(CacheConfiguration
+            authCacheConfiguration, FrameworkWebProperties properties) {
         javax.cache.configuration.Configuration jcacheConfiguration =
                 Eh107Configuration.fromEhcacheCacheConfiguration(authCacheConfiguration);
 
-        cacheManager.createCache(admin.getAuthCacheName(), jcacheConfiguration);
+        return new CacheEntry<>(properties.getAdmin().getAuthCacheName(), jcacheConfiguration);
     }
 
-    public CacheConfiguration createAuthCacheConfiguration() {
+    @Bean("authCacheConfiguration")
+    @ConditionalOnProperty(prefix = "izone.web", value = "admin.cache-enable", havingValue = "true")
+    public CacheConfiguration authCacheConfiguration(FrameworkWebProperties properties) {
         // 后台管理端的配置信息
         FrameworkWebProperties.Admin admin = properties.getAdmin();
 

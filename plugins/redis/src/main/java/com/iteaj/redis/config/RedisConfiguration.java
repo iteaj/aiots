@@ -2,6 +2,10 @@ package com.iteaj.redis.config;
 
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,23 +29,23 @@ import java.util.Map;
 public class RedisConfiguration implements BeanClassLoaderAware {
 
     private ClassLoader classLoader;
-    private final FrameworkWebProperties properties;
-
-    public RedisConfiguration(FrameworkWebProperties properties) {
-        this.properties = properties;
-    }
 
     @Bean({"cacheManager", "redisCacheManager"})
-    public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+    public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory
+            , ObjectProvider<Map<String, RedisCacheConfiguration>> caches) {
         RedisCacheWriter redisCacheWriter = RedisCacheWriter.lockingRedisCacheWriter(redisConnectionFactory);
 
         // 创建默认的redis缓存配置
         RedisCacheConfiguration defaultCacheConfiguration = this.defaultCacheConfiguration();
 
-        // 创建session缓存配置
-        Map<String, RedisCacheConfiguration> map = this.createSessionCache();
+        Map<String, RedisCacheConfiguration> initCaches = new HashMap<>();
 
-        return new RedisCacheManager(redisCacheWriter, defaultCacheConfiguration, map);
+        // 创建session缓存配置
+        caches.forEach(item -> {
+            initCaches.putAll(item);
+        });
+
+        return new RedisCacheManager(redisCacheWriter, defaultCacheConfiguration, initCaches);
     }
 
     public RedisCacheConfiguration defaultCacheConfiguration() {
@@ -50,13 +54,15 @@ public class RedisConfiguration implements BeanClassLoaderAware {
     }
 
     /**
-     * 只缓存session到redis
+     * 管理端缓存session到redis
      */
-    private Map<String, RedisCacheConfiguration> createSessionCache() {
+    @Bean
+    @ConditionalOnProperty(prefix = "izone.web", value = "admin.cache-enable", havingValue = "true")
+    public Map<String, RedisCacheConfiguration> coreSessionCache(FrameworkWebProperties properties) {
         // 后台管理端的配置信息
         FrameworkWebProperties.Admin admin = properties.getAdmin();
 
-        // 使用jdk序列化指
+        // 使用jdk序列化
         RedisSerializationContext.SerializationPair serializer = RedisSerializationContext
                 .SerializationPair.fromSerializer(new JdkSerializationRedisSerializer(this.classLoader));
 

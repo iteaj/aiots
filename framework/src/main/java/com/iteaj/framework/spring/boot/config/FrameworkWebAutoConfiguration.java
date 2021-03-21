@@ -12,6 +12,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * 后台管理端的配置信息
+ */
 @ComponentScan({
         "com.iteaj.*.web.**" // 扫描注入所有web模块
 })
