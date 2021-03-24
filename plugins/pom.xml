@@ -17,6 +17,7 @@
         <module>quartz</module>
         <module>ehcache</module>
         <module>redis</module>
+        <module>oauth2</module>
     </modules>
 
     <properties>

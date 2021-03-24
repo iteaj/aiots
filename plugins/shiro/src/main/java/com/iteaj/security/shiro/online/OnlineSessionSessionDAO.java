@@ -2,6 +2,7 @@ package com.iteaj.security.shiro.online;
 
 import com.iteaj.framework.spi.OnlineSession;
 import com.iteaj.framework.spi.admin.auth.OnlineService;
+import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.session.mgt.eis.CachingSessionDAO;
@@ -9,6 +10,7 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.server.WebSession;
 
 import java.io.Serializable;
 
@@ -59,7 +61,11 @@ public class OnlineSessionSessionDAO extends CachingSessionDAO implements Dispos
         session.setLastAccessTime(onlineSession.getLastAccessTime());
 
         // 验证session是否过期或者已经停止
-        session.validate();
+        try {
+            session.validate();
+        } catch (InvalidSessionException e) {
+            return session;
+        }
 
         // 写入缓存
         cache(session, sessionId);

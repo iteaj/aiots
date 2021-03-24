@@ -6,22 +6,45 @@ package com.iteaj.framework.cache;
  * @author iteaj
  * @since 1.0
  */
-public class CacheEntry<C> {
+public class CacheEntry {
 
-    private C value;
+    /**
+     * 缓存过期时间(毫秒)
+     */
+    private long expire;
+
+    /**
+     * 缓存名称
+     */
     private String name;
 
-    public CacheEntry(String name, C value) {
-        this.value = value;
+    /**
+     * 反序列类型对象
+     */
+    private Class<?> clazz;
+
+    /**
+     * 序列化类型
+     */
+    private SerializerType type;
+
+    public CacheEntry(String name, long expire, SerializerType type) {
+        this(name, expire, Object.class, type);
+    }
+
+    public CacheEntry( String name, long expire, Class<?> clazz, SerializerType type) {
+        this.expire = expire;
         this.name = name;
+        this.clazz = clazz;
+        this.type = type;
     }
 
-    public C getValue() {
-        return value;
+    public long getExpire() {
+        return expire;
     }
 
-    public CacheEntry<C> setValue(C value) {
-        this.value = value;
+    public CacheEntry setExpire(long expire) {
+        this.expire = expire;
         return this;
     }
 
@@ -29,8 +52,26 @@ public class CacheEntry<C> {
         return name;
     }
 
-    public CacheEntry<C> setName(String name) {
+    public CacheEntry setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public SerializerType getType() {
+        return type;
+    }
+
+    public CacheEntry setType(SerializerType type) {
+        this.type = type;
+        return this;
+    }
+
+    public Class<?> getClazz() {
+        return clazz;
+    }
+
+    public CacheEntry setClazz(Class<?> clazz) {
+        this.clazz = clazz;
         return this;
     }
 }

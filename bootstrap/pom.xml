@@ -15,16 +15,18 @@
     </properties>
 
     <dependencies>
-        <dependency> <!-- 系统核心 -->
+        <dependency><!-- 系统核心 -->
             <groupId>com.iteaj</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency><!--  shiro 权限管理  -->
+
+        <dependency><!--  shiro权限管理  -->
             <groupId>com.iteaj</groupId>
             <artifactId>shiro</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency><!--静态资源和web页面-->
             <groupId>com.iteaj</groupId>
             <artifactId>resources</artifactId>
@@ -39,16 +41,16 @@
 <!--            <artifactId>quartz</artifactId>-->
 <!--            <version>${project.version}</version>-->
 <!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>ehcache</artifactId>-->
-<!--            <version>1.1.4-SNAPSHOT</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>redis</artifactId>
+            <artifactId>ehcache</artifactId>
             <version>1.1.4-SNAPSHOT</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>redis</artifactId>-->
+<!--            <version>1.1.4-SNAPSHOT</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -61,6 +63,7 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+
             <!--开发环境启用的依赖-->
             <dependencies>
                 <dependency>

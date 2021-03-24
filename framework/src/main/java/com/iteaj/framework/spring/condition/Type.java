@@ -11,7 +11,7 @@ public enum Type {
     /**
      * 后台web管理端
      */
-    Web,
+    Pc,
     /**
      * 移动端
      */

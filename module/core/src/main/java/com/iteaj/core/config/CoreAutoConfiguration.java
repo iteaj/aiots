@@ -95,7 +95,7 @@ public class CoreAutoConfiguration {
      * 后台web管理端核心配置
      */
     @Configuration
-    @ConditionalOnFramework(Type.Web)
+    @ConditionalOnFramework(Type.Pc)
     public static class CoreWebAutoConfiguration implements WebMvcConfigurer {
 
         private final FrameworkWebProperties properties;

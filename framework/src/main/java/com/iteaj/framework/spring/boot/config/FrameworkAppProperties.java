@@ -8,7 +8,34 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author iteaj
  * @since 1.0
  */
-@ConfigurationProperties(prefix = "izone.app")
+@ConfigurationProperties(prefix = "izone.web.app")
 public class FrameworkAppProperties {
 
+    /**
+     * 需要过滤拦截的url
+     */
+    private String[] includes = new String[]{"/app/**"};
+
+    /**
+     * 不需要过滤拦截的url
+     */
+    private String[] excludes;
+
+    public String[] getIncludes() {
+        return includes;
+    }
+
+    public FrameworkAppProperties setIncludes(String[] includes) {
+        this.includes = includes;
+        return this;
+    }
+
+    public String[] getExcludes() {
+        return excludes;
+    }
+
+    public FrameworkAppProperties setExcludes(String[] excludes) {
+        this.excludes = excludes;
+        return this;
+    }
 }

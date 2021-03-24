@@ -1,5 +1,7 @@
 package com.iteaj.redis.config;
 
+import com.iteaj.framework.cache.CacheEntry;
+import com.iteaj.framework.cache.SerializerType;
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
@@ -42,8 +44,7 @@ public class RedisConfiguration implements BeanClassLoaderAware {
     }
 
     @Bean({"cacheManager", "redisCacheManager"})
-    public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory
-            , ObjectProvider<Map<String, RedisCacheConfiguration>> caches) {
+    public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory, ObjectProvider<CacheEntry> caches) {
         RedisCacheWriter redisCacheWriter = RedisCacheWriter.lockingRedisCacheWriter(redisConnectionFactory);
 
         // 创建默认的redis缓存配置
@@ -53,43 +54,38 @@ public class RedisConfiguration implements BeanClassLoaderAware {
 
         // 创建session缓存配置
         caches.forEach(item -> {
-            initCaches.putAll(item);
+            initCaches.put(item.getName(), doCreateCache(item));
         });
 
         return new RedisCacheManager(redisCacheWriter, defaultCacheConfiguration, initCaches);
     }
 
+    private RedisCacheConfiguration doCreateCache(CacheEntry item) {
+
+        RedisSerializationContext.SerializationPair serializer;
+        if(item.getType() == SerializerType.Jdk) {
+            // 使用jdk序列化
+            serializer = RedisSerializationContext.SerializationPair
+                    .fromSerializer(new JdkSerializationRedisSerializer(this.classLoader));
+        } else {
+            // 使用jackson序列化
+            serializer = RedisSerializationContext.SerializationPair
+                    .fromSerializer(new Jackson2JsonRedisSerializer<>(item.getClazz()));
+        }
+
+        RedisCacheConfiguration sessionCache = RedisCacheConfiguration
+                .defaultCacheConfig().serializeValuesWith(serializer);
+
+        // 设置session缓存时间
+        Duration timeToLiveSeconds = Duration.ofMillis(item.getExpire());
+        sessionCache.entryTtl(timeToLiveSeconds);
+
+        return sessionCache;
+    }
+
     public RedisCacheConfiguration defaultCacheConfiguration() {
         return RedisCacheConfiguration.defaultCacheConfig().serializeValuesWith(RedisSerializationContext
                 .SerializationPair.fromSerializer(new JdkSerializationRedisSerializer(this.classLoader)));
-    }
-
-    /**
-     * 管理端缓存session到redis
-     */
-    @Bean
-    @ConditionalOnFramework(Type.Web)
-    @ConditionalOnProperty(prefix = "izone.web", value = "admin.cache-enable", havingValue = "true")
-    public Map<String, RedisCacheConfiguration> coreSessionCache(FrameworkWebProperties properties) {
-        // 后台管理端的配置信息
-        FrameworkWebProperties.Admin admin = properties.getAdmin();
-
-        // 使用jdk序列化
-        RedisSerializationContext.SerializationPair serializer = RedisSerializationContext
-                .SerializationPair.fromSerializer(new JdkSerializationRedisSerializer(this.classLoader));
-
-        Map<String, RedisCacheConfiguration> caches = new HashMap<>();
-        if(admin != null && admin.isCacheEnable()) {
-            RedisCacheConfiguration sessionCache = RedisCacheConfiguration
-                    .defaultCacheConfig().serializeValuesWith(serializer);
-            // 设置session缓存时间
-            Duration timeToLiveSeconds = Duration.ofSeconds(admin.getTimeToLiveSeconds());
-            sessionCache.entryTtl(timeToLiveSeconds);
-
-            caches.put(admin.getTokenCacheName(), sessionCache);
-        }
-
-        return caches;
     }
 
     @Override

@@ -49,7 +49,7 @@ public class Knife4jConfiguration {
                         , 1, "包含用户管理、角色管理、系统设置、权限管理等核心系统功能 (admin)"))
                 .groupName("系统管理模块")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.iteaj.core.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.iteaj.core.web.controller"))
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
                 .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 .paths(PathSelectors.any())
@@ -63,11 +63,11 @@ public class Knife4jConfiguration {
     @Bean
     public Docket devRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .apiInfo(apiInfo("系统开发模块 Api接口文档管理", 10
-                        , "包含knife4j文档管理、代码生成器等开发环境需要用到的开发功能 (develop)"))
+                .apiInfo(apiInfo("系统开发环境使用的功能", 10
+                        , "包含knife4j文档、代码生成器等开发环境需要用到的开发功能 (develop)"))
                 .groupName("开发模块")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.iteaj.dev.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.iteaj.dev.web.controller"))
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
                 .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 .paths(PathSelectors.any())
@@ -80,7 +80,7 @@ public class Knife4jConfiguration {
                 .version("1.0")
                 .description(desc)
                 .extensions(Arrays.asList(new ApiOrderExtension(order)))
-                .contact(new Contact("厦门由创源智能科技"
+                .contact(new Contact("厦门由创源智能科技(iteaj)"
                         , "http://www.iteaj.com", "iteaj@outlook.com"))
                 .build();
     }

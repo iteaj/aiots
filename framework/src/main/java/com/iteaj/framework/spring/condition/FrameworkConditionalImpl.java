@@ -40,7 +40,7 @@ public class FrameworkConditionalImpl implements Condition {
                     Class<?>[] classes = autoConfiguration.classes();
                     for (Class<?> aClass : classes) {
                         if(FrameworkWebAutoConfiguration.class.isAssignableFrom(aClass)) {
-                            appTypes.add(Type.Web);
+                            appTypes.add(Type.Pc);
                         } else if(FrameworkAppAutoConfiguration.class.isAssignableFrom(aClass)) {
                             appTypes.add(Type.App);
                         }

@@ -1,4 +1,4 @@
-package com.iteaj.dev.controller;
+package com.iteaj.dev.web.controller;
 
 import java.util.List;
 
