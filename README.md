@@ -41,7 +41,7 @@ izone-sboot是基于springboot2开发的多模块多端且插件化的应用系�
 1. 对于一个后台管理系统，功能的变化很少，页面相对固定(甚至有些基本功能在上线之后就不会在改变)，但是传统开发方式一个功能不可避免的增删改查就需要四个页面设置更多，而对于现在流行的单页面开发方式也有很多不足的地方，比如新增一个功能就必须在开发之后重新编译、打包、发布。如果这个时候对于某个组件的修改涉及到了其他功能还需要完整的功能测试， 费事费力。此项目前端是基于vue和antd-vue自研的[多页面项目](https://gitee.com/iteaj/ivzone)，组件化，一个页级组件相当于一个页面(包含了增删改查详情)
 
 #### 语言和框架
-1. 后端：java1.8、spring boot2、sofa boot(蚂蚁金服)、mybatis、mybatis-plus、shiro、thymeleaf、hikaricp
+1. 后端：java1.8、spring boot2、、mybatis、mybatis-plus、shiro、thymeleaf、hikaricp
 2. 前端：vue2.6、antd、axios、qs、moment、validate
 3. 数据： mysql5.7+
 4. 开发工具：idea
