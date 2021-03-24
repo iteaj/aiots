@@ -1,5 +1,5 @@
 #### izone-sboot
-izone-sboot是基于springboot2开发的后台管理系统，核心思想是jar即功能, 体现在单个模块的高内聚和模块之间的低耦合, 比如引入shiro模块后系统就包含权限认证功能,引入redis后系统就包含缓存功能.模块与模块之间不相互依赖,比如shiro需要使用缓存但并不需要依赖redis或者ehcache模块(通过spring的ioc实现注入).
+izone-sboot是基于springboot2开发的多模块多端且插件化的应用系统，核心思想是jar即功能, 体现在单个模块的高内聚和模块之间的低耦合, 比如引入shiro模块后系统就包含权限认证功能,引入redis后系统就包含缓存功能.模块与模块之间不相互依赖,比如shiro需要使用缓存但并不需要依赖redis或者ehcache模块(通过spring的ioc实现注入).
 #### 现已支持的的功能(模块)
 1. 完整的后台管理功能接口
 2. 基于shiro的权限认证功能
