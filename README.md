@@ -5,8 +5,8 @@ izone-sboot是基于springboot2开发的多模块多端且插件化的应用系�
 2. 基于shiro的权限认证功能
 3. 基于redis的缓存功能
 4. 基于ehchche3的缓存功能
-5. 基于shiro的token-session功能, 支持分布式集群session功能(shiro+redis实现), 移动端认证和pc认证共用同一套token+session机制, 支持token+cookie形式
-6. 基于shiro的oauth2客户端授权实现 包括微信,支付宝,头条,gitee等主流平台授权   _注:oauth2服务端正在开发中_ 
+5. 基于shiro的token-session功能,  **支持分布式集群session功能** (shiro+redis实现),  **移动端认证和pc认证共用同一套token+session机制** , 支持 **token+cookie形式** 
+6. 基于shiro的oauth2客户端授权实现 包括微信,支付宝,头条,gitee等主流平台授权   _注: **oauth2服务端正在开发中** _ 
 #### 后台管理包含功能如下:
 前端特点是采用基于vue的多页面解决方案， 一个功能一个页面， 且每个页面包含完整的增删改查(基于vue和ant-design-vue). 后台采用springboot2开发， 已完成的包含如下功能：
 * 用户管理 - 管理系统的使用用户
