@@ -2,7 +2,7 @@
 #### 如何启用app端认证
 
 ```
-// 在启动类上导入配置类: FrameworkAppAutoConfiguration
+// 1. 在启动类上导入配置类: FrameworkAppAutoConfiguration
 @ImportAutoConfiguration({
         FrameworkAppAutoConfiguration.class,
         FrameworkWebAutoConfiguration.class
@@ -13,4 +13,10 @@ public class BootstrapBootApplication implements WebMvcConfigurer {
         SpringApplication.run(BootstrapBootApplication.class, args);
     }
 }
+// 2. 在maven配置文件里面导入shiro插件模块
+<dependency><!--  shiro权限管理  -->
+    <groupId>com.iteaj</groupId>
+    <artifactId>shiro</artifactId>
+    <version>${project.version}</version>
+</dependency>
 ```
