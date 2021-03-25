@@ -4,8 +4,8 @@
 ```
 // 1. 在启动类上导入配置类: FrameworkAppAutoConfiguration
 @ImportAutoConfiguration({
-        FrameworkAppAutoConfiguration.class,
-        FrameworkWebAutoConfiguration.class
+        FrameworkAppAutoConfiguration.class, // 启用app相关功能
+        FrameworkWebAutoConfiguration.class // 启用后台管理端相关功能
 })
 @SpringBootApplication
 public class BootstrapBootApplication implements WebMvcConfigurer {
