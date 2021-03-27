@@ -2,7 +2,6 @@ package com.iteaj.security.config;
 
 import com.iteaj.framework.spi.app.AppAuthAction;
 import com.iteaj.framework.spi.auth.AccountAuthAction;
-import com.iteaj.framework.spi.auth.AuthToken;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -18,7 +17,7 @@ import java.util.Objects;
 
 /**
  * create time: 2021/3/27
- *
+ *  对{@link AppAuthAction}进行登录和注销的代理
  * @author iteaj
  * @since 1.0
  */

@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.oauth2;
 
-import com.iteaj.framework.spi.app.AccountAuthHandler;
+import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.app.AppAuthAction;
 
 import java.util.List;

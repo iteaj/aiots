@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.app;
+package com.iteaj.framework.spi.auth;
 
 /**
  * create time: 2021/3/25

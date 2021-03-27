@@ -14,5 +14,10 @@ public interface CoreConst {
 
     String OAUTH2_STATE_CACHE = "OAuth2StateCache";
 
-    String APP_SESSION_AUTH_CONTEXT = "SessionAuthContext";
+    String SESSION_AUTH_CONTEXT = "SessionAuthContext";
+
+    /**
+     * 当前处理授权认证的动作名
+     */
+    String AUTH_ACTION_NAME_CURRENT = "AuthActionNameCurrent";
 }

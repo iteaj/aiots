@@ -1,4 +1,6 @@
-package com.iteaj.framework.spi.app;
+package com.iteaj.framework.spi.auth;
+
+import com.iteaj.framework.spi.app.AppAuthAction;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -38,10 +40,18 @@ public interface AppAuthHandler {
     void handle(HttpServletRequest request, HttpServletResponse response) throws AuthException;
 
     /**
-     * app登录时的处理
-     * @see AppLoginServlet#service(ServletRequest, ServletResponse)
+     * web登录时的处理
+     * @see FrameworkAuthServlet#service(ServletRequest, ServletResponse)
      * @param request
      * @param response
      */
     void login(HttpServletRequest request, HttpServletResponse response) throws AuthException;
+
+    /**
+     * web注销时的处理
+     * @see FrameworkAuthServlet#service(ServletRequest, ServletResponse)
+     * @param request
+     * @param response
+     */
+    void logout(HttpServletRequest request, HttpServletResponse response) throws AuthException;
 }

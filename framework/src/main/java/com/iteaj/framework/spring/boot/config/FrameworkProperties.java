@@ -11,14 +11,14 @@ public class FrameworkProperties {
     private App app;
 
     /**
-     *  认证授权配置信息
-     */
-    private Auth auth;
-
-    /**
      * 后台管理端配置信息
      */
     private Admin admin;
+
+    /**
+     *  认证授权配置信息
+     */
+    private Auth auth = new Auth();
 
 
 

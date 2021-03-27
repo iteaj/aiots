@@ -1,8 +1,6 @@
 package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.spi.app.AppAuthAction;
-import com.iteaj.framework.spi.app.AuthContext;
-import com.iteaj.framework.spi.app.AuthType;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.oauth2;
 
-import com.iteaj.framework.spi.app.AuthContext;
+import com.iteaj.framework.spi.auth.AuthContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.app;
+package com.iteaj.framework.spi.auth;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;
@@ -10,15 +10,15 @@ import java.io.IOException;
 
 /**
  * create time: 2021/3/25
- *  用于处理App端的登录服务
+ *  用于处理系统的认证授权服务
  * @author iteaj
  * @since 1.0
  */
-public class AppLoginServlet extends GenericServlet {
+public class FrameworkAuthServlet extends GenericServlet {
 
     private AppAuthHandler handler;
 
-    public AppLoginServlet(AppAuthHandler handler) {
+    public FrameworkAuthServlet(AppAuthHandler handler) {
         this.handler = handler;
     }
 

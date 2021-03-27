@@ -1,7 +1,8 @@
-package com.iteaj.framework.spi.app;
+package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.FrameworkException;
 import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.spi.app.AppAuthAction;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,10 @@ public abstract class DefaultAuthHandler implements AppAuthHandler {
 
                     // 保存此上下文到session
                     HttpSession session = request.getSession();
-                    session.setAttribute(CoreConst.APP_SESSION_AUTH_CONTEXT, authContext);
+                    session.setAttribute(CoreConst.SESSION_AUTH_CONTEXT, authContext);
+
+                    // 保存处理当前授权动作的动作明此
+                    session.setAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT, item.getName());
                     break;
                 }
             }
@@ -115,6 +119,22 @@ public abstract class DefaultAuthHandler implements AppAuthHandler {
     }
 
     protected abstract void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 注销当前用户
+     * 注销请求将交给原先授权登录的动作{@link AppAuthAction}
+     * @param request
+     * @param response
+     * @throws AuthException
+     */
+    @Override
+    public void logout(HttpServletRequest request, HttpServletResponse response) throws AuthException {
+        Object actionName = request.getSession().getAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT);
+        if(actionName instanceof String) {
+            AppAuthAction action = getAction((String) actionName);
+            action.logout(request, response);
+        }
+    }
 
     public FrameworkProperties getConfig() {
         return config;

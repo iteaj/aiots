@@ -4,8 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.ArrayUtils;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.app.AppAuthAction;
-import com.iteaj.framework.spi.app.AppAuthHandler;
-import com.iteaj.framework.spring.boot.config.AppConfig;
+import com.iteaj.framework.spi.auth.AppAuthHandler;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
@@ -62,12 +61,6 @@ public class ShiroAppConfiguration {
     public OrderFilterChainDefinition appFilterChainDefinition() {
         OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
         // 以下的拦截顺序不能变
-
-        // Oauth2重定向地址不能拦截
-        AppConfig.Oauth2 oauth2 = properties.getApp().getOauth2();
-        if(oauth2 != null && properties.getApp().getRedirectUri() != null) {
-            chain.addPathDefinition(properties.getApp().getRedirectUri(), "anon");
-        }
 
         // 可以直接匿名访问的请求
         if(ArrayUtils.isNotEmpty(properties.getApp().getExcludes())) {

@@ -4,8 +4,8 @@ import com.iteaj.framework.cache.CacheEntry;
 import com.iteaj.framework.cache.SerializerType;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.app.AppAuthAction;
-import com.iteaj.framework.spi.app.AppAuthHandler;
-import com.iteaj.framework.spi.app.AuthContext;
+import com.iteaj.framework.spi.auth.AppAuthHandler;
+import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.oauth2.client.JustOauth2AuthHandler;
 import com.iteaj.oauth2.client.OAuth2Interceptors;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -43,7 +43,7 @@ public class OAuth2ClientConfiguration implements WebMvcConfigurer {
      * 授权上下文缓存
      * key: state value: AuthContext
      * @see JustOauth2AuthHandler#cacheStateAndContextMap(String, AuthContext)
-     * @see com.iteaj.framework.spi.app.AuthContext
+     * @see AuthContext
      * @return
      */
     @Bean

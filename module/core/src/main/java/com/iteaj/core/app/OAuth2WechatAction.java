@@ -1,7 +1,7 @@
 package com.iteaj.core.app;
 
-import com.iteaj.framework.spi.app.AuthContext;
-import com.iteaj.framework.spi.app.AuthType;
+import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.DefaultOAuth2Action;
 import com.iteaj.framework.spi.oauth2.OAuth2User;
 

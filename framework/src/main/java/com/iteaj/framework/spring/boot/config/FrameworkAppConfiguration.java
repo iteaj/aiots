@@ -1,12 +1,10 @@
 package com.iteaj.framework.spring.boot.config;
 
-import com.iteaj.framework.spi.app.AccountAuthHandler;
+import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.app.AppAuthAction;
-import com.iteaj.framework.spi.app.AppAuthHandler;
-import com.iteaj.framework.spi.app.AppLoginServlet;
+import com.iteaj.framework.spi.auth.AppAuthHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -26,12 +24,6 @@ import java.util.List;
 })
 public class FrameworkAppConfiguration {
 
-    private final FrameworkProperties properties;
-
-    public FrameworkAppConfiguration(FrameworkProperties properties) {
-        this.properties = properties;
-    }
-
     /**
      * app认证处理器, 默认使用账号密码认证
      * @return
@@ -42,9 +34,4 @@ public class FrameworkAppConfiguration {
         return new AccountAuthHandler(actions);
     }
 
-    @Bean
-    public ServletRegistrationBean oath2RedirectServlet(AppAuthHandler handler) {
-        String redirectUri = properties.getApp().getRedirectUri();
-        return new ServletRegistrationBean(new AppLoginServlet(handler), redirectUri);
-    }
 }

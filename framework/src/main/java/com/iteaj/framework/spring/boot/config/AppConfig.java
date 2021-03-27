@@ -1,6 +1,6 @@
 package com.iteaj.framework.spring.boot.config;
 
-import com.iteaj.framework.spi.app.AuthType;
+import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.OAuth2Config;
 
 import java.util.Map;
@@ -24,21 +24,6 @@ public class AppConfig {
     private Account account = new Account();
 
     /**
-     * app请求头里面的token名称
-     */
-    private String tokenName = "access_token";
-
-    /**
-     * 授权域名(不配置将自动获取)
-     */
-    private String domain;
-
-    /**
-     * 移动端登录地址(账号密码登录地址或Oauth2的redirectUri授权地址)
-     */
-    private String redirectUri = "/app/auth/login";
-
-    /**
      * 需要过滤拦截的url
      */
     private String[] includes = new String[]{"/app/**"};
@@ -46,7 +31,7 @@ public class AppConfig {
     /**
      * 不需要过滤拦截的url
      */
-    private String[] excludes = new String[]{"/app/auth/login"};
+    private String[] excludes = new String[]{};
 
     /**
      * Oauth2授权配置
@@ -131,33 +116,6 @@ public class AppConfig {
 
     public AppConfig setAccount(Account account) {
         this.account = account;
-        return this;
-    }
-
-    public String getTokenName() {
-        return tokenName;
-    }
-
-    public AppConfig setTokenName(String tokenName) {
-        this.tokenName = tokenName;
-        return this;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public AppConfig setDomain(String domain) {
-        this.domain = domain;
-        return this;
-    }
-
-    public String getRedirectUri() {
-        return redirectUri;
-    }
-
-    public AppConfig setRedirectUri(String redirectUri) {
-        this.redirectUri = redirectUri;
         return this;
     }
 

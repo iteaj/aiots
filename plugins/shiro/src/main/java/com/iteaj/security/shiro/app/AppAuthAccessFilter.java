@@ -1,6 +1,6 @@
 package com.iteaj.security.shiro.app;
 
-import com.iteaj.framework.spi.app.AppAuthHandler;
+import com.iteaj.framework.spi.auth.AppAuthHandler;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.filter.AccessControlFilter;
 

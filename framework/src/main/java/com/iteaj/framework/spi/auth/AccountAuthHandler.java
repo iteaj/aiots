@@ -1,7 +1,8 @@
-package com.iteaj.framework.spi.app;
+package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.FrameworkException;
 import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.spi.app.AppAuthAction;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +15,7 @@ import java.util.List;
  * @author iteaj
  * @since 1.0
  */
-public class AccountAuthHandler extends DefaultAuthHandler{
+public class AccountAuthHandler extends DefaultAuthHandler {
 
     public AccountAuthHandler(List<AppAuthAction> actions) {
         super(actions);
@@ -45,9 +46,9 @@ public class AccountAuthHandler extends DefaultAuthHandler{
 
         /**
          * 此上下文在认证拦截前已经放入session
-         * @see CoreConst#APP_SESSION_AUTH_CONTEXT
+         * @see CoreConst#SESSION_AUTH_CONTEXT
          */
-        Object context = session.getAttribute(CoreConst.APP_SESSION_AUTH_CONTEXT);
+        Object context = session.getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
         if(context instanceof AuthContext) {
             String action = ((AuthContext) context).getAction();
             /**

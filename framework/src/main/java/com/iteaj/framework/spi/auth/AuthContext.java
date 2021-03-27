@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.app;
+package com.iteaj.framework.spi.auth;
 
 import java.io.Serializable;
 import java.util.HashMap;

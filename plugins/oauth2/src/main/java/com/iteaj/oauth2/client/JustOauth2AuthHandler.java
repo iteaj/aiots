@@ -3,9 +3,9 @@ package com.iteaj.oauth2.client;
 import com.iteaj.framework.FrameworkException;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.app.AppAuthAction;
-import com.iteaj.framework.spi.app.AuthContext;
-import com.iteaj.framework.spi.app.AuthException;
-import com.iteaj.framework.spi.app.AuthType;
+import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.AuthException;
+import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.AbstractOAuth2Handler;
 import com.iteaj.framework.spi.oauth2.OAuth2Config;
 import com.iteaj.framework.spi.oauth2.OAuth2Token;
@@ -51,7 +51,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         AuthType type = context.getType();
         String sessionId = request.getSession().getId();
 
-        String domain = getConfig().getApp().getDomain();
+        String domain = getConfig().getAuth().getDomain();
         if(domain != null) {
             context.put("domain", domain);
         }
@@ -121,7 +121,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
     @Override
     public void login(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
-        Object context = session.getAttribute(CoreConst.APP_SESSION_AUTH_CONTEXT);
+        Object context = session.getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
 
         // 用户名密码登录
         if(context instanceof AuthContext &&
@@ -187,12 +187,12 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
             Class<? extends AuthRequest> aClass = authRequestMap.get(context.getType());
             Constructor<? extends AuthRequest> constructor = aClass.getConstructor(AuthConfig.class);
 
-            authConfig.setRedirectUri(context.get("domain") + getConfig().getApp().getRedirectUri());
+            authConfig.setRedirectUri(context.get("domain") + getConfig().getAuth().getLoginUri());
             return BeanUtils.instantiateClass(constructor, authConfig);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (me.zhyd.oauth.exception.AuthException e) {
-            String redirectUri = getConfig().getApp().getRedirectUri();
+            String redirectUri = getConfig().getAuth().getLoginUri();
             throw new AuthException("["+context.getType()+"]授权配置校验失败["+
                     authConfig+"], redirectUri: ["+redirectUri+"]");
         }

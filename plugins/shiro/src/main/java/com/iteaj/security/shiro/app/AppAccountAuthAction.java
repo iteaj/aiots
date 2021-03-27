@@ -45,7 +45,7 @@ public class AppAccountAuthAction extends AccountAuthAction {
 
             // 登录后移除授权上下文
             HttpSession session = request.getSession();
-            session.removeAttribute(CoreConst.APP_SESSION_AUTH_CONTEXT);
+            session.removeAttribute(CoreConst.SESSION_AUTH_CONTEXT);
         }
     }
 

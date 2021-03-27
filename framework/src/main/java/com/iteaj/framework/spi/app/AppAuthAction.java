@@ -1,5 +1,7 @@
 package com.iteaj.framework.spi.app;
 
+import com.iteaj.framework.spi.auth.AppAuthHandler;
+import com.iteaj.framework.spi.auth.AuthContext;
 import org.springframework.core.Ordered;
 
 import javax.servlet.http.HttpServletRequest;
