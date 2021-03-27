@@ -1,5 +1,22 @@
-### izone-sboot
-izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和springboot2结合开发的后台管理系统，前端特点是采用基于vue的多页面解决方案， 一个功能一个页面， 且每个页面包含完整的增删改查(基于vue和ant-design-vue). 后台采用springboot2开发， 已完成的包含如下功能：
+## izone-sboot
+izone-sboot是基于springboot2开发的多模块多端且插件化的应用系统，核心思想是jar即功能, 体现在单个模块的高内聚和模块之间的低耦合, 比如引入shiro模块后系统就包含权限认证功能,引入redis后系统就包含缓存功能.模块与模块之间不相互依赖,比如shiro需要使用缓存但并不需要依赖redis或者ehcache模块(通过spring的ioc实现注入).
+
+### 已完成的功能
+1. 完整的后台管理功能接口
+2. 基于shiro的权限认证功能
+3. 基于redis的缓存功能
+4. 基于ehchche3的缓存功能
+5. 基于shiro的token实现session功能, **支持分布式集群session功能** (shiro+redis实现), **移动端认证和pc认证共用同一套token+session机制** , 支持 **token+cookie形式** 
+6. 基于shiro + oauth2客户端授权实现 包括微信,支付宝,头条,gitee等主流平台授权   _注: **oauth2服务端正在开发中** _ 
+
+### 已完成的插件
+1. [ehcache缓存插件](https://gitee.com/iteaj/izone-sboot/tree/master/plugins/ehcache)
+2. [redis缓存插件](https://gitee.com/iteaj/izone-sboot/tree/master/plugins/redis)
+3. [oauth2授权认证插件(支持微信,支付宝,淘宝,京东等授权以及支持oauth2服务器)](https://gitee.com/iteaj/izone-sboot/tree/master/plugins/oauth2)
+4. [shiro授权认证插件(支持shiro+redis(ehcache)session缓存,移动端token+session授权,token有效期内自动登录等)](https://gitee.com/iteaj/izone-sboot/tree/master/plugins/shiro)
+
+### 后台管理包含功能如下:
+前端特点是采用基于vue的多页面解决方案， 一个功能一个页面， 且每个页面包含完整的增删改查(基于vue和ant-design-vue). 后台采用springboot2开发， 已完成的包含如下功能：
 * 用户管理 - 管理系统的使用用户
 * 组织机构 - 配置系统组织机构（机构、公司、部门）
 * 菜单管理 - 管理系统菜单、视图、功能权限
@@ -32,7 +49,7 @@ izone-sboot是基于[ivzone](https://gitee.com/iteaj/ivzone)前端框架和sprin
 1. 对于一个后台管理系统，功能的变化很少，页面相对固定(甚至有些基本功能在上线之后就不会在改变)，但是传统开发方式一个功能不可避免的增删改查就需要四个页面设置更多，而对于现在流行的单页面开发方式也有很多不足的地方，比如新增一个功能就必须在开发之后重新编译、打包、发布。如果这个时候对于某个组件的修改涉及到了其他功能还需要完整的功能测试， 费事费力。此项目前端是基于vue和antd-vue自研的[多页面项目](https://gitee.com/iteaj/ivzone)，组件化，一个页级组件相当于一个页面(包含了增删改查详情)
 
 #### 语言和框架
-1. 后端：java1.8、spring boot2、sofa boot(蚂蚁金服)、mybatis、mybatis-plus、shiro、thymeleaf、hikaricp
+1. 后端：java1.8、spring boot2、、mybatis、mybatis-plus、shiro、thymeleaf、hikaricp
 2. 前端：vue2.6、antd、axios、qs、moment、validate
 3. 数据： mysql5.7+
 4. 开发工具：idea
