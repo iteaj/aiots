@@ -23,12 +23,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         CaptchaConfiguration.class,
         FrameworkAutoConfiguration.class
 })
-@EnableConfigurationProperties({FrameworkWebProperties.class})
-public class FrameworkWebAutoConfiguration implements BeanPostProcessor {
+public class FrameworkWebConfiguration implements BeanPostProcessor {
 
     @Bean
-    public AuthzUrl authzUrl(FrameworkWebProperties properties) {
-        FrameworkWebProperties.Admin auth = properties.getAdmin();
+    public AuthzUrl authzUrl(FrameworkProperties properties) {
+        FrameworkProperties.Admin auth = properties.getAdmin();
 
         return new AuthzUrl(auth.getLoginUrl()
                 , auth.getSuccessUrl(), auth.getUnauthorizedUrl());

@@ -2,10 +2,8 @@ package com.iteaj.framework.spi.admin.auth;
 
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.security.AuthzUrl;
-import com.iteaj.util.Result;
-import com.iteaj.util.module.mvc.orm.Entity;
+import com.iteaj.framework.spi.auth.AuthToken;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 
 /**

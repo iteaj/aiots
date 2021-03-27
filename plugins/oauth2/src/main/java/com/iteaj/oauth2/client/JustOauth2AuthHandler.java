@@ -10,7 +10,7 @@ import com.iteaj.framework.spi.oauth2.AbstractOAuth2Handler;
 import com.iteaj.framework.spi.oauth2.OAuth2Config;
 import com.iteaj.framework.spi.oauth2.OAuth2Token;
 import com.iteaj.framework.spi.oauth2.OAuth2User;
-import com.iteaj.framework.spring.boot.config.FrameworkAppProperties;
+import com.iteaj.framework.spring.boot.config.AppConfig;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
@@ -51,7 +51,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         AuthType type = context.getType();
         String sessionId = request.getSession().getId();
 
-        String domain = getConfig().getDomain();
+        String domain = getConfig().getApp().getDomain();
         if(domain != null) {
             context.put("domain", domain);
         }
@@ -88,7 +88,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         if(oauth2Config instanceof OAuth2Config) { // 使用自定义配置
             auth2Config = (OAuth2Config) oauth2Config;
         } else {
-            FrameworkAppProperties.Oauth2 oauth2 = getConfig().getOauth2();
+            AppConfig.Oauth2 oauth2 = getConfig().getApp().getOauth2();
             if(oauth2 != null && oauth2.getClient() != null) {
                 auth2Config = oauth2.getClient().get(type);
 
@@ -161,14 +161,11 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
                     AppAuthAction authAction = getAction(action);
 
                     if(authAction != null) {
-                        // 调用登录接口
-                        authAction.login(request, response);
-
                         OAuth2User oAuth2User = new OAuth2User();
                         BeanUtils.copyProperties(authUser, oAuth2User);
 
                         // 执行授权回调
-                        authAction.callBack(oAuth2User, request, response);
+                        authAction.login(oAuth2User, request, response);
                     }
                 } else {
                     logger.error("[{}]授权失败code: {} - msg: {}",
@@ -190,12 +187,12 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
             Class<? extends AuthRequest> aClass = authRequestMap.get(context.getType());
             Constructor<? extends AuthRequest> constructor = aClass.getConstructor(AuthConfig.class);
 
-            authConfig.setRedirectUri(context.get("domain") + getConfig().getRedirectUri());
+            authConfig.setRedirectUri(context.get("domain") + getConfig().getApp().getRedirectUri());
             return BeanUtils.instantiateClass(constructor, authConfig);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (me.zhyd.oauth.exception.AuthException e) {
-            String redirectUri = getConfig().getRedirectUri();
+            String redirectUri = getConfig().getApp().getRedirectUri();
             throw new AuthException("["+context.getType()+"]授权配置校验失败["+
                     authConfig+"], redirectUri: ["+redirectUri+"]");
         }

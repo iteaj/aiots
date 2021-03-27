@@ -1,7 +1,7 @@
 package com.iteaj.framework.spring.condition;
 
-import com.iteaj.framework.spring.boot.config.FrameworkAppAutoConfiguration;
-import com.iteaj.framework.spring.boot.config.FrameworkWebAutoConfiguration;
+import com.iteaj.framework.spring.boot.config.FrameworkAppConfiguration;
+import com.iteaj.framework.spring.boot.config.FrameworkWebConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Condition;
@@ -39,9 +39,9 @@ public class FrameworkConditionalImpl implements Condition {
                 if(autoConfiguration != null) {
                     Class<?>[] classes = autoConfiguration.classes();
                     for (Class<?> aClass : classes) {
-                        if(FrameworkWebAutoConfiguration.class.isAssignableFrom(aClass)) {
+                        if(FrameworkWebConfiguration.class.isAssignableFrom(aClass)) {
                             appTypes.add(Type.Pc);
-                        } else if(FrameworkAppAutoConfiguration.class.isAssignableFrom(aClass)) {
+                        } else if(FrameworkAppConfiguration.class.isAssignableFrom(aClass)) {
                             appTypes.add(Type.App);
                         }
                     }

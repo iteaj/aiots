@@ -2,7 +2,7 @@ package com.iteaj.core.service;
 
 import com.iteaj.core.entity.Admin;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.spi.admin.auth.AuthToken;
+import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.framework.spi.admin.auth.AuthorizingService;
 import com.iteaj.framework.spi.UserAccountService;
 import com.iteaj.util.DigestUtils;

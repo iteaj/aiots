@@ -17,7 +17,7 @@ import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.Listener;
 import com.iteaj.core.service.*;
 import com.iteaj.framework.spi.oauth2.OAuth2Action;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
 import eu.bitwalker.useragentutils.Browser;
@@ -107,10 +107,10 @@ public class CoreAutoConfiguration {
     @ConditionalOnFramework(Type.Pc)
     public static class CoreWebAutoConfiguration implements WebMvcConfigurer {
 
-        private final FrameworkWebProperties properties;
+        private final FrameworkProperties properties;
         private final ObjectProvider<DemoEnvInterceptor> provider;
 
-        public CoreWebAutoConfiguration(FrameworkWebProperties properties
+        public CoreWebAutoConfiguration(FrameworkProperties properties
                 , ObjectProvider<DemoEnvInterceptor> provider) {
             this.properties = properties;
             this.provider = provider;

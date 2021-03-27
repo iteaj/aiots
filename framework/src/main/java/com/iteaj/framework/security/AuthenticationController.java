@@ -1,6 +1,6 @@
 package com.iteaj.framework.security;
 
-import com.iteaj.framework.spi.admin.auth.AuthToken;
+import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.util.Result;
 
 import javax.servlet.http.HttpServletRequest;

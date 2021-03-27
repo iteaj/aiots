@@ -5,13 +5,14 @@ import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.app.AppAuthAction;
 import com.iteaj.framework.spi.app.AppAuthHandler;
-import com.iteaj.framework.spring.boot.config.FrameworkAppProperties;
+import com.iteaj.framework.spring.boot.config.AppConfig;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
 import com.iteaj.security.shiro.AccessFilterWrapper;
+import com.iteaj.security.shiro.app.AppAccountAuthAction;
 import com.iteaj.security.shiro.app.AppAuthAccessFilter;
 import com.iteaj.security.shiro.app.AppAuthenticationRealm;
-import com.iteaj.security.shiro.app.ShiroAppAccountAuthAction;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
@@ -29,9 +30,9 @@ import org.springframework.core.annotation.Order;
 @AutoConfigureBefore(ShiroAutoConfiguration.class)
 public class ShiroAppConfiguration {
 
-    private final FrameworkAppProperties properties;
+    private final FrameworkProperties properties;
 
-    public ShiroAppConfiguration(FrameworkAppProperties properties) {
+    public ShiroAppConfiguration(FrameworkProperties properties) {
         this.properties = properties;
     }
 
@@ -47,13 +48,13 @@ public class ShiroAppConfiguration {
     @Bean
     @Order(10)
     public AppAuthAction shiroAuthAction() {
-        return new ShiroAppAccountAuthAction("/app/**");
+        return new AppAccountAuthAction("/app/**");
     }
 
     /**
      * Shiro对移动端请求进行过滤的url映射处理
-     * @see FrameworkAppProperties#getIncludes()
-     * @see FrameworkAppProperties#getExcludes()
+     * @see FrameworkProperties.App#getIncludes()
+     * @see FrameworkProperties.App#getExcludes()
      * @return
      */
     @Bean
@@ -63,22 +64,22 @@ public class ShiroAppConfiguration {
         // 以下的拦截顺序不能变
 
         // Oauth2重定向地址不能拦截
-        FrameworkAppProperties.Oauth2 oauth2 = properties.getOauth2();
-        if(oauth2 != null && properties.getRedirectUri() != null) {
-            chain.addPathDefinition(properties.getRedirectUri(), "anon");
+        AppConfig.Oauth2 oauth2 = properties.getApp().getOauth2();
+        if(oauth2 != null && properties.getApp().getRedirectUri() != null) {
+            chain.addPathDefinition(properties.getApp().getRedirectUri(), "anon");
         }
 
         // 可以直接匿名访问的请求
-        if(ArrayUtils.isNotEmpty(properties.getExcludes())) {
-            for (String exclude : properties.getExcludes()) {
+        if(ArrayUtils.isNotEmpty(properties.getApp().getExcludes())) {
+            for (String exclude : properties.getApp().getExcludes()) {
                 chain.addPathDefinition(exclude, "anon");
             }
         }
 
         // 必须要认证的请求
         // {@code AppAuthFilter}
-        if(ArrayUtils.isNotEmpty(properties.getIncludes())) {
-            for (String include : properties.getIncludes()) {
+        if(ArrayUtils.isNotEmpty(properties.getApp().getIncludes())) {
+            for (String include : properties.getApp().getIncludes()) {
                 chain.addPathDefinition(include, CoreConst.APP_FILTER_NAME);
             }
         }

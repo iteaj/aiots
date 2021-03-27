@@ -6,7 +6,6 @@ import com.iteaj.framework.spi.app.AppAuthHandler;
 import com.iteaj.framework.spi.app.AppLoginServlet;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -25,12 +24,11 @@ import java.util.List;
 @ImportAutoConfiguration({
         FrameworkAutoConfiguration.class
 })
-@EnableConfigurationProperties({FrameworkAppProperties.class})
-public class FrameworkAppAutoConfiguration {
+public class FrameworkAppConfiguration {
 
-    private final FrameworkAppProperties properties;
+    private final FrameworkProperties properties;
 
-    public FrameworkAppAutoConfiguration(FrameworkAppProperties properties) {
+    public FrameworkAppConfiguration(FrameworkProperties properties) {
         this.properties = properties;
     }
 
@@ -46,7 +44,7 @@ public class FrameworkAppAutoConfiguration {
 
     @Bean
     public ServletRegistrationBean oath2RedirectServlet(AppAuthHandler handler) {
-        String redirectUri = properties.getRedirectUri();
+        String redirectUri = properties.getApp().getRedirectUri();
         return new ServletRegistrationBean(new AppLoginServlet(handler), redirectUri);
     }
 }

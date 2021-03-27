@@ -2,7 +2,7 @@ package com.iteaj.framework.spi.app;
 
 import com.iteaj.framework.FrameworkException;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spring.boot.config.FrameworkAppProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public abstract class DefaultAuthHandler implements AppAuthHandler {
 
     private PathMatcher pathMatcher;
     private List<AppAuthAction> actions;
-    private FrameworkAppProperties config;
+    private FrameworkProperties config;
     private Map<String, AppAuthAction> actionMap;
     protected static Logger logger = LoggerFactory.getLogger(AppAuthHandler.class);
 
@@ -116,13 +116,12 @@ public abstract class DefaultAuthHandler implements AppAuthHandler {
 
     protected abstract void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response);
 
-    @Override
-    public FrameworkAppProperties getConfig() {
+    public FrameworkProperties getConfig() {
         return config;
     }
 
     @Autowired
-    public DefaultAuthHandler setConfig(FrameworkAppProperties config) {
+    public DefaultAuthHandler setConfig(FrameworkProperties config) {
         this.config = config;
         return this;
     }

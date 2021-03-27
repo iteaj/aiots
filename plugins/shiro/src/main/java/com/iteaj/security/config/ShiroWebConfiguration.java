@@ -6,7 +6,7 @@ import com.iteaj.framework.spi.admin.auth.AuthorizingService;
 import com.iteaj.framework.spi.UserAccountService;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.VoidEventPublisher;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
 import com.iteaj.security.shiro.*;
@@ -39,9 +39,9 @@ import javax.servlet.http.HttpServletResponse;
 @AutoConfigureBefore(ShiroAutoConfiguration.class)
 public class ShiroWebConfiguration {
 
-    private final FrameworkWebProperties properties;
+    private final FrameworkProperties properties;
 
-    public ShiroWebConfiguration(FrameworkWebProperties properties) {
+    public ShiroWebConfiguration(FrameworkProperties properties) {
         this.properties = properties;
     }
 
@@ -56,7 +56,7 @@ public class ShiroWebConfiguration {
     public AuthorizingRealm authorizingRealm(EventPublisher eventPublisher
             , AuthorizingService authorizingService, UserAccountService userAccountService) {
 
-        FrameworkWebProperties.Admin admin = properties.getAdmin();
+        FrameworkProperties.Admin admin = properties.getAdmin();
 
         AdminUserPasswordRealm adminUserPasswordRealm = new AdminUserPasswordRealm(
                 eventPublisher, properties, authorizingService, userAccountService);

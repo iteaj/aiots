@@ -1,7 +1,5 @@
 package com.iteaj.framework.spi.app;
 
-import com.iteaj.framework.spring.boot.config.FrameworkAppProperties;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -15,8 +13,6 @@ import java.util.List;
  * @since 1.0
  */
 public interface AppAuthHandler {
-
-    FrameworkAppProperties getConfig();
 
     /**
      * 通过Action名称获取一个Action

@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi;
 
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.spi.admin.auth.AuthToken;
+import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.util.module.mvc.orm.Entity;
 
 /**

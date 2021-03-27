@@ -1,5 +1,7 @@
 package com.iteaj.framework.spi.admin.auth;
 
+import com.iteaj.framework.spi.auth.AuthToken;
+
 /**
  * create time: 2019/12/6
  *

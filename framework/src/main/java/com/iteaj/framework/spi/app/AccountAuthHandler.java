@@ -60,7 +60,7 @@ public class AccountAuthHandler extends DefaultAuthHandler{
             }
 
             // 执行动作
-            authAction.login(request, response);
+            authAction.login(null, request, response);
         } else {
             throw new FrameworkException("登录失败");
         }

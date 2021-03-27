@@ -1,14 +1,11 @@
 package com.iteaj.security.shiro.online;
 
 import com.iteaj.framework.spi.admin.AdminConsts;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
-import org.apache.shiro.web.subject.support.WebDelegatingSubject;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -23,10 +20,10 @@ import java.io.Serializable;
  */
 public class OnlineSessionManager extends DefaultWebSessionManager {
 
-    private FrameworkWebProperties properties;
+    private FrameworkProperties properties;
 
-    public OnlineSessionManager(FrameworkWebProperties frameworkWebProperties) {
-        this.properties = frameworkWebProperties;
+    public OnlineSessionManager(FrameworkProperties frameworkProperties) {
+        this.properties = frameworkProperties;
         long timeToLiveSeconds = this.properties.getAdmin().getTimeToLiveSeconds();
         this.setGlobalSessionTimeout(timeToLiveSeconds * 1000);
     }
@@ -49,7 +46,7 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         Browser browser = userAgent.getBrowser();
         if(browser != null) {
             BrowserType browserType = browser.getBrowserType();
-            FrameworkWebProperties.Admin admin = properties.getAdmin();
+            FrameworkProperties.Admin admin = properties.getAdmin();
 
             if(browserType == BrowserType.APP ||
                     browserType == BrowserType.MOBILE_BROWSER ||

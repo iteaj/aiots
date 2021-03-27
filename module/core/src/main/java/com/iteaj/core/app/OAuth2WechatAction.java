@@ -26,7 +26,12 @@ public class OAuth2WechatAction extends DefaultOAuth2Action {
     }
 
     @Override
-    public void callBack(OAuth2User user, HttpServletRequest request, HttpServletResponse response) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
 
+    }
+
+    @Override
+    public Void login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) {
+        return null;
     }
 }

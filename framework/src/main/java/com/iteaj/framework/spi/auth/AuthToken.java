@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.admin.auth;
+package com.iteaj.framework.spi.auth;
 
 import java.io.Serializable;
 

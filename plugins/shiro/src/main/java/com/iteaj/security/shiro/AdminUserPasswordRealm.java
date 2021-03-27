@@ -9,7 +9,7 @@ import com.iteaj.framework.spi.admin.auth.AuthorizingService;
 import com.iteaj.framework.spi.admin.event.OnlineEvent;
 import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.event.EventPublisher;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.util.module.mvc.orm.Entity;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.pam.UnsupportedTokenException;
@@ -27,12 +27,12 @@ import java.util.Objects;
 public class AdminUserPasswordRealm extends AuthorizingRealm {
 
     private final EventPublisher eventPublisher;
-    private final FrameworkWebProperties properties;
+    private final FrameworkProperties properties;
     private final AuthorizingService authorizingService;
     private final UserAccountService userAccountService;
 
     public AdminUserPasswordRealm(
-            EventPublisher eventPublisher, FrameworkWebProperties properties
+            EventPublisher eventPublisher, FrameworkProperties properties
             , AuthorizingService authorizingService, UserAccountService userAccountService) {
         this.properties = properties;
         this.eventPublisher = eventPublisher;

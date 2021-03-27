@@ -25,11 +25,6 @@ public abstract class DefaultOAuth2Action implements OAuth2Action{
     }
 
     @Override
-    public void login(HttpServletRequest request, HttpServletResponse response) {
-        /*doing nothing*/
-    }
-
-    @Override
     public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) {
         return null;
     }

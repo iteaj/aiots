@@ -1,6 +1,6 @@
 package com.iteaj.security.shiro.app;
 
-import com.iteaj.framework.spi.admin.auth.AuthToken;
+import com.iteaj.framework.spi.auth.AuthToken;
 import org.apache.shiro.authc.AuthenticationToken;
 
 /**

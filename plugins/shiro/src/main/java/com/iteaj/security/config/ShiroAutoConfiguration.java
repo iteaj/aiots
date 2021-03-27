@@ -4,11 +4,8 @@ import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.event.Listener;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
-import com.iteaj.security.shiro.AccessFilterWrapper;
-import com.iteaj.security.shiro.NativeSessionListener;
-import com.iteaj.security.shiro.ShiroAuthorLogListener;
-import com.iteaj.security.shiro.ShiroCacheManagerDelegation;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.security.shiro.*;
 import com.iteaj.security.shiro.online.OnlineSessionManager;
 import com.iteaj.security.shiro.online.OnlineSessionSessionDAO;
 import com.iteaj.security.shiro.online.OnlineSubjectDao;
@@ -45,11 +42,12 @@ import java.util.stream.Collectors;
 @Configuration
 public class ShiroAutoConfiguration {
 
-    private final FrameworkWebProperties properties;
+    private final FrameworkProperties properties;
 
-    public ShiroAutoConfiguration(FrameworkWebProperties properties) {
+    public ShiroAutoConfiguration(FrameworkProperties properties) {
         this.properties = properties;
     }
+
 
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions

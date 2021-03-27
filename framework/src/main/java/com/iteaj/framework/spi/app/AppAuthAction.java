@@ -41,21 +41,21 @@ public interface AppAuthAction<T> extends Ordered {
      * 请求的url匹配之后将执行此方法
      * @param request 授权是的请求对象
      * @param response 授权是的响应对象
-     * @return {@link #callBack(T user, HttpServletRequest, HttpServletResponse)}
+     * @return AuthContext
      */
     AuthContext authorize(HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 注销
+     * @param request
+     * @param response
+     */
+    void logout(HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 将在app端提交登录请求时调用
      * @param request
      * @param response
      */
-    void login(HttpServletRequest request, HttpServletResponse response);
-
-    /**
-     *  认证通过后的回调
-     * @param request 回调请求的请求对象
-     * @param response 回调请求的响应对象
-     */
-    void callBack(T user, HttpServletRequest request, HttpServletResponse response);
+    Object login(T t, HttpServletRequest request, HttpServletResponse response);
 }

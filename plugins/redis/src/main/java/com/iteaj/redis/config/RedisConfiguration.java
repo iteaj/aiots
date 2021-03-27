@@ -2,12 +2,8 @@ package com.iteaj.redis.config;
 
 import com.iteaj.framework.cache.CacheEntry;
 import com.iteaj.framework.cache.SerializerType;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
-import com.iteaj.framework.spring.condition.ConditionalOnFramework;
-import com.iteaj.framework.spring.condition.Type;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

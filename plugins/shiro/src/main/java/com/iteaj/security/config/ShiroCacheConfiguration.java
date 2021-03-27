@@ -2,7 +2,7 @@ package com.iteaj.security.config;
 
 import com.iteaj.framework.cache.CacheEntry;
 import com.iteaj.framework.cache.SerializerType;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -19,9 +19,9 @@ import org.springframework.context.annotation.Configuration;
 public class ShiroCacheConfiguration {
 
 
-    private final FrameworkWebProperties properties;
+    private final FrameworkProperties properties;
 
-    public ShiroCacheConfiguration(FrameworkWebProperties properties) {
+    public ShiroCacheConfiguration(FrameworkProperties properties) {
         this.properties = properties;
     }
 
@@ -31,7 +31,7 @@ public class ShiroCacheConfiguration {
      */
     @Bean
     public CacheEntry sessionCache() {
-        FrameworkWebProperties.Admin admin = properties.getAdmin();
+        FrameworkProperties.Admin admin = properties.getAdmin();
         return new CacheEntry(admin.getTokenCacheName()
                 , admin.getTimeToLiveSeconds() * 1000, SerializerType.Jdk);
     }
@@ -44,7 +44,7 @@ public class ShiroCacheConfiguration {
      */
     @Bean
     public CacheEntry authCache() {
-        FrameworkWebProperties.Admin admin = properties.getAdmin();
+        FrameworkProperties.Admin admin = properties.getAdmin();
         return new CacheEntry(admin.getAuthCacheName()
                 , admin.getTimeToLiveSeconds() * 1000, SerializerType.Jdk);
     }
@@ -56,7 +56,7 @@ public class ShiroCacheConfiguration {
      */
     @Bean
     public CacheEntry authorCache() {
-        FrameworkWebProperties.Admin admin = properties.getAdmin();
+        FrameworkProperties.Admin admin = properties.getAdmin();
         return new CacheEntry(admin.getAuthorCacheName()
                 , admin.getTimeToLiveSeconds() * 1000, SerializerType.Jdk);
     }

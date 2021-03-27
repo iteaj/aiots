@@ -4,6 +4,7 @@ import com.iteaj.framework.mybatis.MybatisPlusConfiguration;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.ComponentScan;
 })
 @MapperScan(basePackages = {"com.iteaj.*.mapper"}) // 注入dao层组件
 @ImportAutoConfiguration(MybatisPlusConfiguration.class)
+@EnableConfigurationProperties({FrameworkProperties.class})
 public class FrameworkAutoConfiguration {
 
     @Bean

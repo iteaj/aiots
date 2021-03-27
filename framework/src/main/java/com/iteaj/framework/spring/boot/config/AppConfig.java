@@ -2,18 +2,16 @@ package com.iteaj.framework.spring.boot.config;
 
 import com.iteaj.framework.spi.app.AuthType;
 import com.iteaj.framework.spi.oauth2.OAuth2Config;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Map;
 
 /**
- * create time: 2021/3/21
- *  app端相关配置
+ * create time: 2021/3/27
+ *
  * @author iteaj
  * @since 1.0
  */
-@ConfigurationProperties(prefix = "izone.app")
-public class FrameworkAppProperties {
+public class AppConfig {
 
     /**
      * OAuth2相关配置
@@ -118,11 +116,56 @@ public class FrameworkAppProperties {
         }
     }
 
+    public Oauth2 getOauth2() {
+        return oauth2;
+    }
+
+    public AppConfig setOauth2(Oauth2 oauth2) {
+        this.oauth2 = oauth2;
+        return this;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public AppConfig setAccount(Account account) {
+        this.account = account;
+        return this;
+    }
+
+    public String getTokenName() {
+        return tokenName;
+    }
+
+    public AppConfig setTokenName(String tokenName) {
+        this.tokenName = tokenName;
+        return this;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public AppConfig setDomain(String domain) {
+        this.domain = domain;
+        return this;
+    }
+
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
+    public AppConfig setRedirectUri(String redirectUri) {
+        this.redirectUri = redirectUri;
+        return this;
+    }
+
     public String[] getIncludes() {
         return includes;
     }
 
-    public FrameworkAppProperties setIncludes(String[] includes) {
+    public AppConfig setIncludes(String[] includes) {
         this.includes = includes;
         return this;
     }
@@ -131,53 +174,8 @@ public class FrameworkAppProperties {
         return excludes;
     }
 
-    public FrameworkAppProperties setExcludes(String[] excludes) {
+    public AppConfig setExcludes(String[] excludes) {
         this.excludes = excludes;
-        return this;
-    }
-
-    public Oauth2 getOauth2() {
-        return oauth2;
-    }
-
-    public FrameworkAppProperties setOauth2(Oauth2 oauth2) {
-        this.oauth2 = oauth2;
-        return this;
-    }
-
-    public String getTokenName() {
-        return tokenName;
-    }
-
-    public FrameworkAppProperties setTokenName(String tokenName) {
-        this.tokenName = tokenName;
-        return this;
-    }
-
-    public String getRedirectUri() {
-        return redirectUri;
-    }
-
-    public FrameworkAppProperties setRedirectUri(String redirectUri) {
-        this.redirectUri = redirectUri;
-        return this;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public FrameworkAppProperties setAccount(Account account) {
-        this.account = account;
-        return this;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public FrameworkAppProperties setDomain(String domain) {
-        this.domain = domain;
         return this;
     }
 }
