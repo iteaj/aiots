@@ -1,6 +1,7 @@
 package com.iteaj.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iteaj.core.app.OAuth2WechatAction;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.OnlineUser;
 import com.iteaj.core.enums.AppType;
@@ -15,6 +16,7 @@ import com.iteaj.framework.spi.event.AsyncGuavaEventBus;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.Listener;
 import com.iteaj.core.service.*;
+import com.iteaj.framework.spi.oauth2.OAuth2Action;
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -44,6 +47,12 @@ import java.util.List;
  */
 @Configuration
 public class CoreAutoConfiguration {
+
+    @Bean
+    @Order(8)
+    public OAuth2Action wechatAction() {
+        return new OAuth2WechatAction("/app/wechat/**");
+    }
 
     /**
      * 声明此模块的信息

@@ -3,7 +3,7 @@ package com.iteaj.security.config;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
 import com.iteaj.framework.spi.admin.auth.AuthorizingService;
-import com.iteaj.framework.spi.admin.auth.UserAccountService;
+import com.iteaj.framework.spi.UserAccountService;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.VoidEventPublisher;
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;

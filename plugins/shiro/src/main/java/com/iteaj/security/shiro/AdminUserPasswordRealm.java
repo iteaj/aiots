@@ -2,19 +2,15 @@ package com.iteaj.security.shiro;
 
 import com.google.code.kaptcha.Constants;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.spi.admin.AdminConsts;
+import com.iteaj.framework.spi.UserAccountService;
 import com.iteaj.framework.spi.admin.LoggerType;
-import com.iteaj.framework.spi.admin.auth.UserAccountService;
+import com.iteaj.framework.spi.admin.SecurityUtils;
+import com.iteaj.framework.spi.admin.auth.AuthorizingService;
 import com.iteaj.framework.spi.admin.event.OnlineEvent;
 import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
-import com.iteaj.framework.spi.admin.SecurityUtils;
-import com.iteaj.framework.spi.admin.auth.AuthorizingService;
 import com.iteaj.util.module.mvc.orm.Entity;
-import eu.bitwalker.useragentutils.Browser;
-import eu.bitwalker.useragentutils.BrowserType;
-import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.pam.UnsupportedTokenException;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -25,10 +21,7 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.apache.shiro.web.subject.WebSubject;
-import org.apache.shiro.web.util.WebUtils;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
 public class AdminUserPasswordRealm extends AuthorizingRealm {
@@ -74,7 +67,7 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
 
             // 验证账号是否存在
             String username = authToken.getUsername();
-            Entity admin = userAccountService.getAdmin(authToken);
+            Entity admin = userAccountService.getUser(authToken);
             source = admin;
             if(null == admin) throw new UnknownAccountException("账号不存在：" + username);
 
@@ -84,9 +77,6 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
 
             // 发布登录事件
             this.publishOnlineEvent(admin);
-
-            // 如果是app端登录, 写access_token到header
-            writeAccessTokenToHeader(subject);
 
             String password = new String(((UsernamePasswordToken) token).getPassword());
             return new SimpleAuthenticationInfo(admin, password, getName());
@@ -109,7 +99,7 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
     }
 
     private AuthenticationInfo autoLoginAuthenticationInfo(AutoLoginToken token) {
-        Entity admin = userAccountService.getAdmin(token);
+        Entity admin = userAccountService.getUser(token);
         if(null == admin) throw new UnknownAccountException("账号不存在：" + token.getUsername());
 
         // 发送登录事件
@@ -117,28 +107,6 @@ public class AdminUserPasswordRealm extends AuthorizingRealm {
                 .getSessionId(), OnlineType.On).setAdmin(admin));
 
         return new SimpleAuthenticationInfo(admin, null, getName());
-    }
-
-    /**
-     * 如果请求端是原生app, 则写入请求数据到access_token
-     * @param subject
-     */
-    private void writeAccessTokenToHeader(WebSubject subject) {
-        ServletRequest request = WebUtils.getRequest(subject);
-        HttpServletResponse response = (HttpServletResponse)WebUtils.getResponse(subject);
-
-        UserAgent userAgent = (UserAgent) request.getAttribute(AdminConsts.USER_AGENT);
-        Browser browser = userAgent.getBrowser();
-        if(null != browser) {
-            BrowserType browserType = browser.getBrowserType();
-            if(browserType == BrowserType.APP) {
-                FrameworkWebProperties.Admin auth = properties.getAdmin();
-
-                // 写入access_token到header
-//                response.addHeader(authed.getAppTokenKey()
-//                        , (String) subject.getSession().getId());
-            }
-        }
     }
 
     private void publishOnlineEvent(Entity admin) {

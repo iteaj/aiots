@@ -6,7 +6,7 @@ package com.iteaj.framework.spi.oauth2;
  * @author iteaj
  * @since 1.0
  */
-public class OAuth2Request {
+public class OAuth2Matcher {
 
     private String urlPattern;
 

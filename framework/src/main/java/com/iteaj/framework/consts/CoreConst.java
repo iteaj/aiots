@@ -9,4 +9,10 @@ package com.iteaj.framework.consts;
 public interface CoreConst {
 
     String APP_FILTER_NAME = "app";
+
+    String WEB_USER_AGENT = "WEB_USER_AGENT";
+
+    String OAUTH2_STATE_CACHE = "OAuth2StateCache";
+
+    String APP_SESSION_AUTH_CONTEXT = "SessionAuthContext";
 }

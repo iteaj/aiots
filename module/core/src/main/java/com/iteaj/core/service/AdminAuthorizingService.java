@@ -4,7 +4,7 @@ import com.iteaj.core.entity.Admin;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.admin.auth.AuthToken;
 import com.iteaj.framework.spi.admin.auth.AuthorizingService;
-import com.iteaj.framework.spi.admin.auth.UserAccountService;
+import com.iteaj.framework.spi.UserAccountService;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.util.module.mvc.orm.Entity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * 由Shiro框架认证的用户名和密码的权限管理服务
+ * 后台管理端的认证和权限服务
  * @see AuthorizingService
  */
 public class AdminAuthorizingService implements AuthorizingService, UserAccountService<AuthToken> {
@@ -38,7 +38,7 @@ public class AdminAuthorizingService implements AuthorizingService, UserAccountS
     }
 
     @Override
-    public BaseEntity getAdmin(AuthToken token) {
+    public BaseEntity getUser(AuthToken token) {
         return adminService.getByAccount((String) token.getPrincipal());
     }
 

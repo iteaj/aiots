@@ -1,11 +1,22 @@
 package com.iteaj.oauth2.config;
 
+import com.iteaj.framework.cache.CacheEntry;
+import com.iteaj.framework.cache.SerializerType;
+import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.spi.app.AppAuthAction;
+import com.iteaj.framework.spi.app.AppAuthHandler;
+import com.iteaj.framework.spi.app.AuthContext;
+import com.iteaj.oauth2.client.JustOauth2AuthHandler;
 import com.iteaj.oauth2.client.OAuth2Interceptors;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 /**
  * create time: 2021/3/21
@@ -15,8 +26,30 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 @ConditionalOnWebApplication
-@EnableConfigurationProperties(OAuth2Properties.class)
 public class OAuth2ClientConfiguration implements WebMvcConfigurer {
+
+    /**
+     * Oauth2认证授权处理器
+     * @param actions
+     * @return
+     */
+    @Bean
+    @Primary
+    public AppAuthHandler oauth2AuthHandle(List<AppAuthAction> actions, CacheManager cacheManager) {
+        return new JustOauth2AuthHandler(actions, cacheManager);
+    }
+
+    /**
+     * 授权上下文缓存
+     * key: state value: AuthContext
+     * @see JustOauth2AuthHandler#cacheStateAndContextMap(String, AuthContext)
+     * @see com.iteaj.framework.spi.app.AuthContext
+     * @return
+     */
+    @Bean
+    public CacheEntry oauth2StateCache() {
+        return new CacheEntry(CoreConst.OAUTH2_STATE_CACHE, 3 * 60 * 1000l, SerializerType.Jdk);
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

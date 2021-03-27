@@ -1,6 +1,7 @@
-package com.iteaj.framework.spi.admin.auth;
+package com.iteaj.framework.spi;
 
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.spi.admin.auth.AuthToken;
 import com.iteaj.util.module.mvc.orm.Entity;
 
 /**
@@ -16,7 +17,7 @@ public interface UserAccountService<T extends AuthToken> {
      * @param token
      * @return
      */
-    BaseEntity getAdmin(T token);
+    BaseEntity getUser(T token);
 
     /**
      * 密码校验

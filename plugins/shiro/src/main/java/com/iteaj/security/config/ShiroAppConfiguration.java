@@ -3,12 +3,15 @@ package com.iteaj.security.config;
 import com.baomidou.mybatisplus.core.toolkit.ArrayUtils;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.framework.spi.app.AppAuthAction;
+import com.iteaj.framework.spi.app.AppAuthHandler;
 import com.iteaj.framework.spring.boot.config.FrameworkAppProperties;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
 import com.iteaj.security.shiro.AccessFilterWrapper;
-import com.iteaj.security.shiro.app.AppAccessFilter;
+import com.iteaj.security.shiro.app.AppAuthAccessFilter;
 import com.iteaj.security.shiro.app.AppAuthenticationRealm;
+import com.iteaj.security.shiro.app.ShiroAppAccountAuthAction;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
@@ -33,8 +36,18 @@ public class ShiroAppConfiguration {
     }
 
     @Bean("appAccessFilter")
-    public AccessFilterWrapper appAccessFilter() {
-        return new AccessFilterWrapper(CoreConst.APP_FILTER_NAME, new AppAccessFilter());
+    public AccessFilterWrapper appAccessFilter(AppAuthHandler handler) {
+        return new AccessFilterWrapper(CoreConst.APP_FILTER_NAME, new AppAuthAccessFilter(handler));
+    }
+
+    /**
+     * 基于shiro实现的认证动作
+     * @return
+     */
+    @Bean
+    @Order(10)
+    public AppAuthAction shiroAuthAction() {
+        return new ShiroAppAccountAuthAction("/app/**");
     }
 
     /**
@@ -47,6 +60,13 @@ public class ShiroAppConfiguration {
     @Order(value = 80) //
     public OrderFilterChainDefinition appFilterChainDefinition() {
         OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
+        // 以下的拦截顺序不能变
+
+        // Oauth2重定向地址不能拦截
+        FrameworkAppProperties.Oauth2 oauth2 = properties.getOauth2();
+        if(oauth2 != null && properties.getRedirectUri() != null) {
+            chain.addPathDefinition(properties.getRedirectUri(), "anon");
+        }
 
         // 可以直接匿名访问的请求
         if(ArrayUtils.isNotEmpty(properties.getExcludes())) {
@@ -63,8 +83,10 @@ public class ShiroAppConfiguration {
             }
         }
 
+
         return chain;
     }
+
     /**
      * 移动端app认证的Realm
      * @return
