@@ -3,17 +3,15 @@ package com.iteaj.oauth2.config;
 import com.iteaj.framework.cache.CacheEntry;
 import com.iteaj.framework.cache.SerializerType;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.app.AppAuthAction;
-import com.iteaj.framework.spi.auth.AppAuthHandler;
+import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.oauth2.client.JustOauth2AuthHandler;
-import com.iteaj.oauth2.client.OAuth2Interceptors;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -35,7 +33,7 @@ public class OAuth2ClientConfiguration implements WebMvcConfigurer {
      */
     @Bean
     @Primary
-    public AppAuthHandler oauth2AuthHandle(List<AppAuthAction> actions, CacheManager cacheManager) {
+    public WebAuthHandler oauth2AuthHandle(List<WebAuthAction> actions, CacheManager cacheManager) {
         return new JustOauth2AuthHandler(actions, cacheManager);
     }
 
@@ -49,10 +47,5 @@ public class OAuth2ClientConfiguration implements WebMvcConfigurer {
     @Bean
     public CacheEntry oauth2StateCache() {
         return new CacheEntry(CoreConst.OAUTH2_STATE_CACHE, 3 * 60 * 1000l, SerializerType.Jdk);
-    }
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new OAuth2Interceptors());
     }
 }

@@ -1,31 +1,26 @@
 package com.iteaj.oauth2.client;
 
 import com.iteaj.framework.FrameworkException;
+import com.iteaj.framework.Proxy.ProxyUtils;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.app.AppAuthAction;
+import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthType;
-import com.iteaj.framework.spi.auth.ExceptionAction;
-import com.iteaj.framework.spi.oauth2.AbstractOAuth2Handler;
-import com.iteaj.framework.spi.oauth2.OAuth2Config;
-import com.iteaj.framework.spi.oauth2.OAuth2Token;
-import com.iteaj.framework.spi.oauth2.OAuth2User;
-import com.iteaj.framework.spring.boot.config.AppConfig;
+import com.iteaj.framework.spi.oauth2.*;
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
 import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.*;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -42,12 +37,12 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
 
     private Map<AuthType, Class<? extends AuthRequest>> authRequestMap = new HashMap<>(16);
 
-    public JustOauth2AuthHandler(List<AppAuthAction> actions, CacheManager cacheManager) {
+    public JustOauth2AuthHandler(List<WebAuthAction> actions, CacheManager cacheManager) {
         super(actions, cacheManager);
     }
 
     @Override
-    protected void doOauth2Handle(AuthContext context, HttpServletRequest request, HttpServletResponse response) {
+    protected void doOauth2Handle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
         AuthType type = context.getType();
         String sessionId = request.getSession().getId();
 
@@ -62,19 +57,21 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
                     "], 请增加配置[izone.app.oauth2.client.]"+type+"..");
         }
 
-        try {
-            String authorize = authRequest.authorize(sessionId);
+        String authorize = authRequest.authorize(sessionId);
 
-            /**
-             * 缓存state和context的映射
-             * 在Oauth2重定向授权之后需要通过state获取context
-             * @see #login(HttpServletRequest, HttpServletResponse)
-             */
-            this.cacheStateAndContextMap(sessionId, context);
+        /**
+         * 缓存state和context的映射
+         * 在Oauth2重定向授权之后需要通过state获取context
+         * @see #login(HttpServletRequest, HttpServletResponse)
+         */
+        this.cacheStateAndContextMap(sessionId, context);
+        final WebAuthAction action = getAction(context.getAction());
 
-            response.sendRedirect(authorize);
-        } catch (Exception e) {
-            logger.error("oauth2发送重定向失败", e);
+        final Object target = ProxyUtils.getTarget(action);
+        if(target instanceof OAuth2Action) {
+            ((OAuth2Action) target).doAuthorize(authorize, request, response);
+        } else {
+            throw new AuthException("["+action.getName()+"]不是[OAuth2Action]的实现");
         }
     }
 
@@ -88,7 +85,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         if(oauth2Config instanceof OAuth2Config) { // 使用自定义配置
             auth2Config = (OAuth2Config) oauth2Config;
         } else {
-            AppConfig.Oauth2 oauth2 = getConfig().getApp().getOauth2();
+            final FrameworkProperties.Oauth2 oauth2 = getConfig().getOauth2();
             if(oauth2 != null && oauth2.getClient() != null) {
                 auth2Config = oauth2.getClient().get(type);
 
@@ -122,50 +119,36 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         String state = request.getParameter("state");
         String code = request.getParameter("code");
         String authCode = request.getParameter("auth_code");
-        try {
-            if(authContext != null) {
-                // 获取执行动作
-                String action = authContext.getAction();
-                AppAuthAction authAction = getAction(action);
 
-                // 实例化授权请求
-                AuthRequest authRequest = this.instanceAuthRequest(authContext);
+        // 获取执行动作
+        String action = authContext.getAction();
+        WebAuthAction authAction = getAction(action);
 
-                // 登录
-                AuthCallback authCallback = new AuthCallback();
-                authCallback.setCode(code);
-                authCallback.setState(state);
-                authCallback.setAuth_code(authCode);
-                AuthResponse<AuthUser> authResponse = authRequest.login(authCallback);
+        // 实例化授权请求
+        AuthRequest authRequest = this.instanceAuthRequest(authContext);
 
-                // 获取用户信息成功
-                if(authResponse.ok()) {
-                    AuthUser authUser = authResponse.getData();
+        // 登录
+        AuthCallback authCallback = new AuthCallback();
+        authCallback.setCode(code);
+        authCallback.setState(state);
+        authCallback.setAuth_code(authCode);
+        AuthResponse<AuthUser> authResponse = authRequest.login(authCallback);
 
-                    try {
-                        if(authAction != null) {
-                            OAuth2User oAuth2User = new OAuth2User();
-                            BeanUtils.copyProperties(authUser, oAuth2User);
+        // 获取用户信息成功
+        if(authResponse.ok()) {
+            AuthUser authUser = authResponse.getData();
 
-                            // 执行授权回调
-                            authAction.login(oAuth2User, request, response);
-                        }
-                    } catch (Exception e) {
-                        if(authAction instanceof ExceptionAction) {
-                            ((ExceptionAction<?>) authAction).loginCause(e, request, response);
-                        }
-                    }
-                } else {
-                    logger.error("[{}]授权失败code: {} - msg: {}",
-                            authContext.getType(), authResponse.getCode(), authResponse.getMsg());
-                }
-            } else {
-                logger.warn("授权失败可能是state过期[{}]", state);
+            if(authAction != null) {
+                OAuth2User oAuth2User = new OAuth2User();
+                BeanUtils.copyProperties(authUser, oAuth2User);
+
+                // 执行授权回调
+                authAction.login(oAuth2User, request, response);
             }
-        } catch (Exception e) {
-
-        } finally {
-
+        } else {
+            throw new AuthException("["+authContext.getType()
+                    +"]授权失败 code["+authResponse.getCode()
+                    +"] - msg["+authResponse.getMsg()+"]");
         }
     }
 
@@ -177,7 +160,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
             Class<? extends AuthRequest> aClass = authRequestMap.get(context.getType());
             Constructor<? extends AuthRequest> constructor = aClass.getConstructor(AuthConfig.class);
 
-            authConfig.setRedirectUri(context.get("domain") + getConfig().getAuth().getLoginUri());
+            authConfig.setRedirectUri(context.get("domain") + getConfig().getOauth2().getRedirectUri());
             return BeanUtils.instantiateClass(constructor, authConfig);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();

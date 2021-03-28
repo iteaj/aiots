@@ -6,18 +6,19 @@ import com.iteaj.core.auth.AdminAuthAction;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.OnlineUser;
 import com.iteaj.core.enums.AppType;
+import com.iteaj.core.service.*;
 import com.iteaj.core.web.interceptor.DemoEnvInterceptor;
 import com.iteaj.framework.security.AuthzUrl;
+import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.admin.event.OnlineListener;
 import com.iteaj.framework.spi.admin.event.OnlineType;
-import com.iteaj.framework.spi.app.AppAuthAction;
+import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.event.AsyncGuavaEventBus;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.Listener;
-import com.iteaj.core.service.*;
 import com.iteaj.framework.spi.oauth2.OAuth2Action;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
@@ -103,7 +104,7 @@ public class CoreAutoConfiguration {
     }
 
     /**
-     * 后台web管理端核心配置
+     * 后台web管理端配置
      */
     @Configuration
     @ConditionalOnFramework(Type.Pc)
@@ -123,8 +124,30 @@ public class CoreAutoConfiguration {
          * @return
          */
         @Bean
-        public AppAuthAction adminAuthAction() {
-            return new AdminAuthAction("/core/**");
+        @Order(100)
+        public WebAuthAction adminAuthAction() {
+            final FrameworkProperties.Admin admin = properties.getAdmin();
+            final String loginUrl = admin.getLoginUrl();
+            return new AdminAuthAction("/core/**", loginUrl);
+        }
+
+        /**
+         * 静态资源拦截可以匿名访问, 访问拦截顺序必须靠前
+         * @return
+         */
+        @Bean
+        @Order(value = 18) //
+        public OrderFilterChainDefinition staticFilterChainDefinition() {
+            OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
+
+            // 静态资源这里配置所有请求路径都可以匿名访问
+            chain.addPathDefinition("/js/**", "anon");
+            chain.addPathDefinition("/css/**", "anon");
+            chain.addPathDefinition("/img/**", "anon");
+            chain.addPathDefinition("/libs/**", "anon");
+
+            chain.addPathDefinition("/favicon.ico", "anon");
+            return chain;
         }
 
         /**

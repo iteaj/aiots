@@ -19,9 +19,9 @@ import java.util.Objects;
  */
 public class FrameworkAuthServlet extends GenericServlet {
 
-    private AppAuthHandler handler;
+    private WebAuthHandler handler;
 
-    public FrameworkAuthServlet(AppAuthHandler handler) {
+    public FrameworkAuthServlet(WebAuthHandler handler) {
         this.handler = handler;
     }
 
@@ -29,12 +29,17 @@ public class FrameworkAuthServlet extends GenericServlet {
     public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-        FrameworkProperties config = handler.getConfig();
+        // 去除请求上下文路径
+        String requestURI = request.getRequestURI();
+        requestURI = requestURI.substring(request.getContextPath().length());
 
-        // 登录处理
-        if(Objects.equals(request.getRequestURI(), config.getAuth().getLoginUri())) {
+        FrameworkProperties config = handler.getConfig();
+        final FrameworkProperties.Oauth2 oauth2 = config.getOauth2();
+
+        // Oauth2 redirectUri处理
+        if(Objects.equals(requestURI, oauth2.getRedirectUri())) {
             handler.login((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
-        } else if(Objects.equals(request.getRequestURI(), config.getAuth().getLogoutUri())) {
+        } else if(Objects.equals(requestURI, config.getAuth().getLogoutUri())) {
             handler.logout(request, (HttpServletResponse) servletResponse);
         }
     }

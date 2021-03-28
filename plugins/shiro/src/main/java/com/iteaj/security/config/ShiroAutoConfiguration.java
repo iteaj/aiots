@@ -1,8 +1,10 @@
 package com.iteaj.security.config;
 
+import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.LoggerService;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.event.Listener;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.security.shiro.*;
@@ -26,6 +28,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 import javax.servlet.Filter;
 import java.util.Collection;
@@ -49,6 +52,30 @@ public class ShiroAutoConfiguration {
         this.properties = properties;
     }
 
+    /**
+     * 创建一个名称叫{@code framework}的shiro访问过滤器
+     * @see #frameworkAuthFilterChainDefinition() 拦截所有请求 /**
+     * @param handler
+     * @return
+     */
+    @Bean("frameworkAccessFilter")
+    public AccessFilterWrapper frameworkAccessFilter(WebAuthHandler handler) {
+        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new FrameworkAuthAccessFilter(handler));
+    }
+
+    /**
+     * 使用框架认证过滤器
+     * @see #frameworkAccessFilter(WebAuthHandler)
+     * @return
+     */
+    @Bean
+    @Order(9999)
+    public OrderFilterChainDefinition frameworkAuthFilterChainDefinition() {
+        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
+
+        chain.addPathDefinition("/**", CoreConst.FRAMEWORK_FILTER_NAME);
+        return chain;
+    }
 
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions

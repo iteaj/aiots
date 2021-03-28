@@ -3,10 +3,7 @@ package com.iteaj.core.auth;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.service.IAdminService;
 import com.iteaj.core.service.IRoleService;
-import com.iteaj.framework.spi.auth.AccountAuthAction;
-import com.iteaj.framework.spi.auth.AuthContext;
-import com.iteaj.framework.spi.auth.AuthException;
-import com.iteaj.framework.spi.auth.AuthToken;
+import com.iteaj.framework.spi.auth.*;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.util.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,23 +28,13 @@ public class AdminAuthAction extends AccountAuthAction {
     @Autowired
     private IAdminService adminService;
 
-    public AdminAuthAction(String urlPattern) {
+    public AdminAuthAction(String... urlPattern) {
         super(urlPattern);
     }
 
     @Override
-    public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) {
-        FrameworkProperties.Admin admin = getConfig().getAdmin();
-        String loginUrl = admin.getLoginUrl();
-        try {
-            if(loginUrl != null) {
-                response.sendRedirect(loginUrl);
-            }
-        } catch (IOException e) {
-            throw new AuthException("重定向到登录也地址失败["+loginUrl+"]", e);
-        }
-
-        return super.authorize(request, response);
+    protected String[] getLoginUrl() {
+        return new String[]{getConfig().getAdmin().getLoginUrl()};
     }
 
     @Override
@@ -74,6 +61,12 @@ public class AdminAuthAction extends AccountAuthAction {
 
         List<String> perms = this.adminService.selectPermsById(admin.getId());
 
-        return new AdminAuthToken(admin, roles, perms);
+        return new FrameworkAuthToken(admin, roles, perms);
+    }
+
+    @Override
+    protected void nonAjaxLogoutCall(Exception cause, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // 重定向到登录页面
+        response.sendRedirect(getConfig().getAdmin().getLoginUrl());
     }
 }

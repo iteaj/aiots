@@ -1,6 +1,6 @@
 package com.iteaj.security.shiro;
 
-import com.iteaj.framework.spi.auth.AppAuthHandler;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.filter.AccessControlFilter;
 
@@ -18,10 +18,10 @@ import javax.servlet.http.HttpSession;
  */
 public class FrameworkAuthAccessFilter extends AccessControlFilter {
 
-    private AppAuthHandler appAuthHandler;
+    private WebAuthHandler webAuthHandler;
 
-    public FrameworkAuthAccessFilter(AppAuthHandler appAuthHandler) {
-        this.appAuthHandler = appAuthHandler;
+    public FrameworkAuthAccessFilter(WebAuthHandler webAuthHandler) {
+        this.webAuthHandler = webAuthHandler;
     }
 
     @Override
@@ -49,7 +49,6 @@ public class FrameworkAuthAccessFilter extends AccessControlFilter {
          * 1. 如果不允许访问说明还未授权
          * 2. 调用此处理器进行授权
          */
-        appAuthHandler.handle((HttpServletRequest) request, (HttpServletResponse) response);
-        return false;
+        return webAuthHandler.handle((HttpServletRequest) request, (HttpServletResponse) response);
     }
 }

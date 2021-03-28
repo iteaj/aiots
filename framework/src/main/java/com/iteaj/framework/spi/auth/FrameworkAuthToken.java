@@ -1,5 +1,9 @@
 package com.iteaj.framework.spi.auth;
 
+import com.iteaj.util.module.mvc.orm.Entity;
+
+import java.util.Collection;
+
 /**
  * create time: 2021/3/27
  *
@@ -8,15 +12,49 @@ package com.iteaj.framework.spi.auth;
  */
 public class FrameworkAuthToken implements AuthToken{
 
+    private Entity principal;
+    private Object credentials;
 
+    private Collection<String> roles;
+    private Collection<String> permissions;
+
+    public FrameworkAuthToken(Entity principal, Object credentials) {
+        this.principal = principal;
+        this.credentials = credentials;
+    }
+
+    public FrameworkAuthToken(Entity principal
+            , Collection<String> roles, Collection<String> permissions) {
+        this.principal = principal;
+        this.roles = roles;
+        this.permissions = permissions;
+    }
+
+    public FrameworkAuthToken(Entity principal, Object credentials
+            , Collection<String> roles, Collection<String> permissions) {
+        this.principal = principal;
+        this.credentials = credentials;
+        this.roles = roles;
+        this.permissions = permissions;
+    }
 
     @Override
     public Object getPrincipal() {
-        return null;
+        return this.principal;
     }
 
     @Override
     public Object getCredentials() {
-        return null;
+        return this.credentials;
+    }
+
+    @Override
+    public Collection<String> getRoles() {
+        return this.roles;
+    }
+
+    @Override
+    public Collection<String> getPermissions() {
+        return this.permissions;
     }
 }

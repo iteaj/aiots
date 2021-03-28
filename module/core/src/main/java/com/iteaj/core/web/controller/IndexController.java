@@ -39,7 +39,7 @@ public class IndexController extends BaseController {
      * @see AuthenticationController#login(AuthToken) 登录提交
      * @see AuthenticationController#logout(HttpServletRequest, HttpServletResponse) 注销
      */
-    @GetMapping("${izone.web.admin.login-url}")
+    @GetMapping("/login")
     public String login() {
         return "login";
     }

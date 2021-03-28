@@ -5,6 +5,7 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.pam.UnsupportedTokenException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -29,8 +30,8 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
         AuthToken authToken = (AuthToken) principals.getPrimaryPrincipal();
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
 
-        authorizationInfo.addRoles(authToken.roles());
-        authorizationInfo.addStringPermissions(authToken.permissions());
+        authorizationInfo.addRoles(authToken.getRoles());
+        authorizationInfo.addStringPermissions(authToken.getPermissions());
 
         return authorizationInfo;
     }
@@ -38,6 +39,10 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         FrameworkAuthTokenAdapter authTokenAdapter = (FrameworkAuthTokenAdapter) token;
+
+        if(authTokenAdapter.getAuthToken() == null) {
+            throw new UnsupportedTokenException("认证");
+        }
 
         Object principal = token.getPrincipal();
         if(null == principal) {

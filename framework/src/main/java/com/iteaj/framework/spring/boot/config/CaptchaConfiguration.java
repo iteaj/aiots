@@ -1,9 +1,12 @@
-package com.iteaj.framework.captcha;
+package com.iteaj.framework.spring.boot.config;
 
 import com.google.code.kaptcha.Producer;
+import com.iteaj.framework.captcha.KaptchaCreator;
+import com.iteaj.framework.security.OrderFilterChainDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 
 /**
  * create time: 2020/7/1
@@ -12,6 +15,15 @@ import org.springframework.context.annotation.Primary;
  * @since 1.0
  */
 public class CaptchaConfiguration {
+
+    @Bean
+    @Order(20)
+    public OrderFilterChainDefinition captchaFilterChainDefinition() {
+        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
+
+        chain.addPathDefinition("/captcha", "anon");
+        return chain;
+    }
 
     /**
      * 字符格式的验证码

@@ -20,6 +20,8 @@ public class FrameworkProperties {
      */
     private Auth auth = new Auth();
 
+    private Oauth2 oauth2;
+
     /**
      * 文件上传的跟目录
      * @see #uploadRootUri 此uri将映射到此目录
@@ -34,9 +36,11 @@ public class FrameworkProperties {
 
     public static class Auth extends AuthConfig { }
 
-    public static class Admin extends AdminConfig{ }
+    public static class App extends FrameworkAppConfiguration.AppProperties { }
 
-    public static class App extends AppConfig { }
+    public static class Admin extends FrameworkWebConfiguration.AdminProperties { }
+
+    public static class Oauth2 extends FrameworkOauth2Configuration.OAuth2Properties { }
 
     public Admin getAdmin() {
         return admin;
@@ -80,6 +84,15 @@ public class FrameworkProperties {
 
     public FrameworkProperties setApp(App app) {
         this.app = app;
+        return this;
+    }
+
+    public Oauth2 getOauth2() {
+        return oauth2;
+    }
+
+    public FrameworkProperties setOauth2(Oauth2 oauth2) {
+        this.oauth2 = oauth2;
         return this;
     }
 }

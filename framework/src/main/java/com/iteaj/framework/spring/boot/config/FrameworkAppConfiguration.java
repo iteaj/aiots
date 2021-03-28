@@ -18,4 +18,7 @@ import org.springframework.context.annotation.ComponentScan;
 public class FrameworkAppConfiguration {
 
 
+    public static class AppProperties {
+
+    }
 }

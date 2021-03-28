@@ -1,12 +1,10 @@
 package com.iteaj.framework.spring.boot.config;
 
-import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.mybatis.MybatisPlusConfiguration;
-import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.spi.app.AppAuthAction;
+import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AccountAuthHandler;
-import com.iteaj.framework.spi.auth.AppAuthHandler;
 import com.iteaj.framework.spi.auth.FrameworkAuthServlet;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -16,7 +14,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.annotation.Order;
 
 import java.util.List;
 
@@ -48,48 +45,13 @@ public class FrameworkAutoConfiguration {
     }
 
     /**
-     * 认证授权地址需要不能被拦截
-     * 包括登录和注销
-     * @see AuthConfig#getLoginUri()
-     * @see AuthConfig#getLogoutUri()
-     * @return
-     */
-    @Bean
-    @Order(20)
-    public OrderFilterChainDefinition authFilterChainDefinition() {
-        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
-
-        String loginUri = properties.getAuth().getLoginUri();
-        String logoutUri = properties.getAuth().getLogoutUri();
-
-        // 匿名访问登录和注销地址
-        chain.addPathDefinition(loginUri, "anon");
-        chain.addPathDefinition(logoutUri, "anon");
-
-        return chain;
-    }
-
-    /**
-     * 使用框架认证过滤器
-     * @return
-     */
-    @Bean
-    @Order(999)
-    public OrderFilterChainDefinition frameworkAuthFilterChainDefinition() {
-        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
-
-        chain.addPathDefinition("/**", CoreConst.FRAMEWORK_FILTER_NAME);
-        return chain;
-    }
-
-    /**
      * 框架的授权认证登录服务
      * @param handler
      * @return
      */
     @Bean
-    public ServletRegistrationBean frameworkAuthServlet(AppAuthHandler handler) {
-        String redirectUri = properties.getAuth().getLoginUri();
+    public ServletRegistrationBean frameworkAuthServlet(WebAuthHandler handler) {
+        String redirectUri = properties.getOauth2().getRedirectUri();
         return new ServletRegistrationBean(new FrameworkAuthServlet(handler), redirectUri);
     }
 
@@ -98,8 +60,8 @@ public class FrameworkAutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean({AppAuthHandler.class})
-    public AppAuthHandler appAuthHandler(List<AppAuthAction> actions) {
+    @ConditionalOnMissingBean({WebAuthHandler.class})
+    public WebAuthHandler appAuthHandler(List<WebAuthAction> actions) {
         return new AccountAuthHandler(actions);
     }
 }

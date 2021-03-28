@@ -1,8 +1,9 @@
 package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.FrameworkException;
+import com.iteaj.framework.Proxy.ProxyUtils;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.app.AppAuthAction;
+import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,15 +24,15 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-public abstract class DefaultAuthHandler implements AppAuthHandler {
+public abstract class DefaultAuthHandler implements WebAuthHandler {
 
     private PathMatcher pathMatcher;
-    private List<AppAuthAction> actions;
+    private List<WebAuthAction> actions;
     private FrameworkProperties config;
-    private Map<String, AppAuthAction> actionMap;
-    protected static Logger logger = LoggerFactory.getLogger(AppAuthHandler.class);
+    private Map<String, WebAuthAction> actionMap;
+    protected static Logger logger = LoggerFactory.getLogger(WebAuthHandler.class);
 
-    public DefaultAuthHandler(List<AppAuthAction> actions) {
+    public DefaultAuthHandler(List<WebAuthAction> actions) {
         this.actions = actions;
         this.pathMatcher = new AntPathMatcher();
         try {
@@ -43,86 +44,136 @@ public abstract class DefaultAuthHandler implements AppAuthHandler {
     }
 
     @Override
-    public AppAuthAction getAction(String name) {
+    public WebAuthAction getAction(String name) {
         return actionMap.get(name);
     }
 
     @Override
-    public List<AppAuthAction> getActions() {
+    public List<WebAuthAction> getActions() {
         return this.actions;
     }
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response) {
+    public boolean handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String requestURI = request.getRequestURI();
+        requestURI = requestURI.substring(request.getContextPath().length());
 
         if(this.getActions().size() == 0) {
             logger.warn("移动端授权处理器未指定任何动作[{}]", getClass().getName());
         } else {
-            AuthContext authContext = null;
-            for (AppAuthAction item: this.getActions()) {
-                boolean match = this.pathMatcher.match(item.getUrlPattern(), requestURI);
-                if(match) {
-                    if(logger.isDebugEnabled()) {
-                        logger.debug("路径["+requestURI+"]匹配到授权动作["
-                                +item.getName()+"("+item.getUrlPattern()+")]");
+            WebAuthAction action = null; String urlPattern = "";
+            for (WebAuthAction item: this.getActions()) {
+                for (String url : item.getUrlPattern()) {
+                    if(this.pathMatcher.match(url, requestURI)) {
+                        action = item; urlPattern = url;
+                        break;
                     }
+                }
 
-                    authContext = item.authorize(request, response);
-                    if(authContext == null) {
-                        throw new AuthException("动作["+item.getName()
-                                +".authorize()]没有返回指定的对象[AuthContext]");
-                    }
-
-                    if(authContext.getType() == null) {
-                        throw new FrameworkException("认证类型必填[AuthType]");
-                    }
-
-                    /**
-                     * 必须保存此次动作对象{@link AppAuthAction}到认证上下文{@link AuthContext}<br>
-                     *     在提交登录的时候必须再次获取此动作进行登录处理
-                     * @see #login(HttpServletRequest, HttpServletResponse)
-                     */
-                    authContext.setAction(item.getName());
-
-                    // 保存授权前请求的url
-                    StringBuffer requestURL = request.getRequestURL();
-                    String queryString = request.getQueryString();
-                    authContext.put("url", requestURL.toString() + "?" + queryString);
-
-                    // 保存当前请求域
-                    String domain = requestURL.substring(0, requestURL
-                            .length() - request.getRequestURI().length());
-                    authContext.put("domain", domain);
-
-                    // 保存此上下文到session
-                    HttpSession session = request.getSession();
-                    session.setAttribute(CoreConst.SESSION_AUTH_CONTEXT, authContext);
-
-                    // 保存处理当前授权动作的动作明此
-                    session.setAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT, item.getName());
+                if(action != null) {
                     break;
                 }
             }
 
-            if(authContext != null) {
-                this.doHandle(authContext, request, response);
+            if(action != null) {
+                if (preAuthorize(request, action, urlPattern)) {
+                    return true;
+                }
+
+                // 执行授权
+                AuthContext authContext = action.authorize(request, response);
+                if(authContext == null) {
+                    return false;
+                } else {
+                    if(authContext.getType() == null) {
+                        throw new AuthException("认证类型必填[AuthType]");
+                    }
+
+                    this.doHandle(authContext, request, response);
+                }
+
+                postAuthorize(request, authContext, action);
             } else {
                 /**
-                 * 说明此次授权没有找到对应的动作{@link AppAuthAction}<br>
+                 * 说明此次授权没有找到对应的动作{@link WebAuthAction}<br>
                  *     或者动作没有返回任何处理方式{@link AuthType}
                  */
-                throw new AuthException("此次请求["+requestURI
-                        +"]没有匹配到任何动作["+getActions()+"]");
+                logger.warn("此次请求[{}]没有匹配到任何授权动作[{}]", requestURI, getActions());
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
+        }
+
+        return false;
+    }
+
+    protected boolean preAuthorize(HttpServletRequest request, WebAuthAction item, String urlPattern) {
+        if(logger.isDebugEnabled()) {
+            logger.debug("路径["+ request.getRequestURI() +"]匹配到授权动作["
+                    + item.getName()+"("+ urlPattern +")]");
+        }
+
+        // 登录请求允许访问
+        if(item.isLoginRequest(request.getRequestURI(), request) && request
+                .getMethod().equalsIgnoreCase("GET")) {
+
+            return true;
+        }
+
+        return false;
+    }
+
+    protected void postAuthorize(HttpServletRequest request, AuthContext authContext, WebAuthAction item) {
+
+        /**
+         * 必须保存此次动作对象{@link WebAuthAction}到认证上下文{@link AuthContext}<br>
+         *     在提交登录的时候必须再次获取此动作进行登录处理
+         * @see #login(HttpServletRequest, HttpServletResponse)
+         */
+        authContext.setAction(item.getName());
+
+        // 保存授权前请求的url
+        StringBuffer requestURL = request.getRequestURL();
+        String queryString = request.getQueryString();
+        if(queryString != null) {
+            authContext.put("url", requestURL.toString() + "?" + queryString);
+        } else {
+            authContext.put("url", requestURL.toString());
+        }
+
+        // 保存当前请求域
+        String domain = requestURL.substring(0, requestURL
+                .length() - request.getRequestURI().length());
+        final String contextPath = request.getContextPath();
+        authContext.put("domain", domain + contextPath);
+
+        // 保存此上下文到session(必须在此处写入到session, 否则可能会出现数据没有缓存的情况)
+        HttpSession session = request.getSession();
+        session.setAttribute(CoreConst.SESSION_AUTH_CONTEXT, authContext);
+
+        // 保存处理当前授权动作的动作明此
+        session.setAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT, authContext.getAction());
+    }
+
+    protected abstract void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+    /**
+     * 登录回调处理
+     * @param authAction
+     * @param cause
+     * @param request
+     * @param response
+     */
+    protected void loginCallHandle(WebAuthAction authAction, Exception cause, HttpServletRequest request, HttpServletResponse response) {
+        final Object target = ProxyUtils.getTarget(authAction);
+        // 处理登录异常
+        if(target instanceof AuthCallAction) {
+            ((AuthCallAction<?>) target).loginCall(cause, request, response);
         }
     }
 
-    protected abstract void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response);
-
     /**
      * 注销当前用户
-     * 注销请求将交给原先授权登录的动作{@link AppAuthAction}
+     * 注销请求将交给原先授权登录的动作{@link WebAuthAction}
      * @param request
      * @param response
      * @throws AuthException
@@ -131,7 +182,7 @@ public abstract class DefaultAuthHandler implements AppAuthHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response) throws AuthException {
         Object actionName = request.getSession().getAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT);
         if(actionName instanceof String) {
-            AppAuthAction action = getAction((String) actionName);
+            WebAuthAction action = getAction((String) actionName);
             action.logout(request, response);
         }
     }

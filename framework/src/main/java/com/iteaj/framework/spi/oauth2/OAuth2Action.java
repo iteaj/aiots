@@ -1,7 +1,8 @@
 package com.iteaj.framework.spi.oauth2;
 
 
-import com.iteaj.framework.spi.app.AppAuthAction;
+import com.iteaj.framework.spi.app.WebAuthAction;
+import com.iteaj.framework.spi.auth.AuthException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,7 +13,18 @@ import javax.servlet.http.HttpServletResponse;
  * @author iteaj
  * @since 1.0
  */
-public interface OAuth2Action extends AppAuthAction<OAuth2User> {
+public interface OAuth2Action extends WebAuthAction<OAuth2User> {
+
+    /**
+     * Oauth2直接返回false
+     * @param requestUri
+     * @param request
+     * @return
+     */
+    @Override
+    default boolean isLoginRequest(String requestUri, HttpServletRequest request) {
+        return false;
+    }
 
     /**
      * 客户端授权成功并且获取code成功时的回调
@@ -21,6 +33,13 @@ public interface OAuth2Action extends AppAuthAction<OAuth2User> {
      * @param response 回调请求的响应对象
      */
     @Override
-    Void login(OAuth2User user, HttpServletRequest request, HttpServletResponse response);
+    Void login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) throws AuthException;
 
+    /**
+     *
+     * @param url oauth2授权url
+     * @param request
+     * @param response
+     */
+    void doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws Exception;
 }

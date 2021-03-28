@@ -2,7 +2,7 @@ package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.FrameworkException;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.app.AppAuthAction;
+import com.iteaj.framework.spi.app.WebAuthAction;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,12 +17,12 @@ import java.util.List;
  */
 public class AccountAuthHandler extends DefaultAuthHandler {
 
-    public AccountAuthHandler(List<AppAuthAction> actions) {
+    public AccountAuthHandler(List<WebAuthAction> actions) {
         super(actions);
     }
 
     @Override
-    protected void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) {
+    protected void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         /*原生app认证不做任何事*/
         if(context.getType() == AuthType.Account) {
@@ -32,11 +32,11 @@ public class AccountAuthHandler extends DefaultAuthHandler {
         }
     }
 
-    protected void doOauth2Handle(AuthContext context, HttpServletRequest request, HttpServletResponse response) {
+    protected void doOauth2Handle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     }
 
-    protected void doAccountHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) {
+    protected void doAccountHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
         /*doing nothing*/
     }
 
@@ -55,19 +55,15 @@ public class AccountAuthHandler extends DefaultAuthHandler {
              * 获取处理此次登录的动作
              * @see #handle(HttpServletRequest, HttpServletResponse)
              */
-            AppAuthAction authAction = getAction(action);
-            if(null == authAction) {
-                throw new FrameworkException("查找不到处理此次登录的动作[AppAuthAction]");
-            }
+            WebAuthAction authAction = getAction(action);
 
             try {
-                // 执行动作
-                authAction.login(null, request, response);
+                // 执行登录动作
+                authAction.login(context, request, response);
+
+                this.loginCallHandle(authAction, null, request, response);
             } catch (Exception e) {
-                // 处理登录异常
-                if(authAction instanceof ExceptionAction) {
-                    ((ExceptionAction<?>) authAction).loginCause(e, request, response);
-                }
+                this.loginCallHandle(authAction, e, request, response);
             }
         } else {
             throw new FrameworkException("登录失败");

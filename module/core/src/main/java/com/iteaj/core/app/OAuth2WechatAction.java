@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class OAuth2WechatAction extends DefaultOAuth2Action {
 
-    public OAuth2WechatAction(String urlPattern) {
+    public OAuth2WechatAction(String... urlPattern) {
         super(urlPattern);
     }
 

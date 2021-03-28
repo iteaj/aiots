@@ -1,17 +1,14 @@
 package com.iteaj.framework.spring.boot.config;
 
-import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * 后台管理端的配置信息
@@ -23,7 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         CaptchaConfiguration.class,
         FrameworkAutoConfiguration.class
 })
-public class FrameworkWebConfiguration implements BeanPostProcessor {
+public class FrameworkWebConfiguration {
 
     @Bean
     public AuthzUrl authzUrl(FrameworkProperties properties) {
@@ -38,12 +35,60 @@ public class FrameworkWebConfiguration implements BeanPostProcessor {
         return new SecurityUtils(authenticatingService);
     }
 
-    /**
-     * web 框架配置
-     */
-    @Configuration
-    @ConditionalOnWebApplication
-    public static class WebMvcConfiguration implements WebMvcConfigurer {
+    @Getter
+    @Setter
+    public static class AdminProperties {
+        /**登录页面的Url*/
+        private String loginUrl;
+
+        /** 认证成功后要跳转的Url*/
+        private String successUrl;
+
+        /** 认证失败后要跳转的Url */
+        private String unauthorizedUrl;
+
+        /**
+         * 缓存的存活时间 (默认时间30分钟)
+         */
+        private long timeToLiveSeconds = 30 * 60;
+
+        /**
+         * 设置对象在失效前的允许闲置时间（单位：秒）
+         * 默认0 说明此属性无效(也就是可闲置时间无穷大)
+         */
+        private long timeToIdleSeconds = 10 * 60;
+
+        /**
+         * 是否允许缓存token(redis只缓存session)
+         */
+        private boolean cacheEnable;
+
+        /**
+         * 令牌的名称
+         */
+        private String tokenName = "access_token";
+
+        /**
+         * 令牌(token)的缓存名称
+         */
+        private String tokenCacheName = "izone_token_cache";
+
+        /**
+         * 认证信息的缓存名称
+         */
+        private String authCacheName = "izone_authentication_cache";
+
+        /**
+         * 权限信息的缓存名称
+         */
+        private String authorCacheName = "izone_authorization_cache";
+
+
+        /** 验证码类型, 默认数字相加 e.g. 3+3*/
+        private String captchaType = "math";
+
+        /** 是否开启验证码 */
+        private boolean captchaEnabled = true;
 
     }
 }
