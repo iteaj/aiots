@@ -76,23 +76,30 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
             }
 
             if(action != null) {
-                if (preAuthorize(request, response, action, urlPattern)) {
+                if(logger.isDebugEnabled()) {
+                    logger.debug("路径["+ request.getRequestURI() +"]匹配到授权动作["
+                            + action.getName()+"("+ urlPattern +")]");
+                }
+
+                if (!preAuthorize(request, response, action)) {
                     return true;
                 }
 
                 // 执行授权
                 AuthContext authContext = action.authorize(request, response);
                 if(authContext == null) {
-                    return false;
+                    return true; // 无需授权, 允许放行
                 } else {
                     if(authContext.getType() == null) {
                         throw new AuthException("认证类型必填[AuthType]");
                     }
 
+                    postAuthorize(request, authContext, action);
                     this.doHandle(authContext, request, response);
+
+                    saveAuthContextToSession(request, authContext);
                 }
 
-                postAuthorize(request, authContext, action);
             } else {
                 /**
                  * 说明此次授权没有找到对应的动作{@link WebAuthAction}<br>
@@ -106,29 +113,26 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
         return false;
     }
 
+    private void saveAuthContextToSession(HttpServletRequest request, AuthContext authContext) {
+        // 保存此上下文到session(必须在此处写入到session, 否则可能会出现数据没有缓存的情况)
+        HttpSession session = request.getSession();
+        session.setAttribute(CoreConst.SESSION_AUTH_CONTEXT, authContext);
+
+        // 保存处理当前授权动作的动作明此
+        session.setAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT, authContext.getAction());
+    }
+
+    /**
+     * 是否需要授权
+     * @param request
+     * @param response
+     * @param item
+     * @return true 代表是  false 代表否
+     */
     protected boolean preAuthorize(HttpServletRequest request
-            , HttpServletResponse response, WebAuthAction item, String urlPattern) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("路径["+ request.getRequestURI() +"]匹配到授权动作["
-                    + item.getName()+"("+ urlPattern +")]");
-        }
+            , HttpServletResponse response, WebAuthAction item) {
 
-        // 登录请求允许访问
-        if(item.isLoginRequest(request.getRequestURI(), request)) {
-
-            if(request.getMethod().equalsIgnoreCase("GET")) {
-                return true;
-            } else {
-                try {
-                    item.login(null, request, response);
-                    this.loginCallHandle(item, null, request, response);
-                } catch (Exception e) {
-                    this.loginCallHandle(item, e, request, response);
-                }
-            }
-        }
-
-        return false;
+        return true;
     }
 
     protected void postAuthorize(HttpServletRequest request, AuthContext authContext, WebAuthAction item) {
@@ -154,13 +158,6 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
                 .length() - request.getRequestURI().length());
         final String contextPath = request.getContextPath();
         authContext.put("domain", domain + contextPath);
-
-        // 保存此上下文到session(必须在此处写入到session, 否则可能会出现数据没有缓存的情况)
-        HttpSession session = request.getSession();
-        session.setAttribute(CoreConst.SESSION_AUTH_CONTEXT, authContext);
-
-        // 保存处理当前授权动作的动作明此
-        session.setAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT, authContext.getAction());
     }
 
     protected abstract void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;

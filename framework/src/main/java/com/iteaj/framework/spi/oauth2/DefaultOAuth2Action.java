@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.oauth2;
 
 import com.iteaj.framework.spi.auth.AuthCallAction;
+import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.util.module.mvc.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,13 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
         this.urlPattern = urlPattern;
     }
 
+    /**
+     * Oauth2回调后登录成功时跳转的地址
+     * @return
+     */
+    @Override
+    public abstract String successUrl();
+
     @Override
     public String[] getUrlPattern() {
         return this.urlPattern;
@@ -38,6 +46,8 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
             writeJson(HttpResult.StatusCode(url,"UNAUTHORIZED"
                     , HttpServletResponse.SC_UNAUTHORIZED), response);
         } else {
+
+            // 重定向Oauth2授权地址到授权服务器
             response.sendRedirect(url);
         }
     }
@@ -45,6 +55,20 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
     @Override
     protected void nonAjaxLogoutCall(Exception cause, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+    }
+
+    @Override
+    public void loginCall(Exception cause, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            // 登录成功重定向到成功页面
+            if(cause == null) {
+                response.sendRedirect(successUrl());
+            } else {
+                writeJson(HttpResult.Fail("登录失败"), response);
+            }
+        } catch (IOException e) {
+            throw new AuthException(e);
+        }
     }
 
     public DefaultOAuth2Action setUrlPattern(String[] urlPattern) {

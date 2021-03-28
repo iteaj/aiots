@@ -17,6 +17,12 @@ import java.lang.reflect.UndeclaredThrowableException;
 public abstract class AuthCallAction<T> implements WebAuthAction<T> {
 
     /**
+     * 登录成功时跳转的url地址
+     * @return
+     */
+    public String successUrl() { return null;}
+
+    /**
      * 登录回调处理
      * @param cause 有无异常
      * @param request

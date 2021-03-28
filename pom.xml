@@ -32,6 +32,7 @@
         <guava.version>20.0</guava.version>
         <shiro.version>1.4.1</shiro.version>
         <iutils.version>1.1.11</iutils.version>
+        <okhttp3.version>4.5.0</okhttp3.version>
         <knife4j.version>3.0.2</knife4j.version>
         <fastjson.version>1.2.73</fastjson.version>
         <izone.boot.version>1.2.1</izone.boot.version>
@@ -129,6 +130,11 @@
                 <groupId>org.apache.shiro</groupId>
                 <version>${shiro.version}</version>
                 <artifactId>shiro-spring</artifactId>
+            </dependency>
+            <dependency>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp3.version}</version>
+                <groupId>com.squareup.okhttp3</groupId>
             </dependency>
             <dependency>
                 <version>${knife4j.version}</version>

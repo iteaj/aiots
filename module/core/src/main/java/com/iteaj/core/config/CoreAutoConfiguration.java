@@ -1,7 +1,7 @@
 package com.iteaj.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iteaj.core.app.OAuth2WechatAction;
+import com.iteaj.core.app.OAuth2DemoAction;
 import com.iteaj.core.auth.AdminAuthAction;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.OnlineUser;
@@ -54,7 +54,7 @@ public class CoreAutoConfiguration {
     @Bean
     @Order(8)
     public OAuth2Action wechatAction() {
-        return new OAuth2WechatAction("/app/wechat/**");
+        return new OAuth2DemoAction("/app/wechat/**");
     }
 
     /**

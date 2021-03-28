@@ -14,15 +14,20 @@ import javax.servlet.http.HttpServletResponse;
  * @author iteaj
  * @since 1.0
  */
-public class OAuth2WechatAction extends DefaultOAuth2Action {
+public class OAuth2DemoAction extends DefaultOAuth2Action {
 
-    public OAuth2WechatAction(String... urlPattern) {
+    public OAuth2DemoAction(String... urlPattern) {
         super(urlPattern);
     }
 
     @Override
+    public String successUrl() {
+        return null;
+    }
+
+    @Override
     public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) {
-        return AuthContext.build(AuthType.WechatMp);
+        return AuthContext.build(AuthType.Gitee);
     }
 
     @Override

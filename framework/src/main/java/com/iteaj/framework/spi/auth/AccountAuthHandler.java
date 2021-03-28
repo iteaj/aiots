@@ -22,6 +22,28 @@ public class AccountAuthHandler extends DefaultAuthHandler {
     }
 
     @Override
+    protected boolean preAuthorize(HttpServletRequest request, HttpServletResponse response, WebAuthAction item) {
+
+        // 登录请求允许访问
+        if(item.isLoginRequest(request.getRequestURI(), request)) {
+
+            // 处理登录表单提交
+            if(request.getMethod().equalsIgnoreCase("POST")) {
+                try {
+                    item.login(null, request, response);
+                    this.loginCallHandle(item, null, request, response);
+                } catch (Exception e) {
+                    this.loginCallHandle(item, e, request, response);
+                }
+            } else { // 登录页面无需授权
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     protected void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         /*原生app认证不做任何事*/

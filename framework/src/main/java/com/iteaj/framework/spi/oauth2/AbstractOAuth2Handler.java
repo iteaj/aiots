@@ -51,8 +51,7 @@ public abstract class AbstractOAuth2Handler extends DefaultAuthHandler {
                     this.loginCallHandle(authAction, e, request, response);
                 }
             } else {
-                logger.error("找不到匹配的[WebAuthAction]来处理此处请求["+
-                        request.getRequestURI()+"]", new AuthException((String) null));
+                logger.error("找不到匹配的[WebAuthAction]来处理此请求[{}], 上下文已释放", request.getRequestURI());
             }
         } catch (Exception e) {
             logger.error("Oauth2授权回调处理失败", e);

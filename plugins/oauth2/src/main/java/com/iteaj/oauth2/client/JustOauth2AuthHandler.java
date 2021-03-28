@@ -52,7 +52,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         AuthRequest authRequest = getAuthRequest(context, type);
         if(authRequest == null) {
             throw new FrameworkException("未开启对应的授权类型["+type+
-                    "], 请增加配置[izone.web.app.oauth2.client.]"+type+"..");
+                    "], 请增加配置[izone.web.oauth2.client.]"+type+"..");
         }
 
         String authorize = authRequest.authorize(sessionId);

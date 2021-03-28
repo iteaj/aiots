@@ -38,18 +38,6 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
 
     @Override
     public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) {
-        if(isAjax(request)) {
-            // 设置没有认证
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
-            // 写出结果
-            writeJson(HttpResult.StatusCode("UNAUTHORIZED"
-                    , HttpServletResponse.SC_UNAUTHORIZED), response);
-        } else { // 非ajax请求授权
-            nonAjaxAuthorize(request, response);
-        }
-
-        // 返回null则说明不用继续执行
         return null;
     }
 
