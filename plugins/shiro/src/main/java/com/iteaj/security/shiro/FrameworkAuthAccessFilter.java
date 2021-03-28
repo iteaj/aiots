@@ -1,4 +1,4 @@
-package com.iteaj.security.shiro.app;
+package com.iteaj.security.shiro;
 
 import com.iteaj.framework.spi.auth.AppAuthHandler;
 import org.apache.shiro.SecurityUtils;
@@ -12,15 +12,15 @@ import javax.servlet.http.HttpSession;
 
 /**
  * create time: 2021/3/24
- *  用来过滤app端请求
+ *  用来过滤框架所有请求
  * @author iteaj
  * @since 1.0
  */
-public class AppAuthAccessFilter extends AccessControlFilter {
+public class FrameworkAuthAccessFilter extends AccessControlFilter {
 
     private AppAuthHandler appAuthHandler;
 
-    public AppAuthAccessFilter(AppAuthHandler appAuthHandler) {
+    public FrameworkAuthAccessFilter(AppAuthHandler appAuthHandler) {
         this.appAuthHandler = appAuthHandler;
     }
 
@@ -41,7 +41,7 @@ public class AppAuthAccessFilter extends AccessControlFilter {
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
 
         // 将access_token写入到响应头
-        // 后面客户端所有的请求头必须携带上此access_token
+        // 如果使用token认证, 那后面客户端所有的请求头必须携带上此access_token
         HttpSession session = ((HttpServletRequest)request).getSession();
         ((HttpServletResponse)response).setHeader("access_token", session.getId());
 

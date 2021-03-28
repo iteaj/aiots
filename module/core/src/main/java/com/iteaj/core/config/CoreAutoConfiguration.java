@@ -2,6 +2,7 @@ package com.iteaj.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iteaj.core.app.OAuth2WechatAction;
+import com.iteaj.core.auth.AdminAuthAction;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.OnlineUser;
 import com.iteaj.core.enums.AppType;
@@ -12,6 +13,7 @@ import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.admin.event.OnlineListener;
 import com.iteaj.framework.spi.admin.event.OnlineType;
+import com.iteaj.framework.spi.app.AppAuthAction;
 import com.iteaj.framework.spi.event.AsyncGuavaEventBus;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.Listener;
@@ -114,6 +116,15 @@ public class CoreAutoConfiguration {
                 , ObjectProvider<DemoEnvInterceptor> provider) {
             this.properties = properties;
             this.provider = provider;
+        }
+
+        /**
+         * 后台管理端授权认证动作
+         * @return
+         */
+        @Bean
+        public AppAuthAction adminAuthAction() {
+            return new AdminAuthAction("/core/**");
         }
 
         /**

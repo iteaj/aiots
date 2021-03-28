@@ -65,7 +65,7 @@ public abstract class DefaultAuthHandler implements AppAuthHandler {
                 if(match) {
                     if(logger.isDebugEnabled()) {
                         logger.debug("路径["+requestURI+"]匹配到授权动作["
-                                +item.getClass().getSimpleName()+"("+item.getUrlPattern()+")]");
+                                +item.getName()+"("+item.getUrlPattern()+")]");
                     }
 
                     authContext = item.authorize(request, response);

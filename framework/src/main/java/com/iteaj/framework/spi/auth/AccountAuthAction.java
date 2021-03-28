@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author iteaj
  * @since 1.0
  */
-public abstract class AccountAuthAction implements AppAuthAction<Void> {
+public abstract class AccountAuthAction extends ExceptionAction<AuthContext> implements AppAuthAction<AuthContext> {
 
     private String urlPattern;
     private FrameworkProperties config;
@@ -44,7 +44,7 @@ public abstract class AccountAuthAction implements AppAuthAction<Void> {
      * @param response
      */
     @Override
-    public abstract AuthToken login(Void t, HttpServletRequest request, HttpServletResponse response);
+    public abstract AuthToken login(AuthContext t, HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 注销

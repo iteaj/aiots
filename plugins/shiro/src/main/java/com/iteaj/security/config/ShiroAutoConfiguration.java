@@ -11,6 +11,7 @@ import com.iteaj.security.shiro.online.OnlineSessionSessionDAO;
 import com.iteaj.security.shiro.online.OnlineSubjectDao;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
@@ -135,6 +136,26 @@ public class ShiroAutoConfiguration {
         }
 
         return securityManager;
+    }
+
+    /**
+     * 后台管理端认证和权限信息Realm
+     * @return
+     */
+    @Bean
+    public AuthorizingRealm frameworkAuthRealm() {
+
+        FrameworkProperties.Admin admin = properties.getAdmin();
+
+        ShiroFrameworkAuthRealm authRealm = new ShiroFrameworkAuthRealm();
+
+        // 权限信息缓存
+        authRealm.setAuthorizationCacheName(admin.getAuthorCacheName());
+
+        // 认证信息缓存
+        authRealm.setAuthenticationCacheName(admin.getAuthCacheName());
+
+        return authRealm;
     }
 
     /**

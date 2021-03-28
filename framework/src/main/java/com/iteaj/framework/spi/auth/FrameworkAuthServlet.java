@@ -1,5 +1,7 @@
 package com.iteaj.framework.spi.auth;
 
+import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -7,6 +9,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * create time: 2021/3/25
@@ -24,6 +27,15 @@ public class FrameworkAuthServlet extends GenericServlet {
 
     @Override
     public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
-        handler.login((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+
+        FrameworkProperties config = handler.getConfig();
+
+        // 登录处理
+        if(Objects.equals(request.getRequestURI(), config.getAuth().getLoginUri())) {
+            handler.login((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+        } else if(Objects.equals(request.getRequestURI(), config.getAuth().getLogoutUri())) {
+            handler.logout(request, (HttpServletResponse) servletResponse);
+        }
     }
 }

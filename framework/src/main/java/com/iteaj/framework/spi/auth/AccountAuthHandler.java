@@ -60,8 +60,15 @@ public class AccountAuthHandler extends DefaultAuthHandler {
                 throw new FrameworkException("查找不到处理此次登录的动作[AppAuthAction]");
             }
 
-            // 执行动作
-            authAction.login(null, request, response);
+            try {
+                // 执行动作
+                authAction.login(null, request, response);
+            } catch (Exception e) {
+                // 处理登录异常
+                if(authAction instanceof ExceptionAction) {
+                    ((ExceptionAction<?>) authAction).loginCause(e, request, response);
+                }
+            }
         } else {
             throw new FrameworkException("登录失败");
         }

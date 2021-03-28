@@ -6,6 +6,7 @@ import com.iteaj.framework.spi.app.AppAuthAction;
 import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthType;
+import com.iteaj.framework.spi.auth.ExceptionAction;
 import com.iteaj.framework.spi.oauth2.AbstractOAuth2Handler;
 import com.iteaj.framework.spi.oauth2.OAuth2Config;
 import com.iteaj.framework.spi.oauth2.OAuth2Token;
@@ -17,6 +18,7 @@ import me.zhyd.oauth.model.AuthResponse;
 import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.*;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -38,12 +40,10 @@ import java.util.Map;
  */
 public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements InitializingBean {
 
-    private CacheManager cacheManager;
     private Map<AuthType, Class<? extends AuthRequest>> authRequestMap = new HashMap<>(16);
 
     public JustOauth2AuthHandler(List<AppAuthAction> actions, CacheManager cacheManager) {
-        super(actions);
-        this.cacheManager = cacheManager;
+        super(actions, cacheManager);
     }
 
     @Override
@@ -118,30 +118,16 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         cache.put(sessionId, context);
     }
 
-    @Override
-    public void login(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession();
-        Object context = session.getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
-
-        // 用户名密码登录
-        if(context instanceof AuthContext &&
-                ((AuthContext) context).getType() == AuthType.Account) {
-
-            super.login(request, response);
-        } else { // Oauth2授权登录
-            doOauth2Login(request, response);
-        }
-    }
-
-    private void doOauth2Login(HttpServletRequest request, HttpServletResponse response) {
+    protected void doOauth2Login(AuthContext authContext, HttpServletRequest request, HttpServletResponse response) {
         String state = request.getParameter("state");
         String code = request.getParameter("code");
         String authCode = request.getParameter("auth_code");
-        Cache cache = this.cacheManager.getCache(CoreConst.OAUTH2_STATE_CACHE);
-
         try {
-            AuthContext authContext = cache.get(state, AuthContext.class);
             if(authContext != null) {
+                // 获取执行动作
+                String action = authContext.getAction();
+                AppAuthAction authAction = getAction(action);
+
                 // 实例化授权请求
                 AuthRequest authRequest = this.instanceAuthRequest(authContext);
 
@@ -156,16 +142,18 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
                 if(authResponse.ok()) {
                     AuthUser authUser = authResponse.getData();
 
-                    // 获取执行动作
-                    String action = authContext.getAction();
-                    AppAuthAction authAction = getAction(action);
+                    try {
+                        if(authAction != null) {
+                            OAuth2User oAuth2User = new OAuth2User();
+                            BeanUtils.copyProperties(authUser, oAuth2User);
 
-                    if(authAction != null) {
-                        OAuth2User oAuth2User = new OAuth2User();
-                        BeanUtils.copyProperties(authUser, oAuth2User);
-
-                        // 执行授权回调
-                        authAction.login(oAuth2User, request, response);
+                            // 执行授权回调
+                            authAction.login(oAuth2User, request, response);
+                        }
+                    } catch (Exception e) {
+                        if(authAction instanceof ExceptionAction) {
+                            ((ExceptionAction<?>) authAction).loginCause(e, request, response);
+                        }
                     }
                 } else {
                     logger.error("[{}]授权失败code: {} - msg: {}",
@@ -174,8 +162,10 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
             } else {
                 logger.warn("授权失败可能是state过期[{}]", state);
             }
+        } catch (Exception e) {
+
         } finally {
-            cache.evictIfPresent(state);
+
         }
     }
 

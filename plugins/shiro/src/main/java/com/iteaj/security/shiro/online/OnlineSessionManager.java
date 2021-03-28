@@ -1,6 +1,6 @@
 package com.iteaj.security.shiro.online;
 
-import com.iteaj.framework.spi.admin.AdminConsts;
+import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
@@ -30,7 +30,7 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
 
     /**
      * 1. 先从cookie获取sessionId
-     * 2. 如果是移动端或者是平板 尝试从header获取access_token作为sessionId
+     * 2. 如果是原生app 尝试从header获取access_token作为sessionId
      * @param request
      * @param response
      * @return
@@ -40,24 +40,14 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         HttpServletRequest servletRequest = (HttpServletRequest)request;
         UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
 
-        servletRequest.setAttribute(AdminConsts.USER_AGENT, userAgent);
+        servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
 
         // cookie中没有， 如果是原生App 尝试从header获取access_token作为sessionId
         Browser browser = userAgent.getBrowser();
-        if(browser != null) {
-            BrowserType browserType = browser.getBrowserType();
-            FrameworkProperties.Admin admin = properties.getAdmin();
-
-            if(browserType == BrowserType.APP ||
-                    browserType == BrowserType.MOBILE_BROWSER ||
-                    browserType == BrowserType.WEB_BROWSER) {
-
-                // 先从请求头里面获取token, 作为sessionId
-                String accessToken = servletRequest.getHeader(admin.getTokenName());
-                if (accessToken != null) {
-                    return accessToken;
-                }
-            }
+        if(browser != null && browser.getBrowserType() == BrowserType.APP) {
+            String tokenName = properties.getAuth().getTokenName();
+            // 从请求头里面获取token, 作为sessionId
+            return servletRequest.getHeader(tokenName);
         }
 
         // 从cookie中获取

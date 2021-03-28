@@ -10,7 +10,7 @@ import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
 import com.iteaj.security.shiro.AccessFilterWrapper;
 import com.iteaj.security.shiro.app.AppAccountAuthAction;
-import com.iteaj.security.shiro.app.AppAuthAccessFilter;
+import com.iteaj.security.shiro.FrameworkAuthAccessFilter;
 import com.iteaj.security.shiro.app.AppAuthenticationRealm;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -37,7 +37,7 @@ public class ShiroAppConfiguration {
 
     @Bean("appAccessFilter")
     public AccessFilterWrapper appAccessFilter(AppAuthHandler handler) {
-        return new AccessFilterWrapper(CoreConst.APP_FILTER_NAME, new AppAuthAccessFilter(handler));
+        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new FrameworkAuthAccessFilter(handler));
     }
 
     /**
@@ -73,10 +73,9 @@ public class ShiroAppConfiguration {
         // {@code AppAuthFilter}
         if(ArrayUtils.isNotEmpty(properties.getApp().getIncludes())) {
             for (String include : properties.getApp().getIncludes()) {
-                chain.addPathDefinition(include, CoreConst.APP_FILTER_NAME);
+                chain.addPathDefinition(include, CoreConst.FRAMEWORK_FILTER_NAME);
             }
         }
-
 
         return chain;
     }

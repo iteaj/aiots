@@ -8,7 +8,7 @@ package com.iteaj.framework.consts;
  */
 public interface CoreConst {
 
-    String APP_FILTER_NAME = "app";
+    String FRAMEWORK_FILTER_NAME = "framework";
 
     String WEB_USER_AGENT = "WEB_USER_AGENT";
 

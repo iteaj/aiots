@@ -51,11 +51,6 @@ public class AppAuthenticationToken implements AuthenticationToken, AuthToken {
     }
 
     @Override
-    public Object getCaptcha() {
-        return this.getCode();
-    }
-
-    @Override
     public Object getPrincipal() {
         return this.userName;
     }

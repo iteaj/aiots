@@ -1,0 +1,55 @@
+package com.iteaj.security.shiro;
+
+import com.iteaj.framework.spi.auth.AuthToken;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
+
+/**
+ * create time: 2021/3/27
+ *
+ * @author iteaj
+ * @since 1.0
+ */
+public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
+
+    @Override
+    public boolean supports(AuthenticationToken token) {
+        return token != null && FrameworkAuthTokenAdapter
+                .class.isAssignableFrom(token.getClass());
+    }
+
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        AuthToken authToken = (AuthToken) principals.getPrimaryPrincipal();
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
+
+        authorizationInfo.addRoles(authToken.roles());
+        authorizationInfo.addStringPermissions(authToken.permissions());
+
+        return authorizationInfo;
+    }
+
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        FrameworkAuthTokenAdapter authTokenAdapter = (FrameworkAuthTokenAdapter) token;
+
+        Object principal = token.getPrincipal();
+        if(null == principal) {
+            throw new AuthenticationException("用户不存在");
+        }
+
+        return new SimpleAuthenticationInfo(authTokenAdapter.getAuthToken()
+                , authTokenAdapter.getCredentials(), this.getName());
+    }
+
+    @Override
+    protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
+        /*不用校验密码*/
+    }
+}

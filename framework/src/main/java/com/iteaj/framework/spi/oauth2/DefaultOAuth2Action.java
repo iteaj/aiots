@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.oauth2;
 
 import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.ExceptionAction;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author iteaj
  * @since 1.0
  */
-public abstract class DefaultOAuth2Action implements OAuth2Action{
+public abstract class DefaultOAuth2Action extends ExceptionAction<OAuth2User> implements OAuth2Action{
 
     private String urlPattern;
 

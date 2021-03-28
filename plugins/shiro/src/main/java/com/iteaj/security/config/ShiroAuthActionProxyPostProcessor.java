@@ -2,9 +2,12 @@ package com.iteaj.security.config;
 
 import com.iteaj.framework.spi.app.AppAuthAction;
 import com.iteaj.framework.spi.auth.AccountAuthAction;
+import com.iteaj.framework.spi.auth.AuthException;
+import com.iteaj.framework.spi.auth.AuthToken;
+import com.iteaj.security.shiro.FrameworkAuthTokenAdapter;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -34,13 +37,22 @@ public class ShiroAuthActionProxyPostProcessor implements BeanPostProcessor, Bea
                 Method method = invocation.getMethod();
                 Object invoke;
                 if(Objects.equals(method.getName(), loginMethodName)) {
-                    invoke = method.invoke(bean, invocation.getArguments());
-                    if(bean instanceof AccountAuthAction) {
-                        SecurityUtils.getSubject().login((AuthenticationToken) invoke);
+                    try {
+                        invoke = method.invoke(bean, invocation.getArguments());
+                        // shiro 登录
+                        SecurityUtils.getSubject().login(new
+                                FrameworkAuthTokenAdapter((AuthToken) invoke));
+                    } catch (AuthenticationException e) {
+                        throw new AuthException(e.getMessage(), e);
                     }
                 } else if(Objects.equals(method.getName(), logoutMethodName)) {
-                    invoke = method.invoke(bean, invocation.getArguments());
-                    SecurityUtils.getSubject().logout();
+                    // 先验证是否已经认证
+                    if(SecurityUtils.getSubject().isAuthenticated()) {
+                        invoke = method.invoke(bean, invocation.getArguments());
+                        SecurityUtils.getSubject().logout();
+                    } else {
+                        throw new AuthException("未认证");
+                    }
                 } else {
                     invoke = method.invoke(bean, invocation.getArguments());
                 }

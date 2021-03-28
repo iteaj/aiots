@@ -20,8 +20,6 @@ public class FrameworkProperties {
      */
     private Auth auth = new Auth();
 
-
-
     /**
      * 文件上传的跟目录
      * @see #uploadRootUri 此uri将映射到此目录

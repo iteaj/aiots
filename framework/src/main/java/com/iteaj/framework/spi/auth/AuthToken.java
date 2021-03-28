@@ -1,6 +1,10 @@
 package com.iteaj.framework.spi.auth;
 
+import com.iteaj.util.module.mvc.orm.Entity;
+
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * create time: 2019/12/6
@@ -9,8 +13,6 @@ import java.io.Serializable;
  * @since 1.0
  */
 public interface AuthToken extends Serializable {
-
-    Object getCaptcha();
 
     /**
      * 帐号
@@ -23,4 +25,16 @@ public interface AuthToken extends Serializable {
      * @return
      */
     Object getCredentials();
+
+    /**
+     * 角色列表
+     * @return
+     */
+    default Collection<String> roles() {return Collections.emptyList();}
+
+    /**
+     * 权限列表
+     * @return
+     */
+    default Collection<String> permissions(){return Collections.emptyList();}
 }

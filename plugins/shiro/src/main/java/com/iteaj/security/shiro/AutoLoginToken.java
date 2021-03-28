@@ -28,9 +28,4 @@ public class AutoLoginToken extends UsernamePasswordToken implements AuthToken {
         this.sessionId = sessionId;
         return this;
     }
-
-    @Override
-    public Object getCaptcha() {
-        throw new UnsupportedOperationException("自动登录不支持验证码校验");
-    }
 }

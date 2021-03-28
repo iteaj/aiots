@@ -1,7 +1,10 @@
 package com.iteaj.framework.spring.boot.config;
 
+import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.mybatis.MybatisPlusConfiguration;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.framework.spi.app.AppAuthAction;
+import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.auth.AppAuthHandler;
 import com.iteaj.framework.spi.auth.FrameworkAuthServlet;
 import org.mybatis.spring.annotation.MapperScan;
@@ -14,6 +17,8 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
+
+import java.util.List;
 
 /**
  * create time: 2021/3/14
@@ -65,6 +70,19 @@ public class FrameworkAutoConfiguration {
     }
 
     /**
+     * 使用框架认证过滤器
+     * @return
+     */
+    @Bean
+    @Order(999)
+    public OrderFilterChainDefinition frameworkAuthFilterChainDefinition() {
+        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
+
+        chain.addPathDefinition("/**", CoreConst.FRAMEWORK_FILTER_NAME);
+        return chain;
+    }
+
+    /**
      * 框架的授权认证登录服务
      * @param handler
      * @return
@@ -73,5 +91,15 @@ public class FrameworkAutoConfiguration {
     public ServletRegistrationBean frameworkAuthServlet(AppAuthHandler handler) {
         String redirectUri = properties.getAuth().getLoginUri();
         return new ServletRegistrationBean(new FrameworkAuthServlet(handler), redirectUri);
+    }
+
+    /**
+     * 使用账号密码认证的处理器
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean({AppAuthHandler.class})
+    public AppAuthHandler appAuthHandler(List<AppAuthAction> actions) {
+        return new AccountAuthHandler(actions);
     }
 }

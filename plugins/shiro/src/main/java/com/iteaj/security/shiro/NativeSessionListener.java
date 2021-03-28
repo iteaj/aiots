@@ -1,10 +1,9 @@
 package com.iteaj.security.shiro;
 
-import com.iteaj.framework.spi.admin.AdminConsts;
+import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.admin.event.OnlineEvent;
 import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.event.EventPublisher;
-import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
@@ -32,7 +31,7 @@ public class NativeSessionListener implements SessionListener {
         Subject subject = SecurityUtils.getSubject();
 
         ShiroHttpServletRequest servletRequest = (ShiroHttpServletRequest) WebUtils.getRequest(subject);
-        UserAgent userAgent = (UserAgent) servletRequest.getAttribute(AdminConsts.USER_AGENT);
+        UserAgent userAgent = (UserAgent) servletRequest.getAttribute(CoreConst.WEB_USER_AGENT);
 
         // 发布session创建事件
         publisher.publish(new OnlineEvent(session.getId(), userAgent)

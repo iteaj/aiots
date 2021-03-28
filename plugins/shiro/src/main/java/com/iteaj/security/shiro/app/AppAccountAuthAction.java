@@ -2,6 +2,7 @@ package com.iteaj.security.shiro.app;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.auth.AccountAuthAction;
+import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.framework.spring.boot.config.AppConfig;
 import org.apache.shiro.authc.AuthenticationException;
@@ -28,7 +29,7 @@ public class AppAccountAuthAction extends AccountAuthAction {
      * @param response
      */
     @Override
-    public AuthToken login(Void t, HttpServletRequest request, HttpServletResponse response) {
+    public AuthToken login(AuthContext t, HttpServletRequest request, HttpServletResponse response) {
         AppConfig.Account account = getConfig().getApp().getAccount();
 
         // 获取前端提交的用户名, 密码, 校验码等数据

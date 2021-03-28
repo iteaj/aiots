@@ -9,16 +9,16 @@ package com.iteaj.framework.spring.boot.config;
 public class AuthConfig {
 
     /**
+     * 授权域名(不配置将自动获取)
+     */
+    private String domain;
+
+    /**
      * 移动端登录地址(账号密码登录地址或Oauth2的redirectUri授权地址)
      */
     private String loginUri = "/auth/login";
 
     private String logoutUri = "/auth/logout";
-
-    /**
-     * 授权域名(不配置将自动获取)
-     */
-    private String domain;
 
     /**
      * token认证时请求头的token名称

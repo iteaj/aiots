@@ -2,17 +2,17 @@ package com.iteaj.security.config;
 
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
-import com.iteaj.framework.spi.admin.auth.AuthorizingService;
-import com.iteaj.framework.spi.UserAccountService;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.VoidEventPublisher;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
-import com.iteaj.security.shiro.*;
+import com.iteaj.security.shiro.AccessFilterWrapper;
+import com.iteaj.security.shiro.AuthorizingLogMethodInterceptor;
+import com.iteaj.security.shiro.ShiroAdminAuthenticationController;
+import com.iteaj.security.shiro.ShiroAuthenticatingService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.RealmSecurityManager;
-import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
@@ -43,31 +43,6 @@ public class ShiroWebConfiguration {
 
     public ShiroWebConfiguration(FrameworkProperties properties) {
         this.properties = properties;
-    }
-
-    /**
-     * 后台管理端认证和权限信息Realm
-     * @param eventPublisher
-     * @param authorizingService
-     * @param userAccountService
-     * @return
-     */
-    @Bean
-    public AuthorizingRealm authorizingRealm(EventPublisher eventPublisher
-            , AuthorizingService authorizingService, UserAccountService userAccountService) {
-
-        FrameworkProperties.Admin admin = properties.getAdmin();
-
-        AdminUserPasswordRealm adminUserPasswordRealm = new AdminUserPasswordRealm(
-                eventPublisher, properties, authorizingService, userAccountService);
-
-        // 权限信息缓存
-        adminUserPasswordRealm.setAuthorizationCacheName(admin.getAuthorCacheName());
-
-        // 认证信息缓存
-        adminUserPasswordRealm.setAuthenticationCacheName(admin.getAuthCacheName());
-
-        return adminUserPasswordRealm;
     }
 
     @Bean
@@ -102,16 +77,6 @@ public class ShiroWebConfiguration {
 
         chain.addPathDefinition("/login", "anon");
         chain.addPathDefinition("/captcha", "anon");
-        return chain;
-    }
-
-    @Order(value = 999)
-    @Bean("allFilterChainDefinition")
-    @ConditionalOnMissingBean(name = {"allFilterChainDefinition"})
-    public OrderFilterChainDefinition allFilterChainDefinition() {
-        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
-
-        chain.addPathDefinition("/**", "ajax,user");
         return chain;
     }
 
