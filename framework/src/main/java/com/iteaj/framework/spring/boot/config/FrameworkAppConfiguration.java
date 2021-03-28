@@ -1,5 +1,7 @@
 package com.iteaj.framework.spring.boot.config;
 
+import com.iteaj.framework.spring.boot.config.FrameworkAutoConfiguration;
+import lombok.Data;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -17,8 +19,12 @@ import org.springframework.context.annotation.ComponentScan;
 })
 public class FrameworkAppConfiguration {
 
-
+    @Data
     public static class AppProperties {
 
+        /**
+         * 原生app请求头的token名称
+         */
+        private String tokenName = "access_token";
     }
 }

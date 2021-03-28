@@ -1,5 +1,6 @@
 package com.iteaj.framework.spring.boot.config;
 
+import com.iteaj.framework.spi.oauth2.FrameworkOauth2Configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "izone.web")
@@ -15,12 +16,18 @@ public class FrameworkProperties {
      */
     private Admin admin;
 
+
+    private Oauth2 oauth2;
+
+    /**
+     * 当前系统访问地址,不包含uri (http://www.iteaj.com)
+     */
+    private String domain;
+
     /**
      *  认证授权配置信息
      */
     private Auth auth = new Auth();
-
-    private Oauth2 oauth2;
 
     /**
      * 文件上传的跟目录
@@ -41,6 +48,15 @@ public class FrameworkProperties {
     public static class Admin extends FrameworkWebConfiguration.AdminProperties { }
 
     public static class Oauth2 extends FrameworkOauth2Configuration.OAuth2Properties { }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public FrameworkProperties setDomain(String domain) {
+        this.domain = domain;
+        return this;
+    }
 
     public Admin getAdmin() {
         return admin;

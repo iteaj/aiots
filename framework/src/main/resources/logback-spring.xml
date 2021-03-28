@@ -44,6 +44,7 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
     <springProfile name="dev,test">
         <logger level="debug" name="com.iteaj"></logger>
         <logger level="info" name="org.springframework"></logger>
+        <logger level="warn" name="org.springframework.context.support.PostProcessorRegistrationDelegate" />
         <root level="info">
             <appender-ref ref="STDOUT" />
         </root>

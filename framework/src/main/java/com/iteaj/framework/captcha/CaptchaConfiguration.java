@@ -1,4 +1,4 @@
-package com.iteaj.framework.spring.boot.config;
+package com.iteaj.framework.captcha;
 
 import com.google.code.kaptcha.Producer;
 import com.iteaj.framework.captcha.KaptchaCreator;

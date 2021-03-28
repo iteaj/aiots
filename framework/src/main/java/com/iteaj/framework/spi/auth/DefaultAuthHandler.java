@@ -76,7 +76,7 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
             }
 
             if(action != null) {
-                if (preAuthorize(request, action, urlPattern)) {
+                if (preAuthorize(request, response, action, urlPattern)) {
                     return true;
                 }
 
@@ -99,24 +99,33 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
                  *     或者动作没有返回任何处理方式{@link AuthType}
                  */
                 logger.warn("此次请求[{}]没有匹配到任何授权动作[{}]", requestURI, getActions());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "unauthorized");
             }
         }
 
         return false;
     }
 
-    protected boolean preAuthorize(HttpServletRequest request, WebAuthAction item, String urlPattern) {
+    protected boolean preAuthorize(HttpServletRequest request
+            , HttpServletResponse response, WebAuthAction item, String urlPattern) {
         if(logger.isDebugEnabled()) {
             logger.debug("路径["+ request.getRequestURI() +"]匹配到授权动作["
                     + item.getName()+"("+ urlPattern +")]");
         }
 
         // 登录请求允许访问
-        if(item.isLoginRequest(request.getRequestURI(), request) && request
-                .getMethod().equalsIgnoreCase("GET")) {
+        if(item.isLoginRequest(request.getRequestURI(), request)) {
 
-            return true;
+            if(request.getMethod().equalsIgnoreCase("GET")) {
+                return true;
+            } else {
+                try {
+                    item.login(null, request, response);
+                    this.loginCallHandle(item, null, request, response);
+                } catch (Exception e) {
+                    this.loginCallHandle(item, e, request, response);
+                }
+            }
         }
 
         return false;

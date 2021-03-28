@@ -2,7 +2,6 @@ package com.iteaj.oauth2.client;
 
 import com.iteaj.framework.FrameworkException;
 import com.iteaj.framework.Proxy.ProxyUtils;
-import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthException;
@@ -16,7 +15,6 @@ import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,11 +40,11 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
     }
 
     @Override
-    protected void doOauth2Handle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
         AuthType type = context.getType();
         String sessionId = request.getSession().getId();
 
-        String domain = getConfig().getAuth().getDomain();
+        String domain = getConfig().getDomain();
         if(domain != null) {
             context.put("domain", domain);
         }
@@ -54,7 +52,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         AuthRequest authRequest = getAuthRequest(context, type);
         if(authRequest == null) {
             throw new FrameworkException("未开启对应的授权类型["+type+
-                    "], 请增加配置[izone.app.oauth2.client.]"+type+"..");
+                    "], 请增加配置[izone.web.app.oauth2.client.]"+type+"..");
         }
 
         String authorize = authRequest.authorize(sessionId);
@@ -64,7 +62,6 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
          * 在Oauth2重定向授权之后需要通过state获取context
          * @see #login(HttpServletRequest, HttpServletResponse)
          */
-        this.cacheStateAndContextMap(sessionId, context);
         final WebAuthAction action = getAction(context.getAction());
 
         final Object target = ProxyUtils.getTarget(action);
@@ -110,11 +107,6 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         return this.instanceAuthRequest(context);
     }
 
-    protected void cacheStateAndContextMap(String sessionId, AuthContext context) {
-        Cache cache = this.cacheManager.getCache(CoreConst.OAUTH2_STATE_CACHE);
-        cache.put(sessionId, context);
-    }
-
     protected void doOauth2Login(AuthContext authContext, HttpServletRequest request, HttpServletResponse response) {
         String state = request.getParameter("state");
         String code = request.getParameter("code");
@@ -154,18 +146,19 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
 
     private AuthRequest instanceAuthRequest(AuthContext context) {
         AuthConfig authConfig = new AuthConfig();
+        final String redirectUri = getConfig().getOauth2().getRedirectUri();
+
         try {
             BeanUtils.copyProperties(context.get("Oauth2Config"), authConfig);
 
             Class<? extends AuthRequest> aClass = authRequestMap.get(context.getType());
             Constructor<? extends AuthRequest> constructor = aClass.getConstructor(AuthConfig.class);
 
-            authConfig.setRedirectUri(context.get("domain") + getConfig().getOauth2().getRedirectUri());
+            authConfig.setRedirectUri(context.get("domain") + redirectUri);
             return BeanUtils.instantiateClass(constructor, authConfig);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (me.zhyd.oauth.exception.AuthException e) {
-            String redirectUri = getConfig().getAuth().getLoginUri();
             throw new AuthException("["+context.getType()+"]授权配置校验失败["+
                     authConfig+"], redirectUri: ["+redirectUri+"]");
         }

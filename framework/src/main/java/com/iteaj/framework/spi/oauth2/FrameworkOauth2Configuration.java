@@ -1,8 +1,9 @@
-package com.iteaj.framework.spring.boot.config;
+package com.iteaj.framework.spi.oauth2;
 
 import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.AbstractOAuth2Handler;
 import com.iteaj.framework.spi.oauth2.OAuth2Config;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -18,8 +19,7 @@ import java.util.Map;
 @ConditionalOnBean(AbstractOAuth2Handler.class)
 public class FrameworkOauth2Configuration {
 
-    @Getter
-    @Setter
+    @Data
     public static class OAuth2Properties {
         /**
          * Oauth2的redirectUri

@@ -1,9 +1,9 @@
 package com.iteaj.framework.spring.boot.config;
 
+import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -38,7 +38,9 @@ public class FrameworkWebConfiguration {
     @Getter
     @Setter
     public static class AdminProperties {
-        /**登录页面的Url*/
+        /**
+         * 登录页的url(GET)和提交的url(POST)必须相同
+         */
         private String loginUrl;
 
         /** 认证成功后要跳转的Url*/
@@ -62,11 +64,6 @@ public class FrameworkWebConfiguration {
          * 是否允许缓存token(redis只缓存session)
          */
         private boolean cacheEnable;
-
-        /**
-         * 令牌的名称
-         */
-        private String tokenName = "access_token";
 
         /**
          * 令牌(token)的缓存名称

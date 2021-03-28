@@ -5,6 +5,7 @@ import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.auth.FrameworkAuthServlet;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.framework.spi.oauth2.FrameworkOauth2Configuration;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -28,7 +29,10 @@ import java.util.List;
         "com.iteaj.*.service.**" // 注入业务层组件
 })
 @MapperScan(basePackages = {"com.iteaj.*.mapper"}) // 注入dao层组件
-@ImportAutoConfiguration(MybatisPlusConfiguration.class)
+@ImportAutoConfiguration({
+        MybatisPlusConfiguration.class,
+        FrameworkOauth2Configuration.class
+})
 @EnableConfigurationProperties({FrameworkProperties.class})
 public class FrameworkAutoConfiguration {
 

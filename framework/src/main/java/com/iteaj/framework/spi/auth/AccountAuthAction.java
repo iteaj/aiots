@@ -15,7 +15,7 @@ import java.io.IOException;
  * @author iteaj
  * @since 1.0
  */
-public abstract class AccountAuthAction extends AuthCallAction<AuthContext> implements WebAuthAction<AuthContext> {
+public abstract class AccountAuthAction extends AuthCallAction<Void> implements WebAuthAction<Void> {
 
     private String[] urlPattern;
     private FrameworkProperties config;
@@ -30,11 +30,11 @@ public abstract class AccountAuthAction extends AuthCallAction<AuthContext> impl
     }
 
     /**
-     * 获取登录地址(包含登录页地址和提交地址)
-     * 登录页地址在前, 提交登录地址在后 [登录页url, 提交url]
+     * 获取登录地址
+     * 登录的页面地址(GET)和提交表单登录地址(POST)必须相同
      * @return
      */
-    protected abstract String[] getLoginUrl();
+    protected abstract String getLoginUrl();
 
     @Override
     public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) {
@@ -60,10 +60,10 @@ public abstract class AccountAuthAction extends AuthCallAction<AuthContext> impl
      * @return
      */
     protected void nonAjaxAuthorize(HttpServletRequest request, HttpServletResponse response) {
-        String[] loginUrl = this.getLoginUrl();
+        final String loginUrl = this.getLoginUrl();
         try {
-            if(loginUrl != null && loginUrl.length > 0) {
-                response.sendRedirect(loginUrl[0]);
+            if(loginUrl != null) {
+                response.sendRedirect(loginUrl);
             } else {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
@@ -74,15 +74,10 @@ public abstract class AccountAuthAction extends AuthCallAction<AuthContext> impl
 
     @Override
     public boolean isLoginRequest(String requestUri, HttpServletRequest request) {
-        final String[] loginUrl = getLoginUrl();
-        if(loginUrl != null && loginUrl.length > 0) {
+        final String loginUrl = getLoginUrl();
+        if(loginUrl != null) {
             requestUri = requestUri.substring(request.getContextPath().length());
-
-            for (String url : loginUrl) {
-                if(url.equalsIgnoreCase(requestUri)) {
-                    return true;
-                }
-            }
+            return loginUrl.equalsIgnoreCase(requestUri);
         }
 
         return false;
@@ -94,7 +89,7 @@ public abstract class AccountAuthAction extends AuthCallAction<AuthContext> impl
      * @param response
      */
     @Override
-    public abstract AuthToken login(AuthContext t, HttpServletRequest request, HttpServletResponse response);
+    public abstract AuthToken login(Void t, HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 注销

@@ -37,15 +37,4 @@ public class OAuth2ClientConfiguration implements WebMvcConfigurer {
         return new JustOauth2AuthHandler(actions, cacheManager);
     }
 
-    /**
-     * 授权上下文缓存
-     * key: state value: AuthContext
-     * @see JustOauth2AuthHandler#cacheStateAndContextMap(String, AuthContext)
-     * @see AuthContext
-     * @return
-     */
-    @Bean
-    public CacheEntry oauth2StateCache() {
-        return new CacheEntry(CoreConst.OAUTH2_STATE_CACHE, 3 * 60 * 1000l, SerializerType.Jdk);
-    }
 }

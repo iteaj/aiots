@@ -128,7 +128,7 @@ public class CoreAutoConfiguration {
         public WebAuthAction adminAuthAction() {
             final FrameworkProperties.Admin admin = properties.getAdmin();
             final String loginUrl = admin.getLoginUrl();
-            return new AdminAuthAction("/core/**", loginUrl);
+            return new AdminAuthAction("/core/**", loginUrl, "/");
         }
 
         /**

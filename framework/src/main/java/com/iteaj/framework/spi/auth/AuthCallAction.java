@@ -6,6 +6,7 @@ import com.iteaj.util.module.mvc.HttpResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  * create time: 2021/3/28
@@ -25,7 +26,18 @@ public abstract class AuthCallAction<T> implements WebAuthAction<T> {
         if(cause == null) {
             writeJson(HttpResult.Success("登录成功"), response);
         } else {
-            writeJson(HttpResult.Fail("登录失败"), response);
+            Throwable throwable = cause;
+            if(cause instanceof UndeclaredThrowableException) {
+                throwable = ((UndeclaredThrowableException) cause)
+                        .getUndeclaredThrowable().getCause();
+            }
+            if(throwable instanceof AuthException) {
+                writeJson(HttpResult.Fail(throwable.getMessage()), response);
+            } else {
+                writeJson(HttpResult.Fail("登录失败"), response);
+            }
+
+            throwable.printStackTrace();
         }
     }
 

@@ -1,11 +1,10 @@
 package com.iteaj.framework.spi.oauth2;
 
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthException;
-import com.iteaj.framework.spi.auth.AuthType;
+import com.iteaj.framework.spi.auth.DefaultAuthHandler;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +18,7 @@ import java.util.List;
  * @author iteaj
  * @since 1.0
  */
-public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
+public abstract class AbstractOAuth2Handler extends DefaultAuthHandler {
 
     protected CacheManager cacheManager;
 
@@ -44,17 +43,12 @@ public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
                 final String action = ((AuthContext) context).getAction();
                 final WebAuthAction authAction = getAction(action);
 
-                // 用户名密码登录
-                if(((AuthContext) context).getType() == AuthType.Account) {
-                    super.login(request, response);
-                } else { // Oauth2授权登录
-                    try {
-                        doOauth2Login((AuthContext) context, request, response);
+                try {
+                    doOauth2Login((AuthContext) context, request, response);
 
-                        this.loginCallHandle(authAction, null, request, response);
-                    } catch (Exception e) {
-                        this.loginCallHandle(authAction, e, request, response);
-                    }
+                    this.loginCallHandle(authAction, null, request, response);
+                } catch (Exception e) {
+                    this.loginCallHandle(authAction, e, request, response);
                 }
             } else {
                 logger.error("找不到匹配的[WebAuthAction]来处理此处请求["+

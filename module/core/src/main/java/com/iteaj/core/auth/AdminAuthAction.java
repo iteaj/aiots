@@ -4,7 +4,6 @@ import com.iteaj.core.entity.Admin;
 import com.iteaj.core.service.IAdminService;
 import com.iteaj.core.service.IRoleService;
 import com.iteaj.framework.spi.auth.*;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.util.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,12 +32,12 @@ public class AdminAuthAction extends AccountAuthAction {
     }
 
     @Override
-    protected String[] getLoginUrl() {
-        return new String[]{getConfig().getAdmin().getLoginUrl()};
+    protected String getLoginUrl() {
+        return getConfig().getAdmin().getLoginUrl();
     }
 
     @Override
-    public AuthToken login(AuthContext t, HttpServletRequest request, HttpServletResponse response) {
+    public AuthToken login(Void t, HttpServletRequest request, HttpServletResponse response) {
         String userName = request.getParameter("userName");
         String password = request.getParameter("password");
 
