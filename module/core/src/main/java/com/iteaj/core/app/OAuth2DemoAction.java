@@ -21,7 +21,7 @@ public class OAuth2DemoAction extends DefaultOAuth2Action {
     }
 
     @Override
-    public String successUrl() {
+    public String getSuccessUrl() {
         return null;
     }
 

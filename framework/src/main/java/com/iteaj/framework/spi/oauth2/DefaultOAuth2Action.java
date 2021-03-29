@@ -34,7 +34,7 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
      * Oauth2回调后登录成功时跳转的地址
      * @return
      */
-    public abstract String successUrl();
+    public abstract String getSuccessUrl();
 
     @Override
     public String[] getUrlPattern() {
@@ -61,7 +61,7 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
         try {
             // 登录成功重定向到成功页面
             if(cause == null) {
-                response.sendRedirect(successUrl());
+                response.sendRedirect(getSuccessUrl());
             } else {
                 writeJson(HttpResult.Fail("登录失败"), response);
             }

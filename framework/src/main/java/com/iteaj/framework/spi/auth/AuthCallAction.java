@@ -25,10 +25,10 @@ public abstract class AuthCallAction<T> implements WebAuthAction<T> {
     public void loginCall(Exception cause, HttpServletRequest request, HttpServletResponse response) {
         if(cause == null) {
             if(isAjax(request)) {
-                writeJson(HttpResult.Success("登录成功"), response);
+                writeJson(HttpResult.Success(getSuccessUrl(), "登录成功"), response);
             } else {
                 try {
-                    response.sendRedirect(successUrl());
+                    response.sendRedirect(getSuccessUrl());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

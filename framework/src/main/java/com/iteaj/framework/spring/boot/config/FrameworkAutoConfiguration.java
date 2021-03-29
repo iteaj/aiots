@@ -1,6 +1,7 @@
 package com.iteaj.framework.spring.boot.config;
 
 import com.iteaj.framework.mybatis.MybatisPlusConfiguration;
+import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.auth.FrameworkAuthServlet;
@@ -15,6 +16,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.annotation.Order;
 
 import java.util.List;
 
@@ -48,15 +50,27 @@ public class FrameworkAutoConfiguration {
         return new ConcurrentMapCacheManager();
     }
 
+
+    @Bean
+    @Order(20)
+    public OrderFilterChainDefinition oauth2FilterChainDefinition() {
+        final OrderFilterChainDefinition definition = new OrderFilterChainDefinition();
+
+        definition.addPathDefinition(properties.getAuth().getLogoutUri(), "anon");
+        definition.addPathDefinition(properties.getOauth2().getRedirectUri(), "anon");
+        return definition;
+    }
+
     /**
-     * 框架的授权认证登录服务
+     * 框架的授权,认证登录, 注销服务
      * @param handler
      * @return
      */
     @Bean
     public ServletRegistrationBean frameworkAuthServlet(WebAuthHandler handler) {
         String redirectUri = properties.getOauth2().getRedirectUri();
-        return new ServletRegistrationBean(new FrameworkAuthServlet(handler), redirectUri);
+        final String logoutUri = properties.getAuth().getLogoutUri();
+        return new ServletRegistrationBean(new FrameworkAuthServlet(handler), redirectUri, logoutUri);
     }
 
     /**

@@ -1,7 +1,6 @@
 package com.iteaj.security.config;
 
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
@@ -79,7 +78,7 @@ public class ShiroAutoConfiguration {
 
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions
-            , SecurityManager securityManager, List<AccessFilterWrapper> filters, AuthzUrl authzUrl) {
+            , SecurityManager securityManager, List<AccessFilterWrapper> filters) {
 
         ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean() {
             @Override
@@ -109,11 +108,6 @@ public class ShiroAutoConfiguration {
             }
         };
         factoryBean.setSecurityManager(securityManager);
-
-        // 权限跳转地址配置
-        factoryBean.setLoginUrl(authzUrl.getLoginUrl());
-        factoryBean.setSuccessUrl(authzUrl.getSuccessUrl());
-        factoryBean.setUnauthorizedUrl(authzUrl.getUnauthorizedUrl());
 
         // 处理过滤器
         Map<String, Filter> nameableFilterMap = filters.stream().collect(Collectors
@@ -170,11 +164,11 @@ public class ShiroAutoConfiguration {
      * @return
      */
     @Bean
-    public AuthorizingRealm frameworkAuthRealm() {
+    public AuthorizingRealm frameworkAuthRealm(WebAuthHandler handler) {
 
         FrameworkProperties.Admin admin = properties.getAdmin();
 
-        ShiroFrameworkAuthRealm authRealm = new ShiroFrameworkAuthRealm();
+        ShiroFrameworkAuthRealm authRealm = new ShiroFrameworkAuthRealm(handler);
 
         // 权限信息缓存
         authRealm.setAuthorizationCacheName(admin.getAuthorCacheName());
@@ -182,6 +176,9 @@ public class ShiroAutoConfiguration {
         // 认证信息缓存
         authRealm.setAuthenticationCacheName(admin.getAuthCacheName());
 
+        // 关闭缓存
+        authRealm.setAuthorizationCachingEnabled(false);
+        authRealm.setAuthenticationCachingEnabled(false);
         return authRealm;
     }
 

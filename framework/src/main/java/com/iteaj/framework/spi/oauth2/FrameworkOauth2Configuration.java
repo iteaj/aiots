@@ -1,12 +1,9 @@
 package com.iteaj.framework.spi.oauth2;
 
-import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.annotation.Order;
 
 import java.util.Map;
 
@@ -20,15 +17,6 @@ public class FrameworkOauth2Configuration {
 
     @Autowired
     private FrameworkProperties properties;
-
-    @Bean
-    @Order(20)
-    public OrderFilterChainDefinition oauth2FilterChainDefinition() {
-        final OrderFilterChainDefinition definition = new OrderFilterChainDefinition();
-        definition.addPathDefinition(properties.getOauth2().getRedirectUri(), "anon");
-
-        return definition;
-    }
 
     @Data
     public static class OAuth2Properties {

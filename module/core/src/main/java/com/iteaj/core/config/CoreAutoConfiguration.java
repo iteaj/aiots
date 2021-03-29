@@ -1,14 +1,11 @@
 package com.iteaj.core.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iteaj.core.app.OAuth2DemoAction;
 import com.iteaj.core.auth.AdminAuthAction;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.OnlineUser;
 import com.iteaj.core.enums.AppType;
 import com.iteaj.core.service.*;
-import com.iteaj.core.web.interceptor.DemoEnvInterceptor;
-import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.Module;
@@ -26,8 +23,6 @@ import com.iteaj.framework.spring.condition.Type;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -111,12 +106,9 @@ public class CoreAutoConfiguration {
     public static class CoreWebAutoConfiguration implements WebMvcConfigurer {
 
         private final FrameworkProperties properties;
-        private final ObjectProvider<DemoEnvInterceptor> provider;
 
-        public CoreWebAutoConfiguration(FrameworkProperties properties
-                , ObjectProvider<DemoEnvInterceptor> provider) {
+        public CoreWebAutoConfiguration(FrameworkProperties properties) {
             this.properties = properties;
-            this.provider = provider;
         }
 
         /**
@@ -161,11 +153,6 @@ public class CoreAutoConfiguration {
             return new AdminLoggerService(logService, menuService);
         }
 
-        @Bean
-        public AdminAuthorizingService authorizingService() {
-            return new AdminAuthorizingService();
-        }
-
         /**
          * 主页解析
          * @param registry
@@ -173,23 +160,6 @@ public class CoreAutoConfiguration {
         @Override
         public void addViewControllers(ViewControllerRegistry registry) {
             registry.addViewController("/core/main").setViewName("main");
-        }
-
-        @Override
-        public void addInterceptors(InterceptorRegistry registry) {
-            provider.ifAvailable(item->{
-                registry.addInterceptor(item).addPathPatterns("/**");
-            });
-        }
-
-        /**
-         * 演示环境拦截器
-         * @return
-         */
-        @Bean
-        @ConditionalOnProperty(name = {"izb.env.demon"}, havingValue = "true")
-        public DemoEnvInterceptor demoHandlerInterceptor(ObjectMapper objectMapper, AuthzUrl authzUrl) {
-            return new DemoEnvInterceptor(objectMapper, authzUrl);
         }
 
         /**

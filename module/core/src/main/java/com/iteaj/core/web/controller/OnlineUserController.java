@@ -1,21 +1,23 @@
 package com.iteaj.core.web.controller;
 
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
-import com.iteaj.framework.spi.admin.event.OnlineType;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.core.entity.OnlineUser;
 import com.iteaj.core.service.IOnlineUserService;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.spi.admin.event.OnlineType;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.util.Result;
 import com.iteaj.util.module.mvc.result.ListResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import com.iteaj.framework.BaseController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * <p>
@@ -30,10 +32,9 @@ import com.iteaj.framework.BaseController;
 public class OnlineUserController extends BaseController {
 
     @Autowired
-    private IOnlineUserService onlineUserService;
+    private WebAuthHandler handler;
     @Autowired
-    private AuthenticatingService authenticatingService;
-
+    private IOnlineUserService onlineUserService;
 
     @GetMapping
     @RequiresPermissions("core:online:view")
@@ -68,19 +69,15 @@ public class OnlineUserController extends BaseController {
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:online:del")
-    public Result del(@RequestBody List<Long> ids) {
+    public Result del(@RequestBody List<Long> ids, HttpServletRequest request, HttpServletResponse response) {
         ListResult<OnlineUser> result = this.onlineUserService.selectByIds(ids);
         List<OnlineUser> onlineUsers = result.get();
         if(CollectionUtils.isNotEmpty(onlineUsers)) {
 
             OnlineUser onlineUser = onlineUsers.get(0);
 
-            // 如果是当前用户不能强退
-            if(authenticatingService.equalToCurrent(onlineUser.getSessionId())) {
-                return fail("不允许强退当前会话");
-            }
 
-            authenticatingService.logout(onlineUser.getSessionId());
+            handler.logout(request, response);
 
             // 强制离线
 //            this.onlineUserService.updateBySessionId(new OnlineUser((String) onlineUser

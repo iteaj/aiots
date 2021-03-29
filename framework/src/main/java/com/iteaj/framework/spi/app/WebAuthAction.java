@@ -5,6 +5,8 @@ import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.util.JsonUtils;
 import com.iteaj.util.Result;
 import org.springframework.core.Ordered;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +23,8 @@ import java.nio.charset.StandardCharsets;
  * @since 1.0
  */
 public interface WebAuthAction<T> extends Ordered {
+
+    PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     default int getOrder() {
@@ -44,6 +48,21 @@ public interface WebAuthAction<T> extends Ordered {
     default boolean isAjax(HttpServletRequest request) {
         String ajaxId = request.getHeader("x-requested-with");
         return "XMLHttpRequest".equalsIgnoreCase(ajaxId);
+    }
+
+    /**
+     * 路径匹配
+     * @param uri 不包含上下文路径
+     * @param request
+     * @return
+     */
+    default boolean pathMatcher(String uri, HttpServletRequest request) {
+        for (String url : this.getUrlPattern()) {
+            if(this.pathMatcher.match(url, uri)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     boolean isLoginRequest(String requestUri, HttpServletRequest request);
@@ -76,7 +95,7 @@ public interface WebAuthAction<T> extends Ordered {
      * 登录成功时跳转的url地址
      * @return
      */
-    default String successUrl() { return null;}
+    default String getSuccessUrl() { return null;}
 
     /**
      * 将符合此url模式的请求交由此action处理

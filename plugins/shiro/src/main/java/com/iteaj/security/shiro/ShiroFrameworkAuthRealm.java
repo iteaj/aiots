@@ -1,6 +1,8 @@
 package com.iteaj.security.shiro;
 
+import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.auth.AuthToken;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -18,6 +20,12 @@ import org.apache.shiro.subject.PrincipalCollection;
  * @since 1.0
  */
 public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
+
+    private WebAuthHandler handler;
+
+    public ShiroFrameworkAuthRealm(WebAuthHandler handler) {
+        this.handler = handler;
+    }
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -49,12 +57,30 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
             throw new AuthenticationException("用户不存在");
         }
 
-        return new SimpleAuthenticationInfo(principal
-                , authTokenAdapter.getCredentials(), this.getName());
+        return new SimpleAuthenticationInfo(authTokenAdapter
+                .getAuthToken(), null, this.getName());
     }
 
     @Override
     protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
         /*不用校验密码*/
+    }
+
+    /**
+     * 超级管理员包含所有的权限
+     * @param principals
+     * @param permission
+     * @return
+     */
+    @Override
+    public boolean isPermitted(PrincipalCollection principals, String permission) {
+        return SecurityUtils.isSuper() ||
+            super.isPermitted(principals, permission);
+    }
+
+    @Override
+    public boolean hasRole(PrincipalCollection principal, String roleIdentifier) {
+        return SecurityUtils.isSuper() ||
+            super.hasRole(principal, roleIdentifier);
     }
 }

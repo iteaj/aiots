@@ -1,9 +1,8 @@
 package com.iteaj.framework.spring.boot.config;
 
 import com.iteaj.framework.captcha.CaptchaConfiguration;
-import com.iteaj.framework.security.AuthzUrl;
 import com.iteaj.framework.spi.admin.SecurityUtils;
-import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
+import com.iteaj.framework.spi.admin.auth.FrameworkAuthService;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -23,16 +22,8 @@ import org.springframework.context.annotation.ComponentScan;
 public class FrameworkWebConfiguration {
 
     @Bean
-    public AuthzUrl authzUrl(FrameworkProperties properties) {
-        FrameworkProperties.Admin auth = properties.getAdmin();
-
-        return new AuthzUrl(auth.getLoginUrl()
-                , auth.getSuccessUrl(), auth.getUnauthorizedUrl());
-    }
-
-    @Bean
-    public SecurityUtils securityUtils(AuthenticatingService authenticatingService) {
-        return new SecurityUtils(authenticatingService);
+    public SecurityUtils securityUtils(FrameworkAuthService frameworkAuthService) {
+        return new SecurityUtils(frameworkAuthService);
     }
 
     @Getter

@@ -3,15 +3,12 @@ package com.iteaj.core.web.controller;
 import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.Producer;
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.security.AuthenticationController;
-import com.iteaj.framework.spi.auth.AuthToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
@@ -36,8 +33,6 @@ public class IndexController extends BaseController {
 
     /**
      * 登录页
-     * @see AuthenticationController#login(AuthToken) 登录提交
-     * @see AuthenticationController#logout(HttpServletRequest, HttpServletResponse) 注销
      */
     @GetMapping("/login")
     public String login() {

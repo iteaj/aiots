@@ -93,7 +93,7 @@ public class CommonUploadController extends BaseController implements Initializi
     @PostMapping("avatar")
     public Result avatar(MultipartFile avatar) {
         try {
-            Admin admin = (Admin) SecurityUtils.getPrincipal();
+            Admin admin = (Admin) SecurityUtils.getUser();
             String fileUrl = this.createFile(avatar, "avatar_"+admin.getId(), "/avatar");
             return success(fileUrl, "上传成功");
         } catch (IOException e) {

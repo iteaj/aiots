@@ -1,8 +1,8 @@
 package com.iteaj.framework.spi.admin.auth;
 
-import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.security.AuthzUrl;
+import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthToken;
+import com.iteaj.util.module.mvc.orm.Entity;
 
 import java.io.Serializable;
 
@@ -12,26 +12,24 @@ import java.io.Serializable;
  * @author iteaj
  * @since 1.0
  */
-public interface AuthenticatingService<T extends AuthToken>{
-
-    AuthzUrl getAuthzUrl();
-
-    /**
-     * 注销指定sessionId的用户
-     * @param sessionId
-     */
-    void logout(Serializable sessionId);
+public interface FrameworkAuthService<T extends AuthToken>{
 
     /**
      *  是否是当前的同一个会话
      * @param sessionId
      * @return
      */
-    boolean equalToCurrent(Serializable sessionId);
+    boolean isCurrent(Serializable sessionId);
 
     /**
      * 此方法返回认证的对象
      * @return 只有登录之后才会返回值
      */
-    BaseEntity getPrincipal();
+    Entity getUser();
+
+    /**
+     * 返回当前用户的认证动作
+     * @return
+     */
+    WebAuthAction getAction();
 }

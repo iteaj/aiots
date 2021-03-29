@@ -1,9 +1,9 @@
 package com.iteaj.core.web.controller;
 
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.util.Result;
+import com.iteaj.util.module.mvc.orm.Entity;
 import com.iteaj.util.module.mvc.result.ListResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +35,7 @@ public class ResourceController extends BaseController {
     @GetMapping("/env")
     public Result envConfig() {
         Map<String, Object> config =  resourceManager
-                .getEnvConfig(SecurityUtils.getPrincipal());
+                .getEnvConfig(SecurityUtils.getUser());
         return success(config);
     }
 
@@ -45,7 +45,7 @@ public class ResourceController extends BaseController {
      */
     @GetMapping("/resources")
     public Result resources() {
-        BaseEntity principal = SecurityUtils.getPrincipal();
+        Entity principal = SecurityUtils.getUser();
         List<MenuResource> resources = resourceManager.getResources(principal);
         return success(resources);
     }

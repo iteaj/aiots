@@ -38,6 +38,11 @@ public class AdminAuthAction extends AccountAuthAction {
     }
 
     @Override
+    public String getSuccessUrl() {
+        return getConfig().getAdmin().getSuccessUrl();
+    }
+
+    @Override
     public String getLoginUrl() {
         return getConfig().getAdmin().getLoginUrl();
     }
@@ -77,8 +82,7 @@ public class AdminAuthAction extends AccountAuthAction {
                     String.valueOf(id)).collect(Collectors.toList());
 
             List<String> perms = this.adminService.selectPermsById(admin.getId());
-
-            return new FrameworkAuthToken(admin, password);
+            return new FrameworkAuthInfo(admin, password, roles, perms);
         } catch (IOException e) {
             throw new AuthException("参数错误");
         }

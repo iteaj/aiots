@@ -1,13 +1,13 @@
 package com.iteaj.security.config;
 
-import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
+import com.iteaj.framework.spi.admin.auth.FrameworkAuthService;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.VoidEventPublisher;
 import com.iteaj.framework.spring.condition.ConditionalOnFramework;
 import com.iteaj.framework.spring.condition.Type;
 import com.iteaj.security.shiro.AuthorizingLogMethodInterceptor;
-import com.iteaj.security.shiro.ShiroAdminAuthenticationController;
-import com.iteaj.security.shiro.ShiroAuthenticatingService;
+import com.iteaj.security.shiro.ShiroAuthService;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
@@ -28,18 +28,13 @@ import org.springframework.context.annotation.Configuration;
 @AutoConfigureBefore(ShiroAutoConfiguration.class)
 public class ShiroWebConfiguration {
 
-    @Bean
-    public ShiroAdminAuthenticationController shiroAdminAuthenticationController() {
-        return new ShiroAdminAuthenticationController();
-    }
-
     /**
      * shiro实现的认证服务
      * @return
      */
     @Bean
-    public AuthenticatingService authenticatingService() {
-        return new ShiroAuthenticatingService();
+    public FrameworkAuthService authenticatingService(WebAuthHandler handler) {
+        return new ShiroAuthService(handler);
     }
 
     /**

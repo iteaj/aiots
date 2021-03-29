@@ -1,25 +1,27 @@
 package com.iteaj.framework.spi.admin;
 
-import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.spi.admin.auth.AuthenticatingService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.iteaj.framework.spi.admin.auth.FrameworkAuthService;
+import com.iteaj.framework.spi.app.WebAuthAction;
+import com.iteaj.util.module.mvc.orm.Entity;
 
 public class SecurityUtils {
 
-    private static AuthenticatingService authenticatingService;
-    public static Logger LOGGER = LoggerFactory.getLogger("SecurityService");
+    private static FrameworkAuthService frameworkAuthService;
 
-    public SecurityUtils(AuthenticatingService authenticatingService) {
-        SecurityUtils.authenticatingService = authenticatingService;
+    public SecurityUtils(FrameworkAuthService frameworkAuthService) {
+        SecurityUtils.frameworkAuthService = frameworkAuthService;
     }
 
     /**
      * 返回当前登录的用户
      * @return
      */
-    public static BaseEntity getPrincipal() {
-        return authenticatingService.getPrincipal();
+    public static <T extends Entity> T getUser() {
+        return (T) frameworkAuthService.getUser();
+    }
+
+    public static WebAuthAction getAction() {
+        return frameworkAuthService.getAction();
     }
 
     /**
@@ -27,19 +29,23 @@ public class SecurityUtils {
      * @return
      */
     public static boolean isLogin() {
-        return getPrincipal() != null;
+        return getUser() != null;
     }
 
     /**
-     * 当前登录的用户是否是超级管理员
+     * 后台管理端：当前用户是否超级管理员
      * @return
      */
     public static boolean isSuper() {
-        return getPrincipal().getId() == 1;
+        if(getUser().getId() instanceof Number) {
+            return ((Number) getUser().getId()).longValue() == 1;
+        }
+
+        return false;
     }
 
     /**
-     * 判断用户是不是超级管理员
+     * 后台管理端：验证用户是不是超级管理员
      * @param id
      * @return
      */

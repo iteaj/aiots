@@ -8,8 +8,6 @@ import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +24,6 @@ import java.util.stream.Collectors;
  */
 public abstract class DefaultAuthHandler implements WebAuthHandler {
 
-    private PathMatcher pathMatcher;
     private List<WebAuthAction> actions;
     private FrameworkProperties config;
     private Map<String, WebAuthAction> actionMap;
@@ -34,7 +31,6 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
 
     public DefaultAuthHandler(List<WebAuthAction> actions) {
         this.actions = actions;
-        this.pathMatcher = new AntPathMatcher();
         try {
             this.actionMap = actions.stream().collect(Collectors
                     .toMap(item -> item.getName(), item -> item));
@@ -58,68 +54,54 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
         String requestURI = request.getRequestURI();
         requestURI = requestURI.substring(request.getContextPath().length());
 
-        if(this.getActions().size() == 0) {
-            logger.warn("移动端授权处理器未指定任何动作[{}]", getClass().getName());
-        } else {
-            WebAuthAction action = null; String urlPattern = "";
-            for (WebAuthAction item: this.getActions()) {
-                for (String url : item.getUrlPattern()) {
-                    if(this.pathMatcher.match(url, requestURI)) {
-                        action = item; urlPattern = url;
-                        break;
+        try {
+            if(this.getActions().size() == 0) {
+                logger.warn("移动端授权处理器未指定任何动作[{}]", getClass().getName());
+            } else {
+                WebAuthAction action = null; String urlPattern = "";
+                for (WebAuthAction item: this.getActions()) {
+                    if(item.pathMatcher(requestURI, request)) {
+                        action = item; break;
                     }
                 }
 
                 if(action != null) {
-                    break;
+                    if(logger.isDebugEnabled()) {
+                        logger.debug("路径["+ request.getRequestURI() +"]匹配到授权动作["
+                                + action.getName()+"("+ urlPattern +")]");
+                    }
+
+                    // 授权前校验此请求是否需要授权
+                    if (!preAuthorize(request, response, action)) {
+                        return true;
+                    }
+
+                    // 执行授权获取授权上下文
+                    AuthContext authContext = action.authorize(request, response);
+
+                    if(authContext == null || authContext.getType() == null) {
+                        throw new AuthException("认证类型必填[AuthType]");
+                    }
+
+                    // 创建授权需要的参数
+                    postAuthorize(request, authContext, action);
+
+                    // 继续授权(真正的授权执行)
+                    this.doAuthorize(action, authContext, request, response);
+                } else {
+                    /**
+                     * 说明此次授权没有找到对应的动作{@link WebAuthAction}<br>
+                     *     或者动作没有返回任何处理方式{@link AuthType}
+                     */
+                    logger.warn("此次请求[{}]没有匹配到任何授权动作[{}]", requestURI, getActions());
+                    return true; // 没有匹配到任何处理动作, 直接放行
                 }
             }
-
-            if(action != null) {
-                if(logger.isDebugEnabled()) {
-                    logger.debug("路径["+ request.getRequestURI() +"]匹配到授权动作["
-                            + action.getName()+"("+ urlPattern +")]");
-                }
-
-                // 授权前的校验
-                if (!preAuthorize(request, response, action)) {
-                    return true;
-                }
-
-                // 执行授权
-                AuthContext authContext = action.authorize(request, response);
-                if(authContext == null) { // 终止授权
-                    return false;
-                }
-
-                if(authContext.getType() == null) {
-                    throw new AuthException("认证类型必填[AuthType]");
-                }
-
-                postAuthorize(request, authContext, action);
-
-                // 继续执行授权
-                this.doAuthorize(action, authContext, request, response);
-
-                saveAuthContextToSession(request, authContext);
-                return false;
-            } else {
-                /**
-                 * 说明此次授权没有找到对应的动作{@link WebAuthAction}<br>
-                 *     或者动作没有返回任何处理方式{@link AuthType}
-                 */
-                logger.warn("此次请求[{}]没有匹配到任何授权动作[{}]", requestURI, getActions());
-                return true; // 没有匹配到任何处理动作, 直接放行
-            }
+        } finally {
+            request.getSession().removeAttribute(CoreConst.SESSION_AUTH_CONTEXT);
         }
 
         return false;
-    }
-
-    private void saveAuthContextToSession(HttpServletRequest request, AuthContext authContext) {
-        // 保存此上下文到session(必须在此处写入到session, 否则可能会出现数据没有缓存的情况)
-        HttpSession session = request.getSession();
-        session.setAttribute(CoreConst.SESSION_AUTH_CONTEXT, authContext);
     }
 
     /**
@@ -158,6 +140,9 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
                 .length() - request.getRequestURI().length());
         final String contextPath = request.getContextPath();
         authContext.put("domain", domain + contextPath);
+
+        // 保存上下文到session
+        request.getSession().setAttribute(CoreConst.SESSION_AUTH_CONTEXT, authContext);
     }
 
     protected abstract void doAuthorize(WebAuthAction authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
@@ -176,9 +161,6 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
         if(target instanceof AuthCallAction) {
             ((AuthCallAction<?>) target).loginCall(cause, request, response);
         }
-
-        // 移除授权上下文
-        session.removeAttribute(CoreConst.SESSION_AUTH_CONTEXT);
 
         // 登录成功, 保存当前用户授权的action
         if(cause == null) {

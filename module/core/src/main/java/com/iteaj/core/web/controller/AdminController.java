@@ -76,7 +76,7 @@ public class AdminController extends BaseController {
     @ResponseBody
     @PostMapping("/modUserInfo")
     public Result modUserInfo(@RequestBody Admin admin) {
-        BaseEntity principal = SecurityUtils.getPrincipal();
+        BaseEntity principal = SecurityUtils.getUser();
         if(principal == null) return fail("未登录");
 
         admin.setId(principal.getId());
