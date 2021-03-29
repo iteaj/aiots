@@ -29,13 +29,6 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
         return this.urlPattern;
     }
 
-    /**
-     * 获取登录地址
-     * 登录的页面地址(GET)和提交表单登录地址(POST)必须相同
-     * @return
-     */
-    protected abstract String getLoginUrl();
-
     @Override
     public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) {
         return null;

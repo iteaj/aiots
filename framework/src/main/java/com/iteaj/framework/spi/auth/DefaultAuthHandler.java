@@ -106,7 +106,7 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
                  *     或者动作没有返回任何处理方式{@link AuthType}
                  */
                 logger.warn("此次请求[{}]没有匹配到任何授权动作[{}]", requestURI, getActions());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "unauthorized");
+                return true; // 没有匹配到任何处理动作, 直接放行
             }
         }
 

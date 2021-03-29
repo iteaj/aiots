@@ -36,7 +36,7 @@ public interface OAuth2Action extends WebAuthAction<OAuth2User> {
     Void login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) throws AuthException;
 
     /**
-     *
+     * 处理Oauth2生成的url
      * @param url oauth2授权url
      * @param request
      * @param response

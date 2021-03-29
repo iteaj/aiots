@@ -41,7 +41,6 @@ public class ShiroAdminAuthenticationController extends BaseController implement
      * @param token
      * @return
      */
-    @PostMapping("/login")
     public Result<AuthzUrl> login(@RequestBody ShiroAuthToken token) {
         try {
             // 登录

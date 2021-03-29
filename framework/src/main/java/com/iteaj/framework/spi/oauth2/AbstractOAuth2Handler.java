@@ -2,6 +2,7 @@ package com.iteaj.framework.spi.oauth2;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.app.WebAuthAction;
+import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.DefaultAuthHandler;
@@ -18,7 +19,7 @@ import java.util.List;
  * @author iteaj
  * @since 1.0
  */
-public abstract class AbstractOAuth2Handler extends DefaultAuthHandler {
+public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
 
     protected CacheManager cacheManager;
 

@@ -23,17 +23,7 @@ public class FrameworkAuthToken implements AuthToken{
         this.credentials = credentials;
     }
 
-    public FrameworkAuthToken(Entity principal
-            , Collection<String> roles, Collection<String> permissions) {
-        this.principal = principal;
-        this.roles = roles;
-        this.permissions = permissions;
-    }
-
-    public FrameworkAuthToken(Entity principal, Object credentials
-            , Collection<String> roles, Collection<String> permissions) {
-        this.principal = principal;
-        this.credentials = credentials;
+    public FrameworkAuthToken(Collection<String> roles, Collection<String> permissions) {
         this.roles = roles;
         this.permissions = permissions;
     }

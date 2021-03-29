@@ -73,7 +73,7 @@ public class IndexController extends BaseController {
             BufferedImage image = producer.createImage(split[0]);
 
             /**
-             * 放入Session 之后会在此过滤器验证：{@link com.iteaj.framework.shiro.CaptchaFilter}
+             * 放入Session
              */
             session.setAttribute(Constants.KAPTCHA_SESSION_KEY
                     , split.length==2 ? split[1] : split[0]);

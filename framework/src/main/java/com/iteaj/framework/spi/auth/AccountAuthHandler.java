@@ -35,7 +35,7 @@ public class AccountAuthHandler extends DefaultAuthHandler {
                 } catch (Exception e) {
                     this.loginCallHandle(item, e, request, response);
                 }
-            } else { // 登录页面无需授权
+            } else {
                 return false;
             }
         }

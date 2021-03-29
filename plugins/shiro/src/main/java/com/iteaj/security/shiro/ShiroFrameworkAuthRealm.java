@@ -41,7 +41,7 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
         FrameworkAuthTokenAdapter authTokenAdapter = (FrameworkAuthTokenAdapter) token;
 
         if(authTokenAdapter.getAuthToken() == null) {
-            throw new UnsupportedTokenException("认证");
+            throw new UnsupportedTokenException("认证失败[null]");
         }
 
         Object principal = token.getPrincipal();
@@ -49,7 +49,7 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
             throw new AuthenticationException("用户不存在");
         }
 
-        return new SimpleAuthenticationInfo(authTokenAdapter.getAuthToken()
+        return new SimpleAuthenticationInfo(principal
                 , authTokenAdapter.getCredentials(), this.getName());
     }
 

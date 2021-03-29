@@ -25,6 +25,11 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
         this.urlPattern = urlPattern;
     }
 
+    @Override
+    protected String getLoginUrl() {
+        return config.getOauth2().getRedirectUri();
+    }
+
     /**
      * Oauth2回调后登录成功时跳转的地址
      * @return
@@ -50,11 +55,6 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
             // 重定向Oauth2授权地址到授权服务器
             response.sendRedirect(url);
         }
-    }
-
-    @Override
-    protected void nonAjaxLogoutCall(Exception cause, HttpServletRequest request, HttpServletResponse response) throws IOException {
-
     }
 
     @Override
