@@ -1,5 +1,7 @@
 package com.iteaj.security.shiro;
 
+import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.filter.AccessControlFilter;
@@ -26,6 +28,15 @@ public class FrameworkAuthAccessFilter extends AccessControlFilter {
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
+        final HttpServletRequest servletRequest = (HttpServletRequest) request;
+        final Object attribute = servletRequest.getSession().getAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT);
+        if(attribute instanceof String) {
+            final WebAuthAction action = webAuthHandler.getAction((String) attribute);
+            if(action.isLoginRequest(servletRequest.getRequestURI(), servletRequest)) {
+                return false; // 如果是登录请求, 继续交由{@code webAuthHandler}处理, 重新走一遍登录流程
+            }
+        }
+
         // 认证过的用户直接放行, 没有认证的用户将执行认证处理
         return SecurityUtils.getSubject().isAuthenticated();
     }

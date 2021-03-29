@@ -26,7 +26,7 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
     }
 
     @Override
-    protected String getLoginUrl() {
+    public String getLoginUrl() {
         return config.getOauth2().getRedirectUri();
     }
 
@@ -34,7 +34,6 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
      * Oauth2回调后登录成功时跳转的地址
      * @return
      */
-    @Override
     public abstract String successUrl();
 
     @Override

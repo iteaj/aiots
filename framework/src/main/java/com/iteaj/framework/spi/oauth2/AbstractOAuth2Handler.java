@@ -1,11 +1,9 @@
 package com.iteaj.framework.spi.oauth2;
 
+import com.iteaj.framework.Proxy.ProxyUtils;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.app.WebAuthAction;
-import com.iteaj.framework.spi.auth.AccountAuthHandler;
-import com.iteaj.framework.spi.auth.AuthContext;
-import com.iteaj.framework.spi.auth.AuthException;
-import com.iteaj.framework.spi.auth.DefaultAuthHandler;
+import com.iteaj.framework.spi.auth.*;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +33,28 @@ public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
     protected abstract OAuth2Token refresh(String clientId);
 
     @Override
+    protected boolean preAuthorize(HttpServletRequest request, HttpServletResponse response, WebAuthAction item) {
+        final Object target = ProxyUtils.getTarget(item);
+        if(target instanceof AccountAuthAction) { // 用户名密码认证动作交给父处理
+            return super.preAuthorize(request, response, item);
+        } else {
+            return true; // OAuth2必须要执行授权
+        }
+    }
+
+    @Override
+    protected void doAuthorize(WebAuthAction authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        final Object target = ProxyUtils.getTarget(authAction);
+        if(target instanceof OAuth2Action) {
+            oauth2Authorize((OAuth2Action)target, context, request, response);
+        } else {
+            super.doAuthorize(authAction, context, request, response);
+        }
+    }
+
+    protected abstract void oauth2Authorize(OAuth2Action action, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+    @Override
     public void login(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
         Object context = session.getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
@@ -46,20 +66,16 @@ public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
 
                 try {
                     doOauth2Login((AuthContext) context, request, response);
-
                     this.loginCallHandle(authAction, null, request, response);
                 } catch (Exception e) {
                     this.loginCallHandle(authAction, e, request, response);
+                    throw e;
                 }
             } else {
                 logger.error("找不到匹配的[WebAuthAction]来处理此请求[{}], 上下文已释放", request.getRequestURI());
             }
         } catch (Exception e) {
             logger.error("Oauth2授权回调处理失败", e);
-        } finally {
-            if(context != null) {
-                session.removeAttribute(CoreConst.SESSION_AUTH_CONTEXT);
-            }
         }
     }
 

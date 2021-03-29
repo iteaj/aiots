@@ -17,19 +17,6 @@ import java.lang.reflect.UndeclaredThrowableException;
 public abstract class AuthCallAction<T> implements WebAuthAction<T> {
 
     /**
-     * 获取登录地址
-     * 登录的页面地址(GET)和提交表单登录地址(POST)必须相同
-     * @return
-     */
-    protected abstract String getLoginUrl();
-
-    /**
-     * 登录成功时跳转的url地址
-     * @return
-     */
-    public String successUrl() { return null;}
-
-    /**
      * 登录回调处理
      * @param cause 有无异常
      * @param request
@@ -37,7 +24,15 @@ public abstract class AuthCallAction<T> implements WebAuthAction<T> {
      */
     public void loginCall(Exception cause, HttpServletRequest request, HttpServletResponse response) {
         if(cause == null) {
-            writeJson(HttpResult.Success("登录成功"), response);
+            if(isAjax(request)) {
+                writeJson(HttpResult.Success("登录成功"), response);
+            } else {
+                try {
+                    response.sendRedirect(successUrl());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         } else {
             Throwable throwable = cause;
             if(cause instanceof UndeclaredThrowableException) {
@@ -49,8 +44,6 @@ public abstract class AuthCallAction<T> implements WebAuthAction<T> {
             } else {
                 writeJson(HttpResult.Fail("登录失败"), response);
             }
-
-            throwable.printStackTrace();
         }
     }
 

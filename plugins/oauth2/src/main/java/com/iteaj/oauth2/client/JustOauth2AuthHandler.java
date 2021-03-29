@@ -40,7 +40,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
     }
 
     @Override
-    protected void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected void oauth2Authorize(OAuth2Action authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
         AuthType type = context.getType();
         String sessionId = request.getSession().getId();
 
@@ -56,20 +56,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         }
 
         String authorize = authRequest.authorize(sessionId);
-
-        /**
-         * 缓存state和context的映射
-         * 在Oauth2重定向授权之后需要通过state获取context
-         * @see #login(HttpServletRequest, HttpServletResponse)
-         */
-        final WebAuthAction action = getAction(context.getAction());
-
-        final Object target = ProxyUtils.getTarget(action);
-        if(target instanceof OAuth2Action) {
-            ((OAuth2Action) target).doAuthorize(authorize, request, response);
-        } else {
-            throw new AuthException("["+action.getName()+"]不是[OAuth2Action]的实现");
-        }
+        authAction.doAuthorize(authorize, request, response);
     }
 
     private AuthRequest getAuthRequest(AuthContext context, AuthType type) {

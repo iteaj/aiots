@@ -66,6 +66,19 @@ public interface WebAuthAction<T> extends Ordered {
     }
 
     /**
+     * 获取登录地址
+     * 登录的页面地址(GET)和提交表单登录地址(POST)必须相同
+     * @return
+     */
+    default String getLoginUrl() {return null;}
+
+    /**
+     * 登录成功时跳转的url地址
+     * @return
+     */
+    default String successUrl() { return null;}
+
+    /**
      * 将符合此url模式的请求交由此action处理
      * @see org.springframework.util.PathMatcher#match(String, String)
      * 不包含上下文路径
@@ -80,7 +93,7 @@ public interface WebAuthAction<T> extends Ordered {
      * @param response 授权是的响应对象
      * @return AuthContext 如果返回{@code null}直接返回
      */
-    AuthContext authorize(HttpServletRequest request, HttpServletResponse response);
+    AuthContext authorize(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     /**
      * 注销

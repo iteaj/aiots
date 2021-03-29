@@ -38,7 +38,7 @@ public class AdminAuthAction extends AccountAuthAction {
     }
 
     @Override
-    protected String getLoginUrl() {
+    public String getLoginUrl() {
         return getConfig().getAdmin().getLoginUrl();
     }
 

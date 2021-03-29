@@ -30,8 +30,8 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
     }
 
     @Override
-    public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) {
-        return null;
+    public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        return AuthContext.build(AuthType.Account);
     }
 
     /**
@@ -46,7 +46,7 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
             if(loginUrl != null) {
                 response.sendRedirect(loginUrl);
             } else {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "未指定登录地址");
             }
         } catch (IOException e) {
             throw new AuthException("重定向到登录也地址失败["+loginUrl+"]", e);

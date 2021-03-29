@@ -3,6 +3,7 @@ package com.iteaj.framework.spi.auth;
 import com.iteaj.framework.FrameworkException;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.app.WebAuthAction;
+import com.iteaj.util.module.mvc.HttpResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,17 +27,11 @@ public class AccountAuthHandler extends DefaultAuthHandler {
 
         // 登录请求允许访问
         if(item.isLoginRequest(request.getRequestURI(), request)) {
-
             // 处理登录表单提交
             if(request.getMethod().equalsIgnoreCase("POST")) {
-                try {
-                    item.login(null, request, response);
-                    this.loginCallHandle(item, null, request, response);
-                } catch (Exception e) {
-                    this.loginCallHandle(item, e, request, response);
-                }
+                return true; // 继续往下授权
             } else {
-                return false;
+                return false; // 终止授权, 允许放行
             }
         }
 
@@ -44,51 +39,29 @@ public class AccountAuthHandler extends DefaultAuthHandler {
     }
 
     @Override
-    protected void doHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-        /*原生app认证不做任何事*/
-        if(context.getType() == AuthType.Account) {
-            this.doAccountHandle(context, request, response);
+    protected void doAuthorize(WebAuthAction authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        // 如果是登录请求直接调用登录
+        if(authAction.isLoginRequest(request.getRequestURI(), request)) {
+            try {
+                authAction.login(null, request, response);
+                this.loginCallHandle(authAction, null, request, response);
+            } catch (Exception e) {
+                this.loginCallHandle(authAction, e, request, response);
+                throw e;
+            }
         } else {
-            this.doOauth2Handle(context, request, response);
+            // 非登录请求
+            if(authAction.isAjax(request)) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "unauthorized");
+                authAction.writeJson(HttpResult.StatusCode("unauthorized", HttpServletResponse.SC_UNAUTHORIZED), response);
+            } else {
+                response.sendRedirect(authAction.getLoginUrl());
+            }
         }
-    }
-
-    protected void doOauth2Handle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-    }
-
-    protected void doAccountHandle(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        /*doing nothing*/
     }
 
     @Override
     public void login(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession();
-
-        /**
-         * 此上下文在认证拦截前已经放入session
-         * @see CoreConst#SESSION_AUTH_CONTEXT
-         */
-        Object context = session.getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
-        if(context instanceof AuthContext) {
-            String action = ((AuthContext) context).getAction();
-            /**
-             * 获取处理此次登录的动作
-             * @see #handle(HttpServletRequest, HttpServletResponse)
-             */
-            WebAuthAction authAction = getAction(action);
-
-            try {
-                // 执行登录动作
-                authAction.login(context, request, response);
-
-                this.loginCallHandle(authAction, null, request, response);
-            } catch (Exception e) {
-                this.loginCallHandle(authAction, e, request, response);
-            }
-        } else {
-            throw new FrameworkException("登录失败");
-        }
+        
     }
 }
