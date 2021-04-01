@@ -9,11 +9,11 @@ import org.apache.shiro.authc.AuthenticationToken;
  * @author iteaj
  * @since 1.0
  */
-public class FrameworkAuthTokenAdapter implements AuthenticationToken {
+public class ShiroAuthTokenAdapter implements AuthenticationToken {
 
     private AuthToken authToken;
 
-    public FrameworkAuthTokenAdapter(AuthToken authToken) {
+    public ShiroAuthTokenAdapter(AuthToken authToken) {
         this.authToken = authToken;
     }
 
@@ -31,7 +31,7 @@ public class FrameworkAuthTokenAdapter implements AuthenticationToken {
         return authToken;
     }
 
-    public FrameworkAuthTokenAdapter setAuthToken(AuthToken authToken) {
+    public ShiroAuthTokenAdapter setAuthToken(AuthToken authToken) {
         this.authToken = authToken;
         return this;
     }

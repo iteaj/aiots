@@ -1,6 +1,5 @@
 package com.iteaj.framework.spi.admin.auth;
 
-import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.util.module.mvc.orm.Entity;
 
@@ -27,9 +26,4 @@ public interface FrameworkAuthService<T extends AuthToken>{
      */
     Entity getUser();
 
-    /**
-     * 返回当前用户的认证动作
-     * @return
-     */
-    WebAuthAction getAction();
 }

@@ -4,9 +4,11 @@ import com.iteaj.framework.FrameworkException;
 import com.iteaj.framework.Proxy.ProxyUtils;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.app.WebAuthAction;
+import com.iteaj.framework.spi.event.EventUtils;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-public abstract class DefaultAuthHandler implements WebAuthHandler {
+public abstract class DefaultAuthHandler implements WebAuthHandler, InitializingBean {
 
     private List<WebAuthAction> actions;
     private FrameworkProperties config;
@@ -72,7 +74,7 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
                     }
 
                     // 授权前校验此请求是否需要授权
-                    if (!preAuthorize(request, response, action)) {
+                    if (!action.preAuthorize(request, response)) {
                         return true;
                     }
 
@@ -87,14 +89,16 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
                     postAuthorize(request, authContext, action);
 
                     // 继续授权(真正的授权执行)
-                    this.doAuthorize(action, authContext, request, response);
+                    final boolean authorize = this.doAuthorize(action, authContext, request, response);
+                    if(!authorize) { // 不需要授权直接放行
+                        return true;
+                    }
                 } else {
                     /**
                      * 说明此次授权没有找到对应的动作{@link WebAuthAction}<br>
                      *     或者动作没有返回任何处理方式{@link AuthType}
                      */
                     logger.warn("此次请求[{}]没有匹配到任何授权动作[{}]", requestURI, getActions());
-                    return true; // 没有匹配到任何处理动作, 直接放行
                 }
             }
         } finally {
@@ -102,19 +106,6 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
         }
 
         return false;
-    }
-
-    /**
-     * 是否需要授权
-     * @param request
-     * @param response
-     * @param item
-     * @return true 代表是  false 代表否
-     */
-    protected boolean preAuthorize(HttpServletRequest request
-            , HttpServletResponse response, WebAuthAction item) {
-
-        return true;
     }
 
     protected void postAuthorize(HttpServletRequest request, AuthContext authContext, WebAuthAction item) {
@@ -145,7 +136,7 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
         request.getSession().setAttribute(CoreConst.SESSION_AUTH_CONTEXT, authContext);
     }
 
-    protected abstract void doAuthorize(WebAuthAction authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
+    protected abstract boolean doAuthorize(WebAuthAction authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     /**
      * 登录回调处理
@@ -153,36 +144,33 @@ public abstract class DefaultAuthHandler implements WebAuthHandler {
      * @param cause
      * @param request
      * @param response
+     * @return true 拦截请求 false 放行此请求
      */
-    protected void loginCallHandle(WebAuthAction authAction, Exception cause, HttpServletRequest request, HttpServletResponse response) {
+    protected boolean loginCallHandle(WebAuthAction authAction, Exception cause, HttpServletRequest request, HttpServletResponse response) {
         final Object target = ProxyUtils.getTarget(authAction);
-        final HttpSession session = request.getSession();
-        // 处理登录异常
         if(target instanceof AuthCallAction) {
-            ((AuthCallAction<?>) target).loginCall(cause, request, response);
+            return ((AuthCallAction<?>) target).loginCall(cause, request, response);
         }
 
-        // 登录成功, 保存当前用户授权的action
-        if(cause == null) {
-            // 保存处理当前授权动作的动作明此
-            session.setAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT, authAction.getName());
-        }
+        return true;
     }
 
     /**
      * 注销当前用户
-     * 注销请求将交给原先授权登录的动作{@link WebAuthAction}
      * @param request
      * @param response
      * @throws AuthException
      */
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) throws AuthException {
-        Object actionName = request.getSession().getAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT);
-        if(actionName instanceof String) {
-            WebAuthAction action = getAction((String) actionName);
-            action.logout(request, response);
-        }
+        // 发送注销事件
+        final LogoutEvent logoutEvent = new LogoutEvent(request, response);
+        EventUtils.publish(logoutEvent);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
     }
 
     public FrameworkProperties getConfig() {

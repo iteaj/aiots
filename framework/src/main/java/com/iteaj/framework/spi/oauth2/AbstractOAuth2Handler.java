@@ -3,7 +3,8 @@ package com.iteaj.framework.spi.oauth2;
 import com.iteaj.framework.Proxy.ProxyUtils;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.app.WebAuthAction;
-import com.iteaj.framework.spi.auth.*;
+import com.iteaj.framework.spi.auth.AccountAuthHandler;
+import com.iteaj.framework.spi.auth.AuthContext;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,26 +34,16 @@ public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
     protected abstract OAuth2Token refresh(String clientId);
 
     @Override
-    protected boolean preAuthorize(HttpServletRequest request, HttpServletResponse response, WebAuthAction item) {
-        final Object target = ProxyUtils.getTarget(item);
-        if(target instanceof AccountAuthAction) { // 用户名密码认证动作交给父处理
-            return super.preAuthorize(request, response, item);
-        } else {
-            return true; // OAuth2必须要执行授权
-        }
-    }
-
-    @Override
-    protected void doAuthorize(WebAuthAction authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected boolean doAuthorize(WebAuthAction authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
         final Object target = ProxyUtils.getTarget(authAction);
         if(target instanceof OAuth2Action) {
-            oauth2Authorize((OAuth2Action)target, context, request, response);
+            return oauth2Authorize((OAuth2Action)target, context, request, response);
         } else {
-            super.doAuthorize(authAction, context, request, response);
+            return super.doAuthorize(authAction, context, request, response);
         }
     }
 
-    protected abstract void oauth2Authorize(OAuth2Action action, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
+    protected abstract boolean oauth2Authorize(OAuth2Action action, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     @Override
     public void login(HttpServletRequest request, HttpServletResponse response) {

@@ -4,7 +4,7 @@ import com.iteaj.framework.Proxy.TargetInvocationHandler;
 import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthToken;
-import com.iteaj.security.shiro.FrameworkAuthTokenAdapter;
+import com.iteaj.security.shiro.ShiroAuthTokenAdapter;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.beans.BeansException;
@@ -44,9 +44,13 @@ public class ShiroAuthActionProxyPostProcessor implements BeanPostProcessor, Bea
                     if(Objects.equals(method.getName(), loginMethodName)) {
                         try {
                             invoke = method.invoke(bean, args);
+                            if(null == invoke) {
+                                throw new AuthException("认证失败");
+                            }
+
                             // shiro 登录
                             SecurityUtils.getSubject().login(new
-                                    FrameworkAuthTokenAdapter((AuthToken) invoke));
+                                    ShiroAuthTokenAdapter((AuthToken) invoke));
                         } catch (AuthenticationException e) {
                             throw new AuthException(e.getMessage(), e);
                         }

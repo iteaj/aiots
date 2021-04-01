@@ -1,17 +1,19 @@
 package com.iteaj.core.service;
 
-import com.iteaj.framework.spi.admin.*;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.Config;
 import com.iteaj.core.entity.Menu;
 import com.iteaj.core.enums.ConfigType;
+import com.iteaj.framework.spi.admin.MenuResource;
+import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.framework.spi.admin.ResourceManager;
+import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.util.module.mvc.ServiceException;
 import com.iteaj.util.module.mvc.orm.Entity;
 import com.iteaj.util.module.mvc.result.ListResult;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,14 +48,6 @@ public class MenuResourceManager implements ResourceManager, EnvironmentAware {
                         , SecurityUtils.isSuper((Long) principal.getId()));
 
         return menuTrees.get().stream().collect(Collectors.toList());
-    }
-
-    @Override
-    public List<UrlResource> getFunctionPoint(Serializable id) {
-        Menu menu = new Menu();
-        menu.setPid((Long) id);
-        return menuService.selectList(menu)
-                .get().stream().collect(Collectors.toList());
     }
 
     @Override

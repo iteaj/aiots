@@ -8,14 +8,7 @@ import java.util.EventListener;
  * @author iteaj
  * @since 1.0
  */
-public interface Listener<E extends Event> extends EventListener {
-
-    /**
-     * 是否接收此事件
-     * @param event
-     * @return
-     */
-    boolean accepts(Event event);
+public interface FrameworkListener<E extends FrameworkEvent> extends EventListener {
 
     /**
      *

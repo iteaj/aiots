@@ -3,8 +3,11 @@ package com.iteaj.security.config;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.LoggerService;
+import com.iteaj.framework.spi.admin.auth.FrameworkAuthService;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
-import com.iteaj.framework.spi.event.Listener;
+import com.iteaj.framework.spi.event.EventPublisher;
+import com.iteaj.framework.spi.event.FrameworkListener;
+import com.iteaj.framework.spi.event.VoidEventPublisher;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import com.iteaj.security.shiro.*;
 import com.iteaj.security.shiro.online.OnlineSessionManager;
@@ -17,13 +20,13 @@ import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.session.mgt.eis.SessionDAO;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
-import org.apache.shiro.web.filter.mgt.FilterChainResolver;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.apache.shiro.web.mgt.WebSecurityManager;
-import org.apache.shiro.web.servlet.AbstractShiroFilter;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,7 +62,7 @@ public class ShiroAutoConfiguration {
      */
     @Bean("frameworkAccessFilter")
     public AccessFilterWrapper frameworkAccessFilter(WebAuthHandler handler) {
-        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new FrameworkAuthAccessFilter(handler));
+        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new ShiroAuthAccessFilter(handler));
     }
 
     /**
@@ -75,38 +78,56 @@ public class ShiroAutoConfiguration {
         chain.addPathDefinition("/**", CoreConst.FRAMEWORK_FILTER_NAME);
         return chain;
     }
+    /**
+     * shiro实现的认证服务
+     * @return
+     */
+    @Bean
+    public FrameworkAuthService authenticatingService() {
+        return new ShiroAuthService();
+    }
+
+    /**
+     *  开启自动代理
+     * @see #authorizationAttributeSourceAdvisor(RealmSecurityManager, ObjectProvider)
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean(DefaultAdvisorAutoProxyCreator.class)
+    public DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator() {
+        DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator =
+                new DefaultAdvisorAutoProxyCreator();
+
+        advisorAutoProxyCreator.setProxyTargetClass(true);
+        return advisorAutoProxyCreator;
+    }
+
+    /**
+     * shiro 启用权限注解拦截通知
+     * @param securityManager
+     * @param provider
+     * @return
+     */
+    @Bean
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor
+    (RealmSecurityManager securityManager , ObjectProvider<EventPublisher> provider) {
+        AuthorizationAttributeSourceAdvisor sourceAdvisor
+                = new AuthorizationAttributeSourceAdvisor();
+
+        sourceAdvisor.setSecurityManager(securityManager);
+
+        //如果获取不到事件发布者直接使用空事件发布, 不进行任何事件监听处理
+        EventPublisher eventPublisher = provider.getIfAvailable(() -> new VoidEventPublisher());
+        sourceAdvisor.setAdvice(new AuthorizingLogMethodInterceptor(eventPublisher));
+
+        return sourceAdvisor;
+    }
 
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions
             , SecurityManager securityManager, List<AccessFilterWrapper> filters) {
 
-        ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean() {
-            @Override
-            protected AbstractShiroFilter createInstance() throws Exception {
-                AbstractShiroFilter instance = super.createInstance();
-                return new SpringShiroFilter(instance.getSecurityManager(), instance.getFilterChainResolver());
-            }
-            class SpringShiroFilter extends AbstractShiroFilter {
-
-                protected SpringShiroFilter(WebSecurityManager webSecurityManager, FilterChainResolver resolver) {
-                    super();
-                    if (webSecurityManager == null) {
-                        throw new IllegalArgumentException("WebSecurityManager property cannot be null.");
-                    }
-                    setSecurityManager(webSecurityManager);
-                    if (resolver != null) {
-                        setFilterChainResolver(resolver);
-                    }
-
-                    setStaticSecurityManagerEnabled(true);
-                }
-            }
-
-            @Override
-            public Class getObjectType() {
-                return SpringShiroFilter.class;
-            }
-        };
+        ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
         factoryBean.setSecurityManager(securityManager);
 
         // 处理过滤器
@@ -119,6 +140,7 @@ public class ShiroAutoConfiguration {
         definitions.stream().forEach((definition)->
                 pathDefinition.putAll(definition.getFilterChainMap()));
         factoryBean.setFilterChainDefinitionMap(pathDefinition);
+
         return factoryBean;
     }
 
@@ -164,17 +186,9 @@ public class ShiroAutoConfiguration {
      * @return
      */
     @Bean
-    public AuthorizingRealm frameworkAuthRealm(WebAuthHandler handler) {
+    public AuthorizingRealm frameworkAuthRealm() {
 
-        FrameworkProperties.Admin admin = properties.getAdmin();
-
-        ShiroFrameworkAuthRealm authRealm = new ShiroFrameworkAuthRealm(handler);
-
-        // 权限信息缓存
-        authRealm.setAuthorizationCacheName(admin.getAuthorCacheName());
-
-        // 认证信息缓存
-        authRealm.setAuthenticationCacheName(admin.getAuthCacheName());
+        ShiroFrameworkAuthRealm authRealm = new ShiroFrameworkAuthRealm();
 
         // 关闭缓存
         authRealm.setAuthorizationCachingEnabled(false);
@@ -197,7 +211,7 @@ public class ShiroAutoConfiguration {
      */
     @Bean
     @ConditionalOnBean(LoggerService.class)
-    public Listener authorLogListener(LoggerService loggerService) {
+    public FrameworkListener authorLogListener(LoggerService loggerService) {
         return new ShiroAuthorLogListener(loggerService);
     }
 

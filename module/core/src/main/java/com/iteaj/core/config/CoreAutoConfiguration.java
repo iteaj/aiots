@@ -1,7 +1,8 @@
 package com.iteaj.core.config;
 
-import com.iteaj.core.app.OAuth2DemoAction;
+import com.iteaj.core.web.app.OAuth2DemoAction;
 import com.iteaj.core.auth.AdminAuthAction;
+import com.iteaj.core.auth.AdminAutoAuthAction;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.OnlineUser;
 import com.iteaj.core.enums.AppType;
@@ -15,21 +16,19 @@ import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.event.AsyncGuavaEventBus;
 import com.iteaj.framework.spi.event.EventPublisher;
-import com.iteaj.framework.spi.event.Listener;
+import com.iteaj.framework.spi.event.FrameworkListener;
 import com.iteaj.framework.spi.oauth2.OAuth2Action;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
-import com.iteaj.framework.spring.condition.ConditionalOnFramework;
-import com.iteaj.framework.spring.condition.Type;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -88,7 +87,7 @@ public class CoreAutoConfiguration {
      * @return
      */
     @Bean
-    public EventPublisher eventPublisher(TaskExecutor taskExecutor, List<Listener> listeners) {
+    public EventPublisher eventPublisher(TaskExecutor taskExecutor, List<FrameworkListener> listeners) {
         return new AsyncGuavaEventBus(listeners, taskExecutor);
     }
 
@@ -102,7 +101,6 @@ public class CoreAutoConfiguration {
      * 后台web管理端配置
      */
     @Configuration
-    @ConditionalOnFramework(Type.Pc)
     public static class CoreWebAutoConfiguration implements WebMvcConfigurer {
 
         private final FrameworkProperties properties;
@@ -121,6 +119,17 @@ public class CoreAutoConfiguration {
             final FrameworkProperties.Admin admin = properties.getAdmin();
             final String loginUrl = admin.getLoginUrl();
             return new AdminAuthAction("/core/**", loginUrl, "/");
+        }
+
+        /**
+         * 仅限于开发环境自动登录
+         * @return
+         */
+        @Bean
+        @Order(10)
+        @ConditionalOnProperty(value = "spring.profiles.active", havingValue = "dev")
+        public WebAuthAction adminAutoAuthAction() {
+            return new AdminAutoAuthAction();
         }
 
         /**
@@ -191,7 +200,7 @@ public class CoreAutoConfiguration {
          * @return
          */
         @Bean
-        public Listener onlineListener(IOnlineUserService service) {
+        public FrameworkListener onlineListener(IOnlineUserService service) {
             return new OnlineListener((event)-> {
 
                 OnlineType type = event.getType();

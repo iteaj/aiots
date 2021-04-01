@@ -1,4 +1,4 @@
-package com.iteaj.core.app;
+package com.iteaj.core.web.app;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

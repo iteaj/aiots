@@ -2,7 +2,6 @@ package com.iteaj.security.shiro;
 
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.auth.AuthToken;
-import com.iteaj.framework.spi.auth.WebAuthHandler;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -21,15 +20,11 @@ import org.apache.shiro.subject.PrincipalCollection;
  */
 public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
 
-    private WebAuthHandler handler;
-
-    public ShiroFrameworkAuthRealm(WebAuthHandler handler) {
-        this.handler = handler;
-    }
+    public ShiroFrameworkAuthRealm() { }
 
     @Override
     public boolean supports(AuthenticationToken token) {
-        return token != null && FrameworkAuthTokenAdapter
+        return token != null && ShiroAuthTokenAdapter
                 .class.isAssignableFrom(token.getClass());
     }
 
@@ -46,7 +41,7 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        FrameworkAuthTokenAdapter authTokenAdapter = (FrameworkAuthTokenAdapter) token;
+        ShiroAuthTokenAdapter authTokenAdapter = (ShiroAuthTokenAdapter) token;
 
         if(authTokenAdapter.getAuthToken() == null) {
             throw new UnsupportedTokenException("认证失败[null]");

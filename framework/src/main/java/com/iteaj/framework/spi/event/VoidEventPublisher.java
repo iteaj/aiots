@@ -12,7 +12,7 @@ import java.util.List;
 public class VoidEventPublisher implements EventPublisher {
 
     public VoidEventPublisher() {
-        LOGGER.warn("正在使用VoidEventPublisher, 所有的事件({})将不会被发布", Listener.class.getSimpleName());
+        LOGGER.warn("正在使用VoidEventPublisher, 所有的事件({})将不会被发布", FrameworkListener.class.getSimpleName());
     }
 
     @Override
@@ -21,7 +21,7 @@ public class VoidEventPublisher implements EventPublisher {
     }
 
     @Override
-    public List<Listener> listeners() {
+    public List<FrameworkListener> listeners() {
         return Collections.EMPTY_LIST;
     }
 }

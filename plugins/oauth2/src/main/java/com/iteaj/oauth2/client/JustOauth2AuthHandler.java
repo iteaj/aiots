@@ -40,7 +40,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
     }
 
     @Override
-    protected void oauth2Authorize(OAuth2Action authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected boolean oauth2Authorize(OAuth2Action authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
         AuthType type = context.getType();
         String sessionId = request.getSession().getId();
 
@@ -56,7 +56,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         }
 
         String authorize = authRequest.authorize(sessionId);
-        authAction.doAuthorize(authorize, request, response);
+        return authAction.doAuthorize(authorize, request, response);
     }
 
     private AuthRequest getAuthRequest(AuthContext context, AuthType type) {

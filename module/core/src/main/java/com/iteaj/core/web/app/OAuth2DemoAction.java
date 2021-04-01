@@ -1,6 +1,7 @@
-package com.iteaj.core.app;
+package com.iteaj.core.web.app;
 
 import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.DefaultOAuth2Action;
 import com.iteaj.framework.spi.oauth2.OAuth2User;
@@ -31,12 +32,7 @@ public class OAuth2DemoAction extends DefaultOAuth2Action {
     }
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
-
-    }
-
-    @Override
-    public Void login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) {
+    public AuthToken login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) {
         return null;
     }
 }

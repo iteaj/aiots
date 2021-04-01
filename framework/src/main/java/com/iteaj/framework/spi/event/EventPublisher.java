@@ -21,5 +21,5 @@ public interface EventPublisher {
      * 监听列表
      * @return
      */
-    List<Listener> listeners();
+    List<FrameworkListener> listeners();
 }

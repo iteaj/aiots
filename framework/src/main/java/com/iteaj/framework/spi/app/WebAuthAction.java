@@ -1,7 +1,8 @@
 package com.iteaj.framework.spi.app;
 
-import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.AuthToken;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.util.JsonUtils;
 import com.iteaj.util.Result;
 import org.springframework.core.Ordered;
@@ -11,8 +12,6 @@ import org.springframework.util.PathMatcher;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -106,6 +105,14 @@ public interface WebAuthAction<T> extends Ordered {
     String[] getUrlPattern();
 
     /**
+     * 调用授权之前的校验
+     * @param request
+     * @param response
+     * @return true 需要授权 false 无需授权
+     */
+    boolean preAuthorize(HttpServletRequest request, HttpServletResponse response);
+
+    /**
      * 用来处理未授权用户的请求
      * @see WebAuthHandler#handle(HttpServletRequest, HttpServletResponse)
      * @param request 授权是的请求对象
@@ -115,16 +122,9 @@ public interface WebAuthAction<T> extends Ordered {
     AuthContext authorize(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     /**
-     * 注销
-     * @param request
-     * @param response
-     */
-    void logout(HttpServletRequest request, HttpServletResponse response);
-
-    /**
      * 将在app端提交登录请求时调用
      * @param request
      * @param response
      */
-    Object login(T t, HttpServletRequest request, HttpServletResponse response);
+    AuthToken login(T t, HttpServletRequest request, HttpServletResponse response);
 }

@@ -21,9 +21,10 @@ public abstract class AuthCallAction<T> implements WebAuthAction<T> {
      * @param cause 有无异常
      * @param request
      * @param response
+     * @return true 拦截此请求  false 放行此请求
      */
-    public void loginCall(Exception cause, HttpServletRequest request, HttpServletResponse response) {
-        if(cause == null) {
+    public boolean loginCall(Exception cause, HttpServletRequest request, HttpServletResponse response) {
+        if(cause == null) { // 登录成功
             if(isAjax(request)) {
                 writeJson(HttpResult.Success(getSuccessUrl(), "登录成功"), response);
             } else {
@@ -33,43 +34,30 @@ public abstract class AuthCallAction<T> implements WebAuthAction<T> {
                     e.printStackTrace();
                 }
             }
-        } else {
+        } else { // 登录失败
             Throwable throwable = cause;
             if(cause instanceof UndeclaredThrowableException) {
                 throwable = ((UndeclaredThrowableException) cause)
                         .getUndeclaredThrowable().getCause();
             }
-            if(throwable instanceof AuthException) {
-                writeJson(HttpResult.Fail(throwable.getMessage()), response);
+
+            if(isAjax(request)) {
+                if(throwable instanceof AuthException) {
+                    writeJson(HttpResult.Fail(throwable.getMessage()), response);
+                } else {
+                    writeJson(HttpResult.Fail("登录失败"), response);
+                }
             } else {
-                writeJson(HttpResult.Fail("登录失败"), response);
+                // 登录失败重定向到登录页面
+                try {
+                    response.sendRedirect(getLoginUrl());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
+
+        return true;
     }
 
-    /**
-     * 注销回调处理
-     * @param cause 有无异常
-     * @param request
-     * @param response
-     */
-    public void logoutCall(Exception cause, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if(isAjax(request)) {
-            writeJson(HttpResult.Success("注销成功"), response);
-        } else {
-            nonAjaxLogoutCall(cause, request, response);
-        }
-    }
-
-    /**
-     * 非ajax注销回调
-     * @param cause
-     * @param request
-     * @param response
-     */
-    protected void nonAjaxLogoutCall(Exception cause, HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        // 重定向到登录页面
-        response.sendRedirect(this.getLoginUrl());
-    }
 }

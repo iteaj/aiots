@@ -18,27 +18,35 @@ import javax.servlet.http.HttpSession;
  * @author iteaj
  * @since 1.0
  */
-public class FrameworkAuthAccessFilter extends AccessControlFilter {
+public class ShiroAuthAccessFilter extends AccessControlFilter {
 
     private WebAuthHandler webAuthHandler;
 
-    public FrameworkAuthAccessFilter(WebAuthHandler webAuthHandler) {
+    public ShiroAuthAccessFilter(WebAuthHandler webAuthHandler) {
         this.webAuthHandler = webAuthHandler;
     }
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
-        final HttpServletRequest servletRequest = (HttpServletRequest) request;
-        final Object attribute = servletRequest.getSession().getAttribute(CoreConst.AUTH_ACTION_NAME_CURRENT);
-        if(attribute instanceof String) {
-            final WebAuthAction action = webAuthHandler.getAction((String) attribute);
-            if(action.isLoginRequest(servletRequest.getRequestURI(), servletRequest)) {
-                return false; // 如果是登录请求, 继续交由{@code webAuthHandler}处理, 重新走一遍登录流程
-            }
-        }
 
-        // 认证过的用户直接放行, 没有认证的用户将执行认证处理
-        return SecurityUtils.getSubject().isAuthenticated();
+        final boolean authenticated = SecurityUtils.getSubject().isAuthenticated();
+        if(!authenticated) {
+            final HttpServletRequest servletRequest = (HttpServletRequest) request;
+            final String requestURI = servletRequest.getRequestURI();
+            for (WebAuthAction action : webAuthHandler.getActions()) {
+                if(action.isLoginRequest(requestURI, servletRequest)) {
+                    // 如果是登录请求, 直接放行
+                    if(((HttpServletRequest) request).getMethod()
+                            .equalsIgnoreCase("GET")) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**

@@ -28,13 +28,6 @@ public interface ResourceManager {
     Map<String, Object> getEnvConfig(Entity admin);
 
     /**
-     * 返回视图菜单下面的功能点
-     * @param id
-     * @return
-     */
-    List<UrlResource> getFunctionPoint(Serializable id);
-
-    /**
      * 获取模块列表
      * @return
      */

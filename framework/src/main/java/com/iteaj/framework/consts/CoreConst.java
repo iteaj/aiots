@@ -12,12 +12,10 @@ public interface CoreConst {
 
     String WEB_USER_AGENT = "WEB_USER_AGENT";
 
-    String OAUTH2_STATE_CACHE = "OAuth2StateCache";
-
     String SESSION_AUTH_CONTEXT = "SessionAuthContext";
 
     /**
-     * 当前处理授权认证的动作名
+     * 在线用户标识
      */
-    String AUTH_ACTION_NAME_CURRENT = "AuthActionNameCurrent";
+    String ONLINE_ACCOUNT_ID = "OnlineAccountId";
 }

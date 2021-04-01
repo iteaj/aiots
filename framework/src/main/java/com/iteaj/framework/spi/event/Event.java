@@ -8,7 +8,7 @@ import java.util.EventObject;
  * @author iteaj
  * @since 1.0
  */
-public class Event extends EventObject {
+public class Event extends EventObject implements FrameworkEvent {
 
     /**
      * Constructs a prototypical Event.

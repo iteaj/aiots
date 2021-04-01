@@ -2,7 +2,6 @@ package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spring.boot.config.FrameworkProperties;
-import com.iteaj.util.module.mvc.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,13 +19,19 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
     private String[] urlPattern;
     private FrameworkProperties config;
 
-    public AccountAuthAction(String... urlPattern) {
+    public AccountAuthAction(String[] urlPattern) {
         this.urlPattern = urlPattern;
     }
 
     @Override
     public String[] getUrlPattern() {
         return this.urlPattern;
+    }
+
+    @Override
+    public boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
+
+        return true;
     }
 
     @Override
@@ -71,14 +76,6 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
      */
     @Override
     public abstract AuthToken login(Void t, HttpServletRequest request, HttpServletResponse response);
-
-    /**
-     * 注销
-     * @param request
-     * @param response
-     */
-    @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response) { }
 
     public AccountAuthAction setUrlPattern(String... urlPattern) {
         this.urlPattern = urlPattern;

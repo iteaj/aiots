@@ -3,7 +3,11 @@ package com.iteaj.core.web.controller;
 import com.iteaj.framework.BaseController;
 import com.iteaj.core.entity.Menu;
 import com.iteaj.core.service.IMenuService;
+import com.iteaj.framework.spi.admin.MenuResource;
+import com.iteaj.framework.spi.admin.ResourceManager;
+import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.util.Result;
+import com.iteaj.util.module.mvc.orm.Entity;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +25,11 @@ import java.util.List;
 public class MenuController extends BaseController {
 
     private final IMenuService menuService;
+    private final ResourceManager resourceManager;
 
-    public MenuController(IMenuService menuService) {
+    public MenuController(IMenuService menuService, ResourceManager resourceManager) {
         this.menuService = menuService;
+        this.resourceManager = resourceManager;
     }
 
     @GetMapping
@@ -65,6 +71,17 @@ public class MenuController extends BaseController {
     @RequiresPermissions("core:menu:edit")
     public Result edit(@RequestBody Menu menu) {
         return menuService.updateById(menu).build(success());
+    }
+
+    /**
+     * 权限资源列表
+     * @return
+     */
+    @GetMapping("/resources")
+    public Result<List<MenuResource>> resources() {
+        Entity principal = SecurityUtils.getUser();
+        List<MenuResource> resources = resourceManager.getResources(principal);
+        return success(resources);
     }
 
     /**

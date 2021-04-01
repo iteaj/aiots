@@ -1,5 +1,6 @@
 package com.iteaj.security.shiro.online;
 
+import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.OnlineSession;
 import com.iteaj.framework.spi.admin.auth.OnlineService;
 import org.apache.shiro.session.InvalidSessionException;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.WebSession;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * create time: 2020/6/25
@@ -52,28 +54,25 @@ public class OnlineSessionSessionDAO extends CachingSessionDAO implements Dispos
     protected Session doReadSession(Serializable sessionId) {
 
         OnlineSession onlineSession = onlineService.getSession(sessionId);
-        if(onlineSession == null) return null;
 
+        if(onlineSession == null) {
+            return null;
+        }
+
+        // 声明此session是一个在线session
         SimpleSession session = new SimpleSession();
-        session.setId(onlineSession.getSessionId());
+        session.setId(sessionId);
         session.setTimeout(onlineSession.getTimeout());
         session.setStartTimestamp(onlineSession.getStartTimestamp());
         session.setLastAccessTime(onlineSession.getLastAccessTime());
+
+        session.setAttribute(CoreConst.ONLINE_ACCOUNT_ID, onlineSession.getAccount());
 
         // 验证session是否过期或者已经停止
         try {
             session.validate();
         } catch (InvalidSessionException e) {
             return session;
-        }
-
-        // 写入缓存
-        cache(session, sessionId);
-
-        // 此用户已经在线并且登录状态还未过期, 标记可以重新登录
-        // {@link OnlineSubjectDao#save(Subject)}
-        if(StringUtils.hasText(onlineSession.getAccount())) {
-            session.setAttribute("online", onlineSession);
         }
 
         return session;

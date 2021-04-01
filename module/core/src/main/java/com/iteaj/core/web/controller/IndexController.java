@@ -34,7 +34,7 @@ public class IndexController extends BaseController {
     /**
      * 登录页
      */
-    @GetMapping("/login")
+    @GetMapping("${izone.web.admin.login-url}")
     public String login() {
         return "login";
     }

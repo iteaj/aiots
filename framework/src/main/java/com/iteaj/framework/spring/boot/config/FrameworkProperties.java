@@ -7,11 +7,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class FrameworkProperties {
 
     /**
-     * 移动端配置
-     */
-    private App app;
-
-    /**
      * 后台管理端配置信息
      */
     private Admin admin;
@@ -42,8 +37,6 @@ public class FrameworkProperties {
     private String uploadRootUri;
 
     public static class Auth extends AuthConfig { }
-
-    public static class App extends FrameworkAppConfiguration.AppProperties { }
 
     public static class Admin extends FrameworkWebConfiguration.AdminProperties { }
 
@@ -91,15 +84,6 @@ public class FrameworkProperties {
 
     public FrameworkProperties setAuth(Auth auth) {
         this.auth = auth;
-        return this;
-    }
-
-    public App getApp() {
-        return app;
-    }
-
-    public FrameworkProperties setApp(App app) {
-        this.app = app;
         return this;
     }
 

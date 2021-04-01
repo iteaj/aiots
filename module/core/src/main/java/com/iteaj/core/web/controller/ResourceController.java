@@ -40,17 +40,6 @@ public class ResourceController extends BaseController {
     }
 
     /**
-     * 权限资源列表
-     * @return
-     */
-    @GetMapping("/resources")
-    public Result resources() {
-        Entity principal = SecurityUtils.getUser();
-        List<MenuResource> resources = resourceManager.getResources(principal);
-        return success(resources);
-    }
-
-    /**
      * 返回当前系统已经注册过的模块列表
      * @return
      */
@@ -58,16 +47,5 @@ public class ResourceController extends BaseController {
     public Result modules() {
         List<Module> modules = resourceManager.getModules();
         return new ListResult(modules).build(success());
-    }
-
-    /**
-     * 获取视图菜单下面的功能点
-     * @param id 指定视图
-     * @return
-     */
-    @GetMapping("/point")
-    public Result getFunctionPoint(Long id) {
-        List<UrlResource> resources = resourceManager.getFunctionPoint(id);
-        return success(resources);
     }
 }

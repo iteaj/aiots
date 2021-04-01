@@ -1,0 +1,25 @@
+package com.iteaj.framework.spi.event;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+/**
+ * create time: 2021/3/31
+ *
+ * @author iteaj
+ * @since 1.0
+ */
+public final class EventUtils implements ApplicationContextAware {
+
+    private static ApplicationContext applicationContext;
+
+    public static void publish(FrameworkEvent event) {
+        applicationContext.publishEvent(event);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+}

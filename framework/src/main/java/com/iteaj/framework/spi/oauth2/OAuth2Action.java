@@ -3,6 +3,7 @@ package com.iteaj.framework.spi.oauth2;
 
 import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthException;
+import com.iteaj.framework.spi.auth.AuthToken;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,11 @@ import javax.servlet.http.HttpServletResponse;
  * @since 1.0
  */
 public interface OAuth2Action extends WebAuthAction<OAuth2User> {
+
+    @Override
+    default boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
+        return true;
+    }
 
     /**
      * Oauth2直接返回false
@@ -31,15 +37,17 @@ public interface OAuth2Action extends WebAuthAction<OAuth2User> {
      * @param user
      * @param request 回调请求的请求对象
      * @param response 回调请求的响应对象
+     * @return 如果返回{@code null} 则取消登录
      */
     @Override
-    Void login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) throws AuthException;
+    AuthToken login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) throws AuthException;
 
     /**
      * 处理Oauth2生成的url
      * @param url oauth2授权url
      * @param request
      * @param response
+     * @return true 需要授权 false 不需要授权
      */
-    void doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws Exception;
+    boolean doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws Exception;
 }

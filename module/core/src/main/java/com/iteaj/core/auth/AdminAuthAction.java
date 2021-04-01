@@ -8,6 +8,7 @@ import com.iteaj.framework.spi.auth.*;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.util.JsonUtils;
 import com.iteaj.util.module.json.Json;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StreamUtils;
 
@@ -29,9 +30,9 @@ import java.util.stream.Collectors;
 public class AdminAuthAction extends AccountAuthAction {
 
     @Autowired
-    private IRoleService roleService;
+    protected IRoleService roleService;
     @Autowired
-    private IAdminService adminService;
+    protected IAdminService adminService;
 
     public AdminAuthAction(String... urlPattern) {
         super(urlPattern);
@@ -77,14 +78,19 @@ public class AdminAuthAction extends AccountAuthAction {
                 throw new AuthException("密码校验失败");
             }
 
-            List<Long> roleIds = this.roleService.selectByAdminId(admin.getId());
-            List<String> roles = roleIds.stream().map(id ->
-                    String.valueOf(id)).collect(Collectors.toList());
-
-            List<String> perms = this.adminService.selectPermsById(admin.getId());
-            return new FrameworkAuthInfo(admin, password, roles, perms);
+            return getFrameworkAuthInfo(password, admin);
         } catch (IOException e) {
             throw new AuthException("参数错误");
         }
+    }
+
+    @NotNull
+    protected FrameworkAuthInfo getFrameworkAuthInfo(String password, Admin admin) {
+        List<Long> roleIds = this.roleService.selectByAdminId(admin.getId());
+        List<String> roles = roleIds.stream().map(id ->
+                String.valueOf(id)).collect(Collectors.toList());
+
+        List<String> perms = this.adminService.selectPermsById(admin.getId());
+        return new FrameworkAuthInfo(admin, password, roles, perms);
     }
 }

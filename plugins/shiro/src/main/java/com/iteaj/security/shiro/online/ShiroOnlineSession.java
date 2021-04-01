@@ -13,13 +13,21 @@ import java.io.Serializable;
  */
 public class ShiroOnlineSession extends SimpleSession implements OnlineSession {
 
+    private String account;
+
+
     @Override
     public String getAccount() {
-        return null;
+        return this.account;
     }
 
     @Override
     public Serializable getSessionId() {
         return this.getId();
+    }
+
+    public ShiroOnlineSession setAccount(String account) {
+        this.account = account;
+        return this;
     }
 }

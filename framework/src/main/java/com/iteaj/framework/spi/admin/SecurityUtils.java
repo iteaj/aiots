@@ -1,7 +1,6 @@
 package com.iteaj.framework.spi.admin;
 
 import com.iteaj.framework.spi.admin.auth.FrameworkAuthService;
-import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.util.module.mvc.orm.Entity;
 
 public class SecurityUtils {
@@ -18,10 +17,6 @@ public class SecurityUtils {
      */
     public static <T extends Entity> T getUser() {
         return (T) frameworkAuthService.getUser();
-    }
-
-    public static WebAuthAction getAction() {
-        return frameworkAuthService.getAction();
     }
 
     /**

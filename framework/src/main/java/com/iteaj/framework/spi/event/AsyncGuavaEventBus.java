@@ -13,9 +13,9 @@ import java.util.concurrent.Executor;
  */
 public class AsyncGuavaEventBus extends AsyncEventBus implements AsyncPublisher {
 
-    private List<Listener> listeners;
+    private List<FrameworkListener> listeners;
 
-    public AsyncGuavaEventBus(List<Listener> listeners, Executor executor) {
+    public AsyncGuavaEventBus(List<FrameworkListener> listeners, Executor executor) {
         super("AsyncGuavaEventBus", executor);
         this.listeners = listeners;
         registerListener();
@@ -33,7 +33,7 @@ public class AsyncGuavaEventBus extends AsyncEventBus implements AsyncPublisher 
     }
 
     @Override
-    public List<Listener> listeners() {
+    public List<FrameworkListener> listeners() {
         return listeners;
     }
 

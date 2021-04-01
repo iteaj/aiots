@@ -16,4 +16,9 @@ public class AuthConfig {
      */
     private String logoutUri = "/auth/logout";
 
+
+    /**
+     * 原生app请求头的token名称
+     */
+    private String tokenName = "access_token";
 }

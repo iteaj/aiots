@@ -45,7 +45,7 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         // cookie中没有， 如果是原生App 尝试从header获取access_token作为sessionId
         Browser browser = userAgent.getBrowser();
         if(browser != null && browser.getBrowserType() == BrowserType.APP) {
-            String tokenName = properties.getApp().getTokenName();
+            String tokenName = properties.getAuth().getTokenName();
             // 从请求头里面获取token, 作为sessionId
             return servletRequest.getHeader(tokenName);
         }

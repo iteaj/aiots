@@ -3,8 +3,7 @@ package com.iteaj.security.shiro;
 import com.google.common.eventbus.Subscribe;
 import com.iteaj.framework.spi.admin.LoggerEntity;
 import com.iteaj.framework.spi.admin.LoggerService;
-import com.iteaj.framework.spi.event.Event;
-import com.iteaj.framework.spi.event.Listener;
+import com.iteaj.framework.spi.event.FrameworkListener;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.util.StringUtils;
 
@@ -18,7 +17,7 @@ import java.util.stream.Stream;
  * @author iteaj
  * @since 1.0
  */
-public class ShiroAuthorLogListener implements Listener<ShiroAuthorEvent> {
+public class ShiroAuthorLogListener implements FrameworkListener<ShiroAuthorEvent> {
 
     private LoggerService loggerService;
 
@@ -29,11 +28,6 @@ public class ShiroAuthorLogListener implements Listener<ShiroAuthorEvent> {
     public ShiroAuthorLogListener setLoggerService(LoggerService loggerService) {
         this.loggerService = loggerService;
         return this;
-    }
-
-    @Override
-    public boolean accepts(Event event) {
-        return event instanceof ShiroAuthorEvent;
     }
 
     @Override

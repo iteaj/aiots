@@ -42,7 +42,7 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
     }
 
     @Override
-    public void doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public boolean doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if(isAjax(request)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
@@ -54,10 +54,12 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
             // 重定向Oauth2授权地址到授权服务器
             response.sendRedirect(url);
         }
+
+        return true;
     }
 
     @Override
-    public void loginCall(Exception cause, HttpServletRequest request, HttpServletResponse response) {
+    public boolean loginCall(Exception cause, HttpServletRequest request, HttpServletResponse response) {
         try {
             // 登录成功重定向到成功页面
             if(cause == null) {
@@ -68,6 +70,8 @@ public abstract class DefaultOAuth2Action extends AuthCallAction<OAuth2User> imp
         } catch (IOException e) {
             throw new AuthException(e);
         }
+
+        return true;
     }
 
     public DefaultOAuth2Action setUrlPattern(String[] urlPattern) {

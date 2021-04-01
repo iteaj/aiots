@@ -6,6 +6,7 @@ import com.iteaj.framework.spi.app.WebAuthAction;
 import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.auth.FrameworkAuthServlet;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.framework.spi.event.EventUtils;
 import com.iteaj.framework.spi.oauth2.FrameworkOauth2Configuration;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -32,8 +33,7 @@ import java.util.List;
 })
 @MapperScan(basePackages = {"com.iteaj.*.mapper"}) // 注入dao层组件
 @ImportAutoConfiguration({
-        MybatisPlusConfiguration.class,
-        FrameworkOauth2Configuration.class
+        MybatisPlusConfiguration.class
 })
 @EnableConfigurationProperties({FrameworkProperties.class})
 public class FrameworkAutoConfiguration {
@@ -45,41 +45,14 @@ public class FrameworkAutoConfiguration {
     }
 
     @Bean
+    public EventUtils eventUtils() {
+        return new EventUtils();
+    }
+
+    @Bean
     @ConditionalOnMissingBean({CacheManager.class})
     public CacheManager defaultCacheManager() {
         return new ConcurrentMapCacheManager();
     }
 
-
-    @Bean
-    @Order(20)
-    public OrderFilterChainDefinition oauth2FilterChainDefinition() {
-        final OrderFilterChainDefinition definition = new OrderFilterChainDefinition();
-
-        definition.addPathDefinition(properties.getAuth().getLogoutUri(), "anon");
-        definition.addPathDefinition(properties.getOauth2().getRedirectUri(), "anon");
-        return definition;
-    }
-
-    /**
-     * 框架的授权,认证登录, 注销服务
-     * @param handler
-     * @return
-     */
-    @Bean
-    public ServletRegistrationBean frameworkAuthServlet(WebAuthHandler handler) {
-        String redirectUri = properties.getOauth2().getRedirectUri();
-        final String logoutUri = properties.getAuth().getLogoutUri();
-        return new ServletRegistrationBean(new FrameworkAuthServlet(handler), redirectUri, logoutUri);
-    }
-
-    /**
-     * 使用账号密码认证的处理器
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean({WebAuthHandler.class})
-    public WebAuthHandler appAuthHandler(List<WebAuthAction> actions) {
-        return new AccountAuthHandler(actions);
-    }
 }
