@@ -74,7 +74,7 @@ public abstract class DefaultAuthHandler implements WebAuthHandler, Initializing
                     }
 
                     // 授权前校验此请求是否需要授权
-                    if (!action.preAuthorize(request, response)) {
+                    if (!action.preAuthorize(request, response, action)) {
                         return true;
                     }
 

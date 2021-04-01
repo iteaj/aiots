@@ -4,6 +4,7 @@ import com.google.code.kaptcha.Constants;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.service.IAdminService;
 import com.iteaj.core.service.IRoleService;
+import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.auth.*;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.util.JsonUtils;
@@ -86,6 +87,11 @@ public class AdminAuthAction extends AccountAuthAction {
 
     @NotNull
     protected FrameworkAuthInfo getFrameworkAuthInfo(String password, Admin admin) {
+        // 超级管理员拥有所有的权限
+        if(SecurityUtils.isSuper(admin.getId())) {
+            return new FrameworkAuthInfo(admin, password);
+        }
+
         List<Long> roleIds = this.roleService.selectByAdminId(admin.getId());
         List<String> roles = roleIds.stream().map(id ->
                 String.valueOf(id)).collect(Collectors.toList());

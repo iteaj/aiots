@@ -29,7 +29,7 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
     }
 
     @Override
-    public boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
+    public boolean preAuthorize(HttpServletRequest request, HttpServletResponse response, WebAuthAction action) {
 
         return true;
     }

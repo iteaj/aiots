@@ -22,6 +22,7 @@ import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -128,8 +129,8 @@ public class CoreAutoConfiguration {
         @Bean
         @Order(10)
         @ConditionalOnProperty(value = "spring.profiles.active", havingValue = "dev")
-        public WebAuthAction adminAutoAuthAction() {
-            return new AdminAutoAuthAction();
+        public WebAuthAction adminAutoAuthAction(@Qualifier("adminAuthAction") WebAuthAction adminAuthAction) {
+            return new AdminAutoAuthAction(adminAuthAction.getUrlPattern());
         }
 
         /**

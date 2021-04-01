@@ -40,6 +40,12 @@ public interface WebAuthAction<T> extends Ordered {
     }
 
     /**
+     * session超时时间
+     * @return
+     */
+    default long timeout() { return 0;}
+
+    /**
      * 是否是ajax请求
      * @param request
      * @return
@@ -108,9 +114,10 @@ public interface WebAuthAction<T> extends Ordered {
      * 调用授权之前的校验
      * @param request
      * @param response
+     * @param action
      * @return true 需要授权 false 无需授权
      */
-    boolean preAuthorize(HttpServletRequest request, HttpServletResponse response);
+    boolean preAuthorize(HttpServletRequest request, HttpServletResponse response, WebAuthAction action);
 
     /**
      * 用来处理未授权用户的请求

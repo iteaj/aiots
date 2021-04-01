@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 public interface OAuth2Action extends WebAuthAction<OAuth2User> {
 
     @Override
-    default boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
+    default boolean preAuthorize(HttpServletRequest request, HttpServletResponse response, WebAuthAction action) {
         return true;
     }
 
