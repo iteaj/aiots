@@ -1,19 +1,15 @@
 ## izone-sboot
-izone-sboot是基于springboot2开发的多模块多端且插件化的应用系统，核心思想是jar即功能, 体现在单个模块的高内聚和模块之间的低耦合, 比如引入shiro模块后系统就包含权限认证功能,引入redis后系统就包含缓存功能.模块与模块之间不相互依赖,比如shiro需要使用缓存但并不需要依赖redis或者ehcache模块(通过spring的ioc实现注入).
-
+izone-sboot是基于springboot2开发的支持多模块(后台管理模块, 开发模块)以及多端(pc, app, webapp, 小程序, 公众号)且插件化(shiro, oauth2, 缓存)的应用系统，核心思想是jar即功能, 体现在单个模块的高内聚和模块之间的低耦合, 比如引入shiro模块后系统就包含权限认证功能,引入redis后系统就包含缓存功能.模块与模块之间不相互依赖,比如shiro需要使用缓存但并不需要依赖redis或者ehcache模块(通过spring的ioc实现注入).
+### 使用教程说明文档
+1. [如何新增一个端(pc,app,webapp)或者不同方式(用户名密码,oauth2)的认证登录](https://gitee.com/iteaj/izone-sboot/wikis/%E5%A6%82%E4%BD%95%E5%A2%9E%E5%8A%A0%E4%B8%80%E7%A7%8D%E8%AE%A4%E8%AF%81?sort_id=3821700)
+2. [如何新增Oauth2的认证登录(以webapp的微信公众号登录和pc端的微信开放平台为例说明)](https://gitee.com/iteaj/izone-sboot/wikis/oauth2%E6%8E%88%E6%9D%83?sort_id=3821857)
 ### 已完成的功能
 1. 完整的后台管理功能接口
-2. 基于shiro的权限认证功能
-3. 基于redis的缓存功能
+2. 基于shiro的权限认证功能, 支持分布式集群的登录和授权动作, 支持oauth2实现认证授权
+3. 基于redis的缓存功能, 配合shiro实现分布式集群登录
 4. 基于ehchche3的缓存功能
 5. 基于shiro的token实现session功能, **支持分布式集群session功能** (shiro+redis实现), **移动端认证和pc认证共用同一套token+session机制** , 支持 **token+cookie形式** 
 6. 基于shiro + oauth2客户端授权实现 包括微信,支付宝,头条,gitee等主流平台授权   _注: **oauth2服务端正在开发中** _ 
-
-### 已完成的插件
-1. [ehcache缓存插件](https://gitee.com/iteaj/izone-sboot/tree/master/plugins/ehcache)
-2. [redis缓存插件](https://gitee.com/iteaj/izone-sboot/tree/master/plugins/redis)
-3. [oauth2授权认证插件(支持微信,支付宝,淘宝,京东等授权以及支持oauth2服务器)](https://gitee.com/iteaj/izone-sboot/tree/master/plugins/oauth2)
-4. [shiro授权认证插件(支持shiro+redis(ehcache)session缓存,移动端token+session授权,token有效期内自动登录等)](https://gitee.com/iteaj/izone-sboot/tree/master/plugins/shiro)
 
 ### 后台管理包含功能如下:
 前端特点是采用基于vue的多页面解决方案， 一个功能一个页面， 且每个页面包含完整的增删改查(基于vue和ant-design-vue). 后台采用springboot2开发， 已完成的包含如下功能：
