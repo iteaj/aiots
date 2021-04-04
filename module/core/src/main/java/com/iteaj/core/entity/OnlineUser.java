@@ -112,6 +112,11 @@ public class OnlineUser extends BaseEntity implements OnlineSession {
     }
 
     @Override
+    public String getAction() {
+        return null;
+    }
+
+    @Override
     public String getSessionId() {
         return sessionId;
     }

@@ -6,6 +6,8 @@ import com.iteaj.core.mapper.IOnlineUserMapper;
 import com.iteaj.core.service.IOnlineUserService;
 import com.iteaj.framework.spi.OnlineSession;
 import com.iteaj.framework.spi.admin.auth.OnlineService;
+import com.iteaj.framework.spi.auth.LoginEvent;
+import com.iteaj.framework.spi.event.FrameworkListener;
 import com.iteaj.util.module.mvc.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,7 @@ import java.io.Serializable;
  */
 @Service
 public class OnlineUserServiceImpl extends BaseServiceImpl<IOnlineUserMapper, OnlineUser>
-        implements IOnlineUserService, OnlineService {
+        implements IOnlineUserService, OnlineService, FrameworkListener<LoginEvent> {
 
     @Override
     @Transactional
@@ -45,5 +47,10 @@ public class OnlineUserServiceImpl extends BaseServiceImpl<IOnlineUserMapper, On
     @Override
     public void update(OnlineSession session) {
         updateById((OnlineUser) session);
+    }
+
+    @Override
+    public void onFrameworkEvent(LoginEvent event) {
+        System.out.println(event);
     }
 }

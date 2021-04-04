@@ -2,7 +2,7 @@ package com.iteaj.core.web.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.spi.admin.SecurityUtils;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.Result;
@@ -33,14 +33,14 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/common/upload")
-public class CommonUploadController extends BaseController implements InitializingBean {
+public class UploadController extends BaseController implements InitializingBean {
 
     private File rootDir; // 上传的跟目录
     private String uploadRootUri;
     private String commonSubPath = "/common/"; // 默认的子路径
-    private final FrameworkProperties properties;
+    private final FrameworkWebProperties properties;
 
-    public CommonUploadController(FrameworkProperties properties) {
+    public UploadController(FrameworkWebProperties properties) {
         this.properties = properties;
     }
 

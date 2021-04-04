@@ -19,6 +19,10 @@ public class AuthContext implements Serializable {
         this.type = type;
     }
 
+    /**
+     * @param type 授权类型[wechat, gitee, githup, alipay, ...]
+     * @return
+     */
     public static AuthContext build(AuthType type) {
         return new AuthContext(type);
     }
@@ -49,7 +53,7 @@ public class AuthContext implements Serializable {
         return action;
     }
 
-    protected AuthContext setAction(String action) {
+    public AuthContext setAction(String action) {
         this.action = action;
         return this;
     }

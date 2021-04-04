@@ -3,18 +3,19 @@ package com.iteaj.security.shiro.online;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.OnlineSession;
 import com.iteaj.framework.spi.admin.auth.OnlineService;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
+import eu.bitwalker.useragentutils.BrowserType;
+import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.session.mgt.eis.CachingSessionDAO;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.StringUtils;
-import org.springframework.beans.factory.DisposableBean;
+import org.apache.shiro.util.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.server.WebSession;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * create time: 2020/6/25
@@ -22,11 +23,12 @@ import java.util.Date;
  * @author iteaj
  * @since 1.0
  */
-public class OnlineSessionSessionDAO extends CachingSessionDAO implements DisposableBean {
+public class OnlineSessionSessionDAO extends CachingSessionDAO {
 
     @Autowired
     private OnlineService onlineService;
-
+    @Autowired
+    private WebAuthHandler webAuthHandler;
     @Override
     protected Serializable doCreate(Session session) {
         Serializable sessionId = generateSessionId(session);
@@ -45,8 +47,6 @@ public class OnlineSessionSessionDAO extends CachingSessionDAO implements Dispos
     }
 
     /**
-     * 1. 如果缓存里面找不到session, 那从数据库存储等地方读取session
-     * 2. 如果此session已经登录并且为过期则自动登录 {@link OnlineSubjectDao#save(Subject)}
      * @param sessionId
      * @return
      */
@@ -68,18 +68,26 @@ public class OnlineSessionSessionDAO extends CachingSessionDAO implements Dispos
 
         session.setAttribute(CoreConst.ONLINE_ACCOUNT_ID, onlineSession.getAccount());
 
-        // 验证session是否过期或者已经停止
-        try {
-            session.validate();
-        } catch (InvalidSessionException e) {
-            return session;
-        }
-
         return session;
     }
 
     @Override
-    public void destroy() throws Exception {
+    public String getActiveSessionsCacheName() {
+        try {
+            final Object request = ThreadContext.get(CoreConst.HTTP_SERVLET_REQUEST);
+            if(request instanceof HttpServletRequest) {
+                final Object agent = ((HttpServletRequest) request).getAttribute(CoreConst.WEB_USER_AGENT);
+                if(agent instanceof UserAgent) {
+                    final BrowserType type = ((UserAgent) agent).getBrowser().getBrowserType();
+                    if(type == BrowserType.APP) {
+                        return CoreConst.APP_SESSION_CACHE;
+                    }
+                }
+            }
 
+            return CoreConst.WEB_SESSION_CACHE;
+        } finally {
+            ThreadContext.remove(CoreConst.HANDLE_AUTH_ACTION);
+        }
     }
 }

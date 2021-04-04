@@ -1,7 +1,5 @@
 package com.iteaj.framework.spi.admin.event;
 
-import com.google.common.eventbus.Subscribe;
-import com.iteaj.framework.spi.event.Event;
 import com.iteaj.framework.spi.event.FrameworkListener;
 
 import java.util.function.Consumer;
@@ -21,8 +19,7 @@ public class OnlineListener implements FrameworkListener<OnlineEvent> {
     }
 
     @Override
-    @Subscribe
-    public void onEvent(OnlineEvent event) {
+    public void onFrameworkEvent(OnlineEvent event) {
         this.function.accept(event);
     }
 }

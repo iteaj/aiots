@@ -4,13 +4,7 @@ import com.iteaj.framework.spi.oauth2.FrameworkOauth2Configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "izone.web")
-public class FrameworkProperties {
-
-    /**
-     * 后台管理端配置信息
-     */
-    private Admin admin;
-
+public class FrameworkWebProperties {
 
     private Oauth2 oauth2;
 
@@ -38,25 +32,14 @@ public class FrameworkProperties {
 
     public static class Auth extends AuthConfig { }
 
-    public static class Admin extends FrameworkWebConfiguration.AdminProperties { }
-
     public static class Oauth2 extends FrameworkOauth2Configuration.OAuth2Properties { }
 
     public String getDomain() {
         return domain;
     }
 
-    public FrameworkProperties setDomain(String domain) {
+    public FrameworkWebProperties setDomain(String domain) {
         this.domain = domain;
-        return this;
-    }
-
-    public Admin getAdmin() {
-        return admin;
-    }
-
-    public FrameworkProperties setAdmin(Admin admin) {
-        this.admin = admin;
         return this;
     }
 
@@ -68,12 +51,12 @@ public class FrameworkProperties {
         return uploadRootUri;
     }
 
-    public FrameworkProperties setUploadRootUri(String uploadRootUri) {
+    public FrameworkWebProperties setUploadRootUri(String uploadRootUri) {
         this.uploadRootUri = uploadRootUri;
         return this;
     }
 
-    public FrameworkProperties setUploadRootDir(String uploadRootDir) {
+    public FrameworkWebProperties setUploadRootDir(String uploadRootDir) {
         this.uploadRootDir = uploadRootDir;
         return this;
     }
@@ -82,7 +65,7 @@ public class FrameworkProperties {
         return auth;
     }
 
-    public FrameworkProperties setAuth(Auth auth) {
+    public FrameworkWebProperties setAuth(Auth auth) {
         this.auth = auth;
         return this;
     }
@@ -91,7 +74,7 @@ public class FrameworkProperties {
         return oauth2;
     }
 
-    public FrameworkProperties setOauth2(Oauth2 oauth2) {
+    public FrameworkWebProperties setOauth2(Oauth2 oauth2) {
         this.oauth2 = oauth2;
         return this;
     }

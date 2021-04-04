@@ -1,4 +1,4 @@
-package com.iteaj.framework;
+package com.iteaj.framework.spi.app;
 
 import com.iteaj.util.IErrorCode;
 

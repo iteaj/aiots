@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi.oauth2;
 
 import com.iteaj.framework.spi.auth.AuthType;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -14,9 +14,6 @@ import java.util.Map;
  * @since 1.0
  */
 public class FrameworkOauth2Configuration {
-
-    @Autowired
-    private FrameworkProperties properties;
 
     @Data
     public static class OAuth2Properties {

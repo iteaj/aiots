@@ -16,9 +16,18 @@ public class AuthConfig {
      */
     private String logoutUri = "/auth/logout";
 
-
     /**
      * 原生app请求头的token名称
      */
     private String tokenName = "access_token";
+
+    /**
+     * 浏览器, 小程序等超时时间(秒) 默认30分钟
+     */
+    private long timeout = 30 * 60;
+
+    /**
+     * 原生app超时时间(秒) 默认30天
+     */
+    private long appTimeout = 30 * 24 * 60 * 60;
 }

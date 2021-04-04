@@ -11,8 +11,8 @@ import java.util.EventListener;
 public interface FrameworkListener<E extends FrameworkEvent> extends EventListener {
 
     /**
-     *
+     *  监听到事件的处理方法
      * @param event
      */
-    void onEvent(E event);
+    void onFrameworkEvent(E event);
 }

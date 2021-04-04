@@ -1,15 +1,14 @@
 package com.iteaj.framework.spi.oauth2;
 
-import com.iteaj.framework.Proxy.ProxyUtils;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.app.WebAuthAction;
-import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.AuthToken;
+import com.iteaj.framework.spi.auth.WebAuthAction;
+import com.iteaj.framework.spi.auth.handle.AccountAuthHandler;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -34,41 +33,35 @@ public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
     protected abstract OAuth2Token refresh(String clientId);
 
     @Override
-    protected boolean doAuthorize(WebAuthAction authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        final Object target = ProxyUtils.getTarget(authAction);
-        if(target instanceof OAuth2Action) {
-            return oauth2Authorize((OAuth2Action)target, context, request, response);
+    public boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        final WebAuthAction action = getAction(context.getAction());
+        if(action instanceof OAuth2Action) {
+            /**
+             * 保存上下文到session, 在客户端重定向之后会再次获取此上下文
+             * @see #handle(HttpServletRequest, HttpServletResponse)
+             * @see com.iteaj.framework.spi.auth.WebAuthHandler#login(AuthContext, HttpServletRequest, HttpServletResponse)
+             */
+            request.getSession().setAttribute(CoreConst.SESSION_AUTH_CONTEXT, context);
+
+            return oauth2Authorize((OAuth2Action)action, context, request, response);
         } else {
-            return super.doAuthorize(authAction, context, request, response);
+            return super.postAuthorize(context, request, response);
         }
     }
 
     protected abstract boolean oauth2Authorize(OAuth2Action action, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     @Override
-    public void login(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession();
-        Object context = session.getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
-        try {
-            // session存在认证上下文
-            if(context instanceof AuthContext) {
-                final String action = ((AuthContext) context).getAction();
-                final WebAuthAction authAction = getAction(action);
-
-                try {
-                    doOauth2Login((AuthContext) context, request, response);
-                    this.loginCallHandle(authAction, null, request, response);
-                } catch (Exception e) {
-                    this.loginCallHandle(authAction, e, request, response);
-                    throw e;
-                }
-            } else {
-                logger.error("找不到匹配的[WebAuthAction]来处理此请求[{}], 上下文已释放", request.getRequestURI());
-            }
-        } catch (Exception e) {
-            logger.error("Oauth2授权回调处理失败", e);
+    public AuthToken doLogin(AuthContext context, WebAuthAction action, HttpServletRequest request, HttpServletResponse response) {
+        if(action instanceof OAuth2Action) {
+            final OAuth2User oAuth2User = doOauth2Login(context, request, response);
+            return action.login(oAuth2User, request, response);
+        } else {
+            return super.doLogin(context, action, request, response);
         }
+
     }
 
-    protected abstract void doOauth2Login(AuthContext authContext, HttpServletRequest request, HttpServletResponse response);
+    protected abstract OAuth2User doOauth2Login(AuthContext authContext, HttpServletRequest request, HttpServletResponse response);
 }

@@ -1,7 +1,6 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.spi.app.WebAuthAction;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 public interface WebAuthHandler {
 
-    FrameworkProperties getConfig();
+    FrameworkWebProperties getConfig();
 
     /**
      * 通过Action名称获取一个Action
@@ -36,19 +35,34 @@ public interface WebAuthHandler {
     List<WebAuthAction> getActions();
 
     /**
-     * app端未认证时的处理方法
+     * 是否是登录页面请求
      * @param request
-     * @param response
+     * @return
      */
-    boolean handle(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    boolean isLoginRequest(HttpServletRequest request);
+
+    /**
+     * 是否是提交登录请求
+     * @param request
+     * @return
+     */
+    boolean isSubmitRequest(HttpServletRequest request);
+
+    /**
+     * 返回匹配的动作
+     * @param request
+     * @return
+     */
+    WebAuthAction matcher(HttpServletRequest request);
 
     /**
      * web登录时的处理
      * @see FrameworkAuthServlet#service(ServletRequest, ServletResponse)
+     * @param context
      * @param request
      * @param response
      */
-    void login(HttpServletRequest request, HttpServletResponse response) throws AuthException;
+    AuthToken login(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws AuthException;
 
     /**
      * web注销时的处理
@@ -57,4 +71,13 @@ public interface WebAuthHandler {
      * @param response
      */
     void logout(HttpServletRequest request, HttpServletResponse response) throws AuthException;
+
+    /**
+     * 继续授权
+     * @param context
+     * @param request
+     * @param response
+     * @return
+     */
+    boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
 }

@@ -15,7 +15,7 @@ public interface EventPublisher {
 
     Logger LOGGER = LoggerFactory.getLogger(EventPublisher.class);
 
-    void publish(Event event);
+    void publish(FrameworkEvent event);
 
     /**
      * 监听列表

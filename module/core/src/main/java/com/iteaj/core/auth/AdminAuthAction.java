@@ -1,6 +1,7 @@
 package com.iteaj.core.auth;
 
 import com.google.code.kaptcha.Constants;
+import com.iteaj.core.config.CoreProperties;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.service.IAdminService;
 import com.iteaj.core.service.IRoleService;
@@ -31,6 +32,8 @@ import java.util.stream.Collectors;
 public class AdminAuthAction extends AccountAuthAction {
 
     @Autowired
+    private CoreProperties properties;
+    @Autowired
     protected IRoleService roleService;
     @Autowired
     protected IAdminService adminService;
@@ -41,16 +44,16 @@ public class AdminAuthAction extends AccountAuthAction {
 
     @Override
     public String getSuccessUrl() {
-        return getConfig().getAdmin().getSuccessUrl();
+        return properties.getSuccessUrl();
     }
 
     @Override
     public String getLoginUrl() {
-        return getConfig().getAdmin().getLoginUrl();
+        return properties.getLoginUrl();
     }
 
     @Override
-    public AuthToken login(Void t, HttpServletRequest request, HttpServletResponse response) {
+    public AuthToken login(AuthContext t, HttpServletRequest request, HttpServletResponse response) {
         try(ServletInputStream inputStream = request.getInputStream()) {
             final String content = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             final Json builder = JsonUtils.builder(content);

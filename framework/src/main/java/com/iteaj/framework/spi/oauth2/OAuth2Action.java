@@ -1,7 +1,8 @@
 package com.iteaj.framework.spi.oauth2;
 
 
-import com.iteaj.framework.spi.app.WebAuthAction;
+import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthToken;
 
@@ -17,18 +18,17 @@ import javax.servlet.http.HttpServletResponse;
 public interface OAuth2Action extends WebAuthAction<OAuth2User> {
 
     @Override
-    default boolean preAuthorize(HttpServletRequest request, HttpServletResponse response, WebAuthAction action) {
+    default boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
         return true;
     }
 
     /**
      * Oauth2直接返回false
-     * @param requestUri
      * @param request
      * @return
      */
     @Override
-    default boolean isLoginRequest(String requestUri, HttpServletRequest request) {
+    default boolean isLoginRequest(HttpServletRequest request) {
         return false;
     }
 
@@ -50,4 +50,9 @@ public interface OAuth2Action extends WebAuthAction<OAuth2User> {
      * @return true 需要授权 false 不需要授权
      */
     boolean doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+    @Override
+    default boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        return true;
+    }
 }

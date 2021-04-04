@@ -13,8 +13,8 @@ import java.io.Serializable;
  */
 public class ShiroOnlineSession extends SimpleSession implements OnlineSession {
 
+    private String action;
     private String account;
-
 
     @Override
     public String getAccount() {
@@ -22,8 +22,18 @@ public class ShiroOnlineSession extends SimpleSession implements OnlineSession {
     }
 
     @Override
+    public String getAction() {
+        return this.action;
+    }
+
+    @Override
     public Serializable getSessionId() {
         return this.getId();
+    }
+
+    public ShiroOnlineSession setAction(String action) {
+        this.action = action;
+        return this;
     }
 
     public ShiroOnlineSession setAccount(String account) {

@@ -2,7 +2,8 @@ package com.iteaj.core.auth;
 
 import com.iteaj.core.entity.Admin;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.app.WebAuthAction;
+import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthToken;
 
@@ -31,15 +32,15 @@ public class AdminAutoAuthAction extends AdminAuthAction {
         }
 
         // 说明他是一个在线用户, 允许自动登录
-        final HttpSession session = request.getSession(false);
+        final HttpSession session = request.getSession();
         return session.getAttribute(CoreConst.ONLINE_ACCOUNT_ID) != null;
     }
 
     @Override
-    public boolean preAuthorize(HttpServletRequest request, HttpServletResponse response, WebAuthAction action) {
+    public boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
         try {
             // 直接登录
-            action.login(null, request, response);
+            this.login(null, request, response);
             return false; // 登录成功后直接放行
         } catch (Exception e) {
             // 登录异常
@@ -48,7 +49,7 @@ public class AdminAutoAuthAction extends AdminAuthAction {
     }
 
     @Override
-    public AuthToken login(Void t, HttpServletRequest request, HttpServletResponse response) {
+    public AuthToken login(AuthContext t, HttpServletRequest request, HttpServletResponse response) {
         final HttpSession session = request.getSession(false);
         try {
             final Object account = session.getAttribute(CoreConst.ONLINE_ACCOUNT_ID);

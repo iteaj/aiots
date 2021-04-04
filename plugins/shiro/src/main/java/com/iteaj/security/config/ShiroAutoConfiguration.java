@@ -8,11 +8,10 @@ import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.FrameworkListener;
 import com.iteaj.framework.spi.event.VoidEventPublisher;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import com.iteaj.security.shiro.*;
 import com.iteaj.security.shiro.online.OnlineSessionManager;
 import com.iteaj.security.shiro.online.OnlineSessionSessionDAO;
-import com.iteaj.security.shiro.online.OnlineSubjectDao;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -48,9 +47,9 @@ import java.util.stream.Collectors;
 @Configuration
 public class ShiroAutoConfiguration {
 
-    private final FrameworkProperties properties;
+    private final FrameworkWebProperties properties;
 
-    public ShiroAutoConfiguration(FrameworkProperties properties) {
+    public ShiroAutoConfiguration(FrameworkWebProperties properties) {
         this.properties = properties;
     }
 
@@ -117,8 +116,7 @@ public class ShiroAutoConfiguration {
         sourceAdvisor.setSecurityManager(securityManager);
 
         //如果获取不到事件发布者直接使用空事件发布, 不进行任何事件监听处理
-        EventPublisher eventPublisher = provider.getIfAvailable(() -> new VoidEventPublisher());
-        sourceAdvisor.setAdvice(new AuthorizingLogMethodInterceptor(eventPublisher));
+        sourceAdvisor.setAdvice(new AuthorizingLogMethodInterceptor());
 
         return sourceAdvisor;
     }
@@ -146,9 +144,7 @@ public class ShiroAutoConfiguration {
 
     @Bean
     public SessionDAO sessionDAO() {
-        OnlineSessionSessionDAO sessionDAO = new OnlineSessionSessionDAO();
-        sessionDAO.setActiveSessionsCacheName(properties.getAdmin().getTokenCacheName());
-        return sessionDAO;
+        return new OnlineSessionSessionDAO();
     }
 
     @Bean
@@ -168,15 +164,12 @@ public class ShiroAutoConfiguration {
 
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setSessionManager(sessionManager);
-        securityManager.setSubjectDAO(new OnlineSubjectDao());
         securityManager.setRealms(realms);
 
         // 设置缓存管理, 如果允许缓存则委托使用spring缓存
-        if(properties.getAdmin() != null & properties.getAdmin().isCacheEnable()) {
-            provider.ifAvailable((cacheManager -> {
-                securityManager.setCacheManager(new ShiroCacheManagerDelegation(cacheManager));
-            }));
-        }
+        provider.ifAvailable((cacheManager -> {
+            securityManager.setCacheManager(new ShiroCacheManagerDelegation(cacheManager));
+        }));
 
         return securityManager;
     }

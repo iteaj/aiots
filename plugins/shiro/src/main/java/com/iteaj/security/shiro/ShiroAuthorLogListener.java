@@ -1,6 +1,5 @@
 package com.iteaj.security.shiro;
 
-import com.google.common.eventbus.Subscribe;
 import com.iteaj.framework.spi.admin.LoggerEntity;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.event.FrameworkListener;
@@ -31,8 +30,7 @@ public class ShiroAuthorLogListener implements FrameworkListener<ShiroAuthorEven
     }
 
     @Override
-    @Subscribe
-    public void onEvent(ShiroAuthorEvent event) {
+    public void onFrameworkEvent(ShiroAuthorEvent event) {
         String[] perms = getPerms(event.getMethod());
         String errMsg = StringUtils.hasText(event.getErrMsg())
                 ? event.getErrMsg() : event.getType().desc;

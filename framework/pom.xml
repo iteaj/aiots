@@ -29,13 +29,11 @@
         </dependency>
 
         <dependency>
-            <scope>provided</scope>
             <artifactId>spring-jdbc</artifactId>
             <groupId>org.springframework</groupId>
         </dependency>
 
         <dependency>
-            <scope>provided</scope>
             <artifactId>kaptcha</artifactId>
             <version>${kaptcha.version}</version>
             <groupId>com.github.penggle</groupId>
@@ -47,19 +45,16 @@
         </dependency>
 
         <dependency>
-            <scope>provided</scope>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>
 
         <dependency>
-            <scope>provided</scope>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
 
         <dependency>
-            <scope>provided</scope>
             <optional>true</optional>
             <groupId>com.baomidou</groupId>
             <version>${mybatis.plus.version}</version>
@@ -74,6 +69,26 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
+        </dependency>
+
+        <!-- 缓存相关 -->
+        <dependency>
+            <optional>true</optional>
+            <artifactId>spring-data-redis</artifactId>
+            <groupId>org.springframework.data</groupId>
+        </dependency>
+
+        <!--ehcache3.x版本-->
+        <dependency>
+            <optional>true</optional>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+        </dependency>
+
+        <!--使用ehcache3.x版本必须的依赖-->
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
         </dependency>
         <!--        <dependency>-->
 <!--            <scope>provided</scope>-->

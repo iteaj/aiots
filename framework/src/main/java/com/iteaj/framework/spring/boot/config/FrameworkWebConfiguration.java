@@ -1,26 +1,30 @@
 package com.iteaj.framework.spring.boot.config;
 
+import com.iteaj.framework.cache.CacheEntry;
+import com.iteaj.framework.cache.SerializerType;
 import com.iteaj.framework.captcha.CaptchaConfiguration;
+import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.admin.auth.FrameworkAuthService;
-import com.iteaj.framework.spi.app.WebAuthAction;
-import com.iteaj.framework.spi.auth.AccountAuthHandler;
 import com.iteaj.framework.spi.auth.FrameworkAuthServlet;
+import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.framework.spi.auth.handle.AccountAuthHandler;
 import com.iteaj.framework.spi.oauth2.FrameworkOauth2Configuration;
-import lombok.Data;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
 /**
- * web项目配置信息
+ * web项目配置信息(包含浏览器[pc,app,微信,支付宝等], 小程序, app)
  */
 @ComponentScan({
         "com.iteaj.*.web.**" // 扫描注入所有web模块
@@ -30,11 +34,11 @@ import java.util.List;
         FrameworkAutoConfiguration.class,
         FrameworkOauth2Configuration.class
 })
-public class FrameworkWebConfiguration {
+public class FrameworkWebConfiguration implements WebMvcConfigurer {
 
-    private final FrameworkProperties properties;
+    private final FrameworkWebProperties properties;
 
-    public FrameworkWebConfiguration(FrameworkProperties properties) {
+    public FrameworkWebConfiguration(FrameworkWebProperties properties) {
         this.properties = properties;
     }
 
@@ -42,6 +46,31 @@ public class FrameworkWebConfiguration {
     public SecurityUtils securityUtils(FrameworkAuthService frameworkAuthService) {
         return new SecurityUtils(frameworkAuthService);
     }
+
+    /**
+     * web session缓存
+     * @return
+     */
+    @Bean
+    public CacheEntry sessionCacheEntry() {
+        final FrameworkWebProperties.Auth auth = properties.getAuth();
+        return new CacheEntry(CoreConst.WEB_SESSION_CACHE, auth.getTimeout(), SerializerType.Jdk);
+    }
+
+    /**
+     * app session缓存
+     * @return
+     */
+    @Bean
+    public CacheEntry appCacheEntry() {
+        final FrameworkWebProperties.Auth auth = properties.getAuth();
+        return new CacheEntry(CoreConst.APP_SESSION_CACHE, auth.getAppTimeout(), SerializerType.Jdk);
+    }
+
+    /**
+     * 注销地址和oauth2重定向地址不能被过滤器拦截
+     * @return
+     */
     @Bean
     @Order(20)
     public OrderFilterChainDefinition oauth2FilterChainDefinition() {
@@ -53,7 +82,7 @@ public class FrameworkWebConfiguration {
     }
 
     /**
-     * 框架的授权,认证登录, 注销服务
+     * 框架的授权,认证登录, 注销 Servlet
      * @param handler
      * @return
      */
@@ -65,6 +94,29 @@ public class FrameworkWebConfiguration {
     }
 
     /**
+     * 用户处理上传文件的访问路径问题
+     * @param registry
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String uploadRootUri = properties.getUploadRootUri();
+        String uploadRootDir = properties.getUploadRootDir();
+        if(uploadRootUri != null && uploadRootDir != null) {
+            if(uploadRootUri.endsWith("/")) {
+                uploadRootUri = uploadRootUri+"**";
+            } else {
+                uploadRootUri = uploadRootUri+"/**";
+            }
+            if(!uploadRootDir.endsWith("/")) {
+                uploadRootDir = uploadRootDir + "/";
+            }
+
+            registry.addResourceHandler(uploadRootUri)
+                    .addResourceLocations("file:"+uploadRootDir);
+        }
+    }
+
+    /**
      * 使用账号密码认证的处理器
      * @return
      */
@@ -72,48 +124,6 @@ public class FrameworkWebConfiguration {
     @ConditionalOnMissingBean({WebAuthHandler.class})
     public WebAuthHandler appAuthHandler(List<WebAuthAction> actions) {
         return new AccountAuthHandler(actions);
-    }
-
-    @Data
-    public static class AdminProperties {
-        /**
-         * 登录页的url(GET)和提交的url(POST)必须相同
-         */
-        private String loginUrl;
-
-        /** 认证成功后要跳转的Url*/
-        private String successUrl;
-
-        /** 认证失败后要跳转的Url */
-        private String unauthorizedUrl;
-
-        /**
-         * 缓存的存活时间 (默认时间30分钟)
-         */
-        private long timeToLiveSeconds = 30 * 60;
-
-        /**
-         * 设置对象在失效前的允许闲置时间（单位：秒）
-         * 默认0 说明此属性无效(也就是可闲置时间无穷大)
-         */
-        private long timeToIdleSeconds = 10 * 60;
-
-        /**
-         * 是否允许缓存token(redis只缓存session)
-         */
-        private boolean cacheEnable;
-
-        /**
-         * 令牌(token)的缓存名称
-         */
-        private String tokenCacheName = "izone_token_cache";
-
-        /** 验证码类型, 默认数字相加 e.g. 3+3*/
-        private String captchaType = "math";
-
-        /** 是否开启验证码 */
-        private boolean captchaEnabled = true;
-
     }
 }
 

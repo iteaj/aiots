@@ -16,7 +16,7 @@ public class VoidEventPublisher implements EventPublisher {
     }
 
     @Override
-    public void publish(Event event) {
+    public void publish(FrameworkEvent event) {
         LOGGER.warn("正在使用{}事件发布器, 将导致无任何事件被发布, 监听到事件: {}", VoidEventPublisher.class, event);
     }
 

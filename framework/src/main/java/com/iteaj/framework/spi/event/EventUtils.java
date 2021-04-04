@@ -6,12 +6,15 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * create time: 2021/3/31
- *
+ * @see com.iteaj.framework.spring.boot.FrameworkPayloadListener
  * @author iteaj
  * @since 1.0
  */
 public final class EventUtils implements ApplicationContextAware {
 
+    /**
+     * 默认使用spring事件机制
+     */
     private static ApplicationContext applicationContext;
 
     public static void publish(FrameworkEvent event) {

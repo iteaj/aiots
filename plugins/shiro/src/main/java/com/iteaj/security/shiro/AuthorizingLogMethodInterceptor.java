@@ -2,6 +2,7 @@ package com.iteaj.security.shiro;
 
 import com.iteaj.framework.spi.admin.LoggerType;
 import com.iteaj.framework.spi.event.EventPublisher;
+import com.iteaj.framework.spi.event.EventUtils;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthenticatedException;
@@ -19,12 +20,6 @@ import java.lang.reflect.Method;
  * @since 1.0
  */
 public class AuthorizingLogMethodInterceptor extends AopAllianceAnnotationsAuthorizingMethodInterceptor {
-
-    private EventPublisher eventPublisher;
-
-    public AuthorizingLogMethodInterceptor(EventPublisher asyncPublisher) {
-        this.eventPublisher = asyncPublisher;
-    }
 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
@@ -45,16 +40,14 @@ public class AuthorizingLogMethodInterceptor extends AopAllianceAnnotationsAutho
             status.desc = throwable.getMessage();
             throw throwable;
         } finally {
-            if(eventPublisher != null) {
-                ShiroHttpServletRequest servletRequest = (ShiroHttpServletRequest) subject.getServletRequest();
+            ShiroHttpServletRequest servletRequest = (ShiroHttpServletRequest) subject.getServletRequest();
 
-                long operaTime = System.currentTimeMillis()-startTime;
-                Method method = methodInvocation.getMethod();
-                Object[] arguments = methodInvocation.getArguments();
-                eventPublisher.publish(new ShiroAuthorEvent(source, servletRequest, status)
-                        .setMethod(method).setArgs(arguments)
-                        .setOperaTimeMillis(operaTime));
-            }
+            long operaTime = System.currentTimeMillis()-startTime;
+            Method method = methodInvocation.getMethod();
+            Object[] arguments = methodInvocation.getArguments();
+            EventUtils.publish(new ShiroAuthorEvent(source, servletRequest, status)
+                    .setMethod(method).setArgs(arguments)
+                    .setOperaTimeMillis(operaTime));
         }
     }
 }

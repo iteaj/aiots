@@ -1,10 +1,14 @@
 package com.iteaj.security.shiro.online;
 
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.spi.auth.WebAuthAction;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 
 import javax.servlet.ServletRequest;
@@ -20,12 +24,10 @@ import java.io.Serializable;
  */
 public class OnlineSessionManager extends DefaultWebSessionManager {
 
-    private FrameworkProperties properties;
+    private FrameworkWebProperties properties;
 
-    public OnlineSessionManager(FrameworkProperties frameworkProperties) {
-        this.properties = frameworkProperties;
-        long timeToLiveSeconds = this.properties.getAdmin().getTimeToLiveSeconds();
-        this.setGlobalSessionTimeout(timeToLiveSeconds * 1000);
+    public OnlineSessionManager(FrameworkWebProperties frameworkWebProperties) {
+        this.properties = frameworkWebProperties;
     }
 
     /**
@@ -41,6 +43,8 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
 
         servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
+        // 设置请求属性
+        ThreadContext.put(CoreConst.HTTP_SERVLET_REQUEST, request);
 
         // cookie中没有， 如果是原生App 尝试从header获取access_token作为sessionId
         Browser browser = userAgent.getBrowser();
@@ -52,5 +56,10 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
 
         // 从cookie中获取
         return super.getSessionId(request, response);
+    }
+
+    protected void applyGlobalSessionTimeout(Session session) {
+        session.setTimeout(getGlobalSessionTimeout());
+        onChange(session);
     }
 }

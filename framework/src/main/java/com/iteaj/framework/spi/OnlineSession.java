@@ -17,6 +17,12 @@ public interface OnlineSession extends Serializable{
      */
     String getAccount();
 
+    /**
+     * @see com.iteaj.framework.spi.auth.WebAuthAction
+     * @return
+     */
+    String getAction();
+
     Serializable getSessionId();
 
     long getTimeout();

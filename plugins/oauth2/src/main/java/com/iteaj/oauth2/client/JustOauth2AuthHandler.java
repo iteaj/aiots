@@ -1,13 +1,12 @@
 package com.iteaj.oauth2.client;
 
 import com.iteaj.framework.FrameworkException;
-import com.iteaj.framework.Proxy.ProxyUtils;
-import com.iteaj.framework.spi.app.WebAuthAction;
+import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.*;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
@@ -69,7 +68,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         if(oauth2Config instanceof OAuth2Config) { // 使用自定义配置
             auth2Config = (OAuth2Config) oauth2Config;
         } else {
-            final FrameworkProperties.Oauth2 oauth2 = getConfig().getOauth2();
+            final FrameworkWebProperties.Oauth2 oauth2 = getConfig().getOauth2();
             if(oauth2 != null && oauth2.getClient() != null) {
                 auth2Config = oauth2.getClient().get(type);
 
@@ -94,7 +93,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         return this.instanceAuthRequest(context);
     }
 
-    protected void doOauth2Login(AuthContext authContext, HttpServletRequest request, HttpServletResponse response) {
+    protected OAuth2User doOauth2Login(AuthContext authContext, HttpServletRequest request, HttpServletResponse response) {
         String state = request.getParameter("state");
         String code = request.getParameter("code");
         String authCode = request.getParameter("auth_code");
@@ -120,10 +119,10 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
             if(authAction != null) {
                 OAuth2User oAuth2User = new OAuth2User();
                 BeanUtils.copyProperties(authUser, oAuth2User);
-
-                // 执行授权回调
-                authAction.login(oAuth2User, request, response);
+                return oAuth2User;
             }
+
+            return null;
         } else {
             throw new AuthException("["+authContext.getType()
                     +"]授权失败 code["+authResponse.getCode()

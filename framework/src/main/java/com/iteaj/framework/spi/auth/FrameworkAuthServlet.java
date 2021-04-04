@@ -1,6 +1,9 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;
@@ -20,6 +23,7 @@ import java.util.Objects;
 public class FrameworkAuthServlet extends GenericServlet {
 
     private WebAuthHandler handler;
+    protected static Logger logger = LoggerFactory.getLogger(FrameworkAuthServlet.class);
 
     public FrameworkAuthServlet(WebAuthHandler handler) {
         this.handler = handler;
@@ -33,14 +37,33 @@ public class FrameworkAuthServlet extends GenericServlet {
         String requestURI = request.getRequestURI();
         requestURI = requestURI.substring(request.getContextPath().length());
 
-        FrameworkProperties config = handler.getConfig();
-        final FrameworkProperties.Oauth2 oauth2 = config.getOauth2();
+        FrameworkWebProperties config = handler.getConfig();
+        final FrameworkWebProperties.Oauth2 oauth2 = config.getOauth2();
 
         // Oauth2 redirectUri处理
         if(Objects.equals(requestURI, oauth2.getRedirectUri())) {
-            handler.login((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+            Object context = request.getSession().getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
+            if(context instanceof AuthContext) {
+                try {
+                    handler.login((AuthContext) context, (HttpServletRequest)
+                            servletRequest, (HttpServletResponse) servletResponse);
+
+                    // 保存处理此次授权的动作
+                    request.getSession().setAttribute(CoreConst
+                            .HANDLE_LOGIN_ACTION, ((AuthContext) context).getAction());
+                } finally {
+                    // 移除上下文
+                    request.getSession().removeAttribute(CoreConst.SESSION_AUTH_CONTEXT);
+                }
+            } else {
+                logger.error("找不到[AuthContext], 可能已释放", request.getRequestURI());
+            }
         } else if(Objects.equals(requestURI, config.getAuth().getLogoutUri())) {
-            handler.logout(request, (HttpServletResponse) servletResponse);
+            try {
+                handler.logout(request, (HttpServletResponse) servletResponse);
+            } finally {
+                request.getSession().removeAttribute(CoreConst.HANDLE_LOGIN_ACTION);
+            }
         }
     }
 }

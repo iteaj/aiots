@@ -1,36 +1,32 @@
 package com.iteaj.core.config;
 
-import com.iteaj.core.web.app.OAuth2DemoAction;
 import com.iteaj.core.auth.AdminAuthAction;
 import com.iteaj.core.auth.AdminAutoAuthAction;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.OnlineUser;
 import com.iteaj.core.enums.AppType;
 import com.iteaj.core.service.*;
+import com.iteaj.core.web.app.OAuth2DemoAction;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.admin.event.OnlineListener;
 import com.iteaj.framework.spi.admin.event.OnlineType;
-import com.iteaj.framework.spi.app.WebAuthAction;
-import com.iteaj.framework.spi.event.AsyncGuavaEventBus;
-import com.iteaj.framework.spi.event.EventPublisher;
+import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.event.FrameworkListener;
 import com.iteaj.framework.spi.oauth2.OAuth2Action;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -81,17 +77,6 @@ public class CoreAutoConfiguration {
         return new ThreadPoolTaskScheduler();
     }
 
-    /**
-     * 事件通知发布者
-     * @param taskExecutor
-     * @param listeners
-     * @return
-     */
-    @Bean
-    public EventPublisher eventPublisher(TaskExecutor taskExecutor, List<FrameworkListener> listeners) {
-        return new AsyncGuavaEventBus(listeners, taskExecutor);
-    }
-
     @Bean
     public ResourceManager menuResourceManager(IMenuService menuService
             , IConfigService configService, List<Module> modules) {
@@ -102,12 +87,13 @@ public class CoreAutoConfiguration {
      * 后台web管理端配置
      */
     @Configuration
+    @EnableConfigurationProperties(CoreProperties.class)
     public static class CoreWebAutoConfiguration implements WebMvcConfigurer {
 
-        private final FrameworkProperties properties;
+        private final CoreProperties admin;
 
-        public CoreWebAutoConfiguration(FrameworkProperties properties) {
-            this.properties = properties;
+        public CoreWebAutoConfiguration(CoreProperties properties) {
+            this.admin = properties;
         }
 
         /**
@@ -117,7 +103,6 @@ public class CoreAutoConfiguration {
         @Bean
         @Order(100)
         public WebAuthAction adminAuthAction() {
-            final FrameworkProperties.Admin admin = properties.getAdmin();
             final String loginUrl = admin.getLoginUrl();
             return new AdminAuthAction("/core/**", loginUrl, "/");
         }
@@ -170,30 +155,6 @@ public class CoreAutoConfiguration {
         @Override
         public void addViewControllers(ViewControllerRegistry registry) {
             registry.addViewController("/core/main").setViewName("main");
-        }
-
-        /**
-         * 用户处理上传文件的访问路径问题
-         * @see com.iteaj.core.web.controller.CommonUploadController 文件上传
-         * @param registry
-         */
-        @Override
-        public void addResourceHandlers(ResourceHandlerRegistry registry) {
-            String uploadRootUri = properties.getUploadRootUri();
-            String uploadRootDir = properties.getUploadRootDir();
-            if(uploadRootUri != null && uploadRootDir != null) {
-                if(uploadRootUri.endsWith("/")) {
-                    uploadRootUri = uploadRootUri+"**";
-                } else {
-                    uploadRootUri = uploadRootUri+"/**";
-                }
-                if(!uploadRootDir.endsWith("/")) {
-                    uploadRootDir = uploadRootDir + "/";
-                }
-
-                registry.addResourceHandler(uploadRootUri)
-                        .addResourceLocations("file:"+uploadRootDir);
-            }
         }
 
         /**

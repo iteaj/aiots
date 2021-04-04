@@ -1,10 +1,6 @@
 package com.iteaj.oauth2.config;
 
-import com.iteaj.framework.cache.CacheEntry;
-import com.iteaj.framework.cache.SerializerType;
-import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.app.WebAuthAction;
-import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.oauth2.client.JustOauth2AuthHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;

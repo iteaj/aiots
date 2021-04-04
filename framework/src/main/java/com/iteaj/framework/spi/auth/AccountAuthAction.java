@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.spi.app.WebAuthAction;
-import com.iteaj.framework.spring.boot.config.FrameworkProperties;
+import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.util.module.mvc.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,10 +14,10 @@ import java.io.IOException;
  * @author iteaj
  * @since 1.0
  */
-public abstract class AccountAuthAction extends AuthCallAction<Void> implements WebAuthAction<Void> {
+public abstract class AccountAuthAction implements WebAuthAction<AuthContext> {
 
     private String[] urlPattern;
-    private FrameworkProperties config;
+    private FrameworkWebProperties config;
 
     public AccountAuthAction(String[] urlPattern) {
         this.urlPattern = urlPattern;
@@ -29,9 +29,8 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
     }
 
     @Override
-    public boolean preAuthorize(HttpServletRequest request, HttpServletResponse response, WebAuthAction action) {
-
-        return true;
+    public boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
+        return !(request.getMethod().equalsIgnoreCase("GET") && isLoginRequest(request));
     }
 
     @Override
@@ -39,34 +38,18 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
         return AuthContext.build(AuthType.Account);
     }
 
-    /**
-     * 非Ajax请求授权
-     * @param request
-     * @param response
-     * @return
-     */
-    protected void nonAjaxAuthorize(HttpServletRequest request, HttpServletResponse response) {
-        final String loginUrl = this.getLoginUrl();
-        try {
-            if(loginUrl != null) {
-                response.sendRedirect(loginUrl);
-            } else {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "未指定登录地址");
-            }
-        } catch (IOException e) {
-            throw new AuthException("重定向到登录也地址失败["+loginUrl+"]", e);
-        }
-    }
-
     @Override
-    public boolean isLoginRequest(String requestUri, HttpServletRequest request) {
-        final String loginUrl = getLoginUrl();
-        if(loginUrl != null) {
-            requestUri = requestUri.substring(request.getContextPath().length());
-            return loginUrl.equalsIgnoreCase(requestUri);
+    public boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        // 如果是登录请求直接调用登录
+        // 非登录请求
+        if(this.isAjax(request)) {
+//                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "unauthorized");
+            this.writeJson(HttpResult.StatusCode("unauthorized", HttpServletResponse.SC_UNAUTHORIZED), response);
+        } else {
+            response.sendRedirect(this.getLoginUrl());
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -75,19 +58,19 @@ public abstract class AccountAuthAction extends AuthCallAction<Void> implements 
      * @param response
      */
     @Override
-    public abstract AuthToken login(Void t, HttpServletRequest request, HttpServletResponse response);
+    public abstract AuthToken login(AuthContext t, HttpServletRequest request, HttpServletResponse response);
 
     public AccountAuthAction setUrlPattern(String... urlPattern) {
         this.urlPattern = urlPattern;
         return this;
     }
 
-    public FrameworkProperties getConfig() {
+    public FrameworkWebProperties getConfig() {
         return config;
     }
 
     @Autowired
-    public AccountAuthAction setConfig(FrameworkProperties config) {
+    public AccountAuthAction setConfig(FrameworkWebProperties config) {
         this.config = config;
         return this;
     }
