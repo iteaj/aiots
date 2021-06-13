@@ -70,7 +70,7 @@ public abstract class DefaultAuthHandler implements WebAuthHandler, Initializing
     }
 
     @Override
-    public WebAuthAction matcher(HttpServletRequest request) {
+    public final WebAuthAction matcher(HttpServletRequest request) {
         final Object action = request.getAttribute(CoreConst.HANDLE_AUTH_ACTION);
         if(action != null) {
             return (WebAuthAction) action;
@@ -99,7 +99,7 @@ public abstract class DefaultAuthHandler implements WebAuthHandler, Initializing
 
     public boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        final WebAuthAction action = getAction(context.getAction());
+        final WebAuthAction action = matcher(request);
 
         // 保存当前请求域
         context.put("domain", WebUtils.getContextRequestUrl(request));

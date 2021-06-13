@@ -1,6 +1,7 @@
 package com.iteaj.core.web.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.core.dto.PasswordDto;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.admin.SecurityUtils;
@@ -90,8 +91,9 @@ public class AdminController extends BaseController {
      */
     @ResponseBody
     @PostMapping("pwd")
-    public Result updatePwd(@RequestBody AdminDto adminDto) {
-        this.adminService.updatePwdById(adminDto.getId(), adminDto.getPassword());
-        return success();
+    public Result updatePwd(@RequestBody PasswordDto passwordDto) {
+        this.adminService.setAdminPassword(passwordDto
+                .getId(), passwordDto.getPassword());
+        return success("设置成功");
     }
 }

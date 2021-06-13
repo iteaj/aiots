@@ -4,6 +4,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.core.entity.Organize;
 import com.iteaj.core.service.IOrganizeService;
 import com.iteaj.util.Result;
+import io.swagger.annotations.Api;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.List;
  * @since 1.0
  */
 @Controller
+@Api("组织部门管理")
 @RequestMapping("/core/org")
 public class OrganizeController extends BaseController {
 
@@ -36,27 +38,39 @@ public class OrganizeController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:org:view")
     public Result view(Organize organize) {
-        return this.organizeService.selectTrees(organize).build(success());
+        return this.organizeService.selectTrees(organize);
+    }
+
+    @ResponseBody
+    @GetMapping("/parent")
+    public Result parent() {
+        return this.organizeService.selectTrees(null);
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:org:add")
     public Result add(@RequestBody Organize organize) {
-        return this.organizeService.insert(organize).build(success());
+        return this.organizeService.insert(organize);
+    }
+
+    @ResponseBody
+    @GetMapping("/edit")
+    public Result edit(Integer id) {
+        return this.organizeService.getById(id);
     }
 
     @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:org:edit")
     public Result edit(@RequestBody Organize organize) {
-        return this.organizeService.updateById(organize).build(success());
+        return this.organizeService.updateById(organize);
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:org:del")
-    public Result add(List<Long> list) {
-        return this.organizeService.deleteByIds(list).build(success());
+    public Result add(@RequestBody List<Long> list) {
+        return this.organizeService.deleteByIds(list);
     }
 }

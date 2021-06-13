@@ -31,11 +31,25 @@ public interface IAdminService extends IBaseService<IAdminDao, Admin> {
     /**
      * 更新密码
      */
-    void updatePwdById(Long id, String password);
+    void updatePwdById(Long id, String password, String oldPwd);
 
     void deleteAllJoinByIds(List<Long> list);
 
     List<String> selectPermsById(Serializable id);
 
     void updateCurrentUserInfo(Admin admin);
+
+    /**
+     * 获取管理中心的用户详情
+     * @param id
+     * @return
+     */
+    DetailResult<AdminDto> getAdminCenter(Serializable id);
+
+    /**
+     * 设置密码
+     * @param id
+     * @param password
+     */
+    void setAdminPassword(Long id, String password);
 }

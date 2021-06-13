@@ -32,10 +32,6 @@ public class Menu extends TreeEntity implements MenuResource {
     private String msn;
     /**排序*/
     private Integer sort;
-    /*是否记录日志*/
-    private Boolean log;
-    /*操作日志描述*/
-    private String logDesc;
     /**图标*/
     private String icon;
     /**是否显示*/

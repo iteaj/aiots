@@ -2,6 +2,7 @@ package com.iteaj.security.shiro;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.auth.*;
+import com.iteaj.framework.web.WebUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.slf4j.Logger;
@@ -31,20 +32,22 @@ public class ShiroAuthAccessFilter extends AccessControlFilter {
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
 
-        boolean authenticated = SecurityUtils.getSubject().isAuthenticated();
-        if(!authenticated) { // 没有认证授权通过
-            if(handler.isLoginRequest((HttpServletRequest) request)) {
-                return true;
-            }
-
-            return false;
-        } else { // 认证通过, 在验证是否是提交登录请求
-            if(handler.isSubmitRequest((HttpServletRequest) request)) {
-                return false;
-            }
-
-            return true;
+        final HttpServletRequest servletRequest = (HttpServletRequest) request;
+        final WebAuthAction authAction = handler.matcher(servletRequest);
+        if(authAction == null) {
+            return true; // 没有找到处理此次请求的动作, 直接放行
         }
+
+        boolean authenticated = SecurityUtils.getSubject().isAuthenticated();
+        if(handler.isSubmitRequest(servletRequest)) {
+            return false; // 查找登录页请求
+        }
+
+        if(handler.isLoginRequest(servletRequest)) {
+            return true; // 表单登录请求
+        }
+
+        return authenticated;
     }
 
     /**
@@ -79,6 +82,7 @@ public class ShiroAuthAccessFilter extends AccessControlFilter {
             if(context == null || context.getType() == null) {
                 throw new AuthException("认证类型必填[AuthType]");
             } else {
+                // 此次必须保存授权动作
                 context.setAction(action.getName());
             }
 

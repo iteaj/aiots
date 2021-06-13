@@ -6,6 +6,7 @@ import com.iteaj.core.enums.OrgType;
 import com.iteaj.core.enums.Status;
 import com.iteaj.framework.TreeEntity;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,14 +25,18 @@ import java.util.Date;
 @Accessors(chain = true)
 public class Organize extends TreeEntity {
 
+    @ApiModelProperty("部门名称")
     private String name;
+    @ApiModelProperty(hidden = true)
     private Integer sort;
+    @ApiModelProperty("部门负责人手机号")
     private String phone;
-    private String email;
+    @ApiModelProperty("部门负责人")
     private String leader;
+    @ApiModelProperty("部门路径")
+    private String path;
+    @ApiModelProperty(hidden = true)
     private Integer level;
-    private Status status;
-    private OrgType type;
 
     /**创建时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

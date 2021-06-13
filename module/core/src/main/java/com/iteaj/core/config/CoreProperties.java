@@ -35,11 +35,6 @@ public class CoreProperties {
     private long timeToIdleSeconds = 10 * 60;
 
     /**
-     * 是否允许缓存token(redis只缓存session)
-     */
-    private boolean cacheEnable;
-
-    /**
      * 令牌(token)的缓存名称
      */
     private String tokenCacheName = "izone_token_cache";

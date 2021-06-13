@@ -37,12 +37,10 @@
         </dependency>
 
         <dependency>
-            <optional>true</optional>
             <groupId>com.iteaj</groupId>
-            <artifactId>resources</artifactId>
+            <artifactId>framework</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <version>1.5.22</version>
             <groupId>io.swagger</groupId>

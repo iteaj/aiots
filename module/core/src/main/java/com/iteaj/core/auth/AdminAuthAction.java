@@ -57,7 +57,7 @@ public class AdminAuthAction extends AccountAuthAction {
         try(ServletInputStream inputStream = request.getInputStream()) {
             final String content = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             final Json builder = JsonUtils.builder(content);
-            String userName = builder.getString("username");
+            String userName = builder.getString("userName");
             String password = builder.getString("password");
             String captcha = builder.getString("captcha");
 

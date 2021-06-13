@@ -7,5 +7,5 @@ package com.iteaj.core.enums;
  * create time：2019/6/24
  */
 public enum Status {
-    正常, 禁用
+    enabled, disabled
 }

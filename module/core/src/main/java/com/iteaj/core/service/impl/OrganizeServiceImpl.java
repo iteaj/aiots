@@ -1,13 +1,22 @@
 package com.iteaj.core.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.core.entity.Admin;
 import com.iteaj.core.mapper.IOrganizeDao;
 import com.iteaj.core.entity.Organize;
+import com.iteaj.core.service.IAdminService;
 import com.iteaj.core.service.IOrganizeService;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.util.module.mvc.BaseServiceImpl;
+import com.iteaj.util.module.mvc.ServiceException;
+import com.iteaj.util.module.mvc.result.BooleanResult;
+import com.iteaj.util.module.mvc.result.DetailResult;
 import com.iteaj.util.module.mvc.result.ListResult;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -17,7 +26,72 @@ import java.util.List;
  * @since 1.0
  */
 @Service
+@AllArgsConstructor
 public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize> implements IOrganizeService {
+
+    private final IAdminService adminService;
+
+    @Override
+    public BooleanResult insert(Organize entity) {
+        final BooleanResult booleanResult = super.insert(entity);
+        if(entity.getPid() == 0) {
+            entity.setLevel(1);
+            entity.setPath(entity.getId().toString());
+        } else if(entity.getPid() > 0) {
+            DetailResult<Organize> parent = getById(entity.getPid());
+            parent.ofNullable().orElseThrow(() -> new ServiceException("父部门不存在"));
+
+            entity.setLevel(parent.get().getLevel() + 1);
+            entity.setPath(parent.get().getPath()+","+entity.getId());
+            updateById(entity); // 更新最新路径path
+        }
+
+        return booleanResult;
+    }
+
+    @Override
+    public BooleanResult updateById(Organize entity) {
+        if(entity.getPid() > 0) {
+            DetailResult<Organize> parent = getById(entity.getPid());
+            parent.ofNullable().orElseThrow(() -> new ServiceException("父部门不存在"));
+
+            entity.setLevel(parent.get().getLevel() + 1);
+            entity.setPath(parent.get().getPath()+","+entity.getId());
+
+            if(parent.get().getPid() == entity.getId()) {
+                throw new ServiceException("父部门不能是自己");
+            }
+        }
+
+        return super.updateById(entity);
+    }
+
+    @Override
+    public BooleanResult deleteByIds(Collection<? extends Serializable> idList) {
+        if(idList.size() == 0) {
+            throw new ServiceException("未选择要删除的数据");
+        }
+        if(idList.size() > 1) {
+            throw new ServiceException("不支持批量删除");
+        }
+        final Serializable id = idList.stream().findFirst().get();
+
+        // 如果存在子部门, 则要先删除子部门
+        selectList(Wrappers.<Organize>query().eq("pid", id))
+                .ofNullable().ifPresent(item -> {
+                    if(!item.isEmpty()) {
+                        throw new ServiceException("请先删除子部门");
+                    }
+                });
+
+        // 此部门已经在使用
+        adminService.selectOne(Wrappers.<Admin>query().eq("org_id", id))
+                .ofNullable().ifPresent(item -> {
+            throw new ServiceException("此部门已在使用");
+        });
+
+        return super.deleteByIds(idList);
+    }
 
     @Override
     public ListResult<Organize> selectTrees(Organize organize) {

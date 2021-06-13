@@ -43,7 +43,7 @@ public class DevelopAutoConfiguration implements ApplicationListener<Application
 
             @Override
             public String getName() {
-                return "开发模块";
+                return "开发环境";
             }
         };
     }

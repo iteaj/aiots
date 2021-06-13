@@ -18,9 +18,12 @@ import com.iteaj.util.module.mvc.result.BooleanResult;
 import com.iteaj.util.module.mvc.result.ListResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,52 +114,32 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
     }
 
     @Override
-    public ListResult selectTreesForNoA(Menu menu) {
+    public ListResult selectParentTrees() {
         // 去除禁用的状态
         List<Menu> status = this.getBaseDao()
-                .selectList(Wrappers.query(menu)
-                        .ne("status", PermStatus.disabled)
-                        .ne("type", MenuType.A));
+                .selectList(Wrappers.<Menu>query()
+                        .ne("type", MenuType.A)
+                        .ne("status", PermStatus.disabled));
+
         // 转成树结构
         List<Menu> menus = (List<Menu>) TreeUtils.toTrees(status, 0l);
         return new ListResult(menus);
     }
 
     @Override
-    public void createDefaultAuth(Menu menu) {
-        if(null == menu) return;
-        boolean notBlank = CommonUtils.isNotBlank(menu.getUrl());
-        final String urlPrefix = notBlank ? menu.getUrl() : ""
-                , permPrefix = notBlank ? permPrefix(menu.getUrl()) : "";
+    public BooleanResult deleteByIds(Collection<? extends Serializable> idList) {
+        if(CollectionUtils.isEmpty(idList)) {
+            throw new ServiceException("未指定要删除的记录");
+        }
+        if(idList.size() > 1) {
+            throw new ServiceException("菜单不支持批量删除");
+        }
 
-        Stream.of("add", "del", "edit", "view").forEach(item -> {
-            String name = "", permType = "";
-            Position position = Position.T;
-            switch (item) {
-                case "add":
-                    name = "新增";
-                    permType = "Add";
-                    position = Position.M;
-                    break;
-                case "del":
-                    name = "删除";
-                    permType = "Del";
-                    break;
-                case "edit":
-                    name = "修改";
-                    permType = "Edit";
-                    break;
-                case "view":
-                    name = "查询";
-                    permType = "View";
-                    position = Position.M;
-                    break;
-            }
+        this.selectOne(Wrappers.<Menu>query()
+                .eq("pid", idList.stream().findFirst().get()))
+                .ofNullable().ifPresent((item) -> {throw new ServiceException("请先删除子菜单");});
 
-            Menu authMenu = Menu.AuthMenu(menu.getId(), urlPrefix + "/" + item, name
-                    , menu.getMsn(), permType, permPrefix + ":" + item, position);
-            this.insert(authMenu);
-        });
+        return super.deleteByIds(idList);
     }
 
     @Override
@@ -164,12 +147,4 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
         return urlMenuMap.get(url);
     }
 
-    private String permPrefix(String url) {
-        if(CommonUtils.isBlank(url)) return "";
-        if(url.startsWith("/")) {
-            url = url.substring(1, url.length()-1);
-        }
-
-        return String.join(":", url.split("/"));
-    }
 }

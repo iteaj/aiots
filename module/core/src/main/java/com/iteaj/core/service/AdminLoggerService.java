@@ -52,12 +52,7 @@ public class AdminLoggerService implements LoggerService {
             operaLog.setTitle("访问需认证的页面");
         } else {
             Menu menu = getMenu(entity.getUrl());
-            if(menu != null && menu.getLog()) {
-                operaLog.setTitle(menu.getLogDesc())
-                        .setType(menu.getPermType());
 
-                operaLogService.insert(operaLog);
-            }
         }
     }
 

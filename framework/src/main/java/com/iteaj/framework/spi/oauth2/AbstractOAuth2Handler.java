@@ -5,6 +5,7 @@ import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.handle.AccountAuthHandler;
+import com.iteaj.framework.web.WebUtils;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,8 +36,12 @@ public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
     @Override
     public boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        final WebAuthAction action = getAction(context.getAction());
+        final WebAuthAction action = this.matcher(request);
         if(action instanceof OAuth2Action) {
+
+            // 保存当前请求域
+            context.put("domain", WebUtils.getContextRequestUrl(request));
+
             /**
              * 保存上下文到session, 在客户端重定向之后会再次获取此上下文
              * @see #handle(HttpServletRequest, HttpServletResponse)

@@ -40,11 +40,12 @@ public class FrameworkAuthServlet extends GenericServlet {
         FrameworkWebProperties config = handler.getConfig();
         final FrameworkWebProperties.Oauth2 oauth2 = config.getOauth2();
 
-        // Oauth2 redirectUri处理
+        // Oauth2 redirectUri回调处理
         if(Objects.equals(requestURI, oauth2.getRedirectUri())) {
             Object context = request.getSession().getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
             if(context instanceof AuthContext) {
                 try {
+                    // 回调登录
                     handler.login((AuthContext) context, (HttpServletRequest)
                             servletRequest, (HttpServletResponse) servletResponse);
 
@@ -56,7 +57,7 @@ public class FrameworkAuthServlet extends GenericServlet {
                     request.getSession().removeAttribute(CoreConst.SESSION_AUTH_CONTEXT);
                 }
             } else {
-                logger.error("找不到[AuthContext], 可能已释放", request.getRequestURI());
+                logger.warn("找不到[AuthContext], 可能已释放", request.getRequestURI());
             }
         } else if(Objects.equals(requestURI, config.getAuth().getLogoutUri())) {
             try {

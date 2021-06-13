@@ -34,16 +34,9 @@ public interface IMenuService extends IBaseService<IMenuDao, Menu> {
 
     /**
      * 不包含菜单类型是权限的菜单
-     * @param menu
      * @return
      */
-    ListResult selectTreesForNoA(Menu menu);
-
-    /**
-     * 新增：增、删、改、查权限功能点
-     * @param menu
-     */
-    void createDefaultAuth(Menu menu);
+    ListResult selectParentTrees();
 
     /**
      * 通过url地址获取菜单

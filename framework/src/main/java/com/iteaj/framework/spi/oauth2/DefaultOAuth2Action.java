@@ -20,7 +20,7 @@ public abstract class DefaultOAuth2Action implements OAuth2Action{
     private String[] urlPattern;
     private FrameworkWebProperties config;
 
-    public DefaultOAuth2Action(String... urlPattern) {
+    public DefaultOAuth2Action(String[] urlPattern) {
         this.urlPattern = urlPattern;
     }
 
@@ -35,6 +35,16 @@ public abstract class DefaultOAuth2Action implements OAuth2Action{
      */
     public abstract String getSuccessUrl();
 
+    /**
+     * Oauth2
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean isSubmitRequest(HttpServletRequest request) {
+        return false;
+    }
+
     @Override
     public String[] getUrlPattern() {
         return this.urlPattern;
@@ -43,11 +53,8 @@ public abstract class DefaultOAuth2Action implements OAuth2Action{
     @Override
     public boolean doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if(isAjax(request)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
             // 写出结果
-            writeJson(HttpResult.StatusCode(url,"UNAUTHORIZED"
-                    , HttpServletResponse.SC_UNAUTHORIZED), response);
+            writeJson(HttpResult.Success(url,"生成授权url成功"), response);
         } else {
 
             // 重定向Oauth2授权地址到授权服务器

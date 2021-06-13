@@ -1,6 +1,8 @@
 package com.iteaj.core.dto;
 
 import com.iteaj.core.entity.Admin;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -10,19 +12,23 @@ import java.util.List;
  * @author iteaj
  * @since 1.0
  */
+@Data
+@Accessors(chain = true)
 public class AdminDto extends Admin {
+
+    /**
+     * 所属部门
+     */
+    private String deptName;
+
+    /**
+     * 角色名称列表
+     */
+    private String roleNames;
 
     /**
      * 是否是超级管理员
      */
     private List<Long> roleIds;
 
-    public List<Long> getRoleIds() {
-        return roleIds;
-    }
-
-    public AdminDto setRoleIds(List<Long> roleIds) {
-        this.roleIds = roleIds;
-        return this;
-    }
 }

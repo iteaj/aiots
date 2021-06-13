@@ -58,13 +58,23 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     /**
      * 更新用户密码
-     * @param id
-     * @param password
+     * @param id 用户id
+     * @param password 新密码
+     * @param oldPwd 旧密码
      */
     @Override
-    public void updatePwdById(Long id, String password) {
+    public void updatePwdById(Long id, String password, String oldPwd) {
         if(null == id || CommonUtils.isBlank(password))
             throw new ServiceException("更新参数错误", "更新密码失败");
+        if(CommonUtils.isBlank(oldPwd))
+            throw new ServiceException("请输入原密码");
+
+        oldPwd = DigestUtils.md5Hex(oldPwd.getBytes());
+        String oldPassword = getBaseDao().getAdminPassword(id);
+
+        if(!oldPwd.equalsIgnoreCase(oldPassword)) {
+            throw new ServiceException("密码不匹配");
+        }
 
         String md5Hex = DigestUtils.md5Hex(password.getBytes());
         getBaseDao().updatePwdById(id, md5Hex);
@@ -96,6 +106,23 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
         principal.setAvatar(admin.getAvatar()).setEmail(admin.getEmail())
                 .setPhone(admin.getPhone()).setRemark(admin.getRemark())
                 .setName(admin.getName()).setSex(admin.getSex());
+    }
+
+    @Override
+    public DetailResult<AdminDto> getAdminCenter(Serializable id) {
+        return new DetailResult<AdminDto>(getBaseDao().getAdminCenter(id));
+    }
+
+    @Override
+    public void setAdminPassword(Long id, String password) {
+        if(null == id || CommonUtils.isBlank(password))
+            throw new ServiceException("请检查要设置的密码");
+
+        this.getById(id).ofNullable().orElseThrow(()
+                -> new ServiceException("用户不存在"));
+
+        String md5Hex = DigestUtils.md5Hex(password.getBytes());
+        getBaseDao().updatePwdById(id, md5Hex);
     }
 
 }

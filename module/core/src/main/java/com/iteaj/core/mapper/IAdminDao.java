@@ -23,4 +23,8 @@ public interface IAdminDao extends IBaseDao<Admin> {
     void deleteAllJoinByIds(List<Long> list);
 
     List<String> selectPermsById(Serializable id);
+
+    AdminDto getAdminCenter(Serializable id);
+
+    String getAdminPassword(Long id);
 }

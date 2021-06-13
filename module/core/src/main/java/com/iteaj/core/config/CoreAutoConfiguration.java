@@ -2,6 +2,7 @@ package com.iteaj.core.config;
 
 import com.iteaj.core.auth.AdminAuthAction;
 import com.iteaj.core.auth.AdminAutoAuthAction;
+import com.iteaj.core.auth.AdminOAuth2Action;
 import com.iteaj.core.entity.Admin;
 import com.iteaj.core.entity.OnlineUser;
 import com.iteaj.core.enums.AppType;
@@ -67,7 +68,7 @@ public class CoreAutoConfiguration {
 
             @Override
             public String getName() {
-                return "核心模块";
+                return "系统核心";
             }
         };
     }
@@ -78,9 +79,9 @@ public class CoreAutoConfiguration {
     }
 
     @Bean
-    public ResourceManager menuResourceManager(IMenuService menuService
-            , IConfigService configService, List<Module> modules) {
-        return new MenuResourceManager(menuService, configService, modules);
+    public ResourceManager menuResourceManager(
+            IConfigService configService, List<Module> modules) {
+        return new MenuResourceManager(configService, modules);
     }
 
     /**
@@ -104,7 +105,17 @@ public class CoreAutoConfiguration {
         @Order(100)
         public WebAuthAction adminAuthAction() {
             final String loginUrl = admin.getLoginUrl();
-            return new AdminAuthAction("/core/**", loginUrl, "/");
+            return new AdminAuthAction("/core/**", loginUrl);
+        }
+
+        /**
+         * @see #adminAuthAction() Order(80) 要小于 Order(100)
+         * @return
+         */
+        @Bean
+        @Order(80)
+        public AdminOAuth2Action oAuth2Action() {
+            return new AdminOAuth2Action(new String[]{"/core/oauth2"});
         }
 
         /**
@@ -155,6 +166,7 @@ public class CoreAutoConfiguration {
         @Override
         public void addViewControllers(ViewControllerRegistry registry) {
             registry.addViewController("/core/main").setViewName("main");
+            registry.addViewController("/core/index").setViewName("index");
         }
 
         /**

@@ -11,7 +11,7 @@ import com.iteaj.framework.spi.auth.FrameworkAuthServlet;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.auth.handle.AccountAuthHandler;
-import com.iteaj.framework.spi.oauth2.FrameworkOauth2Configuration;
+import com.iteaj.framework.spi.oauth2.Oauth2Configuration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -32,7 +32,7 @@ import java.util.List;
 @ImportAutoConfiguration({
         CaptchaConfiguration.class,
         FrameworkAutoConfiguration.class,
-        FrameworkOauth2Configuration.class
+        Oauth2Configuration.class
 })
 public class FrameworkWebConfiguration implements WebMvcConfigurer {
 

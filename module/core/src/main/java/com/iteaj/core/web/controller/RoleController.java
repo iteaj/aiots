@@ -1,5 +1,6 @@
 package com.iteaj.core.web.controller;
 
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.core.dto.RoleDto;
@@ -37,7 +38,8 @@ public class RoleController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:role:view")
     public Result view(Page page, Role role) {
-        return this.roleService.selectByPage(page, role).build(success());
+        page.addOrder(OrderItem.asc("sort"));
+        return this.roleService.selectByPage(page, role);
     }
 
     @ResponseBody

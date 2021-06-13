@@ -26,7 +26,7 @@ public class Admin extends BaseEntity {
 
     /*性别*/
     private Sex sex;
-    /*组织机构id*/
+    /*所属部门*/
     private Long orgId;
     /*用户昵称*/
     @TableField(condition = SqlCondition.LIKE)

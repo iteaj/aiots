@@ -3,7 +3,7 @@ package com.iteaj.core.enums;
 import com.baomidou.mybatisplus.core.enums.IEnum;
 
 public enum Sex implements IEnum<String> {
-    男, 女, 未知;
+    man, woman, non;
 
     @Override
     public String getValue() {

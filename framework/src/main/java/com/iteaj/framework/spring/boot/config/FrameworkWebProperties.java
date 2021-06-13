@@ -1,6 +1,6 @@
 package com.iteaj.framework.spring.boot.config;
 
-import com.iteaj.framework.spi.oauth2.FrameworkOauth2Configuration;
+import com.iteaj.framework.spi.oauth2.Oauth2Configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "izone.web")
@@ -32,7 +32,7 @@ public class FrameworkWebProperties {
 
     public static class Auth extends AuthConfig { }
 
-    public static class Oauth2 extends FrameworkOauth2Configuration.OAuth2Properties { }
+    public static class Oauth2 extends Oauth2Configuration.OAuth2Properties { }
 
     public String getDomain() {
         return domain;

@@ -11,6 +11,7 @@ import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.util.module.mvc.ServiceException;
 import com.iteaj.util.module.mvc.orm.Entity;
 import com.iteaj.util.module.mvc.result.ListResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
@@ -27,15 +28,14 @@ import java.util.stream.Collectors;
  */
 public class MenuResourceManager implements ResourceManager, EnvironmentAware {
 
+    @Autowired
+    private IMenuService menuService;
     private Environment environment;
     private final List<Module> modules;
-    private final IMenuService menuService;
     private final IConfigService configService;
 
-    public MenuResourceManager(IMenuService menuService
-            , IConfigService configService, List<Module> modules) {
+    public MenuResourceManager(IConfigService configService, List<Module> modules) {
         this.modules = modules;
-        this.menuService = menuService;
         this.configService = configService;
     }
 

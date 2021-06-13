@@ -27,12 +27,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency><!--静态资源和web页面-->
-            <groupId>com.iteaj</groupId>
-            <artifactId>resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
 <!-- ################################ 可选plugins ############################## -->
 
         <!--  quartz 定时任务插件  -->
