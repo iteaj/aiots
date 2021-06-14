@@ -16,7 +16,6 @@
 
     <modules>
         <module>dev</module>
-        <module>core</module>
     </modules>
 
     <properties>
