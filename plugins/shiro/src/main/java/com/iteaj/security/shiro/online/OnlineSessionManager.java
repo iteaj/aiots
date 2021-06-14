@@ -1,9 +1,7 @@
 package com.iteaj.security.shiro.online;
 
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.auth.WebAuthAction;
-import com.iteaj.framework.spi.auth.WebAuthHandler;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;

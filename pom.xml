@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
-        <module>module</module> <!--业务模块-->
+        <module>dev</module> <!--开发模块-->
         <module>plugins</module>    <!-- 可选插件 -->
 
         <module>framework</module><!--系统架构层-->

@@ -90,18 +90,5 @@
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
         </dependency>
-        <!--        <dependency>-->
-<!--            <scope>provided</scope>-->
-<!--            <artifactId>quartz</artifactId>-->
-<!--            <groupId>org.quartz-scheduler</groupId>-->
-
-<!--            &lt;!&ndash; springboot中，提供了更高版本的slf4j &ndash;&gt;-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.slf4j</groupId>-->
-<!--                    <artifactId>slf4j-api</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
     </dependencies>
 </project>

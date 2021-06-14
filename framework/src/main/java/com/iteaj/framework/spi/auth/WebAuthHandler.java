@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;

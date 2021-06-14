@@ -1,6 +1,6 @@
 package com.iteaj.framework.spring.condition;
 
-import com.iteaj.framework.spring.boot.config.FrameworkWebConfiguration;
+import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Condition;

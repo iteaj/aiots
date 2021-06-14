@@ -8,7 +8,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ import java.util.List;
  */
 @Configuration
 @ConditionalOnWebApplication
-public class OAuth2ClientConfiguration implements WebMvcConfigurer {
+public class OAuth2ClientConfiguration {
 
     /**
      * Oauth2认证授权处理器

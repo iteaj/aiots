@@ -1,12 +1,11 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
 import com.iteaj.util.module.mvc.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * create time: 2021/3/25

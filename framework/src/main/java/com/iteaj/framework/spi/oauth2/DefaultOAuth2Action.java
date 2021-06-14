@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi.oauth2;
 
 import com.iteaj.framework.spi.auth.AuthException;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
 import com.iteaj.util.module.mvc.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
 

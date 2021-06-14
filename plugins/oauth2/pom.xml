@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>plugin:oauth2</name>
     <artifactId>oauth2</artifactId>
     <description>oauth2相关插件,包含第三方认证授权和服务器</description>
 

@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spring.boot.config.FrameworkWebProperties;
+import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

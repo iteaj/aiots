@@ -1,6 +1,6 @@
 package com.iteaj.boot;
 
-import com.iteaj.framework.spring.boot.config.FrameworkWebConfiguration;
+import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

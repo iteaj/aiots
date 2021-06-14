@@ -15,12 +15,6 @@
     </properties>
 
     <dependencies>
-        <dependency><!-- 系统核心 -->
-            <groupId>com.iteaj</groupId>
-            <artifactId>core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency><!--  shiro权限管理  -->
             <groupId>com.iteaj</groupId>
             <artifactId>shiro</artifactId>
@@ -49,6 +43,15 @@
         <dependency>
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
+        </dependency>
+<!--        <dependency>-->
+<!--            <artifactId>caffeine</artifactId>-->
+<!--            <groupId>com.github.ben-manes.caffeine</groupId>-->
+<!--        </dependency>-->
+        <dependency>
+            <version>1.5.22</version>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
         </dependency>
     </dependencies>
 
