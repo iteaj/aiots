@@ -27,7 +27,6 @@ import java.util.UUID;
 /**
  * create time: 2020/4/26
  *  通用的文件上传
- * @see com.iteaj.msn.core.config.CoreAutoConfiguration#addResourceHandlers(ResourceHandlerRegistry) 已上传的文件的访问映射
  * @author iteaj
  * @since 1.0
  */
