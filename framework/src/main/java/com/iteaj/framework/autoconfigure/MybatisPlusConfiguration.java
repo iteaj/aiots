@@ -1,8 +1,6 @@
-package com.iteaj.framework.mybatis;
+package com.iteaj.framework.autoconfigure;
 
-import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -11,7 +9,6 @@ import org.springframework.context.annotation.Bean;
  * @author iteaj
  * @since 1.0
  */
-@ConditionalOnClass(MybatisPlusAutoConfiguration.class)
 public class MybatisPlusConfiguration {
 
     @Bean

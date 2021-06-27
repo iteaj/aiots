@@ -1,7 +1,6 @@
-package com.iteaj.security.shiro;
+package com.iteaj.framework.shiro;
 
 import com.iteaj.framework.spi.admin.LoggerType;
-import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.EventUtils;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.shiro.SecurityUtils;

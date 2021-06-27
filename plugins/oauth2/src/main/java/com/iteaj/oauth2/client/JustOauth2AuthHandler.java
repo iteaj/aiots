@@ -7,6 +7,7 @@ import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.*;
 import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
+import com.iteaj.oauth2.config.OAuth2ClientProperties;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
@@ -14,6 +15,7 @@ import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +34,8 @@ import java.util.Map;
  */
 public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements InitializingBean {
 
+    @Autowired
+    private OAuth2ClientProperties clientProperties;
     private Map<AuthType, Class<? extends AuthRequest>> authRequestMap = new HashMap<>(16);
 
     public JustOauth2AuthHandler(List<WebAuthAction> actions, CacheManager cacheManager) {
@@ -68,9 +72,8 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         if(oauth2Config instanceof OAuth2Config) { // 使用自定义配置
             auth2Config = (OAuth2Config) oauth2Config;
         } else {
-            final FrameworkWebProperties.Oauth2 oauth2 = getConfig().getOauth2();
-            if(oauth2 != null && oauth2.getClient() != null) {
-                auth2Config = oauth2.getClient().get(type);
+            if(clientProperties.getClient() != null) {
+                auth2Config = clientProperties.getClient().get(type);
 
                 // 保存当前授权配置
                 context.put("Oauth2Config", auth2Config);
@@ -132,7 +135,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
 
     private AuthRequest instanceAuthRequest(AuthContext context) {
         AuthConfig authConfig = new AuthConfig();
-        final String redirectUri = getConfig().getOauth2().getRedirectUri();
+        final String redirectUri = clientProperties.getRedirectUri();
 
         try {
             BeanUtils.copyProperties(context.get("Oauth2Config"), authConfig);

@@ -1,4 +1,4 @@
-package com.iteaj.security.shiro;
+package com.iteaj.framework.shiro;
 
 import com.iteaj.framework.spi.admin.LoggerType;
 import com.iteaj.framework.spi.event.Event;

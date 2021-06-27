@@ -1,9 +1,13 @@
-package com.iteaj.framework.spi.auth;
+package com.iteaj.oauth2.client;
 
-import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
+import com.iteaj.framework.spi.auth.AuthContext;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.oauth2.config.OAuth2ClientProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;
@@ -20,12 +24,14 @@ import java.util.Objects;
  * @author iteaj
  * @since 1.0
  */
-public class FrameworkAuthServlet extends GenericServlet {
+public class OAuth2HandleServlet extends GenericServlet {
 
     private WebAuthHandler handler;
-    protected static Logger logger = LoggerFactory.getLogger(FrameworkAuthServlet.class);
+    @Autowired
+    private OAuth2ClientProperties clientProperties;
+    protected static Logger logger = LoggerFactory.getLogger(OAuth2HandleServlet.class);
 
-    public FrameworkAuthServlet(WebAuthHandler handler) {
+    public OAuth2HandleServlet(WebAuthHandler handler) {
         this.handler = handler;
     }
 
@@ -38,10 +44,9 @@ public class FrameworkAuthServlet extends GenericServlet {
         requestURI = requestURI.substring(request.getContextPath().length());
 
         FrameworkWebProperties config = handler.getConfig();
-        final FrameworkWebProperties.Oauth2 oauth2 = config.getOauth2();
 
         // Oauth2 redirectUri回调处理
-        if(Objects.equals(requestURI, oauth2.getRedirectUri())) {
+        if(Objects.equals(requestURI, clientProperties.getRedirectUri())) {
             Object context = request.getSession().getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
             if(context instanceof AuthContext) {
                 try {

@@ -13,7 +13,6 @@
     <description>系统可选插件</description>
 
     <modules>
-        <module>shiro</module>
         <module>quartz</module>
         <module>oauth2</module>
     </modules>

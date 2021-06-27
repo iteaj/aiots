@@ -27,6 +27,20 @@ public abstract class AccountAuthAction implements WebAuthAction<AuthContext> {
         return this.urlPattern;
     }
 
+    /**
+     * 登录地址
+     * @return
+     */
+    @Override
+    public abstract String getLoginUrl();
+
+    /**
+     * 登录成功之后的回调
+     * @return
+     */
+    @Override
+    public abstract String getSuccessUrl();
+
     @Override
     public boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
         return !(request.getMethod().equalsIgnoreCase("GET") && isLoginRequest(request));

@@ -1,4 +1,4 @@
-package com.iteaj.security.shiro.online;
+package com.iteaj.framework.shiro.online;
 
 import com.iteaj.framework.spi.OnlineSession;
 import org.apache.shiro.session.mgt.SimpleSession;

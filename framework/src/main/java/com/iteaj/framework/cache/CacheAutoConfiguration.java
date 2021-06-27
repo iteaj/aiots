@@ -40,7 +40,7 @@ import java.util.Map;
  * @since 1.0
  */
 @Configuration
-public class FrameworkCacheConfiguration {
+public class CacheAutoConfiguration {
 
     /**
      * 默认的缓存

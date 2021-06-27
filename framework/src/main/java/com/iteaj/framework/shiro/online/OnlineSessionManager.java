@@ -1,4 +1,4 @@
-package com.iteaj.security.shiro.online;
+package com.iteaj.framework.shiro.online;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.autoconfigure.FrameworkWebProperties;

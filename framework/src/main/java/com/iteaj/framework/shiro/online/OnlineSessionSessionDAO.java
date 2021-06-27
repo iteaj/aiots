@@ -1,4 +1,4 @@
-package com.iteaj.security.shiro.online;
+package com.iteaj.framework.shiro.online;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.OnlineSession;
@@ -27,8 +27,6 @@ public class OnlineSessionSessionDAO extends CachingSessionDAO {
 
     @Autowired
     private OnlineService onlineService;
-    @Autowired
-    private WebAuthHandler webAuthHandler;
     @Override
     protected Serializable doCreate(Session session) {
         Serializable sessionId = generateSessionId(session);

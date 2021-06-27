@@ -1,4 +1,4 @@
-package com.iteaj.security.shiro;
+package com.iteaj.framework.shiro;
 
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.auth.AuthToken;

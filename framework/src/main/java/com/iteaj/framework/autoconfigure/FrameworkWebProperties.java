@@ -5,8 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "izone.web")
 public class FrameworkWebProperties {
 
-    private Oauth2 oauth2;
-
     /**
      * 当前系统访问地址,不包含uri (http://www.iteaj.com)
      */
@@ -30,8 +28,6 @@ public class FrameworkWebProperties {
     private String uploadRootUri;
 
     public static class Auth extends AuthConfig { }
-
-    public static class Oauth2 extends Oauth2Configuration.OAuth2Properties { }
 
     public String getDomain() {
         return domain;
@@ -69,12 +65,4 @@ public class FrameworkWebProperties {
         return this;
     }
 
-    public Oauth2 getOauth2() {
-        return oauth2;
-    }
-
-    public FrameworkWebProperties setOauth2(Oauth2 oauth2) {
-        this.oauth2 = oauth2;
-        return this;
-    }
 }

@@ -33,11 +33,6 @@ public class AdminOAuth2Action extends DefaultOAuth2Action {
     }
 
     @Override
-    public String getSuccessUrl() {
-        return null;
-    }
-
-    @Override
     public AuthToken login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) throws AuthException {
         return null;
     }

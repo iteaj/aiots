@@ -15,12 +15,6 @@
     </properties>
 
     <dependencies>
-        <dependency><!--  shiro权限管理  -->
-            <groupId>com.iteaj</groupId>
-            <artifactId>shiro</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
 <!-- ################################ 可选plugins ############################## -->
 
         <!--  quartz 定时任务插件  -->
@@ -34,6 +28,7 @@
             <artifactId>oauth2</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

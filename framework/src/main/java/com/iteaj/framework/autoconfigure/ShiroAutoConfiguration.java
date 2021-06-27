@@ -1,15 +1,14 @@
-package com.iteaj.security.config;
+package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.framework.shiro.*;
+import com.iteaj.framework.shiro.online.OnlineSessionManager;
+import com.iteaj.framework.shiro.online.OnlineSessionSessionDAO;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.FrameworkListener;
-import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
-import com.iteaj.security.shiro.*;
-import com.iteaj.security.shiro.online.OnlineSessionManager;
-import com.iteaj.security.shiro.online.OnlineSessionSessionDAO;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -26,7 +25,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
 import javax.servlet.Filter;
@@ -75,41 +73,6 @@ public class ShiroAutoConfiguration {
         return chain;
     }
 
-    /**
-     *  开启自动代理
-     * @see #authorizationAttributeSourceAdvisor(RealmSecurityManager, ObjectProvider)
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean(DefaultAdvisorAutoProxyCreator.class)
-    public DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator() {
-        DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator =
-                new DefaultAdvisorAutoProxyCreator();
-
-        advisorAutoProxyCreator.setProxyTargetClass(true);
-        return advisorAutoProxyCreator;
-    }
-
-    /**
-     * shiro 启用权限注解拦截通知
-     * @param securityManager
-     * @param provider
-     * @return
-     */
-    @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor
-    (RealmSecurityManager securityManager , ObjectProvider<EventPublisher> provider) {
-        AuthorizationAttributeSourceAdvisor sourceAdvisor
-                = new AuthorizationAttributeSourceAdvisor();
-
-        sourceAdvisor.setSecurityManager(securityManager);
-
-        //如果获取不到事件发布者直接使用空事件发布, 不进行任何事件监听处理
-        sourceAdvisor.setAdvice(new AuthorizingLogMethodInterceptor());
-
-        return sourceAdvisor;
-    }
-
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions
             , SecurityManager securityManager, List<AccessFilterWrapper> filters) {
@@ -154,11 +117,6 @@ public class ShiroAutoConfiguration {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setSessionManager(sessionManager);
         securityManager.setRealms(realms);
-
-        // 设置缓存管理, 如果允许缓存则委托使用spring缓存
-        provider.ifAvailable((cacheManager -> {
-            securityManager.setCacheManager(new ShiroCacheManagerDelegation(cacheManager));
-        }));
 
         return securityManager;
     }

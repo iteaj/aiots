@@ -1,9 +1,9 @@
-package com.iteaj.security.config;
+package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.Proxy.TargetInvocationHandler;
 import com.iteaj.framework.spi.auth.*;
 import com.iteaj.framework.spi.event.EventUtils;
-import com.iteaj.security.shiro.ShiroAuthTokenAdapter;
+import com.iteaj.framework.shiro.ShiroAuthTokenAdapter;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.beans.BeansException;

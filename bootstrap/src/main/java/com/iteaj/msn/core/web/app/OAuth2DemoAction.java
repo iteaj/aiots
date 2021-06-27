@@ -22,11 +22,6 @@ public class OAuth2DemoAction extends DefaultOAuth2Action {
     }
 
     @Override
-    public String getSuccessUrl() {
-        return null;
-    }
-
-    @Override
     public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) {
         return AuthContext.build(AuthType.Gitee);
     }

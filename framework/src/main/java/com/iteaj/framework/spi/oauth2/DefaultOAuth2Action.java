@@ -15,7 +15,7 @@ import java.io.IOException;
  * @author iteaj
  * @since 1.0
  */
-public abstract class DefaultOAuth2Action implements OAuth2Action{
+public abstract class DefaultOAuth2Action implements OAuth2Action {
 
     private String[] urlPattern;
     private FrameworkWebProperties config;
@@ -26,14 +26,16 @@ public abstract class DefaultOAuth2Action implements OAuth2Action{
 
     @Override
     public String getLoginUrl() {
-        return config.getOauth2().getRedirectUri();
+        return null;
     }
 
     /**
      * Oauth2回调后登录成功时跳转的地址
      * @return
      */
-    public abstract String getSuccessUrl();
+    public String getSuccessUrl() {
+        return null;
+    }
 
     /**
      * Oauth2

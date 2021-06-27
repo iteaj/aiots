@@ -1,8 +1,7 @@
-package com.iteaj.security.shiro;
+package com.iteaj.framework.shiro;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.auth.*;
-import com.iteaj.framework.web.WebUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.slf4j.Logger;
