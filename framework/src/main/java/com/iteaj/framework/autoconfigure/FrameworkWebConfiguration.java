@@ -6,7 +6,6 @@ import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.SecurityUtils;
-import com.iteaj.framework.spi.admin.auth.FrameworkAuthService;
 import com.iteaj.framework.spi.auth.FrameworkAuthServlet;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
@@ -39,11 +38,6 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
 
     public FrameworkWebConfiguration(FrameworkWebProperties properties) {
         this.properties = properties;
-    }
-
-    @Bean
-    public SecurityUtils securityUtils(FrameworkAuthService frameworkAuthService) {
-        return new SecurityUtils(frameworkAuthService);
     }
 
     /**

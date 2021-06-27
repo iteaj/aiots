@@ -1,0 +1,25 @@
+{
+  "serverUrl": "http://127.0.0.1",
+  "isStrict": false,
+  "allInOne": true,
+  "outPath": "${project.build.outputDirectory}",
+  "coverOld": true,
+  "createDebugPage": true,
+  "packageFilters": "",
+  "md5EncryptedHtmlName": false,
+  "style": "xt256",
+  "projectName": "izone",
+  "customRequestFields": [{
+    "name":"optimizeCountSql",
+    "ignore":true,
+    "ownerClassName":"com.baomidou.mybatisplus.extension.plugins.pagination.Page"
+  },{
+    "name":"isSearchCount",
+    "ignore":true,
+    "ownerClassName":"com.baomidou.mybatisplus.extension.plugins.pagination.Page"
+  },{
+    "name":"hitCount",
+    "ignore":true,
+    "ownerClassName":"com.baomidou.mybatisplus.extension.plugins.pagination.Page"
+  }]
+}

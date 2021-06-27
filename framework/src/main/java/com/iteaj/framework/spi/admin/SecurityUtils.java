@@ -1,22 +1,16 @@
 package com.iteaj.framework.spi.admin;
 
-import com.iteaj.framework.spi.admin.auth.FrameworkAuthService;
 import com.iteaj.util.module.mvc.orm.Entity;
 
 public class SecurityUtils {
-
-    private static FrameworkAuthService frameworkAuthService;
-
-    public SecurityUtils(FrameworkAuthService frameworkAuthService) {
-        SecurityUtils.frameworkAuthService = frameworkAuthService;
-    }
 
     /**
      * 返回当前登录的用户
      * @return
      */
     public static <T extends Entity> T getUser() {
-        return (T) frameworkAuthService.getUser();
+//        return (T) frameworkAuthService.getUser();
+        return null;
     }
 
     /**

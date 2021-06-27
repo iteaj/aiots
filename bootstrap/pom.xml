@@ -48,11 +48,6 @@
 <!--            <artifactId>caffeine</artifactId>-->
 <!--            <groupId>com.github.ben-manes.caffeine</groupId>-->
 <!--        </dependency>-->
-        <dependency>
-            <version>1.5.22</version>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-annotations</artifactId>
-        </dependency>
     </dependencies>
 
     <profiles>
@@ -61,15 +56,6 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-
-            <!--开发环境启用的依赖-->
-            <dependencies>
-                <dependency>
-                    <groupId>com.iteaj</groupId>
-                    <artifactId>dev</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
         </profile>
     </profiles>
     <build>

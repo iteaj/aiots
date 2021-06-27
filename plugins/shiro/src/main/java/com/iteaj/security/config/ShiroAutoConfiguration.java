@@ -3,7 +3,6 @@ package com.iteaj.security.config;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.LoggerService;
-import com.iteaj.framework.spi.admin.auth.FrameworkAuthService;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.event.EventPublisher;
 import com.iteaj.framework.spi.event.FrameworkListener;
@@ -43,7 +42,6 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-@Configuration
 public class ShiroAutoConfiguration {
 
     private final FrameworkWebProperties properties;
@@ -75,14 +73,6 @@ public class ShiroAutoConfiguration {
 
         chain.addPathDefinition("/**", CoreConst.FRAMEWORK_FILTER_NAME);
         return chain;
-    }
-    /**
-     * shiro实现的认证服务
-     * @return
-     */
-    @Bean
-    public FrameworkAuthService authenticatingService() {
-        return new ShiroAuthService();
     }
 
     /**

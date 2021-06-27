@@ -14,7 +14,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
-        <module>dev</module> <!--开发模块-->
         <module>plugins</module>    <!-- 可选插件 -->
 
         <module>framework</module><!--系统架构层-->
@@ -31,7 +30,6 @@
         <shiro.version>1.4.1</shiro.version>
         <iutils.version>1.1.11</iutils.version>
         <okhttp3.version>4.5.0</okhttp3.version>
-        <knife4j.version>3.0.2</knife4j.version>
         <fastjson.version>1.2.73</fastjson.version>
         <izone.boot.version>1.2.1</izone.boot.version>
         <mybatis.plus.version>3.3.1</mybatis.plus.version>
@@ -129,21 +127,6 @@
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp3.version}</version>
                 <groupId>com.squareup.okhttp3</groupId>
-            </dependency>
-            <dependency>
-                <version>${knife4j.version}</version>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-spring-boot-starter</artifactId>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework.plugin</groupId>
-                        <artifactId>spring-plugin-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework.plugin</groupId>
-                        <artifactId>spring-plugin-metadata</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <version>2.0.0.RELEASE</version>

@@ -17,7 +17,6 @@ import java.util.List;
  * @author iteaj
  * @since 1.0
  */
-@Configuration
 @ConditionalOnWebApplication
 public class OAuth2ClientConfiguration {
 
