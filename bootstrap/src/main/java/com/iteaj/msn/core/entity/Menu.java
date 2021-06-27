@@ -10,7 +10,6 @@ import com.iteaj.framework.TreeEntity;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.consts.Position;
 import com.iteaj.framework.spi.admin.MenuResource;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,7 +17,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 @Data
-@ApiModel
 @TableName("t_menu")
 @Accessors(chain = true)
 public class Menu extends TreeEntity implements MenuResource {

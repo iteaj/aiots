@@ -3,7 +3,6 @@ package com.iteaj.msn.dev.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.BaseEntity;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,7 +16,6 @@ import java.util.Date;
  * @since 1.0
  */
 @Data
-@ApiModel
 @TableName("t_gen_module")
 @Accessors(chain = true)
 public class GenModule extends BaseEntity {

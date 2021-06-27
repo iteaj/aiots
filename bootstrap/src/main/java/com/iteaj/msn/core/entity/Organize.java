@@ -3,8 +3,6 @@ package com.iteaj.msn.core.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.TreeEntity;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,22 +16,34 @@ import java.util.Date;
  * @since 1.0
  */
 @Data
-@ApiModel
 @TableName("t_organize")
 @Accessors(chain = true)
 public class Organize extends TreeEntity {
 
-    @ApiModelProperty("部门名称")
+    /**
+     * 部门名称
+     */
     private String name;
-    @ApiModelProperty(hidden = true)
+    /**
+     * 排序
+     */
     private Integer sort;
-    @ApiModelProperty("部门负责人手机号")
+    /**
+     * 部门负责人电话
+     */
     private String phone;
-    @ApiModelProperty("部门负责人")
+    /**
+     * 部门负责人
+     */
     private String leader;
-    @ApiModelProperty("部门路径")
+    /**
+     * 部门路径
+     * @ignore
+     */
     private String path;
-    @ApiModelProperty(hidden = true)
+    /**
+     * 部门等级
+     */
     private Integer level;
 
     /**创建时间*/

@@ -1,5 +1,6 @@
 package com.iteaj.msn.core;
 
+import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.msn.core.auth.AdminAuthAction;
 import com.iteaj.msn.core.auth.AdminAutoAuthAction;
 import com.iteaj.msn.core.auth.AdminOAuth2Action;
@@ -21,7 +22,9 @@ import com.iteaj.framework.spi.oauth2.OAuth2Action;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,12 +41,15 @@ import java.util.List;
 
 /**
  * create time: 2020/4/25
- *
+ *  系统核心模块
  * @author iteaj
  * @since 1.0
  */
-@Configuration
-@ComponentScan("")
+@ImportAutoConfiguration({
+    CaptchaConfiguration.class,
+})
+@ComponentScan("com.iteaj.msn.core")
+@MapperScan(basePackages = {"com.iteaj.msn.core.mapper"})
 public class CoreAutoConfiguration {
 
     @Bean

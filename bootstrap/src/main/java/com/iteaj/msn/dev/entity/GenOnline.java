@@ -1,12 +1,11 @@
 package com.iteaj.msn.dev.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -19,7 +18,6 @@ import lombok.experimental.Accessors;
  * @since 2020-09-13
  */
 @Data
-@ApiModel
 @Accessors(chain = true)
 @TableName("t_gen_online")
 public class GenOnline extends BaseEntity {

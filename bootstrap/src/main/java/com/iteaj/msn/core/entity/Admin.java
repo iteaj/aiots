@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.msn.core.enums.Sex;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.consts.UseStatus;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,7 +18,6 @@ import java.util.Date;
  * 系统管理员
  */
 @Data
-@ApiModel
 @TableName("t_admin")
 @Accessors(chain = true)
 public class Admin extends BaseEntity {

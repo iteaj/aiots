@@ -1,4 +1,4 @@
-package com.iteaj.msn.core.web.controller;
+package com.iteaj.msn.core.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;

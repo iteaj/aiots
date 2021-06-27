@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.BaseEntity;
 import java.util.Date;
 
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,7 +18,6 @@ import org.springframework.format.annotation.DateTimeFormat;
  * @since 2020-07-07
  */
 @Data
-@ApiModel
 @TableName("t_msg_accept")
 @Accessors(chain = true)
 public class MsgAccept extends BaseEntity {

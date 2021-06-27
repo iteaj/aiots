@@ -3,7 +3,6 @@ package com.iteaj.msn.core.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.BaseEntity;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,7 +18,6 @@ import java.util.Date;
  * @since 2020-07-07
  */
 @Data
-@ApiModel
 @TableName("t_msg_send")
 @Accessors(chain = true)
 public class MsgSend extends BaseEntity {

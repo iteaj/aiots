@@ -1,4 +1,4 @@
-package com.iteaj.msn.core.web.controller;
+package com.iteaj.msn.core.controller;
 
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.msn.core.dto.AdminDto;

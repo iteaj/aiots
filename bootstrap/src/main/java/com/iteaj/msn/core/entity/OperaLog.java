@@ -3,7 +3,6 @@ package com.iteaj.msn.core.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -14,7 +13,6 @@ import lombok.experimental.Accessors;
  * @since 1.0
  */
 @Data
-@ApiModel
 @Accessors(chain = true)
 @TableName("t_opera_log")
 public class OperaLog extends BaseEntity {

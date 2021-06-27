@@ -1,4 +1,4 @@
-package com.iteaj.msn.core.web.controller;
+package com.iteaj.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.spi.admin.SecurityUtils;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 import java.io.File;
 import java.io.FileOutputStream;

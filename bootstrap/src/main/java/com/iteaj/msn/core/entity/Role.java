@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.msn.core.enums.Status;
 import com.iteaj.framework.BaseEntity;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,7 +17,6 @@ import java.util.Date;
  * @since 1.0
  */
 @Data
-@ApiModel
 @TableName("t_role")
 @Accessors(chain = true)
 public class Role extends BaseEntity {

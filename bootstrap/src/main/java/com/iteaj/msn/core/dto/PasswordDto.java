@@ -1,7 +1,5 @@
 package com.iteaj.msn.core.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -11,13 +9,18 @@ import lombok.Data;
  * @since 1.0
  */
 @Data
-@ApiModel("用户密码修改模型")
 public class PasswordDto {
 
-    @ApiModelProperty("用户id")
+    /**
+     * 用户唯一标识
+     */
     private Long id;
-    @ApiModelProperty("旧密码")
+    /**
+     * 旧密码
+     */
     private String oldPwd;
-    @ApiModelProperty("新密码")
+    /**
+     * 新密码
+     */
     private String password;
 }

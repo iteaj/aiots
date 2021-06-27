@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.msn.core.enums.Status;
 import com.iteaj.framework.BaseEntity;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -17,16 +16,34 @@ import java.util.Date;
  * create time：2019/6/24
  */
 @Data
-@ApiModel
 @TableName("t_dict_data")
 public class DictData extends BaseEntity {
 
+    /**
+     * 排序
+     */
     private Integer sort;
+    /**
+     * 字典标签
+     */
     private String label;
+    /**
+     * 字典标签值
+     */
     private String value;
+    /**
+     * 类型
+     */
     private String type;
+    /**
+     * 字典状态
+     */
     private Status status;
+    /**
+     * 备注
+     */
     private String remark;
+
     private boolean izDefault;
 
     /**创建时间*/

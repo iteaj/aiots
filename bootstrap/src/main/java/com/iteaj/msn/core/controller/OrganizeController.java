@@ -1,10 +1,9 @@
-package com.iteaj.msn.core.web.controller;
+package com.iteaj.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.msn.core.entity.Organize;
 import com.iteaj.msn.core.service.IOrganizeService;
 import com.iteaj.util.Result;
-import io.swagger.annotations.Api;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,6 @@ import java.util.List;
  * @since 1.0
  */
 @Controller
-@Api("组织部门管理")
 @RequestMapping("/core/org")
 public class OrganizeController extends BaseController {
 

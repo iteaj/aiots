@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.msn.core.enums.Status;
 import com.iteaj.framework.BaseEntity;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,21 +17,28 @@ import java.util.Date;
  * create time：2019/7/13
  */
 @Data
-@ApiModel("字典类型")
 @Accessors(chain = true)
 @TableName("t_dict_type")
 public class DictType extends BaseEntity {
 
-    @ApiModelProperty("类型别名")
+    /**
+     * 字典类型
+     */
     private String type;
 
-    @ApiModelProperty("类型名称")
+    /**
+     * 类型名称
+     */
     private String name;
 
-    @ApiModelProperty("类型状态")
+    /**
+     * 类型状态
+     */
     private Status status;
 
-    @ApiModelProperty("类型说明")
+    /**
+     * 备注
+     */
     private String remark;
 
     /**创建时间*/

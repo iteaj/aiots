@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.msn.core.enums.AppType;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.OnlineSession;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,7 +20,6 @@ import java.util.Date;
  * @since 2020-06-20
  */
 @Data
-@ApiModel
 @TableName("t_online_user")
 @Accessors(chain = true)
 public class OnlineUser extends BaseEntity implements OnlineSession {

@@ -5,7 +5,6 @@ import com.iteaj.framework.cache.SerializerType;
 import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.auth.FrameworkAuthServlet;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
@@ -14,7 +13,6 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -24,9 +22,6 @@ import java.util.List;
 /**
  * web项目配置信息(包含浏览器[pc,app,微信,支付宝等], 小程序, app)
  */
-@ComponentScan({
-        "com.iteaj.*.web.**" // 扫描注入所有web模块
-})
 @ImportAutoConfiguration({
         CaptchaConfiguration.class,
         FrameworkAutoConfiguration.class,

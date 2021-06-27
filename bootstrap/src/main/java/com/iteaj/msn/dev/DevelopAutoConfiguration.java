@@ -1,11 +1,14 @@
-package com.iteaj.msn.dev.config;
+package com.iteaj.msn.dev;
 
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.msn.dev.config.DevelopProperties;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -14,8 +17,9 @@ import org.springframework.context.annotation.Configuration;
  * @author iteaj
  * @since 1.0
  */
-@Configuration
+@ComponentScan("com.iteaj.msn.dev")
 @EnableConfigurationProperties(DevelopProperties.class)
+@MapperScan(basePackages = {"com.iteaj.msn.dev.mapper"})
 public class DevelopAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
     /**
