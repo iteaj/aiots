@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * create time: 2021/3/24
  *  授权动作
+ * @see #pathMatcher(String, HttpServletRequest) 通过uri匹配动作
  * @see WebAuthHandler
  * @author iteaj
  * @since 1.0
@@ -76,7 +77,7 @@ public interface WebAuthAction<T> extends Ordered {
     }
 
     /**
-     * 是否是提交表单登录请求
+     * 是否是登录表单的提交请求
      * @param request
      * @return
      */

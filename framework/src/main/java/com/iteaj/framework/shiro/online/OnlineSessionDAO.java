@@ -23,7 +23,7 @@ import java.io.Serializable;
  * @author iteaj
  * @since 1.0
  */
-public class OnlineSessionSessionDAO extends CachingSessionDAO {
+public class OnlineSessionDAO extends CachingSessionDAO {
 
     @Autowired
     private OnlineService onlineService;
@@ -69,19 +69,4 @@ public class OnlineSessionSessionDAO extends CachingSessionDAO {
         return session;
     }
 
-    @Override
-    public String getActiveSessionsCacheName() {
-        final Object request = ThreadContext.get(CoreConst.HTTP_SERVLET_REQUEST);
-        if(request instanceof HttpServletRequest) {
-            final Object agent = ((HttpServletRequest) request).getAttribute(CoreConst.WEB_USER_AGENT);
-            if(agent instanceof UserAgent) {
-                final BrowserType type = ((UserAgent) agent).getBrowser().getBrowserType();
-                if(type == BrowserType.APP) {
-                    return CoreConst.APP_SESSION_CACHE;
-                }
-            }
-        }
-
-        return CoreConst.WEB_SESSION_CACHE;
-    }
 }

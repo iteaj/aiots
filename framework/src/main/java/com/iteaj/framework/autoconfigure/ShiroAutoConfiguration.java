@@ -4,7 +4,7 @@ import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.shiro.*;
 import com.iteaj.framework.shiro.online.OnlineSessionManager;
-import com.iteaj.framework.shiro.online.OnlineSessionSessionDAO;
+import com.iteaj.framework.shiro.online.OnlineSessionDAO;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.event.FrameworkListener;
@@ -73,7 +73,7 @@ public class ShiroAutoConfiguration {
     public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions
             , SecurityManager securityManager, List<AccessFilterWrapper> filters) {
 
-        ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
+        ShiroFilterFactoryBean factoryBean = new ShiroFilterLogFactoryBean();
         factoryBean.setSecurityManager(securityManager);
 
         // 处理过滤器
@@ -92,7 +92,7 @@ public class ShiroAutoConfiguration {
 
     @Bean
     public SessionDAO sessionDAO() {
-        return new OnlineSessionSessionDAO();
+        return new OnlineSessionDAO();
     }
 
     @Bean

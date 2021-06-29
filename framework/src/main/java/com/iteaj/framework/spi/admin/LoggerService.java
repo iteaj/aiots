@@ -9,4 +9,11 @@ package com.iteaj.framework.spi.admin;
 public interface LoggerService {
 
     void record(LoggerEntity entity);
+
+    /**
+     * 通过url获取对应的菜单
+     * @param url
+     * @return
+     */
+    LoggerMenu getLoggerMenu(String url);
 }

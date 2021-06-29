@@ -5,11 +5,11 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.iteaj.msn.core.enums.MenuType;
 import com.iteaj.framework.TreeEntity;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.consts.Position;
-import com.iteaj.framework.spi.admin.MenuResource;
+import com.iteaj.framework.spi.admin.LoggerMenu;
+import com.iteaj.msn.core.enums.MenuType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,7 +19,7 @@ import java.util.Date;
 @Data
 @TableName("t_menu")
 @Accessors(chain = true)
-public class Menu extends TreeEntity implements MenuResource {
+public class Menu extends TreeEntity implements LoggerMenu {
 
     /**菜单地址*/
     private String url;
@@ -42,6 +42,10 @@ public class Menu extends TreeEntity implements MenuResource {
     private MenuType type;
     /**权限类型*/
     private String permType;
+    /**是否记录日志*/
+    private Boolean log;
+    /**日志信息*/
+    private String logDesc;
     /**功能点放置的位置*/
     @TableField(fill = FieldFill.UPDATE)
     private Position position;
@@ -83,5 +87,15 @@ public class Menu extends TreeEntity implements MenuResource {
     public Menu setUrl(String url) {
         this.url = url;
         return this;
+    }
+
+    @Override
+    public boolean isCollect() {
+        return this.log == null ? false : true;
+    }
+
+    @Override
+    public String getLogger() {
+        return this.logDesc;
     }
 }

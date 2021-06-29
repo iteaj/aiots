@@ -1,6 +1,6 @@
 package com.iteaj.msn.core.mapper;
 
-import com.iteaj.msn.core.entity.OperaLog;
+import com.iteaj.msn.core.entity.AccessLog;
 import com.iteaj.util.module.mvc.orm.IBaseDao;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -11,6 +11,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 1.0
  */
 @Mapper
-public interface IOperaLogDao extends IBaseDao<OperaLog> {
+public interface IAccessLogDao extends IBaseDao<AccessLog> {
 
 }

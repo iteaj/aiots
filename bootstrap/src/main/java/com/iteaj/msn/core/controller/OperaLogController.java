@@ -2,8 +2,8 @@ package com.iteaj.msn.core.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
-import com.iteaj.msn.core.entity.OperaLog;
-import com.iteaj.msn.core.service.IOperaLogService;
+import com.iteaj.msn.core.entity.AccessLog;
+import com.iteaj.msn.core.service.IAccessLogService;
 import com.iteaj.util.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
@@ -21,9 +21,9 @@ import java.util.List;
 @RequestMapping("/core/log")
 public class OperaLogController extends BaseController {
 
-    private final IOperaLogService operaLogService;
+    private final IAccessLogService operaLogService;
 
-    public OperaLogController(IOperaLogService operaLogService) {
+    public OperaLogController(IAccessLogService operaLogService) {
         this.operaLogService = operaLogService;
     }
 
@@ -36,8 +36,8 @@ public class OperaLogController extends BaseController {
     @ResponseBody
     @GetMapping("/view")
     @RequiresPermissions("core:log:view")
-    public Result view(Page page, OperaLog operaLog) {
-        return this.operaLogService.selectByPage(page, operaLog).build(success());
+    public Result view(Page page, AccessLog accessLog) {
+        return this.operaLogService.selectByPage(page, accessLog).build(success());
     }
 
     @ResponseBody

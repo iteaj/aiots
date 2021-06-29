@@ -811,7 +811,7 @@ UNLOCK TABLES;
 -- Table structure for table `t_opera_log`
 --
 
-DROP TABLE IF EXISTS `t_opera_log`;
+DROP TABLE IF EXISTS t_access_log;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `t_opera_log` (
@@ -837,10 +837,10 @@ CREATE TABLE `t_opera_log` (
 -- Dumping data for table `t_opera_log`
 --
 
-LOCK TABLES `t_opera_log` WRITE;
-/*!40000 ALTER TABLE `t_opera_log` DISABLE KEYS */;
-INSERT INTO `t_opera_log` VALUES (664,'/login','','','系统登录','Login',341,1,'超级管理员','','Login','用户登录','2020-09-06 11:04:32',NULL),(665,'/core/menu/view','','','浏览菜单信息','View',33,1,'超级管理员','MenuController.list(Menu)','Success','操作成功','2020-09-06 11:04:38',NULL),(666,'/core/menu/view','','','浏览菜单信息','View',20,1,'超级管理员','MenuController.list(Menu)','Success','操作成功','2020-09-06 11:05:12',NULL),(667,'/login','','','系统登录','Login',27,1,'超级管理员','','Login','用户登录','2020-09-06 11:09:57',NULL);
-/*!40000 ALTER TABLE `t_opera_log` ENABLE KEYS */;
+LOCK TABLES t_access_log WRITE;
+/*!40000 ALTER TABLE t_access_log DISABLE KEYS */;
+INSERT INTO t_access_log VALUES (664,'/login','','','系统登录','Login',341,1,'超级管理员','','Login','用户登录','2020-09-06 11:04:32',NULL),(665,'/core/menu/view','','','浏览菜单信息','View',33,1,'超级管理员','MenuController.list(Menu)','Success','操作成功','2020-09-06 11:04:38',NULL),(666,'/core/menu/view','','','浏览菜单信息','View',20,1,'超级管理员','MenuController.list(Menu)','Success','操作成功','2020-09-06 11:05:12',NULL),(667,'/login','','','系统登录','Login',27,1,'超级管理员','','Login','用户登录','2020-09-06 11:09:57',NULL);
+/*!40000 ALTER TABLE t_access_log ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

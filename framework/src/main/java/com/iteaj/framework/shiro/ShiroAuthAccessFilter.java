@@ -28,6 +28,8 @@ public class ShiroAuthAccessFilter extends AccessControlFilter {
         this.handler = webAuthHandler;
     }
 
+
+
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
 

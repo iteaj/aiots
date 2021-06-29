@@ -56,11 +56,6 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
                 .getAuthToken(), null, this.getName());
     }
 
-    @Override
-    protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
-        /*不用校验密码*/
-    }
-
     /**
      * 超级管理员包含所有的权限
      * @param principals

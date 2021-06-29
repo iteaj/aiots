@@ -197,7 +197,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
      * @return
      */
     @Bean
-    public LoggerService loggerService(IOperaLogService logService, IMenuService menuService) {
+    public LoggerService loggerService(IAccessLogService logService, IMenuService menuService) {
         return new AdminLoggerService(logService, menuService);
     }
 
