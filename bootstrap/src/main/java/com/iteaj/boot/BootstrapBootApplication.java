@@ -1,6 +1,5 @@
 package com.iteaj.boot;
 
-import com.iteaj.framework.autoconfigure.FrameworkAutoConfiguration;
 import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
 import com.iteaj.msn.core.CoreAutoConfiguration;
 import com.iteaj.msn.dev.DevelopAutoConfiguration;

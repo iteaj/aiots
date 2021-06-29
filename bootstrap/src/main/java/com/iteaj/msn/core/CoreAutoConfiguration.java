@@ -1,5 +1,6 @@
 package com.iteaj.msn.core;
 
+import com.iteaj.framework.autoconfigure.ShiroAutoConfiguration;
 import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.shiro.AuthorizingLogMethodInterceptor;
@@ -51,6 +52,7 @@ import java.util.List;
  */
 @ImportAutoConfiguration({
         CaptchaConfiguration.class,
+        ShiroAutoConfiguration.class,
 })
 @ComponentScan("com.iteaj.msn.core")
 @MapperScan(basePackages = {"com.iteaj.msn.core.mapper"})

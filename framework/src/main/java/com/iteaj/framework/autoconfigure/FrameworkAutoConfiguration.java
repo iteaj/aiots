@@ -1,6 +1,5 @@
 package com.iteaj.framework.autoconfigure;
 
-import com.iteaj.framework.cache.CacheAutoConfiguration;
 import com.iteaj.framework.spi.event.EventUtils;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -13,9 +12,8 @@ import org.springframework.context.annotation.Bean;
  * @since 1.0
  */
 @ImportAutoConfiguration({
-        ShiroAutoConfiguration.class,
-        MybatisPlusConfiguration.class,
-        CacheAutoConfiguration.class
+        CacheAutoConfiguration.class,
+        MybatisPlusConfiguration.class
 })
 @EnableConfigurationProperties({FrameworkWebProperties.class})
 public class FrameworkAutoConfiguration {

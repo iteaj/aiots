@@ -2,7 +2,7 @@
   "serverUrl": "http://127.0.0.1",
   "isStrict": false,
   "allInOne": true,
-  "outPath": "${project.build.outputDirectory}",
+  "outPath": "G:\\idea-project\\gitee\\izone-sboot\\bootstrap\\target",
   "coverOld": true,
   "createDebugPage": true,
   "packageFilters": "",

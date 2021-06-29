@@ -1,16 +1,15 @@
 package com.iteaj.msn.core.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.msn.core.dto.PasswordDto;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.msn.core.dto.AdminDto;
+import com.iteaj.msn.core.dto.PasswordDto;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.service.IAdminService;
 import com.iteaj.util.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.List;
  * @author iteaj
  * @since 1.0
  */
-@Controller
+@RestController
 @RequestMapping("/core/admin")
 public class AdminController extends BaseController {
 
@@ -31,20 +30,12 @@ public class AdminController extends BaseController {
         this.adminService = adminService;
     }
 
-    @GetMapping
-    @RequiresPermissions("core:admin:view")
-    public String view() {
-        return "admin";
-    }
-
-    @ResponseBody
     @GetMapping("/view")
     @RequiresPermissions("core:admin:view")
     public Result view(Page page, Admin admin) {
         return this.adminService.selectByPage(page, admin).build(success());
     }
 
-    @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:admin:add")
     public Result add(@RequestBody AdminDto admin) {
@@ -52,13 +43,12 @@ public class AdminController extends BaseController {
         return success();
     }
 
-    @ResponseBody
     @GetMapping("/edit")
+    @RequiresPermissions("core:admin:edit")
     public Result edit(Long id) {
         return this.adminService.getAdminDetailById(id).build(success());
     }
 
-    @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:admin:edit")
     public Result edit(@RequestBody AdminDto admin) {
@@ -66,7 +56,6 @@ public class AdminController extends BaseController {
         return success();
     }
 
-    @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:admin:del")
     public Result del(@RequestBody List<Long> list) {
@@ -74,7 +63,6 @@ public class AdminController extends BaseController {
         return success();
     }
 
-    @ResponseBody
     @PostMapping("/modUserInfo")
     public Result modUserInfo(@RequestBody Admin admin) {
         BaseEntity principal = SecurityUtils.getUser();
@@ -89,8 +77,8 @@ public class AdminController extends BaseController {
      * 更新密码
      * @return
      */
-    @ResponseBody
     @PostMapping("pwd")
+    @RequiresPermissions("core:admin:pwd")
     public Result updatePwd(@RequestBody PasswordDto passwordDto) {
         this.adminService.setAdminPassword(passwordDto
                 .getId(), passwordDto.getPassword());

@@ -1,5 +1,7 @@
-package com.iteaj.framework.cache;
+package com.iteaj.framework.autoconfigure;
 
+import com.iteaj.framework.cache.CacheEntry;
+import com.iteaj.framework.cache.SerializerType;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.ResourcePools;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
