@@ -11,10 +11,6 @@
     <artifactId>framework</artifactId>
     <description>此系统架构核心库</description>
 
-    <properties>
-        <env.filter.file>../deploy/env/${profiles.active.env}.properties</env.filter.file>
-    </properties>
-
     <dependencies>
         <!--shiro 权限认证(security二者选其一)-->
 <!--        <dependency>-->

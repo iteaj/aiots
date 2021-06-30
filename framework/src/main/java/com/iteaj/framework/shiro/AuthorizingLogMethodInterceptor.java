@@ -1,5 +1,6 @@
 package com.iteaj.framework.shiro;
 
+import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.LoggerType;
 import com.iteaj.framework.spi.event.EventUtils;
 import org.aopalliance.intercept.MethodInvocation;
@@ -9,6 +10,7 @@ import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthorizingMethodInterceptor;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.apache.shiro.web.subject.WebSubject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Method;
 
@@ -19,6 +21,9 @@ import java.lang.reflect.Method;
  * @since 1.0
  */
 public class AuthorizingLogMethodInterceptor extends AopAllianceAnnotationsAuthorizingMethodInterceptor {
+
+    @Autowired(required = false)
+    private LoggerService loggerService;
 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
@@ -31,9 +36,6 @@ public class AuthorizingLogMethodInterceptor extends AopAllianceAnnotationsAutho
         } catch (UnauthorizedException ae) { // 无权限访问
             status = LoggerType.UnAuthor;
             throw ae;
-        } catch (UnauthenticatedException ue) { // 未认证
-            status = LoggerType.UnAuth;
-            throw ue;
         } catch (Throwable throwable) {
             status = LoggerType.Error;
             status.desc = throwable.getMessage();

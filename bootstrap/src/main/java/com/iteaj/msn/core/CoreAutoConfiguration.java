@@ -108,7 +108,6 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
 
     /**
      *  开启自动代理
-     * @see #authorizationAttributeSourceAdvisor(RealmSecurityManager, ObjectProvider)
      * @return
      */
     @Bean
@@ -128,12 +127,9 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
      */
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(RealmSecurityManager securityManager) {
-        AuthorizationAttributeSourceAdvisor sourceAdvisor
-                = new AuthorizationAttributeSourceAdvisor();
+        AuthorizationAttributeSourceAdvisor sourceAdvisor = new AuthorizationAttributeSourceAdvisor();
 
         sourceAdvisor.setSecurityManager(securityManager);
-
-        //如果获取不到事件发布者直接使用空事件发布, 不进行任何事件监听处理
         sourceAdvisor.setAdvice(new AuthorizingLogMethodInterceptor());
 
         return sourceAdvisor;

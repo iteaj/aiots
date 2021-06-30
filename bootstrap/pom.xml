@@ -10,10 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bootstrap</artifactId>
 
-    <properties>
-        <env.filter.file>../deploy/env/${profiles.active.env}.properties</env.filter.file>
-    </properties>
-
     <dependencies>
 <!-- ################################ 可选plugins ############################## -->
 
@@ -45,14 +41,6 @@
 <!--        </dependency>-->
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-    </profiles>
     <build>
         <plugins>
             <plugin>

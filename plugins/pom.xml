@@ -17,10 +17,6 @@
         <module>oauth2</module>
     </modules>
 
-    <properties>
-        <env.filter.file>../../deploy/env/${profiles.active.env}.properties</env.filter.file>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.iteaj</groupId>

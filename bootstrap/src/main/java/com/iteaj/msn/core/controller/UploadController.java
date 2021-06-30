@@ -183,7 +183,8 @@ public class UploadController extends BaseController implements InitializingBean
             }
 
             if(!this.rootDir.isDirectory()) {
-                throw new BeanInitializationException("文件的上传根路径必须是目录："+uploadRootDir);
+                logger.warn("文件的上传根路径必须是目录："+uploadRootDir);
+                return;
             }
         }
         String uploadRootUri = properties.getUploadRootUri();

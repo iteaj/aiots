@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <version>2.2.4.RELEASE</version>
+        <version>2.5.0</version>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
     </parent>
@@ -14,10 +14,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
-        <module>plugins</module>    <!-- 可选插件 -->
-
-        <module>framework</module><!--系统架构层-->
-
+        <!-- 可选插件 -->
+        <module>plugins</module>
+        <!--系统架构层-->
+        <module>framework</module>
         <!--项目启动SpringBoot入口-->
         <module>bootstrap</module>
     </modules>
@@ -31,13 +31,11 @@
         <okhttp3.version>4.5.0</okhttp3.version>
         <fastjson.version>1.2.73</fastjson.version>
         <izone.boot.version>1.2.1</izone.boot.version>
-        <mybatis.plus.version>3.3.1</mybatis.plus.version>
+        <mybatis.plus.version>3.4.1</mybatis.plus.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <!-- 多环境配置文件路径 -->
-        <env.filter.file>../deploy/env/${profiles.active.env}.properties</env.filter.file>
     </properties>
 
     <scm>
@@ -108,6 +106,10 @@
             <artifactId>lombok</artifactId>
             <groupId>org.projectlombok</groupId>
         </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -126,16 +128,6 @@
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp3.version}</version>
                 <groupId>com.squareup.okhttp3</groupId>
-            </dependency>
-            <dependency>
-                <version>2.0.0.RELEASE</version>
-                <artifactId>spring-plugin-core</artifactId>
-                <groupId>org.springframework.plugin</groupId>
-            </dependency>
-            <dependency>
-                <version>2.0.0.RELEASE</version>
-                <artifactId>spring-plugin-metadata</artifactId>
-                <groupId>org.springframework.plugin</groupId>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -182,9 +174,6 @@
     </profiles>
 
     <build>
-        <filters>
-            <filter>${env.filter.file}</filter> <!--多环境时使用的过滤文件-->
-        </filters>
         <finalName>${project.artifactId}-${project.version}</finalName>
         <resources>
             <resource>
