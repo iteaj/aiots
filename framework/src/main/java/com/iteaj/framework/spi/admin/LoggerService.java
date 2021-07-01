@@ -8,7 +8,7 @@ package com.iteaj.framework.spi.admin;
  */
 public interface LoggerService {
 
-    void record(LoggerEntity entity);
+    void record(LoggerEvent entity);
 
     /**
      * 通过url获取对应的菜单

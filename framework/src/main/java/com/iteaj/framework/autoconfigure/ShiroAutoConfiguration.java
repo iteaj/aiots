@@ -141,14 +141,4 @@ public class ShiroAutoConfiguration {
         return new NativeSessionListener();
     }
 
-    /**
-     * shiro权限监听器, 用于记录访问日志
-     * @return
-     */
-    @Bean
-    @ConditionalOnBean(LoggerService.class)
-    public FrameworkListener authorLogListener(LoggerService loggerService) {
-        return new ShiroAuthorLogListener(loggerService);
-    }
-
 }

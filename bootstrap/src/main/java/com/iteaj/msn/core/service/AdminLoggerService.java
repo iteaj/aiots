@@ -4,7 +4,7 @@ import com.iteaj.framework.spi.admin.LoggerMenu;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.entity.AccessLog;
-import com.iteaj.framework.spi.admin.LoggerEntity;
+import com.iteaj.framework.spi.admin.LoggerEvent;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.LoggerType;
 
@@ -25,11 +25,10 @@ public class AdminLoggerService implements LoggerService {
     }
 
     @Override
-    public void record(LoggerEntity entity) {
+    public void record(LoggerEvent entity) {
         AccessLog accessLog = new AccessLog()
                 .setStatus(entity.getType().name()).setErrMsg(entity.getErrMsg())
-                .setMillis(entity.getOperaTime()).setUrl(entity.getUrl())
-                .setShortName(entity.getShortName());
+                .setMillis(entity.getOperaTime()).setUrl(entity.getUrl());
 
         if(entity.getSource() instanceof Admin) {
             Admin source = (Admin) entity.getSource();

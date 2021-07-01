@@ -3,7 +3,6 @@ package com.iteaj.msn.core;
 import com.iteaj.framework.autoconfigure.ShiroAutoConfiguration;
 import com.iteaj.framework.captcha.CaptchaConfiguration;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.shiro.AuthorizingLogMethodInterceptor;
 import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
@@ -12,6 +11,7 @@ import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.event.FrameworkListener;
 import com.iteaj.framework.spi.oauth2.OAuth2Action;
+import com.iteaj.listener.AccessLogListener;
 import com.iteaj.msn.core.auth.AdminAuthAction;
 import com.iteaj.msn.core.auth.AdminAutoAuthAction;
 import com.iteaj.msn.core.auth.AdminOAuth2Action;
@@ -25,12 +25,13 @@ import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthorizingMethodInterceptor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -121,7 +122,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
     }
 
     /**
-     * shiro 启用权限注解拦截通知
+     * shiro 启用权限注解拦截
      * @param securityManager
      * @return
      */
@@ -130,7 +131,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
         AuthorizationAttributeSourceAdvisor sourceAdvisor = new AuthorizationAttributeSourceAdvisor();
 
         sourceAdvisor.setSecurityManager(securityManager);
-        sourceAdvisor.setAdvice(new AuthorizingLogMethodInterceptor());
+        sourceAdvisor.setAdvice(new AopAllianceAnnotationsAuthorizingMethodInterceptor());
 
         return sourceAdvisor;
     }
@@ -195,6 +196,16 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
     @Bean
     public LoggerService loggerService(IAccessLogService logService, IMenuService menuService) {
         return new AdminLoggerService(logService, menuService);
+    }
+
+    /**
+     * shiro权限监听器, 用于记录访问日志
+     * @return
+     */
+    @Bean
+    @ConditionalOnBean(LoggerService.class)
+    public FrameworkListener authorLogListener(LoggerService loggerService) {
+        return new AccessLogListener(loggerService);
     }
 
     /**
