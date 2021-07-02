@@ -10,6 +10,7 @@ import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.session.mgt.eis.CachingSessionDAO;
+import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +24,10 @@ import java.io.Serializable;
  * @author iteaj
  * @since 1.0
  */
-public class OnlineSessionDAO extends CachingSessionDAO {
+public class OnlineSessionDAO extends EnterpriseCacheSessionDAO {
 
     @Autowired
     private OnlineService onlineService;
-    @Override
-    protected Serializable doCreate(Session session) {
-        Serializable sessionId = generateSessionId(session);
-        assignSessionId(session, sessionId);
-        return sessionId;
-    }
 
     @Override
     protected void doUpdate(Session session) {

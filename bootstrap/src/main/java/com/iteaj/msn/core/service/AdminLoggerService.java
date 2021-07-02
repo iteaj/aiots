@@ -1,12 +1,10 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.framework.spi.admin.LoggerMenu;
+import com.iteaj.framework.spi.admin.*;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.entity.AccessLog;
-import com.iteaj.framework.spi.admin.LoggerEvent;
-import com.iteaj.framework.spi.admin.LoggerService;
-import com.iteaj.framework.spi.admin.LoggerType;
+import com.iteaj.util.module.mvc.orm.Entity;
 
 /**
  * create time: 2020/4/21
@@ -25,39 +23,35 @@ public class AdminLoggerService implements LoggerService {
     }
 
     @Override
-    public void record(LoggerEvent entity) {
-        AccessLog accessLog = new AccessLog()
-                .setStatus(entity.getType().name()).setErrMsg(entity.getErrMsg())
-                .setMillis(entity.getOperaTime()).setUrl(entity.getUrl());
+    public void record(AccessLogger entity) {
+        AccessLog accessLog = new AccessLog().setErrMsg(entity.getRemark())
+                .setIp(entity.getIp()).setUrl(entity.getUrl())
+                .setMillis(entity.getExecTime()).setStatus(entity.isStatus());
 
-        if(entity.getSource() instanceof Admin) {
-            Admin source = (Admin) entity.getSource();
-            accessLog.setUserId((source).getId())
-                    .setUserName(source.getName());
+        if(SecurityUtils.isLogin()) {
+            final Admin admin = SecurityUtils.getUser();
+            accessLog.setUserId(admin.getId()).setUserName(admin.getName());
         }
 
-        if(entity.getType() == LoggerType.Login) {
-            accessLog.setType(entity.getType().name());
-            accessLog.setTitle("系统登录");
-            operaLogService.insert(accessLog);
-        } else if(entity.getType() == LoggerType.Logout) {
-            accessLog.setType(entity.getType().name());
-            accessLog.setTitle("注销登录");
-            operaLogService.insert(accessLog);
-        } else if(entity.getType() == LoggerType.UnAuthor) {
-            accessLog.setTitle("访问未授权的页面");
-            accessLog.setType(LoggerType.UnAuthor.name());
-        } else if(entity.getType() == LoggerType.UnAuth) {
-            accessLog.setType(entity.getType().name());
-            accessLog.setTitle("访问需认证的页面");
-        } else {
-            Menu menu = getMenu(entity.getUrl());
+        final Menu menu = getMenu(entity.getUrl());
+        if(menu != null) {
+            accessLog.setTitle(menu.getName());
+            final Long pid = menu.getPid();
+
+            // 获取所属模块
+            if(pid != null && pid > 0) {
+                this.menuService.getById(pid).ofNullable().ifPresent(parent -> {
+                    accessLog.setMsn(parent.getName());
+                });
+            }
         }
+
+        operaLogService.insert(accessLog);
     }
 
     @Override
     public LoggerMenu getLoggerMenu(String url) {
-        return null;
+        return getMenu(url);
     }
 
     private Menu getMenu(String url) {

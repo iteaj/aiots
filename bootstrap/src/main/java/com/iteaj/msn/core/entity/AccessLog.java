@@ -6,6 +6,8 @@ import com.iteaj.framework.BaseEntity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * create time: 2020/4/22
  *
@@ -36,7 +38,7 @@ public class AccessLog extends BaseEntity {
     /**
      * 访问用户
      */
-    private Long userId;
+    private Serializable userId;
     /**
      * 使用时间
      */
@@ -46,9 +48,8 @@ public class AccessLog extends BaseEntity {
      * 用户名
      */
     private String userName;
-    private String shortName;
 
-    private String status;
+    private Boolean status;
     /**
      * 错误消息
      */
@@ -58,11 +59,9 @@ public class AccessLog extends BaseEntity {
 
     public AccessLog() { }
 
-    public AccessLog(String type, String userName, String shortName, String status) {
+    public AccessLog(String type, String userName) {
         this.type = type;
         this.userName = userName;
-        this.shortName = shortName;
-        this.status = status;
     }
 
 }

@@ -95,7 +95,7 @@ public class Menu extends TreeEntity implements LoggerMenu {
     }
 
     @Override
-    public String getLogger() {
+    public String getDesc() {
         return this.logDesc;
     }
 }

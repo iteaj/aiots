@@ -1,8 +1,10 @@
 package com.iteaj.framework.autoconfigure;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "izone.web")
+@Data
+@ConfigurationProperties(prefix = "web.framework")
 public class FrameworkWebProperties {
 
     /**
@@ -27,42 +29,11 @@ public class FrameworkWebProperties {
      */
     private String uploadRootUri;
 
+    /**
+     * Oauth2的redirectUri
+     */
+    private String redirectUri = "/auth/oauth2/redirectUri";
+
     public static class Auth extends AuthConfig { }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public FrameworkWebProperties setDomain(String domain) {
-        this.domain = domain;
-        return this;
-    }
-
-    public String getUploadRootDir() {
-        return uploadRootDir;
-    }
-
-    public String getUploadRootUri() {
-        return uploadRootUri;
-    }
-
-    public FrameworkWebProperties setUploadRootUri(String uploadRootUri) {
-        this.uploadRootUri = uploadRootUri;
-        return this;
-    }
-
-    public FrameworkWebProperties setUploadRootDir(String uploadRootDir) {
-        this.uploadRootDir = uploadRootDir;
-        return this;
-    }
-
-    public Auth getAuth() {
-        return auth;
-    }
-
-    public FrameworkWebProperties setAuth(Auth auth) {
-        this.auth = auth;
-        return this;
-    }
 
 }

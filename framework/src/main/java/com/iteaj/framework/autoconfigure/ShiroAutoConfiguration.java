@@ -73,7 +73,7 @@ public class ShiroAutoConfiguration {
     public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions
             , SecurityManager securityManager, List<AccessFilterWrapper> filters) {
 
-        ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
+        ShiroFilterFactoryBean factoryBean = new ShiroFilterLogFactoryBean();
         factoryBean.setSecurityManager(securityManager);
 
         // 处理过滤器

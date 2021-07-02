@@ -29,8 +29,8 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
     }
 
     /**
-     * 1. 先从cookie获取sessionId
-     * 2. 如果是原生app 尝试从header获取access_token作为sessionId
+     * 1. 尝试从header获取access_token作为sessionId
+     * 2. 如果没有则从cookie获取
      * @param request
      * @param response
      * @return
@@ -44,7 +44,7 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         // 设置请求属性
         ThreadContext.put(CoreConst.HTTP_SERVLET_REQUEST, request);
 
-        // cookie中没有， 如果是原生App 尝试从header获取access_token作为sessionId
+        // 尝试从header获取access_token作为sessionId
         Browser browser = userAgent.getBrowser();
         if(browser != null && browser.getBrowserType() == BrowserType.APP) {
             String tokenName = properties.getAuth().getTokenName();
@@ -56,8 +56,4 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         return super.getSessionId(request, response);
     }
 
-    protected void applyGlobalSessionTimeout(Session session) {
-        session.setTimeout(getGlobalSessionTimeout());
-        onChange(session);
-    }
 }

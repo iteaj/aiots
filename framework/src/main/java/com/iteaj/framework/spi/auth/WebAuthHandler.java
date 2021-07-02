@@ -57,7 +57,6 @@ public interface WebAuthHandler {
 
     /**
      * web登录时的处理
-     * @see FrameworkAuthServlet#service(ServletRequest, ServletResponse)
      * @param context
      * @param request
      * @param response
@@ -66,7 +65,6 @@ public interface WebAuthHandler {
 
     /**
      * web注销时的处理
-     * @see FrameworkAuthServlet#service(ServletRequest, ServletResponse)
      * @param request
      * @param response
      */

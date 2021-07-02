@@ -14,6 +14,7 @@ import com.iteaj.util.module.mvc.BaseServiceImpl;
 import com.iteaj.util.module.mvc.ServiceException;
 import com.iteaj.util.module.mvc.result.BooleanResult;
 import com.iteaj.util.module.mvc.result.ListResult;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService {
+public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService, InitializingBean {
 
     @Autowired
     private ResourceManager resourceManager;
@@ -82,8 +83,6 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                         , PermStatus.disabled).in("msn", msnList)
                         .orderByAsc("sort"));
 
-        convertToUrlMap(allMenus);
-
         if(isSuper) { // 超级管理员拥有所有菜单
             // 转成树结构
             List<Menu> menus = (List<Menu>) TreeUtils.toTrees(allMenus, 0l);
@@ -92,22 +91,6 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
             List<String> adminMenuIds = this.getBaseDao().selectAdminMenus(aid);
             return new ListResult<>((List<Menu>) TreeUtils.toAdminMenuTrees(allMenus, adminMenuIds));
         }
-    }
-
-    private void convertToUrlMap(List<Menu> allMenus) {
-        if(urlMenuMap.size() > 0) return;
-
-        synchronized (allMenus) {
-            if(urlMenuMap.size() > 0) return;
-
-            allMenus.forEach(menu -> {
-                if(menu.getType() != MenuType.M
-                        && StringUtils.hasText(menu.getUrl())) {
-                    urlMenuMap.put(menu.getUrl(), menu);
-                }
-            });
-        }
-
     }
 
     @Override
@@ -144,4 +127,21 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
         return urlMenuMap.get(url);
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        List<Module> modules = resourceManager.getModules();
+
+        // 获取已经注册的模块
+        String[] msnList = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
+
+        // 只查询已经注册过的模块的菜单列表
+        List<Menu> allMenus = this.getBaseDao()
+                .selectList(Wrappers.<Menu>query().ne("type", MenuType.M));
+
+        allMenus.forEach(menu -> {
+            if(StringUtils.hasText(menu.getUrl())) {
+                urlMenuMap.put(menu.getUrl(), menu);
+            }
+        });
+    }
 }

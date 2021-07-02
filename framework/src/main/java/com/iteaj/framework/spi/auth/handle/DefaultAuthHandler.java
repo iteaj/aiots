@@ -81,11 +81,6 @@ public abstract class DefaultAuthHandler implements WebAuthHandler, Initializing
                 return item;
             }
         }
-//
-//        if(logger.isDebugEnabled()) {
-//            logger.debug("路径["+ request.getRequestURI() +"]匹配到授权动作["
-//                    + action.getName()+"("+ urlPattern +")]");
-//        }
 
         return null;
     }

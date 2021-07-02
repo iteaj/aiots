@@ -1,9 +1,11 @@
 package com.iteaj.framework.shiro;
 
-import com.iteaj.framework.spi.admin.LoggerEvent;
+import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.spi.admin.AccessLogger;
 import com.iteaj.framework.spi.admin.LoggerMenu;
 import com.iteaj.framework.spi.admin.LoggerService;
-import com.iteaj.framework.spi.event.EventUtils;
+import com.iteaj.framework.web.WebUtils;
+import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
@@ -80,24 +82,33 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
                 // 需要采集记录日志
                 if(loggerMenu != null && loggerMenu.isCollect()) {
                     long startMills = System.currentTimeMillis();
-                    final LoggerEvent logger = new LoggerEvent(requestURI, "执行成功");
+                    final AccessLogger logger = new AccessLogger(requestURI, "执行成功");
                     try {
+                        logger.setStatus(true).setIp(WebUtils.getIpAddress(servletRequest));
                         super.executeChain(request, response, origChain);
-                    } catch (ServletException se) {
-                        logger.setErrMsg(se.getMessage());
-                        throw se;
+                        final Object status = request.getAttribute(CoreConst.AUTH_STATUS);
+                        if(status instanceof Boolean) {
+                            logger.setStatus((Boolean) status);
+                            logger.setRemark("未认证");
+                        }
+
                     } catch (UnauthorizedException e) {
-                        logger.setErrMsg(e.getMessage());
+                        logger.setRemark("无权限");
+                        logger.setStatus(false);
                         throw e;
-                    } catch (IOException e) {
-                        logger.setErrMsg(e.getMessage());
+                    } catch (UnauthenticatedException e) {
+                        logger.setRemark("未认证");
+                        logger.setStatus(false);
+                        throw e;
+                    } catch (Exception e) {
+                        logger.setRemark("未知错误");
+                        logger.setStatus(false);
                         throw e;
                     } finally {
                         long endMills = System.currentTimeMillis();
-                        logger.setOperaTime(endMills - startMills);
+                        logger.setExecTime(endMills - startMills);
 
-//                        loggerService.record(logger);
-                        EventUtils.publish(logger);
+                        loggerService.record(logger);
                     }
                 } else {
                     super.executeChain(request, response, origChain);

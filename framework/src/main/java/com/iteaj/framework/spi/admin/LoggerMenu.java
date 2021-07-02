@@ -15,8 +15,8 @@ public interface LoggerMenu extends MenuResource{
     boolean isCollect();
 
     /**
-     * 日志
+     * 日志说明
      * @return
      */
-    String getLogger();
+    String getDesc();
 }

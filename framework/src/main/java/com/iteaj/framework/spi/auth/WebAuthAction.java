@@ -181,6 +181,11 @@ public interface WebAuthAction<T> extends Ordered {
      * @return 登录执行登录后是否继续拦截   false 拦截此请求  true 放行此请求
      */
     default boolean loginCall(Exception cause, HttpServletRequest request, HttpServletResponse response) {
+        // 已经提交了响应到前端
+        if(response.isCommitted()) {
+            return false; // 拒绝放行
+        }
+
         if(cause == null) { // 登录成功
             if(isAjax(request)) {
                 writeJson(HttpResult.Success(getSuccessUrl(), "登录成功"), response);

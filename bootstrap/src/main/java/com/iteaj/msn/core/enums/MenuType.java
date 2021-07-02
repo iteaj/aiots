@@ -1,7 +1,7 @@
 package com.iteaj.msn.core.enums;
 
 public enum MenuType {
-    A("权限"), M("菜单"), G("菜单组"), V("视图");
+    A("权限"), M("目录"), V("视图");
 
     public String desc;
 

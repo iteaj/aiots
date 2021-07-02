@@ -19,6 +19,11 @@ public interface CoreConst {
     String APP_SESSION_CACHE = "IZONE_APP_SESSION_CACHE";
 
     /**
+     * 未认证状态
+     */
+    String AUTH_STATUS = "AUTH_STATUS";
+
+    /**
      * 请求
      */
     String HTTP_SERVLET_REQUEST = "IZONE_HTTP_SERVLET_REQUEST";

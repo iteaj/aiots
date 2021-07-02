@@ -45,11 +45,13 @@ public class FrameworkPayloadListener implements ApplicationListener<PayloadAppl
             });
         }
 
-        final List<FrameworkListener> listeners = listenerMap.get(event.getPayload().getClass());
-        if(listeners != null) {
-            listeners.forEach(item -> {
-                item.onFrameworkEvent((FrameworkEvent) event.getPayload());
-            });
+        if(event.getPayload() instanceof FrameworkEvent) {
+            final List<FrameworkListener> listeners = listenerMap.get(event.getPayload().getClass());
+            if(listeners != null) {
+                listeners.forEach(item -> {
+                    item.onFrameworkEvent((FrameworkEvent) event.getPayload());
+                });
+            }
         }
     }
 }
