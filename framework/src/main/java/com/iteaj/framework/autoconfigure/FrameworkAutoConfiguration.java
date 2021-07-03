@@ -4,6 +4,7 @@ import com.iteaj.framework.spi.event.EventUtils;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * create time: 2021/3/14
@@ -12,9 +13,11 @@ import org.springframework.context.annotation.Bean;
  * @since 1.0
  */
 @ImportAutoConfiguration({
-        CacheAutoConfiguration.class,
-        MybatisPlusConfiguration.class
+        MybatisPlusConfiguration.class,
+        CacheManagerAutoConfiguration.class,
+        RedisJacksonAutoConfiguration.class
 })
+@ComponentScan("com.iteaj.plugin") // 扫描框架插件的配置
 @EnableConfigurationProperties({FrameworkWebProperties.class})
 public class FrameworkAutoConfiguration {
 

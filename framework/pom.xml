@@ -12,12 +12,6 @@
     <description>此系统架构核心库</description>
 
     <dependencies>
-        <!--shiro 权限认证(security二者选其一)-->
-<!--        <dependency>-->
-<!--            <scope>provided</scope>-->
-<!--            <groupId>org.apache.shiro</groupId>-->
-<!--            <artifactId>shiro-spring</artifactId>-->
-<!--        </dependency>-->
         <!--shiro 权限认证-->
         <dependency>
             <groupId>org.apache.shiro</groupId>

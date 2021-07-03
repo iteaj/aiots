@@ -41,8 +41,7 @@ import java.util.Map;
  * @author iteaj
  * @since 1.0
  */
-@Configuration
-public class CacheAutoConfiguration {
+public class CacheManagerAutoConfiguration {
 
     /**
      * 默认的缓存
@@ -60,14 +59,6 @@ public class CacheAutoConfiguration {
     @Configuration
     @ConditionalOnClass(name = "org.springframework.data.redis.cache.RedisCacheManager")
     public static class RedisConfiguration {
-
-        @Bean
-        public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-            RedisTemplate redisTemplate = new RedisTemplate();
-            redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(Object.class));
-            redisTemplate.setConnectionFactory(redisConnectionFactory);
-            return redisTemplate;
-        }
 
         @Primary
         @Bean({"cacheManager", "redisCacheManager"})

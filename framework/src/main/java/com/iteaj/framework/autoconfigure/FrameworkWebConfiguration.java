@@ -5,6 +5,7 @@ import com.iteaj.framework.cache.SerializerType;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import com.iteaj.framework.spi.auth.handle.AccountAuthHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -19,6 +20,9 @@ import java.util.List;
  */
 @ImportAutoConfiguration({
         FrameworkAutoConfiguration.class
+})
+@EnableConfigurationProperties({
+        SessionCacheProperties.class
 })
 public class FrameworkWebConfiguration implements WebMvcConfigurer {
 

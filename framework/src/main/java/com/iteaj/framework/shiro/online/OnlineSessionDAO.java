@@ -1,5 +1,6 @@
 package com.iteaj.framework.shiro.online;
 
+import com.iteaj.framework.autoconfigure.SessionCacheProperties;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.OnlineSession;
 import com.iteaj.framework.spi.admin.auth.OnlineService;
@@ -13,6 +14,7 @@ import org.apache.shiro.session.mgt.eis.CachingSessionDAO;
 import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,15 +26,12 @@ import java.io.Serializable;
  * @author iteaj
  * @since 1.0
  */
-public class OnlineSessionDAO extends EnterpriseCacheSessionDAO {
+public class OnlineSessionDAO extends EnterpriseCacheSessionDAO implements InitializingBean {
 
     @Autowired
     private OnlineService onlineService;
-
-    @Override
-    protected void doUpdate(Session session) {
-        /*只更新缓存不更新数据库*/
-    }
+    @Autowired
+    private SessionCacheProperties cacheProperties;
 
     @Override
     protected void doDelete(Session session) {
@@ -64,4 +63,13 @@ public class OnlineSessionDAO extends EnterpriseCacheSessionDAO {
         return session;
     }
 
+    @Override
+    public void setActiveSessionsCacheName(String activeSessionsCacheName) {
+        super.setActiveSessionsCacheName(activeSessionsCacheName);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        setActiveSessionsCacheName(cacheProperties.getName());
+    }
 }

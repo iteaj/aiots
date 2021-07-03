@@ -187,13 +187,11 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
 
     /**
      * 管理端日志记录服务
-     * @param logService
-     * @param menuService
      * @return
      */
     @Bean
-    public LoggerService loggerService(IAccessLogService logService, IMenuService menuService) {
-        return new AdminLoggerService(logService, menuService);
+    public LoggerService loggerService() {
+        return new AdminLoggerService();
     }
 
     /**

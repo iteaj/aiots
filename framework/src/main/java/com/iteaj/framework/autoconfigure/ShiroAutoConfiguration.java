@@ -3,11 +3,10 @@ package com.iteaj.framework.autoconfigure;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.shiro.*;
-import com.iteaj.framework.shiro.online.OnlineSessionManager;
 import com.iteaj.framework.shiro.online.OnlineSessionDAO;
-import com.iteaj.framework.spi.admin.LoggerService;
+import com.iteaj.framework.shiro.online.OnlineSessionManager;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
-import com.iteaj.framework.spi.event.FrameworkListener;
+import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -18,8 +17,7 @@ import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.cache.CacheManager;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 
@@ -28,6 +26,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +35,7 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
+@EnableConfigurationProperties(ShiroCacheProperties.class)
 public class ShiroAutoConfiguration {
 
     private final FrameworkWebProperties properties;
@@ -96,9 +96,8 @@ public class ShiroAutoConfiguration {
     }
 
     @Bean
-    public RealmSecurityManager securityManager(ObjectProvider<CacheManager> provider
-            , Collection<SessionListener> listeners, SessionDAO sessionDAO
-            , Collection<Realm> realms) {
+    public RealmSecurityManager securityManager(Collection<SessionListener> listeners
+            , SessionDAO sessionDAO, Collection<Realm> realms, ObjectProvider<CacheManager> cacheManager) {
 
         DefaultSessionManager sessionManager = new OnlineSessionManager(properties);
 
@@ -111,8 +110,18 @@ public class ShiroAutoConfiguration {
         sessionManager.setSessionListeners(listeners);
 
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        securityManager.setSessionManager(sessionManager);
         securityManager.setRealms(realms);
+        securityManager.setSessionManager(sessionManager);
+
+        // 如果有缓存管理
+        cacheManager.ifAvailable(item -> {
+            securityManager.setCacheManager(item);
+
+            // 使用缓存过期时间
+            // 60分钟校验一次
+            sessionManager.setSessionValidationInterval(TimeUnit.MINUTES.toMillis(60));
+            sessionManager.setSessionValidationSchedulerEnabled(true);
+        });
 
         return securityManager;
     }
@@ -121,15 +130,10 @@ public class ShiroAutoConfiguration {
      * 后台管理端认证和权限信息Realm
      * @return
      */
-    @Bean
+    @Bean("frameworkAuthRealm")
     public AuthorizingRealm frameworkAuthRealm() {
 
-        ShiroFrameworkAuthRealm authRealm = new ShiroFrameworkAuthRealm();
-
-        // 关闭缓存
-        authRealm.setAuthorizationCachingEnabled(false);
-        authRealm.setAuthenticationCachingEnabled(false);
-        return authRealm;
+        return new ShiroFrameworkAuthRealm();
     }
 
     /**

@@ -28,11 +28,10 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService, InitializingBean {
+public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService {
 
     @Autowired
     private ResourceManager resourceManager;
-    private Map<String, Menu> urlMenuMap = new HashMap<>(128);
 
     @Override
     public BooleanResult insert(Menu entity) {
@@ -124,24 +123,6 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
     @Override
     public Menu getByUrl(String url) {
-        return urlMenuMap.get(url);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        List<Module> modules = resourceManager.getModules();
-
-        // 获取已经注册的模块
-        String[] msnList = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
-
-        // 只查询已经注册过的模块的菜单列表
-        List<Menu> allMenus = this.getBaseDao()
-                .selectList(Wrappers.<Menu>query().ne("type", MenuType.M));
-
-        allMenus.forEach(menu -> {
-            if(StringUtils.hasText(menu.getUrl())) {
-                urlMenuMap.put(menu.getUrl(), menu);
-            }
-        });
+        return getBaseDao().selectOne(Wrappers.<Menu>query().eq("url", url));
     }
 }

@@ -1,5 +1,6 @@
 package com.iteaj.framework.shiro.online;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.iteaj.framework.spi.OnlineSession;
 import org.apache.shiro.session.mgt.SimpleSession;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @author iteaj
  * @since 1.0
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ShiroOnlineSession extends SimpleSession implements OnlineSession {
 
     private String action;

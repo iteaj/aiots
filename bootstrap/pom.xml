@@ -14,11 +14,11 @@
 <!-- ################################ 可选plugins ############################## -->
 
         <!--  quartz 定时任务插件  -->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>quartz</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>shiro-redis</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>oauth2</artifactId>

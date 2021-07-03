@@ -1,10 +1,20 @@
 package com.iteaj.msn.core.service;
 
+import com.baomidou.mybatisplus.core.toolkit.ArrayUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.entity.AccessLog;
-import com.iteaj.util.module.mvc.orm.Entity;
+import com.iteaj.msn.core.enums.MenuType;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * create time: 2020/4/21
@@ -12,15 +22,17 @@ import com.iteaj.util.module.mvc.orm.Entity;
  * @author iteaj
  * @since 1.0
  */
-public class AdminLoggerService implements LoggerService {
+public class AdminLoggerService implements LoggerService, InitializingBean {
 
-    private final IMenuService menuService;
-    private final IAccessLogService operaLogService;
+    @Autowired
+    private IMenuService menuService;
+    @Autowired
+    private ResourceManager resourceManager;
+    @Autowired
+    private IAccessLogService operaLogService;
 
-    public AdminLoggerService(IAccessLogService operaLogService, IMenuService menuService) {
-        this.operaLogService = operaLogService;
-        this.menuService = menuService;
-    }
+    private Map<Long, Menu> idMenuMap = new HashMap<>(128);
+    private Map<String, Menu> urlMenuMap = new HashMap<>(128);
 
     @Override
     public void record(AccessLogger entity) {
@@ -40,9 +52,10 @@ public class AdminLoggerService implements LoggerService {
 
             // 获取所属模块
             if(pid != null && pid > 0) {
-                this.menuService.getById(pid).ofNullable().ifPresent(parent -> {
+                final Menu parent = this.idMenuMap.get(pid);
+                if(parent != null) {
                     accessLog.setMsn(parent.getName());
-                });
+                }
             }
         }
 
@@ -55,6 +68,28 @@ public class AdminLoggerService implements LoggerService {
     }
 
     private Menu getMenu(String url) {
-        return this.menuService.getByUrl(url);
+        return urlMenuMap.get(url);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        List<Module> modules = resourceManager.getModules();
+
+        // 获取已经注册的模块
+        String[] msnList = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
+
+        // 只查询已经注册过的模块的菜单列表
+        this.menuService.selectList(Wrappers.<Menu>query().ne("type", MenuType.M)
+                .in(ArrayUtils.isNotEmpty(msnList),"msn", msnList))
+                .ofNullable().ifPresent(menus -> {
+                menus.forEach(menu -> {
+                    if(StringUtils.hasText(menu.getUrl())) {
+                        urlMenuMap.put(menu.getUrl(), menu);
+                    }
+
+                    idMenuMap.put(menu.getId(), menu);
+                });
+        });
+
     }
 }
