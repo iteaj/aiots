@@ -2,6 +2,10 @@ package com.iteaj.msn.core.service;
 
 import com.baomidou.mybatisplus.core.toolkit.ArrayUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.logger.AccessLogger;
+import com.iteaj.framework.logger.LoggerMenu;
+import com.iteaj.framework.logger.LoggerService;
+import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Menu;
@@ -9,7 +13,6 @@ import com.iteaj.msn.core.entity.AccessLog;
 import com.iteaj.msn.core.enums.MenuType;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -40,8 +43,8 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
                 .setIp(entity.getIp()).setUrl(entity.getUrl())
                 .setMillis(entity.getExecTime()).setStatus(entity.isStatus());
 
-        if(SecurityUtils.isLogin()) {
-            final Admin admin = SecurityUtils.getUser();
+        if(ShiroUtil.isLogin()) {
+            final Admin admin = ShiroUtil.getUser();
             accessLog.setUserId(admin.getId()).setUserName(admin.getName());
         }
 

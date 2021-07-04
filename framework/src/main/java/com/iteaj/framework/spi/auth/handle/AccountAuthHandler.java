@@ -1,10 +1,7 @@
 package com.iteaj.framework.spi.auth.handle;
 
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.auth.AuthContext;
-import com.iteaj.framework.spi.auth.AuthToken;
-import com.iteaj.framework.spi.auth.WebAuthAction;
-import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.framework.spi.auth.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,9 +19,4 @@ public class AccountAuthHandler extends DefaultAuthHandler {
         super(actions);
     }
 
-    @Override
-    public AuthToken doLogin(AuthContext context, WebAuthAction action
-            , HttpServletRequest request, HttpServletResponse response) {
-        return action.login(context, request, response);
-    }
 }

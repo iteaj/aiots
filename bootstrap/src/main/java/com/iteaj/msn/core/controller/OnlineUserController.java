@@ -76,13 +76,6 @@ public class OnlineUserController extends BaseController {
 
             OnlineUser onlineUser = onlineUsers.get(0);
 
-
-            handler.logout(request, response);
-
-            // 强制离线
-//            this.onlineUserService.updateBySessionId(new OnlineUser((String) onlineUser
-//                    .getSessionId()).setStatus(OnlineType.Off.name()));
-
             return success("强退成功: " + onlineUser.getUserNick());
         }
 

@@ -77,15 +77,6 @@ public interface WebAuthAction<T> extends Ordered {
     }
 
     /**
-     * 是否是登录表单的提交请求
-     * @param request
-     * @return
-     */
-    default boolean isSubmitRequest(HttpServletRequest request) {
-        return request.getMethod().equalsIgnoreCase("POST") && isLoginRequest(request);
-    }
-
-    /**
      * 响应结果到客户端
      * @param result
      * @param response
@@ -137,20 +128,18 @@ public interface WebAuthAction<T> extends Ordered {
      * @param response 授权是的响应对象
      * @return AuthContext 如果返回{@code null}直接返回
      */
-    AuthContext authorize(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    AuthContext getContext(HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 继续授权
-     * @param context
      * @param request
      * @param response
      * @return
      */
-    boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
+    boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     /**
      * 将在提交登录请求时调用
-     * @see #isSubmitRequest(HttpServletRequest) true
      * @param request
      * @param response
      */

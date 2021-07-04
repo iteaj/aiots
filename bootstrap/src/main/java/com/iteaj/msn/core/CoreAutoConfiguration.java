@@ -1,25 +1,26 @@
 package com.iteaj.msn.core;
 
+import com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration;
 import com.iteaj.framework.autoconfigure.ShiroAutoConfiguration;
-import com.iteaj.framework.captcha.CaptchaConfiguration;
+import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.spi.admin.LoggerService;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.admin.event.OnlineListener;
 import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.event.FrameworkListener;
-import com.iteaj.framework.spi.oauth2.OAuth2Action;
-import com.iteaj.msn.core.auth.AdminAuthAction;
-import com.iteaj.msn.core.auth.AdminAutoAuthAction;
+import com.iteaj.msn.core.app.OAuth2DemoAction;
+import com.iteaj.msn.core.auth.AdminLoginAction;
 import com.iteaj.msn.core.auth.AdminOAuth2Action;
-import com.iteaj.msn.core.config.CoreProperties;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.OnlineUser;
 import com.iteaj.msn.core.enums.AppType;
-import com.iteaj.msn.core.service.*;
-import com.iteaj.msn.core.web.app.OAuth2DemoAction;
+import com.iteaj.msn.core.service.AdminLoggerService;
+import com.iteaj.msn.core.service.IConfigService;
+import com.iteaj.msn.core.service.IOnlineUserService;
+import com.iteaj.msn.core.service.MenuResourceManager;
+import com.iteaj.oauth2.client.action.OAuth2Action;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -28,10 +29,8 @@ import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthor
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -50,7 +49,7 @@ import java.util.List;
  * @since 1.0
  */
 @ImportAutoConfiguration({
-        CaptchaConfiguration.class,
+        CaptchaAutoConfiguration.class,
         ShiroAutoConfiguration.class,
 })
 @ComponentScan("com.iteaj.msn.core")
@@ -142,7 +141,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
     @Order(100)
     public WebAuthAction adminAuthAction() {
         final String loginUrl = coreProperties.getLoginUrl();
-        return new AdminAuthAction("/core/**", loginUrl);
+        return new AdminLoginAction("/core/**", loginUrl);
     }
 
     /**
@@ -153,17 +152,6 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
     @Order(80)
     public AdminOAuth2Action oAuth2Action() {
         return new AdminOAuth2Action(new String[]{"/core/oauth2"});
-    }
-
-    /**
-     * 仅限于开发环境自动登录
-     * @return
-     */
-    @Bean
-    @Order(10)
-    @ConditionalOnProperty(value = "spring.profiles.active", havingValue = "dev")
-    public WebAuthAction adminAutoAuthAction(@Qualifier("adminAuthAction") WebAuthAction adminAuthAction) {
-        return new AdminAutoAuthAction(adminAuthAction.getUrlPattern());
     }
 
     /**

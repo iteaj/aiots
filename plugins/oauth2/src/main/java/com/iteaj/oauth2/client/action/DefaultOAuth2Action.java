@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.oauth2;
+package com.iteaj.oauth2.client.action;
 
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
@@ -35,16 +35,6 @@ public abstract class DefaultOAuth2Action implements OAuth2Action {
      */
     public String getSuccessUrl() {
         return null;
-    }
-
-    /**
-     * Oauth2
-     * @param request
-     * @return
-     */
-    @Override
-    public boolean isSubmitRequest(HttpServletRequest request) {
-        return false;
     }
 
     @Override

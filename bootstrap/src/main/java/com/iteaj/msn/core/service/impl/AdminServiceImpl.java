@@ -5,7 +5,7 @@ import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.mapper.IAdminDao;
 import com.iteaj.msn.core.service.IAdminService;
-import com.iteaj.framework.spi.admin.SecurityUtils;
+import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.util.module.mvc.BaseServiceImpl;
@@ -102,7 +102,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
         this.updateById(admin);
 
         // 更新当前登录的信息
-        Admin principal = (Admin) SecurityUtils.getUser();
+        Admin principal = (Admin) ShiroUtil.getUser();
         principal.setAvatar(admin.getAvatar()).setEmail(admin.getEmail())
                 .setPhone(admin.getPhone()).setRemark(admin.getRemark())
                 .setName(admin.getName()).setSex(admin.getSex());

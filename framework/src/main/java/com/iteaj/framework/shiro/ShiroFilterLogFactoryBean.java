@@ -1,19 +1,23 @@
 package com.iteaj.framework.shiro;
 
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.admin.AccessLogger;
-import com.iteaj.framework.spi.admin.LoggerMenu;
-import com.iteaj.framework.spi.admin.LoggerService;
+import com.iteaj.framework.logger.AccessLogger;
+import com.iteaj.framework.logger.LoggerMenu;
+import com.iteaj.framework.logger.LoggerService;
+import com.iteaj.framework.spi.auth.WebAuthAction;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.web.WebUtils;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.filter.mgt.FilterChainManager;
 import org.apache.shiro.web.filter.mgt.FilterChainResolver;
 import org.apache.shiro.web.filter.mgt.PathMatchingFilterChainResolver;
 import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
+import org.apache.shiro.web.subject.WebSubject;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,7 +38,8 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
 
     @Autowired(required = false)
     private LoggerService loggerService;
-
+    @Autowired
+    private WebAuthHandler webAuthHandler;
     @Override
     protected AbstractShiroFilter createInstance() throws Exception {
         SecurityManager securityManager = getSecurityManager();
@@ -71,6 +76,13 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
             if (resolver != null) {
                 setFilterChainResolver(resolver);
             }
+        }
+
+        @Override
+        protected WebSubject createSubject(ServletRequest request, ServletResponse response) {
+            final WebAuthAction action = webAuthHandler.matcher((HttpServletRequest) request);
+//            ThreadContext.put();
+            return super.createSubject(request, response);
         }
 
         @Override

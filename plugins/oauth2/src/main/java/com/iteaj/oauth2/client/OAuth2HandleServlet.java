@@ -43,33 +43,13 @@ public class OAuth2HandleServlet extends GenericServlet {
         String requestURI = request.getRequestURI();
         requestURI = requestURI.substring(request.getContextPath().length());
 
-        FrameworkWebProperties config = handler.getConfig();
-
         // Oauth2 redirectUri回调处理
         if(Objects.equals(requestURI, clientProperties.getRedirectUri())) {
-            Object context = request.getSession().getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
-            if(context instanceof AuthContext) {
-                try {
-                    // 回调登录
-                    handler.login((AuthContext) context, (HttpServletRequest)
-                            servletRequest, (HttpServletResponse) servletResponse);
+            servletRequest.setAttribute(CoreConst.OAUTH2_REDIRECT_REQUEST, true);
 
-                    // 保存处理此次授权的动作
-                    request.getSession().setAttribute(CoreConst
-                            .HANDLE_LOGIN_ACTION, ((AuthContext) context).getAction());
-                } finally {
-                    // 移除上下文
-                    request.getSession().removeAttribute(CoreConst.SESSION_AUTH_CONTEXT);
-                }
-            } else {
-                logger.warn("找不到[AuthContext], 可能已释放", request.getRequestURI());
-            }
-        } else if(Objects.equals(requestURI, config.getAuth().getLogoutUri())) {
-            try {
-                handler.logout(request, (HttpServletResponse) servletResponse);
-            } finally {
-                request.getSession().removeAttribute(CoreConst.HANDLE_LOGIN_ACTION);
-            }
+            // 回调登录
+            handler.login((HttpServletRequest) servletRequest
+                    , (HttpServletResponse) servletResponse);
         }
     }
 }

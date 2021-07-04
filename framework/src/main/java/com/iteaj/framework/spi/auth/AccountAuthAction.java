@@ -43,26 +43,23 @@ public abstract class AccountAuthAction implements WebAuthAction<AuthContext> {
 
     @Override
     public boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
-        return !(request.getMethod().equalsIgnoreCase("GET") && isLoginRequest(request));
+        return !isLoginRequest(request);
     }
 
     @Override
-    public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public AuthContext getContext(HttpServletRequest request, HttpServletResponse response) {
         return AuthContext.build(AuthType.Account);
     }
 
     @Override
-    public boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        // 如果是登录请求直接调用登录
-        // 非登录请求
+    public boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
         if(this.isAjax(request)) {
-//                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "unauthorized");
             this.writeJson(HttpResult.StatusCode("unauthorized", HttpServletResponse.SC_UNAUTHORIZED), response);
         } else {
             response.sendRedirect(this.getLoginUrl());
         }
 
-        return true;
+        return true; // 拒绝放行
     }
 
     /**

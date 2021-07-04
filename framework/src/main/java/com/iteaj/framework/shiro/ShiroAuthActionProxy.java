@@ -1,16 +1,14 @@
-package com.iteaj.framework.autoconfigure;
+package com.iteaj.framework.shiro;
 
 import com.iteaj.framework.Proxy.TargetInvocationHandler;
 import com.iteaj.framework.spi.auth.*;
 import com.iteaj.framework.spi.event.EventUtils;
-import com.iteaj.framework.shiro.ShiroAuthTokenAdapter;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +22,6 @@ import java.util.Objects;
  * @author iteaj
  * @since 1.0
  */
-@Configuration
 public class ShiroAuthActionProxy implements BeanPostProcessor, BeanFactoryPostProcessor {
 
     private final static String loginMethodName = "login";
@@ -32,9 +29,9 @@ public class ShiroAuthActionProxy implements BeanPostProcessor, BeanFactoryPostP
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if(bean instanceof WebAuthHandler) {
+        if(bean instanceof WebAuthAction) {
             return Proxy.newProxyInstance(getClass().getClassLoader(),
-                    new Class[]{WebAuthHandler.class}, new TargetInvocationHandler() {
+                    new Class[]{WebAuthAction.class}, new TargetInvocationHandler() {
 
                 @Override
                 public Object getTarget() {
@@ -52,14 +49,14 @@ public class ShiroAuthActionProxy implements BeanPostProcessor, BeanFactoryPostP
                             }
 
                             // shiro 登录
-                            SecurityUtils.getSubject().login(new
-                                    ShiroAuthTokenAdapter((AuthToken) invoke));
+                            SecurityUtils.getSubject().login((FrameworkToken)invoke);
 
                             // 发布登录事件
                             EventUtils.publish(new LoginEvent((AuthToken) invoke));
                         } catch (AuthenticationException e) {
-                            throw new AuthException(e.getMessage(), e);
+                            throw new AuthException("认证失败", e);
                         }
+
                     } else if(Objects.equals(method.getName(), logoutMethodName)) {
                         invoke = method.invoke(bean, args);
 

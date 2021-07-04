@@ -17,6 +17,8 @@ import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
@@ -35,14 +37,12 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
+@ImportAutoConfiguration(ShiroAuthActionProxy.class)
 @EnableConfigurationProperties(ShiroCacheProperties.class)
 public class ShiroAutoConfiguration {
 
-    private final FrameworkWebProperties properties;
-
-    public ShiroAutoConfiguration(FrameworkWebProperties properties) {
-        this.properties = properties;
-    }
+    @Autowired
+    private FrameworkWebProperties properties;
 
     /**
      * 创建一个名称叫{@code framework}的shiro访问过滤器
@@ -132,7 +132,6 @@ public class ShiroAutoConfiguration {
      */
     @Bean("frameworkAuthRealm")
     public AuthorizingRealm frameworkAuthRealm() {
-
         return new ShiroFrameworkAuthRealm();
     }
 

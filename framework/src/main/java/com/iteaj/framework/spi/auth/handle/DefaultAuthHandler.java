@@ -46,28 +46,6 @@ public abstract class DefaultAuthHandler implements WebAuthHandler, Initializing
     }
 
     @Override
-    public boolean isLoginRequest(HttpServletRequest request) {
-        final WebAuthAction action = matcher(request);
-        if(action != null) {
-            return action.isLoginRequest(request) && request
-                    .getMethod().equalsIgnoreCase("GET");
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean isSubmitRequest(HttpServletRequest request) {
-        final WebAuthAction action = matcher(request);
-        if(action != null) {
-            return action.isSubmitRequest(request) & request
-                    .getMethod().equalsIgnoreCase("POST");
-        }
-
-        return false;
-    }
-
-    @Override
     public final WebAuthAction matcher(HttpServletRequest request) {
         final Object action = request.getAttribute(CoreConst.HANDLE_AUTH_ACTION);
         if(action != null) {
@@ -88,52 +66,6 @@ public abstract class DefaultAuthHandler implements WebAuthHandler, Initializing
     @Override
     public List<WebAuthAction> getActions() {
         return this.actions;
-    }
-
-    public boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-        final WebAuthAction action = matcher(request);
-
-        // 保存当前请求域
-        context.put("domain", WebUtils.getContextRequestUrl(request));
-
-        return action.postAuthorize(context, request, response);
-    }
-
-    @Override
-    public AuthToken login(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws AuthException {
-        final String action = context.getAction();
-        final WebAuthAction authAction = getAction(action);
-
-        AuthToken token = null;
-        try {
-            token = this.doLogin(context, authAction, request, response);
-            authAction.loginCall(null, request, response);
-        } catch (Exception e) {
-            authAction.loginCall(e, request, response);
-        }
-
-        return token;
-    }
-
-    protected abstract AuthToken doLogin(AuthContext context, WebAuthAction authAction, HttpServletRequest request, HttpServletResponse response);
-
-    /**
-     * 注销当前用户
-     * @param request
-     * @param response
-     * @throws AuthException
-     */
-    @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response) throws AuthException {
-        final HttpSession session = request.getSession();
-        final Object action = session.getAttribute(CoreConst.HANDLE_LOGIN_ACTION);
-        if(action != null) {
-            final WebAuthAction authAction = getAction((String) action);
-            authAction.logout(request, response);
-        } else {
-            throw new AuthException("注销失败");
-        }
     }
 
     @Override

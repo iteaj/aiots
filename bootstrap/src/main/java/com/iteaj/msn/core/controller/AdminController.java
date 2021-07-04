@@ -3,7 +3,7 @@ package com.iteaj.msn.core.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.spi.admin.SecurityUtils;
+import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.dto.PasswordDto;
 import com.iteaj.msn.core.entity.Admin;
@@ -65,7 +65,7 @@ public class AdminController extends BaseController {
 
     @PostMapping("/modUserInfo")
     public Result modUserInfo(@RequestBody Admin admin) {
-        BaseEntity principal = SecurityUtils.getUser();
+        BaseEntity principal = ShiroUtil.getUser();
         if(principal == null) return fail("未登录");
 
         admin.setId(principal.getId());

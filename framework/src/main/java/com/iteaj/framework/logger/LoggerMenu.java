@@ -1,4 +1,6 @@
-package com.iteaj.framework.spi.admin;
+package com.iteaj.framework.logger;
+
+import com.iteaj.framework.spi.admin.MenuResource;
 
 /**
  * create time: 2021/6/29
@@ -6,7 +8,7 @@ package com.iteaj.framework.spi.admin;
  * @author iteaj
  * @since 1.0
  */
-public interface LoggerMenu extends MenuResource{
+public interface LoggerMenu extends MenuResource {
 
     /**
      * 是否采集日志

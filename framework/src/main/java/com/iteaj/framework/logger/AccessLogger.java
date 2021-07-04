@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.admin;
+package com.iteaj.framework.logger;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

@@ -1,12 +1,11 @@
 package com.iteaj.framework.shiro;
 
-import com.iteaj.framework.spi.admin.SecurityUtils;
 import com.iteaj.framework.spi.auth.AuthToken;
+import com.iteaj.framework.utils.ShiroUtil;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
-import org.apache.shiro.authc.pam.UnsupportedTokenException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -24,7 +23,7 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
 
     @Override
     public boolean supports(AuthenticationToken token) {
-        return token != null && ShiroAuthTokenAdapter
+        return token != null && AuthToken
                 .class.isAssignableFrom(token.getClass());
     }
 
@@ -41,19 +40,13 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        ShiroAuthTokenAdapter authTokenAdapter = (ShiroAuthTokenAdapter) token;
-
-        if(authTokenAdapter.getAuthToken() == null) {
-            throw new UnsupportedTokenException("认证失败[null]");
-        }
-
         Object principal = token.getPrincipal();
         if(null == principal) {
             throw new AuthenticationException("用户不存在");
         }
 
-        return new SimpleAuthenticationInfo(authTokenAdapter
-                .getAuthToken(), null, this.getName());
+        return new SimpleAuthenticationInfo(token.getPrincipal()
+                , token.getCredentials(), this.getName());
     }
 
     /**
@@ -64,13 +57,13 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
      */
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
-        return SecurityUtils.isSuper() ||
+        return ShiroUtil.isSuper() ||
             super.isPermitted(principals, permission);
     }
 
     @Override
     public boolean hasRole(PrincipalCollection principal, String roleIdentifier) {
-        return SecurityUtils.isSuper() ||
+        return ShiroUtil.isSuper() ||
             super.hasRole(principal, roleIdentifier);
     }
 }

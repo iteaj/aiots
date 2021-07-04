@@ -38,13 +38,4 @@ public abstract class NativeAuthAction extends AccountAuthAction {
         return true;
     }
 
-    /**
-     * 只要是登录请求 == 提交登录接口
-     * @param request
-     * @return
-     */
-    @Override
-    public boolean isSubmitRequest(HttpServletRequest request) {
-        return isLoginRequest(request);
-    }
 }

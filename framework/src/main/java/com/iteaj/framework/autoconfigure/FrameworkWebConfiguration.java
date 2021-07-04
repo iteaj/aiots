@@ -5,13 +5,13 @@ import com.iteaj.framework.cache.SerializerType;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import com.iteaj.framework.spi.auth.handle.AccountAuthHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 

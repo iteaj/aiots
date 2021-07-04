@@ -2,7 +2,9 @@ package com.iteaj.framework.autoconfigure;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iteaj.framework.utils.JsonUtil;
 import com.iteaj.framework.utils.RedisUtil;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,9 +16,10 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
  * @author iteaj
  * @since 1.0
  */
+@ConditionalOnClass(name = "org.springframework.data.redis.core.RedisTemplate")
 public class RedisJacksonAutoConfiguration {
 
-    public static ObjectMapper mapper = new ObjectMapper();
+    public static ObjectMapper mapper = JsonUtil.mapper;
 
     static {
 

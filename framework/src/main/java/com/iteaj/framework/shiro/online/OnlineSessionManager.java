@@ -5,7 +5,9 @@ import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
+import org.apache.shiro.session.mgt.SessionKey;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 
@@ -56,4 +58,18 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         return super.getSessionId(request, response);
     }
 
+    @Override
+    public boolean isServletContainerSessions() {
+        return false;
+    }
+
+    @Override
+    public long getTimeout(SessionKey key) throws InvalidSessionException {
+        return super.getTimeout(key);
+    }
+
+    @Override
+    protected void applyGlobalSessionTimeout(Session session) {
+        super.applyGlobalSessionTimeout(session);
+    }
 }

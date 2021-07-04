@@ -1,4 +1,4 @@
-package com.iteaj.msn.core.web.app;
+package com.iteaj.msn.core.app;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

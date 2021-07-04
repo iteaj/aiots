@@ -1,10 +1,10 @@
-package com.iteaj.framework.spi.oauth2;
+package com.iteaj.oauth2.client.action;
 
 
-import com.iteaj.framework.spi.auth.AuthContext;
-import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthToken;
+import com.iteaj.framework.spi.auth.WebAuthAction;
+import com.iteaj.framework.spi.oauth2.OAuth2User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,7 +52,7 @@ public interface OAuth2Action extends WebAuthAction<OAuth2User> {
     boolean doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     @Override
-    default boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    default boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
         return true;
     }
 }

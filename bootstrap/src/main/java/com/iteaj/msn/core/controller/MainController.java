@@ -4,7 +4,7 @@ import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.spi.admin.SecurityUtils;
+import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.util.Result;
 import com.iteaj.util.module.mvc.orm.Entity;
 import com.iteaj.util.module.mvc.result.ListResult;
@@ -36,7 +36,7 @@ public class MainController extends BaseController {
     @GetMapping("/env")
     public Result envConfig() {
         Map<String, Object> config =  resourceManager
-                .getEnvConfig(SecurityUtils.getUser());
+                .getEnvConfig(ShiroUtil.getUser());
         return success(config);
     }
 
@@ -52,7 +52,7 @@ public class MainController extends BaseController {
 
     @GetMapping("/menus")
     public Result<List<Menu>> resources() {
-        final Entity user = SecurityUtils.getUser();
+        final Entity user = ShiroUtil.getUser();
         resourceManager.getResources(user).forEach(item -> {
 
         });

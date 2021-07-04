@@ -4,7 +4,7 @@ import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.framework.spi.auth.AuthType;
-import com.iteaj.framework.spi.oauth2.DefaultOAuth2Action;
+import com.iteaj.oauth2.client.action.DefaultOAuth2Action;
 import com.iteaj.framework.spi.oauth2.OAuth2User;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +23,7 @@ public class AdminOAuth2Action extends DefaultOAuth2Action {
     }
 
     @Override
-    public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public AuthContext getContext(HttpServletRequest request, HttpServletResponse response) {
         final String type = request.getParameter("type");
         if(type == null) {
             throw new AuthException("未指定授权类型[type=Gitee]");

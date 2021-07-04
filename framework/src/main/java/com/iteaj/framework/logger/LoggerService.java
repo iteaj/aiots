@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.admin;
+package com.iteaj.framework.logger;
 
 /**
  * create time: 2020/4/21

@@ -1,12 +1,11 @@
 package com.iteaj.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.spi.admin.SecurityUtils;
+import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.Result;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -91,7 +90,7 @@ public class UploadController extends BaseController implements InitializingBean
     @PostMapping("avatar")
     public Result avatar(MultipartFile avatar) {
         try {
-            Admin admin = (Admin) SecurityUtils.getUser();
+            Admin admin = (Admin) ShiroUtil.getUser();
             String fileUrl = this.createFile(avatar, "avatar_"+admin.getId(), "/avatar");
             return success(fileUrl, "上传成功");
         } catch (IOException e) {

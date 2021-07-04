@@ -13,7 +13,6 @@
     <dependencies>
 <!-- ################################ 可选plugins ############################## -->
 
-        <!--  quartz 定时任务插件  -->
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>shiro-redis</artifactId>
@@ -46,6 +45,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.iteaj.boot.BootstrapBootApplication</mainClass>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

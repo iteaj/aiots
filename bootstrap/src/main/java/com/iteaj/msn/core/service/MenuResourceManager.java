@@ -7,7 +7,7 @@ import com.iteaj.msn.core.enums.ConfigType;
 import com.iteaj.framework.spi.admin.MenuResource;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.spi.admin.SecurityUtils;
+import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.util.module.mvc.ServiceException;
 import com.iteaj.util.module.mvc.orm.Entity;
 import com.iteaj.util.module.mvc.result.ListResult;
@@ -45,7 +45,7 @@ public class MenuResourceManager implements ResourceManager, EnvironmentAware {
 
         ListResult<Menu> menuTrees = menuService
                 .selectMenuBarTrees((Long) principal.getId()
-                        , SecurityUtils.isSuper((Long) principal.getId()));
+                        , ShiroUtil.isSuper((Long) principal.getId()));
 
         return menuTrees.get().stream().collect(Collectors.toList());
     }

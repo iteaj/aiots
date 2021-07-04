@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.TreeEntity;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.consts.Position;
-import com.iteaj.framework.spi.admin.LoggerMenu;
+import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.msn.core.enums.MenuType;
 import lombok.Data;
 import lombok.experimental.Accessors;

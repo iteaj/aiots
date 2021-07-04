@@ -1,9 +1,8 @@
 package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
+import com.iteaj.framework.consts.CoreConst;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -35,20 +34,6 @@ public interface WebAuthHandler {
     List<WebAuthAction> getActions();
 
     /**
-     * 是否是登录页面请求
-     * @param request
-     * @return
-     */
-    boolean isLoginRequest(HttpServletRequest request);
-
-    /**
-     * 是否是提交登录请求
-     * @param request
-     * @return
-     */
-    boolean isSubmitRequest(HttpServletRequest request);
-
-    /**
      * 返回匹配的动作
      * @param request
      * @return
@@ -57,25 +42,67 @@ public interface WebAuthHandler {
 
     /**
      * web登录时的处理
-     * @param context
      * @param request
      * @param response
      */
-    AuthToken login(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws AuthException;
+     default void login(HttpServletRequest request, HttpServletResponse response) throws AuthException {
+         final WebAuthAction action = matcher(request);
+         if(action != null) {
+             Exception throwable = null;
+             final AuthContext context = action.getContext(request, response);
+             try {
+                 action.login(context, request, response);
+             } catch (Exception e) {
+                 throwable = e;
+             } finally {
+                 action.loginCall(throwable, request, response);
+             }
+         }
+     }
 
     /**
-     * web注销时的处理
+     * 注销
      * @param request
      * @param response
      */
-    void logout(HttpServletRequest request, HttpServletResponse response) throws AuthException;
+     default void logout(HttpServletRequest request, HttpServletResponse response) {
+         final WebAuthAction matcher = matcher(request);
+         if(matcher != null) {
+             matcher.logout(request, response);
+         }
+     }
+
+     default AuthContext getAuthContext(HttpServletRequest request) {
+        return (AuthContext) request.getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
+     }
+
+     default boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
+        final WebAuthAction action = matcher(request);
+
+        if(action == null) {
+            return true; // 没有找到处理此次请求的动作, 拒绝放行
+        } else {
+            final AuthContext context = action.getContext(request, response);
+            context.setAction(action.getName());
+            request.setAttribute(CoreConst.SESSION_AUTH_CONTEXT, context);
+        }
+
+        return action.preAuthorize(request, response);
+     }
 
     /**
      * 继续授权
-     * @param context
      * @param request
      * @param response
-     * @return
+     * @return 默认直接放行
      */
-    boolean postAuthorize(AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
+    default boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        final WebAuthAction action = matcher(request);
+
+        if(action == null) {
+            return true; // 没有找到处理此次请求的动作, 拒绝放行
+        }
+
+        return action.postAuthorize(request, response);
+    }
 }

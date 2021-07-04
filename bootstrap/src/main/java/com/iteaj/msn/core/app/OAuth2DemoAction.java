@@ -1,9 +1,9 @@
-package com.iteaj.msn.core.web.app;
+package com.iteaj.msn.core.app;
 
 import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.framework.spi.auth.AuthType;
-import com.iteaj.framework.spi.oauth2.DefaultOAuth2Action;
+import com.iteaj.oauth2.client.action.DefaultOAuth2Action;
 import com.iteaj.framework.spi.oauth2.OAuth2User;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +22,7 @@ public class OAuth2DemoAction extends DefaultOAuth2Action {
     }
 
     @Override
-    public AuthContext authorize(HttpServletRequest request, HttpServletResponse response) {
+    public AuthContext getContext(HttpServletRequest request, HttpServletResponse response) {
         return AuthContext.build(AuthType.Gitee);
     }
 

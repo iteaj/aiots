@@ -1,7 +1,8 @@
-package com.iteaj.framework.captcha;
+package com.iteaj.framework.autoconfigure;
 
 import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.Producer;
+import com.iteaj.framework.captcha.KaptchaCreator;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -20,13 +22,15 @@ import java.io.IOException;
 
 /**
  * create time: 2020/7/1
- *
+ *  校验码
  * @author iteaj
  * @since 1.0
  */
+@RequestMapping("/valid")
 @Controller("CaptchaController")
-public class CaptchaConfiguration {
+public class CaptchaAutoConfiguration {
 
+    @Autowired
     private Producer producer;
 
     /**
@@ -48,6 +52,11 @@ public class CaptchaConfiguration {
              */
             session.setAttribute(Constants.KAPTCHA_SESSION_KEY
                     , split.length==2 ? split[1] : split[0]);
+            /**
+             * 放入的时间
+             */
+            session.setAttribute(Constants.KAPTCHA_SESSION_DATE
+                    , System.currentTimeMillis());
 
             // 写入图片到输出流
             ImageIO.write(image, "jpg", out);
@@ -68,7 +77,7 @@ public class CaptchaConfiguration {
     public OrderFilterChainDefinition captchaFilterChainDefinition() {
         OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
 
-        chain.addPathDefinition("/captcha", "anon");
+        chain.addPathDefinition("/valid/captcha", "anon");
         return chain;
     }
 
@@ -77,7 +86,7 @@ public class CaptchaConfiguration {
      * @return
      */
     @Bean(name = "charCaptcha")
-    @ConditionalOnProperty(value = "izone.web.admin.captcha-type", havingValue = "char")
+    @ConditionalOnProperty(value = "msn.core.captcha-type", havingValue = "char")
     public Producer charCaptcha(){
         return KaptchaCreator.charInstance();
     }
@@ -88,14 +97,8 @@ public class CaptchaConfiguration {
      */
     @Primary
     @Bean(name = "mathCaptcha")
-    @ConditionalOnProperty(value = "izone.web.admin.captcha-type", havingValue = "math")
+    @ConditionalOnProperty(value = "msn.core.captcha-type", havingValue = "math")
     public Producer mathCaptcha(){
         return KaptchaCreator.mathInstance();
-    }
-
-    @Autowired
-    public CaptchaConfiguration setProducer(Producer producer) {
-        this.producer = producer;
-        return this;
     }
 }

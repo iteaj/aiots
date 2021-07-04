@@ -19,7 +19,7 @@ public class SessionCacheProperties {
     private long expire = 30 * 60;
 
     /**
-     * 缓存名称
+     * session缓存名称
      */
     private String name = "FrameworkSessionCache";
 
