@@ -47,7 +47,7 @@ public class ShiroUtil {
         return id == 1l;
     }
 
-    public UserAgent getAgent() {
+    public static UserAgent getAgent() {
         return (UserAgent) getRequest().getAttribute(CoreConst.WEB_USER_AGENT);
     }
 
@@ -55,7 +55,15 @@ public class ShiroUtil {
      * 获取当前请求
      * @return
      */
-    public HttpServletRequest getRequest() {
+    public static HttpServletRequest getRequest() {
         return (HttpServletRequest) ThreadContext.get(CoreConst.HTTP_SERVLET_REQUEST);
+    }
+
+    public static <T> T getRequestAttr(String key) {
+        return (T) getRequest().getAttribute(key);
+    }
+
+    public static void setRequestAttr(String key, Object value) {
+        getRequest().setAttribute(key, value);
     }
 }

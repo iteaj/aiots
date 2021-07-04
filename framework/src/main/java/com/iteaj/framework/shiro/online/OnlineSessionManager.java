@@ -2,6 +2,8 @@ package com.iteaj.framework.shiro.online;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
+import com.iteaj.framework.spi.auth.WebAuthAction;
+import com.iteaj.framework.utils.ShiroUtil;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -15,6 +17,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * create time: 2020/6/25
@@ -43,8 +46,6 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
 
         servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
-        // 设置请求属性
-        ThreadContext.put(CoreConst.HTTP_SERVLET_REQUEST, request);
 
         // 尝试从header获取access_token作为sessionId
         Browser browser = userAgent.getBrowser();
@@ -58,18 +59,21 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         return super.getSessionId(request, response);
     }
 
+
+
     @Override
     public boolean isServletContainerSessions() {
         return false;
     }
 
     @Override
-    public long getTimeout(SessionKey key) throws InvalidSessionException {
-        return super.getTimeout(key);
-    }
-
-    @Override
     protected void applyGlobalSessionTimeout(Session session) {
-        super.applyGlobalSessionTimeout(session);
+        final WebAuthAction action = ShiroUtil.getRequestAttr(CoreConst.HANDLE_AUTH_ACTION);
+        if(action != null) {
+            session.setTimeout(TimeUnit.SECONDS.toMillis(action.expireTime()));
+            onChange(session);
+        } else {
+            super.applyGlobalSessionTimeout(session);
+        }
     }
 }

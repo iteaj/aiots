@@ -40,4 +40,17 @@ public interface CoreConst {
      * 在线用户标识
      */
     String ONLINE_ACCOUNT_ID = "ONLINE_ACCOUNT_ID";
+
+    /**
+     * session缓存前缀
+     */
+    String SESSION_KEY_PREFIX = "IFSCF:";
+    /**
+     * 权限缓存前缀
+     */
+    String AUTHORIZATION_KEY_PREFIX = "IFAOCF:";
+    /**
+     * 认证缓存前缀
+     */
+    String AUTHENTICATION_KEY_PREFIX = "IFAECF:";
 }

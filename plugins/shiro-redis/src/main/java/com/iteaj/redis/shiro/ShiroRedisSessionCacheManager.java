@@ -1,24 +1,29 @@
 package com.iteaj.redis.shiro;
 
-import com.fasterxml.jackson.core.TreeNode;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iteaj.framework.autoconfigure.RedisJacksonAutoConfiguration;
 import com.iteaj.framework.autoconfigure.SessionCacheProperties;
-import com.iteaj.framework.shiro.online.ShiroOnlineSession;
+import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.framework.utils.ShiroUtil;
 import lombok.SneakyThrows;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
 import org.apache.shiro.cache.CacheManager;
+import org.apache.shiro.cache.MapCache;
 import org.apache.shiro.session.Session;
-import org.apache.shiro.util.ThreadContext;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -31,21 +36,32 @@ import java.util.stream.Collectors;
 public class ShiroRedisSessionCacheManager implements CacheManager, InitializingBean {
 
     @Autowired
-    private RedisTemplate jacksonRedisTemplate;
+    private RedisTemplate shiroRedisTemplate;
     @Autowired
     private SessionCacheProperties config;
+    @Autowired
+    private WebAuthHandler webAuthHandler;
 
     private ValueOperations valueOperations;
-    private static final String SessionKeyPrefix = "IFSCF:";
-    private static final String AuthorizationKeyPrefix = "IFAOCF:";
-    private static final String AuthenticationKeyPrefix = "IFAECF:";
-
-    private Map<String, Cache> cacheMap = new HashMap<>();
     private ObjectMapper mapper = RedisJacksonAutoConfiguration.mapper;
+    private final ConcurrentMap<String, Cache> caches = new ConcurrentHashMap();
 
     @Override
-    public Cache<String, Cache> getCache(String s) throws CacheException {
-        return cacheMap.get(s);
+    public Cache getCache(String s) throws CacheException {
+        Cache cache = caches.get(s);
+        if(cache == null) {
+            synchronized (caches) {
+                cache = caches.get(s);
+                if(cache != null) {
+                    return cache;
+                }
+
+                cache = new MapCache(s, new HashMap());
+                this.caches.put(s, cache);
+            }
+        }
+
+        return cache;
     }
 
     protected class RedisSessionCache implements Cache<String, Session>{
@@ -54,15 +70,14 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
         @Override
         public Session get(String s) throws CacheException {
             // 首先先从线程上下文获取session, 将session和线程绑定
-            Session session = (Session) ThreadContext.get(s);
+            Session session = ShiroUtil.getRequestAttr(s);
             if(session != null) {
                 return session;
             }
 
-            final Object o = valueOperations.get(SessionKeyPrefix+s);
-            if(o instanceof JsonNode) {
-                session = mapper.treeToValue((TreeNode) o, ShiroOnlineSession.class);
-                ThreadContext.put(s, session);
+            session = (Session) valueOperations.get(CoreConst.SESSION_KEY_PREFIX +s);
+            if(session != null) {
+                ShiroUtil.setRequestAttr(s, session);
             }
 
             return session;
@@ -70,16 +85,16 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
 
         @Override
         public Session put(String s, Session session) throws CacheException {
-            valueOperations.set(SessionKeyPrefix+s, session, config.getExpire(), TimeUnit.SECONDS);
-            ThreadContext.put(s, session);
+            valueOperations.set(CoreConst.SESSION_KEY_PREFIX+s, session, session.getTimeout(), TimeUnit.MILLISECONDS);
+            ShiroUtil.setRequestAttr(s, session);
             return session;
         }
 
         @Override
         public Session remove(String s) throws CacheException {
-            final Session session = this.get(SessionKeyPrefix+s);
+            final Session session = this.get(CoreConst.SESSION_KEY_PREFIX+s);
             if(session != null) {
-                jacksonRedisTemplate.delete(SessionKeyPrefix+s);
+                shiroRedisTemplate.delete(CoreConst.SESSION_KEY_PREFIX+s);
             }
 
             return session;
@@ -89,7 +104,7 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
         public void clear() throws CacheException {
             final Set<String> keys = keys();
             if(!keys().isEmpty()) {
-                jacksonRedisTemplate.delete(keys);
+                shiroRedisTemplate.delete(keys);
             }
         }
 
@@ -100,8 +115,8 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
 
         @Override
         public Set<String> keys() {
-            final Set<String> keys = jacksonRedisTemplate
-                    .keys(SessionKeyPrefix + "*");
+            final Set<String> keys = shiroRedisTemplate
+                    .keys(CoreConst.SESSION_KEY_PREFIX + "*");
 
             if(!CollectionUtils.isEmpty(keys)) {
                 return keys.stream().map(key -> key
@@ -119,7 +134,10 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.valueOperations = jacksonRedisTemplate.opsForValue();
-        cacheMap.put(config.getName(), new RedisSessionCache());
+        this.valueOperations = shiroRedisTemplate.opsForValue();
+
+        webAuthHandler.getActions().forEach(item -> {
+            this.caches.put(item.getName(), new RedisSessionCache());
+        });
     }
 }

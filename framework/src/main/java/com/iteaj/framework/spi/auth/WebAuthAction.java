@@ -25,6 +25,10 @@ import java.nio.charset.StandardCharsets;
  */
 public interface WebAuthAction<T> extends Ordered {
 
+    /**
+     * 默认session过期时间(30分钟)
+     */
+    long expireTime = 1 * 60;
     PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
@@ -39,6 +43,14 @@ public interface WebAuthAction<T> extends Ordered {
      */
     default String getName() {
         return getClass().getName();
+    }
+
+    /**
+     * session过期时间(秒)
+     * @return
+     */
+    default long expireTime() {
+        return expireTime;
     }
 
     /**

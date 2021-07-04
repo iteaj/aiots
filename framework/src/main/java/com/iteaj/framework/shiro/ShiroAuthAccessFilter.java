@@ -47,6 +47,7 @@ public class ShiroAuthAccessFilter extends AccessControlFilter {
             return true;
         } else { // 未认证
             request.setAttribute(AUTH_STATUS, false);
+            ((HttpServletRequest) request).getSession().setAttribute(AUTH_STATUS, false);
             return false;
         }
     }

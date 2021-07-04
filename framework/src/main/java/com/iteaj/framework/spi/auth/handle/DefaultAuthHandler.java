@@ -4,6 +4,7 @@ import com.iteaj.framework.FrameworkException;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.auth.*;
 import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
+import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.framework.web.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -6,11 +6,14 @@ import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.framework.web.WebUtils;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.subject.ExecutionException;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.filter.mgt.FilterChainManager;
 import org.apache.shiro.web.filter.mgt.FilterChainResolver;
@@ -27,6 +30,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 /**
  * create time: 2021/6/29
@@ -79,10 +83,44 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
         }
 
         @Override
-        protected WebSubject createSubject(ServletRequest request, ServletResponse response) {
-            final WebAuthAction action = webAuthHandler.matcher((HttpServletRequest) request);
-//            ThreadContext.put();
-            return super.createSubject(request, response);
+        protected void doFilterInternal(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException, IOException {
+
+            Throwable t = null;
+
+            try {
+                final ServletRequest request = prepareServletRequest(servletRequest, servletResponse, chain);
+                final ServletResponse response = prepareServletResponse(request, servletResponse, chain);
+
+                ThreadContext.put(CoreConst.HTTP_SERVLET_REQUEST, request);
+                webAuthHandler.matcher((HttpServletRequest) request);
+                final Subject subject = createSubject(request, response);
+
+                //noinspection unchecked
+                subject.execute((Callable) () -> {
+                    // ThreadContext会移除一次绑定信息, 需要重新设置
+                    ThreadContext.put(CoreConst.HTTP_SERVLET_REQUEST, request);
+
+                    updateSessionLastAccessTime(request, response);
+                    executeChain(request, response, chain);
+                    return null;
+                });
+            } catch (ExecutionException ex) {
+                t = ex.getCause();
+            } catch (Throwable throwable) {
+                t = throwable;
+            }
+
+            if (t != null) {
+                if (t instanceof ServletException) {
+                    throw (ServletException) t;
+                }
+                if (t instanceof IOException) {
+                    throw (IOException) t;
+                }
+                //otherwise it's not one of the two exceptions expected by the filter method signature - wrap it in one:
+                String msg = "Filtered request failed.";
+                throw new ServletException(msg, t);
+            }
         }
 
         @Override
@@ -91,6 +129,7 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
                 HttpServletRequest servletRequest = (HttpServletRequest) request;
                 final String requestURI = servletRequest.getRequestURI();
                 final LoggerMenu loggerMenu = loggerService.getLoggerMenu(requestURI);
+
                 // 需要采集记录日志
                 if(loggerMenu != null && loggerMenu.isCollect()) {
                     long startMills = System.currentTimeMillis();
