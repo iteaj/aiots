@@ -7,11 +7,10 @@ import com.iteaj.framework.utils.ShiroUtil;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
-import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
-import org.apache.shiro.session.mgt.SessionKey;
-import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -28,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class OnlineSessionManager extends DefaultWebSessionManager {
 
     private FrameworkWebProperties properties;
-
+    private Logger logger = LoggerFactory.getLogger(getClass());
     public OnlineSessionManager(FrameworkWebProperties frameworkWebProperties) {
         this.properties = frameworkWebProperties;
     }
@@ -46,13 +45,17 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
 
         servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
+        final Object action = request.getAttribute(CoreConst.HANDLE_AUTH_ACTION);
+        if(action instanceof WebAuthAction) {
+            final String tokenName = ((WebAuthAction<?>) action).getTokenName();
+            if(tokenName != null) {
+                final String token = servletRequest.getHeader(tokenName);
+                if(logger.isDebugEnabled()) {
+                    logger.debug("将使用请求头["+tokenName+"="+token+"]作为sessionId进行授权");
+                }
 
-        // 尝试从header获取access_token作为sessionId
-        Browser browser = userAgent.getBrowser();
-        if(browser != null && browser.getBrowserType() == BrowserType.APP) {
-            String tokenName = properties.getAuth().getTokenName();
-            // 从请求头里面获取token, 作为sessionId
-            return servletRequest.getHeader(tokenName);
+                return token;
+            }
         }
 
         // 从cookie中获取

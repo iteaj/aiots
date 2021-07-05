@@ -33,6 +33,9 @@ public class ShiroAuthActionProxy implements BeanPostProcessor, BeanFactoryPostP
             return Proxy.newProxyInstance(getClass().getClassLoader(),
                     new Class[]{WebAuthAction.class}, new TargetInvocationHandler() {
 
+                private Method loginMethod;
+                private Method logoutMethod;
+
                 @Override
                 public Object getTarget() {
                     return bean;
@@ -41,6 +44,11 @@ public class ShiroAuthActionProxy implements BeanPostProcessor, BeanFactoryPostP
                 @Override
                 public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                     Object invoke;
+                    if(this.loginMethod == method) {
+
+                    } else if(Objects.equals(method.getName(), loginMethodName)) {
+                        this.loginMethod = method;
+                    }
                     if(Objects.equals(method.getName(), loginMethodName)) {
                         try {
                             invoke = method.invoke(bean, args);

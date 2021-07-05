@@ -54,6 +54,15 @@ public interface WebAuthAction<T> extends Ordered {
     }
 
     /**
+     * token名称 eg: access_token
+     * 请求头携带的token
+     * @return 不为null 则从请求header里面获取token作为sessionId
+     */
+    default String getTokenName() {
+        return null;
+    }
+
+    /**
      * 是否是ajax请求
      * @param request
      * @return
