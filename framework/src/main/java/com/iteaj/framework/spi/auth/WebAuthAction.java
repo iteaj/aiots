@@ -17,7 +17,8 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * create time: 2021/3/24
- *  授权动作
+ *  授权动作, 用于配置不同端的授权动作 比如：pc, 小程序, webapp
+ *  使用同一套session, 支持session集群
  * @see #pathMatcher(String, HttpServletRequest) 通过uri匹配动作
  * @see WebAuthHandler
  * @author iteaj
@@ -28,7 +29,10 @@ public interface WebAuthAction<T> extends Ordered {
     /**
      * 默认session过期时间(30分钟)
      */
-    long expireTime = 1 * 60;
+    long expireTime = 30 * 60;
+    /**
+     * ant路径匹配
+     */
     PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override

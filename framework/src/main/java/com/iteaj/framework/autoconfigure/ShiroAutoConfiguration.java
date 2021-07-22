@@ -17,7 +17,6 @@ import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,14 +37,21 @@ import java.util.stream.Collectors;
  * @since 1.0
  */
 @ImportAutoConfiguration(ShiroAuthActionProxy.class)
-@EnableConfigurationProperties(ShiroCacheProperties.class)
+@EnableConfigurationProperties(SessionCacheProperties.class)
 public class ShiroAutoConfiguration {
 
-    @Autowired
-    private FrameworkWebProperties properties;
+    private final FrameworkWebProperties properties;
+    private final SessionCacheProperties cacheProperties;
+
+    public ShiroAutoConfiguration(FrameworkWebProperties properties, SessionCacheProperties cacheProperties) {
+        this.properties = properties;
+        this.cacheProperties = cacheProperties;
+    }
 
     /**
-     * 创建一个名称叫{@code framework}的shiro访问过滤器
+     * 创建一个名称叫{@code framework}的shiro全局配置过滤器
+     * @see WebAuthHandler 扩展shiro的session, 认证, 授权等功能
+     * @see com.iteaj.framework.spi.auth.WebAuthAction
      * @see #frameworkAuthFilterChainDefinition() 拦截所有请求 /**
      * @param handler
      * @return
@@ -92,7 +98,10 @@ public class ShiroAutoConfiguration {
 
     @Bean
     public SessionDAO sessionDAO() {
-        return new OnlineSessionDAO();
+        OnlineSessionDAO sessionDAO = new OnlineSessionDAO();
+        // 设置缓存名称
+        sessionDAO.setActiveSessionsCacheName(cacheProperties.getName());
+        return sessionDAO;
     }
 
     @Bean
@@ -100,11 +109,12 @@ public class ShiroAutoConfiguration {
             , SessionDAO sessionDAO, Collection<Realm> realms, ObjectProvider<CacheManager> cacheManager) {
 
         DefaultSessionManager sessionManager = new OnlineSessionManager(properties);
-
         // 开启session校验
         sessionManager.setSessionValidationSchedulerEnabled(true);
-        // session校验周期 指定五分钟校验一次
-        sessionManager.setSessionValidationInterval(5 * 60 * 1000);
+
+        // 设定全局缓存时间
+        long expireTime = TimeUnit.SECONDS.toMillis(cacheProperties.getExpire());
+        sessionManager.setGlobalSessionTimeout(expireTime);
 
         sessionManager.setSessionDAO(sessionDAO);
         sessionManager.setSessionListeners(listeners);
@@ -116,11 +126,6 @@ public class ShiroAutoConfiguration {
         // 如果有缓存管理
         cacheManager.ifAvailable(item -> {
             securityManager.setCacheManager(item);
-
-            // 使用缓存过期时间
-            // 60分钟校验一次
-            sessionManager.setSessionValidationInterval(TimeUnit.MINUTES.toMillis(60));
-            sessionManager.setSessionValidationSchedulerEnabled(true);
         });
 
         return securityManager;

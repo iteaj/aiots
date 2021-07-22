@@ -29,11 +29,6 @@ public class FrameworkWebProperties {
      */
     private String uploadRootUri;
 
-    /**
-     * Oauth2的redirectUri
-     */
-    private String redirectUri = "/auth/oauth2/redirectUri";
-
     public static class Auth extends AuthConfig { }
 
 }

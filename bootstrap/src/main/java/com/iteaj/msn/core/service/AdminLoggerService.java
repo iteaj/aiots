@@ -13,6 +13,7 @@ import com.iteaj.msn.core.entity.AccessLog;
 import com.iteaj.msn.core.enums.MenuType;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -37,6 +38,7 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
     private Map<Long, Menu> idMenuMap = new HashMap<>(128);
     private Map<String, Menu> urlMenuMap = new HashMap<>(128);
 
+    @Async
     @Override
     public void record(AccessLogger entity) {
         AccessLog accessLog = new AccessLog().setErrMsg(entity.getRemark())

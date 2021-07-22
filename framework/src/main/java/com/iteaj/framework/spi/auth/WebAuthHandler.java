@@ -10,6 +10,10 @@ import java.util.List;
 /**
  * create time: 2021/3/24
  *  web请求授权处理器 支持pc和移动端
+ *  1. 支持多端统一使用session
+ *  2. 支持不同端配置不同的session过期时间
+ *  3. 支持多种方式授权(账号密码, oauth2[gitee, wechat, alipay])
+ *  4. 支持session集群
  * @author iteaj
  * @since 1.0
  */

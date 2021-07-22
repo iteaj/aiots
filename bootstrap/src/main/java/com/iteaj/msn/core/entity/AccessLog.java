@@ -38,7 +38,7 @@ public class AccessLog extends BaseEntity {
     /**
      * 访问用户
      */
-    private Serializable userId;
+    private Long userId;
     /**
      * 使用时间
      */

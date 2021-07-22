@@ -21,9 +21,6 @@ import java.util.List;
 @ImportAutoConfiguration({
         FrameworkAutoConfiguration.class
 })
-@EnableConfigurationProperties({
-        SessionCacheProperties.class
-})
 public class FrameworkWebConfiguration implements WebMvcConfigurer {
 
     private final FrameworkWebProperties properties;

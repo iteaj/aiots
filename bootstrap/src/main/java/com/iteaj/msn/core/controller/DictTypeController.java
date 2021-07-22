@@ -17,7 +17,7 @@ import java.util.List;
  * @author iteaj
  * create time：2019/6/24
  */
-@Controller
+@RestController
 @RequestMapping("/core/dictType")
 public class DictTypeController extends BaseController {
 
@@ -27,43 +27,32 @@ public class DictTypeController extends BaseController {
         this.dictTypeService = dictTypeService;
     }
 
-    @GetMapping
-    @RequiresPermissions("core:dictType:view")
-    public String view() {
-        return "dict";
-    }
-
-    @ResponseBody
     @GetMapping("/view")
     @RequiresPermissions("core:dictType:view")
-    public Result list(DictType dictType, Page page) {
-        return dictTypeService.selectByPage(page, dictType).build(success());
+    public Result<Page> list(DictType dictType, Page page) {
+        return dictTypeService.selectByPage(page, dictType);
     }
 
-    @ResponseBody
     @GetMapping("/list")
-    public Result list(DictType dictType) {
-        return dictTypeService.selectList(dictType).build(success());
+    public Result<List<DictType>> list(DictType dictType) {
+        return dictTypeService.selectList(dictType);
     }
 
-    @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:dictType:add")
-    public Result add(@RequestBody DictType dictType) {
-        return dictTypeService.insert(dictType).build(success());
+    public Result<DictType> add(@RequestBody DictType dictType) {
+        return dictTypeService.insert(dictType);
     }
 
-    @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:dictType:del")
-    public Result del(@RequestBody List<Long> list) {
-        return dictTypeService.deleteByIds(list).build(success());
+    public Result<Boolean> del(@RequestBody List<Long> list) {
+        return dictTypeService.deleteByIds(list);
     }
 
-    @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:dictType:edit")
-    public Result edit(@RequestBody DictType dictType) {
-        return dictTypeService.updateById(dictType).build(success());
+    public Result<Boolean> edit(@RequestBody DictType dictType) {
+        return dictTypeService.updateById(dictType);
     }
 }

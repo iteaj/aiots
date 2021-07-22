@@ -135,9 +135,6 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
     @Override
     public void afterPropertiesSet() throws Exception {
         this.valueOperations = shiroRedisTemplate.opsForValue();
-
-        webAuthHandler.getActions().forEach(item -> {
-            this.caches.put(item.getName(), new RedisSessionCache());
-        });
+        this.caches.put(config.getName(), new RedisSessionCache());
     }
 }

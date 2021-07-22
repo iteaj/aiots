@@ -49,8 +49,8 @@ import java.util.List;
  * @since 1.0
  */
 @ImportAutoConfiguration({
-        CaptchaAutoConfiguration.class,
-        ShiroAutoConfiguration.class,
+        CaptchaAutoConfiguration.class, // 校验码配置
+        ShiroAutoConfiguration.class, // shiro权限配置
 })
 @ComponentScan("com.iteaj.msn.core")
 @MapperScan(basePackages = {"com.iteaj.msn.core.mapper"})

@@ -15,7 +15,7 @@ import java.util.List;
  * @author iteaj
  * create time：2019/6/24
  */
-@Controller
+@RestController
 @RequestMapping("/core/dictData")
 public class DictDataController extends BaseController {
 
@@ -25,38 +25,34 @@ public class DictDataController extends BaseController {
         this.dictDataService = dictDataService;
     }
 
-    @GetMapping()
-    public String view(){
-        return "dictData";
-    }
-
     @ResponseBody
     @GetMapping("/view")
     public Result list(DictData dictData) {
-        return dictDataService.selectList(dictData).build(success());
+        return dictDataService.selectList(dictData);
     }
 
-    @ResponseBody
     @GetMapping("/listByType")
-    public Result listByDictType(String type) {
-        return dictDataService.selectByType(type).build(success());
+    public Result<List<DictData>> listByDictType(String type) {
+        return dictDataService.selectByType(type);
     }
 
-    @ResponseBody
     @PostMapping("/add")
     public Result add(@RequestBody DictData data) {
-        return dictDataService.insert(data).build(success());
+        return dictDataService.insert(data);
     }
 
-    @ResponseBody
     @PostMapping("/del")
     public Result del(@RequestBody List<Long> list) {
-        return dictDataService.deleteByIds(list).build(success());
+        return dictDataService.deleteByIds(list);
     }
 
-    @ResponseBody
+    @GetMapping("/edit")
+    public Result<DictData> edit(Long id) {
+        return dictDataService.getById(id);
+    }
+
     @PostMapping("/edit")
     public Result edit(@RequestBody DictData data) {
-        return dictDataService.updateById(data).build(success());
+        return dictDataService.updateById(data);
     }
 }
