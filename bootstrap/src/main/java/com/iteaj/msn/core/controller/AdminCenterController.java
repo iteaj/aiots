@@ -1,14 +1,16 @@
 package com.iteaj.msn.core.controller;
 
-import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.dto.PasswordDto;
+import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.service.IAdminService;
 import com.iteaj.util.Result;
 import com.iteaj.util.module.mvc.BaseHttpController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,6 +56,17 @@ public class AdminCenterController extends BaseHttpController {
     }
 
     /**
+     * 用户中心头像
+     * @param file
+     * @return
+     */
+    @PostMapping("avatar")
+    public Result<String> avatar(MultipartFile file) {
+
+        return success("");
+    }
+
+    /**
      * 用户详情
      * @return
      */
@@ -62,6 +75,16 @@ public class AdminCenterController extends BaseHttpController {
         Serializable id = ShiroUtil.getUser().getId();
 
         return adminService.getAdminCenter(id);
+    }
+
+    /**
+     * 修改用户
+     * @param admin
+     * @return
+     */
+    @PostMapping("editUser")
+    public Result<Boolean> updateUser(@RequestBody Admin admin) {
+        return adminService.updateById(admin);
     }
 
     /**

@@ -6,5 +6,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 @ControllerAdvice
 public class BaseController extends BaseHttpController {
 
-
+    @Override
+    protected String msgForSuccess() {
+        return "操作成功";
+    }
 }

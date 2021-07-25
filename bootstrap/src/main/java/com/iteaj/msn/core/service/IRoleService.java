@@ -23,7 +23,7 @@ public interface IRoleService extends IBaseService<IRoleDao, Role> {
 
     void createRoleAndPerms(RoleDto role);
 
-    void updateRoleAndPermsById(Role role);
+    void updateRolePermsById(Role role);
 
     List<Long> selectByAdminId(Serializable id);
 }

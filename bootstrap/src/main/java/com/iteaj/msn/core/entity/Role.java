@@ -21,8 +21,17 @@ import java.util.Date;
 @Accessors(chain = true)
 public class Role extends BaseEntity {
 
+    /**
+     * 角色名称
+     */
     private String name;
+    /**
+     * 排序
+     */
     private Integer sort;
+    /**
+     *
+     */
     private Status status;
     private String remark;
 

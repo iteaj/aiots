@@ -41,8 +41,8 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
     }
 
     @Override
-    public void updateRoleAndPermsById(Role role) {
-        getBaseDao().updateRoleAndPermsById(role);
+    public void updateRolePermsById(Role role) {
+        getBaseDao().updateRolePermsById(role);
     }
 
     @Override

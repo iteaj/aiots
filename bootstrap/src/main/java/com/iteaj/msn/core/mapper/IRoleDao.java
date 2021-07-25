@@ -19,7 +19,7 @@ public interface IRoleDao extends IBaseDao<Role> {
 
     RoleDto joinRoleMenuById(Long id);
 
-    void updateRoleAndPermsById(Role role);
+    void updateRolePermsById(Role role);
 
     void createRoleAndPerms(RoleDto role);
 

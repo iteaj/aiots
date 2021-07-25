@@ -29,8 +29,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </foreach>
         </if>
     </insert>
-    <update id="updateRoleAndPermsById">
-        update t_role set name=#{name},status=#{status},remark=#{remark},sort=#{sort} where id=#{id};
+    <update id="updateRolePermsById">
         <if test="menuIds != null">
             delete from t_role_menu where rid=#{id};
             insert into t_role_menu (rid,mid) values
