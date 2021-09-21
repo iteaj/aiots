@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.msn.core.entity.AccessLog;
 import com.iteaj.msn.core.service.IAccessLogService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -37,13 +37,13 @@ public class OperaLogController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:log:view")
     public Result view(Page page, AccessLog accessLog) {
-        return this.operaLogService.selectByPage(page, accessLog).build(success());
+        return this.operaLogService.page(page, accessLog).build(success());
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:log:del")
     public Result del(@RequestBody List<Long> list) {
-        return this.operaLogService.deleteByIds(list).build(success());
+        return this.operaLogService.removeByIds(list).build(success());
     }
 }

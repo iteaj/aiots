@@ -3,7 +3,7 @@ package com.iteaj.msn.core.service.impl;
 import com.iteaj.msn.core.mapper.IDictTypeDao;
 import com.iteaj.msn.core.entity.DictType;
 import com.iteaj.msn.core.service.IDictTypeService;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
+import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**

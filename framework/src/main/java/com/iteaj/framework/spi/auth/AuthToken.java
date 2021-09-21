@@ -1,7 +1,5 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.util.module.mvc.orm.Entity;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;

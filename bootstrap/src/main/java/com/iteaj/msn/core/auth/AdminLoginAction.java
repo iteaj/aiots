@@ -1,7 +1,7 @@
 package com.iteaj.msn.core.auth;
 
 import com.google.code.kaptcha.Constants;
-import com.iteaj.framework.shiro.FrameworkToken;
+import com.iteaj.framework.security.shiro.FrameworkToken;
 import com.iteaj.msn.core.CoreProperties;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.service.IAdminService;
@@ -10,7 +10,7 @@ import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.framework.spi.auth.*;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.util.JsonUtils;
-import com.iteaj.util.module.json.Json;
+import com.iteaj.util.json.Json;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StreamUtils;
@@ -58,9 +58,9 @@ public class AdminLoginAction extends AccountAuthAction {
         try(ServletInputStream inputStream = request.getInputStream()) {
             final String content = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             final Json builder = JsonUtils.builder(content);
-            String userName = builder.getString("userName");
-            String password = builder.getString("password");
-            String captcha = builder.getString("captcha");
+            String userName = builder.stringValue("userName");
+            String password = builder.stringValue("password");
+            String captcha = builder.stringValue("captcha");
 
             final Object attribute = request.getSession()
                     .getAttribute(Constants.KAPTCHA_SESSION_KEY);

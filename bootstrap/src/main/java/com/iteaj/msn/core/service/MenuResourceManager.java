@@ -8,10 +8,9 @@ import com.iteaj.framework.spi.admin.MenuResource;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.utils.ShiroUtil;
-import com.iteaj.util.module.mvc.ServiceException;
-import com.iteaj.util.module.mvc.orm.Entity;
-import com.iteaj.util.module.mvc.result.ListResult;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.Entity;
+import com.iteaj.framework.result.ListResult;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
@@ -28,13 +27,14 @@ import java.util.stream.Collectors;
  */
 public class MenuResourceManager implements ResourceManager, EnvironmentAware {
 
-    @Autowired
-    private IMenuService menuService;
     private Environment environment;
     private final List<Module> modules;
+    private final IMenuService menuService;
     private final IConfigService configService;
 
-    public MenuResourceManager(IConfigService configService, List<Module> modules) {
+    public MenuResourceManager(IMenuService menuService
+            , IConfigService configService, List<Module> modules) {
+        this.menuService = menuService;
         this.modules = modules;
         this.configService = configService;
     }
@@ -43,11 +43,10 @@ public class MenuResourceManager implements ResourceManager, EnvironmentAware {
     public List<MenuResource> getResources(Entity principal) {
         if(null == principal) throw new ServiceException("用户未登录");
 
-        ListResult<Menu> menuTrees = menuService
-                .selectMenuBarTrees((Long) principal.getId()
-                        , ShiroUtil.isSuper((Long) principal.getId()));
+        ListResult<Menu> menuTrees = menuService.selectMenuBarTreesInModules
+                ((Long) principal.getId(), getModules(), ShiroUtil.isSuper());
 
-        return menuTrees.get().stream().collect(Collectors.toList());
+        return menuTrees.stream().collect(Collectors.toList());
     }
 
     @Override
@@ -77,8 +76,8 @@ public class MenuResourceManager implements ResourceManager, EnvironmentAware {
         config.put("profiles", profiles);
 
         // 系统配置
-        Map<String, Config> configMap = this.configService.selectList(new Config(ConfigType.sys))
-                .get().stream().collect(Collectors.toMap(key -> key.getLabel(), val -> val));
+        Map<String, Config> configMap = this.configService.list(new Config(ConfigType.sys))
+                .stream().collect(Collectors.toMap(key -> key.getLabel(), val -> val));
         config.put("config", configMap);
         return config;
     }

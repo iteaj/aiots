@@ -1,6 +1,6 @@
 package com.iteaj.oauth2.client;
 
-import com.iteaj.framework.FrameworkException;
+import com.iteaj.framework.exception.FrameworkException;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.AuthException;

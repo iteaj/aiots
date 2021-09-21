@@ -2,7 +2,7 @@ package com.iteaj.msn.core.service;
 
 import com.iteaj.msn.core.mapper.IAccessLogDao;
 import com.iteaj.msn.core.entity.AccessLog;
-import com.iteaj.util.module.mvc.IBaseService;
+import com.iteaj.framework.IBaseService;
 
 /**
  * create time: 2020/4/22

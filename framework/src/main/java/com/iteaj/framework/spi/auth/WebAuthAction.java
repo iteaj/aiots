@@ -2,8 +2,8 @@ package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.web.WebUtils;
 import com.iteaj.util.JsonUtils;
-import com.iteaj.util.Result;
-import com.iteaj.util.module.mvc.HttpResult;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.result.HttpResult;
 import org.springframework.core.Ordered;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;

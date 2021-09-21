@@ -1,7 +1,7 @@
 package com.iteaj.framework.utils;
 
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.util.module.mvc.orm.Entity;
+import com.iteaj.framework.Entity;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.ThreadContext;

@@ -3,8 +3,6 @@ package com.iteaj.oauth2.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
-import com.iteaj.framework.spi.auth.AuthContext;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.oauth2.config.OAuth2ClientProperties;
 import org.springframework.beans.factory.annotation.Autowired;

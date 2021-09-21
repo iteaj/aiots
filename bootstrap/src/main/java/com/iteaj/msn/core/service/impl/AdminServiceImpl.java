@@ -8,9 +8,9 @@ import com.iteaj.msn.core.service.IAdminService;
 import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.DigestUtils;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
-import com.iteaj.util.module.mvc.ServiceException;
-import com.iteaj.util.module.mvc.result.DetailResult;
+import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.result.DetailResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +22,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     @Override
     public Admin getByAccount(String username) {
-        return getBaseDao().selectOne(new QueryWrapper<Admin>()
+        return getBaseMapper().selectOne(new QueryWrapper<Admin>()
                 .eq("account", username));
     }
 
@@ -33,7 +33,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
     @Override
     @Transactional
     public void createAdmin(AdminDto adminDto) {
-        if(null == adminDto) throw new ServiceException("创建失败, 管理员对象不存在", "创建失败");
+        if(null == adminDto) throw new ServiceException("创建失败");
         Admin byAccount = this.getByAccount(adminDto.getAccount());
         if(null != byAccount) throw new ServiceException("此账号已经存在："+adminDto.getAccount());
 
@@ -43,17 +43,17 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
             adminDto.setPassword(DigestUtils.md5Hex(adminDto.getAccount().getBytes()));
         }
 
-        this.getBaseDao().createAdmin(adminDto);
+        this.getBaseMapper().createAdmin(adminDto);
     }
 
     @Transactional
     public void updateAdminAndRole(AdminDto adminDto) {
-        this.getBaseDao().updateAdmin(adminDto);
+        this.getBaseMapper().updateAdmin(adminDto);
     }
 
     @Override
     public DetailResult<AdminDto> getAdminDetailById(Long id) {
-        return new DetailResult<>(getBaseDao().getAdminDetailById(id));
+        return new DetailResult<>(getBaseMapper().getAdminDetailById(id));
     }
 
     /**
@@ -65,31 +65,31 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
     @Override
     public void updatePwdById(Long id, String password, String oldPwd) {
         if(null == id || CommonUtils.isBlank(password))
-            throw new ServiceException("更新参数错误", "更新密码失败");
+            throw new ServiceException("更新密码失败");
         if(CommonUtils.isBlank(oldPwd))
             throw new ServiceException("请输入原密码");
 
         oldPwd = DigestUtils.md5Hex(oldPwd.getBytes());
-        String oldPassword = getBaseDao().getAdminPassword(id);
+        String oldPassword = getBaseMapper().getAdminPassword(id);
 
         if(!oldPwd.equalsIgnoreCase(oldPassword)) {
             throw new ServiceException("密码不匹配");
         }
 
         String md5Hex = DigestUtils.md5Hex(password.getBytes());
-        getBaseDao().updatePwdById(id, md5Hex);
+        getBaseMapper().updatePwdById(id, md5Hex);
     }
 
     @Override
     public void deleteAllJoinByIds(List<Long> list) {
         if(CommonUtils.isNotEmpty(list)) {
-            getBaseDao().deleteAllJoinByIds(list);
+            getBaseMapper().deleteAllJoinByIds(list);
         }
     }
 
     @Override
     public List<String> selectPermsById(Serializable id) {
-        return getBaseDao().selectPermsById(id);
+        return getBaseMapper().selectPermsById(id);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     @Override
     public DetailResult<AdminDto> getAdminCenter(Serializable id) {
-        return new DetailResult<AdminDto>(getBaseDao().getAdminCenter(id));
+        return new DetailResult<AdminDto>(getBaseMapper().getAdminCenter(id));
     }
 
     @Override
@@ -122,7 +122,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
                 -> new ServiceException("用户不存在"));
 
         String md5Hex = DigestUtils.md5Hex(password.getBytes());
-        getBaseDao().updatePwdById(id, md5Hex);
+        getBaseMapper().updatePwdById(id, md5Hex);
     }
 
 }

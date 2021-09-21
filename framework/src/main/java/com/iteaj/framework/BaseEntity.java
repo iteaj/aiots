@@ -3,9 +3,6 @@ package com.iteaj.framework;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.iteaj.util.module.mvc.orm.Entity;
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 public abstract class BaseEntity implements Entity<Long> {
 

@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi.admin.event;
 
 import com.iteaj.framework.spi.event.Event;
-import com.iteaj.util.module.mvc.orm.Entity;
+import com.iteaj.framework.Entity;
 import eu.bitwalker.useragentutils.UserAgent;
 
 import javax.servlet.http.HttpServletRequest;

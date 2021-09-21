@@ -6,8 +6,8 @@ import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.dto.PasswordDto;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.service.IAdminService;
-import com.iteaj.util.Result;
-import com.iteaj.util.module.mvc.BaseHttpController;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +28,7 @@ import java.io.Serializable;
  */
 @RestController
 @RequestMapping("/core/center")
-public class AdminCenterController extends BaseHttpController {
+public class AdminCenterController extends BaseController {
 
     @Autowired
     private WebAuthHandler handler;

@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.util.List;
  */
 public interface WebAuthHandler {
 
-    FrameworkWebProperties getConfig();
+    FrameworkProperties getConfig();
 
     /**
      * 通过Action名称获取一个Action

@@ -2,7 +2,7 @@ package com.iteaj.msn.core.service;
 
 import com.iteaj.msn.core.mapper.IConfigDao;
 import com.iteaj.msn.core.entity.Config;
-import com.iteaj.util.module.mvc.IBaseService;
+import com.iteaj.framework.IBaseService;
 
 /**
  * create time: 2019/12/4

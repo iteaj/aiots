@@ -2,9 +2,10 @@ package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.shiro.*;
-import com.iteaj.framework.shiro.online.OnlineSessionDAO;
-import com.iteaj.framework.shiro.online.OnlineSessionManager;
+import com.iteaj.framework.security.shiro.*;
+import com.iteaj.framework.security.shiro.online.OnlineSessionDAO;
+import com.iteaj.framework.security.shiro.online.OnlineSessionManager;
+import com.iteaj.framework.security.shiro.redis.ShiroRedisSessionCacheManager;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.mgt.RealmSecurityManager;
@@ -18,9 +19,11 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.servlet.Filter;
 import java.util.Collection;
@@ -40,10 +43,10 @@ import java.util.stream.Collectors;
 @EnableConfigurationProperties(SessionCacheProperties.class)
 public class ShiroAutoConfiguration {
 
-    private final FrameworkWebProperties properties;
+    private final FrameworkProperties properties;
     private final SessionCacheProperties cacheProperties;
 
-    public ShiroAutoConfiguration(FrameworkWebProperties properties, SessionCacheProperties cacheProperties) {
+    public ShiroAutoConfiguration(FrameworkProperties properties, SessionCacheProperties cacheProperties) {
         this.properties = properties;
         this.cacheProperties = cacheProperties;
     }
@@ -149,4 +152,9 @@ public class ShiroAutoConfiguration {
         return new NativeSessionListener();
     }
 
+    @Bean
+    @ConditionalOnExpression("${framework.shiro.redis:false}==true")
+    public CacheManager cacheManager(RedisTemplate redisTemplate, SessionCacheProperties properties) {
+        return new ShiroRedisSessionCacheManager(redisTemplate, properties);
+    }
 }

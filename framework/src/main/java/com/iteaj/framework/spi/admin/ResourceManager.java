@@ -1,8 +1,7 @@
 package com.iteaj.framework.spi.admin;
 
-import com.iteaj.util.module.mvc.orm.Entity;
+import com.iteaj.framework.Entity;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 

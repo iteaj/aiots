@@ -8,7 +8,7 @@ import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.dto.PasswordDto;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.service.IAdminService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +33,7 @@ public class AdminController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:admin:view")
     public Result view(Page page, Admin admin) {
-        return this.adminService.selectByPage(page, admin).build(success());
+        return this.adminService.page(page, admin).build(success());
     }
 
     @PostMapping("/add")

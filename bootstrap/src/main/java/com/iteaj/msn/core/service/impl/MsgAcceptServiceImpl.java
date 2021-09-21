@@ -3,7 +3,7 @@ package com.iteaj.msn.core.service.impl;
 import com.iteaj.msn.core.entity.MsgAccept;
 import com.iteaj.msn.core.mapper.IMsgAcceptMapper;
 import com.iteaj.msn.core.service.IMsgAcceptService;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
+import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**

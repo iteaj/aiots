@@ -1,14 +1,11 @@
 package com.iteaj.quartz.controller;
 
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.quartz.scheduler.SchedulerManager;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import com.iteaj.quartz.entity.QrtzTriggers;
 import com.iteaj.quartz.service.IQrtzTriggersService;
-import com.iteaj.util.module.mvc.result.PageResult;
+import com.iteaj.framework.result.PageResult;
 import org.quartz.CronExpression;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;

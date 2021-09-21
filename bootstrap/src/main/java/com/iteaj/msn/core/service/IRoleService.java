@@ -3,8 +3,8 @@ package com.iteaj.msn.core.service;
 import com.iteaj.msn.core.mapper.IRoleDao;
 import com.iteaj.msn.core.dto.RoleDto;
 import com.iteaj.msn.core.entity.Role;
-import com.iteaj.util.module.mvc.IBaseService;
-import com.iteaj.util.module.mvc.result.DetailResult;
+import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.result.DetailResult;
 
 import java.io.Serializable;
 import java.util.List;

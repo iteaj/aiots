@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.FrameworkException;
+import com.iteaj.framework.exception.FrameworkException;
 
 /**
  * create time: 2021/3/27

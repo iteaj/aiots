@@ -5,8 +5,8 @@ import com.iteaj.msn.core.dto.RoleDto;
 import com.iteaj.msn.core.entity.Role;
 import com.iteaj.msn.core.service.IRoleService;
 import com.iteaj.util.CommonUtils;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
-import com.iteaj.util.module.mvc.result.DetailResult;
+import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.result.DetailResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,27 +26,27 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
     @Transactional
     public void deleteAllJoinByIds(List<Long> list) {
         if(CommonUtils.isNotEmpty(list)) {
-            getBaseDao().deleteAllJoinByIds(list);
+            getBaseMapper().deleteAllJoinByIds(list);
         }
     }
 
     @Override
     public DetailResult<RoleDto> detail(Long id) {
-        return new DetailResult<>(getBaseDao().joinRoleMenuById(id));
+        return new DetailResult<>(getBaseMapper().joinRoleMenuById(id));
     }
 
     @Override
     public void createRoleAndPerms(RoleDto role) {
-        getBaseDao().createRoleAndPerms(role);
+        getBaseMapper().createRoleAndPerms(role);
     }
 
     @Override
     public void updateRolePermsById(Role role) {
-        getBaseDao().updateRolePermsById(role);
+        getBaseMapper().updateRolePermsById(role);
     }
 
     @Override
     public List<Long> selectByAdminId(Serializable id) {
-        return this.getBaseDao().selectByAdminId(id);
+        return this.getBaseMapper().selectByAdminId(id);
     }
 }

@@ -3,8 +3,8 @@ package com.iteaj.msn.core.service;
 import com.iteaj.msn.core.mapper.IAdminDao;
 import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.entity.Admin;
-import com.iteaj.util.module.mvc.IBaseService;
-import com.iteaj.util.module.mvc.result.DetailResult;
+import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.result.DetailResult;
 
 import java.io.Serializable;
 import java.util.List;

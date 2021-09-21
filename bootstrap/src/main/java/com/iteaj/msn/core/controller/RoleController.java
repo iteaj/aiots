@@ -8,7 +8,7 @@ import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.entity.Role;
 import com.iteaj.msn.core.service.IMenuService;
 import com.iteaj.msn.core.service.IRoleService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,12 +37,12 @@ public class RoleController extends BaseController {
     @RequiresPermissions("core:role:view")
     public Result view(Page page, Role role) {
         page.addOrder(OrderItem.asc("sort"));
-        return this.roleService.selectByPage(page, role);
+        return this.roleService.page(page, role);
     }
 
     @GetMapping("/list")
     public Result view(Role role) {
-        return this.roleService.selectList(role).build(success());
+        return this.roleService.list(role).build(success());
     }
 
     /**

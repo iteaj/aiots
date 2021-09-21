@@ -10,17 +10,12 @@ import com.iteaj.framework.spi.admin.event.OnlineListener;
 import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.event.FrameworkListener;
-import com.iteaj.msn.core.app.OAuth2DemoAction;
 import com.iteaj.msn.core.auth.AdminLoginAction;
 import com.iteaj.msn.core.auth.AdminOAuth2Action;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.OnlineUser;
 import com.iteaj.msn.core.enums.AppType;
-import com.iteaj.msn.core.service.AdminLoggerService;
-import com.iteaj.msn.core.service.IConfigService;
-import com.iteaj.msn.core.service.IOnlineUserService;
-import com.iteaj.msn.core.service.MenuResourceManager;
-import com.iteaj.oauth2.client.action.OAuth2Action;
+import com.iteaj.msn.core.service.*;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -33,7 +28,6 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -52,7 +46,6 @@ import java.util.List;
         CaptchaAutoConfiguration.class, // 校验码配置
         ShiroAutoConfiguration.class, // shiro权限配置
 })
-@ComponentScan("com.iteaj.msn.core")
 @MapperScan(basePackages = {"com.iteaj.msn.core.mapper"})
 @EnableConfigurationProperties(CoreProperties.class)
 public class CoreAutoConfiguration implements WebMvcConfigurer{
@@ -61,12 +54,6 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
 
     public CoreAutoConfiguration(CoreProperties coreProperties) {
         this.coreProperties = coreProperties;
-    }
-
-    @Bean
-    @Order(8)
-    public OAuth2Action wechatAction() {
-        return new OAuth2DemoAction("/app/wechat/**");
     }
 
     /**
@@ -100,8 +87,8 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
 
     @Bean
     public ResourceManager menuResourceManager(
-            IConfigService configService, List<Module> modules) {
-        return new MenuResourceManager(configService, modules);
+            IMenuService menuService, IConfigService configService, List<Module> modules) {
+        return new MenuResourceManager(menuService, configService, modules);
     }
 
     /**
@@ -217,7 +204,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
                         .setOs(userAgent.getOperatingSystem().getName())
                         .setAppType(appType).setExpireTime(event.getTimeout());
 
-                service.insert(onlineUser);
+                service.save(onlineUser);
             } else if(type == OnlineType.On) { // 用户上线
                 Admin admin = (Admin) event.getAdmin(); // 当前登录的用户
 

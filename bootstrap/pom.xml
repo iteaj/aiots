@@ -15,11 +15,6 @@
 
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>shiro-redis</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
             <artifactId>oauth2</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -46,7 +41,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.iteaj.boot.BootstrapBootApplication</mainClass>
+                    <mainClass>com.iteaj.BootstrapBootApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

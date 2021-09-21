@@ -8,8 +8,8 @@ import com.iteaj.msn.core.service.IOnlineUserService;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.spi.admin.event.OnlineType;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
-import com.iteaj.util.Result;
-import com.iteaj.util.module.mvc.result.ListResult;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.result.ListResult;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -46,7 +46,7 @@ public class OnlineUserController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:online:view")
     public Result view(OnlineUser entity, Page page) {
-        return this.onlineUserService.selectByPage(page
+        return this.onlineUserService.page(page
                 , Wrappers.query(entity)
                         .ne("status", OnlineType.Guest)
                         .orderByAsc("status")
@@ -70,8 +70,8 @@ public class OnlineUserController extends BaseController {
     @PostMapping("/del")
     @RequiresPermissions("core:online:del")
     public Result del(@RequestBody List<Long> ids, HttpServletRequest request, HttpServletResponse response) {
-        ListResult<OnlineUser> result = this.onlineUserService.selectByIds(ids);
-        List<OnlineUser> onlineUsers = result.get();
+        ListResult<OnlineUser> result = this.onlineUserService.listByIds(ids);
+        List<OnlineUser> onlineUsers = result.getData();
         if(CollectionUtils.isNotEmpty(onlineUsers)) {
 
             OnlineUser onlineUser = onlineUsers.get(0);

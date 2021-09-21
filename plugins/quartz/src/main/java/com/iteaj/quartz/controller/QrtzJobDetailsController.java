@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.iteaj.quartz.entity.QrtzJobDetails;
 import com.iteaj.quartz.service.IQrtzJobDetailsService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -37,14 +37,14 @@ public class QrtzJobDetailsController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:qrtzJobDetails:view")
     public Result view(QrtzJobDetails entity, Page page) {
-        return this.qrtzJobDetailsService.selectByPage(page, entity).build(success());
+        return this.qrtzJobDetailsService.page(page, entity).build(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:qrtzJobDetails:add")
     public Result add(@RequestBody QrtzJobDetails entity) {
-        return this.qrtzJobDetailsService.insert(entity).build(success("新增记录成功"));
+        return this.qrtzJobDetailsService.save(entity).build(success("新增记录成功"));
     }
 
     @ResponseBody
@@ -65,7 +65,7 @@ public class QrtzJobDetailsController extends BaseController {
     @PostMapping("/del")
     @RequiresPermissions("core:qrtzJobDetails:del")
     public Result del(@RequestBody List<Long> ids) {
-        return this.qrtzJobDetailsService.deleteByIds(ids).build(success("删除记录成功"));
+        return this.qrtzJobDetailsService.removeByIds(ids).build(success("删除记录成功"));
     }
 
 }

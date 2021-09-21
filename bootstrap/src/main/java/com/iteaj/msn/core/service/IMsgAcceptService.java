@@ -2,7 +2,7 @@ package com.iteaj.msn.core.service;
 
 import com.iteaj.msn.core.entity.MsgAccept;
 import com.iteaj.msn.core.mapper.IMsgAcceptMapper;
-import com.iteaj.util.module.mvc.IBaseService;
+import com.iteaj.framework.IBaseService;
 
 /**
  * <p>

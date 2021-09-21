@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
-import com.iteaj.util.module.mvc.HttpResult;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
+import com.iteaj.framework.result.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class AccountAuthAction implements WebAuthAction<AuthContext> {
 
     private String[] urlPattern;
-    private FrameworkWebProperties config;
+    private FrameworkProperties config;
 
     public AccountAuthAction(String[] urlPattern) {
         this.urlPattern = urlPattern;
@@ -75,12 +75,12 @@ public abstract class AccountAuthAction implements WebAuthAction<AuthContext> {
         return this;
     }
 
-    public FrameworkWebProperties getConfig() {
+    public FrameworkProperties getConfig() {
         return config;
     }
 
     @Autowired
-    public AccountAuthAction setConfig(FrameworkWebProperties config) {
+    public AccountAuthAction setConfig(FrameworkProperties config) {
         this.config = config;
         return this;
     }

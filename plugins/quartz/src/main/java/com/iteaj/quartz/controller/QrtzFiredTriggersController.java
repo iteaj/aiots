@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.iteaj.quartz.entity.QrtzFiredTriggers;
 import com.iteaj.quartz.service.IQrtzFiredTriggersService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +37,14 @@ public class QrtzFiredTriggersController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:qrtzFiredTriggers:view")
     public Result view(QrtzFiredTriggers entity, Page page) {
-        return this.qrtzFiredTriggersService.selectByPage(page, entity);
+        return this.qrtzFiredTriggersService.page(page, entity);
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:qrtzFiredTriggers:add")
     public Result add(@RequestBody QrtzFiredTriggers entity) {
-        return this.qrtzFiredTriggersService.insert(entity).build(success("新增记录成功"));
+        return this.qrtzFiredTriggersService.save(entity).build(success("新增记录成功"));
     }
 
     @ResponseBody
@@ -65,7 +65,7 @@ public class QrtzFiredTriggersController extends BaseController {
     @PostMapping("/del")
     @RequiresPermissions("core:qrtzFiredTriggers:del")
     public Result del(@RequestBody List<Long> ids) {
-        return this.qrtzFiredTriggersService.deleteByIds(ids).build(success("删除记录成功"));
+        return this.qrtzFiredTriggersService.removeByIds(ids).build(success("删除记录成功"));
     }
 
 }

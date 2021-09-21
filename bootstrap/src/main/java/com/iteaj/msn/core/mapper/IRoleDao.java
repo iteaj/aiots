@@ -1,8 +1,8 @@
 package com.iteaj.msn.core.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.msn.core.dto.RoleDto;
 import com.iteaj.msn.core.entity.Role;
-import com.iteaj.util.module.mvc.orm.IBaseDao;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.io.Serializable;
@@ -15,7 +15,7 @@ import java.util.List;
  * @since 1.0
  */
 @Mapper
-public interface IRoleDao extends IBaseDao<Role> {
+public interface IRoleDao extends BaseMapper<Role> {
 
     RoleDto joinRoleMenuById(Long id);
 

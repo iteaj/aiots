@@ -2,7 +2,7 @@ package com.iteaj.quartz.service;
 
 import com.iteaj.quartz.entity.QrtzFiredTriggers;
 import com.iteaj.quartz.mapper.IQrtzFiredTriggersMapper;
-import com.iteaj.util.module.mvc.IBaseService;
+import com.iteaj.framework.IBaseService;
 
 /**
  * <p>

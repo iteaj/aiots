@@ -4,9 +4,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.msn.core.entity.DictType;
 import com.iteaj.msn.core.service.IDictTypeService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,24 +29,24 @@ public class DictTypeController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:dictType:view")
     public Result<Page> list(DictType dictType, Page page) {
-        return dictTypeService.selectByPage(page, dictType);
+        return dictTypeService.page(page, dictType);
     }
 
     @GetMapping("/list")
     public Result<List<DictType>> list(DictType dictType) {
-        return dictTypeService.selectList(dictType);
+        return dictTypeService.list(dictType);
     }
 
     @PostMapping("/add")
     @RequiresPermissions("core:dictType:add")
     public Result<DictType> add(@RequestBody DictType dictType) {
-        return dictTypeService.insert(dictType);
+        return dictTypeService.save(dictType);
     }
 
     @PostMapping("/del")
     @RequiresPermissions("core:dictType:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {
-        return dictTypeService.deleteByIds(list);
+        return dictTypeService.removeByIds(list);
     }
 
     @PostMapping("/edit")

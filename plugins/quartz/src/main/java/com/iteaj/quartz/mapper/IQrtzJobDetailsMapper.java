@@ -1,7 +1,7 @@
 package com.iteaj.quartz.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.quartz.entity.QrtzJobDetails;
-import com.iteaj.util.module.mvc.orm.IBaseDao;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.iteaj.util.module.mvc.orm.IBaseDao;
  * @author iteaj
  * @since 2020-07-26
  */
-public interface IQrtzJobDetailsMapper extends IBaseDao<QrtzJobDetails> {
+public interface IQrtzJobDetailsMapper extends BaseMapper<QrtzJobDetails> {
 
 }

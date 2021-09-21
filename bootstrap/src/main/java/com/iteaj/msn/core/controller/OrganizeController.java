@@ -3,7 +3,7 @@ package com.iteaj.msn.core.controller;
 import com.iteaj.framework.BaseController;
 import com.iteaj.msn.core.entity.Organize;
 import com.iteaj.msn.core.service.IOrganizeService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +49,7 @@ public class OrganizeController extends BaseController {
     @PostMapping("/add")
     @RequiresPermissions("core:org:add")
     public Result add(@RequestBody Organize organize) {
-        return this.organizeService.insert(organize);
+        return this.organizeService.save(organize);
     }
 
     @ResponseBody
@@ -69,6 +69,6 @@ public class OrganizeController extends BaseController {
     @PostMapping("/del")
     @RequiresPermissions("core:org:del")
     public Result add(@RequestBody List<Long> list) {
-        return this.organizeService.deleteByIds(list);
+        return this.organizeService.removeByIds(list);
     }
 }

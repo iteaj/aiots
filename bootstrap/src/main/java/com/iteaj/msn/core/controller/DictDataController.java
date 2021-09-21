@@ -3,8 +3,7 @@ package com.iteaj.msn.core.controller;
 import com.iteaj.framework.BaseController;
 import com.iteaj.msn.core.entity.DictData;
 import com.iteaj.msn.core.service.IDictDataService;
-import com.iteaj.util.Result;
-import org.springframework.stereotype.Controller;
+import com.iteaj.framework.result.Result;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class DictDataController extends BaseController {
     @ResponseBody
     @GetMapping("/view")
     public Result list(DictData dictData) {
-        return dictDataService.selectList(dictData);
+        return dictDataService.list(dictData);
     }
 
     @GetMapping("/listByType")
@@ -38,12 +37,12 @@ public class DictDataController extends BaseController {
 
     @PostMapping("/add")
     public Result add(@RequestBody DictData data) {
-        return dictDataService.insert(data);
+        return dictDataService.save(data);
     }
 
     @PostMapping("/del")
     public Result del(@RequestBody List<Long> list) {
-        return dictDataService.deleteByIds(list);
+        return dictDataService.removeByIds(list);
     }
 
     @GetMapping("/edit")

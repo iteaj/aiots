@@ -18,7 +18,7 @@ public class SessionCacheProperties {
     /**
      * 全局过期时间(秒)
      * @see WebAuthAction#expireTime() 可以指定各端(pc,webapp)的过期时间
-     * @see com.iteaj.framework.shiro.online.OnlineSessionManager#applyGlobalSessionTimeout(Session)
+     * @see com.iteaj.framework.security.shiro.online.OnlineSessionManager#applyGlobalSessionTimeout(Session)
      */
     private long expire = 30 * 60;
 

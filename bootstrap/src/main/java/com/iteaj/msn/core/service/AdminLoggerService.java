@@ -64,7 +64,7 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
             }
         }
 
-        operaLogService.insert(accessLog);
+        operaLogService.save(accessLog);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
         String[] msnList = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
 
         // 只查询已经注册过的模块的菜单列表
-        this.menuService.selectList(Wrappers.<Menu>query().ne("type", MenuType.M)
+        this.menuService.list(Wrappers.<Menu>query().ne("type", MenuType.M)
                 .in(ArrayUtils.isNotEmpty(msnList),"msn", msnList))
                 .ofNullable().ifPresent(menus -> {
                 menus.forEach(menu -> {

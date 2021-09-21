@@ -1,8 +1,8 @@
 package com.iteaj.oauth2.client.action;
 
 import com.iteaj.framework.spi.auth.AuthException;
-import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
-import com.iteaj.util.module.mvc.HttpResult;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
+import com.iteaj.framework.result.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +18,7 @@ import java.io.IOException;
 public abstract class DefaultOAuth2Action implements OAuth2Action {
 
     private String[] urlPattern;
-    private FrameworkWebProperties config;
+    private FrameworkProperties config;
 
     public DefaultOAuth2Action(String[] urlPattern) {
         this.urlPattern = urlPattern;
@@ -77,12 +77,12 @@ public abstract class DefaultOAuth2Action implements OAuth2Action {
         return this;
     }
 
-    public FrameworkWebProperties getConfig() {
+    public FrameworkProperties getConfig() {
         return config;
     }
 
     @Autowired
-    public DefaultOAuth2Action setConfig(FrameworkWebProperties config) {
+    public DefaultOAuth2Action setConfig(FrameworkProperties config) {
         this.config = config;
         return this;
     }

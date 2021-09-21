@@ -1,7 +1,7 @@
 package com.iteaj.msn.core.service;
 
 import com.iteaj.msn.core.mapper.IOnlineUserMapper;
-import com.iteaj.util.module.mvc.IBaseService;
+import com.iteaj.framework.IBaseService;
 import com.iteaj.msn.core.entity.OnlineUser;
 
 /**

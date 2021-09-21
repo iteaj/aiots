@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.msn.core.entity.Config;
 import com.iteaj.msn.core.service.IConfigService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
@@ -38,14 +38,14 @@ public class ConfigController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:config:view")
     public Result view(Page page, Config config) {
-        return this.configService.selectByPage(page, config).build(success());
+        return this.configService.page(page, config).build(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:config:add")
     public Result<Boolean> add(@RequestBody Config config) {
-        return this.configService.insert(config).build(success());
+        return this.configService.save(config).build(success());
     }
 
     @ResponseBody
@@ -65,6 +65,6 @@ public class ConfigController extends BaseController {
     @PostMapping("/del")
     @RequiresPermissions("core:config:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {
-        return this.configService.deleteByIds(list).build(success());
+        return this.configService.removeByIds(list).build(success());
     }
 }

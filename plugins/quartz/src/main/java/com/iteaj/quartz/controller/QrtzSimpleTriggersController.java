@@ -5,13 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.quartz.entity.QrtzSimpleTriggers;
 import com.iteaj.quartz.service.IQrtzSimpleTriggersService;
-import com.iteaj.util.Result;
-import com.iteaj.util.module.mvc.result.PageResult;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.result.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * <p>
@@ -43,7 +41,7 @@ public class QrtzSimpleTriggersController extends BaseController {
 //    @ResponseBody
 //    @PostMapping("/add")
 //    public Result add(@RequestBody QrtzSimpleTriggers entity) {
-//        return this.qrtzSimpleTriggersService.insert(entity).response(success("新增记录成功"));
+//        return this.qrtzSimpleTriggersService.save(entity).response(success("新增记录成功"));
 //    }
 //
 //    @ResponseBody
@@ -61,7 +59,7 @@ public class QrtzSimpleTriggersController extends BaseController {
 //    @ResponseBody
 //    @PostMapping("/del")
 //    public Result del(@RequestBody List<Long> ids) {
-//        return this.qrtzSimpleTriggersService.deleteByIds(ids).response(success("删除记录成功"));
+//        return this.qrtzSimpleTriggersService.removeByIds(ids).response(success("删除记录成功"));
 //    }
 
 }

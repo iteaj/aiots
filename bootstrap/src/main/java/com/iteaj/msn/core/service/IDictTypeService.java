@@ -2,7 +2,7 @@ package com.iteaj.msn.core.service;
 
 import com.iteaj.msn.core.mapper.IDictTypeDao;
 import com.iteaj.msn.core.entity.DictType;
-import com.iteaj.util.module.mvc.IBaseService;
+import com.iteaj.framework.IBaseService;
 
 /**
  * jdk：1.8

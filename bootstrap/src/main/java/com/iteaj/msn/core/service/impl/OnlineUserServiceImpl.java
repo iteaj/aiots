@@ -8,7 +8,7 @@ import com.iteaj.framework.spi.OnlineSession;
 import com.iteaj.framework.spi.admin.auth.OnlineService;
 import com.iteaj.framework.spi.auth.LoginEvent;
 import com.iteaj.framework.spi.event.FrameworkListener;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
+import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,19 +29,19 @@ public class OnlineUserServiceImpl extends BaseServiceImpl<IOnlineUserMapper, On
     @Override
     @Transactional
     public void updateBySessionId(OnlineUser onlineUser) {
-        getBaseDao().update(onlineUser, Wrappers.<OnlineUser>update()
+        getBaseMapper().update(onlineUser, Wrappers.<OnlineUser>update()
                 .eq("session_id", onlineUser.getSessionId()));
     }
 
     @Override
     public OnlineSession getSession(Serializable sessionId) {
-        return getBaseDao().selectOne(Wrappers.<OnlineUser>query()
+        return getBaseMapper().selectOne(Wrappers.<OnlineUser>query()
                 .eq("session_id", sessionId));
     }
 
     @Override
     public void removeBySessionId(Serializable sessionId) {
-        getBaseDao().delete(Wrappers.<OnlineUser>query().eq("session_id", sessionId));
+        getBaseMapper().delete(Wrappers.<OnlineUser>query().eq("session_id", sessionId));
     }
 
     @Override

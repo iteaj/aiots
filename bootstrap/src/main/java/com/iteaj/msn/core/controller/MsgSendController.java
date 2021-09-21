@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.iteaj.msn.core.entity.MsgSend;
 import com.iteaj.msn.core.service.IMsgSendService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -27,45 +27,39 @@ public class MsgSendController extends BaseController {
     @Autowired
     private IMsgSendService msgSendService;
 
-    @GetMapping
-    @RequiresPermissions("core:msgSend:view")
-    public String view() {
-        return "msgSend";
-    }
-
     @ResponseBody
     @GetMapping("/view")
     @RequiresPermissions("core:msgSend:view")
     public Result view(MsgSend entity, Page page) {
-        return this.msgSendService.selectByPage(page, entity).build(success());
+        return this.msgSendService.page(page, entity);
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:msgSend:add")
     public Result add(@RequestBody MsgSend entity) {
-        return this.msgSendService.insert(entity).build(success("新增记录成功"));
+        return this.msgSendService.save(entity);
     }
 
     @ResponseBody
     @PostMapping("/edit")
     @RequiresPermissions("core:msgSend:edit")
     public Result edit(@RequestBody MsgSend entity) {
-        return this.msgSendService.updateById(entity).build(success("修改记录成功"));
+        return this.msgSendService.updateById(entity);
     }
 
     @ResponseBody
     @GetMapping("/detail")
     @RequiresPermissions("core:msgSend:detail")
     public Result detail(Long id) {
-        return this.msgSendService.getById(id).build(success());
+        return this.msgSendService.getById(id);
     }
 
     @ResponseBody
     @PostMapping("/del")
     @RequiresPermissions("core:msgSend:del")
     public Result del(@RequestBody List<Long> ids) {
-        return this.msgSendService.deleteByIds(ids).build(success("删除记录成功"));
+        return this.msgSendService.removeByIds(ids);
     }
 
 }

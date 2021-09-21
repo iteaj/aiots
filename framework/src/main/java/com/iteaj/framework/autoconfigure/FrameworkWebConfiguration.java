@@ -8,7 +8,6 @@ import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.auth.handle.AccountAuthHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -23,9 +22,9 @@ import java.util.List;
 })
 public class FrameworkWebConfiguration implements WebMvcConfigurer {
 
-    private final FrameworkWebProperties properties;
+    private final FrameworkProperties properties;
 
-    public FrameworkWebConfiguration(FrameworkWebProperties properties) {
+    public FrameworkWebConfiguration(FrameworkProperties properties) {
         this.properties = properties;
     }
 
@@ -35,7 +34,7 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
      */
     @Bean
     public CacheEntry sessionCacheEntry() {
-        final FrameworkWebProperties.Auth auth = properties.getAuth();
+        final FrameworkProperties.Auth auth = properties.getAuth();
         return new CacheEntry(CoreConst.WEB_SESSION_CACHE, auth.getTimeout(), SerializerType.Jdk);
     }
 

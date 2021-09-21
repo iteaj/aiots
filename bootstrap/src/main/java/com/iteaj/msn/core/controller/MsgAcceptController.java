@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.iteaj.msn.core.entity.MsgAccept;
 import com.iteaj.msn.core.service.IMsgAcceptService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -37,14 +37,14 @@ public class MsgAcceptController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:msgAccept:view")
     public Result view(MsgAccept entity, Page page) {
-        return this.msgAcceptService.selectByPage(page, entity).build(success());
+        return this.msgAcceptService.page(page, entity).build(success());
     }
 
     @ResponseBody
     @PostMapping("/add")
     @RequiresPermissions("core:msgAccept:add")
     public Result add(@RequestBody MsgAccept entity) {
-        return this.msgAcceptService.insert(entity).build(success("新增记录成功"));
+        return this.msgAcceptService.save(entity).build(success("新增记录成功"));
     }
 
     @ResponseBody
@@ -65,7 +65,7 @@ public class MsgAcceptController extends BaseController {
     @PostMapping("/del")
     @RequiresPermissions("core:msgAccept:del")
     public Result del(@RequestBody List<Long> ids) {
-        return this.msgAcceptService.deleteByIds(ids).build(success("删除记录成功"));
+        return this.msgAcceptService.removeByIds(ids).build(success("删除记录成功"));
     }
 
 }

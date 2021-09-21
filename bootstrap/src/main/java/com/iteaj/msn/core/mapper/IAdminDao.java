@@ -1,8 +1,8 @@
 package com.iteaj.msn.core.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.entity.Admin;
-import com.iteaj.util.module.mvc.orm.IBaseDao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Mapper
-public interface IAdminDao extends IBaseDao<Admin> {
+public interface IAdminDao extends BaseMapper<Admin> {
 
     void createAdmin(AdminDto adminDto);
 
