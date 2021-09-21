@@ -18,6 +18,12 @@
             <version>1.15.9</version>
             <groupId>me.zhyd.oauth</groupId>
             <artifactId>JustAuth</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>fastjson</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

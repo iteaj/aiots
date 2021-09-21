@@ -1,4 +1,4 @@
-package com.iteaj.oauth2.config;
+package com.iteaj.oauth2;
 
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.auth.WebAuthAction;
@@ -43,14 +43,14 @@ public class OAuth2ClientConfiguration {
     }
 
     /**
-     * 框架的授权,认证登录, 注销 Servlet
-     * @param handler
+     * 框架的授权,认证登录, 注销等功能Servlet
+     * @param oauth2AuthHandle
      * @return
      */
     @Bean
-    public ServletRegistrationBean frameworkAuthServlet(WebAuthHandler handler) {
+    public ServletRegistrationBean frameworkAuthServlet(WebAuthHandler oauth2AuthHandle) {
         String redirectUri = clientProperties.getRedirectUri();
-        return new ServletRegistrationBean(new OAuth2HandleServlet(handler), redirectUri);
+        return new ServletRegistrationBean(new OAuth2HandleServlet(oauth2AuthHandle), redirectUri);
     }
 
     /**

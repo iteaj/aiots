@@ -7,7 +7,7 @@ import com.iteaj.oauth2.client.action.OAuth2Action;
 import com.iteaj.framework.spi.oauth2.OAuth2Token;
 import com.iteaj.framework.spi.oauth2.OAuth2User;
 import com.iteaj.framework.web.WebUtils;
-import com.iteaj.oauth2.config.OAuth2ClientProperties;
+import com.iteaj.oauth2.OAuth2ClientProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 

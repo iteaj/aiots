@@ -148,13 +148,6 @@
             <properties>
                 <profiles.active.env>dev</profiles.active.env>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>p6spy</groupId>
-                    <artifactId>p6spy</artifactId>
-                    <version>${p6spy.version}</version>
-                </dependency>
-            </dependencies>
         </profile>
         <profile>
             <id>test</id> <!--测试环境-->

@@ -1,4 +1,4 @@
-package com.iteaj.gen.gen;
+package com.iteaj.code.gen.gen;
 
 /**
  * create time: 2020/7/2

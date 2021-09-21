@@ -1,4 +1,4 @@
-package com.iteaj.gen.enums;
+package com.iteaj.code.gen.enums;
 
 /**
  * create time: 2020/4/30

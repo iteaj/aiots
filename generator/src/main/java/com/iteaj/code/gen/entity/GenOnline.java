@@ -1,4 +1,4 @@
-package com.iteaj.gen.entity;
+package com.iteaj.code.gen.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;

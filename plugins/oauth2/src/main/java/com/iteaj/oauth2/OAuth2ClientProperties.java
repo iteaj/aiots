@@ -1,4 +1,4 @@
-package com.iteaj.oauth2.config;
+package com.iteaj.oauth2;
 
 import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.OAuth2Config;
@@ -12,7 +12,7 @@ import java.util.Map;
  * @author iteaj
  * @since 1.0
  */
-@ConfigurationProperties("web.oauth2")
+@ConfigurationProperties("plugin.oauth2")
 public class OAuth2ClientProperties {
 
     /**

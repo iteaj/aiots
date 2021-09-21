@@ -7,7 +7,7 @@ import com.iteaj.framework.spi.auth.AuthException;
 import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.*;
 import com.iteaj.oauth2.client.action.OAuth2Action;
-import com.iteaj.oauth2.config.OAuth2ClientProperties;
+import com.iteaj.oauth2.OAuth2ClientProperties;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
