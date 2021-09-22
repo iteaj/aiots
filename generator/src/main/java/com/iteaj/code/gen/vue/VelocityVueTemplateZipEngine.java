@@ -1,8 +1,9 @@
-package com.iteaj.code.gen;
+package com.iteaj.code.gen.vue;
 
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.generator.config.ConstVal;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
+import com.baomidou.mybatisplus.generator.engine.AbstractTemplateEngine;
 import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -44,6 +45,18 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
     }
 
     @Override
+    public AbstractTemplateEngine batchOutput() {
+        super.batchOutput();
+        try {
+            this.zip.finish();
+            this.zip.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
+    @Override
     public void writer(Map<String, Object> objectMap, String templatePath, String outputFile) throws Exception {
         Template template = velocityEngine.getTemplate(templatePath, ConstVal.UTF8);
         try (StringWriter sw = new StringWriter()) {
@@ -52,6 +65,7 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
             //添加到zip
             zip.putNextEntry(new ZipEntry(outputFile));
             zip.write(sw.toString().getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
         }
 
         logger.debug("模板:" + templatePath + ";  文件:" + outputFile);

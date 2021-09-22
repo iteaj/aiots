@@ -1,15 +1,15 @@
 package com.iteaj.code.gen.controller;
 
 import com.baomidou.mybatisplus.generator.AutoGenerator;
-import com.baomidou.mybatisplus.generator.InjectionConfig;
-import com.baomidou.mybatisplus.generator.config.*;
+import com.baomidou.mybatisplus.generator.config.GlobalConfig;
+import com.baomidou.mybatisplus.generator.config.TemplateConfig;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.querys.MySqlQuery;
-import com.baomidou.mybatisplus.generator.config.rules.FileType;
 import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
 import com.iteaj.code.LowCodeProperties;
-import com.iteaj.code.gen.VelocityVueTemplateZipEngine;
+import com.iteaj.code.gen.vue.VelocityVueTemplateZipEngine;
+import com.iteaj.code.gen.vue.VueInjectionConfig;
 import com.iteaj.code.gen.dto.GenConfigDto;
 import com.iteaj.code.gen.dto.GenDirDto;
 import com.iteaj.framework.BaseController;
@@ -101,8 +101,8 @@ public class GeneratorController extends BaseController implements InitializingB
      * 生成前端代码
      * @param dto
      */
-    @PostMapping("vue")
-    public void download(@RequestBody GenConfigDto dto, HttpServletResponse response) throws IOException {
+    @GetMapping("vue")
+    public void download(GenConfigDto dto, HttpServletResponse response) throws IOException {
 //        if(CollectionUtils.isEmpty(dto.getTables())) {
 //            return fail("请选择要生成的表");
 //        }
@@ -110,19 +110,8 @@ public class GeneratorController extends BaseController implements InitializingB
         ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc());
 
-//        configBuilder.setInjectionConfig(new InjectionConfig() {
-//            @Override
-//            public void initMap() {
-//
-//            }
-//        }.setFileCreate((configBuilder1, fileType, filePath) -> {
-//            // 只生成前端代码
-//            if(fileType != FileType.OTHER) {
-//                return false;
-//            } else {
-//                return true;
-//            }
-//        }));
+        // 注入vue模板生成参数
+        configBuilder.setInjectionConfig(new VueInjectionConfig(configBuilder));
 
         // 生成文件
         generator.setTemplateEngine(new VelocityVueTemplateZipEngine(response.getOutputStream()))
@@ -130,7 +119,6 @@ public class GeneratorController extends BaseController implements InitializingB
 
         response.setHeader("Content-Disposition", "attachment; filename=\"ivzone.zip\"");
         response.setContentType("application/octet-stream; charset=UTF-8");
-        response.flushBuffer();
         response.getOutputStream().flush();
     }
 
