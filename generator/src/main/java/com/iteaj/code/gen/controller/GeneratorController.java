@@ -1,32 +1,31 @@
 package com.iteaj.code.gen.controller;
 
-import com.baomidou.mybatisplus.core.enums.SqlLike;
-import com.baomidou.mybatisplus.core.parser.SqlInfo;
-import com.baomidou.mybatisplus.core.parser.SqlParserHelper;
-import com.baomidou.mybatisplus.extension.toolkit.SqlParserUtils;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
+import com.baomidou.mybatisplus.generator.InjectionConfig;
 import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
-import com.baomidou.mybatisplus.generator.config.po.LikeTable;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.querys.MySqlQuery;
+import com.baomidou.mybatisplus.generator.config.rules.FileType;
 import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
 import com.iteaj.code.LowCodeProperties;
+import com.iteaj.code.gen.VelocityVueTemplateZipEngine;
+import com.iteaj.code.gen.dto.GenConfigDto;
+import com.iteaj.code.gen.dto.GenDirDto;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.result.Result;
 import com.iteaj.util.CommonUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,12 +40,14 @@ import java.util.regex.Pattern;
 public class GeneratorController extends BaseController implements InitializingBean {
 
     private final LowCodeProperties properties;
+    private final FrameworkProperties frameworkProperties;
     private final DataSourceProperties dataSourceProperties;
     private AutoGenerator generator = new AutoGenerator();
 
-    public GeneratorController(DataSourceProperties dataSourceProperties, LowCodeProperties properties) {
+    public GeneratorController(DataSourceProperties dataSourceProperties, LowCodeProperties properties, FrameworkProperties frameworkProperties) {
         this.dataSourceProperties = dataSourceProperties;
         this.properties = properties;
+        this.frameworkProperties = frameworkProperties;
     }
 
     /**
@@ -62,11 +63,75 @@ public class GeneratorController extends BaseController implements InitializingB
     }
 
     /**
-     * 生成代码
+     * 获取生成路径
+     * @return
      */
-    @PostMapping("gen")
-    public void generator() {
+    @GetMapping("getOutDir")
+    public Result<GenDirDto> getOutDir() {
+        return success(new GenDirDto(properties.getLgc().getOutputDir(), frameworkProperties.getProjectRootPath()));
+    }
 
+    /**
+     * 生成后端代码
+     * @param dto
+     */
+    @PostMapping("java")
+    public Result<Boolean> generator(@RequestBody GenConfigDto dto) {
+        if(CollectionUtils.isEmpty(dto.getTables())) {
+            return fail("请选择要生成的表");
+        }
+
+        GlobalConfig globalConfig = new GlobalConfig();
+        BeanUtils.copyProperties(properties.getLgc(), globalConfig);
+        ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
+                , properties.getLsc(), new TemplateConfig(), globalConfig);
+
+        // 设置输出目录
+        globalConfig.setOutputDir(dto.getOutDir());
+        // 文件存在是否覆盖
+        globalConfig.setFileOverride(dto.isFileOverride());
+
+        // 生成文件
+        generator.setConfig(configBuilder).execute();
+
+        return success(true);
+    }
+
+    /**
+     * 生成前端代码
+     * @param dto
+     */
+    @PostMapping("vue")
+    public void download(@RequestBody GenConfigDto dto, HttpServletResponse response) throws IOException {
+//        if(CollectionUtils.isEmpty(dto.getTables())) {
+//            return fail("请选择要生成的表");
+//        }
+
+        ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
+                , properties.getLsc(), new TemplateConfig(), properties.getLgc());
+
+//        configBuilder.setInjectionConfig(new InjectionConfig() {
+//            @Override
+//            public void initMap() {
+//
+//            }
+//        }.setFileCreate((configBuilder1, fileType, filePath) -> {
+//            // 只生成前端代码
+//            if(fileType != FileType.OTHER) {
+//                return false;
+//            } else {
+//                return true;
+//            }
+//        }));
+
+        // 生成文件
+        generator.setTemplateEngine(new VelocityVueTemplateZipEngine(response.getOutputStream()))
+                .setConfig(configBuilder).execute();
+
+        response.setHeader("Content-Disposition", "attachment; filename=\"ivzone.zip\"");
+        response.setContentType("application/octet-stream; charset=UTF-8");
+        response.flushBuffer();
+        response.getOutputStream().flush();
     }
 
     private void initQuerySql(String name, String prefix) {
