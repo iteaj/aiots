@@ -2,6 +2,7 @@ package com.iteaj.code.gen.vue;
 
 import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
 import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
+import com.iteaj.util.CommonUtils;
 
 /**
  * form 表单类型
@@ -13,8 +14,9 @@ public enum FormType {
     DateTime("<IvzDatePicker field=\"%s\" label=\"%s\" show-time %s/>"),
     Input("<IvzInput field=\"%s\" label=\"%s\" %s/>"),
     Radio("<IvzRadio field=\"%s\" label=\"%s\" %s/>"),
-    InputNumber("<IvzNumber field=\"%s\" label=\"%s\" %s/>"),
+    InputNumber("<IvzInputNumber field=\"%s\" label=\"%s\" %s/>"),
     Textarea("<IvzTextarea field=\"%s\" label=\"%s\" %s/>"),
+    Dict("<IvzSelect field=\"%s\" label=\"%s\" %s/>"),
     ;
 
     private String template;
@@ -23,7 +25,7 @@ public enum FormType {
         this.template = template;
     }
 
-    public static FormType getType(DbColumnType columnType) {
+    public static FormType getType(DbColumnType columnType, String comment) {
         switch (columnType) {
             case BYTE:
             case LONG:
@@ -60,6 +62,11 @@ public enum FormType {
             case CLOB:
                 return Textarea;
             default:
+                if(CommonUtils.isNotBlank(comment)) {
+                    if(comment.contains("字典")) {
+                        return Dict;
+                    }
+                }
                 return Input;
         }
     }

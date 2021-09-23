@@ -18,6 +18,7 @@ public class ExtraInjectionConfig extends InjectionConfig {
         this.initMap();
         String serviceName = tableInfo.getServiceName();
 
+        this.getMap().put("moduleName", LowCodeUtil.getModuleName(tableInfo.getComment()));
         this.getMap().put("serviceName", LowCodeUtil.firstLowerServiceName(serviceName));
     }
 }

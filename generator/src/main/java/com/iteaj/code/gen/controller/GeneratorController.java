@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * lc = low code 低代码
@@ -41,7 +42,6 @@ public class GeneratorController extends BaseController implements InitializingB
 
     private final LowCodeProperties properties;
     private final FrameworkProperties frameworkProperties;
-    private AutoGenerator generator = new AutoGenerator();
     private Pattern pattern = Pattern.compile("jdbc:.*((//)|@)(?<host>.+):(?<port>\\d+)/(?<db>.*)\\?.*");
 
     public GeneratorController(LowCodeProperties properties, FrameworkProperties frameworkProperties) {
@@ -58,6 +58,11 @@ public class GeneratorController extends BaseController implements InitializingB
         initTableQuerySql(name, prefix, null);
         List<TableInfo> tableInfoList = new ConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc()).getTableInfoList();
+        if(CommonUtils.isNotEmpty(tableInfoList)) {
+            tableInfoList.forEach(item -> {
+                item.setFields(null); // 不写字段信息到前端
+            });
+        }
         return success(tableInfoList);
     }
 
@@ -89,12 +94,12 @@ public class GeneratorController extends BaseController implements InitializingB
         configBuilder.setInjectionConfig(new ExtraInjectionConfig().setConfig(configBuilder));
 
         // 设置输出目录
-//        globalConfig.setOutputDir(dto.getOutDir());
+        globalConfig.setOutputDir(dto.getOutDir());
         // 文件存在是否覆盖
-//        globalConfig.setFileOverride(dto.isFileOverride());
+        globalConfig.setFileOverride(dto.isFileOverride());
 
         // 生成文件
-        generator.setConfig(configBuilder).execute();
+        new AutoGenerator().setConfig(configBuilder).execute();
 
         return success(true);
     }
@@ -110,7 +115,7 @@ public class GeneratorController extends BaseController implements InitializingB
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc());
 
         // 生成文件
-        generator.setTemplateEngine(new VelocityVueTemplateZipEngine(response.getOutputStream()
+        new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(response.getOutputStream()
                 , properties)).setConfig(configBuilder).execute();
 
         response.setHeader("Content-Disposition", "attachment; filename=\"ivzone.zip\"");
@@ -132,7 +137,8 @@ public class GeneratorController extends BaseController implements InitializingB
                 } else if(CommonUtils.isNotBlank(prefix)) {
                     sql.append("and TABLE_NAME LIKE '").append(prefix).append("%'");
                 } else if(!CollectionUtils.isEmpty(tables)) {
-                    sql.append("and TABLE_NAME in (").append(String.join(",", tables)).append(")");
+                    String collect = tables.stream().map(item -> "'" + item + "'").collect(Collectors.joining(","));
+                    sql.append("and TABLE_NAME in (").append(collect).append(")");
                 }
 
                 return sql.append(" order by UPDATE_TIME desc").toString();
@@ -162,7 +168,6 @@ public class GeneratorController extends BaseController implements InitializingB
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        generator.setTemplateEngine(new VelocityTemplateEngine());
         // 数据源配置
         LowCodeProperties.LcdDataSourceConfig ldc = properties.getLdc();
         if(CommonUtils.isBlank(ldc.getDatabase())) {

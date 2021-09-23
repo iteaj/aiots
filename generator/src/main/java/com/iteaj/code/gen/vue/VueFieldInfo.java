@@ -8,6 +8,7 @@ import com.iteaj.util.CommonUtils;
 import lombok.Data;
 
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Data
@@ -27,7 +28,7 @@ public class VueFieldInfo {
     private TableField tableField;
     // 搜索表单组件
     private String searchComponent;
-
+    private static final Pattern DICT_PATTERN = Pattern.compile("^.*(字典?<type>[\\w|_]*).*");
     public VueFieldInfo(TableField tableField) {
         this.tableField = tableField;
     }
@@ -35,7 +36,7 @@ public class VueFieldInfo {
     public VueFieldInfo build(LowCodeProperties properties) {
         DbColumnType columnType = (DbColumnType) tableField.getColumnType();
         this.label = getLabel();
-        this.formType = FormType.getType(columnType);
+        this.formType = FormType.getType(columnType, this.tableField.getComment());
 
         if(isEditComponent(properties)) {
             this.component = this.formType.getTemplate(this.getField(), this.getLabel(), this.getExact());
@@ -70,6 +71,8 @@ public class VueFieldInfo {
                         }
                     case InputNumber:
                         return ":defaultValue=\""+aDefault+"\"";
+                    case Dict:
+                        tableField.getComment().indexOf("字典");
                     default:
                         return "";
                 }
@@ -109,4 +112,11 @@ public class VueFieldInfo {
         return false;
     }
 
+    public static void main(String[] args) {
+        Matcher matcher = DICT_PATTERN.matcher("测试 字典：test_dict地方");
+        if(matcher.find()) {
+            String group = matcher.group("type");
+            System.out.println(group);
+        }
+    }
 }

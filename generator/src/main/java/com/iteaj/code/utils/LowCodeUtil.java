@@ -41,11 +41,11 @@ public class LowCodeUtil {
 
     /**
      * 获取模块名
-     * @param tableName
+     * @param comment
      * @return
      */
-    public static String getModuleName(String tableName) {
-        String moduleName = removeBracket(tableName);
+    public static String getModuleName(String comment) {
+        String moduleName = removeBracket(comment);
         if(moduleName.endsWith("表")) {
             return moduleName.substring(0, moduleName.length() - 1);
         }
