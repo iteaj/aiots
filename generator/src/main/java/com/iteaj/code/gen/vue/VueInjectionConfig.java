@@ -7,15 +7,21 @@ import com.baomidou.mybatisplus.generator.config.IFileCreate;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.FileType;
+import com.iteaj.code.LowCodeProperties;
+import com.iteaj.code.utils.LowCodeUtil;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VueInjectionConfig extends InjectionConfig {
 
-    public VueInjectionConfig(ConfigBuilder builder) {
+    private LowCodeProperties properties;
+
+    public VueInjectionConfig(ConfigBuilder builder, LowCodeProperties properties) {
         setConfig(builder);
+        this.properties = properties;
     }
 
     @Override
@@ -25,10 +31,16 @@ public class VueInjectionConfig extends InjectionConfig {
 
     @Override
     public void initTableMap(TableInfo tableInfo) {
-        this.getMap().clear(); // 清空上一张表信息的所有配置
-        tableInfo.getFields().stream().forEach(item -> {
-            this.getMap().put(item.getName(), new VueFieldInfo(item).build());
-        });
+        this.setMap(new HashMap<>()); // 清空上一张表信息的所有配置
+        List<VueFieldInfo> vueFields = tableInfo.getFields().stream()
+                .map(item -> {
+                    if(item.isKeyIdentityFlag()) {
+                        getMap().put("rowKey", item.getPropertyName());
+                    }
+                    return new VueFieldInfo(item).build(properties);
+                }).filter(item -> item != null).collect(Collectors.toList());
+        getMap().put("vueFields", vueFields);
+        getMap().put("moduleName", LowCodeUtil.getModuleName(tableInfo.getComment()));
     }
 
     @Override

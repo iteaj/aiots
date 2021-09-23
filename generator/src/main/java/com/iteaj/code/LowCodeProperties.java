@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.generator.config.StrategyConfig;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Set;
+
 /**
  * 低代码配置
  */
@@ -30,10 +32,32 @@ public class LowCodeProperties {
      * 数据源配置
      */
     private LcdDataSourceConfig ldc;
+    /**
+     * 搜索配置
+     */
+    private LcdFormConfig form;
 
-    public static class LcdGlobalConfig extends GlobalConfig {}
-    public static class LcdPackageConfig extends PackageConfig {}
-    public static class LcdStrategyConfig extends StrategyConfig {}
+    public static class LcdGlobalConfig extends GlobalConfig { }
+    public static class LcdPackageConfig extends PackageConfig { }
+    public static class LcdStrategyConfig extends StrategyConfig { }
+
+    /**
+     * 前端表单配置
+     */
+    @Data
+    public static class LcdFormConfig {
+
+        /**
+         * 表字段不包含以下内容加入编辑组件
+         */
+        private Set<String> edit;
+
+        /**
+         * 表字段包含以下内容加入搜索组件
+         */
+        private Set<String> search;
+    }
+
     @Data
     public static class LcdDataSourceConfig extends DataSourceConfig {
         /**

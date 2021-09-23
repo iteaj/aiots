@@ -1,7 +1,11 @@
 <template>
-  <IvzBasicView #if(${table.comment})name="$!{table.comment}" #end rowKey="" auth>
+  <IvzBasicView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end #if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end auth>
     <IvzViewSearch>
-      <ivz-input field="name" label="用户昵称" />
+      #foreach($vue in ${cfg.vueFields})
+        #if(${vue.searchComponent})
+          ${vue.searchComponent}
+        #end
+      #end
       <template #func>
         <IvzFuncBtn func="reset">重置</IvzFuncBtn>
         <IvzFuncBtn func="query" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/list">搜索</IvzFuncBtn>
@@ -11,20 +15,15 @@
     <IvzViewModal width="860" layout="vertical" :rules="rules" placement="left">
       <template #default="{model}">
         <IvzRow :gutter="16" span="8">
-          <IvzInput field="name" label="用户昵称" />
-          <ivz-input field="account" label="用户帐号" :disabled="model.id != null"/>
-          <ivz-tree-select field="orgId" label="所属部门" treeNodeFilterProp="label"
-                           url="/core/org/parent" labelField="name" valueField="id"/>
-          <ivz-input field="email" label="用户邮箱" />
-          <ivz-radio field="status" label="用户状态" defaultValue="enabled" :options="status"/>
-          <ivz-radio field="sex" label="用户性别" :options="sex" defaultValue="non"/>
-          <ivz-checkbox field="roleIds" label="用户角色" url="/core/role/list"
-                        labelField="name" valueField="id" span="24"/>
-          <ivz-textarea field="remark" label="用户简介" span="24" />
+          #foreach($vue in ${cfg.vueFields})
+           #if(${vue.component})
+            ${vue.component}
+           #end
+          #end
         </IvzRow>
       </template>
       <template #title="{model}">
-        {{model.id != null ? '修改用户' : '新增用户'}}
+        {{model.id != null ? '修改${cfg.moduleName}' : '新增${cfg.moduleName}'}}
       </template>
       <template #footer="{model}">
         <IvzFuncBtn func="cancel">取消</IvzFuncBtn>
@@ -34,33 +33,33 @@
     </IvzViewModal>
     <IvzViewTable :columns="columns" :bordered="true" size="small">
       <template #c_action="{record}">
-        <IvzFuncTag func="edit" :data="record" url="/core/admin/edit">修改</IvzFuncTag>
-        <IvzFuncTag func="del" :data="record" url="/core/admin/del">删除</IvzFuncTag>
-        <IvzFuncTag func="edit:modPwd" :data="record" url="/core/admin/pwd">修改密码</IvzFuncTag>
+        <IvzFuncTag func="edit" :data="record" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit">修改</IvzFuncTag>
+        <IvzFuncTag func="del" :data="record" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/del">删除</IvzFuncTag>
       </template>
     </IvzViewTable>
   </IvzBasicView>
 </template>
 
 <script>
-import {ref} from "vue";
-import {IvzViewDrawer, IvzViewSearch, IvzViewTable} from "@/components/view";
-import IvzBasicModal from "@/components/modal/IvzBasicModal";
+import {ref, reactive} from "vue";
 
 export default {
   name: "Admin",
-  components: {IvzBasicModal},
   setup() {
     let columns = ref([
-        {title: '用户昵称', field: 'name'},
-        {title: '操作', field: 'action', type: 'action'},
+        #foreach($field in ${cfg.vueFields})
+          {field: "${field.field}", title: "${field.label}"},
+        #end
+          {title: '操作', field: 'action', type: 'action'},
       ]);
 
-    let rules = {
-      name: {required: true, message: '用户昵称必填'},
-      roleIds: {type: 'array', required: true, message: '请选择用户角色'},
-      account: {required: true, message: '用户帐号必填'},
-    }
+    let rules = reactive({
+      #foreach($field in ${cfg.vueFields})
+        #if(${field.required})
+            ${field.field}: {required: true, message: '${field.label}必填'},
+        #end
+      #end
+    })
 
     return {columns, rules}
   },

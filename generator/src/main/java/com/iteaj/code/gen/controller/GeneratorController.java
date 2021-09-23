@@ -18,7 +18,6 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.util.CommonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,11 +41,10 @@ public class GeneratorController extends BaseController implements InitializingB
 
     private final LowCodeProperties properties;
     private final FrameworkProperties frameworkProperties;
-    private final DataSourceProperties dataSourceProperties;
     private AutoGenerator generator = new AutoGenerator();
+    private Pattern pattern = Pattern.compile("jdbc:.*((//)|@)(?<host>.+):(?<port>\\d+)/(?<db>.*)\\?.*");
 
-    public GeneratorController(DataSourceProperties dataSourceProperties, LowCodeProperties properties, FrameworkProperties frameworkProperties) {
-        this.dataSourceProperties = dataSourceProperties;
+    public GeneratorController(LowCodeProperties properties, FrameworkProperties frameworkProperties) {
         this.properties = properties;
         this.frameworkProperties = frameworkProperties;
     }
@@ -56,7 +55,7 @@ public class GeneratorController extends BaseController implements InitializingB
      */
     @GetMapping("list")
     public Result<List<TableInfo>> list(final String name, final String prefix) {
-        initQuerySql(name, prefix);
+        initTableQuerySql(name, prefix, null);
         List<TableInfo> tableInfoList = new ConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc()).getTableInfoList();
         return success(tableInfoList);
@@ -77,19 +76,22 @@ public class GeneratorController extends BaseController implements InitializingB
      */
     @PostMapping("java")
     public Result<Boolean> generator(@RequestBody GenConfigDto dto) {
-        if(CollectionUtils.isEmpty(dto.getTables())) {
-            return fail("请选择要生成的表");
-        }
+//        if(CollectionUtils.isEmpty(dto.getTables())) {
+//            return fail("请选择要生成的表");
+//        }
 
+        initTableQuerySql(null, null, dto.getTables());
         GlobalConfig globalConfig = new GlobalConfig();
         BeanUtils.copyProperties(properties.getLgc(), globalConfig);
         ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), globalConfig);
 
+        configBuilder.setInjectionConfig(new ExtraInjectionConfig().setConfig(configBuilder));
+
         // 设置输出目录
-        globalConfig.setOutputDir(dto.getOutDir());
+//        globalConfig.setOutputDir(dto.getOutDir());
         // 文件存在是否覆盖
-        globalConfig.setFileOverride(dto.isFileOverride());
+//        globalConfig.setFileOverride(dto.isFileOverride());
 
         // 生成文件
         generator.setConfig(configBuilder).execute();
@@ -103,26 +105,20 @@ public class GeneratorController extends BaseController implements InitializingB
      */
     @GetMapping("vue")
     public void download(GenConfigDto dto, HttpServletResponse response) throws IOException {
-//        if(CollectionUtils.isEmpty(dto.getTables())) {
-//            return fail("请选择要生成的表");
-//        }
-
+        initTableQuerySql(null, null, dto.getTables());
         ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc());
 
-        // 注入vue模板生成参数
-        configBuilder.setInjectionConfig(new VueInjectionConfig(configBuilder));
-
         // 生成文件
-        generator.setTemplateEngine(new VelocityVueTemplateZipEngine(response.getOutputStream()))
-                .setConfig(configBuilder).execute();
+        generator.setTemplateEngine(new VelocityVueTemplateZipEngine(response.getOutputStream()
+                , properties)).setConfig(configBuilder).execute();
 
         response.setHeader("Content-Disposition", "attachment; filename=\"ivzone.zip\"");
         response.setContentType("application/octet-stream; charset=UTF-8");
         response.getOutputStream().flush();
     }
 
-    private void initQuerySql(String name, String prefix) {
+    private void initTableQuerySql(String name, String prefix, List<String> tables) {
         properties.getLdc().setDbQuery(new MySqlQuery() {
             @Override
             public String tablesSql() {
@@ -135,9 +131,16 @@ public class GeneratorController extends BaseController implements InitializingB
                     sql.append("and TABLE_NAME LIKE '%").append(name).append("%'");
                 } else if(CommonUtils.isNotBlank(prefix)) {
                     sql.append("and TABLE_NAME LIKE '").append(prefix).append("%'");
+                } else if(!CollectionUtils.isEmpty(tables)) {
+                    sql.append("and TABLE_NAME in (").append(String.join(",", tables)).append(")");
                 }
 
                 return sql.append(" order by UPDATE_TIME desc").toString();
+            }
+
+            @Override
+            public String[] fieldCustom() {
+                return new String[] {"key", "null", "default"};
             }
 
             @Override
@@ -163,7 +166,6 @@ public class GeneratorController extends BaseController implements InitializingB
         // 数据源配置
         LowCodeProperties.LcdDataSourceConfig ldc = properties.getLdc();
         if(CommonUtils.isBlank(ldc.getDatabase())) {
-            Pattern pattern = Pattern.compile("jdbc:.*((//)|@)(?<host>.+):(?<port>\\d+)/(?<db>.*)\\?.*");
             Matcher matcher = pattern.matcher(ldc.getUrl());
             if(matcher.find()) {
                 String db = matcher.group("db");

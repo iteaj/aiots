@@ -28,7 +28,7 @@ public abstract class AbstractController implements EnvironmentAware {
     }
 
     protected String msgForFail() {
-        return "抱歉! 操作失败";
+        return "操作异常";
     }
 
     /**

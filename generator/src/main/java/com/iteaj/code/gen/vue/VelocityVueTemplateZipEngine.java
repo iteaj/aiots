@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.generator.config.ConstVal;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.engine.AbstractTemplateEngine;
 import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
+import com.iteaj.code.LowCodeProperties;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -24,14 +25,14 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
 
     private ZipOutputStream zip;
     private VelocityEngine velocityEngine;
-
-    public VelocityVueTemplateZipEngine(OutputStream outputStream) {
+    private LowCodeProperties properties;
+    public VelocityVueTemplateZipEngine(OutputStream outputStream, LowCodeProperties properties) {
+        this.properties = properties;
         this.zip = new ZipOutputStream(outputStream);
     }
 
     @Override
     public VelocityTemplateEngine init(ConfigBuilder configBuilder) {
-        super.init(configBuilder);
         if (null == velocityEngine) {
             Properties p = new Properties();
             p.setProperty(ConstVal.VM_LOAD_PATH_KEY, ConstVal.VM_LOAD_PATH_VALUE);
@@ -41,6 +42,9 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
             p.setProperty("file.resource.loader.unicode", StringPool.TRUE);
             velocityEngine = new VelocityEngine(p);
         }
+
+        this.setConfigBuilder(configBuilder);
+        configBuilder.setInjectionConfig(new VueInjectionConfig(configBuilder, this.properties));
         return this;
     }
 

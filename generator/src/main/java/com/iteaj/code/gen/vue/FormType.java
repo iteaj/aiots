@@ -7,9 +7,10 @@ import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
  * form 表单类型
  */
 public enum FormType {
-    Date("<IvzDate field=\"%s\" label=\"%s\" picker=\"date\" %s/>"),
-    Time("<IvzDate field=\"%s\" label=\"%s\" picker=\"time\" %s/>"),
-    Month("<IvzInput field=\"%s\" label=\"%s\" picker=\"month\" %s/>"),
+    Date("<IvzDatePicker field=\"%s\" label=\"%s\" %s/>"),
+    Time("<IvzTimePicker field=\"%s\" label=\"%s\" %s/>"),
+    Month("<IvzMonthPicker field=\"%s\" label=\"%s\" %s/>"),
+    DateTime("<IvzDatePicker field=\"%s\" label=\"%s\" show-time %s/>"),
     Input("<IvzInput field=\"%s\" label=\"%s\" %s/>"),
     Radio("<IvzRadio field=\"%s\" label=\"%s\" %s/>"),
     InputNumber("<IvzNumber field=\"%s\" label=\"%s\" %s/>"),
@@ -46,12 +47,13 @@ public enum FormType {
                 return Month;
             case DATE:
             case YEAR:
-            case LOCAL_DATE:
             case DATE_SQL:
-            case TIMESTAMP:
+            case LOCAL_DATE:
             case INSTANT:
-            case LOCAL_DATE_TIME:
                 return Date;
+            case TIMESTAMP:
+            case LOCAL_DATE_TIME:
+                return DateTime;
             case BOOLEAN:
             case BASE_BOOLEAN:
                 return Radio;

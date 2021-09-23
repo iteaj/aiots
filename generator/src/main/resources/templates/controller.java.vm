@@ -1,10 +1,9 @@
 package ${package.Controller};
 
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 #if(${restControllerStyle})
-import org.springframework.web.bind.annotation.RestController;
 #else
 import org.springframework.stereotype.Controller;
 #end
@@ -14,7 +13,7 @@ import ${superControllerClassPackage};
 
 /**
  * <p>
- * $!{table.comment} 前端控制器
+ * $!{cfg.moduleName}管理
  * </p>
  *
  * @author ${author}
@@ -36,6 +35,48 @@ public class ${table.controllerName} extends ${superControllerClass} {
 public class ${table.controllerName} {
 #end
 
+    private final ${table.serviceName} ${cfg.serviceName};
+
+    public ${table.controllerName}(${table.serviceName} ${cfg.serviceName}) {
+        this.${cfg.serviceName} = ${cfg.serviceName}
+    }
+
+    /**
+    * 列表查询
+    * @param page 分页
+    * @param entity
+    */
+    @GetMapping("/list")
+    public Result<IPage<${entity}>> list(Page<${entity}> page, ${entity} entity) {
+        return this.${cfg.serviceName}.page(page, entity);
+    }
+
+    /**
+    * 获取记录详情通过id
+    * @param id 记录id
+    */
+    @GetMapping("/detail")
+    public Result<${entity}>> detail(Serializable id) {
+        return this.${cfg.serviceName}.getById(entity);
+    }
+
+    /**
+    * 新增或者修改记录
+    * @param entity
+    */
+    @PostMapping("/save")
+    public Result<Boolean>> saveOrUpdate(@RequestBody ${entity} entity) {
+        return this.${cfg.serviceName}.saveOrUpdate(entity);
+    }
+
+    /**
+    * 删除记录
+    * @param idList
+    */
+    @PostMapping("/del")
+    public Result<Boolean>> remove(@RequestBody List<Serializable> idList) {
+        return this.${cfg.serviceName}.removeByIds(idList);
+    }
 }
 
 #end
