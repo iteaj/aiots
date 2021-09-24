@@ -1,5 +1,6 @@
 package com.iteaj.code.gen.dto;
 
+import com.iteaj.code.gen.FileOverrideType;
 import lombok.Data;
 
 import java.util.List;
@@ -20,5 +21,5 @@ public class GenConfigDto {
     /**
      * 文件存在是否覆盖
      */
-    private boolean fileOverride;
+    private FileOverrideType fileOverride;
 }

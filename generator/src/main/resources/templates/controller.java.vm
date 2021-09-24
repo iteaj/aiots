@@ -1,6 +1,8 @@
 package ${package.Controller};
 
 
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 #if(${restControllerStyle})
@@ -46,27 +48,40 @@ public class ${table.controllerName} {
     * @param page 分页
     * @param entity
     */
-    @GetMapping("/list")
+    @GetMapping("/view")
+    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:view"})
     public Result<IPage<${entity}>> list(Page<${entity}> page, ${entity} entity) {
         return this.${cfg.serviceName}.page(page, entity);
     }
 
     /**
-    * 获取记录详情通过id
+    * 获取编辑记录
     * @param id 记录id
     */
-    @GetMapping("/detail")
-    public Result<${entity}>> detail(Serializable id) {
+    @GetMapping("/edit")
+    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:edit"})
+    public Result<${entity}> getEditDetail(Serializable id) {
         return this.${cfg.serviceName}.getById(entity);
+    }
+
+    /**
+    * 修改记录
+    * @param entity
+    */
+    @PostMapping("/edit")
+    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:edit"})
+    public Result<Boolean> edit(@RequestBody ${entity} entity) {
+        return this.${cfg.serviceName}.updateById(entity);
     }
 
     /**
     * 新增或者修改记录
     * @param entity
     */
-    @PostMapping("/save")
-    public Result<Boolean>> saveOrUpdate(@RequestBody ${entity} entity) {
-        return this.${cfg.serviceName}.saveOrUpdate(entity);
+    @PostMapping("/add")
+    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:add"})
+    public Result<Boolean> add(@RequestBody ${entity} entity) {
+        return this.${cfg.serviceName}.save(entity);
     }
 
     /**
@@ -74,7 +89,8 @@ public class ${table.controllerName} {
     * @param idList
     */
     @PostMapping("/del")
-    public Result<Boolean>> remove(@RequestBody List<Serializable> idList) {
+    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:del"})
+    public Result<Boolean> remove(@RequestBody List<Serializable> idList) {
         return this.${cfg.serviceName}.removeByIds(idList);
     }
 }

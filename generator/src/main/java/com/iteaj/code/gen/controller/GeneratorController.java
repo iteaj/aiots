@@ -81,9 +81,9 @@ public class GeneratorController extends BaseController implements InitializingB
      */
     @PostMapping("java")
     public Result<Boolean> generator(@RequestBody GenConfigDto dto) {
-//        if(CollectionUtils.isEmpty(dto.getTables())) {
-//            return fail("请选择要生成的表");
-//        }
+        if(CollectionUtils.isEmpty(dto.getTables())) {
+            return fail("请选择要生成的表");
+        }
 
         initTableQuerySql(null, null, dto.getTables());
         GlobalConfig globalConfig = new GlobalConfig();
@@ -91,12 +91,10 @@ public class GeneratorController extends BaseController implements InitializingB
         ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), globalConfig);
 
-        configBuilder.setInjectionConfig(new ExtraInjectionConfig().setConfig(configBuilder));
+        configBuilder.setInjectionConfig(new ExtraInjectionConfig(dto.getFileOverride()).setConfig(configBuilder));
 
         // 设置输出目录
         globalConfig.setOutputDir(dto.getOutDir());
-        // 文件存在是否覆盖
-        globalConfig.setFileOverride(dto.isFileOverride());
 
         // 生成文件
         new AutoGenerator().setConfig(configBuilder).execute();

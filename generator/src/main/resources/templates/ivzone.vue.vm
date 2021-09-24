@@ -8,7 +8,7 @@
       #end
       <template #func>
         <IvzFuncBtn func="reset">重置</IvzFuncBtn>
-        <IvzFuncBtn func="query" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/list">搜索</IvzFuncBtn>
+        <IvzFuncBtn func="query" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/view">搜索</IvzFuncBtn>
         <IvzFuncBtn func="add" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add">新增</IvzFuncBtn>
       </template>
     </IvzViewSearch>
@@ -27,13 +27,13 @@
       </template>
       <template #footer="{model}">
         <IvzFuncBtn func="cancel">取消</IvzFuncBtn>
-        <IvzFuncBtn func="submit" :url="model.id ? '/core/admin/edit' : '/core/admin/add'">提交</IvzFuncBtn>
+        <IvzFuncBtn func="submit" :url="'#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/save'">提交</IvzFuncBtn>
         <IvzFuncBtn func="reset">重置</IvzFuncBtn>
       </template>
     </IvzViewModal>
     <IvzViewTable :columns="columns" :bordered="true" size="small">
       <template #c_action="{record}">
-        <IvzFuncTag func="edit" :data="record" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit">修改</IvzFuncTag>
+        <IvzFuncTag func="edit" :data="record" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/detail">修改</IvzFuncTag>
         <IvzFuncTag func="del" :data="record" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/del">删除</IvzFuncTag>
       </template>
     </IvzViewTable>
