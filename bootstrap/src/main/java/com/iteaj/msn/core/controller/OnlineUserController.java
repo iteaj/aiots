@@ -1,11 +1,19 @@
 package com.iteaj.msn.core.controller;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.result.Result;
+import com.iteaj.msn.core.entity.OnlineUser;
+import com.iteaj.msn.core.service.IOnlineUserService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import com.iteaj.framework.BaseController;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -22,7 +30,7 @@ public class OnlineUserController extends BaseController {
     private final IOnlineUserService onlineUserService;
 
     public OnlineUserController(IOnlineUserService onlineUserService) {
-        this.onlineUserService = onlineUserService
+        this.onlineUserService = onlineUserService;
     }
 
     /**
@@ -43,7 +51,7 @@ public class OnlineUserController extends BaseController {
     @GetMapping("/edit")
     @RequiresPermissions(value = {"core:onlineUser:edit"})
     public Result<OnlineUser> getEditDetail(Serializable id) {
-        return this.onlineUserService.getById(entity);
+        return this.onlineUserService.getById(id);
     }
 
     /**

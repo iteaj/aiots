@@ -59,10 +59,5 @@ public class LowCodeProperties {
     }
 
     @Data
-    public static class LcdDataSourceConfig extends DataSourceConfig {
-        /**
-         * 数据库(默认从url解析)
-         */
-        private String database;
-    }
+    public static class LcdDataSourceConfig extends DataSourceConfig { }
 }

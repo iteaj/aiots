@@ -8,6 +8,7 @@ import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -48,13 +49,13 @@ public class MenuController extends BaseController {
 
     @PostMapping("/del")
     @RequiresPermissions("core:menu:del")
-    public Result<Boolean> del(@RequestBody List<Long> menus) {
-        return menuService.removeByIds(menus);
+    public Result<Boolean> del(@RequestBody List<Serializable> idList) {
+        return menuService.removeByIds(idList);
     }
 
     @GetMapping("/edit")
     @RequiresPermissions("core:menu:edit")
-    public Result<Boolean> edit(Integer id) {
+    public Result<Boolean> edit(Long id) {
         return menuService.getById(id);
     }
 

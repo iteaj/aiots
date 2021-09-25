@@ -1,20 +1,20 @@
 package com.iteaj.msn.core.service.impl;
 
 import com.iteaj.msn.core.entity.MsgSend;
-import com.iteaj.msn.core.mapper.IMsgSendMapper;
+import com.iteaj.msn.core.mapper.MsgSendMapper;
 import com.iteaj.msn.core.service.IMsgSendService;
 import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**
  * <p>
- *  服务实现类
+ * 消息 服务实现类
  * </p>
  *
  * @author iteaj
- * @since 2020-07-07
+ * @since 2021-09-25
  */
 @Service
-public class MsgSendServiceImpl extends BaseServiceImpl<IMsgSendMapper, MsgSend> implements IMsgSendService {
+public class MsgSendServiceImpl extends BaseServiceImpl<MsgSendMapper, MsgSend> implements IMsgSendService {
 
 }

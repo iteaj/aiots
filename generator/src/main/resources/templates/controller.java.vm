@@ -1,10 +1,13 @@
 package ${package.Controller};
 
+import java.util.List;
+import com.iteaj.framework.result.Result;
 import org.springframework.web.bind.annotation.*;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import ${package.Entity}.${entity}
-import ${package.Service}.${table.serviceName}
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import ${package.Entity}.${entity};
+import ${package.Service}.${table.serviceName};
 #if(${restControllerStyle})
 #else
 import org.springframework.stereotype.Controller;
@@ -40,13 +43,13 @@ public class ${table.controllerName} {
     private final ${table.serviceName} ${cfg.serviceName};
 
     public ${table.controllerName}(${table.serviceName} ${cfg.serviceName}) {
-        this.${cfg.serviceName} = ${cfg.serviceName}
+        this.${cfg.serviceName} = ${cfg.serviceName};
     }
 
     /**
     * 列表查询
     * @param page 分页
-    * @param entity
+    * @param entity 搜索条件
     */
     @GetMapping("/view")
     @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:view"})
@@ -60,8 +63,8 @@ public class ${table.controllerName} {
     */
     @GetMapping("/edit")
     @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:edit"})
-    public Result<${entity}> getEditDetail(Serializable id) {
-        return this.${cfg.serviceName}.getById(entity);
+    public Result<${entity}> getEditDetail(Long id) {
+        return this.${cfg.serviceName}.getById(id);
     }
 
     /**
@@ -85,12 +88,12 @@ public class ${table.controllerName} {
     }
 
     /**
-    * 删除记录
+    * 删除指定记录
     * @param idList
     */
     @PostMapping("/del")
     @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:del"})
-    public Result<Boolean> remove(@RequestBody List<Serializable> idList) {
+    public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.${cfg.serviceName}.removeByIds(idList);
     }
 }

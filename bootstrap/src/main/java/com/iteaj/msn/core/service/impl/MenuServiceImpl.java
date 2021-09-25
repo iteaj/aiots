@@ -2,18 +2,18 @@ package com.iteaj.msn.core.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.iteaj.framework.consts.PermStatus;
-import com.iteaj.framework.spi.admin.Module;
-import com.iteaj.framework.utils.TreeUtils;
-import com.iteaj.msn.core.entity.Menu;
-import com.iteaj.framework.spi.admin.MenuType;
-import com.iteaj.msn.core.mapper.IMenuDao;
-import com.iteaj.msn.core.service.IMenuService;
-import com.iteaj.util.CommonUtils;
 import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.spi.admin.MenuType;
+import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.framework.utils.TreeUtils;
+import com.iteaj.msn.core.entity.Menu;
+import com.iteaj.msn.core.mapper.IMenuDao;
+import com.iteaj.msn.core.service.IMenuService;
+import com.iteaj.util.CommonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -81,6 +81,9 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                         .ne("status", PermStatus.disabled)
                         .in(CommonUtils.isNotEmpty(msn), "msn", msn)
                         .orderByAsc("sort"));
+        if(CollectionUtils.isEmpty(allMenus)) {
+            return new ListResult<>(Collections.emptyList());
+        }
 
         if(isSuper) { // 超级管理员拥有所有菜单
             // 转成树结构

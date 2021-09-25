@@ -33,7 +33,7 @@ public class AdminController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:admin:view")
     public Result view(Page page, Admin admin) {
-        return this.adminService.page(page, admin).build(success());
+        return this.adminService.page(page, admin);
     }
 
     @PostMapping("/add")
@@ -46,7 +46,7 @@ public class AdminController extends BaseController {
     @GetMapping("/edit")
     @RequiresPermissions("core:admin:edit")
     public Result edit(Long id) {
-        return this.adminService.getAdminDetailById(id).build(success());
+        return this.adminService.getAdminDetailById(id);
     }
 
     @PostMapping("/edit")

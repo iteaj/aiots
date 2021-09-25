@@ -1,66 +1,82 @@
 package com.iteaj.msn.core.controller;
 
 import java.util.List;
-
-import com.iteaj.msn.core.entity.MsgSend;
-import com.iteaj.msn.core.service.IMsgSendService;
 import com.iteaj.framework.result.Result;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.springframework.stereotype.Controller;
+import com.iteaj.msn.core.entity.MsgSend;
+import com.iteaj.msn.core.service.IMsgSendService;
 import com.iteaj.framework.BaseController;
 
 /**
  * <p>
- *  控制器
+ * 消息管理
  * </p>
  *
  * @author iteaj
- * @since 2020-07-07
+ * @since 2021-09-25
  */
-@Controller
+@RestController
 @RequestMapping("/core/msgSend")
 public class MsgSendController extends BaseController {
 
-    @Autowired
-    private IMsgSendService msgSendService;
+    private final IMsgSendService msgSendService;
 
-    @ResponseBody
+    public MsgSendController(IMsgSendService msgSendService) {
+        this.msgSendService = msgSendService;
+    }
+
+    /**
+    * 列表查询
+    * @param page 分页
+    * @param entity 搜索条件
+    */
     @GetMapping("/view")
-    @RequiresPermissions("core:msgSend:view")
-    public Result view(MsgSend entity, Page page) {
+    @RequiresPermissions(value = {"core:msgSend:view"})
+    public Result<IPage<MsgSend>> list(Page<MsgSend> page, MsgSend entity) {
         return this.msgSendService.page(page, entity);
     }
 
-    @ResponseBody
-    @PostMapping("/add")
-    @RequiresPermissions("core:msgSend:add")
-    public Result add(@RequestBody MsgSend entity) {
-        return this.msgSendService.save(entity);
-    }
-
-    @ResponseBody
-    @PostMapping("/edit")
-    @RequiresPermissions("core:msgSend:edit")
-    public Result edit(@RequestBody MsgSend entity) {
-        return this.msgSendService.updateById(entity);
-    }
-
-    @ResponseBody
-    @GetMapping("/detail")
-    @RequiresPermissions("core:msgSend:detail")
-    public Result detail(Long id) {
+    /**
+    * 获取编辑记录
+    * @param id 记录id
+    */
+    @GetMapping("/edit")
+    @RequiresPermissions(value = {"core:msgSend:edit"})
+    public Result<MsgSend> getEditDetail(Long id) {
         return this.msgSendService.getById(id);
     }
 
-    @ResponseBody
-    @PostMapping("/del")
-    @RequiresPermissions("core:msgSend:del")
-    public Result del(@RequestBody List<Long> ids) {
-        return this.msgSendService.removeByIds(ids);
+    /**
+    * 修改记录
+    * @param entity
+    */
+    @PostMapping("/edit")
+    @RequiresPermissions(value = {"core:msgSend:edit"})
+    public Result<Boolean> edit(@RequestBody MsgSend entity) {
+        return this.msgSendService.updateById(entity);
     }
 
+    /**
+    * 新增或者修改记录
+    * @param entity
+    */
+    @PostMapping("/add")
+    @RequiresPermissions(value = {"core:msgSend:add"})
+    public Result<Boolean> add(@RequestBody MsgSend entity) {
+        return this.msgSendService.save(entity);
+    }
+
+    /**
+    * 删除指定记录
+    * @param idList
+    */
+    @PostMapping("/del")
+    @RequiresPermissions(value = {"core:msgSend:del"})
+    public Result<Boolean> remove(@RequestBody List<Long> idList) {
+        return this.msgSendService.removeByIds(idList);
+    }
 }
 

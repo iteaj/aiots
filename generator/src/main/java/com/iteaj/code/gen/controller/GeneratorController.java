@@ -20,6 +20,7 @@ import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.admin.UrlResource;
 import com.iteaj.util.CommonUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/lcd/gen")
 public class GeneratorController extends BaseController implements InitializingBean {
 
+    private String database;
     private final LowCodeProperties properties;
     private final ResourceManager resourceManager;
     private final FrameworkProperties frameworkProperties;
@@ -113,11 +115,22 @@ public class GeneratorController extends BaseController implements InitializingB
 
         configBuilder.setInjectionConfig(new ExtraInjectionConfig().setConfig(configBuilder));
 
-
         // 生成文件
         new AutoGenerator().setConfig(configBuilder).execute();
 
-        if(CommonUtils.isNotEmpty(configBuilder.getTableInfoList())) {
+        // 生成菜单
+        genMenu(dto, configBuilder);
+
+        return success(true);
+    }
+
+    /**
+     *  生成菜单
+     * @param dto
+     * @param configBuilder
+     */
+    private void genMenu(GenConfigDto dto, ConfigBuilder configBuilder) {
+        if(dto.getMenuId() != null && CommonUtils.isNotEmpty(configBuilder.getTableInfoList())) {
             StringBuilder url = new StringBuilder();
             Connection conn = properties.getLdc().getConn();
             try(Statement statement = conn.createStatement()) {
@@ -138,16 +151,15 @@ public class GeneratorController extends BaseController implements InitializingB
                 e.printStackTrace();
             }
         }
-
-        return success(true);
     }
 
     private void writeMenuToDb(TableInfo tableInfo, GenConfigDto dto, LowCodeProperties properties, Statement statement) {
         try {
+            final String comment = LowCodeUtil.getModuleName(tableInfo.getComment());
             String url = "/"+properties.getLpc().getModuleName()+"/" + tableInfo.getEntityPath();
             String perm = properties.getLpc().getModuleName()+":"+tableInfo.getEntityPath();
-            String insertSql= String.format("insert into t_menu (pid, name, url, perms, type, msn) value (%s, '%s', '%s', '%s', 'V', 'core');"
-                    , dto.getMenuId(), LowCodeUtil.getModuleName(tableInfo.getComment()), url, perm+":"+"view");
+            String insertSql= String.format("insert into t_menu (pid, name, url, perms, type, msn, sort) value (%s, '%s', '%s', '%s', 'V', 'core', 158);"
+                    , dto.getMenuId(), comment, url, perm+":"+"view");
             statement.executeUpdate(insertSql);
 
             // 查找刚刚插入的菜单id
@@ -155,15 +167,15 @@ public class GeneratorController extends BaseController implements InitializingB
             resultSet.next();
             final long pid = resultSet.getLong(1);
 
-            StringBuilder batchSql = new StringBuilder("insert into t_menu (pid, name, url, perms, type, msn) values ");
+            StringBuilder batchSql = new StringBuilder("insert into t_menu (pid, name, url, perms, type, msn, log_desc, sort) values ");
             // 查询列表
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core'),", pid, "查询", url+"/view", perm+":view"));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core', '查询%s列表', 5),", pid, "查询", url+"/view", perm+":view", comment));
             // 新增
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core'),", pid, "新增", url+"/add", perm+":add"));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core', '新增%s记录', 10),", pid, "新增", url+"/add", perm+":add", comment));
             // 修改
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core'),", pid, "修改", url+"/edit", perm+":edit"));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core', '修改%s记录', 15),", pid, "修改", url+"/edit", perm+":edit", comment));
             // 删除
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core');", pid, "删除", url+"/del", perm+":del"));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core', '删除%s记录', 20);", pid, "删除", url+"/del", perm+":del", comment));
             statement.executeUpdate(batchSql.toString());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -193,8 +205,7 @@ public class GeneratorController extends BaseController implements InitializingB
         properties.getLdc().setDbQuery(new MySqlQuery() {
             @Override
             public String tablesSql() {
-                StringBuilder sql = new StringBuilder("select * from information_schema.tables where TABLE_SCHEMA='")
-                        .append(properties.getLdc().getDatabase()).append("'");
+                StringBuilder sql = new StringBuilder("select * from information_schema.tables where TABLE_SCHEMA='").append(database).append("'");
 
                 if(CommonUtils.isNotBlank(name) && CommonUtils.isNotBlank(prefix)) {
                     sql.append("and TABLE_NAME LIKE '%").append(name).append("%' and TABLE_NAME LIKE ").append(prefix).append("%");
@@ -234,14 +245,20 @@ public class GeneratorController extends BaseController implements InitializingB
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        final String moduleName = this.properties.getLpc().getModuleName();
+        if(CommonUtils.isBlank(moduleName)) {
+            throw new BeanInitializationException("没有指定代码生成器要生成的模块[low.code.lpc.module-name]");
+        }
+
         // 数据源配置
         LowCodeProperties.LcdDataSourceConfig ldc = properties.getLdc();
-        if(CommonUtils.isBlank(ldc.getDatabase())) {
-            Matcher matcher = pattern.matcher(ldc.getUrl());
-            if(matcher.find()) {
-                String db = matcher.group("db");
-                ldc.setDatabase(db);
-            }
+        Matcher matcher = pattern.matcher(ldc.getUrl());
+        if(matcher.find()) {
+            this.database = matcher.group("db");
+        }
+
+        if(CommonUtils.isBlank(this.database)) {
+            throw new BeanInitializationException("没有指定代码生成器所要生成的数据库");
         }
     }
 }
