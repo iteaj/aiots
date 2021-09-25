@@ -1,4 +1,4 @@
-package com.iteaj.msn.core.enums;
+package com.iteaj.framework.spi.admin;
 
 public enum MenuType {
     A("权限"), M("目录"), V("视图");

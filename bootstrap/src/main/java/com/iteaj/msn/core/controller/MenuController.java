@@ -30,37 +30,37 @@ public class MenuController extends BaseController {
 
     @GetMapping("/view")
     @RequiresPermissions("core:menu:view")
-    public Result list(Menu menu) {
+    public Result<Menu> list(Menu menu) {
         return menuService.selectMenuTreesInModules(menu, resourceManager.getModules());
     }
 
     @GetMapping("/parent")
-    public Result parentList() {
+    public Result<Menu> parentList() {
         // 不包含菜单类型是权限的菜单
         return menuService.selectParentTrees();
     }
 
     @PostMapping("/add")
     @RequiresPermissions("core:menu:add")
-    public Result add(@RequestBody Menu menu) {
+    public Result<Boolean> add(@RequestBody Menu menu) {
         return menuService.save(menu);
     }
 
     @PostMapping("/del")
     @RequiresPermissions("core:menu:del")
-    public Result del(@RequestBody List<Long> menus) {
+    public Result<Boolean> del(@RequestBody List<Long> menus) {
         return menuService.removeByIds(menus);
     }
 
     @GetMapping("/edit")
     @RequiresPermissions("core:menu:edit")
-    public Result edit(Integer id) {
+    public Result<Boolean> edit(Integer id) {
         return menuService.getById(id);
     }
 
     @PostMapping("/edit")
     @RequiresPermissions("core:menu:edit")
-    public Result edit(@RequestBody Menu menu) {
+    public Result<Boolean> edit(@RequestBody Menu menu) {
         return menuService.updateById(menu);
     }
 

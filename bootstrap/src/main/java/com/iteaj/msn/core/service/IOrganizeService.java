@@ -1,9 +1,8 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.msn.core.mapper.IOrganizeDao;
-import com.iteaj.msn.core.entity.Organize;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.ListResult;
+import com.iteaj.msn.core.entity.Organize;
 
 /**
  * create time: 2019/11/26
@@ -11,7 +10,7 @@ import com.iteaj.framework.result.ListResult;
  * @author iteaj
  * @since 1.0
  */
-public interface IOrganizeService extends IBaseService<IOrganizeDao, Organize> {
+public interface IOrganizeService extends IBaseService<Organize> {
 
     ListResult<Organize> selectTrees(Organize organize);
 }

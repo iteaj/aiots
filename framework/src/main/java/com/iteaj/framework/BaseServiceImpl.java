@@ -25,7 +25,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity> implements IBaseService<M, T> {
+public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity> implements IBaseService<T> {
 
     protected Log log = LogFactory.getLog(getClass());
 

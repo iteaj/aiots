@@ -1,8 +1,7 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.msn.core.entity.MsgSend;
-import com.iteaj.msn.core.mapper.IMsgSendMapper;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.msn.core.entity.MsgSend;
 
 /**
  * <p>
@@ -12,6 +11,6 @@ import com.iteaj.framework.IBaseService;
  * @author iteaj
  * @since 2020-07-07
  */
-public interface IMsgSendService extends IBaseService<IMsgSendMapper, MsgSend> {
+public interface IMsgSendService extends IBaseService<MsgSend> {
 
 }

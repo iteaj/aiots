@@ -12,7 +12,7 @@ public interface MenuResource extends UrlResource {
 
     String getIcon();
 
-    Object getType();
+    MenuType getType();
 
     Object getPosition();
 

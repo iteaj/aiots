@@ -1,86 +1,79 @@
 package com.iteaj.msn.core.controller;
 
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.msn.core.entity.OnlineUser;
-import com.iteaj.msn.core.service.IOnlineUserService;
-import com.iteaj.framework.BaseController;
-import com.iteaj.framework.spi.admin.event.OnlineType;
-import com.iteaj.framework.spi.auth.WebAuthHandler;
-import com.iteaj.framework.result.Result;
-import com.iteaj.framework.result.ListResult;
+
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import com.iteaj.framework.BaseController;
 
 /**
  * <p>
- * 在线用户 控制器
+ * 在线用户管理
  * </p>
  *
  * @author iteaj
- * @since 2020-06-20
+ * @since 2021-09-25
  */
-@Controller
-@RequestMapping("/core/online")
+@RestController
+@RequestMapping("/core/onlineUser")
 public class OnlineUserController extends BaseController {
 
-    @Autowired
-    private WebAuthHandler handler;
-    @Autowired
-    private IOnlineUserService onlineUserService;
+    private final IOnlineUserService onlineUserService;
 
-    @GetMapping
-    @RequiresPermissions("core:online:view")
-    public String view() {
-        return "onlineUser";
-    }
-
-    @ResponseBody
-    @GetMapping("/view")
-    @RequiresPermissions("core:online:view")
-    public Result view(OnlineUser entity, Page page) {
-        return this.onlineUserService.page(page
-                , Wrappers.query(entity)
-                        .ne("status", OnlineType.Guest)
-                        .orderByAsc("status")
-                        .orderByDesc("create_time"))
-                .build(success());
-    }
-
-    @ResponseBody
-    @GetMapping("/detail")
-    @RequiresPermissions("core:online:detail")
-    public Result detail(Long id) {
-        return this.onlineUserService.getById(id).build(success());
+    public OnlineUserController(IOnlineUserService onlineUserService) {
+        this.onlineUserService = onlineUserService
     }
 
     /**
-     * 强制退出
-     * @param ids
-     * @return
-     */
-    @ResponseBody
-    @PostMapping("/del")
-    @RequiresPermissions("core:online:del")
-    public Result del(@RequestBody List<Long> ids, HttpServletRequest request, HttpServletResponse response) {
-        ListResult<OnlineUser> result = this.onlineUserService.listByIds(ids);
-        List<OnlineUser> onlineUsers = result.getData();
-        if(CollectionUtils.isNotEmpty(onlineUsers)) {
-
-            OnlineUser onlineUser = onlineUsers.get(0);
-
-            return success("强退成功: " + onlineUser.getUserNick());
-        }
-
-        return fail("此用户不存在");
+    * 列表查询
+    * @param page 分页
+    * @param entity
+    */
+    @GetMapping("/view")
+    @RequiresPermissions(value = {"core:onlineUser:view"})
+    public Result<IPage<OnlineUser>> list(Page<OnlineUser> page, OnlineUser entity) {
+        return this.onlineUserService.page(page, entity);
     }
 
+    /**
+    * 获取编辑记录
+    * @param id 记录id
+    */
+    @GetMapping("/edit")
+    @RequiresPermissions(value = {"core:onlineUser:edit"})
+    public Result<OnlineUser> getEditDetail(Serializable id) {
+        return this.onlineUserService.getById(entity);
+    }
+
+    /**
+    * 修改记录
+    * @param entity
+    */
+    @PostMapping("/edit")
+    @RequiresPermissions(value = {"core:onlineUser:edit"})
+    public Result<Boolean> edit(@RequestBody OnlineUser entity) {
+        return this.onlineUserService.updateById(entity);
+    }
+
+    /**
+    * 新增或者修改记录
+    * @param entity
+    */
+    @PostMapping("/add")
+    @RequiresPermissions(value = {"core:onlineUser:add"})
+    public Result<Boolean> add(@RequestBody OnlineUser entity) {
+        return this.onlineUserService.save(entity);
+    }
+
+    /**
+    * 删除记录
+    * @param idList
+    */
+    @PostMapping("/del")
+    @RequiresPermissions(value = {"core:onlineUser:del"})
+    public Result<Boolean> remove(@RequestBody List<Serializable> idList) {
+        return this.onlineUserService.removeByIds(idList);
+    }
 }
 

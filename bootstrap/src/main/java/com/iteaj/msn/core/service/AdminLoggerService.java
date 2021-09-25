@@ -10,7 +10,7 @@ import com.iteaj.framework.spi.admin.*;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.entity.AccessLog;
-import com.iteaj.msn.core.enums.MenuType;
+import com.iteaj.framework.spi.admin.MenuType;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;

@@ -9,7 +9,7 @@ import com.iteaj.framework.TreeEntity;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.consts.Position;
 import com.iteaj.framework.logger.LoggerMenu;
-import com.iteaj.msn.core.enums.MenuType;
+import com.iteaj.framework.spi.admin.MenuType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;

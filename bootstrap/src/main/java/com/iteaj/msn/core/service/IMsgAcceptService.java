@@ -1,8 +1,7 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.msn.core.entity.MsgAccept;
-import com.iteaj.msn.core.mapper.IMsgAcceptMapper;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.msn.core.entity.MsgAccept;
 
 /**
  * <p>
@@ -12,6 +11,6 @@ import com.iteaj.framework.IBaseService;
  * @author iteaj
  * @since 2020-07-07
  */
-public interface IMsgAcceptService extends IBaseService<IMsgAcceptMapper, MsgAccept> {
+public interface IMsgAcceptService extends IBaseService<MsgAccept> {
 
 }

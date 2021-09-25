@@ -1,8 +1,7 @@
 package com.iteaj.quartz.service;
 
-import com.iteaj.quartz.entity.QrtzFiredTriggers;
-import com.iteaj.quartz.mapper.IQrtzFiredTriggersMapper;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.quartz.entity.QrtzFiredTriggers;
 
 /**
  * <p>
@@ -12,6 +11,6 @@ import com.iteaj.framework.IBaseService;
  * @author iteaj
  * @since 2020-07-26
  */
-public interface IQrtzFiredTriggersService extends IBaseService<IQrtzFiredTriggersMapper, QrtzFiredTriggers> {
+public interface IQrtzFiredTriggersService extends IBaseService<QrtzFiredTriggers> {
 
 }

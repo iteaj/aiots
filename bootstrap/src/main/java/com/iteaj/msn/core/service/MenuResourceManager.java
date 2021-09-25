@@ -1,12 +1,12 @@
 package com.iteaj.msn.core.service;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.spi.admin.*;
+import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Config;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.enums.ConfigType;
-import com.iteaj.framework.spi.admin.MenuResource;
-import com.iteaj.framework.spi.admin.Module;
-import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.Entity;
@@ -14,9 +14,7 @@ import com.iteaj.framework.result.ListResult;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +38,16 @@ public class MenuResourceManager implements ResourceManager, EnvironmentAware {
     }
 
     @Override
+    public UrlResource getByUrl(String url) {
+        return menuService.getByUrl(url);
+    }
+
+    @Override
+    public void batchSave(List<MenuResource> resources) {
+
+    }
+
+    @Override
     public List<MenuResource> getResources(Entity principal) {
         if(null == principal) throw new ServiceException("用户未登录");
 
@@ -47,6 +55,17 @@ public class MenuResourceManager implements ResourceManager, EnvironmentAware {
                 ((Long) principal.getId(), getModules(), ShiroUtil.isSuper());
 
         return menuTrees.stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<MenuResource> listResourcesByType(MenuType... types) {
+        ListResult<Menu> listResult = menuService.list(Wrappers
+                .<Menu>lambdaQuery().in(Menu::getType, types));
+
+        Collection<Menu> menus = TreeUtils.toTrees(listResult.getData(), 0l);
+
+        return menus.stream().map(item -> (MenuResource)item)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override

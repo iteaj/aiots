@@ -26,13 +26,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * create time: 2018/7/20
- *
+ * create time: 2021/7/20
  * @author iteaj
- * @version 1.0
- * @since JDK1.7
  */
-public interface IBaseService<D extends BaseMapper<E>, E extends Entity> {
+public interface IBaseService<E extends Entity> {
 
     /**
      * 默认批次提交数量

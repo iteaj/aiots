@@ -6,7 +6,7 @@ import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.msn.core.entity.Menu;
-import com.iteaj.msn.core.enums.MenuType;
+import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.msn.core.mapper.IMenuDao;
 import com.iteaj.msn.core.service.IMenuService;
 import com.iteaj.util.CommonUtils;

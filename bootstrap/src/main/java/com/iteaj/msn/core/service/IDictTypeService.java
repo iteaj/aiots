@@ -1,8 +1,7 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.msn.core.mapper.IDictTypeDao;
-import com.iteaj.msn.core.entity.DictType;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.msn.core.entity.DictType;
 
 /**
  * jdk：1.8
@@ -10,6 +9,6 @@ import com.iteaj.framework.IBaseService;
  * @author iteaj
  * create time：2019/7/13
  */
-public interface IDictTypeService extends IBaseService<IDictTypeDao, DictType> {
+public interface IDictTypeService extends IBaseService<DictType> {
 
 }

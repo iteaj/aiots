@@ -1,14 +1,13 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.framework.spi.admin.Module;
-import com.iteaj.msn.core.mapper.IMenuDao;
-import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.msn.core.entity.Menu;
 
 import java.util.List;
 
-public interface IMenuService extends IBaseService<IMenuDao, Menu> {
+public interface IMenuService extends IBaseService<Menu> {
 
     /**
      * 查找超级管理员在指定模块下的所有菜单
@@ -54,7 +53,7 @@ public interface IMenuService extends IBaseService<IMenuDao, Menu> {
      * 不包含菜单类型是权限的菜单
      * @return
      */
-    ListResult selectParentTrees();
+    ListResult<Menu> selectParentTrees();
 
     /**
      * 通过url地址获取菜单

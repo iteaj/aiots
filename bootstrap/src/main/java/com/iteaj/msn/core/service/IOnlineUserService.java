@@ -12,7 +12,7 @@ import com.iteaj.msn.core.entity.OnlineUser;
  * @author iteaj
  * @since 2020-06-20
  */
-public interface IOnlineUserService extends IBaseService<IOnlineUserMapper,OnlineUser> {
+public interface IOnlineUserService extends IBaseService<OnlineUser> {
 
     void updateBySessionId(OnlineUser onlineUser);
 }

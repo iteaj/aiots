@@ -1,10 +1,10 @@
 package ${package.Controller};
 
-
+import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.web.bind.annotation.*;
-
+import ${package.Entity}.${entity}
+import ${package.Service}.${table.serviceName}
 #if(${restControllerStyle})
 #else
 import org.springframework.stereotype.Controller;

@@ -7,14 +7,14 @@
         #end
       #end
       <template #func>
+        <IvzFuncBtn func="query" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/view">搜索</IvzFuncBtn>
+        <IvzFuncBtn func="add" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add">新增</IvzFuncBtn>
         <IvzFuncBtn func="reset">重置</IvzFuncBtn>
-        <IvzFuncBtn func="query" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/view">搜索</IvzFuncBtn>
-        <IvzFuncBtn func="add" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add">新增</IvzFuncBtn>
       </template>
     </IvzViewSearch>
-    <IvzViewModal width="860" layout="vertical" :rules="rules" placement="left">
+    <IvzViewModal width="860" layout="vertical" :rules="rules">
       <template #default="{model}">
-        <IvzRow :gutter="16" span="8">
+        <IvzRow :gutter="16" span="24">
           #foreach($vue in ${cfg.vueFields})
            #if(${vue.component})
             ${vue.component}
@@ -23,28 +23,27 @@
         </IvzRow>
       </template>
       <template #title="{model}">
-        {{model.id != null ? '修改${cfg.moduleName}' : '新增${cfg.moduleName}'}}
+        {{model.id ? '修改${cfg.moduleName}' : '新增${cfg.moduleName}'}}
       </template>
       <template #footer="{model}">
         <IvzFuncBtn func="cancel">取消</IvzFuncBtn>
-        <IvzFuncBtn func="submit" :url="'#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/save'">提交</IvzFuncBtn>
+        <IvzFuncBtn func="submit" :url="model.id ? '/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit' : '/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add'">提交</IvzFuncBtn>
         <IvzFuncBtn func="reset">重置</IvzFuncBtn>
       </template>
     </IvzViewModal>
     <IvzViewTable :columns="columns" :bordered="true" size="small">
       <template #c_action="{record}">
-        <IvzFuncTag func="edit" :data="record" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/detail">修改</IvzFuncTag>
-        <IvzFuncTag func="del" :data="record" url="#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/del">删除</IvzFuncTag>
+        <IvzFuncTag func="edit" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit">修改</IvzFuncTag>
+        <IvzFuncTag func="del" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/del">删除</IvzFuncTag>
       </template>
     </IvzViewTable>
   </IvzBasicView>
 </template>
-
+<!-- ${cfg.moduleName}功能 -->
 <script>
 import {ref, reactive} from "vue";
-
 export default {
-  name: "Admin",
+  name: "$entity",
   setup() {
     let columns = ref([
         #foreach($field in ${cfg.vueFields})
@@ -65,7 +64,4 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-
-</style>
+<style scoped> </style>

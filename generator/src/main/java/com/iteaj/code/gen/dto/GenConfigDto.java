@@ -1,12 +1,16 @@
 package com.iteaj.code.gen.dto;
 
-import com.iteaj.code.gen.FileOverrideType;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class GenConfigDto {
+
+    /**
+     * 父菜单的id
+     */
+    private Long menuId;
 
     /**
      * 输出目录
@@ -21,5 +25,5 @@ public class GenConfigDto {
     /**
      * 文件存在是否覆盖
      */
-    private FileOverrideType fileOverride;
+    private boolean fileOverride;
 }

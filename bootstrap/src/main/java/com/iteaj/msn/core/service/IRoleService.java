@@ -1,10 +1,9 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.msn.core.mapper.IRoleDao;
-import com.iteaj.msn.core.dto.RoleDto;
-import com.iteaj.msn.core.entity.Role;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.msn.core.dto.RoleDto;
+import com.iteaj.msn.core.entity.Role;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
  * @author iteaj
  * @since 1.0
  */
-public interface IRoleService extends IBaseService<IRoleDao, Role> {
+public interface IRoleService extends IBaseService<Role> {
 
     void deleteAllJoinByIds(List<Long> list);
 

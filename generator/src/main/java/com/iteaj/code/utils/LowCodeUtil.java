@@ -34,6 +34,8 @@ public class LowCodeUtil {
             if(indexOf > -1) {
                 val = val.substring(0, indexOf);
             }
+        } else {
+            return "";
         }
 
         return val;
@@ -45,6 +47,10 @@ public class LowCodeUtil {
      * @return
      */
     public static String getModuleName(String comment) {
+        if(CommonUtils.isBlank(comment)) {
+            return "";
+        }
+
         String moduleName = removeBracket(comment);
         if(moduleName.endsWith("表")) {
             return moduleName.substring(0, moduleName.length() - 1);
@@ -58,6 +64,10 @@ public class LowCodeUtil {
      * @return
      */
     public static String firstLowerServiceName(String serviceName) {
+        if(CommonUtils.isBlank(serviceName)) {
+            return "";
+        }
+
         if(serviceName.startsWith("I")) {
             return serviceName.substring(1, 2).toLowerCase() + serviceName.substring(2);
         } else {

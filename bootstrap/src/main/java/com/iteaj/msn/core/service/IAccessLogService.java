@@ -1,8 +1,7 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.msn.core.mapper.IAccessLogDao;
-import com.iteaj.msn.core.entity.AccessLog;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.msn.core.entity.AccessLog;
 
 /**
  * create time: 2020/4/22
@@ -10,6 +9,6 @@ import com.iteaj.framework.IBaseService;
  * @author iteaj
  * @since 1.0
  */
-public interface IAccessLogService extends IBaseService<IAccessLogDao, AccessLog> {
+public interface IAccessLogService extends IBaseService<AccessLog> {
 
 }
