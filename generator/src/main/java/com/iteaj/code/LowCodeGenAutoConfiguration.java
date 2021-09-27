@@ -9,11 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableConfigurationProperties(LowCodeProperties.class)
 @PropertySource("classpath:application-lcg.properties")
-public class LowCodeGenAutoConfiguration implements InitializingBean {
+public class LowCodeGenAutoConfiguration implements InitializingBean, WebMvcConfigurer {
 
     @Bean
     public Module lowCodeGen() {
@@ -27,7 +28,9 @@ public class LowCodeGenAutoConfiguration implements InitializingBean {
     @Order(value = 28)
     public OrderFilterChainDefinition lgcFilterChainDefinition() {
         return new OrderFilterChainDefinition()
-                .addPathDefinition("/lcd/**", "anon");
+                .addPathDefinition("/lcd/**", "anon")
+                .addPathDefinition("/lib/**", "anon")
+                .addPathDefinition("/assets/**", "anon");
     }
 
     @Override
