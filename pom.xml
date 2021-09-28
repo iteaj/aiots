@@ -20,8 +20,6 @@
         <module>framework</module>
         <!--项目启动SpringBoot入口-->
         <module>bootstrap</module>
-        <!--代码生成器-->
-        <module>generator</module>
     </modules>
     <properties>
         <p6spy.version>3.8.6</p6spy.version>

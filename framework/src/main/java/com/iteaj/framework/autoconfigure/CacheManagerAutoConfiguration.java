@@ -56,7 +56,7 @@ public class CacheManagerAutoConfiguration {
     /**
      * Redis缓存配置
      */
-    @ConditionalOnClass(name = "org.springframework.data.redis.cache.RedisCacheManager")
+    @ConditionalOnClass(name = {"org.springframework.data.redis.cache.RedisCacheManager", "org.springframework.data.redis.core.RedisTemplate"})
     public static class RedisConfiguration {
 
         @Primary

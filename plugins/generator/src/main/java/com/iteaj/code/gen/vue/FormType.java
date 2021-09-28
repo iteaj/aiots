@@ -1,7 +1,6 @@
 package com.iteaj.code.gen.vue;
 
 import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
-import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
 import com.iteaj.util.CommonUtils;
 
 /**
