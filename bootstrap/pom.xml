@@ -43,11 +43,22 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
                 <includes>
                     <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+                <directory>src/main/java</directory>
+            </resource>
+            <resource>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.yaml</include>
+                    <include>**/*.json</include>
+                    <include>/META-INF/*</include>
                     <include>**/*.properties</include>
                 </includes>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
         <plugins>
