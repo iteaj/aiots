@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.generator.config.querys.MySqlQuery;
 import com.iteaj.code.LowCodeProperties;
 import com.iteaj.code.gen.dto.GenConfigDto;
 import com.iteaj.code.gen.dto.GenDirDto;
-import com.iteaj.code.gen.vue.FreemarkerVueTemplateZipEngine;
+import com.iteaj.code.gen.vue.VelocityVueTemplateZipEngine;
 import com.iteaj.code.utils.LowCodeUtil;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
@@ -27,7 +27,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -193,7 +196,7 @@ public class GeneratorController extends BaseController implements InitializingB
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc());
 
         // 生成文件
-        new AutoGenerator().setTemplateEngine(new FreemarkerVueTemplateZipEngine(response.getOutputStream()
+        new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(response.getOutputStream()
                 , properties)).setConfig(configBuilder).execute();
 
         response.setHeader("Content-Disposition", "attachment; filename=\"ivzone.zip\"");

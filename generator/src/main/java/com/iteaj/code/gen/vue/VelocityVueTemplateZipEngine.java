@@ -4,38 +4,46 @@ import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.generator.config.ConstVal;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.engine.AbstractTemplateEngine;
-import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
+import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
 import com.iteaj.code.LowCodeProperties;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.app.VelocityEngine;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
  * 前端vue模板zip压缩
  */
-public class FreemarkerVueTemplateZipEngine extends FreemarkerTemplateEngine {
+public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
 
     private ZipOutputStream zip;
+    private VelocityEngine velocityEngine;
     private LowCodeProperties properties;
-    private Configuration configuration;
-    public FreemarkerVueTemplateZipEngine(OutputStream outputStream, LowCodeProperties properties) {
+    public VelocityVueTemplateZipEngine(OutputStream outputStream, LowCodeProperties properties) {
         this.properties = properties;
         this.zip = new ZipOutputStream(outputStream);
     }
 
     @Override
-    public FreemarkerTemplateEngine init(ConfigBuilder configBuilder) {
+    public VelocityTemplateEngine init(ConfigBuilder configBuilder) {
+        if (null == velocityEngine) {
+            Properties p = new Properties();
+            p.setProperty(ConstVal.VM_LOAD_PATH_KEY, ConstVal.VM_LOAD_PATH_VALUE);
+            p.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, StringPool.EMPTY);
+            p.setProperty(Velocity.ENCODING_DEFAULT, ConstVal.UTF8);
+            p.setProperty(Velocity.INPUT_ENCODING, ConstVal.UTF8);
+            p.setProperty("file.resource.loader.unicode", StringPool.TRUE);
+            velocityEngine = new VelocityEngine(p);
+        }
+
         this.setConfigBuilder(configBuilder);
-        configuration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-        configuration.setDefaultEncoding(ConstVal.UTF8);
-        configuration.setClassForTemplateLoading(FreemarkerTemplateEngine.class, StringPool.SLASH);
         configBuilder.setInjectionConfig(new VueInjectionConfig(configBuilder, this.properties));
         return this;
     }
@@ -54,10 +62,9 @@ public class FreemarkerVueTemplateZipEngine extends FreemarkerTemplateEngine {
 
     @Override
     public void writer(Map<String, Object> objectMap, String templatePath, String outputFile) throws Exception {
+        Template template = velocityEngine.getTemplate(templatePath, ConstVal.UTF8);
         try (StringWriter sw = new StringWriter()) {
-            Template template = configuration.getTemplate(templatePath);
-            template.setOutputEncoding("UTF-8");
-            template.process(objectMap, sw);
+            template.merge(new VelocityContext(objectMap), sw);
 
             //添加到zip
             zip.putNextEntry(new ZipEntry(outputFile));
