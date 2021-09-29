@@ -1,5 +1,6 @@
 package com.iteaj.msn.core.service.impl;
 
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.msn.core.mapper.IRoleDao;
 import com.iteaj.msn.core.dto.RoleDto;
 import com.iteaj.msn.core.entity.Role;
@@ -41,7 +42,11 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
     }
 
     @Override
-    public void updateRolePermsById(Role role) {
+    public void updateRolePermsById(RoleDto role) {
+        if(!CommonUtils.isNotEmpty(role.getMenuIds())) {
+            throw new ServiceException("请选择权限");
+        }
+
         getBaseMapper().updateRolePermsById(role);
     }
 

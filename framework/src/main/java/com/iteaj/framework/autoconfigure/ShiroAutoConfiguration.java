@@ -19,7 +19,9 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
@@ -39,7 +41,8 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-@ImportAutoConfiguration(ShiroAuthActionProxy.class)
+@ImportAutoConfiguration({ShiroAuthActionProxy.class
+        , ShiroAutoConfiguration.RedisSessionCacheManagerConfiguration.class})
 @EnableConfigurationProperties(SessionCacheProperties.class)
 public class ShiroAutoConfiguration {
 
@@ -152,9 +155,15 @@ public class ShiroAutoConfiguration {
         return new NativeSessionListener();
     }
 
-    @Bean
-    @ConditionalOnExpression("${framework.shiro.redis:false}==true")
-    public CacheManager cacheManager(RedisTemplate redisTemplate, SessionCacheProperties properties) {
-        return new ShiroRedisSessionCacheManager(redisTemplate, properties);
+    /**
+     * redis session cache session集群配置
+     */
+    @ConditionalOnProperty(value = "framework.shiro.redis", havingValue = "true")
+    public static class RedisSessionCacheManagerConfiguration {
+
+        @Bean
+        public CacheManager cacheManager(RedisTemplate redisTemplate, SessionCacheProperties properties) {
+            return new ShiroRedisSessionCacheManager(redisTemplate, properties);
+        }
     }
 }

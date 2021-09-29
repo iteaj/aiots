@@ -1,5 +1,6 @@
 package com.iteaj.msn.core.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
@@ -35,14 +36,14 @@ public class RoleController extends BaseController {
 
     @GetMapping("/view")
     @RequiresPermissions("core:role:view")
-    public Result view(Page page, Role role) {
+    public Result<IPage<Role>> view(Page page, Role role) {
         page.addOrder(OrderItem.asc("sort"));
         return this.roleService.page(page, role);
     }
 
     @GetMapping("/list")
-    public Result view(Role role) {
-        return this.roleService.list(role).build(success());
+    public Result<List<Role>> view(Role role) {
+        return this.roleService.list(role);
     }
 
     /**
@@ -61,9 +62,14 @@ public class RoleController extends BaseController {
         return success();
     }
 
+    /**
+     * 获取详情记录
+     * @param id
+     * @return
+     */
     @GetMapping("/edit")
     public Result<RoleDto> edit(Long id) {
-        return this.roleService.detail(id).build(success());
+        return this.roleService.detail(id);
     }
 
     /**
@@ -87,7 +93,6 @@ public class RoleController extends BaseController {
     }
 
     /**
-     *
      * @param role
      * @return
      */

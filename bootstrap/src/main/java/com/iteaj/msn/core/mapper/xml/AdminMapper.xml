@@ -22,9 +22,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateTime"    column="update_time"  />
     </resultMap>
     <resultMap id="JoinAdminRoleMap" type="com.iteaj.msn.core.dto.AdminDto" extends="OriMap">
-<!--        <collection property="roleIds" ofType="long">-->
-<!--            <result property="roleIds" column="rid" />-->
-<!--        </collection>-->
+        <collection property="roleIds" ofType="long">
+            <result property="roleIds" column="rid" />
+        </collection>
     </resultMap>
     <insert id="createAdmin">
         insert into t_admin (name, org_id, account, email, phone, sex, avatar, password, status, login_ip,login_date, remark) value
