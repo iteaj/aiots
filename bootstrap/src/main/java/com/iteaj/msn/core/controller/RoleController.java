@@ -13,7 +13,6 @@ import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,7 +36,7 @@ public class RoleController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:role:view")
     public Result<IPage<Role>> view(Page page, Role role) {
-        page.addOrder(OrderItem.asc("sort"));
+        page.addOrder(OrderItem.asc("sort"), OrderItem.desc("create_time"));
         return this.roleService.page(page, role);
     }
 
@@ -68,8 +67,14 @@ public class RoleController extends BaseController {
      * @return
      */
     @GetMapping("/edit")
-    public Result<RoleDto> edit(Long id) {
-        return this.roleService.detail(id);
+    public Result<Role> edit(Long id) {
+        return this.roleService.getById(id);
+    }
+
+    @PostMapping("/edit")
+    @RequiresPermissions("core:role:edit")
+    public Result<Boolean> edit(@RequestBody Role role) {
+        return this.roleService.updateById(role);
     }
 
     /**
@@ -79,17 +84,7 @@ public class RoleController extends BaseController {
      */
     @GetMapping("/func")
     public Result<List<Long>> func(Long id) {
-        RoleDto detail = this.roleService.detail(id).ofNullable()
-                .orElse(new RoleDto().setMenuIds(Collections.EMPTY_LIST));
-
-        return success(detail.getMenuIds());
-    }
-
-    @PostMapping("/edit")
-    @RequiresPermissions("core:role:edit")
-    public Result edit(@RequestBody Role role) {
-        this.roleService.updateById(role);
-        return success();
+        return this.roleService.listMenusOfRole(id);
     }
 
     /**
@@ -106,7 +101,7 @@ public class RoleController extends BaseController {
     @PostMapping("/del")
     @RequiresPermissions("core:del:view")
     public Result del(@RequestBody List<Long> list) {
-        this.roleService.deleteAllJoinByIds(list);
+        this.roleService.delRoleAndPermByIds(list);
         return success();
     }
 }

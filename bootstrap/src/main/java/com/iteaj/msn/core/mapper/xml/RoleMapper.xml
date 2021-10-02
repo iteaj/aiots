@@ -15,7 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
     <resultMap id="JoinRoleMenuMap" type="com.iteaj.msn.core.dto.RoleDto" extends="OriMap">
         <collection property="menuIds" ofType="long">
-<!--            <result property="menuIds" column="mid" />-->
+            <result property="menuIds" column="mid" />
         </collection>
     </resultMap>
     <insert id="createRoleAndPerms">
@@ -56,5 +56,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="selectByAdminId" resultType="java.lang.Long">
         select rid from t_admin_role where aid=#{id}
+    </select>
+    <!--  获取指定角色下面的菜单列表(权限)  -->
+    <select id="listMenusOfRole" resultType="java.lang.Long">
+        select rm.mid from t_role a left join t_role_menu rm on a.id = rm.rid where a.id=#{id}
+    </select>
+    <!-- 获取指定角色绑定的管理员 -->
+    <select id="listBindAdminOfRole" resultType="java.lang.Long">
+        select ar.aid from t_role a left join t_admin_role ar on a.id = ar.rid
+        where a.id=#{id} and ar.aid is not null
     </select>
 </mapper>

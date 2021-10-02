@@ -1,6 +1,7 @@
 package com.iteaj.msn.core.service.impl;
 
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.msn.core.mapper.IRoleDao;
 import com.iteaj.msn.core.dto.RoleDto;
 import com.iteaj.msn.core.entity.Role;
@@ -23,11 +24,27 @@ import java.util.List;
 @Service
 public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements IRoleService {
 
+//    private
+
+    /**
+     * 删除角色和对应的菜单
+     * @param list
+     */
     @Override
     @Transactional
-    public void deleteAllJoinByIds(List<Long> list) {
+    public void delRoleAndPermByIds(List<Long> list) {
         if(CommonUtils.isNotEmpty(list)) {
+            if(list.size() > 1) {
+                throw new ServiceException("不支持批量删除");
+            }
+            List<Long> adminIds = this.listBindAdminOfRole(list.get(0));
+            if(CommonUtils.isNotEmpty(adminIds)) {
+                throw new ServiceException("此角色已被使用");
+            }
+
             getBaseMapper().deleteAllJoinByIds(list);
+        } else {
+            throw new ServiceException("请选择要删除的角色");
         }
     }
 
@@ -53,5 +70,15 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
     @Override
     public List<Long> selectByAdminId(Serializable id) {
         return this.getBaseMapper().selectByAdminId(id);
+    }
+
+    @Override
+    public ListResult<Long> listMenusOfRole(Long roleId) {
+        return new ListResult<>(getBaseMapper().listMenusOfRole(roleId));
+    }
+
+    @Override
+    public List<Long> listBindAdminOfRole(Long roleId) {
+        return getBaseMapper().listBindAdminOfRole(roleId);
     }
 }

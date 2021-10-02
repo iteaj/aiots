@@ -56,7 +56,7 @@ public class MainController extends BaseController {
         resourceManager.getResources(user).forEach(item -> {
 
         });
-        return new ListResult<>(resourceManager.getResources(user));
+        return new ListResult(resourceManager.getResources(user));
     }
 
 }

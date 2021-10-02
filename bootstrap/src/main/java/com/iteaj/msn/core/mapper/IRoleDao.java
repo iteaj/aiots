@@ -26,4 +26,18 @@ public interface IRoleDao extends BaseMapper<Role> {
     void deleteAllJoinByIds(List<Long> list);
 
     List<Long> selectByAdminId(Serializable id);
+
+    /**
+     * 获取指定角色下面的菜单列表(权限)
+     * @param roleId
+     * @return
+     */
+    List<Long> listMenusOfRole(Long roleId);
+
+    /**
+     * 获取指定角色绑定的管理员
+     * @param roleId
+     * @return
+     */
+    List<Long> listBindAdminOfRole(Long roleId);
 }

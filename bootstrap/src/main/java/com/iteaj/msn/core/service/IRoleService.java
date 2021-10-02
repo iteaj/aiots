@@ -2,6 +2,7 @@ package com.iteaj.msn.core.service;
 
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.msn.core.dto.RoleDto;
 import com.iteaj.msn.core.entity.Role;
 
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public interface IRoleService extends IBaseService<Role> {
 
-    void deleteAllJoinByIds(List<Long> list);
+    void delRoleAndPermByIds(List<Long> list);
 
     DetailResult<RoleDto> detail(Long id);
 
@@ -25,4 +26,18 @@ public interface IRoleService extends IBaseService<Role> {
     void updateRolePermsById(RoleDto role);
 
     List<Long> selectByAdminId(Serializable id);
+
+    /**
+     * 获取指定角色对应的权限列表
+     * @param roleId 角色id
+     * @return
+     */
+    ListResult<Long> listMenusOfRole(Long roleId);
+
+    /**
+     * 获取指定角色绑定的管理员
+     * @param roleId
+     * @return
+     */
+    List<Long> listBindAdminOfRole(Long roleId);
 }

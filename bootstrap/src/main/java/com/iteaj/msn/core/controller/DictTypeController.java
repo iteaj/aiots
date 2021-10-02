@@ -39,7 +39,7 @@ public class DictTypeController extends BaseController {
 
     @PostMapping("/add")
     @RequiresPermissions("core:dictType:add")
-    public Result<DictType> add(@RequestBody DictType dictType) {
+    public Result<Boolean> add(@RequestBody DictType dictType) {
         return dictTypeService.save(dictType);
     }
 

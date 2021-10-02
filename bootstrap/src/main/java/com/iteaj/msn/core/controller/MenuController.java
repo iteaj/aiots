@@ -31,12 +31,12 @@ public class MenuController extends BaseController {
 
     @GetMapping("/view")
     @RequiresPermissions("core:menu:view")
-    public Result<Menu> list(Menu menu) {
+    public Result<List<Menu>> list(Menu menu) {
         return menuService.selectMenuTreesInModules(menu, resourceManager.getModules());
     }
 
     @GetMapping("/parent")
-    public Result<Menu> parentList() {
+    public Result<List<Menu>> parentList() {
         // 不包含菜单类型是权限的菜单
         return menuService.selectParentTrees();
     }
@@ -55,7 +55,7 @@ public class MenuController extends BaseController {
 
     @GetMapping("/edit")
     @RequiresPermissions("core:menu:edit")
-    public Result<Boolean> edit(Long id) {
+    public Result<Menu> edit(Long id) {
         return menuService.getById(id);
     }
 

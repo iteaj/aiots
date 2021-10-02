@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  * @author iteaj
  * @since 1.0
  */
-public abstract class AbstractResult<E> implements Result {
+public abstract class AbstractResult<E> implements Result<E> {
 
     private E data;
     private long code;
