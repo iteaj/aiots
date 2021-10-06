@@ -1,5 +1,6 @@
 package com.iteaj.msn.core.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.msn.core.mapper.IConfigDao;
 import com.iteaj.msn.core.entity.Config;
 import com.iteaj.msn.core.service.IConfigService;
@@ -21,14 +22,24 @@ public class ConfigServiceImpl extends BaseServiceImpl<IConfigDao, Config> imple
 
     @Override
     public BooleanResult save(Config entity) {
-        try {
-            return super.save(entity);
-        } catch (Exception e) {
-            if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
-                throw new ServiceException("配置标签重复("+entity.getLabel()+")");
-            } else {
-                throw new ServiceException(e.getMessage(), e);
-            }
-        }
+        getOne(Wrappers.<Config>lambdaQuery().eq(Config::getLabel, entity.getLabel())).ofNullable()
+                .ifPresent(item -> {throw new ServiceException("配置标识重复["+entity.getLabel()+"]");});
+
+        getOne(Wrappers.<Config>lambdaQuery().eq(Config::getName, entity.getName())).ofNullable()
+                .ifPresent(item -> {throw new ServiceException("配置名称重复["+entity.getName()+"]");});
+
+        return super.save(entity);
+    }
+
+    @Override
+    public BooleanResult updateById(Config entity) {
+        getOne(Wrappers.<Config>lambdaQuery().eq(Config::getName, entity.getName())).ofNullable()
+                .ifPresent(item -> {
+                    // 名称重复
+                    if(entity.getId().compareTo(item.getId()) != 0) {
+                        throw new ServiceException("配置名称重复["+entity.getName()+"]");
+                    }
+                });
+        return super.updateById(entity);
     }
 }

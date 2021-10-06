@@ -27,6 +27,8 @@ public class AccessLogServiceImpl extends BaseServiceImpl<IAccessLogDao, AccessL
         return new PageResult<>(getBaseMapper().selectPage(page,
                 new QueryWrapper<>(condition)
                         .gt(start!=null, "create_time", start)
-                        .lt(end!=null, "create_time", end)));
+                        .lt(end!=null, "create_time", end)
+                        .orderByDesc("create_time")
+                        .orderByDesc(condition.getMillis()!=null, "millis")));
     }
 }

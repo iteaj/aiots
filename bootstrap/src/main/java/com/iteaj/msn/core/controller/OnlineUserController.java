@@ -2,16 +2,19 @@ package com.iteaj.msn.core.controller;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.msn.core.entity.OnlineUser;
 import com.iteaj.msn.core.service.IOnlineUserService;
-import org.apache.shiro.authz.annotation.Logical;
+import com.iteaj.util.WebUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import com.iteaj.framework.BaseController;
-
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.List;
 
@@ -41,47 +44,54 @@ public class OnlineUserController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions(value = {"core:onlineUser:view"})
     public Result<IPage<OnlineUser>> list(Page<OnlineUser> page, OnlineUser entity) {
+        page.addOrder(OrderItem.asc("status"), OrderItem.desc("login_time"));
         return this.onlineUserService.page(page, entity);
     }
 
     /**
-    * 获取编辑记录
-    * @param id 记录id
-    */
-    @GetMapping("/edit")
-    @RequiresPermissions(value = {"core:onlineUser:edit"})
-    public Result<OnlineUser> getEditDetail(Serializable id) {
-        return this.onlineUserService.getById(id);
-    }
-
-    /**
-    * 修改记录
-    * @param entity
-    */
-    @PostMapping("/edit")
-    @RequiresPermissions(value = {"core:onlineUser:edit"})
-    public Result<Boolean> edit(@RequestBody OnlineUser entity) {
-        return this.onlineUserService.updateById(entity);
-    }
-
-    /**
-    * 新增或者修改记录
-    * @param entity
-    */
-    @PostMapping("/add")
-    @RequiresPermissions(value = {"core:onlineUser:add"})
-    public Result<Boolean> add(@RequestBody OnlineUser entity) {
-        return this.onlineUserService.save(entity);
-    }
-
-    /**
-    * 删除记录
+    * 删除在线记录
     * @param idList
     */
     @PostMapping("/del")
     @RequiresPermissions(value = {"core:onlineUser:del"})
-    public Result<Boolean> remove(@RequestBody List<Serializable> idList) {
+    public Result<Boolean> remove(@RequestBody List<Long> idList) {
+        if(idList.size() == 1) {
+            this.onlineUserService.getById(idList.get(0)).ofNullable().ifPresent(item -> {
+                if(item.getStatus() == OnlineStatus.Online
+                        && ShiroUtil.existsSession(item.getSessionId())) {
+                    throw new IllegalStateException("此设备在线");
+                }
+            });
+        } else {
+            this.onlineUserService.listByIds(idList).forEach(item -> {
+                if(item.getStatus() == OnlineStatus.Online) {
+                    idList.remove(item.getId());
+                }
+            });
+        }
+
         return this.onlineUserService.removeByIds(idList);
+    }
+
+    /**
+     * 剔除用户下线
+     * @param entity
+     * @return
+     */
+    @PostMapping("offline")
+    @RequiresPermissions(value = {"core:onlineUser:offline"})
+    public Result<Boolean> offline(@RequestBody OnlineUser entity, HttpSession session) {
+        if(entity.getStatus() == OnlineStatus.Offline) {
+            return fail("此用户不在线");
+        }
+
+        final String sessionId = session.getId();
+        if(sessionId.equals(entity.getSessionId())) {
+            return fail("不允许下线自己");
+        }
+
+        ShiroUtil.offline(entity.getSessionId()); // 剔除用户下线
+        return success("剔除用户成功");
     }
 }
 

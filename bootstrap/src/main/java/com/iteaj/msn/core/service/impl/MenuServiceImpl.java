@@ -6,6 +6,7 @@ import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.spi.admin.Module;
@@ -22,21 +23,17 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService {
 
     @Override
     public BooleanResult save(Menu entity) {
-        try {
-            return super.save(entity);
-        } catch (Exception e) {
-            if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
-                throw new ServiceException("菜单名称重复");
-            } else {
-                throw new ServiceException(e.getMessage(), e);
-            }
-        }
+        getOne(Wrappers.<Menu>lambdaQuery().eq(Menu::getName, entity.getName()))
+                .ofNullable()
+                .ifPresent(menu -> {throw new ServiceException("菜单名称重复");});
+        return super.save(entity);
     }
 
     @Override
@@ -91,7 +88,8 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
             return new ListResult<>(menus);
         } else { // 普通管理员的菜单列表
             List<String> adminMenuIds = this.getBaseMapper().selectAdminMenus(aid);
-            return new ListResult<>((List<Menu>) TreeUtils.toAdminMenuTrees(allMenus, adminMenuIds));
+            final Collection<Menu> menus = TreeUtils.toAdminMenuTrees(allMenus, adminMenuIds);
+            return new ListResult<>(menus.stream().collect(Collectors.toList()));
         }
     }
 
@@ -117,9 +115,13 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
             throw new ServiceException("菜单不支持批量删除");
         }
 
-        this.getOne(Wrappers.<Menu>query()
-                .eq("pid", idList.stream().findFirst().get()))
-                .ofNullable().ifPresent((item) -> {throw new ServiceException("请先删除子菜单");});
+        idList.stream().forEach(item -> {
+            this.getOne(Wrappers.<Menu>query().eq("pid", item))
+                    .ofNullable()
+                    .ifPresent((menu) -> {
+                        throw new ServiceException("请先删除子菜单");
+                    });
+        });
 
         return super.removeByIds(idList);
     }

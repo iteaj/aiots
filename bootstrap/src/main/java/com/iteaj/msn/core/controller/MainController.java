@@ -4,7 +4,7 @@ import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.result.ListResult;

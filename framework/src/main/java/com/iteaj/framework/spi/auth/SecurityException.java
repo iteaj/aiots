@@ -8,21 +8,21 @@ import com.iteaj.framework.exception.FrameworkException;
  * @author iteaj
  * @since 1.0
  */
-public class AuthException extends FrameworkException {
+public class SecurityException extends FrameworkException {
 
-    public AuthException(String message) {
+    public SecurityException(String message) {
         super(message);
     }
 
-    public AuthException(String message, Throwable cause) {
+    public SecurityException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public AuthException(Throwable cause) {
+    public SecurityException(Throwable cause) {
         super(cause);
     }
 
-    public AuthException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public SecurityException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

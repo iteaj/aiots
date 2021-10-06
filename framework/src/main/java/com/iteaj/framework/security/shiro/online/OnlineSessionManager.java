@@ -3,7 +3,7 @@ package com.iteaj.framework.security.shiro.online;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.spi.auth.WebAuthAction;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;

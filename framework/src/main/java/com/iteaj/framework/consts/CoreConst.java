@@ -17,9 +17,9 @@ public interface CoreConst {
     String WEB_SESSION_CACHE = "WEB_SESSION_CACHE";
 
     /**
-     * 未认证状态
+     * 执行异常状态状态
      */
-    String AUTH_STATUS = "AUTH_STATUS";
+    String EXEC_EXCEPTION_STATUS = "EXEC_EXCEPTION_STATUS";
 
     /**
      * 请求

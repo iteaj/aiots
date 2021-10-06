@@ -12,7 +12,7 @@
         <result column="login_ip" property="accessIp" />
         <result column="login_time" property="loginTime" />
         <result column="os" property="os" />
-        <result column="app_type" property="appType" />
+        <result column="type" property="appType" />
         <result column="status" property="status" />
         <result column="user_nick" property="userNick" />
         <result column="create_time" property="createTime" />

@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+import static com.iteaj.framework.consts.CoreConst.EXEC_EXCEPTION_STATUS;
+
 /**
  * create time: 2021/3/24
  *  web请求授权处理器 支持pc和移动端
@@ -49,7 +51,7 @@ public interface WebAuthHandler {
      * @param request
      * @param response
      */
-     default void login(HttpServletRequest request, HttpServletResponse response) throws AuthException {
+     default void login(HttpServletRequest request, HttpServletResponse response) throws SecurityException {
          final WebAuthAction action = matcher(request);
          if(action != null) {
              Exception throwable = null;
@@ -100,13 +102,18 @@ public interface WebAuthHandler {
      * @param response
      * @return 默认直接放行
      */
-    default boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    default boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws SecurityException {
         final WebAuthAction action = matcher(request);
 
         if(action == null) {
+            request.setAttribute(EXEC_EXCEPTION_STATUS, "未认证");
             return true; // 没有找到处理此次请求的动作, 拒绝放行
         }
 
-        return action.postAuthorize(request, response);
+        final boolean authorize = action.postAuthorize(request, response);
+        if(authorize) {
+            request.setAttribute(EXEC_EXCEPTION_STATUS, "未认证");
+        }
+        return authorize;
     }
 }

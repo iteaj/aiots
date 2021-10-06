@@ -2,6 +2,7 @@ package com.iteaj.oauth2.client;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.auth.*;
+import com.iteaj.framework.spi.auth.SecurityException;
 import com.iteaj.framework.spi.auth.handle.AccountAuthHandler;
 import com.iteaj.oauth2.client.action.OAuth2Action;
 import com.iteaj.framework.spi.oauth2.OAuth2Token;
@@ -38,7 +39,7 @@ public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
     protected abstract OAuth2Token refresh(String clientId);
 
     @Override
-    public boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws SecurityException {
 
         final WebAuthAction action = this.matcher(request);
         if(action instanceof OAuth2Action) {
@@ -59,10 +60,11 @@ public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
         }
     }
 
-    protected abstract boolean oauth2Authorize(OAuth2Action action, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception;
+    protected abstract boolean oauth2Authorize(OAuth2Action action, AuthContext context
+            , HttpServletRequest request, HttpServletResponse response) throws SecurityException;
 
     @Override
-    public void login(HttpServletRequest request, HttpServletResponse response) throws AuthException {
+    public void login(HttpServletRequest request, HttpServletResponse response) throws SecurityException {
         if(isRedirectRequest(request)) {
             final AuthContext context = (AuthContext)request
                     .getSession().getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
@@ -81,10 +83,10 @@ public abstract class AbstractOAuth2Handler extends AccountAuthHandler {
                         authAction.loginCall(exception, request, response);
                     }
                 } else {
-                    throw new AuthException("Oauth2必须使用[OAuth2Action]");
+                    throw new SecurityException("Oauth2必须使用[OAuth2Action]");
                 }
             } else {
-                throw new AuthException("找不到[AuthContext]可能已释放, 请重新授权");
+                throw new SecurityException("找不到[AuthContext]可能已释放, 请重新授权");
             }
         } else {
             super.login(request, response);

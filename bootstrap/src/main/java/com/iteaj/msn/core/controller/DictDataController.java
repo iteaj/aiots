@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * jdk：1.8
- *
+ *  字典数据管理
  * @author iteaj
  * create time：2019/6/24
  */

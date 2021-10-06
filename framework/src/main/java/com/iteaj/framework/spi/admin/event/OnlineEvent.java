@@ -16,13 +16,13 @@ import java.util.Date;
 public class OnlineEvent extends Event {
 
     private Entity admin;
-    private long timeout;
+    private long expireTime;
     private Date accessTime;
-    private OnlineType type;
+    private OnlineStatus type;
     private String accessIp;
     private UserAgent userAgent;
 
-    public OnlineEvent(Object source, OnlineType type) {
+    public OnlineEvent(Object source, OnlineStatus type) {
         super(source);
         this.type = type;
     }
@@ -70,11 +70,11 @@ public class OnlineEvent extends Event {
         return this;
     }
 
-    public OnlineType getType() {
+    public OnlineStatus getType() {
         return type;
     }
 
-    public OnlineEvent setType(OnlineType type) {
+    public OnlineEvent setType(OnlineStatus type) {
         this.type = type;
         return this;
     }
@@ -88,12 +88,12 @@ public class OnlineEvent extends Event {
         return this;
     }
 
-    public long getTimeout() {
-        return timeout;
+    public long getExpireTime() {
+        return expireTime;
     }
 
-    public OnlineEvent setTimeout(long timeout) {
-        this.timeout = timeout;
+    public OnlineEvent setExpireTime(long expireTime) {
+        this.expireTime = expireTime;
         return this;
     }
 }

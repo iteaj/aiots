@@ -1,7 +1,8 @@
 package com.iteaj.framework.security.shiro;
 
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.auth.AuthToken;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.spi.auth.SecurityException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -10,6 +11,8 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+
+import static com.iteaj.framework.consts.CoreConst.EXEC_EXCEPTION_STATUS;
 
 /**
  * create time: 2021/3/27
@@ -21,8 +24,7 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
 
     @Override
     public boolean supports(AuthenticationToken token) {
-        return token != null && AuthToken
-                .class.isAssignableFrom(token.getClass());
+        return token instanceof ShiroTokenDelegate;
     }
 
     @Override
@@ -43,7 +45,8 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
             throw new AuthenticationException("用户不存在");
         }
 
-        return new SimpleAuthenticationInfo(token.getPrincipal()
+        ShiroTokenDelegate delegate = (ShiroTokenDelegate) token;
+        return new SimpleAuthenticationInfo(delegate.getAuthToken()
                 , token.getCredentials(), this.getName());
     }
 
@@ -55,8 +58,17 @@ public class ShiroFrameworkAuthRealm extends AuthorizingRealm {
      */
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
-        return ShiroUtil.isSuper() ||
-            super.isPermitted(principals, permission);
+        if(ShiroUtil.isSuper()) {
+            return true;
+        }
+
+        final boolean permitted = super.isPermitted(principals, permission);
+        if(!permitted) {
+            ShiroUtil.setRequestAttr(EXEC_EXCEPTION_STATUS, "无权限");
+            throw new SecurityException("无权限");
+        }
+
+        return true;
     }
 
     @Override

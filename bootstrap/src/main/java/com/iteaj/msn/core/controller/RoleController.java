@@ -33,13 +33,24 @@ public class RoleController extends BaseController {
         this.menuService = menuService;
     }
 
+    /**
+     * 角色列表
+     * @param page
+     * @param role
+     * @return
+     */
     @GetMapping("/view")
     @RequiresPermissions("core:role:view")
     public Result<IPage<Role>> view(Page page, Role role) {
-        page.addOrder(OrderItem.asc("sort"), OrderItem.desc("create_time"));
+        page.addOrder(OrderItem.desc("create_time"), OrderItem.asc("sort"));
         return this.roleService.page(page, role);
     }
 
+    /**
+     * 获取所有角色列表
+     * @param role
+     * @return
+     */
     @GetMapping("/list")
     public Result<List<Role>> view(Role role) {
         return this.roleService.list(role);
@@ -71,6 +82,11 @@ public class RoleController extends BaseController {
         return this.roleService.getById(id);
     }
 
+    /**
+     * 保存编辑记录
+     * @param role
+     * @return
+     */
     @PostMapping("/edit")
     @RequiresPermissions("core:role:edit")
     public Result<Boolean> edit(@RequestBody Role role) {
@@ -98,6 +114,11 @@ public class RoleController extends BaseController {
         return success();
     }
 
+    /**
+     * 删除记录
+     * @param list
+     * @return
+     */
     @PostMapping("/del")
     @RequiresPermissions("core:del:view")
     public Result del(@RequestBody List<Long> list) {

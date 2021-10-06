@@ -11,7 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.iteaj.framework.consts.CoreConst.AUTH_STATUS;
+import static com.iteaj.framework.consts.CoreConst.EXEC_EXCEPTION_STATUS;
 
 /**
  * create time: 2021/3/24
@@ -34,7 +34,7 @@ public class ShiroAuthAccessFilter extends AccessControlFilter {
         final HttpServletRequest servletRequest = (HttpServletRequest) request;
         final HttpServletResponse servletResponse = (HttpServletResponse) response;
 
-        //校验请求是否需要授权
+        //校验请求是否需要认证
         if(!handler.preAuthorize(servletRequest, servletResponse)) {
             return true;
         }
@@ -45,9 +45,7 @@ public class ShiroAuthAccessFilter extends AccessControlFilter {
         final boolean authenticated = SecurityUtils.getSubject().isAuthenticated();
         if(authenticated) {
             return true;
-        } else { // 未认证
-            request.setAttribute(AUTH_STATUS, false);
-            ((HttpServletRequest) request).getSession().setAttribute(AUTH_STATUS, false);
+        } else { // 未认证, 拒绝放行
             return false;
         }
     }

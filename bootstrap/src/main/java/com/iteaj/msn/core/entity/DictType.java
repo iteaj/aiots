@@ -1,5 +1,7 @@
 package com.iteaj.msn.core.entity;
 
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.msn.core.enums.Status;
@@ -24,11 +26,13 @@ public class DictType extends BaseEntity {
     /**
      * 字典类型
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String type;
 
     /**
      * 类型名称
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String name;
 
     /**

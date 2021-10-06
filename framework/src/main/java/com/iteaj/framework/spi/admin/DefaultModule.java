@@ -6,7 +6,7 @@ public class DefaultModule implements Module{
     private String msn;
     private String name;
 
-    protected DefaultModule(int order, String msn, String name) {
+    protected DefaultModule(String msn, String name, int order) {
         this.order = order;
         this.msn = msn;
         this.name = name;
@@ -20,7 +20,7 @@ public class DefaultModule implements Module{
      * @return
      */
     public static Module build(String msn, String name, int order) {
-        return new DefaultModule(order, msn, name);
+        return new DefaultModule(msn, name, order);
     }
 
     @Override

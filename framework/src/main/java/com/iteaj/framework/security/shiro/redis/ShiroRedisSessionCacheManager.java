@@ -2,7 +2,7 @@ package com.iteaj.framework.security.shiro.redis;
 
 import com.iteaj.framework.autoconfigure.SessionCacheProperties;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import lombok.SneakyThrows;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;

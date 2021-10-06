@@ -1,5 +1,7 @@
 package com.iteaj.framework.spi.auth;
 
+import com.iteaj.framework.Entity;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +18,7 @@ public interface AuthToken extends Serializable {
      * 帐号
      * @return
      */
-    Object getPrincipal();
+    Entity getPrincipal();
 
     /**
      * 安全相关认证 e.g: 密码

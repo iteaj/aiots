@@ -23,7 +23,7 @@ public class OnlineSessionDAO extends EnterpriseCacheSessionDAO implements Initi
 
     @Override
     protected void doDelete(Session session) {
-        onlineService.removeBySessionId(session.getId());
+        super.doDelete(session);
     }
 
     /**
@@ -33,22 +33,19 @@ public class OnlineSessionDAO extends EnterpriseCacheSessionDAO implements Initi
     @Override
     protected Session doReadSession(Serializable sessionId) {
 
-        OnlineSession onlineSession = onlineService.getSession(sessionId);
+//        OnlineSession onlineSession = onlineService.getSession(sessionId);
+//        if(onlineSession != null) {
+//            // 声明此session是一个在线session
+//            SimpleSession session = new SimpleSession();
+//            session.setId(sessionId);
+//            session.setTimeout(onlineSession.getTimeout());
+//            session.setStartTimestamp(onlineSession.getStartTimestamp());
+//            session.setLastAccessTime(onlineSession.getLastAccessTime());
+//            // 缓存
+//            cache(session, sessionId);
+//        }
 
-        if(onlineSession == null) {
-            return null;
-        }
-
-        // 声明此session是一个在线session
-        SimpleSession session = new SimpleSession();
-        session.setId(sessionId);
-        session.setTimeout(onlineSession.getTimeout());
-        session.setStartTimestamp(onlineSession.getStartTimestamp());
-        session.setLastAccessTime(onlineSession.getLastAccessTime());
-
-        // 缓存
-        cache(session, sessionId);
-        return session;
+        return super.doReadSession(sessionId);
     }
 
     @Override

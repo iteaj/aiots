@@ -18,7 +18,7 @@ public class LowCodeGenAutoConfiguration implements InitializingBean, WebMvcConf
 
     @Bean
     public Module lowCodeGen() {
-        return DefaultModule.build("lcd", "低代码生成器", 58);
+        return DefaultModule.build("lcd", "低代码模块", 58);
     }
     /**
      * 低代码模块无需认证授权
@@ -35,6 +35,9 @@ public class LowCodeGenAutoConfiguration implements InitializingBean, WebMvcConf
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        System.out.println("*************************** 加载代码生成器模块 ***************************" );
+        System.out.println(
+                "****************************************************************\r\n" +
+                "*                         启用低代码设计模块                       *\r\n" +
+                "****************************************************************\r" );
     }
 }

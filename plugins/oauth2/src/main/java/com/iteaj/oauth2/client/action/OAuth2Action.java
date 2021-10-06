@@ -1,7 +1,7 @@
 package com.iteaj.oauth2.client.action;
 
 
-import com.iteaj.framework.spi.auth.AuthException;
+import com.iteaj.framework.spi.auth.SecurityException;
 import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.oauth2.OAuth2User;
@@ -40,7 +40,7 @@ public interface OAuth2Action extends WebAuthAction<OAuth2User> {
      * @return 如果返回{@code null} 则取消登录
      */
     @Override
-    AuthToken login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) throws AuthException;
+    AuthToken login(OAuth2User user, HttpServletRequest request, HttpServletResponse response) throws SecurityException;
 
     /**
      * 处理Oauth2生成的url
@@ -49,10 +49,10 @@ public interface OAuth2Action extends WebAuthAction<OAuth2User> {
      * @param response
      * @return true 需要授权 false 不需要授权
      */
-    boolean doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws Exception;
+    boolean doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws SecurityException;
 
     @Override
-    default boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    default boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws SecurityException {
         return true;
     }
 }

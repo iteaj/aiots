@@ -1,6 +1,7 @@
 package com.iteaj.framework;
 
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.spi.auth.SecurityException;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.framework.result.Result;
 import org.slf4j.Logger;
@@ -10,6 +11,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static com.iteaj.framework.consts.CoreConst.EXEC_EXCEPTION_STATUS;
 
 /**
  * create time: 2018/7/7
@@ -99,8 +104,9 @@ public abstract class AbstractController implements EnvironmentAware {
      */
     @ResponseBody
     @ExceptionHandler(Throwable.class)
-    protected <E> Result<E> throwableHandle(Throwable e) {
-        logger.error("类别：异常处理 - 动作：全局异常 - 异常信息：{}", e.getMessage(), e);
+    protected <E> Result<E> throwableHandle(Throwable e, HttpServletRequest request) {
+        request.setAttribute(EXEC_EXCEPTION_STATUS, "未知异常");
+        logger.error("未知错误", e.getMessage(), e);
 
         //开发状态, 返回异常信息
         if(isProfile("prod")) {// 正式环境
@@ -119,9 +125,21 @@ public abstract class AbstractController implements EnvironmentAware {
      */
     @ResponseBody
     @ExceptionHandler(ServiceException.class)
-    protected <E> Result<E> serviceHandle(ServiceException e) {
-        logger.error("类别：异常处理 - 动作：业务异常 - 异常信息：{}", e.getMessage(), e);
+    protected <E> Result<E> serviceHandle(ServiceException e, HttpServletRequest request) {
+        request.setAttribute(EXEC_EXCEPTION_STATUS, e.getMessage());
+        logger.error("业务执行失败", e);
+        return this.fail(e.getMessage());
+    }
 
+    /**
+     * 认证授权异常处理
+     * @param e
+     * @return
+     */
+    @ResponseBody
+    @ExceptionHandler(SecurityException.class)
+    protected <E> Result<E> securityHandle(SecurityException e) {
+        logger.error("认证授权失败", e);
         return this.fail(e.getMessage());
     }
 

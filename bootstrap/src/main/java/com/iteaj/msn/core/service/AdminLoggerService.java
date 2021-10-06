@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.logger.AccessLogger;
 import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.logger.LoggerService;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Menu;

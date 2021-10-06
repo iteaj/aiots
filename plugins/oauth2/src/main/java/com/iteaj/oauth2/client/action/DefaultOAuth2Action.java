@@ -1,6 +1,6 @@
 package com.iteaj.oauth2.client.action;
 
-import com.iteaj.framework.spi.auth.AuthException;
+import com.iteaj.framework.spi.auth.SecurityException;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.result.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,14 +43,18 @@ public abstract class DefaultOAuth2Action implements OAuth2Action {
     }
 
     @Override
-    public boolean doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public boolean doAuthorize(String url, HttpServletRequest request, HttpServletResponse response) throws SecurityException {
         if(isAjax(request)) {
             // 写出结果
             writeJson(HttpResult.Success(url,"生成授权url成功"), response);
         } else {
 
             // 重定向Oauth2授权地址到授权服务器
-            response.sendRedirect(url);
+            try {
+                response.sendRedirect(url);
+            } catch (IOException e) {
+                throw new SecurityException("[Oauth2]重定向失败", e);
+            }
         }
 
         return true;
@@ -66,7 +70,7 @@ public abstract class DefaultOAuth2Action implements OAuth2Action {
                 writeJson(HttpResult.Fail("登录失败"), response);
             }
         } catch (IOException e) {
-            throw new AuthException(e);
+            throw new SecurityException(e);
         }
 
         return true;

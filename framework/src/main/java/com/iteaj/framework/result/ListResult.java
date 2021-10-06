@@ -1,5 +1,6 @@
 package com.iteaj.framework.result;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -26,18 +27,18 @@ public class ListResult<E> extends OptionalResult<List<E>, ListResult<E>> {
     }
 
     public Iterator iterable() {
-        return getData().iterator();
+        return getData() == null ? Collections.emptyIterator() : getData().iterator();
     }
 
     public boolean isEmpty() {
-        return getData().isEmpty();
+        return getData() == null ? true : getData().isEmpty();
     }
 
     public void forEach(Consumer<E> consumer) {
-        getData().forEach(consumer);
+        this.stream().forEach(consumer);
     }
 
     public Stream<E> stream() {
-        return getData().stream();
+        return getData() == null ? Stream.empty() : getData().stream();
     }
 }

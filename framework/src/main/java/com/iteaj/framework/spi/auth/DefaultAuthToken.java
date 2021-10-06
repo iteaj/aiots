@@ -1,32 +1,17 @@
-package com.iteaj.framework.security.shiro;
+package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.framework.Entity;
-import org.apache.shiro.authc.AuthenticationToken;
 
 import java.util.Collection;
-import java.util.Collections;
 
-/**
- * create time: 2021/3/27
- *
- * @author iteaj
- * @since 1.0
- */
-public class FrameworkToken implements AuthToken, AuthenticationToken {
-
+public class DefaultAuthToken implements AuthToken{
     private Entity principal;
     private Object credentials;
 
-    private Collection<String> roles = Collections.emptyList();
-    private Collection<String> permissions = Collections.emptyList();
+    private Collection<String> roles;
+    private Collection<String> permissions;
 
-    public FrameworkToken(Entity principal, Object credentials) {
-        this.principal = principal;
-        this.credentials = credentials;
-    }
-
-    public FrameworkToken(Entity principal, Object credentials
+    public DefaultAuthToken(Entity principal, Object credentials
             , Collection<String> roles, Collection<String> permissions) {
         this.principal = principal;
         this.credentials = credentials;
@@ -35,7 +20,7 @@ public class FrameworkToken implements AuthToken, AuthenticationToken {
     }
 
     @Override
-    public Object getPrincipal() {
+    public Entity getPrincipal() {
         return this.principal;
     }
 

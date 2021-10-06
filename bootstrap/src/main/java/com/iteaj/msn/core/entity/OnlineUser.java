@@ -1,10 +1,13 @@
 package com.iteaj.msn.core.entity;
 
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.iteaj.msn.core.enums.AppType;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.OnlineSession;
+import com.iteaj.framework.spi.admin.event.OnlineStatus;
+import com.iteaj.msn.core.enums.ClientType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -64,16 +67,17 @@ public class OnlineUser extends BaseEntity implements OnlineSession {
     /**
      * 应用类型
      */
-    private AppType appType;
+    private ClientType type;
 
     /**
-     * 用户状态(On. 在线, Off. 离线)
+     * 用户状态(Online. 在线, Offline. 离线)
      */
-    private String status;
+    private OnlineStatus status;
 
     /**
      * 用户昵称
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String userNick;
 
     /**创建时间*/
@@ -86,22 +90,10 @@ public class OnlineUser extends BaseEntity implements OnlineSession {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateTime;
 
+    public OnlineUser() { }
+
     public OnlineUser(String sessionId) {
         this.sessionId = sessionId;
-    }
-
-    @Override
-    public String toString() {
-        return "OnlineUser{" +
-        "browse=" + browse +
-        ", expireTime=" + expireTime +
-        ", location=" + location +
-        ", loginIp=" + accessIp +
-        ", loginTime=" + loginTime +
-        ", os=" + os +
-        ", status=" + status +
-        ", userNick=" + userNick +
-        "}";
     }
 
     @Override

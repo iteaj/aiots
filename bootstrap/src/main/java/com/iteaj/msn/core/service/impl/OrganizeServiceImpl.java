@@ -87,7 +87,7 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
         // 此部门已经在使用
         adminService.getOne(Wrappers.<Admin>query().eq("org_id", id))
                 .ofNullable().ifPresent(item -> {
-            throw new ServiceException("此部门已在使用");
+            throw new ServiceException("此部门已被关联使用");
         });
 
         return super.removeByIds(idList);

@@ -7,7 +7,7 @@ import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Config;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.enums.ConfigType;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.result.ListResult;

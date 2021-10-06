@@ -5,7 +5,7 @@ import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.mapper.IAdminDao;
 import com.iteaj.msn.core.service.IAdminService;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.framework.BaseServiceImpl;

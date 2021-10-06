@@ -1,13 +1,13 @@
 package com.iteaj.msn.core.auth;
 
 import com.google.code.kaptcha.Constants;
-import com.iteaj.framework.security.shiro.FrameworkToken;
+import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.framework.spi.auth.*;
+import com.iteaj.framework.spi.auth.SecurityException;
 import com.iteaj.msn.core.CoreProperties;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.service.IAdminService;
 import com.iteaj.msn.core.service.IRoleService;
-import com.iteaj.framework.utils.ShiroUtil;
-import com.iteaj.framework.spi.auth.*;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.util.JsonUtils;
 import com.iteaj.util.json.Json;
@@ -54,7 +54,7 @@ public class AdminLoginAction extends AccountAuthAction {
     }
 
     @Override
-    public AuthToken login(AuthContext t, HttpServletRequest request, HttpServletResponse response) {
+    public AuthToken login(AuthContext t, HttpServletRequest request, HttpServletResponse response) throws SecurityException{
         try(ServletInputStream inputStream = request.getInputStream()) {
             final String content = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             final Json builder = JsonUtils.builder(content);
@@ -67,7 +67,7 @@ public class AdminLoginAction extends AccountAuthAction {
             final Long createTime = (Long)request.getSession()
                     .getAttribute(Constants.KAPTCHA_SESSION_DATE);
             if(!Objects.equals(attribute, captcha) || createTime == null) {
-                throw new AuthException("验证码错误");
+                throw new SecurityException("验证码错误");
             } else {
 
                 request.getSession().removeAttribute(Constants.KAPTCHA_SESSION_KEY);
@@ -76,7 +76,7 @@ public class AdminLoginAction extends AccountAuthAction {
 
             Admin admin = adminService.getByAccount(userName);
             if(admin == null) {
-                throw new AuthException("账户不存在");
+                throw new SecurityException("账户不存在");
             }
 
             // 密码校验
@@ -84,20 +84,20 @@ public class AdminLoginAction extends AccountAuthAction {
             String md5Hex = DigestUtils.md5Hex(password.getBytes()).toUpperCase();
 
             if(!Objects.equals(passwordDigest, md5Hex)) {
-                throw new AuthException("密码校验失败");
+                throw new SecurityException("密码校验失败");
             }
 
             return createFrameworkToken(password, admin);
         } catch (IOException e) {
-            throw new AuthException("参数错误");
+            throw new SecurityException("参数错误");
         }
     }
 
     @NotNull
-    protected FrameworkToken createFrameworkToken(String password, Admin admin) {
+    protected AuthToken createFrameworkToken(String password, Admin admin) {
         // 超级管理员拥有所有的权限
         if(ShiroUtil.isSuper(admin.getId())) {
-            return new FrameworkToken(admin, password);
+            return new DefaultAuthToken(admin, password, null, null);
         }
 
         List<Long> roleIds = this.roleService.selectByAdminId(admin.getId());
@@ -105,6 +105,6 @@ public class AdminLoginAction extends AccountAuthAction {
                 String.valueOf(id)).collect(Collectors.toList());
 
         List<String> perms = this.adminService.selectPermsById(admin.getId());
-        return new FrameworkToken(admin, password, roles, perms);
+        return new DefaultAuthToken(admin, password, roles, perms);
     }
 }

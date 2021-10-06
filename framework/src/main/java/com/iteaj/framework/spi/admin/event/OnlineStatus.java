@@ -6,7 +6,7 @@ package com.iteaj.framework.spi.admin.event;
  * @author iteaj
  * @since 1.0
  */
-public enum OnlineType {
+public enum OnlineStatus {
 
-    Guest, On, Off
+    Online, Offline
 }

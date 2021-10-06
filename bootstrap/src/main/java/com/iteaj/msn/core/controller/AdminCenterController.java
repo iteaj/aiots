@@ -1,7 +1,7 @@
 package com.iteaj.msn.core.controller;
 
 import com.iteaj.framework.spi.auth.WebAuthHandler;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.dto.PasswordDto;
 import com.iteaj.msn.core.entity.Admin;

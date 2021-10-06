@@ -1,6 +1,8 @@
 package com.iteaj.msn.core.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.msn.core.mapper.IRoleDao;
 import com.iteaj.msn.core.dto.RoleDto;
@@ -24,7 +26,16 @@ import java.util.List;
 @Service
 public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements IRoleService {
 
-//    private
+    @Override
+    public BooleanResult updateById(Role entity) {
+        this.getOne(Wrappers.<Role>lambdaQuery().eq(Role::getName, entity.getName()))
+                .ofNullable().ifPresent(item -> {
+                    if(item.getId().compareTo(entity.getId()) != 0) {
+                        throw new ServiceException("角色名称重复["+entity.getName()+"]");
+                    }
+                });
+        return super.updateById(entity);
+    }
 
     /**
      * 删除角色和对应的菜单
@@ -55,6 +66,9 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
 
     @Override
     public void createRoleAndPerms(RoleDto role) {
+        this.getOne(Wrappers.<Role>lambdaQuery().eq(Role::getName, role.getName())).ofNullable()
+                .ifPresent(item -> {throw new ServiceException("角色名称重复["+role.getName()+"]");});
+
         getBaseMapper().createRoleAndPerms(role);
     }
 
@@ -63,6 +77,13 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
         if(!CommonUtils.isNotEmpty(role.getMenuIds())) {
             throw new ServiceException("请选择权限");
         }
+        this.getOne(Wrappers.<Role>lambdaQuery().eq(Role::getName, role.getName()))
+                .ofNullable().ifPresent(item -> {
+                    // 设备名称已存在
+                    if(role.getId().compareTo(item.getId()) != 0) {
+                        throw new ServiceException("角色名称重复["+role.getName()+"]");
+                    }
+                });
 
         getBaseMapper().updateRolePermsById(role);
     }

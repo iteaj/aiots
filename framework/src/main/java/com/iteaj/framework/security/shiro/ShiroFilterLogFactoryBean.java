@@ -6,8 +6,6 @@ import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.web.WebUtils;
-import org.apache.shiro.authz.UnauthenticatedException;
-import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.subject.ExecutionException;
@@ -134,23 +132,15 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
                     try {
                         logger.setStatus(true).setIp(WebUtils.getIpAddress(servletRequest));
                         super.executeChain(request, response, origChain);
-                        final Object status = request.getAttribute(CoreConst.AUTH_STATUS);
-                        if(status instanceof Boolean) {
-                            logger.setStatus((Boolean) status);
-                            logger.setRemark("未认证");
-                        }
 
-                    } catch (UnauthorizedException e) {
-                        logger.setRemark("无权限");
+                        final Object attribute = request.getAttribute(CoreConst.EXEC_EXCEPTION_STATUS);
+                        if(attribute instanceof String) {
+                            logger.setStatus(false);
+                            logger.setRemark((String) attribute);
+                        }
+                    } catch (Throwable e) {
                         logger.setStatus(false);
-                        throw e;
-                    } catch (UnauthenticatedException e) {
-                        logger.setRemark("未认证");
-                        logger.setStatus(false);
-                        throw e;
-                    } catch (Exception e) {
                         logger.setRemark("未知错误");
-                        logger.setStatus(false);
                         throw e;
                     } finally {
                         long endMills = System.currentTimeMillis();

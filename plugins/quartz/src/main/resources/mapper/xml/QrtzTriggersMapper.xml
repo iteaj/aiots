@@ -18,7 +18,9 @@
         <result column="TRIGGER_NAME" property="triggerName" />
         <result column="TRIGGER_STATE" property="triggerState" />
         <result column="TRIGGER_TYPE" property="triggerType" />
-        <result column="CRON_EXPRESSION" property="cronExpression" />
+        <result column="CRON_EXPRESSION" property="cron" />
+        <result column="IS_NONCONCURRENT" property="concurrent" />
+        <result column="JOB_DATA" property="params" typeHandler="com.iteaj.quartz.JobDataMapTypeHandle"/>
     </resultMap>
 
     <!-- 表字段列表 -->
@@ -32,11 +34,21 @@
 		 qts.MISFIRE_INSTR qts_MISFIRE_INSTR, qts.NEXT_FIRE_TIME qts_NEXT_FIRE_TIME, qts.PREV_FIRE_TIME qts_PREV_FIRE_TIME, qts.PRIORITY qts_PRIORITY, qts.SCHED_NAME qts_SCHED_NAME, qts.START_TIME qts_START_TIME,
 		 qts.TRIGGER_GROUP qts_TRIGGER_GROUP, qts.TRIGGER_NAME qts_TRIGGER_NAME, qts.TRIGGER_STATE qts_TRIGGER_STATE, qts.TRIGGER_TYPE qts_TRIGGER_TYPE
     </sql>
-    <select id="joinJobByPage" resultType="com.iteaj.quartz.entity.QrtzTriggers">
+    <select id="joinJobByPage" resultMap="OriMap">
         select a.END_TIME, a.JOB_GROUP, a.JOB_NAME, a.NEXT_FIRE_TIME, a.PREV_FIRE_TIME, a.SCHED_NAME
-             , a.START_TIME, a.TRIGGER_STATE, a.TRIGGER_TYPE, qjd.DESCRIPTION, qct.CRON_EXPRESSION
+             , a.START_TIME, a.TRIGGER_STATE, a.TRIGGER_TYPE, qjd.DESCRIPTION, qct.CRON_EXPRESSION,qjd.JOB_DATA,if(qjd.IS_NONCONCURRENT='1',false, true) IS_NONCONCURRENT
         from qrtz_triggers a
             left join qrtz_job_details qjd on a.SCHED_NAME = qjd.SCHED_NAME and a.JOB_NAME = qjd.JOB_NAME and a.JOB_GROUP = qjd.JOB_GROUP
             left join qrtz_cron_triggers qct on a.SCHED_NAME = qct.SCHED_NAME and a.TRIGGER_NAME = qct.TRIGGER_NAME and a.TRIGGER_GROUP = qct.TRIGGER_GROUP
+        where qct.CRON_EXPRESSION is not null and qct.CRON_EXPRESSION != ''
+    </select>
+
+    <select id="getDetail" resultMap="OriMap">
+        select a.END_TIME, a.JOB_GROUP, a.JOB_NAME, a.NEXT_FIRE_TIME, a.PREV_FIRE_TIME, a.SCHED_NAME
+             , a.START_TIME, a.TRIGGER_STATE, a.TRIGGER_TYPE, qjd.DESCRIPTION, qct.CRON_EXPRESSION,qjd.JOB_DATA,if(qjd.IS_NONCONCURRENT='1',false, true) IS_NONCONCURRENT
+        from qrtz_triggers a
+                 left join qrtz_job_details qjd on a.SCHED_NAME = qjd.SCHED_NAME and a.JOB_NAME = qjd.JOB_NAME and a.JOB_GROUP = qjd.JOB_GROUP
+                 left join qrtz_cron_triggers qct on a.SCHED_NAME = qct.SCHED_NAME and a.TRIGGER_NAME = qct.TRIGGER_NAME and a.TRIGGER_GROUP = qct.TRIGGER_GROUP
+        where a.SCHED_NAME=#{schedName} AND a.JOB_NAME=#{jobName}
     </select>
 </mapper>

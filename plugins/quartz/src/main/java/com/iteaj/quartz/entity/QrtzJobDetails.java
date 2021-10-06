@@ -1,12 +1,10 @@
 package com.iteaj.quartz.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.iteaj.framework.BaseEntity;
-import java.sql.Blob;
+import com.iteaj.framework.Entity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -17,9 +15,8 @@ import lombok.experimental.Accessors;
  * @since 2020-07-26
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-public class QrtzJobDetails extends BaseEntity {
+public class QrtzJobDetails implements Entity {
 
 
     private String description;
@@ -38,8 +35,15 @@ public class QrtzJobDetails extends BaseEntity {
 
     private String requestsRecovery;
 
-    @TableId(value = "SCHED_NAME", type = IdType.AUTO)
     private String schedName;
 
+    @Override
+    public Serializable getId() {
+        return null;
+    }
 
+    @Override
+    public void setId(Serializable id) {
+
+    }
 }

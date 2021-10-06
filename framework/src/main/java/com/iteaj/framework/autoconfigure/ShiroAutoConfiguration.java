@@ -7,6 +7,9 @@ import com.iteaj.framework.security.shiro.online.OnlineSessionDAO;
 import com.iteaj.framework.security.shiro.online.OnlineSessionManager;
 import com.iteaj.framework.security.shiro.redis.ShiroRedisSessionCacheManager;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
+import org.apache.shiro.authc.AbstractAuthenticator;
+import org.apache.shiro.authc.AuthenticationListener;
+import org.apache.shiro.authc.Authenticator;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
@@ -18,9 +21,8 @@ import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,10 +30,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.servlet.Filter;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -48,7 +47,8 @@ public class ShiroAutoConfiguration {
 
     private final FrameworkProperties properties;
     private final SessionCacheProperties cacheProperties;
-
+    @Autowired
+    private ObjectProvider<AuthenticationListener> authentication;
     public ShiroAutoConfiguration(FrameworkProperties properties, SessionCacheProperties cacheProperties) {
         this.properties = properties;
         this.cacheProperties = cacheProperties;
@@ -73,7 +73,7 @@ public class ShiroAutoConfiguration {
      * @return
      */
     @Bean
-    @Order(9999)
+    @Order(99999)
     public OrderFilterChainDefinition frameworkAuthFilterChainDefinition() {
         OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
 
@@ -129,6 +129,14 @@ public class ShiroAutoConfiguration {
         securityManager.setRealms(realms);
         securityManager.setSessionManager(sessionManager);
 
+        // 设置认证监听器列表
+        final Authenticator authenticator = securityManager.getAuthenticator();
+        if(authenticator instanceof AbstractAuthenticator) {
+            final ArrayList<AuthenticationListener> authenticationListeners =
+                    authentication.stream().collect(Collectors.toCollection(ArrayList::new));
+            ((AbstractAuthenticator) authenticator).setAuthenticationListeners(authenticationListeners);
+        }
+
         // 如果有缓存管理
         cacheManager.ifAvailable(item -> {
             securityManager.setCacheManager(item);
@@ -152,7 +160,7 @@ public class ShiroAutoConfiguration {
      */
     @Bean
     public SessionListener eventSessionListener() {
-        return new NativeSessionListener();
+        return new ShiroOnlineListener();
     }
 
     /**

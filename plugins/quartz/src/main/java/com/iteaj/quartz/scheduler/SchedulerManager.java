@@ -1,5 +1,8 @@
 package com.iteaj.quartz.scheduler;
 
+import com.iteaj.framework.exception.FrameworkException;
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.quartz.jobs.SpringSupportJob;
 import org.quartz.*;
 
 /**
@@ -27,24 +30,39 @@ public class SchedulerManager {
      * @param cls
      *            任务
      */
-    public void addJob(String jobName, Class cls, String cron) {
+    public void addJob(String jobName, Class<? extends Job> cls, String cron) {
         addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, cls, cron, null, null);
     }
 
-    public void addJob(String jobName, Class cls, String cron, String desc) {
+    public void addJob(String jobName, Class<? extends Job> cls, String cron, String desc) {
         addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, cls, cron, null, desc);
     }
 
-    public void addJob(String jobName, Class jobClass, String cron, JobDataMap map, String desc) {
+    /**
+     * @param jobName 作业名称
+     * @param isConcurrent 是否不允许并发执行(对于同一个作业)
+     * @param cron
+     * @param map
+     * @param desc
+     */
+    public void addJob(String jobName, boolean isConcurrent, String cron, JobDataMap map, String desc) {
+        if(!isConcurrent) {
+            addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, SpringSupportJob.NON_CONCURRENT_EMPTY_JOB, cron, map, desc);
+        } else {
+            addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, SpringSupportJob.EMPTY_JOB, cron, map, desc);
+        }
+    }
+
+    public void addJob(String jobName, Class<? extends Job> jobClass, String cron, JobDataMap map, String desc) {
         addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, jobClass, cron, map, desc);
     }
 
     protected void addJob(String jobName, String jobGroupName, String triggerName
-            , String triggerGroupName, Class jobClass, String cron, JobDataMap map, String desc) {
+            , String triggerGroupName, Class<? extends Job> jobClass, String cron, JobDataMap map, String desc) {
         try {
             JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
             JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-            if(jobDetail != null) throw new RuntimeException("作业已经存在: " + jobKey);
+            if(jobDetail != null) throw new RuntimeException("作业已经存在[" + jobKey + "]");
 
             map = map == null ? new JobDataMap() : map;
             JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName
@@ -65,70 +83,37 @@ public class SchedulerManager {
     }
 
     /**
-     * 修改一个任务的触发时间(使用默认的任务组名，触发器名，触发器组名)
+     * 更新作业
      * @param jobName
      */
-    public void updateJobTime(String jobName, String cron) {
-        TriggerKey triggerKey = TriggerKey.triggerKey(jobName, TRIGGER_GROUP_NAME);
+    public void updateJob(String jobName, boolean isConCurrent, String desc) {
 
         try {
-            CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
-            if (trigger == null) throw new RuntimeException("触发器不存在: " + triggerKey);
+            final JobKey jobKey = new JobKey(jobName);
+            final JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+            if (jobDetail == null) throw new RuntimeException("作业不存在[" + jobName + "]");
 
-            String oldTime = trigger.getCronExpression();
-            if (!oldTime.equalsIgnoreCase(cron)) {
-                CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cron);
-                // 按新的cronExpression表达式重新构建trigger
-                trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
-                // 按新的trigger重新设置job执行
-                scheduler.rescheduleJob(triggerKey, trigger);
-            }
+            Class jobClass = isConCurrent ? SpringSupportJob.EMPTY_JOB : SpringSupportJob.NON_CONCURRENT_EMPTY_JOB;
+            JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName, JOB_GROUP_NAME)
+                    .usingJobData(jobDetail.getJobDataMap()).storeDurably().withDescription(desc).build();
+
+            // 覆盖掉原先的作业信息
+            scheduler.addJob(job, true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
-    /**
-     * 修改任务名，任务类，触发时间
-     * @param oldJobName ：原任务名
-     * @param jobName
-     * @param jobClass
-     * @param cron
-     */
-    public void updateJob(String oldJobName, String jobName, Class jobClass, String cron) {
-
-        TriggerKey triggerKey = TriggerKey.triggerKey(oldJobName, TRIGGER_GROUP_NAME);
-        JobKey jobKey = JobKey.jobKey(oldJobName, JOB_GROUP_NAME);
-        try {
-            JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-            if(null == jobDetail) throw new RuntimeException("查无此Job: " + jobKey);
-            JobDataMap oriDataMap = jobDetail.getJobDataMap();
-
-            Trigger trigger = scheduler.getTrigger(triggerKey);
-            if (trigger == null) throw new RuntimeException("触发器不存在: " + triggerKey);
-
-            scheduler.pauseTrigger(triggerKey);// 停止触发器
-            scheduler.unscheduleJob(triggerKey);// 移除触发器
-            scheduler.deleteJob(jobKey);// 删除任务
-
-            addJob(jobName, jobClass, cron, oriDataMap, jobDetail.getDescription());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
 
     /**
      * 修改一个任务的触发时间
-     * @param jobName
+     * @param triggerName
      */
-    public void updateTrigger(String jobName, String cron) {
-        TriggerKey triggerKey = TriggerKey.triggerKey(jobName, TRIGGER_GROUP_NAME);
+    public void updateTrigger(String triggerName, String cron) {
+        TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, TRIGGER_GROUP_NAME);
         try {
 
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
-            if (trigger == null)  throw new RuntimeException("触发器不存在: " + triggerKey);
+            if (trigger == null)  throw new RuntimeException("触发器不存在[" + triggerKey + "]");
 
             String oldTime = trigger.getCronExpression();
 
@@ -149,23 +134,13 @@ public class SchedulerManager {
     }
 
     /**
-     * 移除一个任务(使用默认的任务组名，触发器名，触发器组名)
-     * @param jobName
-     */
-    public void removeJob(String jobName) {
-        removeJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME);
-    }
-
-    /**
      * 移除一个任务
      * @param jobName
-     * @param jobGroupName
      * @param triggerName
-     * @param triggerGroupName
      */
-    public void removeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName) {
-        TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
-        JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
+    public void removeJob(String jobName, String triggerName) {
+        TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, TRIGGER_GROUP_NAME);
+        JobKey jobKey = JobKey.jobKey(jobName, JOB_GROUP_NAME);
         try {
 
             Trigger trigger = scheduler.getTrigger(triggerKey);
@@ -249,7 +224,7 @@ public class SchedulerManager {
     }
 
     /**
-     * 立即运行任务，只会运行一次，方便测试时用。
+     * 立即运行任务，只会运行一次。
      * @param jobName
      */
     public void fireJob(String jobName) {
@@ -266,7 +241,7 @@ public class SchedulerManager {
     }
 
     /**
-     * 立即运行任务，只会运行一次，方便测试时用。
+     * 立即运行任务，只会运行一次。
      * @param jobName
      * @param jobGroupName
      */

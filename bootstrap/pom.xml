@@ -10,12 +10,14 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bootstrap</artifactId>
 
-    <properties>
-        <!--当前项目的根目录-->
-        <project.root.path>${project.basedir}</project.root.path>
-    </properties>
+
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
 <!-- ################################ 可选plugins ############################## -->
 
         <dependency>
@@ -23,12 +25,11 @@
             <artifactId>oauth2</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>quartz</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
         <!-- 缓存配置 -->
         <dependency>
             <groupId>org.ehcache</groupId>
@@ -113,6 +114,10 @@
     <profiles>
         <profile>
             <id>dev</id>
+            <properties>
+                <!--当前项目的根目录, 用于代码生成器-->
+                <project.root.path>${project.basedir}</project.root.path>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>p6spy</groupId>

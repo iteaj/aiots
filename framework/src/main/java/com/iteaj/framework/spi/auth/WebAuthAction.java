@@ -152,14 +152,14 @@ public interface WebAuthAction<T> extends Ordered {
      * @param response
      * @return
      */
-    boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws SecurityException;
 
     /**
      * 将在提交登录请求时调用
      * @param request
      * @param response
      */
-    AuthToken login(T t, HttpServletRequest request, HttpServletResponse response);
+    AuthToken login(T t, HttpServletRequest request, HttpServletResponse response) throws SecurityException;
 
     /**
      * 注销
@@ -210,7 +210,7 @@ public interface WebAuthAction<T> extends Ordered {
             cause.printStackTrace();
 
             if(isAjax(request)) {
-                if(throwable instanceof AuthException) {
+                if(throwable instanceof SecurityException) {
                     writeJson(HttpResult.Fail(throwable.getMessage()), response);
                 } else {
                     writeJson(HttpResult.Fail("登录失败"), response);

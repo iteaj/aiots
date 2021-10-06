@@ -1,5 +1,7 @@
 package com.iteaj.msn.core.entity;
 
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.msn.core.enums.Status;
@@ -24,15 +26,19 @@ public class Role extends BaseEntity {
     /**
      * 角色名称
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String name;
     /**
      * 排序
      */
     private Integer sort;
     /**
-     *
+     *  状态
      */
     private Status status;
+    /**
+     * 备注
+     */
     private String remark;
 
     /**创建时间*/
