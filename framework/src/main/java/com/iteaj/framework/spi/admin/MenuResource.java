@@ -14,9 +14,5 @@ public interface MenuResource extends UrlResource {
 
     MenuType getType();
 
-    Object getPosition();
-
-    Object getPermType();
-
     PermStatus getStatus();
 }

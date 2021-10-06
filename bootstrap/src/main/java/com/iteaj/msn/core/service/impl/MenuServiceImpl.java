@@ -30,7 +30,9 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
     @Override
     public BooleanResult save(Menu entity) {
-        getOne(Wrappers.<Menu>lambdaQuery().eq(Menu::getName, entity.getName()))
+        getOne(Wrappers.<Menu>lambdaQuery()
+                .eq(Menu::getName, entity.getName())
+                .eq(Menu::getType, MenuType.V))
                 .ofNullable()
                 .ifPresent(menu -> {throw new ServiceException("菜单名称重复");});
         return super.save(entity);

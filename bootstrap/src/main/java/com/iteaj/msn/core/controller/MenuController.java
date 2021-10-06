@@ -29,50 +29,69 @@ public class MenuController extends BaseController {
         this.resourceManager = resourceManager;
     }
 
+    /**
+     * 获取菜单列表
+     * @param menu
+     * @return
+     */
     @GetMapping("/view")
     @RequiresPermissions("core:menu:view")
     public Result<List<Menu>> list(Menu menu) {
         return menuService.selectMenuTreesInModules(menu, resourceManager.getModules());
     }
 
+    /**
+     * 获取类型是目录和视图的菜单列表
+     * @return
+     */
     @GetMapping("/parent")
     public Result<List<Menu>> parentList() {
         // 不包含菜单类型是权限的菜单
         return menuService.selectParentTrees();
     }
 
+    /**
+     * 新增菜单
+     * @param menu
+     * @return
+     */
     @PostMapping("/add")
     @RequiresPermissions("core:menu:add")
     public Result<Boolean> add(@RequestBody Menu menu) {
         return menuService.save(menu);
     }
 
+    /**
+     * 删除菜单
+     * @param idList
+     * @return
+     */
     @PostMapping("/del")
     @RequiresPermissions("core:menu:del")
-    public Result<Boolean> del(@RequestBody List<Serializable> idList) {
+    public Result<Boolean> del(@RequestBody List<Long> idList) {
         return menuService.removeByIds(idList);
     }
 
+    /**
+     * 获取编辑详情
+     * @param id
+     * @return
+     */
     @GetMapping("/edit")
     @RequiresPermissions("core:menu:edit")
     public Result<Menu> edit(Long id) {
         return menuService.getById(id);
     }
 
+    /**
+     * 编辑菜单
+     * @param menu
+     * @return
+     */
     @PostMapping("/edit")
     @RequiresPermissions("core:menu:edit")
     public Result<Boolean> edit(@RequestBody Menu menu) {
         return menuService.updateById(menu);
     }
 
-    /**
-     * 更新排序
-     * @param menu
-     * @return
-     */
-    @PostMapping("/sort")
-    public Result sort(@RequestBody Menu menu, String type) {
-//        this.menuService.updateMenuSort(menu);
-        return success();
-    }
 }

@@ -20,8 +20,8 @@ import com.iteaj.framework.BaseController;
  * @author iteaj
  * @since 2020-07-07
  */
-@Controller
-@RequestMapping("/core/msgAccept")
+//@Controller
+//@RequestMapping("/core/msgAccept")
 public class MsgAcceptController extends BaseController {
 
     @Autowired

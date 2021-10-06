@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * create time: 2019/11/27
- *
+ *  日志管理功能
  * @author iteaj
  * @since 1.0
  */

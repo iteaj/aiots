@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * create time: 2019/11/27
- *
+ *  后台用户管理功能
  * @author iteaj
  * @since 1.0
  */
@@ -30,12 +30,23 @@ public class AdminController extends BaseController {
         this.adminService = adminService;
     }
 
+    /**
+     * 查询用户管理列表
+     * @param page
+     * @param admin
+     * @return
+     */
     @GetMapping("/view")
     @RequiresPermissions("core:admin:view")
     public Result view(Page page, Admin admin) {
         return this.adminService.page(page, admin);
     }
 
+    /**
+     * 新增用户
+     * @param admin
+     * @return
+     */
     @PostMapping("/add")
     @RequiresPermissions("core:admin:add")
     public Result add(@RequestBody AdminDto admin) {
@@ -43,12 +54,22 @@ public class AdminController extends BaseController {
         return success();
     }
 
+    /**
+     * 获取用户详情
+     * @param id
+     * @return
+     */
     @GetMapping("/edit")
     @RequiresPermissions("core:admin:edit")
     public Result edit(Long id) {
         return this.adminService.getAdminDetailById(id);
     }
 
+    /**
+     * 修改用户
+     * @param admin
+     * @return
+     */
     @PostMapping("/edit")
     @RequiresPermissions("core:admin:edit")
     public Result edit(@RequestBody AdminDto admin) {
@@ -56,6 +77,11 @@ public class AdminController extends BaseController {
         return success();
     }
 
+    /**
+     * 删除用户
+     * @param list
+     * @return
+     */
     @PostMapping("/del")
     @RequiresPermissions("core:admin:del")
     public Result del(@RequestBody List<Long> list) {
@@ -74,7 +100,7 @@ public class AdminController extends BaseController {
     }
 
     /**
-     * 更新密码
+     * 设置用户密码
      * @return
      */
     @PostMapping("pwd")

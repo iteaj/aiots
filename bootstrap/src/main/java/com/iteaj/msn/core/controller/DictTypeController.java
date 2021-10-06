@@ -28,7 +28,7 @@ public class DictTypeController extends BaseController {
     }
 
     /**
-     * 查询字典列表
+     * 查询字典列表(分页)
      * @param dictType
      * @param page
      * @return
@@ -39,6 +39,11 @@ public class DictTypeController extends BaseController {
         return dictTypeService.page(page.addOrder(OrderItem.desc("create_time")), dictType);
     }
 
+    /**
+     * 获取所有字典类型记录
+     * @param dictType
+     * @return
+     */
     @GetMapping("/list")
     public Result<List<DictType>> list(DictType dictType) {
         return dictTypeService.list(dictType);

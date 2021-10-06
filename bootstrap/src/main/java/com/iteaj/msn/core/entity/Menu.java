@@ -1,6 +1,5 @@
 package com.iteaj.msn.core.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -16,6 +15,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
+/**
+ * 菜单实体
+ */
 @Data
 @TableName("t_menu")
 @Accessors(chain = true)
@@ -40,15 +42,13 @@ public class Menu extends TreeEntity implements LoggerMenu {
     private String remark;
     /**菜单类型*/
     private MenuType type;
-    /**权限类型*/
-    private String permType;
     /**是否记录日志*/
     private Boolean log;
     /**日志信息*/
     private String logDesc;
-    /**功能点放置的位置*/
-    @TableField(fill = FieldFill.UPDATE)
-    private Position position;
+//    /**功能点放置的位置*/
+//    @TableField(fill = FieldFill.UPDATE)
+//    private Position position;
 
     /**创建时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -63,21 +63,13 @@ public class Menu extends TreeEntity implements LoggerMenu {
     public Menu() {  }
 
     public Menu(Long pid, String url, String name, String msn
-            , Integer sort, String permType, String perms, Position position) {
+            , Integer sort, String perms) {
         setPid(pid);
         this.url = url;
         this.name = name;
         this.msn = msn;
         this.sort = sort;
         this.perms = perms;
-        this.permType = permType;
-        this.position = position;
-    }
-
-    public static Menu AuthMenu(Long pid, String url, String name
-            , String msn, String permType, String perms, Position position) {
-        return new Menu(pid, url, name, msn, null
-                , permType, perms, position).setType(MenuType.A);
     }
 
     public String getUrl() {
@@ -91,7 +83,7 @@ public class Menu extends TreeEntity implements LoggerMenu {
 
     @Override
     public boolean isCollect() {
-        return this.log == null ? false : true;
+        return this.log == null ? false : this.log;
     }
 
     @Override
