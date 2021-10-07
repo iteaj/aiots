@@ -1,20 +1,21 @@
 package com.iteaj.quartz.controller;
 
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.iteaj.quartz.scheduler.SchedulerManager;
-import com.iteaj.util.Result;
-import com.iteaj.quartz.entity.QrtzTriggers;
-import com.iteaj.quartz.service.IQrtzTriggersService;
-import com.iteaj.util.module.mvc.result.PageResult;
-import org.quartz.CronExpression;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.springframework.stereotype.Controller;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.result.Result;
+import com.iteaj.quartz.QuartzJobContext;
+import com.iteaj.quartz.entity.QrtzTriggers;
+import com.iteaj.quartz.jobs.SpringSupportJob;
+import com.iteaj.quartz.scheduler.SchedulerManager;
+import com.iteaj.quartz.service.IQrtzTriggersService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.quartz.CronExpression;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -24,25 +25,25 @@ import com.iteaj.framework.BaseController;
  * @author iteaj
  * @since 2020-07-26
  */
-@Controller
+@RestController
 @RequestMapping("/quartz/triggers")
 public class QrtzTriggersController extends BaseController {
 
-    @Autowired
-    private SchedulerManager schedulerManager;
-    @Autowired
-    private IQrtzTriggersService qrtzTriggersService;
+    private final SpringSupportJob springSupportJob;
+    private final SchedulerManager schedulerManager;
+    private final IQrtzTriggersService qrtzTriggersService;
 
-    @GetMapping
-    public String view() {
-        return "qrtzTriggers";
+    public QrtzTriggersController(SpringSupportJob springSupportJob
+            , SchedulerManager schedulerManager, IQrtzTriggersService qrtzTriggersService) {
+        this.springSupportJob = springSupportJob;
+        this.schedulerManager = schedulerManager;
+        this.qrtzTriggersService = qrtzTriggersService;
     }
 
-    @ResponseBody
     @GetMapping("/view")
-    public Result view(QrtzTriggers entity, Page page) {
+    public Result<IPage<QrtzTriggers>> view(QrtzTriggers entity, Page page) {
         IPage<QrtzTriggers> jobByPage = this.qrtzTriggersService.joinJobByPage(page, entity);
-        return new PageResult(jobByPage).build(success());
+        return new PageResult(jobByPage);
     }
 
     /**
@@ -50,20 +51,18 @@ public class QrtzTriggersController extends BaseController {
      * @param entity
      * @return
      */
-    @ResponseBody
     @PostMapping("/resume")
-    public Result add(@RequestBody QrtzTriggers entity) {
+    @RequiresPermissions("quartz:triggers:status")
+    public Result resume(@RequestBody QrtzTriggers entity) {
         schedulerManager.resumeJob(entity.getJobName());
         return success("恢复作业成功");
     }
-
 
     /**
      * 触发一次
      * @param entity
      * @return
      */
-    @ResponseBody
     @PostMapping("/run")
     public Result run(@RequestBody QrtzTriggers entity) {
         schedulerManager.fireJob(entity.getJobName());
@@ -76,12 +75,42 @@ public class QrtzTriggersController extends BaseController {
      * @param triggers
      * @return
      */
-    @ResponseBody
     @PostMapping("/paused")
-    public Result detail(@RequestBody QrtzTriggers triggers) {
+    @RequiresPermissions("quartz:triggers:status")
+    public Result paused(@RequestBody QrtzTriggers triggers) {
         schedulerManager.pauseJob(triggers.getJobName());
-
         return success("暂停作业成功");
+    }
+
+    /**
+     * 新增作业
+     * @param triggers
+     * @return
+     */
+    @PostMapping("/add")
+    public Result<Boolean> add(@RequestBody QrtzTriggers triggers) {
+        boolean validExpression = CronExpression.isValidExpression(triggers.getCron());
+        if(!validExpression) return fail("cron验证失败[" + triggers.getCron()+"]");
+
+        final String expression = triggers.getParams().getString(SpringSupportJob.JOB_EXPRESSION);
+        final QuartzJobContext context = springSupportJob.getContext(expression);
+        if(context == null) {
+            return fail("不存在此方法["+expression+"]");
+        }
+
+        schedulerManager.addJob(triggers.getJobName(), triggers.isConcurrent()
+                , triggers.getCron(), triggers.getParams(), triggers.getDescription());
+        return success("修改作业成功");
+    }
+
+    /**
+     * 获取某个作业
+     * @param jobName
+     * @return
+     */
+    @GetMapping("/edit")
+    public Result<QrtzTriggers> edit(String jobName) {
+        return success(qrtzTriggersService.getDetail("SBootQuartz", jobName));
     }
 
     /**
@@ -89,21 +118,24 @@ public class QrtzTriggersController extends BaseController {
      * @param triggers
      * @return
      */
-    @ResponseBody
     @PostMapping("/edit")
     public Result edit(@RequestBody QrtzTriggers triggers) {
-        boolean validExpression = CronExpression.isValidExpression(triggers.getCronExpression());
-        if(!validExpression) return fail("验证失败(cron): " + triggers.getCronExpression());
+        boolean validExpression = CronExpression.isValidExpression(triggers.getCron());
+        if(!validExpression) return fail("cron验证失败[" + triggers.getCron()+"]");
 
-        schedulerManager.updateTrigger(triggers.getJobName(), triggers.getCronExpression());
-        return success("暂停作业成功");
+        schedulerManager.updateTrigger(triggers.getJobName(), triggers.getCron());
+        schedulerManager.updateJob(triggers.getJobName(), triggers.isConcurrent(), triggers.getDescription());
+        return success("修改作业成功");
     }
 
-    @ResponseBody
     @PostMapping("/del")
-    public Result del(@RequestBody QrtzTriggers triggers) {
-        schedulerManager.removeJob(triggers.getJobName(), triggers.getJobGroup()
-                , triggers.getTriggerName(), triggers.getTriggerGroup());
+    public Result del(@RequestBody List<String> jobNames) {
+        if(CollectionUtils.isEmpty(jobNames)) {
+            return fail("请选择要删除的作业");
+        }
+
+        final String jobName = jobNames.get(0);
+        schedulerManager.removeJob(jobName, jobName);
 
         return success("删除记录成功");
     }

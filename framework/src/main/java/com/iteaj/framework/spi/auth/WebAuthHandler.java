@@ -1,21 +1,27 @@
 package com.iteaj.framework.spi.auth;
 
-import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+import static com.iteaj.framework.consts.CoreConst.EXEC_EXCEPTION_STATUS;
+
 /**
  * create time: 2021/3/24
  *  web请求授权处理器 支持pc和移动端
+ *  1. 支持多端统一使用session
+ *  2. 支持不同端配置不同的session过期时间
+ *  3. 支持多种方式授权(账号密码, oauth2[gitee, wechat, alipay])
+ *  4. 支持session集群
  * @author iteaj
  * @since 1.0
  */
 public interface WebAuthHandler {
 
-    FrameworkWebProperties getConfig();
+    FrameworkProperties getConfig();
 
     /**
      * 通过Action名称获取一个Action
@@ -45,7 +51,7 @@ public interface WebAuthHandler {
      * @param request
      * @param response
      */
-     default void login(HttpServletRequest request, HttpServletResponse response) throws AuthException {
+     default void login(HttpServletRequest request, HttpServletResponse response) throws SecurityException {
          final WebAuthAction action = matcher(request);
          if(action != null) {
              Exception throwable = null;
@@ -96,13 +102,18 @@ public interface WebAuthHandler {
      * @param response
      * @return 默认直接放行
      */
-    default boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    default boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws SecurityException {
         final WebAuthAction action = matcher(request);
 
         if(action == null) {
+            request.setAttribute(EXEC_EXCEPTION_STATUS, "未认证");
             return true; // 没有找到处理此次请求的动作, 拒绝放行
         }
 
-        return action.postAuthorize(request, response);
+        final boolean authorize = action.postAuthorize(request, response);
+        if(authorize) {
+            request.setAttribute(EXEC_EXCEPTION_STATUS, "未认证");
+        }
+        return authorize;
     }
 }

@@ -1,14 +1,16 @@
 package com.iteaj.msn.core.controller;
 
-import com.iteaj.framework.utils.ShiroUtil;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.dto.PasswordDto;
+import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.service.IAdminService;
-import com.iteaj.util.Result;
-import com.iteaj.util.module.mvc.BaseHttpController;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,17 +18,14 @@ import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 
 /**
- * create time: 2021/6/5
  * 用户管理中心接口
- *
- * 获取校验码接口
- * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse)
+ * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
  * @author iteaj
  * @since 1.0
  */
 @RestController
 @RequestMapping("/core/center")
-public class AdminCenterController extends BaseHttpController {
+public class AdminCenterController extends BaseController {
 
     @Autowired
     private WebAuthHandler handler;
@@ -34,7 +33,7 @@ public class AdminCenterController extends BaseHttpController {
     private IAdminService adminService;
 
     /**
-     * 表单登录
+     * 系统登录
      * @return
      */
     @PostMapping("login")
@@ -43,7 +42,7 @@ public class AdminCenterController extends BaseHttpController {
     }
 
     /**
-     * 注销
+     * 系统注销
      * @param request
      * @param response
      * @return
@@ -54,7 +53,18 @@ public class AdminCenterController extends BaseHttpController {
     }
 
     /**
-     * 用户详情
+     * 上传用户头像
+     * @param file
+     * @return
+     */
+    @PostMapping("avatar")
+    public Result<String> avatar(MultipartFile file) {
+
+        return success("");
+    }
+
+    /**
+     * 获取用户详情
      * @return
      */
     @GetMapping("detail")
@@ -65,7 +75,17 @@ public class AdminCenterController extends BaseHttpController {
     }
 
     /**
-     * 修改密码
+     * 修改用户
+     * @param admin
+     * @return
+     */
+    @PostMapping("editUser")
+    public Result<Boolean> updateUser(@RequestBody Admin admin) {
+        return adminService.updateById(admin);
+    }
+
+    /**
+     * 修改用户密码
      * @return
      */
     @PostMapping("pwd")

@@ -1,5 +1,7 @@
 package com.iteaj.msn.core.entity;
 
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.msn.core.enums.ConfigType;
@@ -21,6 +23,7 @@ import java.util.Date;
 @Accessors(chain = true)
 public class Config extends BaseEntity {
 
+    @TableField(condition = SqlCondition.LIKE)
     private String name;
     private String label;
     private String value;

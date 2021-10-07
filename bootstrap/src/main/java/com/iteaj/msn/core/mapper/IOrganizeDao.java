@@ -1,7 +1,7 @@
 package com.iteaj.msn.core.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.msn.core.entity.Organize;
-import com.iteaj.util.module.mvc.orm.IBaseDao;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -11,6 +11,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 1.0
  */
 @Mapper
-public interface IOrganizeDao extends IBaseDao<Organize> {
+public interface IOrganizeDao extends BaseMapper<Organize> {
 
 }

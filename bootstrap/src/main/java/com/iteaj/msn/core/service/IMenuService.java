@@ -1,13 +1,13 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.msn.core.mapper.IMenuDao;
+import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.msn.core.entity.Menu;
-import com.iteaj.util.module.mvc.IBaseService;
-import com.iteaj.util.module.mvc.result.ListResult;
 
 import java.util.List;
 
-public interface IMenuService extends IBaseService<IMenuDao, Menu> {
+public interface IMenuService extends IBaseService<Menu> {
 
     /**
      * 查找超级管理员在指定模块下的所有菜单
@@ -25,6 +25,14 @@ public interface IMenuService extends IBaseService<IMenuDao, Menu> {
     ListResult<Menu> selectMenuTrees(Menu menu);
 
     /**
+     * 查找指定模块下面的菜单
+     * @param menu
+     * @param modules
+     * @return
+     */
+    ListResult<Menu> selectMenuTreesInModules(Menu menu, List<Module> modules);
+
+    /**
      * 查询前端菜单栏所使用的菜单树
      * @param aid 管理员id
      * @param isSuper 是否是超级管理员
@@ -33,10 +41,19 @@ public interface IMenuService extends IBaseService<IMenuDao, Menu> {
     ListResult<Menu> selectMenuBarTrees(Long aid,  boolean isSuper);
 
     /**
+     * 查询前端菜单栏所使用的菜单树
+     * @param aid 管理员id
+     * @param modules 要查找的模块
+     * @param isSuper 是否是超级管理员
+     * @return
+     */
+    ListResult<Menu> selectMenuBarTreesInModules(Long aid, List<Module> modules, boolean isSuper);
+
+    /**
      * 不包含菜单类型是权限的菜单
      * @return
      */
-    ListResult selectParentTrees();
+    ListResult<Menu> selectParentTrees();
 
     /**
      * 通过url地址获取菜单

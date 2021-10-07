@@ -1,10 +1,9 @@
 package com.iteaj.framework.spi.auth.handle;
 
-import com.iteaj.framework.FrameworkException;
+import com.iteaj.framework.exception.FrameworkException;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.auth.*;
-import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.web.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +11,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,7 +24,7 @@ import java.util.stream.Collectors;
 public abstract class DefaultAuthHandler implements WebAuthHandler, InitializingBean {
 
     private List<WebAuthAction> actions;
-    private FrameworkWebProperties config;
+    private FrameworkProperties config;
     private Map<String, WebAuthAction> actionMap;
     protected static Logger logger = LoggerFactory.getLogger(WebAuthHandler.class);
 
@@ -74,12 +71,12 @@ public abstract class DefaultAuthHandler implements WebAuthHandler, Initializing
 
     }
 
-    public FrameworkWebProperties getConfig() {
+    public FrameworkProperties getConfig() {
         return config;
     }
 
     @Autowired
-    public DefaultAuthHandler setConfig(FrameworkWebProperties config) {
+    public DefaultAuthHandler setConfig(FrameworkProperties config) {
         this.config = config;
         return this;
     }

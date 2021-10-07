@@ -1,8 +1,7 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.msn.core.mapper.IConfigDao;
+import com.iteaj.framework.IBaseService;
 import com.iteaj.msn.core.entity.Config;
-import com.iteaj.util.module.mvc.IBaseService;
 
 /**
  * create time: 2019/12/4
@@ -10,6 +9,6 @@ import com.iteaj.util.module.mvc.IBaseService;
  * @author iteaj
  * @since 1.0
  */
-public interface IConfigService extends IBaseService<IConfigDao, Config> {
+public interface IConfigService extends IBaseService<Config> {
 
 }

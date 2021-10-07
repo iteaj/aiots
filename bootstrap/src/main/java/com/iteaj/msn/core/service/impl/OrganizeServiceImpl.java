@@ -7,11 +7,11 @@ import com.iteaj.msn.core.entity.Organize;
 import com.iteaj.msn.core.service.IAdminService;
 import com.iteaj.msn.core.service.IOrganizeService;
 import com.iteaj.framework.utils.TreeUtils;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
-import com.iteaj.util.module.mvc.ServiceException;
-import com.iteaj.util.module.mvc.result.BooleanResult;
-import com.iteaj.util.module.mvc.result.DetailResult;
-import com.iteaj.util.module.mvc.result.ListResult;
+import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,8 +32,8 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
     private final IAdminService adminService;
 
     @Override
-    public BooleanResult insert(Organize entity) {
-        final BooleanResult booleanResult = super.insert(entity);
+    public BooleanResult save(Organize entity) {
+        final BooleanResult booleanResult = super.save(entity);
         if(entity.getPid() == 0) {
             entity.setLevel(1);
             entity.setPath(entity.getId().toString());
@@ -41,8 +41,8 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
             DetailResult<Organize> parent = getById(entity.getPid());
             parent.ofNullable().orElseThrow(() -> new ServiceException("父部门不存在"));
 
-            entity.setLevel(parent.get().getLevel() + 1);
-            entity.setPath(parent.get().getPath()+","+entity.getId());
+            entity.setLevel(parent.getData().getLevel() + 1);
+            entity.setPath(parent.getData().getPath()+","+entity.getId());
             updateById(entity); // 更新最新路径path
         }
 
@@ -55,10 +55,10 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
             DetailResult<Organize> parent = getById(entity.getPid());
             parent.ofNullable().orElseThrow(() -> new ServiceException("父部门不存在"));
 
-            entity.setLevel(parent.get().getLevel() + 1);
-            entity.setPath(parent.get().getPath()+","+entity.getId());
+            entity.setLevel(parent.getData().getLevel() + 1);
+            entity.setPath(parent.getData().getPath()+","+entity.getId());
 
-            if(parent.get().getPid() == entity.getId()) {
+            if(parent.getData().getPid() == entity.getId()) {
                 throw new ServiceException("父部门不能是自己");
             }
         }
@@ -67,7 +67,7 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
     }
 
     @Override
-    public BooleanResult deleteByIds(Collection<? extends Serializable> idList) {
+    public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
         if(idList.size() == 0) {
             throw new ServiceException("未选择要删除的数据");
         }
@@ -77,7 +77,7 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
         final Serializable id = idList.stream().findFirst().get();
 
         // 如果存在子部门, 则要先删除子部门
-        selectList(Wrappers.<Organize>query().eq("pid", id))
+        list(Wrappers.<Organize>query().eq("pid", id))
                 .ofNullable().ifPresent(item -> {
                     if(!item.isEmpty()) {
                         throw new ServiceException("请先删除子部门");
@@ -85,17 +85,17 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
                 });
 
         // 此部门已经在使用
-        adminService.selectOne(Wrappers.<Admin>query().eq("org_id", id))
+        adminService.getOne(Wrappers.<Admin>query().eq("org_id", id))
                 .ofNullable().ifPresent(item -> {
-            throw new ServiceException("此部门已在使用");
+            throw new ServiceException("此部门已被关联使用");
         });
 
-        return super.deleteByIds(idList);
+        return super.removeByIds(idList);
     }
 
     @Override
     public ListResult<Organize> selectTrees(Organize organize) {
-        ListResult<Organize> selectList = this.selectList(organize);
-        return new ListResult((List<Organize>) TreeUtils.toTrees(selectList.get(), 0l));
+        ListResult<Organize> selectList = this.list(organize);
+        return new ListResult((List<Organize>) TreeUtils.toTrees(selectList.getData(), 0l));
     }
 }

@@ -1,23 +1,22 @@
 package com.iteaj.msn.core.controller;
 
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.msn.core.entity.DictType;
 import com.iteaj.msn.core.service.IDictTypeService;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * jdk：1.8
  *  字典类型管理
  * @author iteaj
- * create time：2019/6/24
  */
-@Controller
+@RestController
 @RequestMapping("/core/dictType")
 public class DictTypeController extends BaseController {
 
@@ -27,43 +26,69 @@ public class DictTypeController extends BaseController {
         this.dictTypeService = dictTypeService;
     }
 
-    @GetMapping
-    @RequiresPermissions("core:dictType:view")
-    public String view() {
-        return "dict";
-    }
-
-    @ResponseBody
+    /**
+     * 查询字典列表(分页)
+     * @param dictType
+     * @param page
+     * @return
+     */
     @GetMapping("/view")
     @RequiresPermissions("core:dictType:view")
-    public Result list(DictType dictType, Page page) {
-        return dictTypeService.selectByPage(page, dictType).build(success());
+    public Result<Page<DictType>> list(DictType dictType, Page page) {
+        return dictTypeService.page(page.addOrder(OrderItem.desc("create_time")), dictType);
     }
 
-    @ResponseBody
+    /**
+     * 获取所有字典类型记录
+     * @param dictType
+     * @return
+     */
     @GetMapping("/list")
-    public Result list(DictType dictType) {
-        return dictTypeService.selectList(dictType).build(success());
+    public Result<List<DictType>> list(DictType dictType) {
+        return dictTypeService.list(dictType);
     }
 
-    @ResponseBody
+    /**
+     * 新增字典记录
+     * @param dictType
+     * @return
+     */
     @PostMapping("/add")
     @RequiresPermissions("core:dictType:add")
-    public Result add(@RequestBody DictType dictType) {
-        return dictTypeService.insert(dictType).build(success());
+    public Result<Boolean> add(@RequestBody DictType dictType) {
+        return dictTypeService.save(dictType);
     }
 
-    @ResponseBody
-    @PostMapping("/del")
-    @RequiresPermissions("core:dictType:del")
-    public Result del(@RequestBody List<Long> list) {
-        return dictTypeService.deleteByIds(list).build(success());
+    /**
+     * 获取字典记录
+     * @param id
+     * @return
+     */
+    @GetMapping("/edit")
+    @RequiresPermissions("core:dictType:edit")
+    public Result<DictType> edit(Long id) {
+        return dictTypeService.getById(id);
     }
 
-    @ResponseBody
+    /**
+     * 修改字典记录
+     * @param dictType
+     * @return
+     */
     @PostMapping("/edit")
     @RequiresPermissions("core:dictType:edit")
-    public Result edit(@RequestBody DictType dictType) {
-        return dictTypeService.updateById(dictType).build(success());
+    public Result<Boolean> edit(@RequestBody DictType dictType) {
+        return dictTypeService.updateById(dictType);
+    }
+
+    /**
+     * 删除字典
+     * @param list
+     * @return
+     */
+    @PostMapping("/del")
+    @RequiresPermissions("core:dictType:del")
+    public Result<Boolean> del(@RequestBody List<Long> list) {
+        return dictTypeService.removeByIds(list);
     }
 }

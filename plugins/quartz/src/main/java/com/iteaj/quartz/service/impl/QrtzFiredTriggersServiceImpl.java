@@ -3,7 +3,7 @@ package com.iteaj.quartz.service.impl;
 import com.iteaj.quartz.entity.QrtzFiredTriggers;
 import com.iteaj.quartz.mapper.IQrtzFiredTriggersMapper;
 import com.iteaj.quartz.service.IQrtzFiredTriggersService;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
+import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**

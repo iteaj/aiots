@@ -1,9 +1,11 @@
 package com.iteaj.msn.core.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.msn.core.entity.Admin;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.beans.Transient;
 import java.util.List;
 
 /**
@@ -27,8 +29,15 @@ public class AdminDto extends Admin {
     private String roleNames;
 
     /**
-     * 是否是超级管理员
+     * 角色列表
      */
     private List<Long> roleIds;
 
+
+    @Override
+    @Transient
+    @JsonIgnore
+    public String getPassword() {
+        return super.getPassword();
+    }
 }

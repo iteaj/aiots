@@ -15,7 +15,7 @@
     <modules>
         <module>quartz</module> <!--定时任务插件-->
         <module>oauth2</module> <!--oauth2客户端+服务端插件-->
-        <module>shiro-redis</module> <!--shiro+redis实现的集群session缓存插件-->
+        <module>generator</module> <!--低代码模块插件-->
     </modules>
 
     <dependencies>
@@ -23,11 +23,6 @@
             <groupId>com.iteaj</groupId>
             <artifactId>framework</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
     </dependencies>
 </project>

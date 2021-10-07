@@ -2,10 +2,14 @@ package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.shiro.*;
-import com.iteaj.framework.shiro.online.OnlineSessionDAO;
-import com.iteaj.framework.shiro.online.OnlineSessionManager;
+import com.iteaj.framework.security.shiro.*;
+import com.iteaj.framework.security.shiro.online.OnlineSessionDAO;
+import com.iteaj.framework.security.shiro.online.OnlineSessionManager;
+import com.iteaj.framework.security.shiro.redis.ShiroRedisSessionCacheManager;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
+import org.apache.shiro.authc.AbstractAuthenticator;
+import org.apache.shiro.authc.AuthenticationListener;
+import org.apache.shiro.authc.Authenticator;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
@@ -19,15 +23,14 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.servlet.Filter;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -37,15 +40,24 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-@ImportAutoConfiguration(ShiroAuthActionProxy.class)
-@EnableConfigurationProperties(ShiroCacheProperties.class)
+@ImportAutoConfiguration({ShiroAuthActionProxy.class
+        , ShiroAutoConfiguration.RedisSessionCacheManagerConfiguration.class})
+@EnableConfigurationProperties(SessionCacheProperties.class)
 public class ShiroAutoConfiguration {
 
+    private final FrameworkProperties properties;
+    private final SessionCacheProperties cacheProperties;
     @Autowired
-    private FrameworkWebProperties properties;
+    private ObjectProvider<AuthenticationListener> authentication;
+    public ShiroAutoConfiguration(FrameworkProperties properties, SessionCacheProperties cacheProperties) {
+        this.properties = properties;
+        this.cacheProperties = cacheProperties;
+    }
 
     /**
-     * 创建一个名称叫{@code framework}的shiro访问过滤器
+     * 创建一个名称叫{@code framework}的shiro全局配置过滤器
+     * @see WebAuthHandler 扩展shiro的session, 认证, 授权等功能
+     * @see com.iteaj.framework.spi.auth.WebAuthAction
      * @see #frameworkAuthFilterChainDefinition() 拦截所有请求 /**
      * @param handler
      * @return
@@ -61,7 +73,7 @@ public class ShiroAutoConfiguration {
      * @return
      */
     @Bean
-    @Order(9999)
+    @Order(99999)
     public OrderFilterChainDefinition frameworkAuthFilterChainDefinition() {
         OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
 
@@ -92,7 +104,10 @@ public class ShiroAutoConfiguration {
 
     @Bean
     public SessionDAO sessionDAO() {
-        return new OnlineSessionDAO();
+        OnlineSessionDAO sessionDAO = new OnlineSessionDAO();
+        // 设置缓存名称
+        sessionDAO.setActiveSessionsCacheName(cacheProperties.getName());
+        return sessionDAO;
     }
 
     @Bean
@@ -100,11 +115,12 @@ public class ShiroAutoConfiguration {
             , SessionDAO sessionDAO, Collection<Realm> realms, ObjectProvider<CacheManager> cacheManager) {
 
         DefaultSessionManager sessionManager = new OnlineSessionManager(properties);
-
         // 开启session校验
         sessionManager.setSessionValidationSchedulerEnabled(true);
-        // session校验周期 指定五分钟校验一次
-        sessionManager.setSessionValidationInterval(5 * 60 * 1000);
+
+        // 设定全局缓存时间
+        long expireTime = TimeUnit.SECONDS.toMillis(cacheProperties.getExpire());
+        sessionManager.setGlobalSessionTimeout(expireTime);
 
         sessionManager.setSessionDAO(sessionDAO);
         sessionManager.setSessionListeners(listeners);
@@ -113,14 +129,17 @@ public class ShiroAutoConfiguration {
         securityManager.setRealms(realms);
         securityManager.setSessionManager(sessionManager);
 
+        // 设置认证监听器列表
+        final Authenticator authenticator = securityManager.getAuthenticator();
+        if(authenticator instanceof AbstractAuthenticator) {
+            final ArrayList<AuthenticationListener> authenticationListeners =
+                    authentication.stream().collect(Collectors.toCollection(ArrayList::new));
+            ((AbstractAuthenticator) authenticator).setAuthenticationListeners(authenticationListeners);
+        }
+
         // 如果有缓存管理
         cacheManager.ifAvailable(item -> {
             securityManager.setCacheManager(item);
-
-            // 使用缓存过期时间
-            // 60分钟校验一次
-            sessionManager.setSessionValidationInterval(TimeUnit.MINUTES.toMillis(60));
-            sessionManager.setSessionValidationSchedulerEnabled(true);
         });
 
         return securityManager;
@@ -141,7 +160,18 @@ public class ShiroAutoConfiguration {
      */
     @Bean
     public SessionListener eventSessionListener() {
-        return new NativeSessionListener();
+        return new ShiroOnlineListener();
     }
 
+    /**
+     * redis session cache session集群配置
+     */
+    @ConditionalOnProperty(value = "framework.shiro.redis", havingValue = "true")
+    public static class RedisSessionCacheManagerConfiguration {
+
+        @Bean
+        public CacheManager cacheManager(RedisTemplate redisTemplate, SessionCacheProperties properties) {
+            return new ShiroRedisSessionCacheManager(redisTemplate, properties);
+        }
+    }
 }

@@ -4,10 +4,10 @@ import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.utils.ShiroUtil;
-import com.iteaj.util.Result;
-import com.iteaj.util.module.mvc.orm.Entity;
-import com.iteaj.util.module.mvc.result.ListResult;
+import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.Entity;
+import com.iteaj.framework.result.ListResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * create time: 2020/4/27
- *
+ *  系统主页功能
  * @author iteaj
  * @since 1.0
  */
@@ -30,7 +29,7 @@ public class MainController extends BaseController {
     private ResourceManager resourceManager;
 
     /**
-     * 返回环境相关配置
+     * 返回环境信息
      * @return
      */
     @GetMapping("/env")
@@ -41,7 +40,7 @@ public class MainController extends BaseController {
     }
 
     /**
-     * 返回当前系统已经注册过的模块列表
+     * 获取模块列表
      * @return
      */
     @GetMapping("/msn")
@@ -50,13 +49,17 @@ public class MainController extends BaseController {
         return new ListResult(modules);
     }
 
+    /**
+     * 获取菜单栏数据
+     * @return
+     */
     @GetMapping("/menus")
     public Result<List<Menu>> resources() {
         final Entity user = ShiroUtil.getUser();
         resourceManager.getResources(user).forEach(item -> {
 
         });
-        return new ListResult<>(resourceManager.getResources(user));
+        return new ListResult(resourceManager.getResources(user));
     }
 
 }

@@ -1,24 +1,23 @@
 package com.iteaj.msn.core.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.Result;
 import com.iteaj.msn.core.entity.Config;
 import com.iteaj.msn.core.service.IConfigService;
-import com.iteaj.util.Result;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * create time: 2019/11/27
- *
+ * 系统配置管理
  * @author iteaj
  * @since 1.0
  */
-@Controller
+@RestController
 @RequestMapping("/core/config")
 public class ConfigController extends BaseController {
 
@@ -28,43 +27,58 @@ public class ConfigController extends BaseController {
         this.configService = configService;
     }
 
-    @GetMapping
-    @RequiresPermissions(value = {"core:config:view", "core:config:test"}, logical = Logical.AND)
-    public String view() {
-        return "config";
-    }
-
-    @ResponseBody
+    /**
+     * 查询配置列表
+     * @param page
+     * @param config
+     * @return
+     */
     @GetMapping("/view")
     @RequiresPermissions("core:config:view")
-    public Result view(Page page, Config config) {
-        return this.configService.selectByPage(page, config).build(success());
+    public Result<IPage<Config>> view(Page page, Config config) {
+        return this.configService.page(page.addOrder(OrderItem.desc("create_time")), config);
     }
 
-    @ResponseBody
+    /**
+     * 新增配置
+     * @param config
+     * @return
+     */
     @PostMapping("/add")
     @RequiresPermissions("core:config:add")
     public Result<Boolean> add(@RequestBody Config config) {
-        return this.configService.insert(config).build(success());
+        return this.configService.save(config);
     }
 
-    @ResponseBody
+    /**
+     * 获取编辑详情
+     * @param id
+     * @return
+     */
     @GetMapping("/edit")
     public Result<Config> edit(Long id) {
-        return this.configService.getById(id).build(success());
+        return this.configService.getById(id);
     }
 
-    @ResponseBody
+    /**
+     * 修改配置
+     * @param config
+     * @return
+     */
     @PostMapping("/edit")
     @RequiresPermissions("core:config:edit")
     public Result<Boolean> edit(@RequestBody Config config) {
-        return this.configService.updateById(config).build(success());
+        return this.configService.updateById(config);
     }
 
-    @ResponseBody
+    /**
+     * 删除记录
+     * @param list
+     * @return
+     */
     @PostMapping("/del")
     @RequiresPermissions("core:config:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {
-        return this.configService.deleteByIds(list).build(success());
+        return this.configService.removeByIds(list);
     }
 }

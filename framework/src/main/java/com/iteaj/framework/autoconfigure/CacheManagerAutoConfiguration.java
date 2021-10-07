@@ -56,8 +56,7 @@ public class CacheManagerAutoConfiguration {
     /**
      * Redis缓存配置
      */
-    @Configuration
-    @ConditionalOnClass(name = "org.springframework.data.redis.cache.RedisCacheManager")
+    @ConditionalOnClass(name = {"org.springframework.data.redis.cache.RedisCacheManager", "org.springframework.data.redis.core.RedisTemplate"})
     public static class RedisConfiguration {
 
         @Primary
@@ -111,7 +110,6 @@ public class CacheManagerAutoConfiguration {
     /**
      * Ehcache缓存配置
      */
-    @Configuration
     @ConditionalOnClass(name = "org.ehcache.core.EhcacheManager")
     public static class Ehcache3Configuration{
         /**
@@ -119,7 +117,7 @@ public class CacheManagerAutoConfiguration {
          * @return
          */
         @Bean({"cacheManager", "ehcache3CacheManager"})
-        @ConditionalOnMissingBean(name = "org.springframework.data.redis.cache.RedisCacheManager")
+        @ConditionalOnMissingBean(name = "cacheManager")
         public CacheManager ehcache3CacheManager(ObjectProvider<CacheEntry>  caches) throws URISyntaxException {
 
             final ClassLoader classLoader = getClass().getClassLoader();

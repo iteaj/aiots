@@ -3,7 +3,7 @@ package com.iteaj.quartz.service.impl;
 import com.iteaj.quartz.entity.QrtzJobDetails;
 import com.iteaj.quartz.mapper.IQrtzJobDetailsMapper;
 import com.iteaj.quartz.service.IQrtzJobDetailsService;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
+import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**

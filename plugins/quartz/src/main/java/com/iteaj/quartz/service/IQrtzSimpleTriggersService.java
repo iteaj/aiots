@@ -1,9 +1,7 @@
 package com.iteaj.quartz.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.iteaj.util.module.mvc.IBaseService;
 import com.iteaj.quartz.entity.QrtzSimpleTriggers;
-import com.iteaj.quartz.mapper.IQrtzSimpleTriggersMapper;
 
 /**
  * <p>

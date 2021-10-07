@@ -3,9 +3,12 @@ package com.iteaj.quartz.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -16,9 +19,8 @@ import lombok.experimental.Accessors;
  * @since 2020-07-26
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-public class QrtzFiredTriggers extends BaseEntity {
+public class QrtzFiredTriggers implements Entity {
 
 
     private String entryId;
@@ -37,7 +39,6 @@ public class QrtzFiredTriggers extends BaseEntity {
 
     private String requestsRecovery;
 
-    @TableId(value = "SCHED_NAME", type = IdType.AUTO)
     private String schedName;
 
     private Long schedTime;
@@ -49,4 +50,13 @@ public class QrtzFiredTriggers extends BaseEntity {
     private String triggerName;
 
 
+    @Override
+    public Serializable getId() {
+        return null;
+    }
+
+    @Override
+    public void setId(Serializable id) {
+
+    }
 }

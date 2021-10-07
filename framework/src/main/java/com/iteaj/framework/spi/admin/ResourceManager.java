@@ -1,8 +1,10 @@
 package com.iteaj.framework.spi.admin;
 
-import com.iteaj.util.module.mvc.orm.Entity;
+import com.iteaj.framework.Entity;
 
-import java.io.Serializable;
+import java.awt.*;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -15,11 +17,30 @@ import java.util.Map;
 public interface ResourceManager {
 
     /**
+     * 获取数据通过url信息
+     * @param url
+     * @return
+     */
+    UrlResource getByUrl(String url);
+
+    /**
+     * 批量新增菜单
+     * @param resources
+     */
+    void batchSave(List<MenuResource> resources);
+
+    /**
      * 返回指定用戶的权限资源
      * @return
      */
     List<MenuResource> getResources(Entity principal);
 
+    /**
+     * 返回菜单类型
+     * @param types {@code MenuType}
+     * @return
+     */
+    Collection<MenuResource> listResourcesByType(MenuType... types);
 
     /**
      * 返回环境相关配置

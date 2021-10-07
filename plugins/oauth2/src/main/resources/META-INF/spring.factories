@@ -1,0 +1,3 @@
+# Application Listeners
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    com.iteaj.oauth2.OAuth2ClientConfiguration

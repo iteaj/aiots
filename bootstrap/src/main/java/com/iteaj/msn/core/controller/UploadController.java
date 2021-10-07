@@ -1,11 +1,11 @@
 package com.iteaj.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.utils.ShiroUtil;
-import com.iteaj.framework.autoconfigure.FrameworkWebProperties;
+import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.util.CommonUtils;
-import com.iteaj.util.Result;
+import com.iteaj.framework.result.Result;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * create time: 2020/4/26
- *  通用的文件上传
+ * 通用的文件上传
  * @author iteaj
  * @since 1.0
  */
@@ -35,9 +34,9 @@ public class UploadController extends BaseController implements InitializingBean
     private File rootDir; // 上传的跟目录
     private String uploadRootUri;
     private String commonSubPath = "/common/"; // 默认的子路径
-    private final FrameworkWebProperties properties;
+    private final FrameworkProperties properties;
 
-    public UploadController(FrameworkWebProperties properties) {
+    public UploadController(FrameworkProperties properties) {
         this.properties = properties;
     }
 

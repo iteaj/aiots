@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iteaj.quartz.entity.QrtzSimpleTriggers;
 import com.iteaj.quartz.mapper.IQrtzSimpleTriggersMapper;
 import com.iteaj.quartz.service.IQrtzSimpleTriggersService;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**

@@ -1,13 +1,13 @@
 package com.iteaj.msn.core.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.msn.core.entity.Menu;
-import com.iteaj.util.module.mvc.orm.IBaseDao;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
 @Mapper
-public interface IMenuDao extends IBaseDao<Menu> {
+public interface IMenuDao extends BaseMapper<Menu> {
 
     /**
      * 查找指定管理员所拥有的菜单权限

@@ -15,17 +15,11 @@ import org.springframework.context.annotation.ComponentScan;
 @ImportAutoConfiguration({
         MybatisPlusConfiguration.class,
         CacheManagerAutoConfiguration.class,
-        RedisJacksonAutoConfiguration.class
+        RedisJsonAutoConfiguration.class
 })
 @ComponentScan("com.iteaj.plugin") // 扫描框架插件的配置
-@EnableConfigurationProperties({FrameworkWebProperties.class})
+@EnableConfigurationProperties({FrameworkProperties.class})
 public class FrameworkAutoConfiguration {
-
-    private final FrameworkWebProperties properties;
-
-    public FrameworkAutoConfiguration(FrameworkWebProperties properties) {
-        this.properties = properties;
-    }
 
     @Bean
     public EventUtils eventUtils() {

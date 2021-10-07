@@ -5,14 +5,15 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.logger.AccessLogger;
 import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.logger.LoggerService;
-import com.iteaj.framework.utils.ShiroUtil;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.entity.AccessLog;
-import com.iteaj.msn.core.enums.MenuType;
+import com.iteaj.framework.spi.admin.MenuType;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -37,6 +38,7 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
     private Map<Long, Menu> idMenuMap = new HashMap<>(128);
     private Map<String, Menu> urlMenuMap = new HashMap<>(128);
 
+    @Async
     @Override
     public void record(AccessLogger entity) {
         AccessLog accessLog = new AccessLog().setErrMsg(entity.getRemark())
@@ -62,7 +64,7 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
             }
         }
 
-        operaLogService.insert(accessLog);
+        operaLogService.save(accessLog);
     }
 
     @Override
@@ -82,7 +84,7 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
         String[] msnList = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
 
         // 只查询已经注册过的模块的菜单列表
-        this.menuService.selectList(Wrappers.<Menu>query().ne("type", MenuType.M)
+        this.menuService.list(Wrappers.<Menu>query().ne("type", MenuType.M)
                 .in(ArrayUtils.isNotEmpty(msnList),"msn", msnList))
                 .ofNullable().ifPresent(menus -> {
                 menus.forEach(menu -> {

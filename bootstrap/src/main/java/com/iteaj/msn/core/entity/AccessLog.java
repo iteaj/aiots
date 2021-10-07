@@ -1,5 +1,6 @@
 package com.iteaj.msn.core.entity;
 
+import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * create time: 2020/4/22
@@ -38,7 +40,7 @@ public class AccessLog extends BaseEntity {
     /**
      * 访问用户
      */
-    private Serializable userId;
+    private Long userId;
     /**
      * 使用时间
      */
@@ -47,15 +49,27 @@ public class AccessLog extends BaseEntity {
     /**
      * 用户名
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String userName;
 
+    /**
+     * 状态
+     */
     private Boolean status;
     /**
      * 错误消息
      */
     private String errMsg;
 
+    /**
+     * 功能
+     */
     private String title;
+
+    /**
+     * 执行时间
+     */
+    private Date createTime;
 
     public AccessLog() { }
 

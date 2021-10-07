@@ -1,14 +1,13 @@
 package com.iteaj.msn.core.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.spi.OnlineSession;
+import com.iteaj.framework.spi.admin.auth.OnlineService;
+import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.msn.core.entity.OnlineUser;
 import com.iteaj.msn.core.mapper.IOnlineUserMapper;
 import com.iteaj.msn.core.service.IOnlineUserService;
-import com.iteaj.framework.spi.OnlineSession;
-import com.iteaj.framework.spi.admin.auth.OnlineService;
-import com.iteaj.framework.spi.auth.LoginEvent;
-import com.iteaj.framework.spi.event.FrameworkListener;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,24 +23,25 @@ import java.io.Serializable;
  */
 @Service
 public class OnlineUserServiceImpl extends BaseServiceImpl<IOnlineUserMapper, OnlineUser>
-        implements IOnlineUserService, OnlineService, FrameworkListener<LoginEvent> {
+        implements IOnlineUserService, OnlineService {
 
     @Override
     @Transactional
     public void updateBySessionId(OnlineUser onlineUser) {
-        getBaseDao().update(onlineUser, Wrappers.<OnlineUser>update()
+        getBaseMapper().update(onlineUser, Wrappers.<OnlineUser>update()
                 .eq("session_id", onlineUser.getSessionId()));
     }
 
     @Override
     public OnlineSession getSession(Serializable sessionId) {
-        return getBaseDao().selectOne(Wrappers.<OnlineUser>query()
-                .eq("session_id", sessionId));
+        return getBaseMapper().selectOne(Wrappers.<OnlineUser>lambdaQuery()
+                .eq(OnlineUser::getSessionId, sessionId)
+                .eq(OnlineUser::getStatus, OnlineStatus.Online));
     }
 
     @Override
     public void removeBySessionId(Serializable sessionId) {
-        getBaseDao().delete(Wrappers.<OnlineUser>query().eq("session_id", sessionId));
+        getBaseMapper().delete(Wrappers.<OnlineUser>query().eq("session_id", sessionId));
     }
 
     @Override
@@ -49,8 +49,4 @@ public class OnlineUserServiceImpl extends BaseServiceImpl<IOnlineUserMapper, On
         updateById((OnlineUser) session);
     }
 
-    @Override
-    public void onFrameworkEvent(LoginEvent event) {
-        System.out.println(event);
-    }
 }

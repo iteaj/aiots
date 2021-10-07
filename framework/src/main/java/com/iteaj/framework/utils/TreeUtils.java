@@ -1,6 +1,5 @@
 package com.iteaj.framework.utils;
 
-import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.TreeEntity;
 import org.springframework.util.CollectionUtils;
 
@@ -9,8 +8,7 @@ import java.util.stream.Collectors;
 
 public class TreeUtils {
 
-    public static  <T extends TreeEntity> Collection<T>
-                    toTrees(Collection<T> list, Long parent) {
+    public static <T extends TreeEntity> Collection<T> toTrees(Collection<T> list, Long parent) {
 
         if(CollectionUtils.isEmpty(list) || parent == null) return Collections.EMPTY_LIST;
 
@@ -41,12 +39,14 @@ public class TreeUtils {
         Map<String, T> adminMenus = new HashMap<>(); // 存放管理员菜单的列表
         adminMenuIds.forEach(item -> {
             T t = menuMap.get(item);
-            if(t != null && !adminMenus.containsKey(item)) {
-                adminMenus.put(item, t);
-            }
-            getParentMenu(t.getPid(), menuMap, adminMenus);
-        });
+            if(t != null) {
+                if(!adminMenus.containsKey(item)) {
+                    adminMenus.put(item, t);
+                }
 
+                getParentMenu(t.getPid(), menuMap, adminMenus);
+            }
+        });
 
         return toTrees(adminMenus.values(), 0l);
     }

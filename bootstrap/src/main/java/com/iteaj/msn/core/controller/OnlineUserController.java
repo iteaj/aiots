@@ -1,86 +1,93 @@
 package com.iteaj.msn.core.controller;
 
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.msn.core.entity.OnlineUser;
 import com.iteaj.msn.core.service.IOnlineUserService;
-import com.iteaj.framework.BaseController;
-import com.iteaj.framework.spi.admin.event.OnlineType;
-import com.iteaj.framework.spi.auth.WebAuthHandler;
-import com.iteaj.util.Result;
-import com.iteaj.util.module.mvc.result.ListResult;
+import com.iteaj.util.WebUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
 import java.util.List;
 
 /**
- * <p>
- * 在线用户 控制器
- * </p>
- *
+ * 在线用户管理
  * @author iteaj
- * @since 2020-06-20
  */
-@Controller
-@RequestMapping("/core/online")
+@RestController
+@RequestMapping("/core/onlineUser")
 public class OnlineUserController extends BaseController {
 
-    @Autowired
-    private WebAuthHandler handler;
-    @Autowired
-    private IOnlineUserService onlineUserService;
+    private final IOnlineUserService onlineUserService;
 
-    @GetMapping
-    @RequiresPermissions("core:online:view")
-    public String view() {
-        return "onlineUser";
-    }
-
-    @ResponseBody
-    @GetMapping("/view")
-    @RequiresPermissions("core:online:view")
-    public Result view(OnlineUser entity, Page page) {
-        return this.onlineUserService.selectByPage(page
-                , Wrappers.query(entity)
-                        .ne("status", OnlineType.Guest)
-                        .orderByAsc("status")
-                        .orderByDesc("create_time"))
-                .build(success());
-    }
-
-    @ResponseBody
-    @GetMapping("/detail")
-    @RequiresPermissions("core:online:detail")
-    public Result detail(Long id) {
-        return this.onlineUserService.getById(id).build(success());
+    public OnlineUserController(IOnlineUserService onlineUserService) {
+        this.onlineUserService = onlineUserService;
     }
 
     /**
-     * 强制退出
-     * @param ids
-     * @return
-     */
-    @ResponseBody
-    @PostMapping("/del")
-    @RequiresPermissions("core:online:del")
-    public Result del(@RequestBody List<Long> ids, HttpServletRequest request, HttpServletResponse response) {
-        ListResult<OnlineUser> result = this.onlineUserService.selectByIds(ids);
-        List<OnlineUser> onlineUsers = result.get();
-        if(CollectionUtils.isNotEmpty(onlineUsers)) {
-
-            OnlineUser onlineUser = onlineUsers.get(0);
-
-            return success("强退成功: " + onlineUser.getUserNick());
-        }
-
-        return fail("此用户不存在");
+    * 列表查询
+    * @param page 分页
+    * @param entity
+    */
+    @GetMapping("/view")
+    @RequiresPermissions(value = {"core:onlineUser:view"})
+    public Result<IPage<OnlineUser>> list(Page<OnlineUser> page, OnlineUser entity) {
+        page.addOrder(OrderItem.asc("status"), OrderItem.desc("login_time"));
+        return this.onlineUserService.page(page, entity);
     }
 
+    /**
+    * 删除在线记录
+    * @param idList
+    */
+    @PostMapping("/del")
+    @RequiresPermissions(value = {"core:onlineUser:del"})
+    public Result<Boolean> remove(@RequestBody List<Long> idList) {
+        if(idList.size() == 1) {
+            this.onlineUserService.getById(idList.get(0)).ofNullable().ifPresent(item -> {
+                if(item.getStatus() == OnlineStatus.Online
+                        && ShiroUtil.existsSession(item.getSessionId())) {
+                    throw new IllegalStateException("此设备在线");
+                }
+            });
+        } else {
+            this.onlineUserService.listByIds(idList).forEach(item -> {
+                if(item.getStatus() == OnlineStatus.Online) {
+                    idList.remove(item.getId());
+                }
+            });
+        }
+
+        return this.onlineUserService.removeByIds(idList);
+    }
+
+    /**
+     * 剔除用户下线
+     * @param entity
+     * @return
+     */
+    @PostMapping("offline")
+    @RequiresPermissions(value = {"core:onlineUser:offline"})
+    public Result<Boolean> offline(@RequestBody OnlineUser entity, HttpSession session) {
+        if(entity.getStatus() == OnlineStatus.Offline) {
+            return fail("此用户不在线");
+        }
+
+        final String sessionId = session.getId();
+        if(sessionId.equals(entity.getSessionId())) {
+            return fail("不允许下线自己");
+        }
+
+        ShiroUtil.offline(entity.getSessionId()); // 剔除用户下线
+        return success("剔除用户成功");
+    }
 }
 

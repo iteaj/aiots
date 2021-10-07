@@ -2,8 +2,8 @@ package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.web.WebUtils;
 import com.iteaj.util.JsonUtils;
-import com.iteaj.util.Result;
-import com.iteaj.util.module.mvc.HttpResult;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.result.HttpResult;
 import org.springframework.core.Ordered;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -17,7 +17,8 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * create time: 2021/3/24
- *  授权动作
+ *  授权动作, 用于配置不同端的授权动作 比如：pc, 小程序, webapp
+ *  使用同一套session, 支持session集群
  * @see #pathMatcher(String, HttpServletRequest) 通过uri匹配动作
  * @see WebAuthHandler
  * @author iteaj
@@ -28,7 +29,10 @@ public interface WebAuthAction<T> extends Ordered {
     /**
      * 默认session过期时间(30分钟)
      */
-    long expireTime = 1 * 60;
+    long expireTime = 30 * 60;
+    /**
+     * ant路径匹配
+     */
     PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
@@ -157,14 +161,14 @@ public interface WebAuthAction<T> extends Ordered {
      * @param response
      * @return
      */
-    boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    boolean postAuthorize(HttpServletRequest request, HttpServletResponse response) throws SecurityException;
 
     /**
      * 将在提交登录请求时调用
      * @param request
      * @param response
      */
-    AuthToken login(T t, HttpServletRequest request, HttpServletResponse response);
+    AuthToken login(T t, HttpServletRequest request, HttpServletResponse response) throws SecurityException;
 
     /**
      * 注销
@@ -215,7 +219,7 @@ public interface WebAuthAction<T> extends Ordered {
             cause.printStackTrace();
 
             if(isAjax(request)) {
-                if(throwable instanceof AuthException) {
+                if(throwable instanceof SecurityException) {
                     writeJson(HttpResult.Fail(throwable.getMessage()), response);
                 } else {
                     writeJson(HttpResult.Fail("登录失败"), response);

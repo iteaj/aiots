@@ -1,8 +1,7 @@
 package com.iteaj.quartz.service;
 
+import com.iteaj.framework.IBaseService;
 import com.iteaj.quartz.entity.QrtzJobDetails;
-import com.iteaj.quartz.mapper.IQrtzJobDetailsMapper;
-import com.iteaj.util.module.mvc.IBaseService;
 
 /**
  * <p>
@@ -12,6 +11,6 @@ import com.iteaj.util.module.mvc.IBaseService;
  * @author iteaj
  * @since 2020-07-26
  */
-public interface IQrtzJobDetailsService extends IBaseService<IQrtzJobDetailsMapper, QrtzJobDetails> {
+public interface IQrtzJobDetailsService extends IBaseService<QrtzJobDetails> {
 
 }

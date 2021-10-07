@@ -21,8 +21,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 /**
- * create time: 2020/7/1
- *  校验码
+ * 校验码功能
  * @author iteaj
  * @since 1.0
  */

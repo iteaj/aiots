@@ -1,15 +1,14 @@
 package com.iteaj.msn.core.service;
 
-import com.iteaj.msn.core.mapper.IAdminDao;
+import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.msn.core.dto.AdminDto;
 import com.iteaj.msn.core.entity.Admin;
-import com.iteaj.util.module.mvc.IBaseService;
-import com.iteaj.util.module.mvc.result.DetailResult;
 
 import java.io.Serializable;
 import java.util.List;
 
-public interface IAdminService extends IBaseService<IAdminDao, Admin> {
+public interface IAdminService extends IBaseService<Admin> {
 
     /**
      * 通过用户名获取账号

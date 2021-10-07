@@ -1,7 +1,7 @@
 package com.iteaj.msn.core.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.msn.core.entity.DictData;
-import com.iteaj.util.module.mvc.orm.IBaseDao;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -11,6 +11,6 @@ import org.apache.ibatis.annotations.Mapper;
  * create time：2019/6/24
  */
 @Mapper
-public interface IDictDataDao extends IBaseDao<DictData> {
+public interface IDictDataDao extends BaseMapper<DictData> {
 
 }

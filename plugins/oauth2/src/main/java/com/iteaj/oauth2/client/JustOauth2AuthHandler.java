@@ -1,13 +1,13 @@
 package com.iteaj.oauth2.client;
 
-import com.iteaj.framework.FrameworkException;
+import com.iteaj.framework.exception.FrameworkException;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.AuthContext;
-import com.iteaj.framework.spi.auth.AuthException;
+import com.iteaj.framework.spi.auth.SecurityException;
 import com.iteaj.framework.spi.auth.AuthType;
 import com.iteaj.framework.spi.oauth2.*;
 import com.iteaj.oauth2.client.action.OAuth2Action;
-import com.iteaj.oauth2.config.OAuth2ClientProperties;
+import com.iteaj.oauth2.OAuth2ClientProperties;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
@@ -43,7 +43,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
     }
 
     @Override
-    protected boolean oauth2Authorize(OAuth2Action authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected boolean oauth2Authorize(OAuth2Action authAction, AuthContext context, HttpServletRequest request, HttpServletResponse response) throws SecurityException {
         AuthType type = context.getType();
         String sessionId = request.getSession().getId();
 
@@ -84,7 +84,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         if(auth2Config == null) {
             logger.error("找不到[{}]授权对应的配置[null] 两种配置如下：\r\n  1. 配置文件指定 [izone.app.oauth2.client.{}.xxx] " +
                     "\r\n  2. [AuthContext.put(\"Oauth2Config\", OAuth2Config)]", type, type);
-            throw new AuthException("找不到["+type+"]授权对应的配置[null]");
+            throw new SecurityException("找不到["+type+"]授权对应的配置[null]");
         }
 
         // 使用用户自定义的域
@@ -127,7 +127,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
 
             return null;
         } else {
-            throw new AuthException("["+authContext.getType()
+            throw new SecurityException("["+authContext.getType()
                     +"]授权失败 code["+authResponse.getCode()
                     +"] - msg["+authResponse.getMsg()+"]");
         }
@@ -148,7 +148,7 @@ public class JustOauth2AuthHandler extends AbstractOAuth2Handler implements Init
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (me.zhyd.oauth.exception.AuthException e) {
-            throw new AuthException("["+context.getType()+"]授权配置校验失败["+
+            throw new SecurityException("["+context.getType()+"]授权配置校验失败["+
                     authConfig+"], redirectUri: ["+redirectUri+"]");
         }
 

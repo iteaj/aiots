@@ -3,19 +3,16 @@ package com.iteaj.msn.core.controller;
 import com.iteaj.framework.BaseController;
 import com.iteaj.msn.core.entity.DictData;
 import com.iteaj.msn.core.service.IDictDataService;
-import com.iteaj.util.Result;
-import org.springframework.stereotype.Controller;
+import com.iteaj.framework.result.Result;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * jdk：1.8
- *
+ * 字典数据管理
  * @author iteaj
- * create time：2019/6/24
  */
-@Controller
+@RestController
 @RequestMapping("/core/dictData")
 public class DictDataController extends BaseController {
 
@@ -25,38 +22,63 @@ public class DictDataController extends BaseController {
         this.dictDataService = dictDataService;
     }
 
-    @GetMapping()
-    public String view(){
-        return "dictData";
-    }
-
-    @ResponseBody
+    /**
+     * 获取字典数据列表
+     * @param dictData
+     * @return
+     */
     @GetMapping("/view")
-    public Result list(DictData dictData) {
-        return dictDataService.selectList(dictData).build(success());
+    public Result<List<DictData>> list(DictData dictData) {
+        return dictDataService.list(dictData);
     }
 
-    @ResponseBody
+    /**
+     * 获取指定类型的字典数据
+     * @param type 字典类型
+     * @return
+     */
     @GetMapping("/listByType")
-    public Result listByDictType(String type) {
-        return dictDataService.selectByType(type).build(success());
+    public Result<List<DictData>> listByDictType(String type) {
+        return dictDataService.selectByType(type);
     }
 
-    @ResponseBody
+    /**
+     * 新增一条字典数据记录
+     * @param data
+     * @return
+     */
     @PostMapping("/add")
     public Result add(@RequestBody DictData data) {
-        return dictDataService.insert(data).build(success());
+        return dictDataService.save(data);
     }
 
-    @ResponseBody
+    /**
+     * 删除字典数据
+     * @param list
+     * @return
+     */
     @PostMapping("/del")
     public Result del(@RequestBody List<Long> list) {
-        return dictDataService.deleteByIds(list).build(success());
+        return dictDataService.removeByIds(list);
     }
 
-    @ResponseBody
+    /**
+     * 获取字典数据详情
+     * @param id
+     * @return
+     */
+    @GetMapping("/edit")
+    public Result<DictData> edit(Long id) {
+        return dictDataService.getById(id);
+    }
+
+    /**
+     * 修改字典数据记录
+     * @param data
+     * @return
+     */
     @PostMapping("/edit")
     public Result edit(@RequestBody DictData data) {
-        return dictDataService.updateById(data).build(success());
+        return dictDataService.updateById(data);
     }
 }

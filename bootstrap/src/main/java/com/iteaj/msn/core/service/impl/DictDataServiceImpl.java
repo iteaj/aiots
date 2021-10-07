@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.msn.core.mapper.IDictDataDao;
 import com.iteaj.msn.core.entity.DictData;
 import com.iteaj.msn.core.service.IDictDataService;
-import com.iteaj.util.module.mvc.BaseServiceImpl;
-import com.iteaj.util.module.mvc.result.ListResult;
+import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.result.ListResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class DictDataServiceImpl extends BaseServiceImpl<IDictDataDao, DictData>
 
     @Override
     public ListResult<DictData> selectByType(String type) {
-        List<DictData> list = getBaseDao().selectList(Wrappers.<DictData>query().eq("type", type));
+        List<DictData> list = getBaseMapper().selectList(Wrappers.<DictData>query().eq("type", type));
         return new ListResult<>(list);
     }
 }
