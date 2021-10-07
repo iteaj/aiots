@@ -9,9 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- *  字典数据管理
+ * 字典数据管理
  * @author iteaj
- * create time：2019/6/24
  */
 @RestController
 @RequestMapping("/core/dictData")
@@ -23,32 +22,61 @@ public class DictDataController extends BaseController {
         this.dictDataService = dictDataService;
     }
 
-    @ResponseBody
+    /**
+     * 获取字典数据列表
+     * @param dictData
+     * @return
+     */
     @GetMapping("/view")
-    public Result list(DictData dictData) {
+    public Result<List<DictData>> list(DictData dictData) {
         return dictDataService.list(dictData);
     }
 
+    /**
+     * 获取指定类型的字典数据
+     * @param type 字典类型
+     * @return
+     */
     @GetMapping("/listByType")
     public Result<List<DictData>> listByDictType(String type) {
         return dictDataService.selectByType(type);
     }
 
+    /**
+     * 新增一条字典数据记录
+     * @param data
+     * @return
+     */
     @PostMapping("/add")
     public Result add(@RequestBody DictData data) {
         return dictDataService.save(data);
     }
 
+    /**
+     * 删除字典数据
+     * @param list
+     * @return
+     */
     @PostMapping("/del")
     public Result del(@RequestBody List<Long> list) {
         return dictDataService.removeByIds(list);
     }
 
+    /**
+     * 获取字典数据详情
+     * @param id
+     * @return
+     */
     @GetMapping("/edit")
     public Result<DictData> edit(Long id) {
         return dictDataService.getById(id);
     }
 
+    /**
+     * 修改字典数据记录
+     * @param data
+     * @return
+     */
     @PostMapping("/edit")
     public Result edit(@RequestBody DictData data) {
         return dictDataService.updateById(data);

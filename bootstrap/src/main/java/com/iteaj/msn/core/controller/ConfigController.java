@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * create time: 2019/11/27
- *  系统配置管理
+ * 系统配置管理
  * @author iteaj
  * @since 1.0
  */

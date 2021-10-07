@@ -164,11 +164,11 @@ public class CoreAutoConfiguration implements WebMvcConfigurer{
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
                 final String method = request.getMethod();
 
-//                if("POST".equalsIgnoreCase(method)) {
-//                    response.setContentType("application/json;charset=utf-8");
-//                    response.getWriter().print(JsonUtils.toJson(Result.fail("演示环境不允许操作")));
-//                    return false;
-//                }
+                if("POST".equalsIgnoreCase(method)) {
+                    response.setContentType("application/json;charset=utf-8");
+                    response.getWriter().print(JsonUtils.toJson(Result.fail("演示环境不允许操作")));
+                    return false;
+                }
 
                 return true;
             }

@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * create time: 2020/4/26
- *  通用的文件上传
+ * 通用的文件上传
  * @author iteaj
  * @since 1.0
  */

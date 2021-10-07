@@ -38,8 +38,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * lc = low code 低代码
- * 代码生成器接口
+ * 代码生成器功能
  * @author iteaj
  */
 @RestController

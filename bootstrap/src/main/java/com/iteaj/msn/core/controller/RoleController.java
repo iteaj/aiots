@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * create time: 2019/11/27
  *  角色管理
  * @author iteaj
  * @since 1.0
@@ -65,6 +64,11 @@ public class RoleController extends BaseController {
         return this.menuService.selectMenuTrees(null);
     }
 
+    /**
+     * 新增角色记录
+     * @param role
+     * @return
+     */
     @PostMapping("/add")
     @RequiresPermissions("core:add:view")
     public Result add(@RequestBody RoleDto role) {
@@ -104,6 +108,7 @@ public class RoleController extends BaseController {
     }
 
     /**
+     * 修改角色权限
      * @param role
      * @return
      */

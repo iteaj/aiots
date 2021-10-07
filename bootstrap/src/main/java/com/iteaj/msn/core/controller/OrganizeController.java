@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * create time: 2019/11/26
- *  组织部门管理
+ * 组织部门管理
  * @author iteaj
  * @since 1.0
  */

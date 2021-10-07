@@ -12,10 +12,8 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * jdk：1.8
- *  系统菜单管理
+ * 系统菜单管理
  * @author iteaj
- * create time：2019/5/19
  */
 @RestController
 @RequestMapping("/core/menu")

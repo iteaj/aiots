@@ -19,12 +19,8 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * <p>
  * 在线用户管理
- * </p>
- *
  * @author iteaj
- * @since 2021-09-25
  */
 @RestController
 @RequestMapping("/core/onlineUser")

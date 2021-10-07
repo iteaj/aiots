@@ -18,11 +18,8 @@ import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 
 /**
- * create time: 2021/6/5
  * 用户管理中心接口
- *
- * 获取校验码接口
- * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse)
+ * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
  * @author iteaj
  * @since 1.0
  */
@@ -36,7 +33,7 @@ public class AdminCenterController extends BaseController {
     private IAdminService adminService;
 
     /**
-     * 表单登录
+     * 系统登录
      * @return
      */
     @PostMapping("login")
@@ -45,7 +42,7 @@ public class AdminCenterController extends BaseController {
     }
 
     /**
-     * 注销
+     * 系统注销
      * @param request
      * @param response
      * @return
@@ -56,7 +53,7 @@ public class AdminCenterController extends BaseController {
     }
 
     /**
-     * 用户中心头像
+     * 上传用户头像
      * @param file
      * @return
      */
@@ -67,7 +64,7 @@ public class AdminCenterController extends BaseController {
     }
 
     /**
-     * 用户详情
+     * 获取用户详情
      * @return
      */
     @GetMapping("detail")
@@ -88,7 +85,7 @@ public class AdminCenterController extends BaseController {
     }
 
     /**
-     * 修改密码
+     * 修改用户密码
      * @return
      */
     @PostMapping("pwd")

@@ -15,7 +15,6 @@ import java.util.List;
 /**
  *  字典类型管理
  * @author iteaj
- * create time：2019/6/24
  */
 @RestController
 @RequestMapping("/core/dictType")

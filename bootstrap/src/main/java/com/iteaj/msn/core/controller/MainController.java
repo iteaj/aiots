@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * create time: 2020/4/27
- *  主页
+ *  系统主页功能
  * @author iteaj
  * @since 1.0
  */
@@ -30,7 +29,7 @@ public class MainController extends BaseController {
     private ResourceManager resourceManager;
 
     /**
-     * 返回环境相关配置
+     * 返回环境信息
      * @return
      */
     @GetMapping("/env")
@@ -41,7 +40,7 @@ public class MainController extends BaseController {
     }
 
     /**
-     * 返回当前系统已经注册过的模块列表
+     * 获取模块列表
      * @return
      */
     @GetMapping("/msn")
@@ -50,6 +49,10 @@ public class MainController extends BaseController {
         return new ListResult(modules);
     }
 
+    /**
+     * 获取菜单栏数据
+     * @return
+     */
     @GetMapping("/menus")
     public Result<List<Menu>> resources() {
         final Entity user = ShiroUtil.getUser();

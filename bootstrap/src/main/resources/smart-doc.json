@@ -4,7 +4,7 @@
   "allInOne": true,
   "outPath": "target/doc",
   "coverOld": true,
-  "createDebugPage": true,
+//  "createDebugPage": true,
   "packageFilters": "",
   "md5EncryptedHtmlName": false,
   "style": "xt256",
