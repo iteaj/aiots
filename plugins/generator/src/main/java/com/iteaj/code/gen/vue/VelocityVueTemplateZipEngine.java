@@ -75,4 +75,7 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
         logger.debug("模板:" + templatePath + ";  文件:" + outputFile);
     }
 
+    protected VelocityEngine getVelocityEngine() {
+        return velocityEngine;
+    }
 }

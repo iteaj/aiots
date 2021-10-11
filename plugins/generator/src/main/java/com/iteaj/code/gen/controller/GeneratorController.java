@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.querys.MySqlQuery;
 import com.iteaj.code.LowCodeProperties;
+import com.iteaj.code.gen.VelocityReviewTemplateEngine;
 import com.iteaj.code.gen.dto.GenConfigDto;
 import com.iteaj.code.gen.dto.GenDirDto;
+import com.iteaj.code.gen.dto.ReviewDto;
 import com.iteaj.code.gen.vue.VelocityVueTemplateZipEngine;
 import com.iteaj.code.utils.LowCodeUtil;
 import com.iteaj.framework.BaseController;
@@ -31,6 +33,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -201,6 +204,28 @@ public class GeneratorController extends BaseController implements InitializingB
         response.setHeader("Content-Disposition", "attachment; filename=\"ivzone.zip\"");
         response.setContentType("application/octet-stream; charset=UTF-8");
         response.getOutputStream().flush();
+    }
+
+    /**
+     * 预览生成的源代码
+     * @param tableName
+     * @return
+     */
+    @GetMapping("review")
+    public Result<ReviewDto> review(String tableName) {
+        if(CommonUtils.isBlank(tableName)) {
+            return fail("请指定要预览的表");
+        }
+
+        initTableQuerySql(null, null, Arrays.asList(tableName));
+        ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
+                , properties.getLsc(), new TemplateConfig(), properties.getLgc());
+
+        // 生成文件
+        VelocityReviewTemplateEngine engine = new VelocityReviewTemplateEngine(properties);
+        new AutoGenerator().setConfig(configBuilder).setTemplateEngine(engine).execute();
+
+        return success(engine.getReviewDto());
     }
 
     private void initTableQuerySql(String name, String prefix, List<String> tables) {
