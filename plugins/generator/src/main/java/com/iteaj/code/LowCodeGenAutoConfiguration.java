@@ -37,7 +37,7 @@ public class LowCodeGenAutoConfiguration implements InitializingBean, WebMvcConf
     public void afterPropertiesSet() throws Exception {
         System.out.println(
                 "****************************************************************\r\n" +
-                "*                         启用低代码设计模块                       *\r\n" +
+                "*                         启用低代码设计插件                       *\r\n" +
                 "****************************************************************\r" );
     }
 }

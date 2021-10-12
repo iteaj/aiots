@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -85,7 +86,7 @@ public class GeneratorController extends BaseController implements InitializingB
      */
     @GetMapping("getOutDir")
     public Result<GenDirDto> getOutDir() {
-        return success(new GenDirDto(properties.getLgc().getOutputDir(), frameworkProperties.getProjectRootPath()));
+        return success(new GenDirDto(properties.getLgc().getOutputDir(), properties.getProjectRootPath()));
     }
 
     /**
@@ -191,19 +192,22 @@ public class GeneratorController extends BaseController implements InitializingB
      * 生成前端代码
      * @param dto
      */
-    @GetMapping("vue")
-    public void download(GenConfigDto dto, HttpServletResponse response) throws IOException {
+    @PostMapping("vue")
+    public Result<byte[]> download(@RequestBody GenConfigDto dto) throws IOException {
+        if(!CommonUtils.isNotEmpty(dto.getTables())) {
+            return fail("请选择生成的表");
+        }
+
         initTableQuerySql(null, null, dto.getTables());
         ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc());
 
         // 生成文件
-        new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(response.getOutputStream()
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(outputStream
                 , properties)).setConfig(configBuilder).execute();
 
-        response.setHeader("Content-Disposition", "attachment; filename=\"ivzone.zip\"");
-        response.setContentType("application/octet-stream; charset=UTF-8");
-        response.getOutputStream().flush();
+        return success(outputStream.toByteArray());
     }
 
     /**

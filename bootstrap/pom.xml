@@ -113,6 +113,8 @@
         <profile>
             <id>dev</id>
             <properties>
+                <!--日志根目录-->
+                <logger.path>${project.build.directory}/logs</logger.path>
                 <!--当前项目的根目录, 用于代码生成器-->
                 <project.root.path>${project.basedir}</project.root.path>
             </properties>
@@ -129,6 +131,18 @@
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
+        </profile>
+        <profile>
+            <id>test</id>
+            <properties>
+                <logger.path>/www/logs/izone</logger.path>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <logger.path>/data/logs/izone</logger.path>
+            </properties>
         </profile>
     </profiles>
 </project>

@@ -34,11 +34,6 @@ public class FrameworkProperties {
      */
     private String uploadRootUri;
 
-    /**
-     * 本地项目根路径
-     */
-    private String projectRootPath;
-
     public static class Auth extends AuthConfig { }
 
     @Data

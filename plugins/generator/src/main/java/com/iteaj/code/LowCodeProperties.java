@@ -37,6 +37,11 @@ public class LowCodeProperties {
      */
     private LcdFormConfig form;
 
+    /**
+     * 本地项目根路径
+     */
+    private String projectRootPath;
+
     public static class LcdGlobalConfig extends GlobalConfig { }
     public static class LcdPackageConfig extends PackageConfig { }
     public static class LcdStrategyConfig extends StrategyConfig { }
