@@ -78,7 +78,7 @@ public class ${table.controllerName} {
     }
 
     /**
-    * 新增或者修改记录
+    * 新增记录
     * @param entity
     */
     @PostMapping("/add")

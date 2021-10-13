@@ -3,7 +3,7 @@
     <IvzViewSearch>
       #foreach($vue in ${cfg.vueFields})
         #if(${vue.searchComponent})
-          ${vue.searchComponent}
+      ${vue.searchComponent}
         #end
       #end
       <template #func>
@@ -17,7 +17,7 @@
         <IvzRow :gutter="16" span="24">
           #foreach($vue in ${cfg.vueFields})
            #if(${vue.component})
-            ${vue.component}
+          ${vue.component}
            #end
           #end
         </IvzRow>
@@ -55,7 +55,7 @@ export default {
     let rules = reactive({
       #foreach($field in ${cfg.vueFields})
         #if(${field.required})
-            ${field.field}: {required: true, message: '${field.label}必填'},
+        ${field.field}: {required: true, message: '${field.label}必填'},
         #end
       #end
     })

@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
 import com.iteaj.code.LowCodeProperties;
 import com.iteaj.code.gen.dto.ReviewDto;
 import com.iteaj.code.gen.vue.VueInjectionConfig;
+import com.iteaj.code.utils.LowCodeUtil;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -42,6 +43,16 @@ public class VelocityReviewTemplateEngine extends VelocityTemplateEngine {
 
         this.setConfigBuilder(configBuilder);
         configBuilder.setInjectionConfig(new VueInjectionConfig(configBuilder, this.properties) {
+
+            @Override
+            public void initTableMap(TableInfo tableInfo) {
+                super.initTableMap(tableInfo);
+                String serviceName = tableInfo.getServiceName();
+
+                this.getMap().put("moduleName", LowCodeUtil.getModuleName(tableInfo.getComment()));
+                this.getMap().put("serviceName", LowCodeUtil.firstLowerServiceName(serviceName));
+            }
+
             @Override
             public IFileCreate getFileCreate() {
                 return (configBuilder, fileType, filePath) -> true;
