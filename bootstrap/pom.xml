@@ -29,10 +29,6 @@
 <!--            <version>${project.version}</version>-->
 <!--        </dependency>-->
         <!-- 缓存配置 -->
-        <dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-        </dependency>
 <!--        <dependency>-->
 <!--            <artifactId>caffeine</artifactId>-->
 <!--            <groupId>com.github.ben-manes.caffeine</groupId>-->
@@ -137,6 +133,14 @@
             <properties>
                 <logger.path>/www/logs/izone</logger.path>
             </properties>
+            <dependencies>
+                <!-- 请自行移除 -->
+                <dependency>
+                    <groupId>com.iteaj</groupId>
+                    <artifactId>generator</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>prod</id>
