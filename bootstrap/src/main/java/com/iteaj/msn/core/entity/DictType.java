@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.iteaj.framework.spi.admin.DictResource;
 import com.iteaj.msn.core.enums.Status;
 import com.iteaj.framework.BaseEntity;
 import lombok.Data;
@@ -21,7 +22,7 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 @TableName("t_dict_type")
-public class DictType extends BaseEntity {
+public class DictType extends BaseEntity implements DictResource {
 
     /**
      * 字典类型

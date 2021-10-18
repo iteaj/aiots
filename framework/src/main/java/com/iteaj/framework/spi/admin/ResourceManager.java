@@ -24,6 +24,12 @@ public interface ResourceManager {
     UrlResource getByUrl(String url);
 
     /**
+     * 返回字典列表
+     * @return
+     */
+    List<DictResource> getDictResources();
+
+    /**
      * 批量新增菜单
      * @param resources
      */

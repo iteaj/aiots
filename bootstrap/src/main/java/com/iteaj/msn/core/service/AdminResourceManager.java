@@ -11,6 +11,7 @@ import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.result.ListResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
@@ -23,23 +24,27 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-public class MenuResourceManager implements ResourceManager, EnvironmentAware {
+public class AdminResourceManager implements ResourceManager, EnvironmentAware {
 
     private Environment environment;
-    private final List<Module> modules;
-    private final IMenuService menuService;
-    private final IConfigService configService;
-
-    public MenuResourceManager(IMenuService menuService
-            , IConfigService configService, List<Module> modules) {
-        this.menuService = menuService;
-        this.modules = modules;
-        this.configService = configService;
-    }
+    @Autowired
+    private List<Module> modules;
+    @Autowired
+    private IMenuService menuService;
+    @Autowired
+    private IConfigService configService;
+    @Autowired
+    private IDictTypeService dictTypeService;
 
     @Override
     public UrlResource getByUrl(String url) {
         return menuService.getByUrl(url);
+    }
+
+    @Override
+    public List<DictResource> getDictResources() {
+        return dictTypeService.list().stream().map(item ->
+                (DictResource) item).collect(Collectors.toList());
     }
 
     @Override

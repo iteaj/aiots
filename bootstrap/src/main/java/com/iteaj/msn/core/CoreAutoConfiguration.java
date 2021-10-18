@@ -3,25 +3,17 @@ package com.iteaj.msn.core;
 import com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration;
 import com.iteaj.framework.autoconfigure.ShiroAutoConfiguration;
 import com.iteaj.framework.logger.LoggerService;
-import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.DefaultModule;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.msn.core.auth.AdminLoginAction;
 import com.iteaj.msn.core.auth.AdminOAuth2Action;
-import com.iteaj.msn.core.service.AdminLoggerService;
-import com.iteaj.msn.core.service.IConfigService;
-import com.iteaj.msn.core.service.IMenuService;
-import com.iteaj.msn.core.service.MenuResourceManager;
-import com.iteaj.util.JsonUtils;
-import org.apache.shiro.SecurityUtils;
+import com.iteaj.msn.core.service.*;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthorizingMethodInterceptor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
-import org.apache.shiro.subject.PrincipalCollection;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -31,12 +23,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -74,9 +62,8 @@ public class CoreAutoConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public ResourceManager menuResourceManager(
-            IMenuService menuService, IConfigService configService, List<Module> modules) {
-        return new MenuResourceManager(menuService, configService, modules);
+    public ResourceManager menuResourceManager() {
+        return new AdminResourceManager();
     }
 
     /**
