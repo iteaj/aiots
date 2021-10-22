@@ -17,7 +17,6 @@ import org.springframework.context.annotation.ComponentScan;
         CacheManagerAutoConfiguration.class,
         RedisJsonAutoConfiguration.class
 })
-@ComponentScan("com.iteaj.plugin") // 扫描框架插件的配置
 @EnableConfigurationProperties({FrameworkProperties.class})
 public class FrameworkAutoConfiguration {
 

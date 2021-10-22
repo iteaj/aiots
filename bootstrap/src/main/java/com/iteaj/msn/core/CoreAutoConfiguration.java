@@ -10,18 +10,22 @@ import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.msn.core.auth.AdminLoginAction;
 import com.iteaj.msn.core.auth.AdminOAuth2Action;
+import com.iteaj.msn.core.exception.AsyncExceptionHandler;
 import com.iteaj.msn.core.service.*;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthorizingMethodInterceptor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -33,13 +37,13 @@ import java.util.List;
  * @author iteaj
  * @since 1.0
  */
+@EnableAsync
 @ImportAutoConfiguration({
         CaptchaAutoConfiguration.class, // 校验码配置
         ShiroAutoConfiguration.class, // shiro权限配置
 })
-@MapperScan(basePackages = {"com.iteaj.msn.core.mapper"})
 @EnableConfigurationProperties(CoreProperties.class)
-public class CoreAutoConfiguration implements WebMvcConfigurer {
+public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer {
 
     private final CoreProperties coreProperties;
 
@@ -144,4 +148,8 @@ public class CoreAutoConfiguration implements WebMvcConfigurer {
         return new AdminLoggerService();
     }
 
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new AsyncExceptionHandler();
+    }
 }
