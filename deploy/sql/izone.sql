@@ -373,6 +373,28 @@ LOCK TABLES `t_role_menu` WRITE;
 INSERT INTO `t_role_menu` VALUES (2,1),(2,1058),(2,1060),(2,1065),(2,1066),(2,1069),(2,1070),(2,1071),(2,1072),(2,1090),(2,1092),(2,1093),(2,1094),(2,1095),(2,1108),(2,1113),(2,1114),(2,1115),(2,1116),(2,1117),(2,1118),(2,1119),(2,1120),(2,1121),(2,1122),(2,1123),(2,1124),(2,1125),(2,1127),(2,1128),(2,1129),(2,1130),(2,1131),(2,1132),(2,1133),(2,1134),(2,1135),(2,1136),(2,1137),(2,1156),(2,1157),(2,1159),(2,1161),(2,1162),(2,1163),(2,1164),(2,1165),(2,1166),(2,1167),(2,1168),(3,1060),(3,1117),(3,1118),(3,1119),(3,1120),(3,1125),(4,1117),(4,1118),(4,1119),(4,1120);
 /*!40000 ALTER TABLE `t_role_menu` ENABLE KEYS */;
 UNLOCK TABLES;
+
+create table izone.lcd_design
+(
+    id          int auto_increment
+        primary key,
+    name        varchar(64)  default ''                not null comment '功能名称',
+    table_name  varchar(256) default ''                null comment '表明',
+    edit        json                                   null comment '编辑组件配置',
+    search      json                                   null comment '编辑组件配置',
+    form_table  json                                   null comment '表组件配置',
+    global      json                                   null comment '全局组件配置',
+    container   json                                   null comment '容器组件配置',
+    comment     varchar(128) default ''                null comment '表说明',
+    sql_script  json                                   null comment 'sql脚本',
+    create_time datetime     default CURRENT_TIMESTAMP not null,
+    update_time timestamp                              null,
+    constraint lcd_design_table_name_uindex
+        unique (table_name)
+)
+    comment '低代码功能设计';
+
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
