@@ -374,27 +374,6 @@ INSERT INTO `t_role_menu` VALUES (2,1),(2,1058),(2,1060),(2,1065),(2,1066),(2,10
 /*!40000 ALTER TABLE `t_role_menu` ENABLE KEYS */;
 UNLOCK TABLES;
 
-create table izone.lcd_design
-(
-    id          int auto_increment
-        primary key,
-    name        varchar(64)  default ''                not null comment '功能名称',
-    table_name  varchar(256) default ''                null comment '表明',
-    edit        json                                   null comment '编辑组件配置',
-    search      json                                   null comment '编辑组件配置',
-    form_table  json                                   null comment '表组件配置',
-    global      json                                   null comment '全局组件配置',
-    container   json                                   null comment '容器组件配置',
-    comment     varchar(128) default ''                null comment '表说明',
-    sql_script  json                                   null comment 'sql脚本',
-    create_time datetime     default CURRENT_TIMESTAMP not null,
-    update_time timestamp                              null,
-    constraint lcd_design_table_name_uindex
-        unique (table_name)
-)
-    comment '低代码功能设计';
-
-
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
