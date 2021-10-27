@@ -1,6 +1,7 @@
 package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.spi.event.EventUtils;
+import com.iteaj.framework.spring.SpringUtils;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -25,4 +26,8 @@ public class FrameworkAutoConfiguration {
         return new EventUtils();
     }
 
+    @Bean
+    public SpringUtils springUtils() {
+        return SpringUtils.getInstance();
+    }
 }
