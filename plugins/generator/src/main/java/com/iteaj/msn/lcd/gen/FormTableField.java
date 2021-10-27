@@ -11,5 +11,9 @@ public class FormTableField {
 
     private String title;
 
-    private double width;
+    private Double width;
+
+    private String align;
+
+    private Boolean fixed;
 }

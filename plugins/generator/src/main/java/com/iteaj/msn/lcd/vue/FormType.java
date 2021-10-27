@@ -13,9 +13,18 @@ public enum FormType {
     DateTime("<IvzDatePicker field=\"%s\" label=\"%s\" show-time %s/>"),
     Input("<IvzInput field=\"%s\" label=\"%s\" %s/>"),
     Radio("<IvzRadio field=\"%s\" label=\"%s\" %s/>"),
+    Rate("<IvzRate field=\"%s\" label=\"%s\" %s/>"),
+    Cascade("<IvzCascader field=\"%s\" label=\"%s\" %s/>"),
+    Checkbox("<IvzCheckbox field=\"%s\" label=\"%s\" %s/>"),
+    Slider("<IvzSlider field=\"%s\" label=\"%s\" %s/>"),
+    Switch("<IvzSwitch field=\"%s\" label=\"%s\" %s/>"),
     InputNumber("<IvzInputNumber field=\"%s\" label=\"%s\" %s/>"),
     Textarea("<IvzTextarea field=\"%s\" label=\"%s\" %s/>"),
+    Password("<IvzPassword field=\"%s\" label=\"%s\" %s/>"),
     Dict("<IvzSelect field=\"%s\" label=\"%s\" %s/>"),
+    Mentions("<IvzMentions field=\"%s\" label=\"%s\" %s/>"),
+    TreeSelect("<IvzTreeSelect field=\"%s\" label=\"%s\" %s/>"),
+    AutoComplete("<IvzAutoComplete field=\"%s\" label=\"%s\" %s/>"),
     ;
 
     private String template;
@@ -67,6 +76,14 @@ public enum FormType {
                     }
                 }
                 return Input;
+        }
+    }
+
+    public static FormType getType(String type) {
+        switch (type) {
+            case "text": return Input;
+            case "radio": return Radio;
+            default: return null;
         }
     }
 

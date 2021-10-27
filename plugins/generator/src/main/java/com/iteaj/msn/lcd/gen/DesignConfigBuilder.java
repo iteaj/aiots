@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.generator.config.po.TableField;
 import com.baomidou.mybatisplus.generator.config.po.TableFill;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.result.ListResult;
@@ -348,23 +349,29 @@ public class DesignConfigBuilder {
                         .findFirst().ifPresent(tf -> field.setFill(tf.getFieldFill().name()));
             }
 
-            if (strategyConfig.includeSuperEntityColumns(field.getName())) {
-                // 跳过公共字段
-                commonFieldList.add(field);
-                return;
-            }
-
             // 数据库字段
             if(tabModel.get("isDb").asBoolean()) {
                 fieldList.add(field);
+
+                if (strategyConfig.includeSuperEntityColumns(field.getName())) {
+                    // 跳过公共字段
+                    commonFieldList.add(field);
+                    return;
+                }
             }
 
-            FormField formField = new FormField();
+            FormField formField = new FormField()
+                    .setField(field.getPropertyName())
+                    .setExtra(tabModel.get("extra").asText())
+                    .setTitle(tabModel.get("title").asText())
+                    .setPlaceholder(tabModel.get("placeholder").asText())
+//                    .setRequired(tabModel.get("isRequired").asBoolean())
+                    .setClear(tabModel.get("clear").asBoolean());
             if(tabModel.get("isForm").asBoolean()) {
                 formFields.add(formField);
             }
 
-            if(tabModel.get("isTable").asBoolean()) {
+            if(tabModel.get("isSearch").asBoolean()) {
                 searchFields.add(formField);
             }
         });
@@ -372,10 +379,13 @@ public class DesignConfigBuilder {
         entity.getFormTable().withArray("metas").forEach(item -> {
             ObjectNode meta = (ObjectNode) item;
             ObjectNode tabModel = (ObjectNode) meta.get("tabModel");
+            final JsonNode width = tabModel.get("width");
             FormTableField formTableField = new FormTableField()
                     .setTitle(tabModel.get("title").asText())
                     .setField(tabModel.get("field").asText())
-                    .setWidth(tabModel.get("width").asDouble());
+                    .setAlign(tabModel.get("align").asText())
+                    .setFixed(tabModel.get("fixed").asBoolean())
+                    .setWidth(width != null ? width.asDouble() : null);
 
             formTableFields.add(formTableField);
         });
