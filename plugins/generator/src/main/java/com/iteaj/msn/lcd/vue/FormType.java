@@ -7,29 +7,32 @@ import com.iteaj.util.CommonUtils;
  * form 表单类型
  */
 public enum FormType {
-    Date("<IvzDatePicker field=\"%s\" label=\"%s\" %s/>"),
-    Time("<IvzTimePicker field=\"%s\" label=\"%s\" %s/>"),
-    Month("<IvzMonthPicker field=\"%s\" label=\"%s\" %s/>"),
-    DateTime("<IvzDatePicker field=\"%s\" label=\"%s\" show-time %s/>"),
-    Input("<IvzInput field=\"%s\" label=\"%s\" %s/>"),
-    Radio("<IvzRadio field=\"%s\" label=\"%s\" %s/>"),
-    Rate("<IvzRate field=\"%s\" label=\"%s\" %s/>"),
-    Cascade("<IvzCascader field=\"%s\" label=\"%s\" %s/>"),
-    Checkbox("<IvzCheckbox field=\"%s\" label=\"%s\" %s/>"),
-    Slider("<IvzSlider field=\"%s\" label=\"%s\" %s/>"),
-    Switch("<IvzSwitch field=\"%s\" label=\"%s\" %s/>"),
-    InputNumber("<IvzInputNumber field=\"%s\" label=\"%s\" %s/>"),
-    Textarea("<IvzTextarea field=\"%s\" label=\"%s\" %s/>"),
-    Password("<IvzPassword field=\"%s\" label=\"%s\" %s/>"),
-    Dict("<IvzSelect field=\"%s\" label=\"%s\" %s/>"),
-    Mentions("<IvzMentions field=\"%s\" label=\"%s\" %s/>"),
-    TreeSelect("<IvzTreeSelect field=\"%s\" label=\"%s\" %s/>"),
-    AutoComplete("<IvzAutoComplete field=\"%s\" label=\"%s\" %s/>"),
+    Date("<IvzDatePicker field=\"%s\" label=\"%s\" %s/>", false),
+    Time("<IvzTimePicker field=\"%s\" label=\"%s\" %s/>", false),
+    Month("<IvzMonthPicker field=\"%s\" label=\"%s\" %s/>", false),
+    DateTime("<IvzDatePicker field=\"%s\" label=\"%s\" show-time %s/>", false),
+    Input("<IvzInput field=\"%s\" label=\"%s\" %s/>", false),
+    Radio("<IvzRadio field=\"%s\" label=\"%s\" %s/>", true),
+    Rate("<IvzRate field=\"%s\" label=\"%s\" %s/>", false),
+    Cascade("<IvzCascader field=\"%s\" label=\"%s\" %s/>", true),
+    Checkbox("<IvzCheckbox field=\"%s\" label=\"%s\" %s/>", true),
+    Slider("<IvzSlider field=\"%s\" label=\"%s\" %s/>", false),
+    Switch("<IvzSwitch field=\"%s\" label=\"%s\" %s/>", false),
+    InputNumber("<IvzInputNumber field=\"%s\" label=\"%s\" %s/>", false),
+    Textarea("<IvzTextarea field=\"%s\" label=\"%s\" %s/>", false),
+    Password("<IvzPassword field=\"%s\" label=\"%s\" %s/>", false),
+    Dict("<IvzSelect field=\"%s\" label=\"%s\" %s/>", true),
+    Select("<IvzSelect field=\"%s\" label=\"%s\" %s/>", true),
+    Mentions("<IvzMentions field=\"%s\" label=\"%s\" %s/>", false),
+    TreeSelect("<IvzTreeSelect field=\"%s\" label=\"%s\" %s/>", true),
+    AutoComplete("<IvzAutoComplete field=\"%s\" label=\"%s\" %s/>", true),
     ;
 
     private String template;
+    private boolean options;
 
-    FormType(String template) {
+    FormType(String template, boolean options) {
+        this.options = options;
         this.template = template;
     }
 
@@ -83,11 +86,27 @@ public enum FormType {
         switch (type) {
             case "text": return Input;
             case "radio": return Radio;
+            case "rate": return Rate;
+            case "checkbox": return Checkbox;
+            case "slider": return Slider;
+            case "select": return Select;
+            case "switch": return Switch;
+            case "password": return Password;
+            case "textarea": return Textarea;
+            case "cascade": return Cascade;
+            case "stree": return TreeSelect;
+            case "number": return InputNumber;
+            case "mentions": return Mentions;
+            case "autoComplete": return AutoComplete;
             default: return null;
         }
     }
 
     public String getTemplate(String... args) {
         return String.format(template, args);
+    }
+
+    public boolean isOptions() {
+        return options;
     }
 }

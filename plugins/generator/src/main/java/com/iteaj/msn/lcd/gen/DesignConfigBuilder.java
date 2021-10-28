@@ -18,6 +18,7 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spring.SpringUtils;
 import com.iteaj.msn.lcd.entity.LcdDesign;
 import com.iteaj.msn.lcd.service.ILcdDesignService;
+import com.iteaj.msn.lcd.vue.FormType;
 
 import java.io.File;
 import java.util.*;
@@ -362,11 +363,28 @@ public class DesignConfigBuilder {
 
             FormField formField = new FormField()
                     .setField(field.getPropertyName())
-                    .setExtra(tabModel.get("extra").asText())
+                    .setType(tabModel.get("type").asText())
+                    .setExtra(tabModel.get("extra").asText(""))
                     .setTitle(tabModel.get("title").asText())
-                    .setPlaceholder(tabModel.get("placeholder").asText())
+                    .setPlaceholder(tabModel.get("placeholder").asText(""))
 //                    .setRequired(tabModel.get("isRequired").asBoolean())
-                    .setClear(tabModel.get("clear").asBoolean());
+                    .setClear(tabModel.get("clear").asBoolean(false));
+            // 处理字典和url的值
+            JsonNode dataType = tabModel.get("dataType");
+            if(dataType != null) {
+                String dataTypeValue = dataType.asText();
+                if(dataTypeValue.equals("dict")) {
+                    formField.setDict(tabModel.get("dictValue").asText());
+                } else if(dataTypeValue.equals("url")) {
+                    formField.setUrl(tabModel.get("urlValue").asText());
+                } else {
+                    throw new IllegalArgumentException("未知的数据类型["+dataTypeValue+"]");
+                }
+            }
+
+            formField.setFormType(FormType.getType(formField.getType()));
+            formField.setComponent(getComponent(formField, tabModel));
+
             if(tabModel.get("isForm").asBoolean()) {
                 formFields.add(formField);
             }
@@ -397,6 +415,104 @@ public class DesignConfigBuilder {
         tableInfo.setFormTableFields(formTableFields);
 
         return tableInfo;
+    }
+
+    private String getComponent(FormField formField, ObjectNode tabModel) {
+        FormType formType = formField.getFormType();
+        StringBuilder extraFields = new StringBuilder();
+
+        // inputNumber 和 slider处理
+        if(formType == FormType.InputNumber || formType == FormType.Slider) {
+            JsonNode step = tabModel.get("step");
+            extraFields.append(":step=").append("\"").append(step.isDouble() ? step.asDouble() : step.asInt()).append("\" ");
+
+            JsonNode min = tabModel.get("min");
+            if(min.isNumber()) {
+                extraFields.append(":min=").append("\"").append(step.isDouble() ? min.asDouble() : min.asInt()).append("\" ");
+            }
+            JsonNode max = tabModel.get("max");
+            if(max.isNumber()) {
+                extraFields.append(":max=").append("\"").append(step.isDouble() ? max.asDouble() : max.asInt()).append("\" ");
+            }
+
+            if(formType == FormType.InputNumber) {
+                JsonNode precision = tabModel.get("precision");
+                if(step.isNumber() && precision.asInt() > 0) {
+                    extraFields.append(":precision=").append("\"").append(precision.asInt()).append("\" ");
+                }
+            } else {
+                boolean range = tabModel.get("range").asBoolean(false);
+                if(range) {
+                    extraFields.append(":range=").append("\"").append(true).append("\" ");
+                }
+                JsonNode marks = tabModel.get("marks");
+                if(marks != null && marks.isObject()) {
+                    extraFields.append(":marks=").append("'").append(marks).append("' ");
+                }
+            }
+        }
+
+        // rate处理
+        if(formType == FormType.Rate) {
+            boolean allowHalf = tabModel.get("allowHalf").asBoolean(false);
+            extraFields.append(":allowHalf=").append("\"").append(allowHalf).append("\" ");
+            JsonNode count = tabModel.get("count");
+            if(count != null) {
+                extraFields.append(":count=").append("\"").append(count.asInt()).append("\" ");
+            }
+        }
+
+        // switch处理
+        if(formType == FormType.Switch) {
+            JsonNode checkedChildren = tabModel.get("checkedChildren");
+            if(checkedChildren != null) {
+                extraFields.append("checkedChildren=").append("\"").append(checkedChildren.asText("")).append("\" ");
+                String checkedValue = tabModel.get("checkedValue").asText("");
+                try {
+                    extraFields.append(":checkedValue=").append("\"").append(Boolean.valueOf(checkedValue)).append("\" ");
+                } catch (Exception e) {
+                    extraFields.append("checkedValue=").append("\"").append(checkedValue).append("\" ");
+                }
+            }
+
+            JsonNode unCheckedChildren = tabModel.get("unCheckedChildren");
+            if(checkedChildren != null) {
+                extraFields.append("unCheckedChildren=").append("\"").append(unCheckedChildren.asText("")).append("\" ");
+                String unCheckedValue = tabModel.get("unCheckedValue").asText("");
+                try {
+                    extraFields.append(":unCheckedValue=").append("\"").append(Boolean.valueOf(unCheckedValue)).append("\" ");
+                } catch (Exception e) {
+                    extraFields.append("unCheckedValue=").append("\"").append(unCheckedValue).append("\" ");
+                }
+            }
+        }
+
+        // select处理
+        if(formType == FormType.Select) {
+            String mode = tabModel.get("mode").asText("");
+            if(StringUtils.isNotBlank(mode) && mode.equals("default")) {
+                extraFields.append("mode=").append("\"").append(mode).append("\" ");
+            }
+        }
+
+        // 字典和url处理
+        if(formType.isOptions()) {
+            if(StringUtils.isNotBlank(formField.getDict())) {
+                extraFields.append("dict=").append("\"").append(formField.getDict()).append("\" ");
+            } else if(StringUtils.isNotBlank(formField.getUrl())) {
+                extraFields.append("url=").append("\"").append(formField.getUrl()).append("\" ");
+            }
+        }
+
+        // extra和placeholder处理
+        if(StringUtils.isNotBlank(formField.getExtra())) {
+            extraFields.append("extra=").append("\"").append(formField.getExtra()).append("\" ");
+        }
+        if(StringUtils.isNotBlank(formField.getPlaceholder())) {
+            extraFields.append("placeholder=").append("\"").append(formField.getPlaceholder()).append("\" ");
+        }
+
+        return formType.getTemplate(formField.getField(), formField.getTitle(), extraFields.toString());
     }
 
 

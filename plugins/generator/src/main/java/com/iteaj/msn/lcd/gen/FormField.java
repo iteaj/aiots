@@ -1,5 +1,6 @@
 package com.iteaj.msn.lcd.gen;
 
+import com.iteaj.msn.lcd.vue.FormType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -7,7 +8,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class FormField {
 
-    private String formType;
+    private String type;
 
     private String field;
 
@@ -26,4 +27,8 @@ public class FormField {
     private String dict;
 
     private String url;
+
+    private FormType formType;
+
+    private String component;
 }

@@ -48,6 +48,12 @@ public class LcdDesign extends BaseEntity {
     private String comment;
 
     /**
+     * ivzone组件库
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ContainerNode ivzone;
+
+    /**
      * 编辑组件配置
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
