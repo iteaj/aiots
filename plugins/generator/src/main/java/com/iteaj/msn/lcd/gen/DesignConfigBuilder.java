@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spring.SpringUtils;
+import com.iteaj.msn.lcd.LcdInjectionConfig;
 import com.iteaj.msn.lcd.entity.LcdDesign;
 import com.iteaj.msn.lcd.service.ILcdDesignService;
 import com.iteaj.msn.lcd.vue.FormType;
@@ -56,7 +57,7 @@ public class DesignConfigBuilder {
     /**
      * 注入配置信息
      */
-    private InjectionConfig injectionConfig;
+    private LcdInjectionConfig injectionConfig;
     /**
      * 过滤正则
      */
@@ -608,12 +609,12 @@ public class DesignConfigBuilder {
     }
 
 
-    public InjectionConfig getInjectionConfig() {
+    public LcdInjectionConfig getInjectionConfig() {
         return injectionConfig;
     }
 
 
-    public DesignConfigBuilder setInjectionConfig(InjectionConfig injectionConfig) {
+    public DesignConfigBuilder setInjectionConfig(LcdInjectionConfig injectionConfig) {
         this.injectionConfig = injectionConfig;
         return this;
     }
