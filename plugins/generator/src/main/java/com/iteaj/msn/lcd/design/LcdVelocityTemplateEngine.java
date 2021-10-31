@@ -1,8 +1,7 @@
-package com.iteaj.msn.lcd.vue;
+package com.iteaj.msn.lcd.design;
 
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.generator.config.ConstVal;
-import com.iteaj.msn.lcd.AbstractLcdTemplateEngine;
 import com.iteaj.msn.lcd.gen.DesignConfigBuilder;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -54,5 +53,9 @@ public class LcdVelocityTemplateEngine extends AbstractLcdTemplateEngine {
             return filePath;
         }
         return filePath + DOT_VM;
+    }
+
+    public VelocityEngine getVelocityEngine() {
+        return velocityEngine;
     }
 }

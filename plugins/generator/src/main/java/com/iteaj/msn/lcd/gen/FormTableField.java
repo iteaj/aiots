@@ -7,13 +7,13 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class FormTableField {
 
-    private String field;
+    /**
+     * 类型
+     */
+    private String type;
 
-    private String title;
-
-    private Double width;
-
-    private String align;
-
-    private Boolean fixed;
+    /**
+     * 组件
+     */
+    private String component;
 }

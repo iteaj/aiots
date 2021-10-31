@@ -1,4 +1,4 @@
-package com.iteaj.msn.lcd;
+package com.iteaj.msn.lcd.design;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;

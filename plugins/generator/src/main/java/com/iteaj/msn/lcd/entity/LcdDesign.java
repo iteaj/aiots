@@ -86,8 +86,12 @@ public class LcdDesign extends BaseEntity {
     /**
      * sql脚本
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private ContainerNode sqlScript;
+    private String sqlScript;
+
+    /**
+     * 是否表已经创建
+     */
+    private Boolean tableExists;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date createTime;
@@ -95,4 +99,10 @@ public class LcdDesign extends BaseEntity {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date updateTime;
 
+    @TableField(exist = false)
+    private String existsDesc;
+
+    public String getExistsDesc() {
+        return tableExists != null ? tableExists ? "是" : "否" : "否";
+    }
 }

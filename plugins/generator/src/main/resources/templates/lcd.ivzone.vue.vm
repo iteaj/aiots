@@ -1,9 +1,9 @@
 <template>
   <IvzBasicView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end #if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end auth>
     <IvzViewSearch>
-      #foreach($vue in ${cfg.vueFields})
-        #if(${vue.searchComponent})
-      ${vue.searchComponent}
+      #foreach($vue in ${cfg.searchFields})
+        #if(${vue.component})
+      ${vue.component}
         #end
       #end
       <template #func>
@@ -15,7 +15,7 @@
     <IvzViewModal width="860" layout="vertical" :rules="rules">
       <template #default="{model}">
         <IvzRow :gutter="16" span="24">
-          #foreach($vue in ${cfg.vueFields})
+          #foreach($vue in ${cfg.formFields})
            #if(${vue.component})
           ${vue.component}
            #end
@@ -46,19 +46,18 @@ export default {
   name: "$entity",
   setup() {
     let columns = ref([
-        #foreach($field in ${cfg.vueFields})
-          {field: "${field.field}", title: "${field.label}"},
+        #foreach($field in ${cfg.tableFields})
+            ${field.component}
         #end
-          {title: '操作', field: 'action', type: 'action'},
       ]);
 
-    let rules = reactive({
-      #foreach($field in ${cfg.vueFields})
-        #if(${field.required})
-        ${field.field}: {required: true, message: '${field.label}必填'},
-        #end
-      #end
-    })
+    ## let rules = reactive({
+    ##   #foreach($field in ${cfg.vueFields})
+    ##     #if(${field.required})
+    ##     ${field.field}: {required: true, message: '${field.label}必填'},
+    ##     #end
+    ##   #end
+    ## })
 
     return {columns, rules}
   },

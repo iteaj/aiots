@@ -20,24 +20,8 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
         </encoder>
     </appender>
 
-    <!-- 按照每天生成日志文件 -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!--日志文件输出的文件名-->
-            <FileNamePattern>@logger.path@/%d{yyyy-MM-dd}.log</FileNamePattern>
-            <!--日志文件保留天数-->
-            <MaxHistory>30</MaxHistory>
-        </rollingPolicy>
+    <logger level="warn" name="org.springframework.context.support.PostProcessorRegistrationDelegate" />
 
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
-            <pattern>%d{HH:mm:ss} [%thread] %-3level %logger{50} - %msg%n</pattern>
-        </encoder>
-        <!--日志文件最大的大小-->
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>30MB</MaxFileSize>
-        </triggeringPolicy>
-    </appender>
     <!--开发环境日志输出级别配置-->
     <springProfile name="dev">
         <property name="root.level" value="info" />
@@ -48,10 +32,31 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
         <logger level="info" name="org.springframework" additivity="false">
             <appender-ref ref="STDOUT" />
         </logger>
+        <root level="${root.level}">
+            <appender-ref ref="STDOUT" />
+        </root>
     </springProfile>
     <springProfile name="test">
         <property name="root.level" value="info" />
 
+        <!-- 按照每天生成日志文件 -->
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>/data/logs/%d{yyyy-MM-dd}.log</FileNamePattern>
+                <!--日志文件保留天数-->
+                <MaxHistory>30</MaxHistory>
+            </rollingPolicy>
+
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>%d{HH:mm:ss} [%thread] %-3level %logger{50} - %msg%n</pattern>
+            </encoder>
+            <!--日志文件最大的大小-->
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <MaxFileSize>30MB</MaxFileSize>
+            </triggeringPolicy>
+        </appender>
         <logger level="info" name="com.iteaj" additivity="false">
             <appender-ref ref="FILE" />
             <appender-ref ref="STDOUT" />
@@ -60,14 +65,36 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
             <appender-ref ref="FILE" />
             <appender-ref ref="STDOUT" />
         </logger>
+        <root level="${root.level}">
+            <appender-ref ref="FILE" />
+            <appender-ref ref="STDOUT" />
+        </root>
     </springProfile>
     <springProfile name="prod">
         <property name="root.level" value="warn" />
+        <!-- 按照每天生成日志文件 -->
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>/data/logs/%d{yyyy-MM-dd}.log</FileNamePattern>
+                <!--日志文件保留天数-->
+                <MaxHistory>30</MaxHistory>
+            </rollingPolicy>
+
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>%d{HH:mm:ss} [%thread] %-3level %logger{50} - %msg%n</pattern>
+            </encoder>
+            <!--日志文件最大的大小-->
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <MaxFileSize>30MB</MaxFileSize>
+            </triggeringPolicy>
+        </appender>
+
+        <root level="${root.level}">
+            <appender-ref ref="FILE" />
+            <appender-ref ref="STDOUT" />
+        </root>
     </springProfile>
 
-    <logger level="warn" name="org.springframework.context.support.PostProcessorRegistrationDelegate" />
-    <root level="${root.level}">
-        <appender-ref ref="FILE" />
-        <appender-ref ref="STDOUT" />
-    </root>
 </configuration>

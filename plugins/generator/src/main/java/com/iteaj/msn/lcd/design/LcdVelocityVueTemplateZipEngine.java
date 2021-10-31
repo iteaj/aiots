@@ -1,8 +1,7 @@
-package com.iteaj.msn.lcd.vue;
+package com.iteaj.msn.lcd.design;
 
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.generator.config.ConstVal;
-import com.iteaj.msn.lcd.AbstractLcdTemplateEngine;
 import com.iteaj.msn.lcd.LowCodeProperties;
 import com.iteaj.msn.lcd.gen.DesignConfigBuilder;
 import org.apache.velocity.Template;

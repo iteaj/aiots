@@ -158,7 +158,7 @@ public class UploadController extends BaseController implements InitializingBean
         // 生成文件名
         String fileType = getFileType(originalFilename);
         fileName = CommonUtils.isNotBlank(fileName) ? fileName + fileType
-                :  UUID.randomUUID().toString() + fileType;
+                :  UUID.randomUUID() + fileType;
 
         // 生成文件路径
         if(CommonUtils.isBlank(subPath)) subPath = commonSubPath;

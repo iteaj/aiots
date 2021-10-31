@@ -1,8 +1,10 @@
 package com.iteaj.msn.lcd.dto;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class GenDirDto {
 
     /**
@@ -14,6 +16,16 @@ public class GenDirDto {
      * 项目根目录
      */
     private String projectRoot;
+
+    /**
+     * 父包
+     */
+    private String parentPackage;
+
+    /**
+     * 模块名
+     */
+    private String moduleName;
 
     public GenDirDto(String cusGenDir, String projectRoot) {
         this.cusGenDir = cusGenDir;

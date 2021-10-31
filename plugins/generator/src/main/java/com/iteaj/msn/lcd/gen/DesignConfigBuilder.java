@@ -1,11 +1,12 @@
 package com.iteaj.msn.lcd.gen;
 
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.generator.InjectionConfig;
 import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.po.TableField;
 import com.baomidou.mybatisplus.generator.config.po.TableFill;
@@ -16,10 +17,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spring.SpringUtils;
-import com.iteaj.msn.lcd.LcdInjectionConfig;
+import com.iteaj.msn.lcd.design.LcdInjectionConfig;
 import com.iteaj.msn.lcd.entity.LcdDesign;
 import com.iteaj.msn.lcd.service.ILcdDesignService;
-import com.iteaj.msn.lcd.vue.FormType;
 
 import java.io.File;
 import java.util.*;
@@ -248,8 +248,8 @@ public class DesignConfigBuilder {
         }
         if (null != globalConfig.getIdType() && tableInfo.isHavePrimaryKey()) {
             // 指定需要 IdType 场景
-            tableInfo.getImportPackages().add(com.baomidou.mybatisplus.annotation.IdType.class.getCanonicalName());
-            tableInfo.getImportPackages().add(com.baomidou.mybatisplus.annotation.TableId.class.getCanonicalName());
+            tableInfo.getImportPackages().add(IdType.class.getCanonicalName());
+            tableInfo.getImportPackages().add(TableId.class.getCanonicalName());
         }
         if (StringUtils.isNotBlank(strategyConfig.getVersionFieldName())
                 && CollectionUtils.isNotEmpty(tableInfo.getFields())) {
@@ -273,7 +273,7 @@ public class DesignConfigBuilder {
 
         listResult.forEach(item -> {
             LcdTableInfo tableInfo = new LcdTableInfo();
-            tableInfo.setComment(item.getComment()).setConvert(true).setName(item.getName());
+            tableInfo.setComment(item.getComment()).setConvert(true).setName(item.getTableName());
 
             tableInfos.add(convertTableFields(tableInfo, item));
         });
@@ -307,6 +307,7 @@ public class DesignConfigBuilder {
         List<FormField> searchFields = new ArrayList<>();
         List<FormTableField> formTableFields = new ArrayList<>();
 
+        Map<String, TableField> idMaps = new HashMap<>();
         List<TableField> commonFieldList = new ArrayList<>();
         DbType dbType = this.dataSourceConfig.getDbType();
         IDbQuery dbQuery = dataSourceConfig.getDbQuery();
@@ -317,6 +318,7 @@ public class DesignConfigBuilder {
             ObjectNode meta = (ObjectNode) item;
             ObjectNode tabModel = (ObjectNode) meta.get("tabModel");
 
+            idMaps.put(meta.get("id").asText(), field);
             String columnName = tabModel.get("field").asText();
 
             // 处理其它信息
@@ -362,52 +364,48 @@ public class DesignConfigBuilder {
                 }
             }
 
-            FormField formField = new FormField()
-                    .setField(field.getPropertyName())
-                    .setType(tabModel.get("type").asText())
-                    .setExtra(tabModel.get("extra").asText(""))
-                    .setTitle(tabModel.get("title").asText())
-                    .setPlaceholder(tabModel.get("placeholder").asText(""))
-//                    .setRequired(tabModel.get("isRequired").asBoolean())
-                    .setClear(tabModel.get("clear").asBoolean(false));
-            // 处理字典和url的值
-            JsonNode dataType = tabModel.get("dataType");
-            if(dataType != null) {
-                String dataTypeValue = dataType.asText();
-                if(dataTypeValue.equals("dict")) {
-                    formField.setDict(tabModel.get("dictValue").asText());
-                } else if(dataTypeValue.equals("url")) {
-                    formField.setUrl(tabModel.get("urlValue").asText());
-                } else {
-                    throw new IllegalArgumentException("未知的数据类型["+dataTypeValue+"]");
-                }
-            }
-
-            formField.setFormType(FormType.getType(formField.getType()));
-            formField.setComponent(getComponent(formField, tabModel));
-
-            if(tabModel.get("isForm").asBoolean()) {
+        });
+        // 处理ivzone编辑组件
+        final JsonNode edit = entity.getIvzone().get("edit");
+        if(edit != null) {
+            final Iterator<Map.Entry<String, JsonNode>> fields = edit.fields();
+            while (fields.hasNext()) {
+                final Map.Entry<String, JsonNode> next = fields.next();
+                final TableField tableField = idMaps.get(next.getKey());
+                final FormField formField = new FormField().setComponent(String
+                        .format(next.getValue().asText(), tableField.getPropertyName()));
                 formFields.add(formField);
             }
-
-            if(tabModel.get("isSearch").asBoolean()) {
+        }
+        // 处理ivzone搜索组件
+        final JsonNode search = entity.getIvzone().get("search");
+        if(search != null) {
+            final Iterator<Map.Entry<String, JsonNode>> fields = search.fields();
+            while (fields.hasNext()) {
+                final Map.Entry<String, JsonNode> next = fields.next();
+                final TableField tableField = idMaps.get(next.getKey());
+                final FormField formField = new FormField().setComponent(String
+                        .format(next.getValue().asText(), tableField.getPropertyName()));
                 searchFields.add(formField);
             }
-        });
+        }
+        // 处理ivzone表格组件columns
+        final JsonNode table = entity.getIvzone().get("table");
+        if(table != null) {
+            final Iterator<Map.Entry<String, JsonNode>> fields = table.fields();
+            while (fields.hasNext()) {
+                FormTableField formTableField = new FormTableField();
+                final Map.Entry<String, JsonNode> next = fields.next();
+                if(next.getKey().equalsIgnoreCase("action")) {
+                    formTableField.setComponent(String.format(next.getValue().asText(), "action"));
+                } else {
+                    final TableField tableField = idMaps.get(next.getKey());
+                    formTableField.setComponent(String.format(next.getValue().asText(), tableField.getPropertyName()));
+                }
 
-        entity.getFormTable().withArray("metas").forEach(item -> {
-            ObjectNode meta = (ObjectNode) item;
-            ObjectNode tabModel = (ObjectNode) meta.get("tabModel");
-            final JsonNode width = tabModel.get("width");
-            FormTableField formTableField = new FormTableField()
-                    .setTitle(tabModel.get("title").asText())
-                    .setField(tabModel.get("field").asText())
-                    .setAlign(tabModel.get("align").asText())
-                    .setFixed(tabModel.get("fixed").asBoolean())
-                    .setWidth(width != null ? width.asDouble() : null);
-
-            formTableFields.add(formTableField);
-        });
+                formTableFields.add(formTableField);
+            }
+        }
 
         tableInfo.setFields(fieldList);
         tableInfo.setFormFields(formFields);
@@ -417,105 +415,6 @@ public class DesignConfigBuilder {
 
         return tableInfo;
     }
-
-    private String getComponent(FormField formField, ObjectNode tabModel) {
-        FormType formType = formField.getFormType();
-        StringBuilder extraFields = new StringBuilder();
-
-        // inputNumber 和 slider处理
-        if(formType == FormType.InputNumber || formType == FormType.Slider) {
-            JsonNode step = tabModel.get("step");
-            extraFields.append(":step=").append("\"").append(step.isDouble() ? step.asDouble() : step.asInt()).append("\" ");
-
-            JsonNode min = tabModel.get("min");
-            if(min.isNumber()) {
-                extraFields.append(":min=").append("\"").append(step.isDouble() ? min.asDouble() : min.asInt()).append("\" ");
-            }
-            JsonNode max = tabModel.get("max");
-            if(max.isNumber()) {
-                extraFields.append(":max=").append("\"").append(step.isDouble() ? max.asDouble() : max.asInt()).append("\" ");
-            }
-
-            if(formType == FormType.InputNumber) {
-                JsonNode precision = tabModel.get("precision");
-                if(step.isNumber() && precision.asInt() > 0) {
-                    extraFields.append(":precision=").append("\"").append(precision.asInt()).append("\" ");
-                }
-            } else {
-                boolean range = tabModel.get("range").asBoolean(false);
-                if(range) {
-                    extraFields.append(":range=").append("\"").append(true).append("\" ");
-                }
-                JsonNode marks = tabModel.get("marks");
-                if(marks != null && marks.isObject()) {
-                    extraFields.append(":marks=").append("'").append(marks).append("' ");
-                }
-            }
-        }
-
-        // rate处理
-        if(formType == FormType.Rate) {
-            boolean allowHalf = tabModel.get("allowHalf").asBoolean(false);
-            extraFields.append(":allowHalf=").append("\"").append(allowHalf).append("\" ");
-            JsonNode count = tabModel.get("count");
-            if(count != null) {
-                extraFields.append(":count=").append("\"").append(count.asInt()).append("\" ");
-            }
-        }
-
-        // switch处理
-        if(formType == FormType.Switch) {
-            JsonNode checkedChildren = tabModel.get("checkedChildren");
-            if(checkedChildren != null) {
-                extraFields.append("checkedChildren=").append("\"").append(checkedChildren.asText("")).append("\" ");
-                String checkedValue = tabModel.get("checkedValue").asText("");
-                try {
-                    extraFields.append(":checkedValue=").append("\"").append(Boolean.valueOf(checkedValue)).append("\" ");
-                } catch (Exception e) {
-                    extraFields.append("checkedValue=").append("\"").append(checkedValue).append("\" ");
-                }
-            }
-
-            JsonNode unCheckedChildren = tabModel.get("unCheckedChildren");
-            if(checkedChildren != null) {
-                extraFields.append("unCheckedChildren=").append("\"").append(unCheckedChildren.asText("")).append("\" ");
-                String unCheckedValue = tabModel.get("unCheckedValue").asText("");
-                try {
-                    extraFields.append(":unCheckedValue=").append("\"").append(Boolean.valueOf(unCheckedValue)).append("\" ");
-                } catch (Exception e) {
-                    extraFields.append("unCheckedValue=").append("\"").append(unCheckedValue).append("\" ");
-                }
-            }
-        }
-
-        // select处理
-        if(formType == FormType.Select) {
-            String mode = tabModel.get("mode").asText("");
-            if(StringUtils.isNotBlank(mode) && mode.equals("default")) {
-                extraFields.append("mode=").append("\"").append(mode).append("\" ");
-            }
-        }
-
-        // 字典和url处理
-        if(formType.isOptions()) {
-            if(StringUtils.isNotBlank(formField.getDict())) {
-                extraFields.append("dict=").append("\"").append(formField.getDict()).append("\" ");
-            } else if(StringUtils.isNotBlank(formField.getUrl())) {
-                extraFields.append("url=").append("\"").append(formField.getUrl()).append("\" ");
-            }
-        }
-
-        // extra和placeholder处理
-        if(StringUtils.isNotBlank(formField.getExtra())) {
-            extraFields.append("extra=").append("\"").append(formField.getExtra()).append("\" ");
-        }
-        if(StringUtils.isNotBlank(formField.getPlaceholder())) {
-            extraFields.append("placeholder=").append("\"").append(formField.getPlaceholder()).append("\" ");
-        }
-
-        return formType.getTemplate(formField.getField(), formField.getTitle(), extraFields.toString());
-    }
-
 
     /**
      * 连接路径字符串

@@ -37,7 +37,7 @@ public class LcdDesignController extends BaseController {
     @GetMapping("/view")
     public Result<IPage<LcdDesign>> list(Page<LcdDesign> page, LcdDesign entity) {
         return this.lcdDesignService.page(page, Wrappers.query(entity)
-                .select("id", "name", "table_name", "comment", "create_time", "update_time"));
+                .select("id", "name", "table_name", "comment", "create_time", "update_time", "table_exists"));
     }
 
     /**

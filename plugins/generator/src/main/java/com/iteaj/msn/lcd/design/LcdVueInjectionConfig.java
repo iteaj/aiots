@@ -1,19 +1,17 @@
-package com.iteaj.msn.lcd.vue;
+package com.iteaj.msn.lcd.design;
 
 import com.baomidou.mybatisplus.generator.config.ConstVal;
 import com.baomidou.mybatisplus.generator.config.FileOutConfig;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.FileType;
-import com.iteaj.msn.lcd.ILcdFileCreate;
-import com.iteaj.msn.lcd.LcdInjectionConfig;
 import com.iteaj.msn.lcd.LowCodeProperties;
 import com.iteaj.msn.lcd.gen.DesignConfigBuilder;
+import com.iteaj.msn.lcd.gen.LcdTableInfo;
 import com.iteaj.msn.lcd.utils.LowCodeUtil;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LcdVueInjectionConfig extends LcdInjectionConfig {
 
@@ -31,15 +29,14 @@ public class LcdVueInjectionConfig extends LcdInjectionConfig {
     @Override
     public void initTableMap(TableInfo tableInfo) {
         this.setMap(new HashMap<>()); // 清空上一张表信息的所有配置
-        List<VueFieldInfo> vueFields = tableInfo.getFields().stream()
-                .map(item -> {
-                    if(item.isKeyIdentityFlag()) {
-                        getMap().put("rowKey", item.getPropertyName());
-                    }
-                    return new VueFieldInfo(item).build(properties);
-                }).filter(item -> item != null).collect(Collectors.toList());
-        getMap().put("vueFields", vueFields);
+        final LcdTableInfo info = (LcdTableInfo) tableInfo;
+        getMap().put("formFields", info.getFormFields());
+        getMap().put("searchFields", info.getSearchFields());
+        getMap().put("tableFields", info.getFormTableFields());
         getMap().put("moduleName", LowCodeUtil.getModuleName(tableInfo.getComment()));
+
+        String serviceName = tableInfo.getServiceName();
+        this.getMap().put("serviceName", LowCodeUtil.firstLowerServiceName(serviceName));
     }
 
     @Override

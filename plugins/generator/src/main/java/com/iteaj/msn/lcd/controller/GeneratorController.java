@@ -85,7 +85,10 @@ public class GeneratorController extends BaseController implements InitializingB
      */
     @GetMapping("getOutDir")
     public Result<GenDirDto> getOutDir() {
-        return success(new GenDirDto(properties.getLgc().getOutputDir(), properties.getProjectRootPath()));
+        return success(new GenDirDto(properties.getLgc().getOutputDir()
+                , properties.getProjectRootPath())
+                .setModuleName(properties.getLpc().getModuleName())
+                .setParentPackage(properties.getLpc().getParent()));
     }
 
     /**

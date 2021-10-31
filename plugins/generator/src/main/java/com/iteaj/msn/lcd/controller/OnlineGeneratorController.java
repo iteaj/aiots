@@ -6,25 +6,25 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.config.GlobalConfig;
 import com.baomidou.mybatisplus.generator.config.TemplateConfig;
-import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.po.TableField;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.admin.DictResource;
 import com.iteaj.framework.spi.admin.ResourceManager;
+import com.iteaj.framework.spi.admin.UrlResource;
 import com.iteaj.msn.lcd.LowCodeProperties;
+import com.iteaj.msn.lcd.design.*;
 import com.iteaj.msn.lcd.dto.GenConfigDto;
 import com.iteaj.msn.lcd.dto.ReviewDto;
+import com.iteaj.msn.lcd.entity.LcdDesign;
 import com.iteaj.msn.lcd.gen.DesignConfigBuilder;
-import com.iteaj.msn.lcd.vue.LcdVelocityTemplateEngine;
-import com.iteaj.msn.lcd.vue.LcdVelocityVueTemplateZipEngine;
-import com.iteaj.msn.lcd.vue.LcdVueInjectionConfig;
-import com.iteaj.msn.lcd.vue.VelocityVueTemplateZipEngine;
+import com.iteaj.msn.lcd.service.ILcdDesignService;
 import com.iteaj.util.CommonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +32,13 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -45,10 +50,12 @@ public class OnlineGeneratorController extends BaseController {
 
     private final ResourceManager resourceManager;
     private final LowCodeProperties properties;
-
-    public OnlineGeneratorController(ResourceManager resourceManager, LowCodeProperties properties) {
+    private final ILcdDesignService lcdDesignService;
+    public OnlineGeneratorController(ResourceManager resourceManager
+            , LowCodeProperties properties, ILcdDesignService lcdDesignService) {
         this.resourceManager = resourceManager;
         this.properties = properties;
+        this.lcdDesignService = lcdDesignService;
     }
 
     /**
@@ -106,9 +113,46 @@ public class OnlineGeneratorController extends BaseController {
         // 生成文件
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new LcdVelocityVueTemplateZipEngine(outputStream, properties)
-                .init(pretreatmentConfigBuilder(configBuilder)).mkdirs().batchOutput().open();
+                .init(pretreatmentConfigBuilder(configBuilder)).mkdirs().batchOutput();
 
         return success(outputStream.toByteArray());
+    }
+
+    /**
+     * 生成表
+     * @param dto
+     */
+    @PostMapping("tables")
+    public Result<Map<String, Integer>> tables(@RequestBody GenConfigDto dto) {
+        final ListResult<LcdDesign> listResult = lcdDesignService.list(Wrappers.<LcdDesign>lambdaQuery()
+                .select(LcdDesign::getSqlScript, LcdDesign::getId, LcdDesign::getTableName)
+                .in(LcdDesign::getTableName, dto.getTables()));
+
+        Map<String, Integer> map = new HashMap<>();
+        if(!listResult.isEmpty()) {
+            map.put("errorNum", 0);
+            map.put("successNum", 0);
+
+            Connection conn = properties.getLdc().getConn();
+            try(Statement statement = conn.createStatement()) {
+                listResult.forEach(item -> {
+                    try {
+                        final int status = statement.executeUpdate(item.getSqlScript());
+                        if(status == 1) {
+                            map.put("successNum", map.get("successNum") + 1);
+                        } else {
+                            map.put("errorNum", map.get("errorNum") + 1);
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return success(map);
     }
 
     /**
@@ -125,7 +169,9 @@ public class OnlineGeneratorController extends BaseController {
         DesignConfigBuilder configBuilder = new DesignConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc(), Arrays.asList(tableName));
 
-        return success(new ReviewDto());
+        final DesignReviewVelocityTemplateEngine engine = new DesignReviewVelocityTemplateEngine(properties);
+        engine.init(pretreatmentConfigBuilder(configBuilder)).mkdirs().batchOutput();
+        return success(engine.getReviewDto());
     }
 
     protected DesignConfigBuilder pretreatmentConfigBuilder(DesignConfigBuilder config) {
