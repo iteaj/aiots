@@ -324,6 +324,8 @@ public class DesignConfigBuilder {
 
             idMaps.put(meta.get("id").asText(), field);
             String columnName = tabModel.get("field").asText();
+            String title = tabModel.get("title").asText();
+            String type = tabModel.get("type").asText();
 
             // 处理其它信息
             field.setName(columnName);
@@ -347,7 +349,7 @@ public class DesignConfigBuilder {
             field.setColumnType(dataSourceConfig.getTypeConvert().processTypeConvert(globalConfig, field));
             String fieldCommentColumn = dbQuery.fieldComment();
             if (StringUtils.isNotBlank(fieldCommentColumn)) {
-                field.setComment(formatComment(tabModel.get("title").asText()));
+                field.setComment(formatComment(title));
             }
             // 填充逻辑判断
             List<TableFill> tableFillList = getStrategyConfig().getTableFillList();
@@ -355,6 +357,36 @@ public class DesignConfigBuilder {
                 // 忽略大写字段问题
                 tableFillList.stream().filter(tf -> tf.getFieldName().equalsIgnoreCase(field.getName()))
                         .findFirst().ifPresent(tf -> field.setFill(tf.getFieldFill().name()));
+            }
+
+            // excel注解处理
+            Boolean isImport = tabModel.get("isImport").asBoolean();
+            Boolean isExport = tabModel.get("isExport").asBoolean();
+            if(isImport || isExport) {
+                StringBuilder excel = new StringBuilder("@Excel(name=").append('"').append(title).append('"');
+                if(isImport) {
+                    excel.append(" ,isImportField=\"true\"");
+                }
+                excel.append(")");
+                field.setExcel(excel.toString());
+            }
+
+            // valid注解处理
+            JsonNode rules = tabModel.get("rules");
+            if(rules instanceof ArrayNode) {
+                JsonNode jsonNode = rules.get(0);
+                StringBuilder validate = new StringBuilder();
+                if(jsonNode instanceof ObjectNode) {
+                    boolean required = jsonNode.get("required").asBoolean();
+                    if(required) {
+                        if(type.equals("number") || type.equals("slider") || type.equals("rate")) {
+                            validate.append("@NotNull(message=").append('"').append(title).append("必填").append('"').append(")");
+                        } else {
+                            validate.append("@NotBlank(message=").append('"').append(title).append("必填").append('"').append(")");
+                        }
+                    }
+                    field.setValidate(validate.toString());
+                }
             }
 
             // 数据库字段

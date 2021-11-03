@@ -83,7 +83,7 @@ public class DesignGeneratorController extends BaseController {
         // 文件是否覆盖
         globalConfig.setFileOverride(dto.isFileOverride());
         DesignConfigBuilder configBuilder = new DesignConfigBuilder(properties.getLpc(), properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), globalConfig, dto.getTables());
+                , properties.getLsc(), new TemplateConfig().setEntity("/templates/lcd.entity.java"), globalConfig, dto.getTables());
 
         // 生成java相关代码
         configBuilder.setInjectionConfig(new LcdDtoInjectionConfig(configBuilder));

@@ -25,13 +25,11 @@ import lombok.experimental.Accessors;
  */
 #if(${entityLombokModel})
 @Data
-  #if(${superEntityClass})
-@EqualsAndHashCode(callSuper = true)
-  #else
-@EqualsAndHashCode(callSuper = false)
-  #end
   #if(${chainModel})
 @Accessors(chain = true)
+  #end
+  #if(${superEntityClass})
+@EqualsAndHashCode(callSuper = true)
   #end
 #end
 #if(${table.convert})
@@ -94,6 +92,8 @@ public class ${entity} implements Serializable {
 #if(${logicDeleteFieldName}==${field.name})
     @TableLogic
 #end
+    ${field.validate}
+    ${field.excel}
     private ${field.propertyType} ${field.propertyName};
 #end
 ## ----------  END 字段循环遍历  ----------
