@@ -21,6 +21,8 @@ import com.iteaj.msn.lcd.LowCodeConst;
 import com.iteaj.msn.lcd.design.LcdInjectionConfig;
 import com.iteaj.msn.lcd.entity.LcdDesign;
 import com.iteaj.msn.lcd.service.ILcdDesignService;
+import com.iteaj.util.JsonUtils;
+import com.iteaj.util.json.Json;
 
 import java.io.File;
 import java.util.*;
@@ -405,16 +407,13 @@ public class DesignConfigBuilder {
 
         });
         // 处理ivzone编辑组件
-        final JsonNode edit = entity.getIvzone().get("edit");
+        final ArrayNode edit = entity.getIvzone().withArray("edit");
         if(edit != null) {
-            final Iterator<Map.Entry<String, JsonNode>> fields = edit.fields();
-            while (fields.hasNext()) {
-                final Map.Entry<String, JsonNode> next = fields.next();
-                final TableField tableField = idMaps.get(next.getKey());
-                final FormField formField = new FormField().setComponent(String
-                        .format(next.getValue().asText(), tableField.getPropertyName()));
-                formFields.add(formField);
-            }
+            edit.forEach(item -> {
+                final String id = item.get("id").asText();
+                final TableField tableField = idMaps.get(id);
+                formFields.add(new FormField().setComponent(String.format(item.get("template").asText(), tableField.getPropertyName())));
+            });
         }
         // 处理ivzone搜索组件
         final JsonNode search = entity.getIvzone().get("search");
@@ -429,21 +428,21 @@ public class DesignConfigBuilder {
             }
         }
         // 处理ivzone表格组件columns
-        final JsonNode table = entity.getIvzone().get("table");
+        final JsonNode table = entity.getIvzone().withArray("table");
         if(table != null) {
-            final Iterator<Map.Entry<String, JsonNode>> fields = table.fields();
-            while (fields.hasNext()) {
+            table.forEach(item -> {
+                final String id = item.get("id").asText();
+                final TableField tableField = idMaps.get(id);
                 FormTableField formTableField = new FormTableField();
-                final Map.Entry<String, JsonNode> next = fields.next();
-                if(next.getKey().equalsIgnoreCase("action")) {
-                    formTableField.setComponent(String.format(next.getValue().asText(), "action"));
+                final String template = item.get("template").asText();
+                if(id.equalsIgnoreCase("action")) {
+                    formTableField.setComponent(String.format(template, "action"));
                 } else {
-                    final TableField tableField = idMaps.get(next.getKey());
-                    formTableField.setComponent(String.format(next.getValue().asText(), tableField.getPropertyName()));
+                    formTableField.setComponent(String.format(template, tableField.getPropertyName()));
                 }
 
                 formTableFields.add(formTableField);
-            }
+            });
         }
 
         tableInfo.setFields(fieldList);

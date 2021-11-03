@@ -46,18 +46,18 @@ export default {
   name: "$entity",
   setup() {
     let columns = ref([
-        #foreach($field in ${cfg.tableFields})
-            ${field.component}
-        #end
-      ]);
+      #foreach($field in ${cfg.tableFields})
+        ${field.component}
+      #end
+    ]);
 
-    ## let rules = reactive({
-    ##   #foreach($field in ${cfg.vueFields})
-    ##     #if(${field.required})
-    ##     ${field.field}: {required: true, message: '${field.label}必填'},
-    ##     #end
-    ##   #end
-    ## })
+     let rules = reactive({
+       #foreach($field in ${cfg.vueFields})
+         #if(${field.required})
+         ${field.field}: {required: true, message: '${field.label}必填'},
+         #end
+       #end
+     })
 
     return {columns, rules}
   },
