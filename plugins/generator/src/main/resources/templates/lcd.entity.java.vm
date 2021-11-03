@@ -92,8 +92,12 @@ public class ${entity} implements Serializable {
 #if(${logicDeleteFieldName}==${field.name})
     @TableLogic
 #end
+    #if(${field.validate})
     ${field.validate}
+    #end
+    #if(${field.excel})
     ${field.excel}
+    #end
     private ${field.propertyType} ${field.propertyName};
 #end
 ## ----------  END 字段循环遍历  ----------

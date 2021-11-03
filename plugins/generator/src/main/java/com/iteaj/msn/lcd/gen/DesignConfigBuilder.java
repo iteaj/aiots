@@ -169,7 +169,7 @@ public class DesignConfigBuilder {
             setPathInfo(pathInfo, template.getEntity(getGlobalConfig().isKotlin()), outputDir, ConstVal.ENTITY_PATH, ConstVal.ENTITY);
             setPathInfo(pathInfo, template.getMapper(), outputDir, ConstVal.MAPPER_PATH, ConstVal.MAPPER);
             setPathInfo(pathInfo, template.getXml(), outputDir, ConstVal.XML_PATH, ConstVal.XML);
-            setPathInfo(pathInfo, "dto.java", outputDir, LowCodeConst.DTO_PATH, LowCodeConst.DTO);
+            setPathInfo(pathInfo, "lcd.dto.java", outputDir, LowCodeConst.DTO_PATH, LowCodeConst.DTO);
             setPathInfo(pathInfo, template.getService(), outputDir, ConstVal.SERVICE_PATH, ConstVal.SERVICE);
             setPathInfo(pathInfo, template.getServiceImpl(), outputDir, ConstVal.SERVICE_IMPL_PATH, ConstVal.SERVICE_IMPL);
             setPathInfo(pathInfo, template.getController(), outputDir, ConstVal.CONTROLLER_PATH, ConstVal.CONTROLLER);
@@ -365,7 +365,7 @@ public class DesignConfigBuilder {
             if(isImport || isExport) {
                 StringBuilder excel = new StringBuilder("@Excel(name=").append('"').append(title).append('"');
                 if(isImport) {
-                    excel.append(" ,isImportField=\"true\"");
+                    excel.append(", isImportField=\"true\"");
                 }
                 excel.append(")");
                 field.setExcel(excel.toString());
@@ -386,6 +386,7 @@ public class DesignConfigBuilder {
                         }
                     }
                     field.setValidate(validate.toString());
+                    tableInfo.getImportPackages().add("javax.validation.constraints.*");
                 }
             }
 

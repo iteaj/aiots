@@ -166,7 +166,8 @@ public class DesignGeneratorController extends BaseController {
         }
 
         DesignConfigBuilder configBuilder = new DesignConfigBuilder(properties.getLpc(), properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), properties.getLgc(), Arrays.asList(tableName));
+                , properties.getLsc(), new TemplateConfig().setEntity("/templates/lcd.entity.java")
+                , properties.getLgc(), Arrays.asList(tableName));
 
         final DesignReviewVelocityTemplateEngine engine = new DesignReviewVelocityTemplateEngine(properties);
         engine.init(pretreatmentConfigBuilder(configBuilder)).mkdirs().batchOutput();
