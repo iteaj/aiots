@@ -17,7 +17,6 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.admin.DictResource;
 import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.spi.admin.UrlResource;
 import com.iteaj.msn.lcd.LowCodeProperties;
 import com.iteaj.msn.lcd.design.*;
 import com.iteaj.msn.lcd.dto.GenConfigDto;
@@ -46,12 +45,12 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/lcd/online")
-public class OnlineGeneratorController extends BaseController {
+public class DesignGeneratorController extends BaseController {
 
     private final ResourceManager resourceManager;
     private final LowCodeProperties properties;
     private final ILcdDesignService lcdDesignService;
-    public OnlineGeneratorController(ResourceManager resourceManager
+    public DesignGeneratorController(ResourceManager resourceManager
             , LowCodeProperties properties, ILcdDesignService lcdDesignService) {
         this.resourceManager = resourceManager;
         this.properties = properties;
@@ -87,8 +86,8 @@ public class OnlineGeneratorController extends BaseController {
                 , properties.getLsc(), new TemplateConfig(), globalConfig, dto.getTables());
 
         // 生成java相关代码
+        configBuilder.setInjectionConfig(new LcdDtoInjectionConfig(configBuilder));
         new LcdVelocityTemplateEngine().init(pretreatmentConfigBuilder(configBuilder)).mkdirs().batchOutput().open();
-//        configBuilder.setInjectionConfig(new ExtraInjectionConfig().setConfig(configBuilder));
 
         // 生成菜单
 //        genMenu(dto, configBuilder);

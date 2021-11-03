@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spring.SpringUtils;
+import com.iteaj.msn.lcd.LowCodeConst;
 import com.iteaj.msn.lcd.design.LcdInjectionConfig;
 import com.iteaj.msn.lcd.entity.LcdDesign;
 import com.iteaj.msn.lcd.service.ILcdDesignService;
@@ -150,6 +151,7 @@ public class DesignConfigBuilder {
         // 包信息
         packageInfo = CollectionUtils.newHashMapWithExpectedSize(7);
         packageInfo.put(ConstVal.MODULE_NAME, config.getModuleName());
+        packageInfo.put(LowCodeConst.DTO, joinPackage(config.getParent(), "dto"));
         packageInfo.put(ConstVal.ENTITY, joinPackage(config.getParent(), config.getEntity()));
         packageInfo.put(ConstVal.MAPPER, joinPackage(config.getParent(), config.getMapper()));
         packageInfo.put(ConstVal.XML, joinPackage(config.getParent(), config.getXml()));
@@ -167,6 +169,7 @@ public class DesignConfigBuilder {
             setPathInfo(pathInfo, template.getEntity(getGlobalConfig().isKotlin()), outputDir, ConstVal.ENTITY_PATH, ConstVal.ENTITY);
             setPathInfo(pathInfo, template.getMapper(), outputDir, ConstVal.MAPPER_PATH, ConstVal.MAPPER);
             setPathInfo(pathInfo, template.getXml(), outputDir, ConstVal.XML_PATH, ConstVal.XML);
+            setPathInfo(pathInfo, "dto.java", outputDir, LowCodeConst.DTO_PATH, LowCodeConst.DTO);
             setPathInfo(pathInfo, template.getService(), outputDir, ConstVal.SERVICE_PATH, ConstVal.SERVICE);
             setPathInfo(pathInfo, template.getServiceImpl(), outputDir, ConstVal.SERVICE_IMPL_PATH, ConstVal.SERVICE_IMPL);
             setPathInfo(pathInfo, template.getController(), outputDir, ConstVal.CONTROLLER_PATH, ConstVal.CONTROLLER);
@@ -272,7 +275,7 @@ public class DesignConfigBuilder {
                 .<LcdDesign>lambdaQuery().in(LcdDesign::getTableName, tableNames));
 
         listResult.forEach(item -> {
-            LcdTableInfo tableInfo = new LcdTableInfo();
+            DesignTableInfo tableInfo = new DesignTableInfo();
             tableInfo.setComment(item.getComment()).setConvert(true).setName(item.getTableName());
 
             tableInfos.add(convertTableFields(tableInfo, item));
@@ -300,9 +303,10 @@ public class DesignConfigBuilder {
      * @param entity    配置实体
      * @return ignore
      */
-    protected TableInfo convertTableFields(LcdTableInfo tableInfo, LcdDesign entity) {
+    protected TableInfo convertTableFields(DesignTableInfo tableInfo, LcdDesign entity) {
         boolean haveId = false;
         List<TableField> fieldList = new ArrayList<>();
+        List<LcdField> dtoFields = new ArrayList<>();
         List<FormField> formFields = new ArrayList<>();
         List<FormField> searchFields = new ArrayList<>();
         List<FormTableField> formTableFields = new ArrayList<>();
@@ -314,7 +318,7 @@ public class DesignConfigBuilder {
 
         ArrayNode metas = entity.getEdit().withArray("metas");
         metas.forEach(item -> {
-            TableField field = new TableField();
+            LcdField field = new LcdField();
             ObjectNode meta = (ObjectNode) item;
             ObjectNode tabModel = (ObjectNode) meta.get("tabModel");
 
@@ -362,6 +366,8 @@ public class DesignConfigBuilder {
                     commonFieldList.add(field);
                     return;
                 }
+            } else {
+                dtoFields.add(field);
             }
 
         });
@@ -408,6 +414,7 @@ public class DesignConfigBuilder {
         }
 
         tableInfo.setFields(fieldList);
+        tableInfo.setDtoFields(dtoFields);
         tableInfo.setFormFields(formFields);
         tableInfo.setSearchFields(searchFields);
         tableInfo.setCommonFields(commonFieldList);

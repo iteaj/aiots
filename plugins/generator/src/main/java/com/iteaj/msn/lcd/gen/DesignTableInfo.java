@@ -6,7 +6,14 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class LcdTableInfo extends TableInfo {
+public class DesignTableInfo extends TableInfo {
+
+    private String dtoName;
+
+    /**
+     * dto字段信息
+     */
+    private List<LcdField> dtoFields;
 
     /**
      * 编辑表单字段

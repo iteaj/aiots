@@ -6,9 +6,10 @@ import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.FileType;
 import com.iteaj.msn.lcd.LowCodeProperties;
 import com.iteaj.msn.lcd.gen.DesignConfigBuilder;
-import com.iteaj.msn.lcd.gen.LcdTableInfo;
+import com.iteaj.msn.lcd.gen.DesignTableInfo;
 import com.iteaj.msn.lcd.utils.LowCodeUtil;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +30,7 @@ public class LcdVueInjectionConfig extends LcdInjectionConfig {
     @Override
     public void initTableMap(TableInfo tableInfo) {
         this.setMap(new HashMap<>()); // 清空上一张表信息的所有配置
-        final LcdTableInfo info = (LcdTableInfo) tableInfo;
+        final DesignTableInfo info = (DesignTableInfo) tableInfo;
         getMap().put("formFields", info.getFormFields());
         getMap().put("searchFields", info.getSearchFields());
         getMap().put("tableFields", info.getFormTableFields());
@@ -52,7 +53,7 @@ public class LcdVueInjectionConfig extends LcdInjectionConfig {
             public String outputFile(TableInfo tableInfo) {
                 String moduleName = getConfig().getPackageInfo().get(ConstVal.MODULE_NAME);
                 String entityName = tableInfo.getEntityPath();
-                return moduleName + "/" + entityName + "/index.vue";
+                return moduleName + File.separator + entityName + File.separator + "index.vue";
             }
         });
     }

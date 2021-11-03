@@ -20,4 +20,14 @@ public class LcdField extends TableField {
      * 是否列表
      */
     private boolean table;
+
+    /**
+     * excel注解
+     */
+    private String excel;
+
+    /**
+     * 校验注解
+     */
+    private String validate;
 }
