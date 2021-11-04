@@ -134,7 +134,8 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
         chain.addPathDefinition("/css/**", "anon");
         chain.addPathDefinition("/img/**", "anon");
         chain.addPathDefinition("/libs/**", "anon");
-
+        // api文档
+        chain.addPathDefinition("/doc/**", "anon");
         chain.addPathDefinition("/favicon.ico", "anon");
         return chain;
     }

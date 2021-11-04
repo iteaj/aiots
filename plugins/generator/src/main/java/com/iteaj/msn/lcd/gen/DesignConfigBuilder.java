@@ -313,7 +313,7 @@ public class DesignConfigBuilder {
         List<FormField> searchFields = new ArrayList<>();
         List<FormTableField> formTableFields = new ArrayList<>();
 
-        Map<String, TableField> idMaps = new HashMap<>();
+        Map<String, LcdField> idMaps = new HashMap<>();
         List<TableField> commonFieldList = new ArrayList<>();
         DbType dbType = this.dataSourceConfig.getDbType();
         IDbQuery dbQuery = dataSourceConfig.getDbQuery();
@@ -331,6 +331,7 @@ public class DesignConfigBuilder {
 
             // 处理其它信息
             field.setName(columnName);
+            field.setTitle(title);
             String newColumnName = columnName;
 
             IKeyWordsHandler keyWordsHandler = dataSourceConfig.getKeyWordsHandler();
@@ -401,7 +402,7 @@ public class DesignConfigBuilder {
                     commonFieldList.add(field);
                     return;
                 }
-            } else {
+            } else { // 除了数据库的字段其他的都是dto
                 dtoFields.add(field);
             }
 
@@ -411,22 +412,26 @@ public class DesignConfigBuilder {
         if(edit != null) {
             edit.forEach(item -> {
                 final String id = item.get("id").asText();
-                final TableField tableField = idMaps.get(id);
-                formFields.add(new FormField().setComponent(String.format(item.get("template").asText(), tableField.getPropertyName())));
+                final LcdField tableField = idMaps.get(id);
+                formFields.add(new FormField().setComponent(String.format(item.get("template").asText()
+                        , tableField.getPropertyName(), tableField.getTitle())));
             });
         }
+
         // 处理ivzone搜索组件
-        final JsonNode search = entity.getIvzone().get("search");
+        Map<String, String> searchIdTitleMaps = new HashMap<>();
+        entity.getSearch().withArray("metas").forEach(meta -> searchIdTitleMaps
+                .put(meta.get("id").asText(), meta.get("tabModel").get("title").asText()));
+        final JsonNode search = entity.getIvzone().withArray("search");
         if(search != null) {
-            final Iterator<Map.Entry<String, JsonNode>> fields = search.fields();
-            while (fields.hasNext()) {
-                final Map.Entry<String, JsonNode> next = fields.next();
-                final TableField tableField = idMaps.get(next.getKey());
-                final FormField formField = new FormField().setComponent(String
-                        .format(next.getValue().asText(), tableField.getPropertyName()));
-                searchFields.add(formField);
-            }
+            search.forEach(item -> {
+                final String id = item.get("id").asText();
+                final TableField tableField = idMaps.get(id);
+                searchFields.add(new FormField().setComponent(String.format(item.get("template").asText()
+                        , tableField.getPropertyName(), searchIdTitleMaps.get(id))));
+            });
         }
+
         // 处理ivzone表格组件columns
         final JsonNode table = entity.getIvzone().withArray("table");
         if(table != null) {

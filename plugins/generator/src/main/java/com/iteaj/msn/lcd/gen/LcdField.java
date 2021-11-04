@@ -22,6 +22,11 @@ public class LcdField extends TableField {
     private boolean table;
 
     /**
+     * 字段标题
+     */
+    private String title;
+
+    /**
      * excel注解
      */
     private String excel;

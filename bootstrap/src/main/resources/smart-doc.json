@@ -2,7 +2,7 @@
   "serverUrl": "http://127.0.0.1",
   "isStrict": false,
   "allInOne": true,
-  "outPath": "target/doc",
+  "outPath": "target/classes/static/doc",
   "coverOld": true,
 //  "createDebugPage": true,
   "packageFilters": "",
