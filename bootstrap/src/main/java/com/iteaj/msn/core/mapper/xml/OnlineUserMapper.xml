@@ -12,7 +12,7 @@
         <result column="login_ip" property="accessIp" />
         <result column="login_time" property="loginTime" />
         <result column="os" property="os" />
-        <result column="type" property="appType" />
+        <result column="type" property="type" />
         <result column="status" property="status" />
         <result column="user_nick" property="userNick" />
         <result column="create_time" property="createTime" />
@@ -22,7 +22,7 @@
     <!-- 表字段列表 -->
     <sql id="OriSql">
          a.create_time, a.id, a.update_time, a.browse, a.account, a.expire_time, a.location, a.login_ip
-            , a.login_time, a.os, a.status, a.user_nick, a.app_type
+            , a.login_time, a.os, a.status, a.user_nick, a.type
     </sql>
     <!-- 表字段关联列表 -->
     <sql id="OriJoinSql">

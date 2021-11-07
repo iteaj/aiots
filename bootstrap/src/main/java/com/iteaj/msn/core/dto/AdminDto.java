@@ -33,11 +33,4 @@ public class AdminDto extends Admin {
      */
     private List<Long> roleIds;
 
-
-    @Override
-    @Transient
-    @JsonIgnore
-    public String getPassword() {
-        return super.getPassword();
-    }
 }

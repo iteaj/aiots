@@ -1,7 +1,10 @@
 package com.iteaj.msn.lcd.service;
 
+import com.iteaj.msn.lcd.dto.TableOptionsDto;
 import com.iteaj.msn.lcd.entity.LcdDesign;
 import com.iteaj.framework.IBaseService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,7 @@ import com.iteaj.framework.IBaseService;
  */
 public interface ILcdDesignService extends IBaseService<LcdDesign> {
 
+    List<TableOptionsDto> listForeign(String tableName);
+
+    List<TableOptionsDto> listColumns(String tableName);
 }

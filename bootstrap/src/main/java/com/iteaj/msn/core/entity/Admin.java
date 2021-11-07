@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.msn.core.enums.Sex;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.consts.UseStatus;
@@ -43,6 +44,7 @@ public class Admin extends BaseEntity {
     /*登录时间*/
     private Date loginDate;
     /*密码, 不进行密码更新*/
+    @JsonIgnore
     private String password;
     /*账号使用状态*/
     private UseStatus status;

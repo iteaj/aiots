@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.Result;
+import com.iteaj.msn.lcd.dto.TableOptionsDto;
 import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -63,8 +64,9 @@ public class LcdDesignController extends BaseController {
     * @param entity
     */
     @PostMapping("/add")
-    public Result<Boolean> add(@RequestBody LcdDesign entity) {
-        return this.lcdDesignService.save(entity);
+    public Result<Long> add(@RequestBody LcdDesign entity) {
+        return this.lcdDesignService.save(entity).of()
+                .map(item -> success(entity.getId())).get();
     }
 
     /**
@@ -74,6 +76,27 @@ public class LcdDesignController extends BaseController {
     @PostMapping("/del")
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.lcdDesignService.removeByIds(idList);
+    }
+
+    /**
+     * 外键列表
+     * @return
+     */
+    @GetMapping("foreign")
+    public Result<List<TableOptionsDto>> foreign(String tableName) {
+        List<TableOptionsDto> tableOptionsDtos = this.lcdDesignService.listForeign(tableName);
+        return success(tableOptionsDtos);
+    }
+
+    /**
+     * 外键列
+     * @param tableName
+     * @return
+     */
+    @GetMapping("columns")
+    public Result<List<TableOptionsDto>> columns(String tableName) {
+        List<TableOptionsDto> tableOptionsDtos = this.lcdDesignService.listColumns(tableName);
+        return success(tableOptionsDtos);
     }
 }
 

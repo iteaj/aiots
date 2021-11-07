@@ -9,5 +9,20 @@ public class FormField {
 
     private String type;
 
+    /**
+     * 表别名
+     */
+    private String prefix;
+
+    /**
+     * 表列名
+     */
+    private String columnName;
+
+    /**
+     * 属性名
+     */
+    private String propertyName;
+
     private String component;
 }

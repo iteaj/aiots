@@ -46,9 +46,6 @@ public class Menu extends TreeEntity implements LoggerMenu {
     private Boolean log;
     /**日志信息*/
     private String logDesc;
-//    /**功能点放置的位置*/
-//    @TableField(fill = FieldFill.UPDATE)
-//    private Position position;
 
     /**创建时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

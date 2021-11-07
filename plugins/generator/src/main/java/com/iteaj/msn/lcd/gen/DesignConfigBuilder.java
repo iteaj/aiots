@@ -363,35 +363,10 @@ public class DesignConfigBuilder {
             }
 
             // excel注解处理
-            Boolean isImport = tabModel.get("isImport").asBoolean();
-            Boolean isExport = tabModel.get("isExport").asBoolean();
-            if(isImport || isExport) {
-                StringBuilder excel = new StringBuilder("@Excel(name=").append('"').append(title).append('"');
-                if(isImport) {
-                    excel.append(", isImportField=\"true\"");
-                }
-                excel.append(")");
-                field.setExcel(excel.toString());
-            }
+            handleExcel(field, tabModel, title);
 
             // valid注解处理
-            JsonNode rules = tabModel.get("rules");
-            if(rules instanceof ArrayNode) {
-                JsonNode jsonNode = rules.get(0);
-                StringBuilder validate = new StringBuilder();
-                if(jsonNode instanceof ObjectNode) {
-                    boolean required = jsonNode.get("required").asBoolean();
-                    if(required) {
-                        if(type.equals("number") || type.equals("slider") || type.equals("rate")) {
-                            validate.append("@NotNull(message=").append('"').append(title).append("必填").append('"').append(")");
-                        } else {
-                            validate.append("@NotBlank(message=").append('"').append(title).append("必填").append('"').append(")");
-                        }
-                    }
-                    field.setValidate(validate.toString());
-                    tableInfo.getImportPackages().add("javax.validation.constraints.*");
-                }
-            }
+            handleValidate(tableInfo, field, tabModel, title, type);
 
             // 数据库字段
             if(tabModel.get("isDb").asBoolean()) {
@@ -399,6 +374,7 @@ public class DesignConfigBuilder {
 
                 if (strategyConfig.includeSuperEntityColumns(field.getName())) {
                     // 跳过公共字段
+
                     commonFieldList.add(field);
                     return;
                 }
@@ -458,6 +434,39 @@ public class DesignConfigBuilder {
         tableInfo.setFormTableFields(formTableFields);
 
         return tableInfo;
+    }
+
+    private void handleExcel(LcdField field, ObjectNode tabModel, String title) {
+        Boolean isImport = tabModel.get("isImport").asBoolean();
+        Boolean isExport = tabModel.get("isExport").asBoolean();
+        if(isImport || isExport) {
+            StringBuilder excel = new StringBuilder("@Excel(name=").append('"').append(title).append('"');
+            if(isImport) {
+                excel.append(", isImportField=\"true\"");
+            }
+            excel.append(")");
+            field.setExcel(excel.toString());
+        }
+    }
+
+    private void handleValidate(DesignTableInfo tableInfo, LcdField field, ObjectNode tabModel, String title, String type) {
+        JsonNode rules = tabModel.get("rules");
+        if(rules instanceof ArrayNode) {
+            JsonNode jsonNode = rules.get(0);
+            StringBuilder validate = new StringBuilder();
+            if(jsonNode instanceof ObjectNode) {
+                boolean required = jsonNode.get("required").asBoolean();
+                if(required) {
+                    if(type.equals("number") || type.equals("slider") || type.equals("rate")) {
+                        validate.append("@NotNull(message=").append('"').append(title).append("必填").append('"').append(")");
+                    } else {
+                        validate.append("@NotBlank(message=").append('"').append(title).append("必填").append('"').append(")");
+                    }
+                }
+                field.setValidate(validate.toString());
+                tableInfo.getImportPackages().add("javax.validation.constraints.*");
+            }
+        }
     }
 
     /**
