@@ -63,7 +63,7 @@ public class LcdDesignServiceImpl extends BaseServiceImpl<LcdDesignMapper, LcdDe
     @Override
     public List<TableOptionsDto> listColumns(String tableName) {
         final LcdDesign lcdDesign = getOne(Wrappers.<LcdDesign>lambdaQuery().select(LcdDesign::getId, LcdDesign::getTableName
-                , LcdDesign::getName, LcdDesign::getEdit, LcdDesign::getContainer))
+                , LcdDesign::getName, LcdDesign::getEdit, LcdDesign::getContainer).eq(LcdDesign::getTableName, tableName))
                 .ofNullable().orElseThrow(() -> new ServiceException("表不存在[" + tableName + "]"));
 
         final JsonNode jsonNode = lcdDesign.getContainer().get("meta").get("tabModel");

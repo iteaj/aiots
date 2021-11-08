@@ -21,8 +21,6 @@ import com.iteaj.msn.lcd.LowCodeConst;
 import com.iteaj.msn.lcd.design.LcdInjectionConfig;
 import com.iteaj.msn.lcd.entity.LcdDesign;
 import com.iteaj.msn.lcd.service.ILcdDesignService;
-import com.iteaj.util.JsonUtils;
-import com.iteaj.util.json.Json;
 
 import java.io.File;
 import java.util.*;
@@ -81,6 +79,13 @@ public class DesignConfigBuilder {
         this.globalConfig = Optional.ofNullable(globalConfig).orElseGet(GlobalConfig::new);
         // 模板配置
         this.template = Optional.ofNullable(template).orElseGet(TemplateConfig::new);
+
+        this.template.setXml("/templates/lcd.mapper.xml");
+        this.template.setEntity("/templates/lcd.entity.java");
+        this.template.setMapper("/templates/lcd.mapper.java");
+        this.template.setService("/templates/lcd.service.java");
+        this.template.setController("/templates/lcd.controller.java");
+        this.template.setServiceImpl("/templates/lcd.serviceImpl.java");
 
         // 包配置
         if (null == packageConfig) {
@@ -315,9 +320,29 @@ public class DesignConfigBuilder {
 
         Map<String, LcdField> idMaps = new HashMap<>();
         List<TableField> commonFieldList = new ArrayList<>();
-        DbType dbType = this.dataSourceConfig.getDbType();
-        IDbQuery dbQuery = dataSourceConfig.getDbQuery();
 
+        // 处理主键信息
+        JsonNode container = entity.getContainer().get("meta");
+        if(container != null && !container.isNull()) {
+            JsonNode tabModel = container.get("tabModel");
+            if(tabModel instanceof ObjectNode) {
+                JsonNode keyField = tabModel.get("keyField");
+                if(keyField!=null && !keyField.isNull()) {
+                    LcdField lcdField = new LcdField();
+                    String field = keyField.asText();
+                    lcdField.setName(field);
+                    lcdField.setKeyFlag(true);
+                    lcdField.setType(tabModel.get("keyType").asText());
+                    lcdField.setComment(tabModel.get("comment").asText());
+                    tableInfo.setKeyField(field);
+                    handleFieldConvert(lcdField);
+
+                    fieldList.add(lcdField);
+                }
+            }
+        }
+
+        // 处理编辑字段信息
         ArrayNode metas = entity.getEdit().withArray("metas");
         metas.forEach(item -> {
             LcdField field = new LcdField();
@@ -333,6 +358,8 @@ public class DesignConfigBuilder {
             field.setName(columnName);
             field.setTitle(title);
             String newColumnName = columnName;
+            field.setType(tabModel.get("fieldType").asText());
+            field.setComment(tabModel.get("comment").asText());
 
             IKeyWordsHandler keyWordsHandler = dataSourceConfig.getKeyWordsHandler();
             if (keyWordsHandler != null && keyWordsHandler.isKeyWords(columnName)) {
@@ -342,25 +369,9 @@ public class DesignConfigBuilder {
             }
 
             field.setColumnName(newColumnName);
-            field.setType(tabModel.get("fieldType").asText());
-            INameConvert nameConvert = strategyConfig.getNameConvert();
-            if (null != nameConvert) {
-                field.setPropertyName(nameConvert.propertyNameConvert(field));
-            } else {
-                field.setPropertyName(strategyConfig, processName(field.getName(), strategyConfig.getColumnNaming()));
-            }
-            field.setColumnType(dataSourceConfig.getTypeConvert().processTypeConvert(globalConfig, field));
-            String fieldCommentColumn = dbQuery.fieldComment();
-            if (StringUtils.isNotBlank(fieldCommentColumn)) {
-                field.setComment(formatComment(title));
-            }
-            // 填充逻辑判断
-            List<TableFill> tableFillList = getStrategyConfig().getTableFillList();
-            if (null != tableFillList) {
-                // 忽略大写字段问题
-                tableFillList.stream().filter(tf -> tf.getFieldName().equalsIgnoreCase(field.getName()))
-                        .findFirst().ifPresent(tf -> field.setFill(tf.getFieldFill().name()));
-            }
+
+            // 处理字段的转换问题
+            handleFieldConvert(field);
 
             // excel注解处理
             handleExcel(field, tabModel, title);
@@ -378,10 +389,11 @@ public class DesignConfigBuilder {
                     commonFieldList.add(field);
                     return;
                 }
-            } else { // 除了数据库的字段其他的都是dto
+
+            // 引用类型的字段都是dto字段
+            } else if("quote".equals(tabModel.get("type").asText())) {
                 dtoFields.add(field);
             }
-
         });
         // 处理ivzone编辑组件
         final ArrayNode edit = entity.getIvzone().withArray("edit");
@@ -434,6 +446,25 @@ public class DesignConfigBuilder {
         tableInfo.setFormTableFields(formTableFields);
 
         return tableInfo;
+    }
+
+    private void handleFieldConvert(LcdField field) {
+        INameConvert nameConvert = strategyConfig.getNameConvert();
+        if (null != nameConvert) {
+            field.setPropertyName(nameConvert.propertyNameConvert(field));
+        } else {
+            field.setPropertyName(strategyConfig, processName(field.getName(), strategyConfig.getColumnNaming()));
+        }
+
+        field.setColumnType(dataSourceConfig.getTypeConvert().processTypeConvert(globalConfig, field));
+
+        // 填充逻辑判断
+        List<TableFill> tableFillList = getStrategyConfig().getTableFillList();
+        if (null != tableFillList) {
+            // 忽略大写字段问题
+            tableFillList.stream().filter(tf -> tf.getFieldName().equalsIgnoreCase(field.getName()))
+                    .findFirst().ifPresent(tf -> field.setFill(tf.getFieldFill().name()));
+        }
     }
 
     private void handleExcel(LcdField field, ObjectNode tabModel, String title) {

@@ -10,9 +10,9 @@ public class FormField {
     private String type;
 
     /**
-     * 表别名
+     * 实体名
      */
-    private String prefix;
+    private String entity;
 
     /**
      * 表列名

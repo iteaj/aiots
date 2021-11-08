@@ -1,0 +1,42 @@
+package ${package.ServiceImpl};
+
+import ${package.Entity}.${entity};
+import java.io.Serializable;
+import ${package.Mapper}.${table.mapperName};
+import ${package.Service}.${table.serviceName};
+import ${superServiceImplClassPackage};
+import com.iteaj.framework.result.*;
+import org.springframework.stereotype.Service;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+
+/**
+ * <p>
+ * $!{table.comment} 服务实现类
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Service
+#if(${kotlin})
+open class ${table.serviceImplName} : ${superServiceImplClass}<${table.mapperName}, ${entity}>(), ${table.serviceName} {
+
+}
+#else
+public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.mapperName}, ${entity}> implements ${table.serviceName} {
+
+    /**
+    * 获取指定的记录详情
+    */
+    public DetailResult<${entity}> detailById(Serializable id) {
+        return new DetailResult(getBaseMapper().detailById(id));
+    }
+
+    /**
+     * 获取详情分页记录
+     */
+    public PageResult<${entity}> detailPage(IPage<${entity}> page, ${entity} entity) {
+        return new PageResult(getBaseMapper().detailPage(page, entity));
+    }
+}
+#end

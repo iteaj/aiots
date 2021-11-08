@@ -11,6 +11,11 @@ public class DesignTableInfo extends TableInfo {
     private String dtoName;
 
     /**
+     * 主键字段
+     */
+    private String keyField;
+
+    /**
      * dto字段信息
      */
     private List<LcdField> dtoFields;

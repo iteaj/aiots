@@ -29,13 +29,7 @@ import lombok.experimental.Accessors;
 #if(${swagger2})
 @ApiModel(value="${entity}数据传输对象", description="$!{table.comment}")
 #end
-#if(${superEntityClass})
-public class ${entity}Dto extends ${entity}#if(${activeRecord})<${entity}>#end {
-#elseif(${activeRecord})
-public class ${entity} extends Model<${entity}> {
-#else
-public class ${entity} implements Serializable {
-#end
+public class ${entity}Dto extends ${entity} {
 
 #if(${entitySerialVersionUID})
     private static final long serialVersionUID = 1L;
