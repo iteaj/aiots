@@ -314,6 +314,7 @@ public class DesignConfigBuilder {
         boolean haveId = false;
         List<TableField> fieldList = new ArrayList<>();
         List<LcdField> dtoFields = new ArrayList<>();
+        List<LcdField> foreign = new ArrayList<>(); // 外键字段
         List<FormField> formFields = new ArrayList<>();
         List<FormField> searchFields = new ArrayList<>();
         List<FormTableField> formTableFields = new ArrayList<>();
@@ -359,7 +360,6 @@ public class DesignConfigBuilder {
             field.setTitle(title);
             String newColumnName = columnName;
             field.setType(tabModel.get("fieldType").asText());
-            field.setComment(tabModel.get("comment").asText());
 
             IKeyWordsHandler keyWordsHandler = dataSourceConfig.getKeyWordsHandler();
             if (keyWordsHandler != null && keyWordsHandler.isKeyWords(columnName)) {
@@ -382,6 +382,12 @@ public class DesignConfigBuilder {
             // 数据库字段
             if(tabModel.get("isDb").asBoolean()) {
                 fieldList.add(field);
+                field.setComment(tabModel.get("comment").asText());
+
+                // 收集外键列表
+                if("foreign".equals(type)) { // 如果是外键类型
+                    foreign.add(field);
+                }
 
                 if (strategyConfig.includeSuperEntityColumns(field.getName())) {
                     // 跳过公共字段
@@ -391,8 +397,8 @@ public class DesignConfigBuilder {
                 }
 
             // 引用类型的字段都是dto字段
-            } else if("quote".equals(tabModel.get("type").asText())) {
-                dtoFields.add(field);
+            } else if("quote".equals(type)) {
+                dtoFields.add(field); // 手机引用字典列表
             }
         });
         // 处理ivzone编辑组件
@@ -468,15 +474,21 @@ public class DesignConfigBuilder {
     }
 
     private void handleExcel(LcdField field, ObjectNode tabModel, String title) {
-        Boolean isImport = tabModel.get("isImport").asBoolean();
-        Boolean isExport = tabModel.get("isExport").asBoolean();
-        if(isImport || isExport) {
-            StringBuilder excel = new StringBuilder("@Excel(name=").append('"').append(title).append('"');
-            if(isImport) {
-                excel.append(", isImportField=\"true\"");
+        final JsonNode anImport = tabModel.get("isImport");
+        final JsonNode anExport = tabModel.get("isExport");
+
+        if(anImport != null && anExport != null) {
+            Boolean isImport = anImport.asBoolean(false);
+            Boolean isExport = anExport.asBoolean(false);
+
+            if(isImport || isExport) {
+                StringBuilder excel = new StringBuilder("@Excel(name=").append('"').append(title).append('"');
+                if(isImport) {
+                    excel.append(", isImportField=\"true\"");
+                }
+                excel.append(")");
+                field.setExcel(excel.toString());
             }
-            excel.append(")");
-            field.setExcel(excel.toString());
         }
     }
 

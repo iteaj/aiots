@@ -11,6 +11,11 @@ public class DesignTableInfo extends TableInfo {
     private String dtoName;
 
     /**
+     * 表关联信息
+     */
+    private String joinInfo;
+
+    /**
      * 主键字段
      */
     private String keyField;

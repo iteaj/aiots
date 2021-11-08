@@ -6,20 +6,12 @@ import lombok.Data;
 @Data
 public class LcdField extends TableField {
 
-    /**
-     * 是否编辑
-     */
-    private boolean edit;
 
     /**
-     * 是否搜索
+     * 字段所属表
+     * 用于引用字段
      */
-    private boolean search;
-
-    /**
-     * 是否列表
-     */
-    private boolean table;
+    private String table;
 
     /**
      * 字段标题
