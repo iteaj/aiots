@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Data
 public class JoinFieldParse {
@@ -23,14 +24,22 @@ public class JoinFieldParse {
     }
 
     public String resolve() {
+        char startAlias = 'a';
+        Map<String, Character> tableAlias = new HashMap<>();
+        tableAlias.put(this.tableInfo.getName(), startAlias);
 
         StringBuilder sb = new StringBuilder("select a.* from ")
-                .append(this.tableInfo.getName()).append(" a");
+                .append(this.tableInfo.getName()).append(" ").append(startAlias).append("\r\t");
         if(!CollectionUtils.isEmpty(this.fields) && !CollectionUtils.isEmpty(foreign)) {
 
-            foreign.forEach(item -> {
-                sb.append(" left join ").append(item.getTable())
-                        .append(" ").append("");
+            IntStream.range(0, foreign.size()).forEach(value -> {
+                LcdField lcdField = foreign.get(value); // 外键字段
+
+                char alias = (char) (startAlias + value + 1);
+                tableAlias.put(lcdField.getTable(), alias);
+
+                sb.append(" left join ").append(lcdField.getTable())
+                        .append(" ").append(alias).append("\r\t");
             });
 
             Map<String, List<LcdField>> lcdFieldMap = new HashMap();

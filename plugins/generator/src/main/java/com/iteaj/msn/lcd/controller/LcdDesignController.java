@@ -80,11 +80,12 @@ public class LcdDesignController extends BaseController {
 
     /**
      * 外键列表
+     * @param id 不包含的表
      * @return
      */
     @GetMapping("foreign")
-    public Result<List<TableOptionsDto>> foreign(String tableName) {
-        List<TableOptionsDto> tableOptionsDtos = this.lcdDesignService.listForeign(tableName);
+    public Result<List<TableOptionsDto>> foreign(Long id) {
+        List<TableOptionsDto> tableOptionsDtos = this.lcdDesignService.listForeign(id);
         return success(tableOptionsDtos);
     }
 

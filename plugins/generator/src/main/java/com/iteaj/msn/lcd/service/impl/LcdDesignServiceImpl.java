@@ -49,13 +49,15 @@ public class LcdDesignServiceImpl extends BaseServiceImpl<LcdDesignMapper, LcdDe
     }
 
     @Override
-    public List<TableOptionsDto> listForeign(String tableName) {
+    public List<TableOptionsDto> listForeign(Long id) {
         return list(Wrappers.<LcdDesign>lambdaQuery().select(LcdDesign::getId
-                , LcdDesign::getTableName, LcdDesign::getName)).stream().map(table -> {
+                , LcdDesign::getTableName, LcdDesign::getName)
+                .ne(id != null, LcdDesign::getId, id)).stream().map(table -> {
                 final TableOptionsDto tableOptionsDto = new TableOptionsDto(table.getTableName(), table.getTableName());
-                if(tableName != null && tableName.equals(table.getTableName())) {
+                if(id != null && id.equals(table.getTableName())) {
                     tableOptionsDto.setDisabled(true);
                 }
+
                 return tableOptionsDto;
             }).collect(Collectors.toList());
     }

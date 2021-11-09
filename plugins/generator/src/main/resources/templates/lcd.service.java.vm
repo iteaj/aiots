@@ -1,6 +1,7 @@
 package ${package.Service};
 
 import ${package.Entity}.${entity};
+import ${package.Dto}.${dto};
 import ${superServiceClassPackage};
 import java.io.Serializable;
 import com.iteaj.framework.result.*;
@@ -22,11 +23,11 @@ public interface ${table.serviceName} extends ${superServiceClass}<${entity}> {
     /**
      * 获取指定的记录详情
      */
-    DetailResult<${entity}> detailById(Serializable id);
+    DetailResult<${dto}> detailById(Serializable id);
 
     /**
      * 获取详情分页记录
      */
-    PageResult<${entity}> detailPage(IPage<${entity}> page, ${entity} entity);
+    PageResult<IPage<${dto}>> detailPage(IPage<${dto}> page, ${dto} entity);
 }
 #end

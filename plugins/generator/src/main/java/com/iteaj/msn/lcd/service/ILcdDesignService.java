@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface ILcdDesignService extends IBaseService<LcdDesign> {
 
-    List<TableOptionsDto> listForeign(String tableName);
+    List<TableOptionsDto> listForeign(Long id);
 
     List<TableOptionsDto> listColumns(String tableName);
 }

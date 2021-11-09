@@ -26,7 +26,7 @@
     </resultMap>
 
     <!-- 详情查询映射结果 -->
-    <resultMap id="DetailResultMap" type="${package.Dto}.${entity}Dto" extends="BaseResultMap">
+    <resultMap id="DetailResultMap" type="${package.Dto}.${dto}" extends="BaseResultMap">
 #foreach($field in ${table.dtoFields})
         <result column="${field.name}" property="${field.propertyName}" />
 #end
@@ -44,11 +44,25 @@
 
     <!-- 获取详情分页记录 -->
     <select id="detailPage" resultMap="DetailResultMap">
-
+        select a.*${table.joinColumns}
+        from ${table.name} a
+#foreach($join in ${table.joinTables})
+            left join ${join.name} ${join.alias} on a.${join.field}=${join.alias}.${join.foreignId}
+#end
+        <where>
+#foreach($field in ${table.searchFields})
+            <if test="${field.condition}">and ${field.alias}.${field.columnName}=#{entity.$field.propertyName}</if>
+#end
+        </where>
     </select>
 
     <!-- 获取指定的详情记录 -->
     <select id="detailById" resultMap="DetailResultMap">
-        select a.* from ${table.name} a where a.${table.keyField}=#{id}
+        select a.*${table.joinColumns}
+        from ${table.name} a
+#foreach($join in ${table.joinTables})
+            left join ${join.name} ${join.alias} on a.${join.field}=${join.alias}.${join.foreignId}
+#end
+        where a.${table.keyField}=#{id}
     </select>
 </mapper>

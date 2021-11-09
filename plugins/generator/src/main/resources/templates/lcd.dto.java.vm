@@ -1,6 +1,9 @@
 package ${package.Dto};
 
 import ${package.Entity}.${entity};
+#foreach($pkg in ${table.dtoImportPackages})
+import ${pkg};
+#end
 #if(${swagger2})
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -29,7 +32,7 @@ import lombok.experimental.Accessors;
 #if(${swagger2})
 @ApiModel(value="${entity}数据传输对象", description="$!{table.comment}")
 #end
-public class ${entity}Dto extends ${entity} {
+public class ${dto} extends ${entity} {
 
 #if(${entitySerialVersionUID})
     private static final long serialVersionUID = 1L;
@@ -45,8 +48,8 @@ public class ${entity}Dto extends ${entity} {
      * ${field.comment}
      */
   #end
-    private ${field.propertyType} ${field.propertyName};
 #end
+    private ${field.propertyType} ${field.propertyName};
 #end
 ## ----------  END 字段循环遍历  ----------
 
@@ -63,7 +66,7 @@ public class ${entity}Dto extends ${entity} {
     }
 
   #if(${chainModel})
-    public ${entity}Dto set${field.capitalName}(${field.propertyType} ${field.propertyName}) {
+    public ${dto} set${field.capitalName}(${field.propertyType} ${field.propertyName}) {
   #else
     public void set${field.capitalName}(${field.propertyType} ${field.propertyName}) {
   #end

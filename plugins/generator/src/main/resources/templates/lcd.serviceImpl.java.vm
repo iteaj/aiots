@@ -1,7 +1,8 @@
 package ${package.ServiceImpl};
 
-import ${package.Entity}.${entity};
 import java.io.Serializable;
+import ${package.Entity}.${entity};
+import ${package.Dto}.${dto};
 import ${package.Mapper}.${table.mapperName};
 import ${package.Service}.${table.serviceName};
 import ${superServiceImplClassPackage};
@@ -28,14 +29,14 @@ public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.m
     /**
     * 获取指定的记录详情
     */
-    public DetailResult<${entity}> detailById(Serializable id) {
+    public DetailResult<${dto}> detailById(Serializable id) {
         return new DetailResult(getBaseMapper().detailById(id));
     }
 
     /**
      * 获取详情分页记录
      */
-    public PageResult<${entity}> detailPage(IPage<${entity}> page, ${entity} entity) {
+    public PageResult<IPage<${dto}>> detailPage(IPage<${dto}> page, ${dto} entity) {
         return new PageResult(getBaseMapper().detailPage(page, entity));
     }
 }

@@ -7,6 +7,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import ${package.Entity}.${entity};
+import ${package.Dto}.${dto};
 import ${package.Service}.${table.serviceName};
 #if(${restControllerStyle})
 #else
@@ -53,7 +54,7 @@ public class ${table.controllerName} {
     */
     @GetMapping("/view")
     @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:view"})
-    public Result<IPage<${entity}>> list(Page<${entity}> page, ${entity} entity) {
+    public Result<IPage<${dto}>> list(Page<${dto}> page, ${dto} entity) {
         return this.${cfg.serviceName}.detailPage(page, entity);
     }
 
@@ -63,7 +64,7 @@ public class ${table.controllerName} {
     */
     @GetMapping("/edit")
     @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:edit"})
-    public Result<${entity}> getEditDetail(Long id) {
+    public Result<${dto}> getEditDetail(Long id) {
         return this.${cfg.serviceName}.detailById(id);
     }
 

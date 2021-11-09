@@ -20,4 +20,6 @@ public class ReviewDto {
     private String html;
 
     private String mapper;
+
+    private String dto;
 }

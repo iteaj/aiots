@@ -33,18 +33,7 @@ public class LcdDtoInjectionConfig extends LcdInjectionConfig {
 
     @Override
     public List<FileOutConfig> getFileOutConfigList() {
-        return Arrays.asList(new FileOutConfig() {
-            @Override
-            public String getTemplatePath() {
-                return "/templates/lcd.dto.java.vm";
-            }
-
-            @Override
-            public String outputFile(TableInfo tableInfo) {
-                String dto = getConfig().getPathInfo().get(LowCodeConst.DTO_PATH);
-                return dto + File.separator + tableInfo.getEntityName()+"DTO.java";
-            }
-        });
+        return Arrays.asList(new DtoFileOutConfig(getConfig()));
     }
 
     @Override

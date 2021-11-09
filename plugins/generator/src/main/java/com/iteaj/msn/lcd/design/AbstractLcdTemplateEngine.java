@@ -201,6 +201,7 @@ public abstract class AbstractLcdTemplateEngine {
         objectMap.put("baseResultMap", globalConfig.isBaseResultMap());
         objectMap.put("baseColumnList", globalConfig.isBaseColumnList());
         objectMap.put("entity", tableInfo.getEntityName());
+        objectMap.put("dto", tableInfo.getEntityName() + "Dto");
         objectMap.put("entitySerialVersionUID", config.getStrategyConfig().isEntitySerialVersionUID());
         objectMap.put("entityColumnConstant", config.getStrategyConfig().isEntityColumnConstant());
         objectMap.put("entityBuilderModel", config.getStrategyConfig().isEntityBuilderModel());

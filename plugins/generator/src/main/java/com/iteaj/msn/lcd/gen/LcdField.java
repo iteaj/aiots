@@ -6,10 +6,15 @@ import lombok.Data;
 @Data
 public class LcdField extends TableField {
 
+    private String alias;
+
+    /**
+     * 表单类型
+     */
+    private String formType;
 
     /**
      * 字段所属表
-     * 用于引用字段
      */
     private String table;
 

@@ -24,6 +24,7 @@ import com.iteaj.msn.lcd.service.ILcdDesignService;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 public class DesignConfigBuilder {
@@ -317,10 +318,16 @@ public class DesignConfigBuilder {
         List<LcdField> foreign = new ArrayList<>(); // 外键字段
         List<FormField> formFields = new ArrayList<>();
         List<FormField> searchFields = new ArrayList<>();
+        List<JoinTable> joinTables = new ArrayList<>();
+        Map<String, Character> tableAlias = new HashMap<>();
         List<FormTableField> formTableFields = new ArrayList<>();
 
         Map<String, LcdField> idMaps = new HashMap<>();
         List<TableField> commonFieldList = new ArrayList<>();
+
+        char startAlias = 'a'; // 别名从a开始
+        AtomicInteger aliasSetup = new AtomicInteger(1);
+        tableAlias.put(tableInfo.getName(), startAlias);
 
         // 处理主键信息
         JsonNode container = entity.getContainer().get("meta");
@@ -337,8 +344,12 @@ public class DesignConfigBuilder {
                     lcdField.setComment(tabModel.get("comment").asText());
                     tableInfo.setKeyField(field);
                     handleFieldConvert(lcdField);
-
-                    fieldList.add(lcdField);
+                    if (strategyConfig.includeSuperEntityColumns(lcdField.getName())) {
+                        // 跳过公共字段
+                        commonFieldList.add(lcdField);
+                    } else {
+                        fieldList.add(lcdField);
+                    }
                 }
             }
         }
@@ -359,6 +370,8 @@ public class DesignConfigBuilder {
             field.setName(columnName);
             field.setTitle(title);
             String newColumnName = columnName;
+            field.setFormType(type);
+            field.setTable(tableInfo.getName());
             field.setType(tabModel.get("fieldType").asText());
 
             IKeyWordsHandler keyWordsHandler = dataSourceConfig.getKeyWordsHandler();
@@ -374,7 +387,7 @@ public class DesignConfigBuilder {
             handleFieldConvert(field);
 
             // excel注解处理
-            handleExcel(field, tabModel, title);
+            handleExcel(tableInfo, field, tabModel, title);
 
             // valid注解处理
             handleValidate(tableInfo, field, tabModel, title, type);
@@ -387,6 +400,16 @@ public class DesignConfigBuilder {
                 // 收集外键列表
                 if("foreign".equals(type)) { // 如果是外键类型
                     foreign.add(field);
+                    // 用abc作为表别名
+                    String quoteTable = tabModel.get("quoteTable").asText();
+                    if(!tableAlias.containsKey(quoteTable)) {
+                        // 别名新增1
+                        tableAlias.put(quoteTable, (char) (startAlias + aliasSetup.getAndIncrement()));
+                    }
+
+                    // 新增关联的表
+                    joinTables.add(new JoinTable(quoteTable, tableAlias.get(quoteTable).toString()
+                            , tabModel.get("foreignId").asText(), tabModel.get("field").asText()));
                 }
 
                 if (strategyConfig.includeSuperEntityColumns(field.getName())) {
@@ -398,7 +421,23 @@ public class DesignConfigBuilder {
 
             // 引用类型的字段都是dto字段
             } else if("quote".equals(type)) {
-                dtoFields.add(field); // 手机引用字典列表
+                String quoteTable = tabModel.get("quoteTable").asText();
+                field.setAlias(tableAlias.get(quoteTable).toString());
+                dtoFields.add(field); // 引用字典列表
+                field.setTable(tabModel.get("quoteTable").asText()); // 设置所属表
+                // 导入需要的包
+                if(field.getColumnType().getPkg() != null) {
+                    tableInfo.getDtoImportPackages().add(field.getColumnType().getPkg());
+                }
+
+                JsonNode target = tabModel.get("target");
+                if(target instanceof ObjectNode) {
+                    field.setComment(target.get("comment").asText(""));
+                }
+
+                if(StringUtils.isNotBlank(field.getExcel())) {
+                    tableInfo.getDtoImportPackages().add("cn.afterturn.easypoi.excel.annotation.*");
+                }
             }
         });
         // 处理ivzone编辑组件
@@ -420,9 +459,13 @@ public class DesignConfigBuilder {
         if(search != null) {
             search.forEach(item -> {
                 final String id = item.get("id").asText();
-                final TableField tableField = idMaps.get(id);
-                searchFields.add(new FormField().setComponent(String.format(item.get("template").asText()
-                        , tableField.getPropertyName(), searchIdTitleMaps.get(id))));
+                final LcdField tableField = idMaps.get(id);
+                FormField formField = new FormField().setComponent(String.format(item.get("template").asText()
+                        , tableField.getPropertyName(), searchIdTitleMaps.get(id))).setTable(tableField.getTable())
+                        .setAlias(tableAlias.get(tableField.getTable()).toString()).setColumnName(tableField.getColumnName())
+                        .setPropertyName(tableField.getPropertyName()).setType(tableField.getColumnType());
+
+                searchFields.add(formField);
             });
         }
 
@@ -447,6 +490,7 @@ public class DesignConfigBuilder {
         tableInfo.setFields(fieldList);
         tableInfo.setDtoFields(dtoFields);
         tableInfo.setFormFields(formFields);
+        tableInfo.setJoinTables(joinTables);
         tableInfo.setSearchFields(searchFields);
         tableInfo.setCommonFields(commonFieldList);
         tableInfo.setFormTableFields(formTableFields);
@@ -473,7 +517,7 @@ public class DesignConfigBuilder {
         }
     }
 
-    private void handleExcel(LcdField field, ObjectNode tabModel, String title) {
+    private void handleExcel(DesignTableInfo tableInfo, LcdField field, ObjectNode tabModel, String title) {
         final JsonNode anImport = tabModel.get("isImport");
         final JsonNode anExport = tabModel.get("isExport");
 
@@ -488,6 +532,7 @@ public class DesignConfigBuilder {
                 }
                 excel.append(")");
                 field.setExcel(excel.toString());
+                tableInfo.getImportPackages().add("cn.afterturn.easypoi.excel.annotation.*");
             }
         }
     }
