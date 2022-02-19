@@ -31,18 +31,16 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-<!-- ################################ 可选plugins ############################## -->
-
         <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>oauth2</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>quartz</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
         <!-- 缓存配置 -->
 <!--        <dependency>-->
 <!--            <artifactId>caffeine</artifactId>-->
@@ -151,9 +149,6 @@
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
-        </profile>
-        <profile>
-            <id>prod</id>
         </profile>
     </profiles>
 </project>

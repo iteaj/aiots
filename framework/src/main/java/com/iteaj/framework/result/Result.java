@@ -34,6 +34,14 @@ public interface Result<E> extends Serializable {
 
     /**
      * 成功
+     * @return HttpResult
+     */
+    static <T> HttpResult<T> success() {
+        return HttpResult.Success();
+    }
+
+    /**
+     * 成功
      * @param msg
      * @return HttpResult
      */

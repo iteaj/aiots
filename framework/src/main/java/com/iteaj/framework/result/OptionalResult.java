@@ -13,8 +13,8 @@ import java.util.function.Function;
  */
 public abstract class OptionalResult<E, _this extends AbstractResult<E>> extends AbstractResult<E> {
 
-    public static long DCODE = 200;
-    public static String DMSG = "操作成功";
+    public static long DCODE = HttpResult.DEFAULT_SUCCESS_CODE;
+    public static String DMSG = HttpResult.DEFAULT_SUCCESS_MSG;
 
     protected OptionalResult(E value) {
         this(value, DMSG, DCODE);

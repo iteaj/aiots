@@ -14,8 +14,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
-        <!-- 可选插件 -->
-        <module>plugins</module>
+        <!-- 代码生成器 -->
+        <module>generator</module>
         <!--系统架构层-->
         <module>framework</module>
         <!--项目启动SpringBoot入口-->
@@ -29,10 +29,10 @@
         <shiro.version>1.7.1</shiro.version>
         <okhttp3.version>4.5.0</okhttp3.version>
         <iutils.version>1.3.2</iutils.version>
+        <excelpoi.version>4.3.0</excelpoi.version>
         <fastjson.version>1.2.78</fastjson.version>
         <izone.boot.version>1.2.1</izone.boot.version>
         <mybatis.plus.version>3.4.1</mybatis.plus.version>
-
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>

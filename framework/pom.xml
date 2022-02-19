@@ -56,13 +56,6 @@
         </dependency>
 
         <dependency>
-            <optional>true</optional>
-            <groupId>com.baomidou</groupId>
-            <version>${mybatis.plus.version}</version>
-            <artifactId>mybatis-plus-generator</artifactId>
-        </dependency>
-
-        <dependency>
             <artifactId>okhttp</artifactId>
             <groupId>com.squareup.okhttp3</groupId>
         </dependency>
@@ -90,6 +83,16 @@
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <optional>true</optional>
+            <groupId>cn.afterturn</groupId>
+            <artifactId>easypoi-base</artifactId>
+            <version>${excelpoi.version}</version>
         </dependency>
     </dependencies>
 </project>

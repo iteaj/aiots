@@ -58,9 +58,7 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
     public void onSuccess(AuthenticationToken authenticationToken, AuthenticationInfo authenticationInfo) {
         try {
             Entity admin;
-            if(authenticationToken instanceof ShiroToken) {
-                admin = ((ShiroToken) authenticationToken).getPrincipal();
-            } else if(authenticationToken.getPrincipal() instanceof Entity){
+            if(authenticationToken.getPrincipal() instanceof Entity){
                 admin = (Entity) authenticationToken.getPrincipal();
             } else {
                 admin = null;

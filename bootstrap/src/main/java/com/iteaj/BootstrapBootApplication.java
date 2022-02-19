@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         CoreAutoConfiguration.class, // 系统管理模块
         FrameworkWebConfiguration.class // 框架配置
 })
-@SpringBootApplication
+@SpringBootApplication()
 public class BootstrapBootApplication {
 
     public static void main(String[] args) {

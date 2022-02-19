@@ -18,6 +18,8 @@ import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.session.mgt.eis.SessionDAO;
+import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthorizingMethodInterceptor;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
@@ -40,8 +42,8 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-@ImportAutoConfiguration({ShiroAuthActionProxy.class
-        , ShiroAutoConfiguration.RedisSessionCacheManagerConfiguration.class})
+@ImportAutoConfiguration({ShiroAutoConfiguration.
+        RedisSessionCacheManagerConfiguration.class})
 @EnableConfigurationProperties(SessionCacheProperties.class)
 public class ShiroAutoConfiguration {
 
@@ -79,6 +81,21 @@ public class ShiroAutoConfiguration {
 
         chain.addPathDefinition("/**", CoreConst.FRAMEWORK_FILTER_NAME);
         return chain;
+    }
+
+    /**
+     * shiro 启用权限注解拦截
+     * @param securityManager
+     * @return
+     */
+    @Bean
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(RealmSecurityManager securityManager) {
+        AuthorizationAttributeSourceAdvisor sourceAdvisor = new AuthorizationAttributeSourceAdvisor();
+
+        sourceAdvisor.setSecurityManager(securityManager);
+        sourceAdvisor.setAdvice(new AopAllianceAnnotationsAuthorizingMethodInterceptor());
+
+        return sourceAdvisor;
     }
 
     @Bean
@@ -143,15 +160,6 @@ public class ShiroAutoConfiguration {
         });
 
         return securityManager;
-    }
-
-    /**
-     * 后台管理端认证和权限信息Realm
-     * @return
-     */
-    @Bean("frameworkAuthRealm")
-    public AuthorizingRealm frameworkAuthRealm() {
-        return new ShiroFrameworkAuthRealm();
     }
 
     /**

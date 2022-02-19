@@ -7,15 +7,10 @@ import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.DefaultModule;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.spi.auth.WebAuthAction;
-import com.iteaj.msn.core.auth.AdminLoginAction;
-import com.iteaj.msn.core.auth.AdminOAuth2Action;
+import com.iteaj.msn.core.auth.ShiroAdminAuthRealm;
 import com.iteaj.msn.core.exception.AsyncExceptionHandler;
-import com.iteaj.msn.core.service.*;
-import org.apache.shiro.mgt.RealmSecurityManager;
-import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthorizingMethodInterceptor;
-import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
-import org.mybatis.spring.annotation.MapperScan;
+import com.iteaj.msn.core.service.AdminLoggerService;
+import com.iteaj.msn.core.service.AdminResourceManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -28,8 +23,6 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 /**
  * create time: 2020/4/25
@@ -85,39 +78,12 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     }
 
     /**
-     * shiro 启用权限注解拦截
-     * @param securityManager
+     * shiro实现的用户认证、授权
      * @return
      */
-    @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(RealmSecurityManager securityManager) {
-        AuthorizationAttributeSourceAdvisor sourceAdvisor = new AuthorizationAttributeSourceAdvisor();
-
-        sourceAdvisor.setSecurityManager(securityManager);
-        sourceAdvisor.setAdvice(new AopAllianceAnnotationsAuthorizingMethodInterceptor());
-
-        return sourceAdvisor;
-    }
-
-    /**
-     * 后台管理端授权认证动作
-     * @return
-     */
-    @Bean
-    @Order(99999)
-    public WebAuthAction adminAuthAction() {
-        final String loginUrl = coreProperties.getLoginUrl();
-        return new AdminLoginAction("/**", loginUrl);
-    }
-
-    /**
-     * @see #adminAuthAction() Order(80) 要小于 Order(100)
-     * @return
-     */
-    @Bean
-    @Order(168)
-    public AdminOAuth2Action oAuth2Action() {
-        return new AdminOAuth2Action(new String[]{"/core/oauth2"});
+    @Bean("frameworkAuthRealm")
+    public ShiroAdminAuthRealm shiroAdminAuthRealm() {
+        return new ShiroAdminAuthRealm();
     }
 
     /**

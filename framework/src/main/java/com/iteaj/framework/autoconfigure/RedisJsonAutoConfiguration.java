@@ -1,11 +1,13 @@
 package com.iteaj.framework.autoconfigure;
 
+import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -19,6 +21,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 @ConditionalOnClass(name = "org.springframework.data.redis.core.RedisTemplate")
 public class RedisJsonAutoConfiguration {
 
+    @Primary
     @Bean({"redisTemplate", "jsonRedisTemplate"})
     @ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")
     public RedisTemplate jacksonRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
@@ -40,6 +43,26 @@ public class RedisJsonAutoConfiguration {
         // json包含类型信息, 支持直接反序列号对象
         objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
         valueSerializer.setObjectMapper(objectMapper);
+
+        redisTemplate.setValueSerializer(valueSerializer);
+        redisTemplate.setHashValueSerializer(valueSerializer);
+
+        return redisTemplate;
+    }
+
+    @Bean({"redisTemplate", "jsonRedisTemplate"})
+    @ConditionalOnClass(name = "com.alibaba.fastjson.support.spring.FastJsonRedisSerializer")
+    public RedisTemplate fastjsonRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        final RedisTemplate redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+        // key使用String序列化
+        redisTemplate.setKeySerializer(redisTemplate.getStringSerializer());
+        redisTemplate.setHashKeySerializer(redisTemplate.getStringSerializer());
+
+        // value 使用Fastjson序列化
+        FastJsonRedisSerializer<Object> valueSerializer =
+                new FastJsonRedisSerializer<>(Object.class);
 
         redisTemplate.setValueSerializer(valueSerializer);
         redisTemplate.setHashValueSerializer(valueSerializer);

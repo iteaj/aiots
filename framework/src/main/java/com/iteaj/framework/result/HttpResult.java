@@ -8,6 +8,11 @@ package com.iteaj.framework.result;
  */
 public class HttpResult<E> extends AbstractResult<E> {
 
+    public static int DEFAULT_ERROR_CODE = 500;
+    public static int DEFAULT_SUCCESS_CODE = 200;
+    public static String DEFAULT_ERROR_MSG = "操作失败";
+    public static String DEFAULT_SUCCESS_MSG = "操作成功";
+
     protected HttpResult(String message, int code) {
         super(message, code);
     }
@@ -16,8 +21,12 @@ public class HttpResult<E> extends AbstractResult<E> {
         super(data, message, code);
     }
 
-    public static HttpResult Success(String message) {
-        return Success(null, message);
+    public static HttpResult Success() {
+        return Success(null, DEFAULT_SUCCESS_MSG);
+    }
+
+    public static HttpResult Success(Object data) {
+        return Success(data, DEFAULT_SUCCESS_MSG);
     }
 
     /**
@@ -26,7 +35,11 @@ public class HttpResult<E> extends AbstractResult<E> {
      * @return
      */
     public static HttpResult Success(Object data, String message) {
-        return HttpResult.StatusCode(data, message, 200);
+        return HttpResult.StatusCode(data, message, DEFAULT_SUCCESS_CODE);
+    }
+
+    public static HttpResult Fail() {
+        return Fail(null, DEFAULT_ERROR_MSG);
     }
 
     public static HttpResult Fail(String message) {
@@ -39,7 +52,7 @@ public class HttpResult<E> extends AbstractResult<E> {
      * @return
      */
     public static HttpResult Fail(Object data, String message) {
-        return HttpResult.StatusCode(data, message, 500);
+        return HttpResult.StatusCode(data, message, DEFAULT_ERROR_CODE);
     }
 
     public static HttpResult StatusCode(String message, int code) {
