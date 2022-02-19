@@ -15,6 +15,11 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class WebUtils {
 
+    public static boolean isAjax(HttpServletRequest request) {
+        final String ajaxHeader = request.getHeader("x-requested-with");
+        return ajaxHeader != null && ajaxHeader.equals("XMLHttpRequest");
+    }
+
     public static boolean isApp(HttpServletRequest request) {
         final Object agent = request.getAttribute(CoreConst.WEB_USER_AGENT);
         if(agent instanceof UserAgent) {

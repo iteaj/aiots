@@ -20,15 +20,24 @@ import java.io.Serializable;
 
 public class ShiroUtil {
 
+    public static Serializable getId() {
+        final Entity user = getUser();
+        return user != null ? user.getId() : null;
+    }
+
     /**
      * 返回当前登录的用户
      * @return
      */
     public static <T extends Entity> T getUser() {
-        final Object principal = SecurityUtils.getSubject().getPrincipal();
-        if(principal instanceof AuthToken) {
-            return (T) ((AuthToken) principal).getPrincipal();
-        } else {
+        try {
+            final Object principal = SecurityUtils.getSubject().getPrincipal();
+            if(principal instanceof Entity) {
+                return ((T) principal);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
             return null;
         }
     }

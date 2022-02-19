@@ -20,7 +20,7 @@ import java.util.Objects;
 
 /**
  * create time: 2021/3/27
- *
+ *  shiro 认证和授权的实现
  * @author iteaj
  * @since 1.0
  */
@@ -59,7 +59,7 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
         final Long createTime = (Long) session.getAttribute(Constants.KAPTCHA_SESSION_DATE);
 
         if(!Objects.equals(attribute, captcha) || createTime == null) {
-            throw new SecurityException("验证码错误");
+            throw new AuthenticationException("验证码错误");
         } else {
             session.removeAttribute(Constants.KAPTCHA_SESSION_KEY);
             session.removeAttribute(Constants.KAPTCHA_SESSION_DATE);

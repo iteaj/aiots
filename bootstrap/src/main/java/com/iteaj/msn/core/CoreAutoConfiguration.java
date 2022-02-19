@@ -2,15 +2,21 @@ package com.iteaj.msn.core;
 
 import com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration;
 import com.iteaj.framework.autoconfigure.ShiroAutoConfiguration;
+import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.framework.security.shiro.AccessFilterWrapper;
+import com.iteaj.framework.security.shiro.ShiroAuthAccessFilter;
 import com.iteaj.framework.spi.admin.DefaultModule;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
+import com.iteaj.framework.spi.auth.WebAuthHandler;
+import com.iteaj.msn.core.auth.AdminFilter;
 import com.iteaj.msn.core.auth.ShiroAdminAuthRealm;
 import com.iteaj.msn.core.exception.AsyncExceptionHandler;
 import com.iteaj.msn.core.service.AdminLoggerService;
 import com.iteaj.msn.core.service.AdminResourceManager;
+import org.apache.shiro.web.filter.authc.UserFilter;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -84,6 +90,17 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     @Bean("frameworkAuthRealm")
     public ShiroAdminAuthRealm shiroAdminAuthRealm() {
         return new ShiroAdminAuthRealm();
+    }
+
+    /**
+     * 创建一个名称叫{@code framework}的shiro全局配置过滤器
+     * @return
+     */
+    @Bean("frameworkAccessFilter")
+    public AccessFilterWrapper frameworkAccessFilter() {
+        final AdminFilter adminFilter = new AdminFilter();
+        adminFilter.setLoginUrl(coreProperties.getLoginUrl());
+        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, adminFilter);
     }
 
     /**

@@ -51,27 +51,14 @@ public class ShiroAutoConfiguration {
     private final SessionCacheProperties cacheProperties;
     @Autowired
     private ObjectProvider<AuthenticationListener> authentication;
+
     public ShiroAutoConfiguration(FrameworkProperties properties, SessionCacheProperties cacheProperties) {
         this.properties = properties;
         this.cacheProperties = cacheProperties;
     }
 
     /**
-     * 创建一个名称叫{@code framework}的shiro全局配置过滤器
-     * @see WebAuthHandler 扩展shiro的session, 认证, 授权等功能
-     * @see com.iteaj.framework.spi.auth.WebAuthAction
-     * @see #frameworkAuthFilterChainDefinition() 拦截所有请求 /**
-     * @param handler
-     * @return
-     */
-    @Bean("frameworkAccessFilter")
-    public AccessFilterWrapper frameworkAccessFilter(WebAuthHandler handler) {
-        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new ShiroAuthAccessFilter(handler));
-    }
-
-    /**
      * 使用框架认证过滤器
-     * @see #frameworkAccessFilter(WebAuthHandler)
      * @return
      */
     @Bean
