@@ -56,8 +56,8 @@ public class AdminResourceManager implements ResourceManager, EnvironmentAware {
     public List<MenuResource> getResources(Entity principal) {
         if(null == principal) throw new ServiceException("用户未登录");
 
-        ListResult<Menu> menuTrees = menuService.selectMenuBarTreesInModules
-                ((Long) principal.getId(), getModules(), ShiroUtil.isSuper());
+        ListResult<Menu> menuTrees = menuService.selectMenuBarTrees
+                ((Long) principal.getId(), ShiroUtil.isSuper());
 
         return menuTrees.stream().collect(Collectors.toList());
     }
@@ -71,11 +71,6 @@ public class AdminResourceManager implements ResourceManager, EnvironmentAware {
 
         return menus.stream().map(item -> (MenuResource)item)
                 .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    @Override
-    public List<Module> getModules() {
-        return modules;
     }
 
     @Override

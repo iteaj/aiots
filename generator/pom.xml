@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>plugin:generator</name>
+    <name>generator</name>
     <artifactId>generator</artifactId>
     <description>代码生成器模块</description>
 

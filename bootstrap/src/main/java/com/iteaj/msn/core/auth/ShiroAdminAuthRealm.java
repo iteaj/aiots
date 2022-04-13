@@ -51,10 +51,15 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
 
         String userName = adminAuthToken.getUsername();
         String password = new String(adminAuthToken.getPassword());
-        String captcha = adminAuthToken.getCaptcha();
 
         final HttpServletRequest request = ShiroUtil.getRequest();
         final HttpSession session = request.getSession();
+
+        /**
+         * 获取校验码
+         * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
+         */
+        String captcha = adminAuthToken.getCaptcha();
         final Object attribute = session.getAttribute(Constants.KAPTCHA_SESSION_KEY);
         final Long createTime = (Long) session.getAttribute(Constants.KAPTCHA_SESSION_DATE);
 
@@ -94,6 +99,12 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
                 super.isPermitted(principals, permission);
     }
 
+    /**
+     * 超级管理员拥有所有的角色
+     * @param principal
+     * @param roleIdentifier
+     * @return
+     */
     @Override
     public boolean hasRole(PrincipalCollection principal, String roleIdentifier) {
 

@@ -8,7 +8,6 @@ import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -35,7 +34,7 @@ public class MenuController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:menu:view")
     public Result<List<Menu>> list(Menu menu) {
-        return menuService.selectMenuTreesInModules(menu, resourceManager.getModules());
+        return menuService.selectMenuTrees(menu);
     }
 
     /**

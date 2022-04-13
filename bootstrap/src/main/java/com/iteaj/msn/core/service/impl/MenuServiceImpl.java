@@ -1,25 +1,20 @@
 package com.iteaj.msn.core.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.admin.MenuType;
-import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.mapper.IMenuDao;
 import com.iteaj.msn.core.service.IMenuService;
-import com.iteaj.util.CommonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -39,26 +34,10 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
     }
 
     @Override
-    public List<Menu> selectBySuperAndMsn(String msn) {
-        return getBaseMapper().selectList(new QueryWrapper<Menu>()
-                .eq("msn", msn).ne("status", "disabled"));
-    }
-
-    @Override
     public ListResult<Menu> selectMenuTrees(Menu menu) {
-        return this.selectMenuTreesInModules(menu, Collections.EMPTY_LIST);
-    }
-
-    @Override
-    public ListResult<Menu> selectMenuTreesInModules(Menu menu, List<Module> modules) {
-        // 获取已经注册的模块
-        String[] msn = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
-
         // 只查询已经注册过的模块的菜单列表
         List<Menu> menuList = this.getBaseMapper() // 根据sort排序后的数据
-                .selectList(Wrappers.query(menu)
-                        .in(CommonUtils.isNotEmpty(msn), "msn", msn)
-                        .orderByAsc("sort"));
+                .selectList(Wrappers.query(menu).orderByAsc("sort"));
 
         List<Menu> menus = (List<Menu>) TreeUtils.toTrees(menuList, 0l);
         return new ListResult<>(menus);
@@ -66,19 +45,10 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
     @Override
     public ListResult<Menu> selectMenuBarTrees(Long aid, boolean isSuper) {
-        return this.selectMenuBarTreesInModules(aid, Collections.EMPTY_LIST, isSuper);
-    }
-
-    @Override
-    public ListResult<Menu> selectMenuBarTreesInModules(Long aid, List<Module> modules, boolean isSuper) {
-        // 获取已经注册的模块
-        String[] msn = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
-
         // 只查询已经注册过的模块的菜单列表
         List<Menu> allMenus = this.getBaseMapper()
                 .selectList(Wrappers.<Menu>query()
                         .ne("status", PermStatus.disabled)
-                        .in(CommonUtils.isNotEmpty(msn), "msn", msn)
                         .orderByAsc("sort"));
         if(CollectionUtils.isEmpty(allMenus)) {
             return new ListResult<>(Collections.emptyList());

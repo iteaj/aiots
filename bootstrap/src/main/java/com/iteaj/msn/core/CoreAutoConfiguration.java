@@ -98,9 +98,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
      */
     @Bean("frameworkAccessFilter")
     public AccessFilterWrapper frameworkAccessFilter() {
-        final AdminFilter adminFilter = new AdminFilter();
-        adminFilter.setLoginUrl(coreProperties.getLoginUrl());
-        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, adminFilter);
+        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new AdminFilter());
     }
 
     /**
@@ -112,11 +110,14 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     public OrderFilterChainDefinition staticFilterChainDefinition() {
         OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
 
+        chain.addPathDefinition("/core/login", "anon");
+
         // 静态资源这里配置所有请求路径都可以匿名访问
         chain.addPathDefinition("/js/**", "anon");
         chain.addPathDefinition("/css/**", "anon");
         chain.addPathDefinition("/img/**", "anon");
         chain.addPathDefinition("/libs/**", "anon");
+
         // api文档
         chain.addPathDefinition("/doc/**", "anon");
         chain.addPathDefinition("/favicon.ico", "anon");

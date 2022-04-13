@@ -6,46 +6,52 @@ scanPeriod: 设置监测配置文件是否有修改的时间间隔，如果没�
         当scan为true时，此属性生效。默认的时间间隔为1分钟。
 debug: 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false
 -->
-<configuration scan="false" scanPeriod="60 seconds" debug="true">
+
+<configuration scan="false" scanPeriod="60 seconds" debug="false">
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
 
     <contextName>LoggerConfig</contextName>
+    <property name="PATH.ROOT" value="./logs" />
+
     <!--<property>用来定义变量值，定义的值会被插入到logger上下文中，可以使“${}”来使用变量。-->
-    <property name="STDOUT_PATTERN" value="${STDOUT_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-HH:mm:ss.SSS}}){faint} [%clr(${LOG_LEVEL_PATTERN:-%5p})] [%clr(${PID:- }){magenta}] %clr([%1.15t]){faint} %clr(%-40.40logger{32}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoder 默认配置为PatternLayoutEncoder -->
         <encoder>
-            <pattern>${STDOUT_PATTERN}</pattern>
+            <pattern>${STDOUT_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-HH:mm:ss.SSS}}){faint} [%clr(${LOG_LEVEL_PATTERN:-%5p})] [%clr(${PID:- }){magenta}] %clr([%1.15t]){faint} %clr(%-40.40logger{32}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}</pattern>
         </encoder>
     </appender>
 
-    <!--开发环境日志输出级别配置-->
-    <springProfile name="dev">
-        <property name="root.level" value="info" />
-        <property name="FileNamePattern" value="@project.basedir@/logs/%d{yyyy-MM-dd}.log" />
-        <logger level="debug" name="com.iteaj" additivity="false">
-            <appender-ref ref="STDOUT" />
-        </logger>
-        <logger level="info" name="org.springframework" additivity="false">
-            <appender-ref ref="STDOUT" />
-        </logger>
-    </springProfile>
-    <springProfile name="test">
-        <property name="root.level" value="info" />
-        <property name="FileNamePattern" value="/data/logs/%d{yyyy-MM-dd}.log" />
-    </springProfile>
-    <springProfile name="prod">
-        <property name="root.level" value="warn" />
-        <property name="FileNamePattern" value="/data/logs/%d{yyyy-MM-dd}.log" />
-    </springProfile>
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="FILE_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${FileNamePattern}</FileNamePattern>
+            <FileNamePattern>${PATH.ROOT}/info/%d{yyyy-MM-dd}.log</FileNamePattern>
             <!--日志文件保留天数-->
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
-
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+            <pattern>%d{HH:mm:ss} [%thread] %-3level %logger{50} - %msg%n</pattern>
+        </encoder>
+        <!--日志级别过滤-->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <!--日志文件最大的大小-->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>30MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${PATH.ROOT}/error/%d{yyyy-MM-dd}.log</FileNamePattern>
+            <!--日志文件保留天数-->
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+        <!--日志级别过滤-->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
             <pattern>%d{HH:mm:ss} [%thread] %-3level %logger{50} - %msg%n</pattern>
@@ -55,12 +61,23 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
             <MaxFileSize>30MB</MaxFileSize>
         </triggeringPolicy>
     </appender>
+
     <logger level="warn" name="org.springframework.context.support.PostProcessorRegistrationDelegate" />
 
-    <root level="${root.level}">
-        <appender-ref ref="STDOUT" />
-        <springProfile name="test | prod">
-            <appender-ref ref="FILE" />
-        </springProfile>
-    </root>
+    <!--开发环境日志输出级别配置-->
+    <springProfile name="dev">
+        <logger level="debug" name="com.iteaj" additivity="false">
+            <appender-ref ref="STDOUT" />
+        </logger>
+        <logger level="info" name="org.springframework" additivity="false">
+            <appender-ref ref="STDOUT" />
+        </logger>
+    </springProfile>
+    <springProfile name="test,prod">
+        <root level="error">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE_INFO" />
+            <appender-ref ref="FILE_ERROR" />
+        </root>
+    </springProfile>
 </configuration>

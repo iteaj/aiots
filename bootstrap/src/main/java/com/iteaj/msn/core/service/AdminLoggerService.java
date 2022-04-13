@@ -78,14 +78,9 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        List<Module> modules = resourceManager.getModules();
-
-        // 获取已经注册的模块
-        String[] msnList = modules.stream().map(item -> item.getMsn()).toArray(String[]::new);
 
         // 只查询已经注册过的模块的菜单列表
-        this.menuService.list(Wrappers.<Menu>query().ne("type", MenuType.M)
-                .in(ArrayUtils.isNotEmpty(msnList),"msn", msnList))
+        this.menuService.list(Wrappers.<Menu>query().ne("type", MenuType.M))
                 .ofNullable().ifPresent(menus -> {
                 menus.forEach(menu -> {
                     if(StringUtils.hasText(menu.getUrl())) {

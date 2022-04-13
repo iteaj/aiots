@@ -53,10 +53,4 @@ public interface ResourceManager {
      * @return
      */
     Map<String, Object> getEnvConfig(Entity admin);
-
-    /**
-     * 获取模块列表
-     * @return
-     */
-    List<Module> getModules();
 }

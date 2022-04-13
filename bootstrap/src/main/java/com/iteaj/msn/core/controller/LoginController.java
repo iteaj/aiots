@@ -15,7 +15,6 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 用户管理中心接口
- * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
  * @author iteaj
  * @since 1.0
  */
