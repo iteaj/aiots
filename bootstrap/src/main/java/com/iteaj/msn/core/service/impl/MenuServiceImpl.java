@@ -118,7 +118,7 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
         }
 
         idList.stream().forEach(item -> {
-            this.getOne(Wrappers.<Menu>query().eq("pid", item))
+            this.count(Wrappers.<Menu>query().eq("pid", item))
                     .ofNullable()
                     .ifPresent((menu) -> {
                         throw new ServiceException("请先删除子菜单");
