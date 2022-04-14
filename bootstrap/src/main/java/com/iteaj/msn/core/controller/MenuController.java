@@ -1,5 +1,6 @@
 package com.iteaj.msn.core.controller;
 
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.service.IMenuService;
 import com.iteaj.framework.BaseController;
@@ -35,6 +36,14 @@ public class MenuController extends BaseController {
     @RequiresPermissions("core:menu:view")
     public Result<List<Menu>> list(Menu menu) {
         return menuService.selectMenuTrees(menu);
+    }
+
+    /**
+     * @return 菜单栏所需的列表
+     */
+    @GetMapping("/bars")
+    public Result<List<Menu>> bars() {
+        return menuService.selectMenuBarTrees((Long) ShiroUtil.getId(), ShiroUtil.isSuper());
     }
 
     /**

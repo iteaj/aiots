@@ -89,7 +89,7 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
         idList.stream().forEach(item -> {
             this.count(Wrappers.<Menu>query().eq("pid", item))
-                    .ofNullable()
+                    .ofNullable().filter(count -> count > 0)
                     .ifPresent((menu) -> {
                         throw new ServiceException("请先删除子菜单");
                     });
