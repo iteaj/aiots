@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi.admin;
 
 public enum MenuType {
-    A("权限"), M("目录"), V("视图");
+    A("功能"), M("目录"), V("菜单");
 
     public String desc;
 

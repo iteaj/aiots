@@ -6,14 +6,12 @@ import com.iteaj.framework.security.shiro.*;
 import com.iteaj.framework.security.shiro.online.OnlineSessionDAO;
 import com.iteaj.framework.security.shiro.online.OnlineSessionManager;
 import com.iteaj.framework.security.shiro.redis.ShiroRedisSessionCacheManager;
-import com.iteaj.framework.spi.auth.WebAuthHandler;
 import org.apache.shiro.authc.AbstractAuthenticator;
 import org.apache.shiro.authc.AuthenticationListener;
 import org.apache.shiro.authc.Authenticator;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
@@ -147,15 +145,6 @@ public class ShiroAutoConfiguration {
         });
 
         return securityManager;
-    }
-
-    /**
-     * 监听用户上线/离线
-     * @return
-     */
-    @Bean
-    public SessionListener eventSessionListener() {
-        return new ShiroOnlineListener();
     }
 
     /**

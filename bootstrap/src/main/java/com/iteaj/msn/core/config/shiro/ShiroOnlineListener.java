@@ -1,9 +1,10 @@
-package com.iteaj.framework.security.shiro;
+package com.iteaj.msn.core.config.shiro;
 
-import com.iteaj.framework.Entity;
-import com.iteaj.framework.spi.admin.event.OnlineEvent;
+import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.framework.spi.admin.event.OnlinePayload;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.framework.spi.event.EventUtils;
+import com.iteaj.framework.spi.event.PayloadEvent;
 import com.iteaj.framework.web.WebUtils;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.authc.AuthenticationException;
@@ -39,8 +40,9 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
     @Override
     public void onStop(Session session) {
         // 发布session 停止事件
-        EventUtils.publish(new OnlineEvent(session.getId(), OnlineStatus.Offline)
-                .setAccessTime(session.getLastAccessTime()));
+        EventUtils.publish(new PayloadEvent(session.getId()
+                , new OnlinePayload(OnlineStatus.Offline, (String) session.getId())
+                .setAccessTime(session.getLastAccessTime())));
     }
 
     /**
@@ -50,29 +52,23 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
     @Override
     public void onExpiration(Session session) {
         // 发布session 过期事件
-        EventUtils.publish(new OnlineEvent(session.getId(), OnlineStatus.Offline)
-                .setAccessTime(session.getLastAccessTime()));
+        EventUtils.publish(new PayloadEvent(session
+                , new OnlinePayload(OnlineStatus.Offline, (String) session.getId())
+                .setAccessTime(session.getLastAccessTime())));
     }
 
     @Override
     public void onSuccess(AuthenticationToken authenticationToken, AuthenticationInfo authenticationInfo) {
         try {
-            Entity admin;
-            if(authenticationToken.getPrincipal() instanceof Entity){
-                admin = (Entity) authenticationToken.getPrincipal();
-            } else {
-                admin = null;
-            }
-
             final UserAgent agent = ShiroUtil.getAgent();
             final String ipAddress = WebUtils.getIpAddress(ShiroUtil.getRequest());
             final HttpSession session = ShiroUtil.getRequest().getSession();
-            final String sessionId = session.getId();
 
-            EventUtils.publish(new OnlineEvent(sessionId, OnlineStatus.Online)
-                    .setAdmin(admin).setUserAgent(agent).setAccessIp(ipAddress)
+            final OnlinePayload onlinePayload = new OnlinePayload(OnlineStatus.Online, session.getId())
+                    .setUserAgent(agent).setAccessIp(ipAddress)
                     .setAccessTime(new Date(session.getLastAccessedTime()))
-                    .setExpireTime(session.getMaxInactiveInterval()));
+                    .setExpireTime(session.getMaxInactiveInterval());
+            EventUtils.publish(new PayloadEvent(session.getId(), onlinePayload));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,8 +78,5 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
     public void onFailure(AuthenticationToken authenticationToken, AuthenticationException e) { }
 
     @Override
-    public void onLogout(PrincipalCollection principalCollection) {
-        final String sessionId = ShiroUtil.getRequest().getSession().getId();
-        EventUtils.publish(new OnlineEvent(sessionId, OnlineStatus.Offline).setAccessTime(new Date()));
-    }
+    public void onLogout(PrincipalCollection principalCollection) { }
 }

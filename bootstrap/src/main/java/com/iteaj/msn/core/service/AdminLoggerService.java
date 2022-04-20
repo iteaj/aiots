@@ -78,7 +78,6 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
         // 只查询已经注册过的模块的菜单列表
         this.menuService.list(Wrappers.<Menu>query().ne("type", MenuType.M))
                 .ofNullable().ifPresent(menus -> {

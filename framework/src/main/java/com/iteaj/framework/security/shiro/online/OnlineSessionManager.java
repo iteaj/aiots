@@ -62,15 +62,4 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
     public boolean isServletContainerSessions() {
         return false;
     }
-
-    @Override
-    protected void applyGlobalSessionTimeout(Session session) {
-        final WebAuthAction action = ShiroUtil.getRequestAttr(CoreConst.HANDLE_AUTH_ACTION);
-        if(action != null) {
-            session.setTimeout(TimeUnit.SECONDS.toMillis(action.expireTime()));
-            onChange(session);
-        } else {
-            super.applyGlobalSessionTimeout(session);
-        }
-    }
 }

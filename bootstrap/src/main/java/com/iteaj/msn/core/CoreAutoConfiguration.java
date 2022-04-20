@@ -6,17 +6,14 @@ import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.security.shiro.AccessFilterWrapper;
-import com.iteaj.framework.security.shiro.ShiroAuthAccessFilter;
-import com.iteaj.framework.spi.admin.DefaultModule;
-import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.spi.auth.WebAuthHandler;
-import com.iteaj.msn.core.auth.AdminFilter;
-import com.iteaj.msn.core.auth.ShiroAdminAuthRealm;
-import com.iteaj.msn.core.exception.AsyncExceptionHandler;
+import com.iteaj.msn.core.config.shiro.ShiroAdminFilter;
+import com.iteaj.msn.core.config.shiro.ShiroAdminAuthRealm;
+import com.iteaj.msn.core.config.shiro.ShiroOnlineListener;
+import com.iteaj.msn.core.config.exception.AsyncExceptionHandler;
 import com.iteaj.msn.core.service.AdminLoggerService;
 import com.iteaj.msn.core.service.AdminResourceManager;
-import org.apache.shiro.web.filter.authc.UserFilter;
+import org.apache.shiro.session.SessionListener;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -48,15 +45,6 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
 
     public CoreAutoConfiguration(CoreProperties coreProperties) {
         this.coreProperties = coreProperties;
-    }
-
-    /**
-     * 声明此模块的信息
-     * @return
-     */
-    @Bean
-    public Module coreModule() {
-        return DefaultModule.build("core", "系统模块", 10);
     }
 
     @Bean
@@ -98,7 +86,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
      */
     @Bean("frameworkAccessFilter")
     public AccessFilterWrapper frameworkAccessFilter() {
-        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new AdminFilter());
+        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new ShiroAdminFilter());
     }
 
     /**
@@ -122,6 +110,14 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
         chain.addPathDefinition("/doc/**", "anon");
         chain.addPathDefinition("/favicon.ico", "anon");
         return chain;
+    }
+    /**
+     * 监听用户上线/离线
+     * @return
+     */
+    @Bean
+    public SessionListener eventSessionListener() {
+        return new ShiroOnlineListener();
     }
 
     /**

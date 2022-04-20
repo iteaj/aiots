@@ -1,15 +1,13 @@
 package com.iteaj.framework.security.shiro;
 
 import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.AccessLogger;
 import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.logger.LoggerService;
-import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.web.WebUtils;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
-import org.apache.shiro.subject.ExecutionException;
-import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.filter.mgt.FilterChainManager;
 import org.apache.shiro.web.filter.mgt.FilterChainResolver;
@@ -25,7 +23,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 
 /**
  * create time: 2021/6/29
@@ -37,8 +34,7 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
 
     @Autowired(required = false)
     private LoggerService loggerService;
-    @Autowired
-    private WebAuthHandler webAuthHandler;
+
     @Override
     protected AbstractShiroFilter createInstance() throws Exception {
         SecurityManager securityManager = getSecurityManager();
@@ -78,48 +74,8 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
         }
 
         @Override
-        protected void doFilterInternal(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException, IOException {
-
-            Throwable t = null;
-
-            try {
-                final ServletRequest request = prepareServletRequest(servletRequest, servletResponse, chain);
-                final ServletResponse response = prepareServletResponse(request, servletResponse, chain);
-
-                ThreadContext.put(CoreConst.HTTP_SERVLET_REQUEST, request);
-                webAuthHandler.matcher((HttpServletRequest) request);
-                final Subject subject = createSubject(request, response);
-
-                //noinspection unchecked
-                subject.execute((Callable) () -> {
-                    // ThreadContext会移除一次绑定信息, 需要重新设置
-                    ThreadContext.put(CoreConst.HTTP_SERVLET_REQUEST, request);
-
-                    updateSessionLastAccessTime(request, response);
-                    executeChain(request, response, chain);
-                    return null;
-                });
-            } catch (ExecutionException ex) {
-                t = ex.getCause();
-            } catch (Throwable throwable) {
-                t = throwable;
-            }
-
-            if (t != null) {
-                if (t instanceof ServletException) {
-                    throw (ServletException) t;
-                }
-                if (t instanceof IOException) {
-                    throw (IOException) t;
-                }
-                //otherwise it's not one of the two exceptions expected by the filter method signature - wrap it in one:
-                String msg = "Filtered request failed.";
-                throw new ServletException(msg, t);
-            }
-        }
-
-        @Override
         protected void executeChain(ServletRequest request, ServletResponse response, FilterChain origChain) throws IOException, ServletException {
+            ThreadContext.put(CoreConst.HTTP_SERVLET_REQUEST, request);
             if(loggerService != null) {
                 HttpServletRequest servletRequest = (HttpServletRequest) request;
                 final String requestURI = servletRequest.getRequestURI();
@@ -132,12 +88,9 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
                     try {
                         logger.setStatus(true).setIp(WebUtils.getIpAddress(servletRequest));
                         super.executeChain(request, response, origChain);
-
-                        final Object attribute = request.getAttribute(CoreConst.EXEC_EXCEPTION_STATUS);
-                        if(attribute instanceof String) {
-                            logger.setStatus(false);
-                            logger.setRemark((String) attribute);
-                        }
+                    } catch (ServiceException e) {
+                        logger.setStatus(false);
+                        logger.setRemark(e.getMessage());
                     } catch (Throwable e) {
                         logger.setStatus(false);
                         logger.setRemark("未知错误");

@@ -7,6 +7,7 @@ import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.SessionsSecurityManager;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.session.SessionException;
 import org.apache.shiro.session.UnknownSessionException;
 import org.apache.shiro.session.mgt.DefaultSessionKey;
@@ -88,15 +89,15 @@ public class ShiroUtil {
         }
     }
 
-    public static boolean existsSession(String sessionId) {
+    public static Session getSession(String sessionId) {
         final SecurityManager securityManager = SecurityUtils.getSecurityManager();
         if(securityManager instanceof SessionsSecurityManager) {
             final SessionManager sessionManager = ((SessionsSecurityManager) securityManager).getSessionManager();
             if(sessionManager instanceof NativeSessionManager) {
                 try {
-                    return sessionManager.getSession(new DefaultSessionKey(sessionId)) != null;
+                    return sessionManager.getSession(new DefaultSessionKey(sessionId));
                 } catch (UnknownSessionException e) {
-                    return false;
+                    return null;
                 }
             } else {
                 throw new IllegalStateException("不支持此操作");

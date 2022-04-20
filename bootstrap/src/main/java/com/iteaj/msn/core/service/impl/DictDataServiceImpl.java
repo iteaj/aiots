@@ -1,6 +1,7 @@
 package com.iteaj.msn.core.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.msn.core.mapper.IDictDataDao;
 import com.iteaj.msn.core.entity.DictData;
 import com.iteaj.msn.core.service.IDictDataService;
@@ -23,5 +24,10 @@ public class DictDataServiceImpl extends BaseServiceImpl<IDictDataDao, DictData>
     public ListResult<DictData> selectByType(String type) {
         List<DictData> list = getBaseMapper().selectList(Wrappers.<DictData>query().eq("type", type));
         return new ListResult<>(list);
+    }
+
+    @Override
+    public BooleanResult removeByType(String type) {
+        return this.remove(Wrappers.<DictData>lambdaQuery().eq(DictData::getType, type));
     }
 }

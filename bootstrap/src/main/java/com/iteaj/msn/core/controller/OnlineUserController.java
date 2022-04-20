@@ -5,18 +5,20 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.msn.core.entity.OnlineUser;
 import com.iteaj.msn.core.service.IOnlineUserService;
-import com.iteaj.util.WebUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.session.UnknownSessionException;
+import org.apache.shiro.session.Session;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +44,20 @@ public class OnlineUserController extends BaseController {
     @RequiresPermissions(value = {"core:online:view"})
     public Result<IPage<OnlineUser>> list(Page<OnlineUser> page, OnlineUser entity) {
         page.addOrder(OrderItem.asc("status"), OrderItem.desc("login_time"));
-        return this.onlineUserService.page(page, entity);
+        List<OnlineUser> updateToOffline = new ArrayList<>();
+        final PageResult<IPage<OnlineUser>> result = this.onlineUserService.page(page, entity);
+        result.<OnlineUser>stream()
+                .filter(item -> item.getStatus() == OnlineStatus.Online)
+                .forEach(item -> {
+                    final Session session = ShiroUtil.getSession(item.getSessionId());
+                    if(session == null) {
+                        item.setStatus(OnlineStatus.Offline);
+                        updateToOffline.add(item);
+                    }
+        });
+
+        this.onlineUserService.updateBatchById(updateToOffline);
+        return result;
     }
 
     /**
@@ -55,8 +70,8 @@ public class OnlineUserController extends BaseController {
         if(idList.size() == 1) {
             this.onlineUserService.getById(idList.get(0)).ofNullable().ifPresent(item -> {
                 if(item.getStatus() == OnlineStatus.Online
-                        && ShiroUtil.existsSession(item.getSessionId())) {
-                    throw new IllegalStateException("此设备在线");
+                        && null == ShiroUtil.getSession(item.getSessionId())) {
+                    throw new IllegalStateException("客户端在线, 请先剔除");
                 }
             });
         } else {

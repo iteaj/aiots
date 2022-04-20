@@ -20,11 +20,9 @@ import java.util.List;
 public class MenuController extends BaseController {
 
     private final IMenuService menuService;
-    private final ResourceManager resourceManager;
 
-    public MenuController(IMenuService menuService, ResourceManager resourceManager) {
+    public MenuController(IMenuService menuService) {
         this.menuService = menuService;
-        this.resourceManager = resourceManager;
     }
 
     /**

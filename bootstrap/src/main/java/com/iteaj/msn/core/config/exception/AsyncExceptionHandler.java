@@ -1,4 +1,4 @@
-package com.iteaj.msn.core.exception;
+package com.iteaj.msn.core.config.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

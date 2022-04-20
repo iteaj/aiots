@@ -1,4 +1,4 @@
-package com.iteaj.msn.core.auth;
+package com.iteaj.msn.core.config.shiro;
 
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.web.WebUtils;
@@ -10,7 +10,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class AdminFilter extends UserFilter {
+public class ShiroAdminFilter extends UserFilter {
 
     @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {

@@ -8,5 +8,6 @@ package com.iteaj.framework.spi.admin.event;
  */
 public enum OnlineStatus {
 
-    Online, Offline
+    Online, // 登录
+    Offline, // 注销
 }

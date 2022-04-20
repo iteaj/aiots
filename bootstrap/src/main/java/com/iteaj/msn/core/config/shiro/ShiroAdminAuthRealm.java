@@ -1,9 +1,8 @@
-package com.iteaj.msn.core.auth;
+package com.iteaj.msn.core.config.shiro;
 
 import com.google.code.kaptcha.Constants;
 import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.auth.AuthToken;
-import com.iteaj.framework.spi.auth.SecurityException;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.service.IAdminService;
 import com.iteaj.util.DigestUtils;
@@ -31,7 +30,7 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
 
     @Override
     public boolean supports(AuthenticationToken token) {
-        return token != null && AdminAuthToken.class.isAssignableFrom(token.getClass());
+        return token != null && ShiroAdminToken.class.isAssignableFrom(token.getClass());
     }
 
     @Override
@@ -47,43 +46,45 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        AdminAuthToken adminAuthToken = (AdminAuthToken) token;
+        ShiroAdminToken shiroAdminToken = (ShiroAdminToken) token;
 
-        String userName = adminAuthToken.getUsername();
-        String password = new String(adminAuthToken.getPassword());
+        String userName = shiroAdminToken.getUsername();
+        String password = new String(shiroAdminToken.getPassword());
 
         final HttpServletRequest request = ShiroUtil.getRequest();
         final HttpSession session = request.getSession();
 
-        /**
-         * 获取校验码
-         * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
-         */
-        String captcha = adminAuthToken.getCaptcha();
-        final Object attribute = session.getAttribute(Constants.KAPTCHA_SESSION_KEY);
-        final Long createTime = (Long) session.getAttribute(Constants.KAPTCHA_SESSION_DATE);
+        try {
+            /**
+             * 获取校验码
+             * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
+             */
+            String captcha = shiroAdminToken.getCaptcha();
+            final Object attribute = session.getAttribute(Constants.KAPTCHA_SESSION_KEY);
+            final Long createTime = (Long) session.getAttribute(Constants.KAPTCHA_SESSION_DATE);
 
-        if(!Objects.equals(attribute, captcha) || createTime == null) {
-            throw new AuthenticationException("验证码错误");
-        } else {
+            if(!Objects.equals(attribute, captcha) || createTime == null) {
+                throw new AuthenticationException("验证码错误");
+            }
+
+            Admin admin = adminService.getByAccount(userName);
+            if(admin == null) {
+                throw new AccountException("账户不存在");
+            }
+
+            // 密码校验
+            String passwordDigest = admin.getPassword().toUpperCase();
+            String md5Hex = DigestUtils.md5Hex(password.getBytes()).toUpperCase();
+
+            if(!Objects.equals(passwordDigest, md5Hex)) {
+                throw new CredentialsException("密码校验失败");
+            }
+
+            return new SimpleAuthenticationInfo(admin, token.getCredentials(), this.getName());
+        } finally {
             session.removeAttribute(Constants.KAPTCHA_SESSION_KEY);
             session.removeAttribute(Constants.KAPTCHA_SESSION_DATE);
         }
-
-        Admin admin = adminService.getByAccount(userName);
-        if(admin == null) {
-            throw new AccountException("账户不存在");
-        }
-
-        // 密码校验
-        String passwordDigest = admin.getPassword().toUpperCase();
-        String md5Hex = DigestUtils.md5Hex(password.getBytes()).toUpperCase();
-
-        if(!Objects.equals(passwordDigest, md5Hex)) {
-            throw new CredentialsException("密码校验失败");
-        }
-
-        return new SimpleAuthenticationInfo(admin, token.getCredentials(), this.getName());
     }
 
     /**
@@ -94,7 +95,6 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
      */
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
-
         return ShiroUtil.isSuper() ||
                 super.isPermitted(principals, permission);
     }
@@ -107,7 +107,6 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
      */
     @Override
     public boolean hasRole(PrincipalCollection principal, String roleIdentifier) {
-
         return ShiroUtil.isSuper() ||
             super.hasRole(principal, roleIdentifier);
     }

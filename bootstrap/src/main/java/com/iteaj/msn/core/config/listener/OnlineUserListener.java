@@ -1,8 +1,10 @@
-package com.iteaj.msn.core;
+package com.iteaj.msn.core.config.listener;
 
-import com.iteaj.framework.spi.admin.event.OnlineEvent;
+import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.framework.spi.admin.event.OnlinePayload;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.framework.spi.event.FrameworkListener;
+import com.iteaj.framework.spi.event.PayloadEvent;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.OnlineUser;
 import com.iteaj.msn.core.enums.ClientType;
@@ -18,7 +20,7 @@ import java.util.Date;
  * 监听用户在线状态
  */
 @Component
-public class OnlineUserListener implements FrameworkListener<OnlineEvent> {
+public class OnlineUserListener implements FrameworkListener<PayloadEvent<OnlinePayload>> {
 
     private final IOnlineUserService service;
 
@@ -28,13 +30,14 @@ public class OnlineUserListener implements FrameworkListener<OnlineEvent> {
 
     @Async
     @Override
-    public void onFrameworkEvent(OnlineEvent event) {
-        OnlineStatus type = event.getType();
-        OnlineUser onlineUser = new OnlineUser((String) event.getSource());
+    public void onApplicationEvent(PayloadEvent<OnlinePayload> event) {
+        final OnlinePayload payload = event.getPayload();
+        OnlineStatus type = payload.getType();
+        OnlineUser onlineUser = new OnlineUser(payload.getSessionId());
 
         if(type == OnlineStatus.Online) { // 用户上线
-            Admin admin = (Admin) event.getAdmin(); // 当前登录的用户
-            final UserAgent agent = event.getUserAgent();
+            final Admin admin = ShiroUtil.getUser();
+            final UserAgent agent = payload.getUserAgent();
             final String browse = agent.getBrowser().getName();
             final String os = agent.getOperatingSystem().getName();
             final DeviceType deviceType = agent.getOperatingSystem().getDeviceType();
@@ -46,12 +49,13 @@ public class OnlineUserListener implements FrameworkListener<OnlineEvent> {
                     .setType(clientType)
                     .setUserNick(admin.getName())
                     .setAccount(admin.getAccount())
-                    .setAccessIp(event.getAccessIp())
-                    .setExpireTime(event.getExpireTime());
+                    .setAccessIp(payload.getAccessIp())
+                    .setExpireTime(payload.getExpireTime());
 
             service.save(onlineUser);
         } else if(type == OnlineStatus.Offline) { // 用户下线
             service.updateBySessionId(onlineUser.setStatus(type).setUpdateTime(new Date()));
         }
     }
+
 }

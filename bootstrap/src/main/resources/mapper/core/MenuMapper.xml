@@ -6,7 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="com.iteaj.msn.core.entity.Menu" id="OriMap">
         <id property="id"    column="id"  />
-        <result property="msn"    column="msn"  />
+        <result property="msn"    column="full_name"  />
         <result property="name"    column="name"  />
         <result property="pid"    column="pid"  />
         <result property="sort"    column="sort"  />

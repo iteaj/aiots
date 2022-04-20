@@ -1,13 +1,19 @@
 package com.iteaj.msn.core.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.msn.core.entity.DictType;
 import com.iteaj.msn.core.mapper.IDictTypeDao;
+import com.iteaj.msn.core.service.IDictDataService;
 import com.iteaj.msn.core.service.IDictTypeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * jdk：1.8
@@ -17,6 +23,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DictTypeServiceImpl extends BaseServiceImpl<IDictTypeDao, DictType> implements IDictTypeService {
+
+    private final IDictDataService dictDataService;
+
+    public DictTypeServiceImpl(IDictDataService dictDataService) {
+        this.dictDataService = dictDataService;
+    }
 
     @Override
     public BooleanResult save(DictType entity) {
@@ -39,5 +51,16 @@ public class DictTypeServiceImpl extends BaseServiceImpl<IDictTypeDao, DictType>
                 });
 
         return super.updateById(entity);
+    }
+
+    @Override
+    @Transactional
+    public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
+        if(CollectionUtils.isNotEmpty(idList)) {
+            list(Wrappers.<DictType>lambdaQuery().in(DictType::getId, idList))
+                    .stream().forEach(item -> dictDataService.removeByType(item.getType()));
+        }
+
+        return super.removeByIds(idList);
     }
 }

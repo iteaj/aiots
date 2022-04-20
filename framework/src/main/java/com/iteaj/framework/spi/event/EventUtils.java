@@ -17,7 +17,7 @@ public final class EventUtils implements ApplicationContextAware {
      */
     private static ApplicationContext applicationContext;
 
-    public static void publish(FrameworkEvent event) {
+    public static void publish(PayloadEvent event) {
         applicationContext.publishEvent(event);
     }
 

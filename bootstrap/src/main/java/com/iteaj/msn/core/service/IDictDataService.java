@@ -1,6 +1,7 @@
 package com.iteaj.msn.core.service;
 
 import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.msn.core.entity.DictData;
 
@@ -13,4 +14,6 @@ import com.iteaj.msn.core.entity.DictData;
 public interface IDictDataService extends IBaseService<DictData> {
 
     ListResult<DictData> selectByType(String type);
+
+    BooleanResult removeByType(String type);
 }

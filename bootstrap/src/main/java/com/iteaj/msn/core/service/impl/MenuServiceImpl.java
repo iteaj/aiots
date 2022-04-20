@@ -5,6 +5,7 @@ import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.utils.TreeUtils;
@@ -27,15 +28,26 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
     public BooleanResult save(Menu entity) {
         getOne(Wrappers.<Menu>lambdaQuery()
                 .eq(Menu::getName, entity.getName())
-                .eq(Menu::getType, MenuType.V))
+                .eq(Menu::getPid, entity.getPid()))
                 .ofNullable()
-                .ifPresent(menu -> {throw new ServiceException("菜单名称重复");});
+                .ifPresent(menu -> {throw new ServiceException("同级已经存在菜单名称["+entity.getName()+"]");});
+
         return super.save(entity);
     }
 
     @Override
+    public BooleanResult updateById(Menu entity) {
+        getOne(Wrappers.<Menu>lambdaQuery()
+                .ne(Menu::getId, entity.getId())
+                .eq(Menu::getPid, entity.getPid())
+                .eq(Menu::getName, entity.getName()))
+                .ofNullable().ifPresent(menu -> {throw new ServiceException("同级已经存在菜单名称["+entity.getName()+"]");});
+
+        return super.updateById(entity);
+    }
+
+    @Override
     public ListResult<Menu> selectMenuTrees(Menu menu) {
-        // 只查询已经注册过的模块的菜单列表
         List<Menu> menuList = this.getBaseMapper() // 根据sort排序后的数据
                 .selectList(Wrappers.query(menu).orderByAsc("sort"));
 

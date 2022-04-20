@@ -1,6 +1,7 @@
 package com.iteaj.framework.result;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.iteaj.framework.Entity;
 
 import java.beans.Transient;
 import java.util.Collections;
@@ -12,13 +13,13 @@ import java.util.stream.Stream;
  * @author iteaj
  * @since 1.0
  */
-public class PageResult<E extends IPage> extends OptionalResult<E, PageResult<E>> {
+public class PageResult<T extends IPage> extends OptionalResult<T, PageResult<T>> {
 
-    public PageResult(E value) {
+    public PageResult(T value) {
         super(value);
     }
 
-    public PageResult(E data, String message, long code) {
+    public PageResult(T data, String message, long code) {
         super(data, message, code);
     }
 
@@ -41,7 +42,7 @@ public class PageResult<E extends IPage> extends OptionalResult<E, PageResult<E>
      * 返回记录数列表的stream
      * @return
      */
-    public Stream<E> stream() {
+    public <E extends Entity> Stream<E> stream() {
         return ofNullable().map(eiPage -> eiPage
                 .getRecords()).orElse(Collections.EMPTY_LIST).stream();
     }

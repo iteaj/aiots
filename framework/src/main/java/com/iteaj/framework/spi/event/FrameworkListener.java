@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.event;
 
-import java.util.EventListener;
+import org.springframework.context.ApplicationListener;
 
 /**
  * create time: 2020/4/21
@@ -8,11 +8,6 @@ import java.util.EventListener;
  * @author iteaj
  * @since 1.0
  */
-public interface FrameworkListener<E extends FrameworkEvent> extends EventListener {
+public interface FrameworkListener<E extends PayloadEvent> extends ApplicationListener<E> {
 
-    /**
-     *  监听到事件的处理方法
-     * @param event
-     */
-    void onFrameworkEvent(E event);
 }

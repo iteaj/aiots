@@ -2,7 +2,7 @@ package com.iteaj.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
-import com.iteaj.msn.core.auth.AdminAuthToken;
+import com.iteaj.msn.core.config.shiro.ShiroAdminToken;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 用户管理中心接口
@@ -27,7 +26,7 @@ public class LoginController extends BaseController {
      * @return
      */
     @PostMapping("login")
-    public Result login(@RequestBody AdminAuthToken token) {
+    public Result login(@RequestBody ShiroAdminToken token, HttpServletRequest request) {
         try {
             SecurityUtils.getSubject().login(token);
         } catch (SecurityException e) {
