@@ -1,5 +1,6 @@
 package com.iteaj.msn.core.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
 import com.iteaj.msn.core.entity.DictData;
 import com.iteaj.msn.core.service.IDictDataService;
@@ -29,7 +30,7 @@ public class DictDataController extends BaseController {
      */
     @GetMapping("/view")
     public Result<List<DictData>> list(DictData dictData) {
-        return dictDataService.list(dictData);
+        return dictDataService.list(Wrappers.lambdaQuery(dictData).orderByAsc(DictData::getSort));
     }
 
     /**

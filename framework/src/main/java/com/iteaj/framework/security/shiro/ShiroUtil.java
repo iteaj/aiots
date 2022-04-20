@@ -75,7 +75,7 @@ public class ShiroUtil {
      * 剔除用户下线
      * @param session
      */
-    public static void offline(Object session) {
+    public static void offline(Object session) throws UnknownSessionException {
         final SecurityManager securityManager = SecurityUtils.getSecurityManager();
         if(securityManager instanceof SessionsSecurityManager) {
             final SessionManager sessionManager = ((SessionsSecurityManager) securityManager).getSessionManager();

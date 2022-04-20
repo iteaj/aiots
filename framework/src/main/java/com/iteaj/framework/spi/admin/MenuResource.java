@@ -13,6 +13,4 @@ public interface MenuResource extends UrlResource {
     String getIcon();
 
     MenuType getType();
-
-    PermStatus getStatus();
 }

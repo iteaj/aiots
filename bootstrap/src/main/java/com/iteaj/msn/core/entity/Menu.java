@@ -9,6 +9,7 @@ import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.consts.Position;
 import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.spi.admin.MenuType;
+import com.iteaj.msn.core.enums.Status;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,14 +29,12 @@ public class Menu extends TreeEntity implements LoggerMenu {
     /**菜单名称*/
     @TableField(condition = SqlCondition.LIKE)
     private String name;
-    /**所属模块的模块编码*/
-    private String msn;
     /**排序*/
     private Integer sort;
     /**图标*/
     private String icon;
     /**是否显示*/
-    private PermStatus status;
+    private Status status;
     /**权限列表, Shiro使用的格式*/
     private String perms;
     /**备注*/
@@ -58,16 +57,6 @@ public class Menu extends TreeEntity implements LoggerMenu {
     private Date updateTime;
 
     public Menu() {  }
-
-    public Menu(Long pid, String url, String name, String msn
-            , Integer sort, String perms) {
-        setPid(pid);
-        this.url = url;
-        this.name = name;
-        this.msn = msn;
-        this.sort = sort;
-        this.perms = perms;
-    }
 
     public String getUrl() {
         return url;

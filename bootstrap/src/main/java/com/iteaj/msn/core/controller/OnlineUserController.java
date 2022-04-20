@@ -12,6 +12,7 @@ import com.iteaj.msn.core.entity.OnlineUser;
 import com.iteaj.msn.core.service.IOnlineUserService;
 import com.iteaj.util.WebUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.session.UnknownSessionException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -23,7 +24,7 @@ import java.util.List;
  * @author iteaj
  */
 @RestController
-@RequestMapping("/core/onlineUser")
+@RequestMapping("/core/online")
 public class OnlineUserController extends BaseController {
 
     private final IOnlineUserService onlineUserService;
@@ -38,7 +39,7 @@ public class OnlineUserController extends BaseController {
     * @param entity
     */
     @GetMapping("/view")
-    @RequiresPermissions(value = {"core:onlineUser:view"})
+    @RequiresPermissions(value = {"core:online:view"})
     public Result<IPage<OnlineUser>> list(Page<OnlineUser> page, OnlineUser entity) {
         page.addOrder(OrderItem.asc("status"), OrderItem.desc("login_time"));
         return this.onlineUserService.page(page, entity);
@@ -49,7 +50,7 @@ public class OnlineUserController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions(value = {"core:onlineUser:del"})
+    @RequiresPermissions(value = {"core:online:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         if(idList.size() == 1) {
             this.onlineUserService.getById(idList.get(0)).ofNullable().ifPresent(item -> {
@@ -75,7 +76,7 @@ public class OnlineUserController extends BaseController {
      * @return
      */
     @PostMapping("offline")
-    @RequiresPermissions(value = {"core:onlineUser:offline"})
+    @RequiresPermissions(value = {"core:online:offline"})
     public Result<Boolean> offline(@RequestBody OnlineUser entity, HttpSession session) {
         if(entity.getStatus() == OnlineStatus.Offline) {
             return fail("此用户不在线");
@@ -86,7 +87,11 @@ public class OnlineUserController extends BaseController {
             return fail("不允许下线自己");
         }
 
-        ShiroUtil.offline(entity.getSessionId()); // 剔除用户下线
+        try {
+            ShiroUtil.offline(entity.getSessionId()); // 剔除用户下线
+        } catch (UnknownSessionException e) {
+            this.onlineUserService.updateBySessionId(entity.setStatus(OnlineStatus.Offline));
+        }
         return success("剔除用户成功");
     }
 }
