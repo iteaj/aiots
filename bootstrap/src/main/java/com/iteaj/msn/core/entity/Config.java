@@ -19,7 +19,7 @@ import java.util.Date;
  * @since 1.0
  */
 @Data
-@TableName("t_config")
+@TableName("sys_config")
 @Accessors(chain = true)
 public class Config extends BaseEntity {
 

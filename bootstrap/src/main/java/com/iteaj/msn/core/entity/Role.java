@@ -19,7 +19,7 @@ import java.util.Date;
  * @since 1.0
  */
 @Data
-@TableName("t_role")
+@TableName("sys_role")
 @Accessors(chain = true)
 public class Role extends BaseEntity {
 

@@ -3,10 +3,13 @@ package com.iteaj.framework.spi.event;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+
+import java.util.function.Consumer;
 
 /**
  * create time: 2021/3/31
- * @see com.iteaj.framework.spring.boot.FrameworkPayloadListener
+ * @see ApplicationListener#forPayload(Consumer)
  * @author iteaj
  * @since 1.0
  */

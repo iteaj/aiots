@@ -18,7 +18,7 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-@TableName("t_access_log")
+@TableName("sys_access_log")
 public class AccessLog extends BaseEntity {
 
     /**

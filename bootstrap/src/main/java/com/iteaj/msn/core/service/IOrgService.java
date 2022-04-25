@@ -2,7 +2,7 @@ package com.iteaj.msn.core.service;
 
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.ListResult;
-import com.iteaj.msn.core.entity.Organize;
+import com.iteaj.msn.core.entity.Org;
 
 /**
  * create time: 2019/11/26
@@ -10,7 +10,7 @@ import com.iteaj.msn.core.entity.Organize;
  * @author iteaj
  * @since 1.0
  */
-public interface IOrganizeService extends IBaseService<Organize> {
+public interface IOrgService extends IBaseService<Org> {
 
-    ListResult<Organize> selectTrees(Organize organize);
+    ListResult<Org> selectTrees(Org org);
 }

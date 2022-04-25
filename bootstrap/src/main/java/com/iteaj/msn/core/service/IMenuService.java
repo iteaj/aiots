@@ -1,6 +1,7 @@
 package com.iteaj.msn.core.service;
 
 import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.msn.core.entity.Menu;
@@ -37,4 +38,18 @@ public interface IMenuService extends IBaseService<Menu> {
      * @return
      */
     Menu getByUrl(String url);
+
+    /**
+     * 获取url
+     * @param url
+     * @return
+     */
+    Menu getByUrlFromCache(String url);
+
+    /**
+     * 通过id获取菜单
+     * @param id
+     * @return
+     */
+    Menu getByIdFromCache(Long id);
 }

@@ -21,7 +21,7 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-@TableName("t_dict_type")
+@TableName("sys_dict_type")
 public class DictType extends BaseEntity implements DictResource {
 
     /**

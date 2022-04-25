@@ -43,13 +43,9 @@ public class OnlineUserListener implements FrameworkListener<PayloadEvent<Online
             final DeviceType deviceType = agent.getOperatingSystem().getDeviceType();
             final ClientType clientType = ClientType.valueOf(deviceType.name());
             onlineUser.setLoginTime(new Date())
-                    .setOs(os)
-                    .setStatus(type)
-                    .setBrowse(browse)
-                    .setType(clientType)
-                    .setUserNick(admin.getName())
-                    .setAccount(admin.getAccount())
-                    .setAccessIp(payload.getAccessIp())
+                    .setOs(os).setStatus(type).setBrowse(browse)
+                    .setType(clientType).setUserNick(admin.getName())
+                    .setAccount(admin.getAccount()).setAccessIp(payload.getAccessIp())
                     .setExpireTime(payload.getExpireTime());
 
             service.save(onlineUser);

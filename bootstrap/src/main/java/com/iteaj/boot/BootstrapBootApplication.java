@@ -1,13 +1,15 @@
-package com.iteaj;
+package com.iteaj.boot;
 
 import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
 import com.iteaj.msn.core.CoreAutoConfiguration;
+import com.iteaj.msn.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @ImportAutoConfiguration({
         CoreAutoConfiguration.class, // 系统管理模块
+//        QuartzAutoConfiguration.class, // 定时任务模块
         FrameworkWebConfiguration.class // 框架配置
 })
 @SpringBootApplication()

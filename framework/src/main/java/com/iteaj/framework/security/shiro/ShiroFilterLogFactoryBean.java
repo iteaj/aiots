@@ -91,6 +91,7 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
                     } catch (ServiceException e) {
                         logger.setStatus(false);
                         logger.setRemark(e.getMessage());
+                        throw e;
                     } catch (Throwable e) {
                         logger.setStatus(false);
                         logger.setRemark("未知错误");

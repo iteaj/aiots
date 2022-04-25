@@ -1,23 +1,16 @@
 package com.iteaj.msn.core.service;
 
-import com.baomidou.mybatisplus.core.toolkit.ArrayUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.logger.AccessLogger;
 import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.security.shiro.ShiroUtil;
-import com.iteaj.framework.spi.admin.*;
+import com.iteaj.msn.core.entity.AccessLog;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.entity.Menu;
-import com.iteaj.msn.core.entity.AccessLog;
-import com.iteaj.framework.spi.admin.MenuType;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,17 +19,12 @@ import java.util.Map;
  * @author iteaj
  * @since 1.0
  */
-public class AdminLoggerService implements LoggerService, InitializingBean {
+public class AdminLoggerService implements LoggerService {
 
     @Autowired
     private IMenuService menuService;
     @Autowired
-    private ResourceManager resourceManager;
-    @Autowired
     private IAccessLogService operaLogService;
-
-    private Map<Long, Menu> idMenuMap = new HashMap<>(128);
-    private Map<String, Menu> urlMenuMap = new HashMap<>(128);
 
     @Async
     @Override
@@ -50,14 +38,14 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
             accessLog.setUserId(admin.getId()).setUserName(admin.getName());
         }
 
-        final Menu menu = getMenu(entity.getUrl());
+        final Menu menu = getLoggerMenu(entity.getUrl());
         if(menu != null) {
             accessLog.setTitle(menu.getName());
             final Long pid = menu.getPid();
 
             // 获取所属模块
             if(pid != null && pid > 0) {
-                final Menu parent = this.idMenuMap.get(pid);
+                final Menu parent = this.menuService.getByIdFromCache(pid);
                 if(parent != null) {
                     accessLog.setMsn(parent.getName());
                 }
@@ -68,27 +56,8 @@ public class AdminLoggerService implements LoggerService, InitializingBean {
     }
 
     @Override
-    public LoggerMenu getLoggerMenu(String url) {
-        return getMenu(url);
+    public Menu getLoggerMenu(String url) {
+        return menuService.getByUrlFromCache(url);
     }
 
-    private Menu getMenu(String url) {
-        return urlMenuMap.get(url);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        // 只查询已经注册过的模块的菜单列表
-        this.menuService.list(Wrappers.<Menu>query().ne("type", MenuType.M))
-                .ofNullable().ifPresent(menus -> {
-                menus.forEach(menu -> {
-                    if(StringUtils.hasText(menu.getUrl())) {
-                        urlMenuMap.put(menu.getUrl(), menu);
-                    }
-
-                    idMenuMap.put(menu.getId(), menu);
-                });
-        });
-
-    }
 }

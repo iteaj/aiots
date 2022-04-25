@@ -16,7 +16,7 @@ import java.util.Date;
  * create time：2019/6/24
  */
 @Data
-@TableName("t_dict_data")
+@TableName("sys_dict_data")
 public class DictData extends BaseEntity {
 
     /**

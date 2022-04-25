@@ -20,7 +20,7 @@ import java.util.Date;
  * 菜单实体
  */
 @Data
-@TableName("t_menu")
+@TableName("sys_menu")
 @Accessors(chain = true)
 public class Menu extends TreeEntity implements LoggerMenu {
 

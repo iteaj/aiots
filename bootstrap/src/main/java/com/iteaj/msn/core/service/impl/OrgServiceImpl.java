@@ -2,10 +2,10 @@ package com.iteaj.msn.core.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.msn.core.entity.Admin;
-import com.iteaj.msn.core.mapper.IOrganizeDao;
-import com.iteaj.msn.core.entity.Organize;
+import com.iteaj.msn.core.mapper.IOrgDao;
+import com.iteaj.msn.core.entity.Org;
 import com.iteaj.msn.core.service.IAdminService;
-import com.iteaj.msn.core.service.IOrganizeService;
+import com.iteaj.msn.core.service.IOrgService;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
@@ -27,18 +27,18 @@ import java.util.List;
  */
 @Service
 @AllArgsConstructor
-public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize> implements IOrganizeService {
+public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOrgService {
 
     private final IAdminService adminService;
 
     @Override
-    public BooleanResult save(Organize entity) {
+    public BooleanResult save(Org entity) {
         final BooleanResult booleanResult = super.save(entity);
         if(entity.getPid() == 0) {
             entity.setLevel(1);
             entity.setPath(entity.getId().toString());
         } else if(entity.getPid() > 0) {
-            DetailResult<Organize> parent = getById(entity.getPid());
+            DetailResult<Org> parent = getById(entity.getPid());
             parent.ofNullable().orElseThrow(() -> new ServiceException("父部门不存在"));
 
             entity.setLevel(parent.getData().getLevel() + 1);
@@ -50,9 +50,9 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
     }
 
     @Override
-    public BooleanResult updateById(Organize entity) {
+    public BooleanResult updateById(Org entity) {
         if(entity.getPid() > 0) {
-            DetailResult<Organize> parent = getById(entity.getPid());
+            DetailResult<Org> parent = getById(entity.getPid());
             parent.ofNullable().orElseThrow(() -> new ServiceException("父部门不存在"));
 
             entity.setLevel(parent.getData().getLevel() + 1);
@@ -77,7 +77,7 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
         final Serializable id = idList.stream().findFirst().get();
 
         // 如果存在子部门, 则要先删除子部门
-        list(Wrappers.<Organize>query().eq("pid", id))
+        list(Wrappers.<Org>query().eq("pid", id))
                 .ofNullable().ifPresent(item -> {
                     if(!item.isEmpty()) {
                         throw new ServiceException("请先删除子部门");
@@ -94,8 +94,8 @@ public class OrganizeServiceImpl extends BaseServiceImpl<IOrganizeDao, Organize>
     }
 
     @Override
-    public ListResult<Organize> selectTrees(Organize organize) {
-        ListResult<Organize> selectList = this.list(organize);
-        return new ListResult((List<Organize>) TreeUtils.toTrees(selectList.getData(), 0l));
+    public ListResult<Org> selectTrees(Org org) {
+        ListResult<Org> selectList = this.list(org);
+        return new ListResult((List<Org>) TreeUtils.toTrees(selectList.getData(), 0l));
     }
 }

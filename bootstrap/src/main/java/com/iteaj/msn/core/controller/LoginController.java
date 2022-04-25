@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * 用户管理中心接口
  * @author iteaj
@@ -26,7 +24,7 @@ public class LoginController extends BaseController {
      * @return
      */
     @PostMapping("login")
-    public Result login(@RequestBody ShiroAdminToken token, HttpServletRequest request) {
+    public Result login(@RequestBody ShiroAdminToken token) {
         try {
             SecurityUtils.getSubject().login(token);
         } catch (SecurityException e) {

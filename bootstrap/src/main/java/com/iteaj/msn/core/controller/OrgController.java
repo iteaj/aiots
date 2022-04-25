@@ -1,11 +1,10 @@
 package com.iteaj.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
-import com.iteaj.msn.core.entity.Organize;
-import com.iteaj.msn.core.service.IOrganizeService;
+import com.iteaj.msn.core.entity.Org;
+import com.iteaj.msn.core.service.IOrgService;
 import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,40 +16,40 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/core/org")
-public class OrganizeController extends BaseController {
+public class OrgController extends BaseController {
 
-    private final IOrganizeService organizeService;
+    private final IOrgService organizeService;
 
-    public OrganizeController(IOrganizeService organizeService) {
+    public OrgController(IOrgService organizeService) {
         this.organizeService = organizeService;
     }
 
     /**
      * 获取部门列表
-     * @param organize
+     * @param org
      * @return
      */
     @GetMapping("/view")
     @RequiresPermissions("core:org:view")
-    public Result<List<Organize>> view(Organize organize) {
-        return this.organizeService.selectTrees(organize);
+    public Result<List<Org>> view(Org org) {
+        return this.organizeService.selectTrees(org);
     }
 
     @ResponseBody
     @GetMapping("/parent")
-    public Result parent() {
+    public Result<List<Org>> parent() {
         return this.organizeService.selectTrees(null);
     }
 
     /**
      * 新增部门
-     * @param organize
+     * @param org
      * @return
      */
     @PostMapping("/add")
     @RequiresPermissions("core:org:add")
-    public Result add(@RequestBody Organize organize) {
-        return this.organizeService.save(organize);
+    public Result<Boolean> add(@RequestBody Org org) {
+        return this.organizeService.save(org);
     }
 
     /**
@@ -60,19 +59,19 @@ public class OrganizeController extends BaseController {
      */
     @GetMapping("/edit")
     @RequiresPermissions("core:org:edit")
-    public Result edit(Integer id) {
+    public Result<Org> edit(Integer id) {
         return this.organizeService.getById(id);
     }
 
     /**
      * 修改部门
-     * @param organize
+     * @param org
      * @return
      */
     @PostMapping("/edit")
     @RequiresPermissions("core:org:edit")
-    public Result edit(@RequestBody Organize organize) {
-        return this.organizeService.updateById(organize);
+    public Result<Boolean> edit(@RequestBody Org org) {
+        return this.organizeService.updateById(org);
     }
 
     /**
@@ -82,7 +81,7 @@ public class OrganizeController extends BaseController {
      */
     @PostMapping("/del")
     @RequiresPermissions("core:org:del")
-    public Result add(@RequestBody List<Long> list) {
+    public Result<Boolean> add(@RequestBody List<Long> list) {
         return this.organizeService.removeByIds(list);
     }
 }

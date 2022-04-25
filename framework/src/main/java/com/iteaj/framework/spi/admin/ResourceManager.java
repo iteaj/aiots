@@ -30,27 +30,10 @@ public interface ResourceManager {
     List<DictResource> getDictResources();
 
     /**
-     * 批量新增菜单
-     * @param resources
-     */
-    void batchSave(List<MenuResource> resources);
-
-    /**
-     * 返回指定用戶的权限资源
-     * @return
-     */
-    List<MenuResource> getResources(Entity principal);
-
-    /**
      * 返回菜单类型
      * @param types {@code MenuType}
      * @return
      */
     Collection<MenuResource> listResourcesByType(MenuType... types);
 
-    /**
-     * 返回环境相关配置
-     * @return
-     */
-    Map<String, Object> getEnvConfig(Entity admin);
 }

@@ -10,16 +10,18 @@ import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.msn.core.config.shiro.ShiroAdminFilter;
 import com.iteaj.msn.core.config.shiro.ShiroAdminAuthRealm;
 import com.iteaj.msn.core.config.shiro.ShiroOnlineListener;
-import com.iteaj.msn.core.config.exception.AsyncExceptionHandler;
+import com.iteaj.msn.core.exception.AsyncExceptionHandler;
 import com.iteaj.msn.core.service.AdminLoggerService;
 import com.iteaj.msn.core.service.AdminResourceManager;
 import org.apache.shiro.session.SessionListener;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -35,9 +37,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @EnableAsync
 @ImportAutoConfiguration({
-        CaptchaAutoConfiguration.class, // 校验码配置
         ShiroAutoConfiguration.class, // shiro权限配置
+        CaptchaAutoConfiguration.class, // 校验码配置
 })
+@ComponentScan({"com.iteaj.msn.core"})
+@MapperScan({"com.iteaj.msn.core.mapper"})
 @EnableConfigurationProperties(CoreProperties.class)
 public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer {
 

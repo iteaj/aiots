@@ -23,7 +23,7 @@ import java.util.Date;
  * @since 2020-06-20
  */
 @Data
-@TableName("t_online_user")
+@TableName("sys_online_user")
 @Accessors(chain = true)
 public class OnlineUser extends BaseEntity implements OnlineSession {
 

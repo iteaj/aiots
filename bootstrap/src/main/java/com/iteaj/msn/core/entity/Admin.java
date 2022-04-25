@@ -19,7 +19,7 @@ import java.util.Date;
  * 系统管理员
  */
 @Data
-@TableName("t_admin")
+@TableName("sys_admin")
 @Accessors(chain = true)
 public class Admin extends BaseEntity {
 

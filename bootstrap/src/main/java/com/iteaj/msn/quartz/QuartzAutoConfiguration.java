@@ -14,7 +14,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -27,9 +27,9 @@ import javax.sql.DataSource;
  * @author iteaj
  * @since 1.0
  */
-@Configuration
 @EnableScheduling
-@MapperScan("com.iteaj.quartz.mapper")
+@ComponentScan({"com.iteaj.quartz.core"})
+@MapperScan({"com.iteaj.msn.quartz.mapper"})
 public class QuartzAutoConfiguration implements BeanFactoryPostProcessor, BeanDefinitionRegistryPostProcessor {
 
     @Bean

@@ -1,21 +1,15 @@
 package com.iteaj.msn.core.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.framework.utils.TreeUtils;
-import com.iteaj.msn.core.entity.Admin;
-import com.iteaj.msn.core.entity.Config;
 import com.iteaj.msn.core.entity.Menu;
-import com.iteaj.msn.core.enums.ConfigType;
-import com.iteaj.framework.security.shiro.ShiroUtil;
-import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.Entity;
-import com.iteaj.framework.result.ListResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -24,15 +18,10 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-public class AdminResourceManager implements ResourceManager, EnvironmentAware {
+public class AdminResourceManager implements ResourceManager{
 
-    private Environment environment;
-    @Autowired
-    private List<Module> modules;
     @Autowired
     private IMenuService menuService;
-    @Autowired
-    private IConfigService configService;
     @Autowired
     private IDictTypeService dictTypeService;
 
@@ -48,21 +37,6 @@ public class AdminResourceManager implements ResourceManager, EnvironmentAware {
     }
 
     @Override
-    public void batchSave(List<MenuResource> resources) {
-
-    }
-
-    @Override
-    public List<MenuResource> getResources(Entity principal) {
-        if(null == principal) throw new ServiceException("用户未登录");
-
-        ListResult<Menu> menuTrees = menuService.selectMenuBarTrees
-                ((Long) principal.getId(), ShiroUtil.isSuper());
-
-        return menuTrees.stream().collect(Collectors.toList());
-    }
-
-    @Override
     public Collection<MenuResource> listResourcesByType(MenuType... types) {
         ListResult<Menu> listResult = menuService.list(Wrappers
                 .<Menu>lambdaQuery().in(Menu::getType, types));
@@ -71,38 +45,5 @@ public class AdminResourceManager implements ResourceManager, EnvironmentAware {
 
         return menus.stream().map(item -> (MenuResource)item)
                 .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    @Override
-    public Map<String, Object> getEnvConfig(Entity entity) {
-        Map<String, Object> config = new HashMap<>();
-        // 当前登录用户
-        Admin admin = (Admin)entity;
-        Map<String, Object> user = new HashMap<>();
-        user.put("id", admin.getId());
-        user.put("sex", admin.getSex());
-        user.put("name", admin.getName());
-        user.put("email", admin.getEmail());
-        user.put("phone", admin.getPhone());
-        user.put("orgId", admin.getOrgId());
-        user.put("remark", admin.getRemark());
-        user.put("avatar", admin.getAvatar());
-        user.put("account", admin.getAccount());
-        config.put("user", user);
-
-        // 系统当前环境
-        String[] profiles = this.environment.getActiveProfiles();
-        config.put("profiles", profiles);
-
-        // 系统配置
-        Map<String, Config> configMap = this.configService.list(new Config(ConfigType.sys))
-                .stream().collect(Collectors.toMap(key -> key.getLabel(), val -> val));
-        config.put("config", configMap);
-        return config;
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 }

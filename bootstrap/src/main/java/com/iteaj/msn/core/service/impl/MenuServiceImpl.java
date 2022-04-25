@@ -5,24 +5,27 @@ import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.msn.core.entity.Menu;
+import com.iteaj.msn.core.enums.Status;
 import com.iteaj.msn.core.mapper.IMenuDao;
 import com.iteaj.msn.core.service.IMenuService;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService {
+public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService, InitializingBean {
+
+    private Map<Long, Menu> idMenuMap = new HashMap<>(128);
+    private Map<String, Menu> loggerMenuCache = new HashMap<>();
 
     @Override
     public BooleanResult save(Menu entity) {
@@ -32,7 +35,9 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                 .ofNullable()
                 .ifPresent(menu -> {throw new ServiceException("同级已经存在菜单名称["+entity.getName()+"]");});
 
-        return super.save(entity);
+        final BooleanResult booleanResult = super.save(entity);
+        this.syncMenuToCache();
+        return booleanResult;
     }
 
     @Override
@@ -43,7 +48,9 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                 .eq(Menu::getName, entity.getName()))
                 .ofNullable().ifPresent(menu -> {throw new ServiceException("同级已经存在菜单名称["+entity.getName()+"]");});
 
-        return super.updateById(entity);
+        final BooleanResult booleanResult = super.updateById(entity);
+        this.syncMenuToCache();
+        return booleanResult;
     }
 
     @Override
@@ -101,17 +108,46 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
         idList.stream().forEach(item -> {
             this.count(Wrappers.<Menu>query().eq("pid", item))
-                    .ofNullable().filter(count -> count > 0)
-                    .ifPresent((menu) -> {
-                        throw new ServiceException("请先删除子菜单");
-                    });
+                .ofNullable().filter(count -> count > 0)
+                .ifPresent((menu) -> {
+                    throw new ServiceException("请先删除子菜单");
+                });
         });
 
-        return super.removeByIds(idList);
+        final BooleanResult booleanResult = super.removeByIds(idList);
+        this.syncMenuToCache();
+        return booleanResult;
     }
 
     @Override
     public Menu getByUrl(String url) {
         return getBaseMapper().selectOne(Wrappers.<Menu>query().eq("url", url));
+    }
+
+    @Override
+    public Menu getByUrlFromCache(String url) {
+        return this.loggerMenuCache.get(url);
+    }
+
+    @Override
+    public Menu getByIdFromCache(Long id) {
+        return this.idMenuMap.get(id);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.syncMenuToCache();
+    }
+
+    private void syncMenuToCache() {
+        this.loggerMenuCache.clear();
+        this.list(Wrappers.<Menu>lambdaQuery()
+                .eq(Menu::getType, MenuType.A)
+                .eq(Menu::getStatus, Status.enabled)).stream()
+                .filter(item -> StringUtils.hasText(item.getUrl()))
+                .forEach(item -> {
+                    this.idMenuMap.put(item.getId(), item);
+                    this.loggerMenuCache.put(item.getUrl(), item);
+                });
     }
 }
