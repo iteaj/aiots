@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -95,6 +96,10 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
 
     @Override
     public ListResult<Long> listMenusOfRole(Long roleId) {
+        if(roleId == null) {
+            return new ListResult<>(Collections.EMPTY_LIST);
+        }
+
         return new ListResult<>(getBaseMapper().listMenusOfRole(roleId));
     }
 
