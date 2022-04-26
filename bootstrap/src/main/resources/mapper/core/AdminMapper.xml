@@ -27,61 +27,61 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </collection>
     </resultMap>
     <insert id="createAdmin">
-        insert into t_admin (name, org_id, account, email, phone, sex, avatar, password, status, login_ip,login_date, remark) value
+        insert into sys_admin (name, org_id, account, email, phone, sex, avatar, password, status, login_ip,login_date, remark) value
         (#{name},#{orgId},#{account},#{email},#{phone},#{sex},#{avatar},#{password},#{status},#{loginIp},#{loginDate},#{remark});
         set @lastId=LAST_INSERT_ID();
         <if test="roleIds != null">
-            insert into t_admin_role (aid, rid) values
+            insert into sys_admin_role (aid, rid) values
             <foreach collection="roleIds" item="item" separator=",">
                 (@lastId, #{item})
             </foreach>
         </if>
     </insert>
     <update id="updateAdmin">
-        update t_admin set name=#{name},org_id=#{orgId},email=#{email},phone=#{phone}
+        update sys_admin set name=#{name},org_id=#{orgId},email=#{email},phone=#{phone}
              ,avatar=#{avatar},status=#{status},remark=#{remark} where id=#{id};
-        delete from t_admin_role where aid=#{id};
+        delete from sys_admin_role where aid=#{id};
         <if test="roleIds != null and roleIds.size() > 0">
-            insert into t_admin_role (aid, rid) values
+            insert into sys_admin_role (aid, rid) values
             <foreach collection="roleIds" item="item" separator=",">
                 (#{id}, #{item})
             </foreach>
         </if>
     </update>
     <update id="updatePwdById">
-        update t_admin set password=#{password} where id=#{id}
+        update sys_admin set password=#{password} where id=#{id}
     </update>
     <delete id="deleteAllJoinByIds">
-        delete from t_admin where id in (
+        delete from sys_admin where id in (
         <foreach collection="list" item="item" separator=",">
             #{item}
         </foreach>);
-        delete from t_admin_role where aid in (
+        delete from sys_admin_role where aid in (
         <foreach collection="list" item="item" separator=",">
             #{item}
         </foreach>
         );
     </delete>
     <select id="getAdminDetailById" resultMap="JoinAdminRoleMap">
-        select a.*, ar.aid aid, ar.rid rid from t_admin a
-           left join t_admin_role ar on a.id = ar.aid
+        select a.*, ar.aid aid, ar.rid rid from sys_admin a
+           left join sys_admin_role ar on a.id = ar.aid
         where a.id=#{id}
     </select>
     <!--查询指定用户下拥有的权限-->
     <select id="selectPermsById" resultType="java.lang.String">
-        select m.perms from t_role_menu a
-            left join t_menu m on a.mid = m.id
-            left join t_admin_role ar on a.rid=ar.rid
+        select m.perms from sys_role_menu a
+            left join sys_menu m on a.mid = m.id
+            left join sys_admin_role ar on a.rid=ar.rid
         where ar.aid=#{id}
     </select>
     <select id="getAdminCenter" resultType="com.iteaj.msn.core.dto.AdminDto">
-        select a.*, o.name deptName, group_concat(r.name) roleNames from t_admin a
-            left join t_admin_role ar on a.id = ar.aid
-            left join t_role r on r.id=ar.rid
-            left join t_organize o on o.id=a.org_id
+        select a.*, o.name deptName, group_concat(r.name) roleNames from sys_admin a
+            left join sys_admin_role ar on a.id = ar.aid
+            left join sys_role r on r.id=ar.rid
+            left join sys_org o on o.id=a.org_id
         where a.id=#{id} group by a.id
     </select>
     <select id="getAdminPassword" resultType="java.lang.String">
-        select password from t_admin where id=#{id}
+        select password from sys_admin where id=#{id}
     </select>
 </mapper>

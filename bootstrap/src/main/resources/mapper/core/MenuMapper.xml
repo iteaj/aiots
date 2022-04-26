@@ -6,7 +6,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="com.iteaj.msn.core.entity.Menu" id="OriMap">
         <id property="id"    column="id"  />
-        <result property="msn"    column="full_name"  />
         <result property="name"    column="name"  />
         <result property="pid"    column="pid"  />
         <result property="sort"    column="sort"  />
@@ -20,7 +19,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateTime"    column="update_time"  />
     </resultMap>
     <select id="selectAdminMenus" resultType="string">
-        select a.* from t_menu a
+        select a.* from sys_menu a
             left join t_role_menu rm on a.id = rm.mid
             left join t_admin_role ar on rm.rid=ar.rid
         where a.status != 'disabled' and ar.aid=#{aid}

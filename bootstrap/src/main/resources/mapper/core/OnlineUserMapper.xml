@@ -32,7 +32,7 @@
     </sql>
     <!-- 批量插入 -->
     <insert id="insertAsBatch">
-        insert into t_online_user (browse, account, expire_time, location, access_ip, login_time, os, status, user_nick, app_type) VALUES
+        insert into sys_online_user (browse, account, expire_time, location, access_ip, login_time, os, status, user_nick, app_type) VALUES
         <foreach collection="list" separator="," item="item">
             (#{item.browse},#{item.account},#{item.expireTime},#{item.location},#{item.loginIp},#{item.loginTime},#{item.os},
 		#{item.status},#{item.userNick},#{item.appType})
