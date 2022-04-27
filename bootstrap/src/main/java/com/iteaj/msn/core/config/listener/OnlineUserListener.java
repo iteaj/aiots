@@ -1,6 +1,5 @@
 package com.iteaj.msn.core.config.listener;
 
-import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.event.OnlinePayload;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.framework.spi.event.FrameworkListener;
@@ -36,7 +35,7 @@ public class OnlineUserListener implements FrameworkListener<PayloadEvent<Online
         OnlineUser onlineUser = new OnlineUser(payload.getSessionId());
 
         if(type == OnlineStatus.Online) { // 用户上线
-            final Admin admin = ShiroUtil.getUser();
+            final Admin admin = (Admin) payload.getUser();
             final UserAgent agent = payload.getUserAgent();
             final String browse = agent.getBrowser().getName();
             final String os = agent.getOperatingSystem().getName();

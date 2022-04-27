@@ -41,7 +41,7 @@ public class RoleController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions("core:role:view")
     public Result<IPage<Role>> view(Page page, Role role) {
-        page.addOrder(OrderItem.desc("create_time"), OrderItem.asc("sort"));
+        page.addOrder(OrderItem.asc("sort"));
         return this.roleService.page(page, role);
     }
 
@@ -51,7 +51,7 @@ public class RoleController extends BaseController {
      * @return
      */
     @GetMapping("/list")
-    public Result<List<Role>> view(Role role) {
+    public Result<List<Role>> list(Role role) {
         return this.roleService.list(role);
     }
 

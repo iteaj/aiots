@@ -1,5 +1,6 @@
 package com.iteaj.msn.core.config.shiro;
 
+import com.iteaj.framework.Entity;
 import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.event.OnlinePayload;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
@@ -68,6 +69,8 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
                     .setUserAgent(agent).setAccessIp(ipAddress)
                     .setAccessTime(new Date(session.getLastAccessedTime()))
                     .setExpireTime(session.getMaxInactiveInterval());
+
+            onlinePayload.setUser((Entity) authenticationInfo.getPrincipals().getPrimaryPrincipal());
             EventUtils.publish(new PayloadEvent(session.getId(), onlinePayload));
         } catch (Exception e) {
             e.printStackTrace();

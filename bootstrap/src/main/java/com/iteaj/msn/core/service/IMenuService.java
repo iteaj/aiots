@@ -52,4 +52,11 @@ public interface IMenuService extends IBaseService<Menu> {
      * @return
      */
     Menu getByIdFromCache(Long id);
+
+    /**
+     * 获取自定管理员拥有的权限
+     * @param adminId
+     * @return
+     */
+    List<String> selectPermissions(Long adminId);
 }

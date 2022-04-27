@@ -30,12 +30,6 @@ public class TreeUtils {
         Map<String, T> menuMap = allMenus.stream().collect(Collectors
                 .toMap(item -> item.getId().toString(), item -> item));
 
-        //
-        allMenus.forEach(item->{
-            T parentItem = menuMap.get(item.getPid().toString());
-            if(null != parentItem) parentItem.addChild(item);
-        });
-
         Map<String, T> adminMenus = new HashMap<>(); // 存放管理员菜单的列表
         adminMenuIds.forEach(item -> {
             T t = menuMap.get(item);
@@ -54,11 +48,11 @@ public class TreeUtils {
     private static <T extends TreeEntity> void getParentMenu(Long pid, Map<String, T> menuMap, Map<String, T> adminMenus) {
         if(pid == null) return;
         String pidStr = String.valueOf(pid);
-        T t = menuMap.get(pidStr);
-        if(t != null && !adminMenus.containsKey(pidStr)) {
-            t.setChildren(null);
-            adminMenus.put(pidStr, t);
-            getParentMenu(t.getPid(), menuMap, adminMenus);
+        T parentMenu = menuMap.get(pidStr);
+        if(parentMenu != null && !adminMenus.containsKey(pidStr)) {
+            parentMenu.setChildren(null);
+            adminMenus.put(pidStr, parentMenu);
+            getParentMenu(parentMenu.getPid(), menuMap, adminMenus);
         }
     }
 }

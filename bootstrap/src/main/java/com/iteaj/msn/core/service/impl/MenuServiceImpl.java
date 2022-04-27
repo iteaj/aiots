@@ -6,6 +6,7 @@ import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.msn.core.entity.Menu;
@@ -132,6 +133,21 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
     @Override
     public Menu getByIdFromCache(Long id) {
         return this.idMenuMap.get(id);
+    }
+
+    @Override
+    public List<String> selectPermissions(Long adminId) {
+        if(ShiroUtil.isSuper()) {
+            return this.getBaseMapper()
+                    .selectList(Wrappers.<Menu>lambdaQuery()
+                            .ne(Menu::getStatus, PermStatus.disabled)
+                            .eq(Menu::getType, MenuType.A)).stream()
+                    .filter(item -> StringUtils.hasText(item.getPerms()))
+                    .map(item -> item.getPerms()).collect(Collectors.toList());
+        } else {
+            return this.getBaseMapper().selectPermissions(adminId);
+        }
+
     }
 
     @Override

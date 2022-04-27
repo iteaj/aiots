@@ -15,4 +15,11 @@ public interface IMenuDao extends BaseMapper<Menu> {
      * @return
      */
     List<String> selectAdminMenus(Long aid);
+
+    /**
+     * 查询管理员的菜单权限
+     * @param adminId
+     * @return
+     */
+    List<String> selectPermissions(Long adminId);
 }

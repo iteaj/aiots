@@ -6,7 +6,6 @@ import com.iteaj.framework.spring.SpringUtils;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * create time: 2021/3/14
@@ -32,8 +31,8 @@ public class FrameworkAutoConfiguration {
         return SpringUtils.getInstance();
     }
 
-//    @Bean
-//    public FrameworkControllerAdvice frameworkControllerAdvice() {
-//        return new FrameworkControllerAdvice();
-//    }
+    @Bean
+    public FrameworkControllerAdvice frameworkControllerAdvice() {
+        return new FrameworkControllerAdvice();
+    }
 }

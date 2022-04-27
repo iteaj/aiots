@@ -22,10 +22,6 @@ public class FrameworkControllerAdvice {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public FrameworkControllerAdvice() {
-        System.out.println("sdf");
-    }
-
     /**
      * 全局未知异常处理
      * @return

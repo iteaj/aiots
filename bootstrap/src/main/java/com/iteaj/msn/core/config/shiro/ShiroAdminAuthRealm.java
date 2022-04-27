@@ -5,6 +5,9 @@ import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.auth.AuthToken;
 import com.iteaj.msn.core.entity.Admin;
 import com.iteaj.msn.core.service.IAdminService;
+import com.iteaj.msn.core.service.IMenuService;
+import com.iteaj.msn.core.service.IRoleService;
+import com.iteaj.msn.core.service.impl.MenuServiceImpl;
 import com.iteaj.util.DigestUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -15,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -27,6 +31,8 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
 
     @Autowired
     private IAdminService adminService;
+    @Autowired
+    private IMenuService menuService;
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -35,11 +41,11 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        AuthToken authToken = (AuthToken) principals.getPrimaryPrincipal();
+        Admin admin = (Admin) principals.getPrimaryPrincipal();
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
 
-        authorizationInfo.addRoles(authToken.getRoles());
-        authorizationInfo.addStringPermissions(authToken.getPermissions());
+        List<String> permissions = this.menuService.selectPermissions(admin.getId());
+        authorizationInfo.addStringPermissions(permissions);
 
         return authorizationInfo;
     }

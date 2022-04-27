@@ -88,13 +88,14 @@ public class ShiroFilterLogFactoryBean extends ShiroFilterFactoryBean {
                     try {
                         logger.setStatus(true).setIp(WebUtils.getIpAddress(servletRequest));
                         super.executeChain(request, response, origChain);
-                    } catch (ServiceException e) {
-                        logger.setStatus(false);
-                        logger.setRemark(e.getMessage());
-                        throw e;
                     } catch (Throwable e) {
-                        logger.setStatus(false);
-                        logger.setRemark("未知错误");
+                        if(e.getCause() instanceof ServiceException) {
+                            logger.setStatus(false);
+                            logger.setRemark(e.getCause().getMessage());
+                        } else {
+                            logger.setStatus(false);
+                            logger.setRemark("未知错误");
+                        }
                         throw e;
                     } finally {
                         long endMills = System.currentTimeMillis();

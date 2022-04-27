@@ -19,8 +19,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </collection>
     </resultMap>
     <insert id="createRoleAndPerms">
-        insert into sys_role (name, status, remark) value
-            (#{name},#{status},#{remark});
+        insert into sys_role (name, status, remark, sort) value
+            (#{name},#{status},#{remark}, #{sort});
         set @lastId=LAST_INSERT_ID();
         <if test="menuIds != null and menuIds.size() > 0">
             insert into sys_role_menu (rid,mid) values
