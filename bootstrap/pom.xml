@@ -12,6 +12,26 @@
 
     <dependencies>
         <dependency>
+            <version>2.4.1</version>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-server</artifactId>
+        </dependency>
+        <dependency>
+            <version>2.4.1</version>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-modbus</artifactId>
+        </dependency>
+        <dependency>
+            <version>2.4.1</version>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-mqtt</artifactId>
+        </dependency>
+        <dependency>
+            <version>2.4.1</version>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-plc</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
@@ -40,6 +60,17 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <optional>true</optional>
+            <groupId>com.iteaj</groupId>
+            <artifactId>generator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>p6spy</groupId>
+            <artifactId>p6spy</artifactId>
+            <version>${p6spy.version}</version>
         </dependency>
         <!-- 缓存配置 -->
 <!--        <dependency>-->
@@ -126,11 +157,7 @@
                 <project.root.path>${project.basedir}</project.root.path>
             </properties>
             <dependencies>
-                <dependency>
-                    <groupId>p6spy</groupId>
-                    <artifactId>p6spy</artifactId>
-                    <version>${p6spy.version}</version>
-                </dependency>
+
                 <!-- 开发环境加入代码生成器模块 -->
                 <dependency>
                     <groupId>com.iteaj</groupId>

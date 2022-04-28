@@ -97,8 +97,7 @@ public class ShiroAutoConfiguration {
 
         // 处理拦截定义
         Map<String, String> pathDefinition = new LinkedHashMap<>();
-        definitions.stream().forEach((definition)->
-                pathDefinition.putAll(definition.getFilterChainMap()));
+        definitions.stream().forEach((definition)-> pathDefinition.putAll(definition.getFilterChainMap()));
         factoryBean.setFilterChainDefinitionMap(pathDefinition);
 
         return factoryBean;
