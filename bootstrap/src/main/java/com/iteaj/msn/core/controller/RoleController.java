@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.msn.core.dto.RoleDto;
+import com.iteaj.msn.core.dto.RoleFuncDto;
 import com.iteaj.msn.core.entity.Menu;
 import com.iteaj.msn.core.entity.Role;
 import com.iteaj.msn.core.service.IMenuService;
@@ -103,8 +104,9 @@ public class RoleController extends BaseController {
      * @return
      */
     @GetMapping("/func")
-    public Result<List<Long>> func(Long id) {
-        return this.roleService.listMenusOfRole(id);
+    public Result<RoleFuncDto> func(Long id) {
+        RoleFuncDto roleFuncDto = new RoleFuncDto(id, this.roleService.listMenusOfRole(id).getData());
+        return success(roleFuncDto);
     }
 
     /**
