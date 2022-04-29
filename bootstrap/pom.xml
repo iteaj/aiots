@@ -11,6 +11,7 @@
     <artifactId>bootstrap</artifactId>
 
     <dependencies>
+        <!-- iot 物联网框架jar依赖 start -->
         <dependency>
             <version>2.4.1</version>
             <groupId>com.iteaj</groupId>
@@ -31,6 +32,8 @@
             <groupId>com.iteaj</groupId>
             <artifactId>iot-plc</artifactId>
         </dependency>
+        <!-- iot end -->
+
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -61,8 +64,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- 非开发环境可注释掉 start -->
         <dependency>
-            <optional>true</optional>
             <groupId>com.iteaj</groupId>
             <artifactId>generator</artifactId>
             <version>${project.version}</version>
@@ -72,6 +75,8 @@
             <artifactId>p6spy</artifactId>
             <version>${p6spy.version}</version>
         </dependency>
+        <!-- 非开发环境可注释掉 end -->
+
         <!-- 缓存配置 -->
 <!--        <dependency>-->
 <!--            <artifactId>caffeine</artifactId>-->
@@ -156,26 +161,9 @@
                 <!--当前项目的根目录, 用于代码生成器-->
                 <project.root.path>${project.basedir}</project.root.path>
             </properties>
-            <dependencies>
-
-                <!-- 开发环境加入代码生成器模块 -->
-                <dependency>
-                    <groupId>com.iteaj</groupId>
-                    <artifactId>generator</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
         </profile>
         <profile>
             <id>test</id>
-            <dependencies>
-                <!-- 请自行移除 -->
-                <dependency>
-                    <groupId>com.iteaj</groupId>
-                    <artifactId>generator</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
         </profile>
     </profiles>
 </project>

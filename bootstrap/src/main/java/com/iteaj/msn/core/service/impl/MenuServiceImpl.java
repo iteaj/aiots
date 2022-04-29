@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService, InitializingBean {
 
     private Map<Long, Menu> idMenuMap = new HashMap<>(128);
-    private Map<String, Menu> loggerMenuCache = new HashMap<>();
+    private Map<String, Menu> loggerMenuCache = new HashMap<>(128);
 
     @Override
     public BooleanResult save(Menu entity) {

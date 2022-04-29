@@ -20,11 +20,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @PropertySource("classpath:application-lcg.properties")
 public class LowCodeGenAutoConfiguration implements InitializingBean, WebMvcConfigurer {
 
-    @Bean
-    public Module lowCodeGen() {
-        return DefaultModule.build("lcd", "低代码模块", 58);
-    }
-
     /**
      * 低代码模块无需认证授权
      * @return

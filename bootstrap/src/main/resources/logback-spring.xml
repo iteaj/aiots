@@ -7,7 +7,7 @@ scanPeriod: 设置监测配置文件是否有修改的时间间隔，如果没�
 debug: 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false
 -->
 
-<configuration scan="false" scanPeriod="60 seconds" debug="true">
+<configuration scan="false" scanPeriod="60 seconds" debug="false">
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
 
     <contextName>LoggerConfig</contextName>
@@ -63,7 +63,7 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
     </appender>
 
     <logger level="warn" name="org.springframework.context.support.PostProcessorRegistrationDelegate" />
-    <!--日志分析-->
+    <!--spring 启动异常日志分析-->
     <logger level="debug" name="org.springframework.boot.diagnostics">
         <appender-ref ref="STDOUT" />
     </logger>
