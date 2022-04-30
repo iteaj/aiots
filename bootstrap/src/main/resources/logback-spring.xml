@@ -70,11 +70,21 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
 
     <!--开发环境日志输出级别配置-->
     <springProfile name="dev">
-        <logger level="debug" name="com.iteaj" additivity="false">
+        <logger level="debug" name="com.iteaj.iboot" additivity="false">
+            <appender-ref ref="STDOUT" />
+        </logger>
+        <logger level="debug" name="com.iteaj.framework" additivity="false">
             <appender-ref ref="STDOUT" />
         </logger>
         <logger level="info" name="org.springframework" additivity="false">
             <appender-ref ref="STDOUT" />
+        </logger>
+    </springProfile>
+    <springProfile name="test,prod">
+        <logger level="info" name="com.iteaj" additivity="false">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE_INFO" />
+            <appender-ref ref="FILE_ERROR" />
         </logger>
     </springProfile>
     <springProfile name="test,prod">

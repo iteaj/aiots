@@ -110,7 +110,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.iteaj.boot.BootstrapBootApplication</mainClass>
+                    <mainClass>com.iteaj.iboot.boot.BootstrapBootApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

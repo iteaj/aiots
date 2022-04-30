@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.msn.quartz.mapper.IQrtzFiredTriggersMapper">
+<mapper namespace="com.iteaj.iboot.msn.quartz.mapper.IQrtzFiredTriggersMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="OriMap" type="com.iteaj.msn.quartz.entity.QrtzFiredTriggers">
+    <resultMap id="OriMap" type="com.iteaj.iboot.msn.quartz.entity.QrtzFiredTriggers">
         <result column="ENTRY_ID" property="entryId" />
         <result column="FIRED_TIME" property="firedTime" />
         <result column="INSTANCE_NAME" property="instanceName" />

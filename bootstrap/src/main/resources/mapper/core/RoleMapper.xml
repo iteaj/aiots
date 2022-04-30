@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.msn.core.mapper.IRoleDao">
+<mapper namespace="com.iteaj.iboot.msn.core.mapper.IRoleDao">
 
-    <resultMap type="com.iteaj.msn.core.entity.Role" id="OriMap">
+    <resultMap type="com.iteaj.iboot.msn.core.entity.Role" id="OriMap">
         <id property="id"    column="id"  />
         <result property="name"    column="name"  />
         <result property="sort" column="sort" />
@@ -13,7 +13,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"  />
         <result property="updateTime"    column="update_time"  />
     </resultMap>
-    <resultMap id="JoinRoleMenuMap" type="com.iteaj.msn.core.dto.RoleDto" extends="OriMap">
+    <resultMap id="JoinRoleMenuMap" type="com.iteaj.iboot.msn.core.dto.RoleDto" extends="OriMap">
         <collection property="menuIds" ofType="long">
             <result property="menuIds" column="mid" />
         </collection>

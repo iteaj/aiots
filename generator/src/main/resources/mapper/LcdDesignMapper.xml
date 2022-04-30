@@ -3,7 +3,7 @@
 <mapper namespace="com.iteaj.msn.lcd.mapper.LcdDesignMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.iteaj.msn.lcd.entity.LcdDesign">
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.msn.lcd.entity.LcdDesign">
         <result column="id" property="id" />
         <result column="name" property="name" />
         <result column="table_name" property="tableName" />

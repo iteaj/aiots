@@ -1,0 +1,10 @@
+package com.iteaj.iboot.msn.iot;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.context.annotation.ComponentScan;
+
+@ComponentScan({"com.iteaj.iboot.msn.iot"})
+@MapperScan({"com.iteaj.iboot.msn.iot.mapper"})
+public class IotAutoConfiguration {
+
+}

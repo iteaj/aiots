@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.msn.quartz.mapper.IQrtzSimpleTriggersMapper">
+<mapper namespace="com.iteaj.iboot.msn.quartz.mapper.IQrtzSimpleTriggersMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="OriMap" type="com.iteaj.msn.quartz.entity.QrtzSimpleTriggers">
+    <resultMap id="OriMap" type="com.iteaj.iboot.msn.quartz.entity.QrtzSimpleTriggers">
         <result column="REPEAT_COUNT" property="repeatCount" />
         <result column="REPEAT_INTERVAL" property="repeatInterval" />
         <result column="TIMES_TRIGGERED" property="timesTriggered" />

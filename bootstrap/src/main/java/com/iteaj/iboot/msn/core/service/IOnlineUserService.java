@@ -1,0 +1,17 @@
+package com.iteaj.iboot.msn.core.service;
+
+import com.iteaj.framework.IBaseService;
+import com.iteaj.iboot.msn.core.entity.OnlineUser;
+
+/**
+ * <p>
+ * 在线用户 服务类
+ * </p>
+ *
+ * @author iteaj
+ * @since 2020-06-20
+ */
+public interface IOnlineUserService extends IBaseService<OnlineUser> {
+
+    void updateBySessionId(OnlineUser onlineUser);
+}
