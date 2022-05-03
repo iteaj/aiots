@@ -27,15 +27,15 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -74,9 +74,21 @@ public class GeneratorController extends BaseController implements InitializingB
         if(CommonUtils.isNotEmpty(tableInfoList)) {
             tableInfoList.forEach(item -> {
                 item.setFields(null); // 不写字段信息到前端
+                item.setCommonFields(null);
+                item.setImportPackages(null);
             });
         }
         return success(tableInfoList);
+    }
+
+    @GetMapping("prefix")
+    public Result<List<Map<String, String>>> prefix() {
+        return success(properties.getLsc().getTablePrefix().stream().map(item -> {
+            Map<String, String> options = new HashMap<>();
+            options.put("label", item);
+            options.put("value", item);
+            return options;
+        }).collect(Collectors.toList()));
     }
 
     /**
@@ -195,21 +207,25 @@ public class GeneratorController extends BaseController implements InitializingB
      * @param dto
      */
     @PostMapping("vue")
-    public Result<byte[]> download(@RequestBody GenConfigDto dto) throws IOException {
-        if(!CommonUtils.isNotEmpty(dto.getTables())) {
-            return fail("请选择生成的表");
+    public Result<String> download(@RequestBody GenConfigDto dto, HttpServletResponse response) throws IOException {
+        try {
+            initTableQuerySql(null, null, dto.getTables());
+            ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
+                    , properties.getLsc(), new TemplateConfig(), properties.getLgc());
+
+            response.setContentType("application/octet-stream");
+
+            // 生成文件
+            ServletOutputStream outputStream = response.getOutputStream();
+            new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(outputStream
+                    , properties)).setConfig(configBuilder).execute();
+
+            // 二进制流必须返回null
+            return null;
+        } catch (IOException e) {
+            response.setContentType("application/json");
+            return fail("下载失败");
         }
-
-        initTableQuerySql(null, null, dto.getTables());
-        ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), properties.getLgc());
-
-        // 生成文件
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(outputStream
-                , properties)).setConfig(configBuilder).execute();
-
-        return success(outputStream.toByteArray());
     }
 
     /**

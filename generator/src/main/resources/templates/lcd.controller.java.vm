@@ -64,7 +64,7 @@ public class ${table.controllerName} {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:edit"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:edit"})
     public Result<${dto}> getEditDetail(Long id) {
         return this.${cfg.serviceName}.detailById(id);
     }
@@ -74,7 +74,7 @@ public class ${table.controllerName} {
     * @param entity
     */
     @PostMapping("/edit")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:edit"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:edit"})
     public Result<Boolean> edit(@RequestBody ${entity} entity) {
         return this.${cfg.serviceName}.updateById(entity);
     }
@@ -84,7 +84,7 @@ public class ${table.controllerName} {
     * @param entity
     */
     @PostMapping("/add")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:add"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:add"})
     public Result<Boolean> add(@RequestBody ${entity} entity) {
         return this.${cfg.serviceName}.save(entity);
     }
@@ -94,7 +94,7 @@ public class ${table.controllerName} {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:del"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.${cfg.serviceName}.removeByIds(idList);
     }
@@ -105,7 +105,7 @@ public class ${table.controllerName} {
     * @param entity 导出参数
     */
     @GetMapping("/export")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:export"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:export"})
     public void exportRecord(Page<${dto}> page, ${dto} entity, HttpServletResponse response) {
         this.${cfg.serviceName}.detailPage(page, entity);
         ExcelExportUtil.exportExcel(null, ${dto}.class, page.getRecords());
@@ -119,7 +119,7 @@ public class ${table.controllerName} {
     * @param file 导入文件
     */
     @PostMapping("/import")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:import"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:import"})
     public void importRecord(MultipartFile file, ${dto} entity) throws Exception {
         ExcelImportUtil.importExcel(file.getInputStream(), ${dto}.class, null);
     }

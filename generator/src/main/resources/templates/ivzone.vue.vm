@@ -1,43 +1,42 @@
 <template>
-  <IvzBasicView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end #if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end auth>
-    <IvzViewSearch>
-      #foreach($vue in ${cfg.vueFields})
-        #if(${vue.searchComponent})
-      ${vue.searchComponent}
+  <UView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end #if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end>
+    <UViewSearch v-model="searchModel">
+      <URow col="search">
+        #foreach($vue in ${cfg.vueFields})
+          #if(${vue.searchComponent})
+        ${vue.searchComponent}
+          #end
         #end
-      #end
+      </URow>
       <template #func>
-        <IvzFuncBtn func="query" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/view">搜索</IvzFuncBtn>
-        <IvzFuncBtn func="add" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add">新增</IvzFuncBtn>
-        <IvzFuncBtn func="reset">重置</IvzFuncBtn>
+        <UFuncBtn func="query" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/view">搜索</UFuncBtn>
+        <UFuncBtn func="add" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add">新增</UFuncBtn>
+        <UFuncBtn func="reset">重置</UFuncBtn>
       </template>
-    </IvzViewSearch>
-    <IvzViewModal width="860" layout="vertical" :rules="rules">
+    </UViewSearch>
+    <UViewModal title="${cfg.moduleName}管理" v-model="editModel" width="760" :rules="rules">
       <template #default="{model}">
-        <IvzRow :gutter="16" span="24">
+        <URow :gutter="16" span="24">
           #foreach($vue in ${cfg.vueFields})
            #if(${vue.component})
           ${vue.component}
            #end
           #end
-        </IvzRow>
-      </template>
-      <template #title="{model}">
-        {{model.id ? '修改${cfg.moduleName}' : '新增${cfg.moduleName}'}}
+        </URow>
       </template>
       <template #footer="{model}">
-        <IvzFuncBtn func="cancel">取消</IvzFuncBtn>
-        <IvzFuncBtn func="submit" :url="model.id ? '/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit' : '/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add'">提交</IvzFuncBtn>
-        <IvzFuncBtn func="reset">重置</IvzFuncBtn>
+        <UFuncBtn func="cancel">取消</UFuncBtn>
+        <UFuncBtn func="submit" :url="model.id ? '/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit' : '/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add'">提交</UFuncBtn>
+        <UFuncBtn func="reset">重置</UFuncBtn>
       </template>
-    </IvzViewModal>
-    <IvzViewTable :columns="columns" :bordered="true" size="small">
-      <template #c_action="{record}">
-        <IvzFuncTag func="edit" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit">修改</IvzFuncTag>
-        <IvzFuncTag func="del" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/del">删除</IvzFuncTag>
+    </UViewModal>
+    <UViewTable :columns="columns">
+      <template #action="{record}">
+        <UFuncTag func="edit" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit">修改</UFuncTag>
+        <UFuncTag func="del" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/del">删除</UFuncTag>
       </template>
-    </IvzViewTable>
-  </IvzBasicView>
+    </UViewTable>
+  </UView>
 </template>
 <!-- ${cfg.moduleName}功能 -->
 <script>
@@ -49,7 +48,7 @@ export default {
         #foreach($field in ${cfg.vueFields})
           {field: "${field.field}", title: "${field.label}"},
         #end
-          {title: '操作', field: 'action', type: 'action'},
+          {field: 'action', title: '操作', type: 'action'},
       ]);
 
     let rules = reactive({
@@ -60,7 +59,9 @@ export default {
       #end
     })
 
-    return {columns, rules}
+    let editModel = ref(null);
+    let searchModel = ref(null);
+    return {columns, rules, editModel, searchModel}
   },
 }
 </script>

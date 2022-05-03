@@ -52,7 +52,7 @@ public class ${table.controllerName} {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:view"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:view"})
     public Result<IPage<${entity}>> list(Page<${entity}> page, ${entity} entity) {
         return this.${cfg.serviceName}.page(page, entity);
     }
@@ -62,7 +62,7 @@ public class ${table.controllerName} {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:edit"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:edit"})
     public Result<${entity}> getEditDetail(Long id) {
         return this.${cfg.serviceName}.getById(id);
     }
@@ -72,7 +72,7 @@ public class ${table.controllerName} {
     * @param entity
     */
     @PostMapping("/edit")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:edit"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:edit"})
     public Result<Boolean> edit(@RequestBody ${entity} entity) {
         return this.${cfg.serviceName}.updateById(entity);
     }
@@ -82,7 +82,7 @@ public class ${table.controllerName} {
     * @param entity
     */
     @PostMapping("/add")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:add"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:add"})
     public Result<Boolean> add(@RequestBody ${entity} entity) {
         return this.${cfg.serviceName}.save(entity);
     }
@@ -92,7 +92,7 @@ public class ${table.controllerName} {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:del"})
+    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.${cfg.serviceName}.removeByIds(idList);
     }
