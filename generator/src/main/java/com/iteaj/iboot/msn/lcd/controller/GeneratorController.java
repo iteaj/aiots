@@ -189,7 +189,7 @@ public class GeneratorController extends BaseController implements InitializingB
 
             StringBuilder batchSql = new StringBuilder("insert into t_menu (pid, name, url, perms, type, msn, log_desc, sort) values ");
             // 查询列表
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core', '查询%s列表', 5),", pid, "查询", url+"/view", perm+":view", comment));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core', '查询%s', 5),", pid, "查询", url+"/view", perm+":view", comment));
             // 新增
             batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 'core', '新增%s记录', 10),", pid, "新增", url+"/add", perm+":add", comment));
             // 修改
@@ -247,7 +247,30 @@ public class GeneratorController extends BaseController implements InitializingB
         VelocityReviewTemplateEngine engine = new VelocityReviewTemplateEngine(properties);
         new AutoGenerator().setConfig(configBuilder).setTemplateEngine(engine).execute();
 
-        return success(engine.getReviewDto());
+        final ReviewDto reviewDto = engine.getReviewDto();
+        reviewDto.setMenuSql(this.getMenuSql(configBuilder));
+        return success(reviewDto);
+    }
+
+    private String getMenuSql(ConfigBuilder configBuilder) {
+        final TableInfo tableInfo = configBuilder.getTableInfoList().get(0);
+        final String comment = LowCodeUtil.getModuleName(tableInfo.getComment());
+        String url = "/"+properties.getLpc().getModuleName()+"/" + tableInfo.getEntityPath();
+        String perm = properties.getLpc().getModuleName()+":"+tableInfo.getEntityPath();
+
+        StringBuilder batchSql = new StringBuilder();
+        batchSql.append(String.format("insert into t_menu (pid, name, url, perms, type, sort) value (%s, '%s管理', '%s', '%s', 'V', 158);\n", 0, comment, url, perm+":"+"view"));
+        batchSql.append("set @pid = select last_insert_id();\n");
+        batchSql.append("insert into t_menu (pid, name, url, perms, type, log_desc, sort) values \n");
+        // 查询列表
+        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '查询%s', 5),\n", "@pid", "查询", url+"/view", perm+":view", comment));
+        // 新增
+        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '新增%s', 10),\n", "@pid", "新增", url+"/add", perm+":add", comment));
+        // 修改
+        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '修改%s', 15),\n", "@pid", "修改", url+"/edit", perm+":edit", comment));
+        // 删除
+        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '删除%s', 20);", "@pid", "删除", url+"/del", perm+":del", comment));
+        return batchSql.toString();
     }
 
     private void initTableQuerySql(String name, String prefix, List<String> tables) {

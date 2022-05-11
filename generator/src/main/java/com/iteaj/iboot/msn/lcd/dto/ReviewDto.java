@@ -22,4 +22,6 @@ public class ReviewDto {
     private String mapper;
 
     private String dto;
+
+    private String menuSql;
 }
