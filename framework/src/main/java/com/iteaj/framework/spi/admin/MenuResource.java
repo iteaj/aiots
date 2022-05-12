@@ -1,7 +1,5 @@
 package com.iteaj.framework.spi.admin;
 
-import com.iteaj.framework.consts.PermStatus;
-
 /**
  * create time: 2020/6/14
  *  菜單源

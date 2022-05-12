@@ -160,7 +160,19 @@
             </properties>
         </profile>
     </profiles>
-
+    <repositories>
+        <repository>
+            <id>aliMaven</id>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <name>aliYun maven</name>
+            <url>https://maven.aliyun.com/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>
