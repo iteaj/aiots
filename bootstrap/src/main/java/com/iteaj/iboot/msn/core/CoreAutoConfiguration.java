@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.core;
 
 import com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration;
+import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
 import com.iteaj.framework.autoconfigure.ShiroAutoConfiguration;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.logger.LoggerService;
@@ -39,6 +40,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ImportAutoConfiguration({
         ShiroAutoConfiguration.class, // shiro权限配置
         CaptchaAutoConfiguration.class, // 校验码配置
+        FrameworkWebConfiguration.class // 框架Web容器配置
 })
 @ComponentScan({"com.iteaj.iboot.msn.core"})
 @MapperScan({"com.iteaj.iboot.msn.core.mapper"})

@@ -10,6 +10,7 @@ import com.iteaj.iboot.msn.lcd.LowCodeProperties;
 import com.iteaj.iboot.msn.lcd.VelocityReviewTemplateEngine;
 import com.iteaj.iboot.msn.lcd.dto.GenConfigDto;
 import com.iteaj.iboot.msn.lcd.dto.GenDirDto;
+import com.iteaj.iboot.msn.lcd.dto.GenInit;
 import com.iteaj.iboot.msn.lcd.dto.ReviewDto;
 import com.iteaj.iboot.msn.lcd.vue.VelocityVueTemplateZipEngine;
 import com.iteaj.iboot.msn.lcd.utils.LowCodeUtil;
@@ -79,6 +80,19 @@ public class GeneratorController extends BaseController implements InitializingB
             });
         }
         return success(tableInfoList);
+    }
+
+    /**
+     * 初始化信息
+     * @return
+     */
+    @GetMapping("init")
+    public Result<GenInit> init() {
+        GenInit genInit = new GenInit();
+        genInit.setMsn(properties.getLpc().getModuleName());
+        genInit.setParentPath(properties.getLpc().getParent());
+        genInit.setProjectPath(properties.getProjectRootPath());
+        return success(genInit);
     }
 
     @GetMapping("prefix")

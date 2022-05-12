@@ -1,7 +1,5 @@
 package com.iteaj.iboot.msn.quartz;
 
-import com.iteaj.framework.spi.admin.DefaultModule;
-import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob;
 import com.iteaj.iboot.msn.quartz.scheduler.SchedulerManager;
 import org.mybatis.spring.annotation.MapperScan;
@@ -15,6 +13,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -27,15 +26,11 @@ import javax.sql.DataSource;
  * @author iteaj
  * @since 1.0
  */
+@Profile("qrtz")
 @EnableScheduling
 @ComponentScan({"com.iteaj.iboot.msn.quartz"})
 @MapperScan({"com.iteaj.iboot.msn.quartz.mapper"})
 public class QuartzAutoConfiguration implements BeanFactoryPostProcessor, BeanDefinitionRegistryPostProcessor {
-
-    @Bean
-    public Module quartzModule() {
-        return DefaultModule.build("quartz", "定时任务", 60);
-    }
 
     @Bean("schedulerFactoryBean")
     public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory, DataSource dataSource){

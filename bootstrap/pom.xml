@@ -96,6 +96,7 @@
             <resource>
                 <includes>
                     <include>**/*.xml</include>
+                    <include>**/*.yml</include>
                     <include>**/*.yaml</include>
                     <include>**/*.json</include>
                     <include>/META-INF/*</include>
