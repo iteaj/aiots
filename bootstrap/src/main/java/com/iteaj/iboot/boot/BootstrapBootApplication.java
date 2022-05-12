@@ -20,9 +20,8 @@ import org.springframework.context.annotation.ComponentScan;
         QuartzAutoConfiguration.class, // 定时任务模块
         LowCodeGenAutoConfiguration.class, // 低代码代码生成器模块
 
-        // 以下是iboot的核心配置(必须启用)
+        // 以下是IBoot的核心配置(必须启用)
         CoreAutoConfiguration.class, // 系统管理模块
-        FrameworkWebConfiguration.class // 框架Web容器配置
 })
 @SpringBootApplication()
 public class BootstrapBootApplication {
