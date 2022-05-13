@@ -1,5 +1,5 @@
 <template>
-  <UView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end #if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end>
+  <UView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end #if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end urlAuth>
     <UViewSearch v-model="searchModel">
       <URow col="search">
         #foreach($vue in ${cfg.vueFields})
@@ -7,12 +7,10 @@
         ${vue.searchComponent}
           #end
         #end
-      </URow>
-      <template #func>
         <UFuncBtn func="query" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/view">搜索</UFuncBtn>
         <UFuncBtn func="reset">重置</UFuncBtn>
         <UFuncBtn func="add" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add">新增</UFuncBtn>
-      </template>
+      </URow>
     </UViewSearch>
     <UViewModal title="${cfg.moduleName}管理" :span="[7, 14]" v-model="editModel" :rules="rules">
       <template #default="{model}">
