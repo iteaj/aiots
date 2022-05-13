@@ -153,7 +153,9 @@ public class GeneratorController extends BaseController implements InitializingB
         new AutoGenerator().setConfig(configBuilder).execute();
 
         // 生成菜单
-        genMenu(dto, configBuilder);
+        if(dto.getMenuId() != null) {
+            genMenu(dto, configBuilder);
+        }
 
         return success(true);
     }
@@ -192,7 +194,7 @@ public class GeneratorController extends BaseController implements InitializingB
             final String comment = LowCodeUtil.getModuleName(tableInfo.getComment());
             String url = "/"+properties.getLpc().getModuleName()+"/" + tableInfo.getEntityPath();
             String perm = properties.getLpc().getModuleName()+":"+tableInfo.getEntityPath();
-            String insertSql= String.format("insert into sys_menu (pid, name, url, perms, type, log, sort) value (%s, '%s管理', '%s', '%s', 'V', 0, 158);"
+            String insertSql= String.format("insert into sys_menu (pid, name, url, perms, type, log, sort) value (%s, '%s', '%s', '%s', 'V', 0, 158);"
                     , dto.getMenuId(), comment, url, perm+":"+"view");
             statement.executeUpdate(insertSql);
 

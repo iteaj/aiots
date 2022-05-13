@@ -23,6 +23,11 @@ public class GenConfigDto {
     private List<String> tables;
 
     /**
+     * 是否导入菜单
+     */
+    private boolean importMenu;
+
+    /**
      * 文件存在是否覆盖
      */
     private boolean fileOverride;
