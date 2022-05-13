@@ -14,15 +14,13 @@
         <UFuncBtn func="add" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add">新增</UFuncBtn>
       </template>
     </UViewSearch>
-    <UViewModal title="${cfg.moduleName}管理" v-model="editModel" width="760" :rules="rules">
+    <UViewModal title="${cfg.moduleName}管理" :span="[7, 14]" v-model="editModel" :rules="rules">
       <template #default="{model}">
-        <URow :gutter="16" span="24">
-          #foreach($vue in ${cfg.vueFields})
-           #if(${vue.component})
-          ${vue.component}
-           #end
-          #end
-        </URow>
+        #foreach($vue in ${cfg.vueFields})
+         #if(${vue.component})
+        ${vue.component}
+         #end
+        #end
       </template>
       <template #footer="{model}">
         <UFuncBtn func="cancel">取消</UFuncBtn>
@@ -59,8 +57,8 @@ export default {
       #end
     })
 
-    let editModel = ref(null);
-    let searchModel = ref(null);
+    let editModel = ref({});
+    let searchModel = ref({});
     return {columns, rules, editModel, searchModel}
   },
 }
