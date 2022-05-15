@@ -15,7 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
     <resultMap id="JoinRoleMenuMap" type="com.iteaj.iboot.msn.core.dto.RoleDto" extends="OriMap">
         <collection property="menuIds" ofType="long">
-            <result property="menuIds" column="mid" />
+<!--            <result property="menuIds" column="mid" />-->
         </collection>
     </resultMap>
     <insert id="createRoleAndPerms">

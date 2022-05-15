@@ -9,7 +9,10 @@
     <name>admin:bootstrap</name>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bootstrap</artifactId>
-
+    <properties>
+        <!--当前项目的根目录, 用于代码生成器-->
+        <project.root.path>${project.basedir}</project.root.path>
+    </properties>
     <dependencies>
         <!-- iot 物联网框架jar依赖 start -->
         <dependency>
@@ -155,16 +158,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <properties>
-                <!--当前项目的根目录, 用于代码生成器-->
-                <project.root.path>${project.basedir}</project.root.path>
-            </properties>
-        </profile>
-        <profile>
-            <id>test</id>
-        </profile>
-    </profiles>
 </project>

@@ -306,7 +306,7 @@ public class GeneratorController extends BaseController implements InitializingB
                     sql.append("and TABLE_NAME in (").append(collect).append(")");
                 }
 
-                return sql.append(" order by UPDATE_TIME desc").toString();
+                return sql.append(" order by CREATE_TIME desc").toString();
             }
 
             @Override
