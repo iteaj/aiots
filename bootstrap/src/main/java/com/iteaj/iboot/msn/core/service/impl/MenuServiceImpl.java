@@ -59,7 +59,7 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
         List<Menu> menuList = this.getBaseMapper() // 根据sort排序后的数据
                 .selectList(Wrappers.query(menu).orderByAsc("sort"));
 
-        List<Menu> menus = (List<Menu>) TreeUtils.toTrees(menuList, 0l);
+        List<Menu> menus = (List<Menu>) TreeUtils.toTrees(menuList, menu.getPid());
         return new ListResult<>(menus);
     }
 

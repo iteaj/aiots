@@ -1,5 +1,5 @@
 <template>
-  <UView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end #if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end urlAuth>
+  <UView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end#if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end urlAuth>
     <UViewSearch v-model="searchModel">
       <URow col="search">
         #foreach($vue in ${cfg.vueFields})
@@ -20,9 +20,10 @@
          #end
         #end
       </template>
-      <template #footer="{model}">
+      <template #footer>
         <UFuncBtn func="cancel">取消</UFuncBtn>
-        <UFuncBtn func="submit" :url="model.id ? '/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit' : '/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add'">提交</UFuncBtn>
+        <UFuncBtn func="submit" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/saveOrUpdate" :urlAuth="false"
+          v-auth:or="['${package.ModuleName}:#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end:add', '${package.ModuleName}:#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end:edit']">提交</UFuncBtn>
         <UFuncBtn func="reset">重置</UFuncBtn>
       </template>
     </UViewModal>

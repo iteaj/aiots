@@ -35,6 +35,11 @@ public class DeviceType extends TreeEntity {
     private String name;
 
     /**
+     * 类型别名
+     */
+    private String alias;
+
+    /**
      * 类型说明
      */
     private String remark;

@@ -1,11 +1,8 @@
 package com.iteaj.iboot.msn.iot.service;
 
 import com.iteaj.framework.result.ListResult;
-import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.iot.entity.DeviceType;
 import com.iteaj.framework.IBaseService;
-
-import java.util.List;
 
 /**
  * <p>
@@ -21,5 +18,5 @@ public interface IDeviceTypeService extends IBaseService<DeviceType> {
      * 获取树形结构列表
      * @return
      */
-    ListResult<DeviceType> tree();
+    ListResult<DeviceType> tree(DeviceType entity);
 }

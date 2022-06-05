@@ -2,10 +2,10 @@ package com.iteaj.iboot.msn.iot.controller;
 
 import java.util.List;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.iot.consts.DeviceTypeAlias;
+import com.iteaj.iboot.msn.iot.consts.TypeAliasOptions;
 import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.msn.iot.entity.DeviceType;
 import com.iteaj.iboot.msn.iot.service.IDeviceTypeService;
 import com.iteaj.framework.BaseController;
@@ -33,13 +33,15 @@ public class DeviceTypeController extends BaseController {
     */
     @GetMapping("/view")
     @RequiresPermissions({"iot:deviceType:view"})
-    public Result<List<DeviceType>> list() {
-        return this.deviceTypeService.tree();
+    public Result<List<DeviceType>> list(DeviceType entity) {
+        return this.deviceTypeService.tree(entity);
     }
 
     @GetMapping("/tree")
-    public Result<List<DeviceType>> tree() {
-        return this.deviceTypeService.tree();
+    public Result<List<DeviceType>> tree(String alias) {
+        DeviceType type = new DeviceType();
+        type.setAlias(alias);
+        return this.deviceTypeService.tree(type);
     }
 
     /**
@@ -80,6 +82,15 @@ public class DeviceTypeController extends BaseController {
     @RequiresPermissions({"iot:deviceType:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceTypeService.removeByIds(idList);
+    }
+
+    /**
+     * 获取设备类型别名列表
+     * @return
+     */
+    @GetMapping("alias")
+    public Result<List<TypeAliasOptions>> alias() {
+        return success(DeviceTypeAlias.options());
     }
 }
 

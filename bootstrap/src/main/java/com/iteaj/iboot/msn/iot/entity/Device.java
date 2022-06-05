@@ -3,6 +3,8 @@ package com.iteaj.iboot.msn.iot.entity;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import com.iteaj.iboot.msn.iot.consts.DeviceStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -39,6 +41,11 @@ public class Device extends BaseEntity {
     private Integer port;
 
     /**
+     * 所属用户
+     */
+    private Long userId;
+
+    /**
      * 设备型号
      */
     private String model;
@@ -46,7 +53,7 @@ public class Device extends BaseEntity {
     /**
      * 设备状态
      */
-    private String status;
+    private DeviceStatus status;
 
     /**
      * 设备编号

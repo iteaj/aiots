@@ -43,7 +43,7 @@ public class VueFieldInfo {
         }
 
         if(isSearchComponent(properties)) {
-            this.searchComponent = this.formType.getTemplate(this.getField(), this.getLabel(), "");
+            this.searchComponent = this.formType.getTemplate(this.getField(), this.getLabel(), ":allowClear=\"true\"");
         }
 
         return this;

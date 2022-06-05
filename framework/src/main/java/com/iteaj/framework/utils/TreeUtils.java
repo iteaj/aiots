@@ -8,22 +8,37 @@ import java.util.stream.Collectors;
 
 public class TreeUtils {
 
+    public static <T extends TreeEntity> Collection<T> toTrees(Collection<T> list) {
+        return toTrees(list, null);
+    }
+
     public static <T extends TreeEntity> Collection<T> toTrees(Collection<T> list, Long parent) {
 
-        if(CollectionUtils.isEmpty(list) || parent == null) return Collections.EMPTY_LIST;
+        if(CollectionUtils.isEmpty(list)) {
+            return Collections.EMPTY_LIST;
+        }
 
         Map<String, T> menuMap = list.stream().collect(Collectors
                 .toMap(item -> item.getId().toString(), item -> item));
 
-        //
+        List<T> parents = new ArrayList<>();
+        // 查找每条记录的父级, 并挂到父级的children里面
         list.forEach(item->{
             T parentItem = menuMap.get(item.getPid().toString());
-            if(null != parentItem) parentItem.addChild(item);
+            if(null != parentItem) {
+                parentItem.addChild(item);
+            } else {
+                parents.add(item); // 没有找到父级, 说明自己已经是顶级
+            }
         });
 
-        List<T> collect = list.stream().filter(item -> Long
-                .compare(item.getPid(), parent) == 0).collect(Collectors.toList());
-        return CollectionUtils.isEmpty(collect) ? list : collect;
+        if(parent != null) {
+            return list.stream()
+                    .filter(item -> item.getPid().equals(parent))
+                    .collect(Collectors.toList());
+        } else {
+            return parents;
+        }
     }
 
     public static <T extends TreeEntity> Collection<T> toAdminMenuTrees(List<T> allMenus, List<String> adminMenuIds) {

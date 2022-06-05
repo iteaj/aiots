@@ -2,6 +2,7 @@ package ${package.Controller};
 
 import java.util.List;
 import com.iteaj.framework.result.Result;
+import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -63,28 +64,18 @@ public class ${table.controllerName} {
     */
     @GetMapping("/edit")
     @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:edit"})
-    public Result<${entity}> getEditDetail(Long id) {
+    public Result<${entity}> getById(Long id) {
         return this.${cfg.serviceName}.getById(id);
     }
 
     /**
-    * 修改记录
+    * 新增或者更新记录
     * @param entity
     */
-    @PostMapping("/edit")
-    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:edit"})
-    public Result<Boolean> edit(@RequestBody ${entity} entity) {
-        return this.${cfg.serviceName}.updateById(entity);
-    }
-
-    /**
-    * 新增记录
-    * @param entity
-    */
-    @PostMapping("/add")
-    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:add"})
-    public Result<Boolean> add(@RequestBody ${entity} entity) {
-        return this.${cfg.serviceName}.save(entity);
+    @PostMapping("/saveOrUpdate")
+    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:edit", "${package.ModuleName}:${table.entityPath}:add"}, logical = Logical.OR)
+    public Result<Boolean> save(@RequestBody ${entity} entity) {
+        return this.${cfg.serviceName}.saveOrUpdate(entity);
     }
 
     /**
