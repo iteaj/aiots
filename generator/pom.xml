@@ -5,11 +5,11 @@
     <parent>
         <version>1.2.0</version>
         <groupId>com.iteaj</groupId>
-        <artifactId>izone</artifactId>
+        <artifactId>iboot</artifactId>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>generator</name>
+    <name>iboot:generator</name>
     <artifactId>generator</artifactId>
     <description>代码生成器模块</description>
 

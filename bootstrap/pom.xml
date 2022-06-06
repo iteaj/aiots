@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <version>1.2.0</version>
-        <artifactId>izone</artifactId>
+        <artifactId>iboot</artifactId>
         <groupId>com.iteaj</groupId>
     </parent>
 
@@ -10,30 +10,31 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bootstrap</artifactId>
     <properties>
+        <iot.version>2.4.7</iot.version>
         <!--当前项目的根目录, 用于代码生成器-->
         <project.root.path>${project.basedir}</project.root.path>
     </properties>
     <dependencies>
         <!-- iot 物联网框架jar依赖 start -->
         <dependency>
-            <version>2.4.6</version>
             <groupId>com.iteaj</groupId>
+            <version>${iot.version}</version>
             <artifactId>iot-server</artifactId>
         </dependency>
         <dependency>
-            <version>2.4.6</version>
             <groupId>com.iteaj</groupId>
+            <version>${iot.version}</version>
             <artifactId>iot-modbus</artifactId>
         </dependency>
         <dependency>
-            <version>2.4.6</version>
             <groupId>com.iteaj</groupId>
             <artifactId>iot-mqtt</artifactId>
+            <version>${iot.version}</version>
         </dependency>
         <dependency>
-            <version>2.4.6</version>
             <groupId>com.iteaj</groupId>
             <artifactId>iot-plc</artifactId>
+            <version>${iot.version}</version>
         </dependency>
         <!-- iot end -->
 

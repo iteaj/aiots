@@ -3,10 +3,10 @@
     <parent>
         <version>1.2.0</version>
         <groupId>com.iteaj</groupId>
-        <artifactId>izone</artifactId>
+        <artifactId>iboot</artifactId>
     </parent>
 
-    <name>izone:framework</name>
+    <name>iboot:framework</name>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>framework</artifactId>
     <description>此系统架构核心库</description>
