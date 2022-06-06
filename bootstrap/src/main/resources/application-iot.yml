@@ -1,20 +1,23 @@
-#############################                \u7269\u8054\u7F51iot\u914D\u7F6E               ################################
+#############################                iot配置               ################################
 spring:
   config:
     activate:
-      on-profile: dev # \u5F00\u53D1\u73AF\u5883\u914D\u7F6E
+      on-profile: dev #
 iot:
   server:
     proxy:
       start: false
+  mqtt:
+    default:
+      host: broker-cn.emqx.io
 ---
 spring:
   config:
     activate:
-      on-profile: test # \u6D4B\u8BD5\u73AF\u5883\u914D\u7F6E
+      on-profile: test #
 
 ---
 spring:
   config:
     activate:
-      on-profile: prod # \u6B63\u5F0F\u73AF\u5883\u914D\u7F6E
+      on-profile: prod #

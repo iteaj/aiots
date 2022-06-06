@@ -9,4 +9,5 @@ import org.springframework.context.annotation.Profile;
 @MapperScan({"com.iteaj.iboot.msn.iot.mapper"})
 public class IotAutoConfiguration {
 
+    
 }

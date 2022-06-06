@@ -1,9 +1,11 @@
 package com.iteaj.iboot.msn.iot.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.iot.consts.DeviceStatus;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.Device;
 import com.iteaj.iboot.msn.iot.mapper.DeviceMapper;
@@ -25,5 +27,12 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     public Result<IPage<Device>> pageOfDetail(Page<Device> page, DeviceDto entity) {
         return new PageResult<>(getBaseMapper().pageOfDetail(page, entity));
+    }
+
+    @Override
+    public void update(String deviceSn, DeviceStatus status) {
+        update(Wrappers.<Device>lambdaUpdate()
+                .set(Device::getStatus, status)
+                .eq(Device::getDeviceSn, deviceSn));
     }
 }

@@ -3,6 +3,7 @@ package com.iteaj.iboot.msn.iot.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.iot.consts.DeviceStatus;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.Device;
 import com.iteaj.framework.IBaseService;
@@ -24,4 +25,11 @@ public interface IDeviceService extends IBaseService<Device> {
      * @return
      */
     Result<IPage<Device>> pageOfDetail(Page<Device> page, DeviceDto entity);
+
+    /**
+     * 更新设备状态
+     * @param deviceSn
+     * @param status
+     */
+    void update(String deviceSn, DeviceStatus status);
 }

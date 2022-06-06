@@ -1,0 +1,42 @@
+package com.iteaj.iboot.msn.iot.listener;
+
+import com.iteaj.iboot.msn.iot.consts.DeviceStatus;
+import com.iteaj.iboot.msn.iot.service.IDeviceService;
+import com.iteaj.iot.FrameworkComponent;
+import com.iteaj.iot.client.ClientConnectProperties;
+import com.iteaj.iot.client.SocketClient;
+import com.iteaj.iot.event.ClientStatusEventListener;
+import org.springframework.stereotype.Component;
+
+/**
+ * 设备上下线状态事件监听
+ */
+@Component
+public class DeviceStatusListener implements ClientStatusEventListener {
+
+    private final IDeviceService deviceService;
+
+    public DeviceStatusListener(IDeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    @Override
+    public void online(Object source, FrameworkComponent component) {
+        // 服务端设备上线事件
+        if(source instanceof String) {
+            deviceService.update((String) source, DeviceStatus.online);
+        } else if(source instanceof SocketClient){ // 客户端连接成功事件
+            ClientConnectProperties config = ((SocketClient) source).getConfig();
+        }
+    }
+
+    @Override
+    public void offline(Object source, FrameworkComponent component) {
+        // 服务端设备掉线事件
+        if(source instanceof String) {
+            deviceService.update((String) source, DeviceStatus.offline);
+        } else if(source instanceof SocketClient) {// 客户端连接断开事件
+            ClientConnectProperties config = ((SocketClient) source).getConfig();
+        }
+    }
+}
