@@ -62,7 +62,7 @@ public class RoleController extends BaseController {
      */
     @GetMapping("allMenus")
     public Result<List<Menu>> allFunc() {
-        return this.menuService.selectMenuTrees(null);
+        return this.menuService.selectMenuTrees(new Menu());
     }
 
     /**

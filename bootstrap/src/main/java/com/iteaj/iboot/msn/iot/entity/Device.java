@@ -9,6 +9,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
  * <p>
  * 设备表
@@ -31,8 +34,14 @@ public class Device extends BaseEntity {
     private String ip;
 
     /**
+     * 设备uid
+     */
+    private Long uid;
+
+    /**
      * 设备名称
      */
+    @NotBlank(message = "设备名称必填")
     private String name;
 
     /**
@@ -58,6 +67,7 @@ public class Device extends BaseEntity {
     /**
      * 设备编号
      */
+    @NotBlank(message = "设备编号必填")
     private String deviceSn;
 
     private Date createTime;
@@ -68,8 +78,9 @@ public class Device extends BaseEntity {
     private Date updateTime;
 
     /**
-     * 设备所属产品
+     * 设备类型
      */
+    @NotNull(message = "设备类型必填")
     private Long deviceTypeId;
 
 

@@ -6,6 +6,7 @@
     <resultMap id="BasicMap" type="com.iteaj.iboot.msn.iot.entity.Device">
         <result column="id" property="id" />
         <result column="ip" property="ip" />
+        <result column="uid" property="uid" />
         <result column="name" property="name" />
         <result column="port" property="port" />
         <result column="model" property="model" />

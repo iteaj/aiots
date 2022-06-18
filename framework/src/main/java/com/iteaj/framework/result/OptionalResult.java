@@ -1,9 +1,6 @@
 package com.iteaj.framework.result;
 
-import com.iteaj.framework.exception.ServiceException;
-
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * create time: 2019/7/26
@@ -32,27 +29,27 @@ public abstract class OptionalResult<E, _this extends AbstractResult<E>> extends
         return Optional.ofNullable(this.getData());
     }
 
-    /**
-     * @see Function#apply(Object) 直接返回响应的结果
-     * @param function
-     * @return
-     */
-    public _this build(Function<E, Result> function) {
-        if(null == function) throw new ServiceException("参数错误");
-
-        Result apply = function.apply(getData());
-        return this.build(apply);
+    public _this ok() {
+        return this.ok(DMSG);
     }
 
-    public _this build(Result result) {
-        this.setCode(result.getCode());
-        this.setMessage(result.getMessage());
+    public _this ok(String msg) {
+        this.setCode(DCODE);
+        this.setMessage(msg);
         return (_this) this;
     }
 
-    public _this build(long code, String message) {
+    public _this fail() {
+        return this.fail(HttpResult.DEFAULT_ERROR_CODE, HttpResult.DEFAULT_ERROR_MSG);
+    }
+
+    public _this fail(String msg) {
+        return this.fail(HttpResult.DEFAULT_ERROR_CODE, msg);
+    }
+
+    public _this fail(long code, String msg) {
         this.setCode(code);
-        this.setMessage(message);
+        this.setMessage(msg);
         return (_this) this;
     }
 

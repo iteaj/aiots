@@ -1,8 +1,11 @@
 package com.iteaj.iboot.msn.iot.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.iot.consts.DeviceStatus;
@@ -30,9 +33,36 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     }
 
     @Override
+    public BooleanResult save(Device entity) {
+        Device device = this.getByDeviceSn(entity.getDeviceSn()).getData();
+        if(device != null) {
+            return new BooleanResult(false).fail("设备编号已经存在["+entity.getDeviceSn()+"]");
+        }
+
+        entity.setUid(IdWorker.getId());
+        return super.save(entity);
+    }
+
+    @Override
+    public BooleanResult updateById(Device entity) {
+        Device device = this.getOne(Wrappers.<Device>lambdaQuery()
+                .eq(Device::getDeviceSn, entity.getDeviceSn())
+                .ne(Device::getId, entity.getId())).getData();
+        if(device != null) {
+            return new BooleanResult(false).fail("设备编号已经存在["+entity.getDeviceSn()+"]");
+        }
+        return super.updateById(entity);
+    }
+
+    @Override
     public void update(String deviceSn, DeviceStatus status) {
         update(Wrappers.<Device>lambdaUpdate()
                 .set(Device::getStatus, status)
                 .eq(Device::getDeviceSn, deviceSn));
+    }
+
+    @Override
+    public DetailResult<Device> getByDeviceSn(String deviceSn) {
+        return getOne(Wrappers.<Device>lambdaQuery().eq(Device::getDeviceSn, deviceSn));
     }
 }
