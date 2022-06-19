@@ -1,9 +1,14 @@
-package com.iteaj.iboot.msn.iot.websocket;
+package com.iteaj.iboot.msn.iot.debug;
 
 import lombok.Data;
 
 @Data
 public class DebugModel {
+
+    /**
+     * 记录id
+     */
+    private Long id;
 
     /**
      * 设备编号
