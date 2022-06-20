@@ -1,13 +1,13 @@
--- MySQL dump 10.13  Distrib 8.0.28, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: izone
+-- Host: 127.0.0.1    Database: iboot
 -- ------------------------------------------------------
--- Server version	8.0.28
+-- Server version	5.7.17-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
+/*!40101 SET NAMES utf8 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,19 +21,23 @@
 
 DROP TABLE IF EXISTS `iot_device`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `iot_device` (
-  `id` bigint NOT NULL,
-  `name` varchar(64) COLLATE utf8mb4_general_ci NOT NULL COMMENT '设备名称',
-  `status` enum('online','offline') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'offline' COMMENT '设备状态',
-  `ip` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '设备ip',
-  `port` int DEFAULT NULL COMMENT '设备端口',
-  `device_sn` varchar(64) COLLATE utf8mb4_general_ci NOT NULL COMMENT '设备编号',
-  `product_id` bigint NOT NULL COMMENT '设备所属产品',
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ip` varchar(32) DEFAULT NULL COMMENT '设备ip',
+  `uid` bigint(20) NOT NULL COMMENT '设备唯一的uid',
+  `name` varchar(64) NOT NULL COMMENT '设备名称',
+  `port` int(11) DEFAULT NULL COMMENT '设备端口',
+  `model` varchar(64) DEFAULT NULL COMMENT '设备型号',
+  `status` enum('online','offline') NOT NULL DEFAULT 'offline' COMMENT '设备状态',
+  `user_id` bigint(20) DEFAULT NULL COMMENT '所属会员',
+  `device_sn` varchar(64) NOT NULL COMMENT '设备编号',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT NULL COMMENT '更新时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='设备表';
+  `device_type_id` bigint(20) NOT NULL COMMENT '设备所属类型',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `iot_device_uid_uindex` (`uid`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='设备表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,34 +46,69 @@ CREATE TABLE `iot_device` (
 
 LOCK TABLES `iot_device` WRITE;
 /*!40000 ALTER TABLE `iot_device` DISABLE KEYS */;
+INSERT INTO `iot_device` VALUES (3,NULL,1537990013924249602,'电箱1号',NULL,NULL,'offline',NULL,'dx0000001','2022-06-18 10:46:08',NULL,4);
 /*!40000 ALTER TABLE `iot_device` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `iot_product`
+-- Table structure for table `iot_device_child`
 --
 
-DROP TABLE IF EXISTS `iot_product`;
+DROP TABLE IF EXISTS `iot_device_child`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `iot_product` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `pid` bigint NOT NULL DEFAULT '0' COMMENT '父id',
-  `path` varchar(128) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '产品id路径',
-  `name` varchar(64) COLLATE utf8mb4_general_ci NOT NULL COMMENT '产品名称',
-  `remark` varchar(512) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '产品说明',
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `iot_device_child` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL COMMENT '子设备名称',
+  `uid` bigint(20) NOT NULL COMMENT '设备uid',
+  `child_sn` varchar(64) NOT NULL COMMENT '子设备编号',
+  `protocol_type` smallint(6) NOT NULL COMMENT '协议类型',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='设备产品';
+  PRIMARY KEY (`id`),
+  KEY `iot_device_child_child_sn_index` (`child_sn`),
+  KEY `iot_device_child_uid_index` (`uid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='子设备';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `iot_product`
+-- Dumping data for table `iot_device_child`
 --
 
-LOCK TABLES `iot_product` WRITE;
-/*!40000 ALTER TABLE `iot_product` DISABLE KEYS */;
-/*!40000 ALTER TABLE `iot_product` ENABLE KEYS */;
+LOCK TABLES `iot_device_child` WRITE;
+/*!40000 ALTER TABLE `iot_device_child` DISABLE KEYS */;
+INSERT INTO `iot_device_child` VALUES (1,'继电器',1537990013924249600,'1',1,'2022-06-18 10:48:32');
+/*!40000 ALTER TABLE `iot_device_child` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `iot_device_type`
+--
+
+DROP TABLE IF EXISTS `iot_device_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `iot_device_type` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `pid` bigint(20) NOT NULL DEFAULT '0' COMMENT '父id',
+  `path` varchar(128) DEFAULT NULL COMMENT '路径',
+  `name` varchar(64) NOT NULL COMMENT '类型名称',
+  `alias` varchar(36) DEFAULT NULL COMMENT '类型别名',
+  `image` varchar(128) DEFAULT NULL COMMENT '类型图地址',
+  `remark` varchar(256) DEFAULT NULL COMMENT '类型说明',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `iot_device_type_alias_index` (`alias`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='设备类型';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `iot_device_type`
+--
+
+LOCK TABLES `iot_device_type` WRITE;
+/*!40000 ALTER TABLE `iot_device_type` DISABLE KEYS */;
+INSERT INTO `iot_device_type` VALUES (1,5,NULL,'plc','PLC',NULL,'plc设备','2022-05-15 22:04:02'),(2,1,NULL,'西门子','PLC',NULL,'西门子','2022-05-15 22:08:08'),(3,1,NULL,'欧姆龙','PLC',NULL,'欧姆龙','2022-05-15 22:09:24'),(4,5,NULL,'dtu','DTU',NULL,'数据传输单元(用户将串口转互联网传输)','2022-06-04 14:07:42'),(5,0,NULL,'工业物联网',NULL,NULL,NULL,'2022-06-12 13:10:58');
+/*!40000 ALTER TABLE `iot_device_type` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -81,4 +120,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-05-14 14:00:40
+-- Dump completed on 2022-06-20 22:32:11
