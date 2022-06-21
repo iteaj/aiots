@@ -11,6 +11,11 @@ public class DebugModel {
     private Long id;
 
     /**
+     * 自定义报文
+     */
+    private String message;
+
+    /**
      * 设备编号
      */
     private String deviceSn;

@@ -1,6 +1,9 @@
 package com.iteaj.iboot.msn.iot.debug;
 
-public interface DebugHandle {
+import com.alibaba.fastjson.JSON;
+import org.springframework.core.GenericTypeResolver;
+
+public interface DebugHandle<P extends DebugModel> {
 
     /**
      * 调试类型
@@ -13,12 +16,16 @@ public interface DebugHandle {
      * @param model
      * @return
      */
-    DebugModel parse(String model);
+    default P parse(String model) {
+        Class<P> typeArgument = (Class<P>) GenericTypeResolver
+                .resolveTypeArguments(getClass(), DebugHandle.class)[0];
+        return JSON.parseObject(model, typeArgument);
+    }
 
     /**
      *
      * @param model
      * @param write
      */
-    void handle(DebugModel model, DebugWebsocketWrite write);
+    void handle(P model, DebugWebsocketWrite write);
 }

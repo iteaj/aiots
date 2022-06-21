@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.iboot.msn.iot.debug.DebugHandle;
 import com.iteaj.iboot.msn.iot.debug.DebugHandleFactory;
+import com.iteaj.iboot.msn.iot.debug.DebugModel;
 import com.iteaj.iboot.msn.iot.debug.DebugWebsocketWrite;
 import com.iteaj.iot.CoreConst;
 import com.iteaj.iot.Message;
@@ -46,7 +47,9 @@ public class WebsocketDebugListener implements WebSocketServerListener, WebSocke
             if(handle.isPresent()) {
                 DebugHandle debugHandle = handle.get();
                 String clientSn = this.getSessionId(request.getRequest());
-                debugHandle.handle(debugHandle.parse(protocol.readText()), new DebugWebsocketWrite(clientSn));
+                DebugModel debugModel = debugHandle.parse(protocol.readText());
+                debugModel.setClientSn(clientSn);
+                debugHandle.handle(debugModel, new DebugWebsocketWrite(clientSn));
             } else {
                 protocol.response(JSON.toJSONString(HttpResult.Fail("未找到对应的处理器["+type.get()+"]")));
             }

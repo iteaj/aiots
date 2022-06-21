@@ -9,6 +9,7 @@ iot:
       start: false
     websocket:
       start: true
+      port: 8087
   mqtt:
     default:
       host: broker-cn.emqx.io
