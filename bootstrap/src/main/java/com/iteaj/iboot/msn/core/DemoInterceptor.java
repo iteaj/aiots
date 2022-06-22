@@ -36,6 +36,9 @@ public class DemoInterceptor implements HandlerInterceptor, WebMvcConfigurer {
         final String method = request.getMethod();
         // 其他post接口全部拦截
         if("POST".equalsIgnoreCase(method)) {
+            if(requestURI.startsWith("iot")) {
+                return true; // iot接口放行
+            }
             response.setContentType("application/json;charset=utf-8");
             response.getWriter().print(JsonUtils.toJson(Result.fail("演示环境不允许操作")));
             return false;

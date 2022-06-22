@@ -137,11 +137,11 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
     @Override
     public List<String> selectPermissions(Long adminId) {
-        if(ShiroUtil.isSuper()) {
+        if(ShiroUtil.isSuper(adminId)) {
             return this.getBaseMapper()
                     .selectList(Wrappers.<Menu>lambdaQuery()
                             .ne(Menu::getStatus, PermStatus.disabled)
-                            .eq(Menu::getType, MenuType.A)).stream()
+                            .ne(Menu::getType, MenuType.M)).stream()
                     .filter(item -> StringUtils.hasText(item.getPerms()))
                     .map(item -> item.getPerms()).collect(Collectors.toList());
         } else {

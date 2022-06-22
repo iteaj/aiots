@@ -29,6 +29,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select a.perms from sys_menu a
              left join sys_role_menu rm on a.id = rm.mid
              left join sys_admin_role ar on rm.rid=ar.rid
-        where a.status != 'disabled' and a.type = 'A' and ar.aid=#{adminId}
+        where a.status != 'disabled' and a.type != 'M' and ar.aid=#{adminId}
     </select>
 </mapper>
