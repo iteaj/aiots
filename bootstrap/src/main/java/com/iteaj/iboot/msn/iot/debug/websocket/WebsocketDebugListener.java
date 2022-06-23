@@ -35,7 +35,7 @@ public class WebsocketDebugListener implements WebSocketServerListener, WebSocke
 
     @Override
     public String uri() {
-        return "/iot/debug";
+        return "/ws/iot/debug";
     }
 
     @Override
@@ -48,7 +48,6 @@ public class WebsocketDebugListener implements WebSocketServerListener, WebSocke
                 DebugHandle debugHandle = handle.get();
                 String clientSn = this.getSessionId(request.getRequest());
                 DebugModel debugModel = debugHandle.parse(protocol.readText());
-                debugModel.setClientSn(clientSn);
                 debugHandle.handle(debugModel, new DebugWebsocketWrite(clientSn));
             } else {
                 protocol.response(JSON.toJSONString(HttpResult.Fail("未找到对应的处理器["+type.get()+"]")));

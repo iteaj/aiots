@@ -2,7 +2,7 @@
 spring:
   config:
     activate:
-      on-profile: dev #
+      on-profile: dev #开发环境配置
 iot:
   server:
     proxy:
@@ -17,10 +17,19 @@ iot:
 spring:
   config:
     activate:
-      on-profile: test #
-
+      on-profile: test #测试环境配置
+iot:
+  server:
+    proxy:
+      start: false
+    websocket:
+      start: true
+      port: 8087
+  mqtt:
+    default:
+      host: broker-cn.emqx.io
 ---
 spring:
   config:
     activate:
-      on-profile: prod #
+      on-profile: prod # 正式环境配置
