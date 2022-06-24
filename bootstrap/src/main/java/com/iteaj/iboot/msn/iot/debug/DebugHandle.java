@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.iot.debug;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import org.springframework.core.GenericTypeResolver;
 
 public interface DebugHandle<P extends DebugModel> {
@@ -16,10 +17,10 @@ public interface DebugHandle<P extends DebugModel> {
      * @param model
      * @return
      */
-    default P parse(String model) {
+    default DebugRequestModel<P> parse(String model) {
         Class<P> typeArgument = (Class<P>) GenericTypeResolver
                 .resolveTypeArguments(getClass(), DebugHandle.class)[0];
-        return JSON.parseObject(model, typeArgument);
+        return JSON.parseObject(model, new TypeReference<DebugRequestModel<P>>(typeArgument){});
     }
 
     /**

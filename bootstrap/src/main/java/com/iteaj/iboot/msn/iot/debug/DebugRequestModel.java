@@ -3,11 +3,10 @@ package com.iteaj.iboot.msn.iot.debug;
 import lombok.Data;
 
 @Data
-public class DebugRequestModel {
+public class DebugRequestModel<D extends DebugModel> {
 
-    private String type;
+    private D model;
 
     private String clientSn;
 
-    private DebugModel model;
 }
