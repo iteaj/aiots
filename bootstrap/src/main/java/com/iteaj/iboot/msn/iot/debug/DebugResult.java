@@ -1,8 +1,10 @@
 package com.iteaj.iboot.msn.iot.debug;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class DebugResult {
 
     /**
@@ -11,7 +13,12 @@ public class DebugResult {
     private String deviceSn;
 
     /**
-     * 响应时间(毫秒)
+     * 请求时间
+     */
+    private long reqTime;
+
+    /**
+     * 响应时间
      */
     private long respTime;
 
@@ -19,7 +26,7 @@ public class DebugResult {
      * 读的值
      * 写为null
      */
-    private String value;
+    private Object value;
 
     /**
      * 请求的十六进制报文
@@ -30,4 +37,13 @@ public class DebugResult {
      * 响应的十六机制报文
      */
     private String respMsg;
+
+    /**
+     * 请求模型
+     */
+    private DebugModel model;
+
+    public DebugResult(DebugModel model) {
+        this.model = model;
+    }
 }

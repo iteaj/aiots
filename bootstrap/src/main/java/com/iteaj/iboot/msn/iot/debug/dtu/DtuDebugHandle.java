@@ -9,6 +9,7 @@ import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.Payload;
 import com.iteaj.iot.modbus.ReadPayload;
+import com.iteaj.iot.modbus.RealCoilPayload;
 import com.iteaj.iot.modbus.consts.ModbusCoilStatus;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuCommonProtocol;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
@@ -77,16 +78,16 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
             switch (cmd) {
                 case "01":
                     protocol = ModbusTcpForDtuCommonProtocol.buildRead01(model.getDeviceSn()
-                            , address, model.getStart(), 1); break;
+                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "02":
                     protocol = ModbusTcpForDtuCommonProtocol.buildRead02(model.getDeviceSn()
-                            , address, model.getStart(), 1); break;
+                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "03":
                     protocol = ModbusTcpForDtuCommonProtocol.buildRead03(model.getDeviceSn()
-                            , address, model.getStart(), 1); break;
+                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "04":
                     protocol = ModbusTcpForDtuCommonProtocol.buildRead04(model.getDeviceSn()
-                            , address, model.getStart(), 1); break;
+                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "05":
                     Object writeValue = parseWriteValue(model);
                     if(writeValue == null) {
@@ -208,11 +209,10 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
      */
     private void sendProtocolRequest(DtuDebugModel model, DebugWebsocketWrite write, ServerInitiativeProtocol protocol) {
         try {
-            long requestTime = System.currentTimeMillis();
+            DebugResult result = new DebugResult(model).setReqTime(System.currentTimeMillis());
             protocol.request(protocol1 -> {
-                DebugResult result = new DebugResult();
                 result.setDeviceSn(model.getDeviceSn() + ":"+model.getChildSn());
-                result.setRespTime(System.currentTimeMillis() - requestTime);
+                result.setRespTime(System.currentTimeMillis());
 
                 if(protocol.requestMessage().getMessage() != null) {
                     result.setReqMsg(ByteUtil.bytesToHexByFormat(protocol.requestMessage().getMessage()));
@@ -226,6 +226,10 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
                     Payload payload = ((ModbusCommonProtocol) protocol).getPayload();
                     if(payload instanceof ReadPayload) {
                         result.setValue(this.parseReadValue(model, payload).toString());
+                    } else if(payload instanceof RealCoilPayload) {
+                        result.setValue(payload.readStatus(0).getBit());
+                    } else {
+                        result.setValue(model.getWriteValue());
                     }
                     write.write(HttpResult.Success(result));
                 } else if(protocol.getExecStatus() == ExecStatus.offline) {
@@ -251,8 +255,8 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
             case "short": return payload.readShort(model.getStart());
             case "long": return payload.readLong(model.getStart());
             case "boolean":
-                return model.getWriteValue().equals("false") ? ModbusCoilStatus.OFF :
-                        model.getWriteValue().equals("true") ? ModbusCoilStatus.ON : null;
+                return model.getWriteValue().equals("0") ? ModbusCoilStatus.OFF :
+                        model.getWriteValue().equals("1") ? ModbusCoilStatus.ON : null;
             case "string":
                 int length = model.getWriteValue().getBytes(StandardCharsets.UTF_8).length;
                 return payload.readString(model.getStart(), length % 2 == 0 ? length / 2 : (length / 2) + 1);
@@ -274,8 +278,8 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
                 case "short": return ByteUtil.getBytes(Short.valueOf(model.getWriteValue()));
                 case "long": return ByteUtil.getBytes(Long.valueOf(model.getWriteValue()));
                 case "boolean":
-                    return model.getWriteValue().equals("false") ? ModbusCoilStatus.OFF :
-                            model.getWriteValue().equals("true") ? ModbusCoilStatus.ON : null;
+                    return model.getWriteValue().equals("0") ? ModbusCoilStatus.OFF :
+                            model.getWriteValue().equals("1") ? ModbusCoilStatus.ON : null;
                 case "string":
                     return model.getWriteValue().getBytes(StandardCharsets.UTF_8);
                 default: throw new IllegalArgumentException("不支持的值类型["+type+"]");
