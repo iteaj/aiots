@@ -8,6 +8,8 @@ import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.SocketClient;
 import com.iteaj.iot.event.ClientStatusEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,7 @@ import java.util.Date;
 public class DeviceStatusListener implements ClientStatusEventListener, DisposableBean {
 
     private final IDeviceService deviceService;
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public DeviceStatusListener(IDeviceService deviceService) {
         this.deviceService = deviceService;
@@ -47,10 +50,13 @@ public class DeviceStatusListener implements ClientStatusEventListener, Disposab
 
     @Override
     public void destroy() throws Exception {
-        System.out.println("修改所有设备状态到离线");
         // 程序关闭时 更新所有的设备状态到离线
         deviceService.update(Wrappers.<Device>lambdaUpdate()
                 .set(Device::getStatus, DeviceStatus.offline)
                 .set(Device::getSwitchTime, new Date()));
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("程序关闭... 更新所有设备状态到[offline]");
+        }
     }
 }
