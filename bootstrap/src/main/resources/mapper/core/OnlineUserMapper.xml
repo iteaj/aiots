@@ -38,4 +38,9 @@
 		#{item.status},#{item.userNick},#{item.appType})
         </foreach>
     </insert>
+
+    <!--  统计当天访问人数  -->
+    <select id="countTodayOnline" resultType="java.lang.Long">
+        select count(distinct access_ip) from sys_online_user where date(create_time) = date(now());
+    </select>
 </mapper>

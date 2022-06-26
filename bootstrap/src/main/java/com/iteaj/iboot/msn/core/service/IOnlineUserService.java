@@ -14,4 +14,10 @@ import com.iteaj.iboot.msn.core.entity.OnlineUser;
 public interface IOnlineUserService extends IBaseService<OnlineUser> {
 
     void updateBySessionId(OnlineUser onlineUser);
+
+    /**
+     * 统计当天访问人数
+     * @return
+     */
+    long countTodayOnline();
 }

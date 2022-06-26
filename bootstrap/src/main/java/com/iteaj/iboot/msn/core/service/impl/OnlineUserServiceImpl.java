@@ -33,6 +33,11 @@ public class OnlineUserServiceImpl extends BaseServiceImpl<IOnlineUserMapper, On
     }
 
     @Override
+    public long countTodayOnline() {
+        return getBaseMapper().countTodayOnline();
+    }
+
+    @Override
     public OnlineSession getSession(Serializable sessionId) {
         return getBaseMapper().selectOne(Wrappers.<OnlineUser>lambdaQuery()
                 .eq(OnlineUser::getSessionId, sessionId)

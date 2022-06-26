@@ -13,4 +13,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface IOnlineUserMapper extends BaseMapper<OnlineUser> {
 
+    /**
+     * 统计当天访问人数
+     * @return
+     */
+    long countTodayOnline();
 }
