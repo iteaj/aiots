@@ -16,6 +16,8 @@ import com.iteaj.iboot.msn.iot.service.IDeviceService;
 import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 /**
  * <p>
  * 设备表 服务实现类
@@ -58,6 +60,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     public void update(String deviceSn, DeviceStatus status) {
         update(Wrappers.<Device>lambdaUpdate()
                 .set(Device::getStatus, status)
+                .set(Device::getSwitchTime, new Date())
                 .eq(Device::getDeviceSn, deviceSn));
     }
 

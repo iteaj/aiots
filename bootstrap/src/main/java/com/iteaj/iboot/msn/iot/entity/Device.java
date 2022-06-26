@@ -70,6 +70,11 @@ public class Device extends BaseEntity {
     @NotBlank(message = "设备编号必填")
     private String deviceSn;
 
+    /**
+     * 状态切换时间
+     */
+    private Date switchTime;
+
     private Date createTime;
 
     /**
