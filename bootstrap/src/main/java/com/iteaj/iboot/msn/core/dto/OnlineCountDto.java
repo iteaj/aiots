@@ -1,0 +1,17 @@
+package com.iteaj.iboot.msn.core.dto;
+
+import lombok.Data;
+
+@Data
+public class OnlineCountDto {
+
+    /**
+     * 当前在线人数
+     */
+    private long currentOnline;
+
+    /**
+     * 当天访问人数
+     */
+    private long todayAccess;
+}

@@ -33,7 +33,12 @@ public class OnlineUserServiceImpl extends BaseServiceImpl<IOnlineUserMapper, On
     }
 
     @Override
-    public long countTodayOnline() {
+    public long countCurrentOnline() {
+        return getBaseMapper().countTodayOnline();
+    }
+
+    @Override
+    public long countTodayAccess() {
         return getBaseMapper().countTodayOnline();
     }
 

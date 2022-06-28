@@ -16,8 +16,14 @@ public interface IOnlineUserService extends IBaseService<OnlineUser> {
     void updateBySessionId(OnlineUser onlineUser);
 
     /**
+     * 统计当前在线人数
+     * @return
+     */
+    long countCurrentOnline();
+
+    /**
      * 统计当天访问人数
      * @return
      */
-    long countTodayOnline();
+    long countTodayAccess();
 }

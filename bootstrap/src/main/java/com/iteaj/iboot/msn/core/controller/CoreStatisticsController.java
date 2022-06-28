@@ -1,6 +1,5 @@
 package com.iteaj.iboot.msn.core.controller;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.core.service.IOnlineUserService;
@@ -22,13 +21,21 @@ public class CoreStatisticsController extends BaseController {
     }
 
     /**
+     * 当天在线人数
+     * @return
+     */
+    @GetMapping("/online")
+    public Result<Long> todayOnline() {
+        return success(onlineUserService.countCurrentOnline());
+    }
+
+    /**
      * 当天访问人数
      * @return
      */
-    @GetMapping("/today/online")
-    public Result<Long> todayOnline() {
-        long num = onlineUserService.countTodayOnline();
-        return success(onlineUserService.countTodayOnline());
+    @GetMapping("/today/access")
+    public Result<Long> todayAccess() {
+        return success(onlineUserService.countTodayAccess());
     }
 
     /**
