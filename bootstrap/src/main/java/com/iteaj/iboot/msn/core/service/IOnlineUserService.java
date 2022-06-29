@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.core.service;
 
 import com.iteaj.framework.IBaseService;
+import com.iteaj.iboot.msn.core.dto.OnlineCountDto;
 import com.iteaj.iboot.msn.core.entity.OnlineUser;
 
 /**
@@ -16,14 +17,9 @@ public interface IOnlineUserService extends IBaseService<OnlineUser> {
     void updateBySessionId(OnlineUser onlineUser);
 
     /**
-     * 统计当前在线人数
+     * 统计当前在线人数和当天在线人数
      * @return
      */
-    long countCurrentOnline();
+    OnlineCountDto countCurrentOnline();
 
-    /**
-     * 统计当天访问人数
-     * @return
-     */
-    long countTodayAccess();
 }

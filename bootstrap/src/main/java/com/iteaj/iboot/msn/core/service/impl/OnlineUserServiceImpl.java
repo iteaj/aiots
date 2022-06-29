@@ -5,6 +5,7 @@ import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.spi.OnlineSession;
 import com.iteaj.framework.spi.admin.auth.OnlineService;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
+import com.iteaj.iboot.msn.core.dto.OnlineCountDto;
 import com.iteaj.iboot.msn.core.entity.OnlineUser;
 import com.iteaj.iboot.msn.core.mapper.IOnlineUserMapper;
 import com.iteaj.iboot.msn.core.service.IOnlineUserService;
@@ -33,13 +34,8 @@ public class OnlineUserServiceImpl extends BaseServiceImpl<IOnlineUserMapper, On
     }
 
     @Override
-    public long countCurrentOnline() {
-        return getBaseMapper().countTodayOnline();
-    }
-
-    @Override
-    public long countTodayAccess() {
-        return getBaseMapper().countTodayOnline();
+    public OnlineCountDto countCurrentOnline() {
+        return getBaseMapper().countCurrentOnline();
     }
 
     @Override

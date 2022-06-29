@@ -39,8 +39,14 @@
         </foreach>
     </insert>
 
+    <!--  统计当天在线和当前在线人数  -->
+    <select id="countCurrentOnline" resultType="com.iteaj.iboot.msn.core.dto.OnlineCountDto">
+        select count(distinct if(status='online', access_ip, null)) currentOnline
+             , count(distinct access_ip) todayAccess from sys_online_user where date(create_time) = date(now())
+    </select>
+
     <!--  统计当天访问人数  -->
-    <select id="countTodayOnline" resultType="java.lang.Long">
-        select count(distinct access_ip) from sys_online_user where date(create_time) = date(now());
+    <select id="countTodayAccess" resultType="java.lang.Long">
+
     </select>
 </mapper>

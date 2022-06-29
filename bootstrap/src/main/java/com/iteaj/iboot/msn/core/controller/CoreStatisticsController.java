@@ -2,6 +2,7 @@ package com.iteaj.iboot.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.core.dto.OnlineCountDto;
 import com.iteaj.iboot.msn.core.service.IOnlineUserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,21 +22,12 @@ public class CoreStatisticsController extends BaseController {
     }
 
     /**
-     * 当天在线人数
+     * 当天在线人数和在前在线人数
      * @return
      */
     @GetMapping("/online")
-    public Result<Long> todayOnline() {
+    public Result<OnlineCountDto> todayOnline() {
         return success(onlineUserService.countCurrentOnline());
-    }
-
-    /**
-     * 当天访问人数
-     * @return
-     */
-    @GetMapping("/today/access")
-    public Result<Long> todayAccess() {
-        return success(onlineUserService.countTodayAccess());
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.core.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.iteaj.iboot.msn.core.dto.OnlineCountDto;
 import com.iteaj.iboot.msn.core.entity.OnlineUser;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -17,5 +18,6 @@ public interface IOnlineUserMapper extends BaseMapper<OnlineUser> {
      * 统计当天访问人数
      * @return
      */
-    long countTodayOnline();
+    OnlineCountDto countCurrentOnline();
+
 }
