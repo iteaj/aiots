@@ -42,7 +42,7 @@ public class CoreStatisticsController extends BaseController {
      * 近一个月在线用户统计
      * @return
      */
-    @GetMapping("/online")
+    @GetMapping("/inRecentMonth")
     public Result online() {
         return success();
     }
