@@ -9,6 +9,7 @@ import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.iot.consts.DeviceStatus;
+import com.iteaj.iboot.msn.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.Device;
 import com.iteaj.iboot.msn.iot.mapper.DeviceMapper;
@@ -67,5 +68,10 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     public DetailResult<Device> getByDeviceSn(String deviceSn) {
         return getOne(Wrappers.<Device>lambdaQuery().eq(Device::getDeviceSn, deviceSn));
+    }
+
+    @Override
+    public CurrentDeviceDto countCurrentDevice() {
+        return getBaseMapper().countCurrentDevice();
     }
 }

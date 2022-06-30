@@ -41,4 +41,8 @@
         </where>
     </select>
 
+    <select id="countCurrentDevice" resultType="com.iteaj.iboot.msn.iot.dto.CurrentDeviceDto">
+        select count(1) today, count(status='online' or null) online from iot_device
+    </select>
+
 </mapper>

@@ -3,6 +3,7 @@ package com.iteaj.iboot.msn.iot.mapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.Device;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -24,4 +25,10 @@ public interface DeviceMapper extends BaseMapper<Device> {
      * @return
      */
     IPage<Device> pageOfDetail(Page<Device> page, DeviceDto entity);
+
+    /**
+     * 统计当前设备信息
+     * @return
+     */
+    CurrentDeviceDto countCurrentDevice();
 }
