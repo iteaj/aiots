@@ -11,11 +11,10 @@ import org.springframework.stereotype.Component;
 /**
  * 监听6158端口作为调试端口
  */
-@Component
 public class DebugServerComponent extends ByteToMessageDecoderServerComponent<DebugServerMessage> {
 
-    public DebugServerComponent() {
-        super(new ConnectProperties(6158));
+    public DebugServerComponent(ConnectProperties connectProperties) {
+        super(connectProperties);
     }
 
     @Override
