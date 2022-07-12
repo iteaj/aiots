@@ -31,6 +31,4 @@ public class IotStatisticsController extends BaseController {
     public Result<CurrentDeviceDto> current() {
         return success(deviceService.countCurrentDevice());
     }
-
-
 }
