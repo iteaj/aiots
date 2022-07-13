@@ -1,5 +1,5 @@
 <template>
-  <UView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end#if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end urlAuth>
+  <UView #if(${cfg.moduleName})name="$!{cfg.moduleName}"#end#if(${cfg.rowKey})rowKey="$!{cfg.rowKey}"#end>
     <UViewSearch v-model="searchModel">
       <URow col="search">
         #foreach($vue in ${cfg.vueFields})
@@ -9,7 +9,7 @@
         #end
         <UFuncBtn func="query" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/view">搜索</UFuncBtn>
         <UFuncBtn func="reset">重置</UFuncBtn>
-        <UFuncBtn func="add" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add">新增</UFuncBtn>
+        <UFuncBtn func="add" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/add" v-auth="'${package.ModuleName}:#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end:add'">新增</UFuncBtn>
       </URow>
     </UViewSearch>
     <UViewModal title="${cfg.moduleName}管理" :span="[7, 14]" v-model="editModel" :rules="rules">
@@ -22,15 +22,14 @@
       </template>
       <template #footer>
         <UFuncBtn func="cancel">取消</UFuncBtn>
-        <UFuncBtn func="submit" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/saveOrUpdate" :urlAuth="false"
-          v-auth:or="['${package.ModuleName}:#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end:add', '${package.ModuleName}:#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end:edit']">提交</UFuncBtn>
+        <UFuncBtn func="submit" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/saveOrUpdate">提交</UFuncBtn>
         <UFuncBtn func="reset">重置</UFuncBtn>
       </template>
     </UViewModal>
     <UViewTable :columns="columns">
       <template #action="{record}">
-        <UFuncTag func="edit" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit">修改</UFuncTag>
-        <UFuncTag func="del" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/del">删除</UFuncTag>
+        <UFuncTag func="edit" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit" v-auth="'${package.ModuleName}:#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end:edit'">修改</UFuncTag>
+        <UFuncTag func="del" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/del" v-auth="'${package.ModuleName}:#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end:del'">删除</UFuncTag>
       </template>
     </UViewTable>
   </UView>

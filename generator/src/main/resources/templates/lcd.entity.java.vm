@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiModelProperty;
 #end
 #if(${entityLombokModel})
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 #if(${chainModel})
 import lombok.experimental.Accessors;
 #end
@@ -27,9 +26,6 @@ import lombok.experimental.Accessors;
 @Data
   #if(${chainModel})
 @Accessors(chain = true)
-  #end
-  #if(${superEntityClass})
-@EqualsAndHashCode(callSuper = true)
   #end
 #end
 #if(${table.convert})
@@ -144,7 +140,6 @@ public class ${entity} implements Serializable {
         return null;
   #end
     }
-
 #end
 #if(!${entityLombokModel})
     @Override
