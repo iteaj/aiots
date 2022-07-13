@@ -1,7 +1,7 @@
-package com.iteaj.iboot.msn.iot.server.debug.protocol;
+package com.iteaj.iboot.msn.iot.debug.tcp.server.protocol;
 
-import com.iteaj.iboot.msn.iot.server.debug.DebugProtocolType;
-import com.iteaj.iboot.msn.iot.server.debug.DebugServerMessage;
+import com.iteaj.iboot.msn.iot.debug.tcp.server.DebugProtocolType;
+import com.iteaj.iboot.msn.iot.debug.tcp.server.DebugServerMessage;
 import com.iteaj.iot.ProtocolType;
 import com.iteaj.iot.server.protocol.ClientInitiativeProtocol;
 

@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.iot.server.debug;
+package com.iteaj.iboot.msn.iot.debug.tcp.server;
 
 import com.iteaj.iot.ProtocolType;
 

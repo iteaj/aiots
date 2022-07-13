@@ -1,34 +1,26 @@
 package com.iteaj.iboot.msn.iot.debug.websocket;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.iboot.msn.iot.debug.*;
 import com.iteaj.iot.CoreConst;
 import com.iteaj.iot.Message;
+import com.iteaj.iot.codec.filter.RegisterParams;
 import com.iteaj.iot.server.websocket.WebSocketServerListener;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerComponent;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerProtocol;
 import com.iteaj.iot.websocket.HttpRequestWrapper;
 import com.iteaj.iot.websocket.WebSocketFilter;
-import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.util.Attribute;
-import org.apache.shiro.session.mgt.DefaultSessionKey;
-import org.apache.shiro.session.mgt.SessionManager;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Optional;
 
 public class WebsocketDebugListener implements WebSocketServerListener, WebSocketFilter<DefaultWebSocketServerComponent> {
 
-   private final SessionManager securityManager;
    private final DebugHandleFactory handleFactory;
 
-    public WebsocketDebugListener(SessionManager securityManager, DebugHandleFactory handleFactory) {
-        this.securityManager = securityManager;
+    public WebsocketDebugListener(DebugHandleFactory handleFactory) {
         this.handleFactory = handleFactory;
     }
 
@@ -68,17 +60,12 @@ public class WebsocketDebugListener implements WebSocketServerListener, WebSocke
     /**
      * 注册设备编号
      * @param head
-     * @param equipCode
-     * @param channel
-     * @param component
      * @return
      */
     @Override
-    public Message.MessageHead register(Message.MessageHead head, String equipCode, Channel channel, DefaultWebSocketServerComponent component) {
-        if(equipCode == null) {
-            Attribute<HttpRequestWrapper> request = channel.attr(CoreConst.WEBSOCKET_REQ);
-            request.get().getQueryParam("clientSn").ifPresent(clientSn -> head.setEquipCode(clientSn));
-        }
+    public Message.MessageHead register(Message.MessageHead head, RegisterParams params) {
+        HttpRequestWrapper httpRequestWrapper = params.getValue(CoreConst.WEBSOCKET_REQ);
+        httpRequestWrapper.getQueryParam("clientSn").ifPresent(clientSn -> head.setEquipCode(clientSn));
         return head;
     }
 

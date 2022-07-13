@@ -89,9 +89,10 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
     public ListResult selectParentTrees() {
         // 去除禁用的状态
         List<Menu> status = this.getBaseMapper()
-                .selectList(Wrappers.<Menu>query()
-                        .ne("type", MenuType.A)
-                        .ne("status", PermStatus.disabled));
+                .selectList(Wrappers.<Menu>lambdaQuery()
+                        .ne(Menu::getType, MenuType.A)
+                        .ne(Menu::getStatus, PermStatus.disabled)
+                        .orderByAsc(Menu::getSort));
 
         // 转成树结构
         List<Menu> menus = (List<Menu>) TreeUtils.toTrees(status, 0l);

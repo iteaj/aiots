@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.iot.server.debug.protocol;
+package com.iteaj.iboot.msn.iot.debug.tcp.server.protocol;
 
 import com.iteaj.iot.server.ServerProtocolHandle;
 import org.springframework.stereotype.Component;
