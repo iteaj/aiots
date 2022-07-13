@@ -75,9 +75,6 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
         <logger level="debug" name="com.iteaj.iboot" additivity="false">
             <appender-ref ref="STDOUT" />
         </logger>
-        <logger level="TRACE" name="com.iteaj.iot" additivity="false">
-            <appender-ref ref="STDOUT" />
-        </logger>
         <logger level="debug" name="com.iteaj.framework" additivity="false">
             <appender-ref ref="STDOUT" />
         </logger>
