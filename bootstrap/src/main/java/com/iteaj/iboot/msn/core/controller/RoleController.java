@@ -8,6 +8,7 @@ import com.iteaj.iboot.msn.core.dto.RoleDto;
 import com.iteaj.iboot.msn.core.dto.RoleFuncDto;
 import com.iteaj.iboot.msn.core.entity.Menu;
 import com.iteaj.iboot.msn.core.entity.Role;
+import com.iteaj.iboot.msn.core.service.IMenuService;
 import com.iteaj.iboot.msn.core.service.IRoleService;
 import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
