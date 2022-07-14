@@ -10,6 +10,7 @@ import com.iteaj.iot.config.ConnectProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.List;
 
@@ -39,11 +40,12 @@ public class IotDebugConfiguration {
 
     /**
      * 调试需要用的websocket组件
+     * @param iotTaskExecutor
      * @param handleFactory
      * @return
      */
     @Bean
-    public WebsocketDebugListener websocketDebugListener(DebugHandleFactory handleFactory) {
-        return new WebsocketDebugListener(handleFactory);
+    public WebsocketDebugListener websocketDebugListener(ThreadPoolTaskScheduler iotTaskExecutor, DebugHandleFactory handleFactory) {
+        return new WebsocketDebugListener(handleFactory, iotTaskExecutor);
     }
 }
