@@ -13,15 +13,19 @@ import com.iteaj.iot.websocket.HttpRequestWrapper;
 import com.iteaj.iot.websocket.WebSocketFilter;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.apache.shiro.session.mgt.SessionManager;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.Optional;
 
 public class WebsocketDebugListener implements WebSocketServerListener, WebSocketFilter<DefaultWebSocketServerComponent> {
 
-   private final DebugHandleFactory handleFactory;
+    private final DebugHandleFactory handleFactory;
+    private final ThreadPoolTaskScheduler iotTaskScheduler;
 
-    public WebsocketDebugListener(DebugHandleFactory handleFactory) {
+    public WebsocketDebugListener(DebugHandleFactory handleFactory, ThreadPoolTaskScheduler iotTaskScheduler) {
         this.handleFactory = handleFactory;
+        this.iotTaskScheduler = iotTaskScheduler;
     }
 
     @Override
@@ -38,7 +42,7 @@ public class WebsocketDebugListener implements WebSocketServerListener, WebSocke
             if(handle.isPresent()) {
                 DebugHandle debugHandle = handle.get();
                 DebugRequestModel parse = debugHandle.parse(protocol.readText());
-                debugHandle.handle(parse.getModel(), new DebugWebsocketWrite(parse.getClientSn()));
+                iotTaskScheduler.execute(() -> debugHandle.handle(parse.getModel(), new DebugWebsocketWrite(parse.getClientSn())));
             } else {
                 protocol.response(JSON.toJSONString(HttpResult.Fail("未找到对应的处理器["+type.get()+"]")));
             }
@@ -64,8 +68,8 @@ public class WebsocketDebugListener implements WebSocketServerListener, WebSocke
      */
     @Override
     public Message.MessageHead register(Message.MessageHead head, RegisterParams params) {
-        HttpRequestWrapper httpRequestWrapper = params.getValue(CoreConst.WEBSOCKET_REQ);
-        httpRequestWrapper.getQueryParam("clientSn").ifPresent(clientSn -> head.setEquipCode(clientSn));
+        HttpRequestWrapper value = params.getValue(CoreConst.WEBSOCKET_REQ);
+        value.getQueryParam("clientSn").ifPresent(clientSn -> head.setEquipCode(clientSn));
         return head;
     }
 
