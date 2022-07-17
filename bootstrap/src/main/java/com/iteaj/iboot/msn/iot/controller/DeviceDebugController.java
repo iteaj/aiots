@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.iot.controller;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,10 +52,12 @@ public class DeviceDebugController extends BaseController {
 
             deviceManager.forEach(item -> {
                 InetSocketAddress address = (InetSocketAddress)item.remoteAddress();
+                Long timeMills = item.attr(CoreConst.CLIENT_ONLINE_TIME).get();
                 Device device = new Device()
                         .setIp(address.getHostName())
                         .setPort(address.getPort())
                         .setStatus(DeviceStatus.online)
+                        .setSwitchTime(new Date(timeMills))
                         .setName(item.id().asShortText());
                 Object o = item.attr(CoreConst.EQUIP_CODE).get();
                 if(o != null) {
