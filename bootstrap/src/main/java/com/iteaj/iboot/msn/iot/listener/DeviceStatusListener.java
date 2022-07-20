@@ -8,6 +8,7 @@ import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.SocketClient;
 import com.iteaj.iot.event.ClientStatusEventListener;
+import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -32,7 +33,9 @@ public class DeviceStatusListener implements ClientStatusEventListener, Disposab
     public void online(Object source, FrameworkComponent component) {
         // 服务端设备上线事件
         if(source instanceof String) {
-            deviceService.update((String) source, DeviceStatus.online);
+            if(!(component instanceof DefaultWebSocketServerComponent)) {
+                deviceService.update((String) source, DeviceStatus.online);
+            }
         } else if(source instanceof SocketClient){ // 客户端连接成功事件
             ClientConnectProperties config = ((SocketClient) source).getConfig();
         }
