@@ -1,8 +1,7 @@
-## izone-sboot
-izone-sboot是基于springboot2开发的支持多模块(后台管理模块, 开发模块)以及多端(pc, app, webapp, 小程序, 公众号)且插件化(shiro, oauth2, 缓存)的应用系统，核心思想是jar即功能, 体现在单个模块的高内聚和模块之间的低耦合, 比如引入shiro模块后系统就包含权限认证功能,引入redis后系统就包含缓存功能.模块与模块之间不相互依赖,比如shiro需要使用缓存但并不需要依赖redis或者ehcache模块(通过spring的ioc实现注入).
+## iboot
+iboot是基于springboot2开发的支持多模块(后台管理模块, 开发模块)以及多端(pc, app, webapp, 小程序, 公众号)且插件化(shiro, oauth2, 缓存)的应用系统，核心思想是jar即功能, 体现在单个模块的高内聚和模块之间的低耦合, 比如引入shiro模块后系统就包含权限认证功能,引入redis后系统就包含缓存功能.模块与模块之间不相互依赖,比如shiro需要使用缓存但并不需要依赖redis或者ehcache模块(通过spring的ioc实现注入).
 ### 使用教程说明文档
-1. [如何新增一个端(pc,app,webapp)或者不同方式(用户名密码,oauth2)的认证登录](https://gitee.com/iteaj/izone-sboot/wikis/%E5%A6%82%E4%BD%95%E5%A2%9E%E5%8A%A0%E4%B8%80%E7%A7%8D%E8%AE%A4%E8%AF%81?sort_id=3821700)
-2. [如何新增Oauth2的认证登录(以webapp的微信公众号登录和pc端的微信开放平台为例说明)](https://gitee.com/iteaj/izone-sboot/wikis/oauth2%E6%8E%88%E6%9D%83?sort_id=3821857)
+
 ### 已完成的功能
 1. 完整的后台管理功能接口
 2. 基于shiro的权限认证功能, 支持分布式集群的登录和授权动作, 支持oauth2实现认证授权
