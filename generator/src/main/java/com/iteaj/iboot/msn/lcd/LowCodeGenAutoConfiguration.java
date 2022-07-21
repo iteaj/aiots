@@ -11,7 +11,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Profile({"dev"})
+@Profile({"dev", "test"})
 @ComponentScan({"com.iteaj.iboot.msn.lcd"})
 @MapperScan({"com.iteaj.iboot.msn.lcd.mapper"})
 @EnableConfigurationProperties(LowCodeProperties.class)
