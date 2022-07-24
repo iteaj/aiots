@@ -11,8 +11,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.iteaj.framework.consts.CoreConst.EXEC_EXCEPTION_STATUS;
-
 /**
  * create time: 2021/3/24
  *  用来过滤框架所有请求

@@ -1,6 +1,5 @@
 package com.iteaj.framework.exception;
 
-import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.auth.SecurityException;
@@ -10,9 +9,9 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -26,9 +25,9 @@ public class FrameworkControllerAdvice {
      * 全局未知异常处理
      * @return
      */
+    @ResponseBody
     @ExceptionHandler(Throwable.class)
-    protected <E> Result<E> unknownExceptionHandle(Throwable e, HttpServletRequest request) {
-        request.setAttribute(CoreConst.EXEC_EXCEPTION_STATUS, "未知异常");
+    protected <E> Result<E> unknownExceptionHandle(Throwable e) {
         logger.error("未知错误", e.getMessage(), e);
 
         return Result.fail("系统异常");
@@ -40,8 +39,7 @@ public class FrameworkControllerAdvice {
      * @return
      */
     @ExceptionHandler(ServiceException.class)
-    protected <E> Result<E> serviceHandle(ServiceException e, HttpServletRequest request) {
-        request.setAttribute(CoreConst.EXEC_EXCEPTION_STATUS, e.getMessage());
+    protected <E> Result<E> serviceHandle(ServiceException e) {
         logger.error("业务执行失败", e);
         return HttpResult.Fail(e.getMessage());
     }

@@ -57,7 +57,7 @@ public class Device extends BaseEntity {
     /**
      * 设备型号
      */
-    private String model;
+    private Integer model;
 
     /**
      * 设备状态
