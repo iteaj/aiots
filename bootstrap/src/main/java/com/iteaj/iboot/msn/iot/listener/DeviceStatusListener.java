@@ -38,10 +38,7 @@ public class DeviceStatusListener implements ClientStatusEventListener, Disposab
             }
         } else if(source instanceof SocketClient){ // 客户端连接成功事件
             ClientConnectProperties config = ((SocketClient) source).getConfig();
-            deviceService.update(Wrappers.<Device>lambdaUpdate()
-                    .set(Device::getStatus, DeviceStatus.online)
-                    .eq(Device::getIp, config.getHost())
-                    .eq(Device::getPort, config.getPort()));
+            deviceService.update(config.connectKey(), DeviceStatus.online);
         }
     }
 
@@ -52,10 +49,7 @@ public class DeviceStatusListener implements ClientStatusEventListener, Disposab
             deviceService.update((String) source, DeviceStatus.offline);
         } else if(source instanceof SocketClient) {// 客户端连接断开事件
             ClientConnectProperties config = ((SocketClient) source).getConfig();
-            deviceService.update(Wrappers.<Device>lambdaUpdate()
-                    .set(Device::getStatus, DeviceStatus.offline)
-                    .eq(Device::getIp, config.getHost())
-                    .eq(Device::getPort, config.getPort()));
+            deviceService.update(config.connectKey(), DeviceStatus.offline);
         }
     }
 

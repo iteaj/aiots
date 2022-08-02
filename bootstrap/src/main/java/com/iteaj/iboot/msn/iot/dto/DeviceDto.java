@@ -7,5 +7,13 @@ import lombok.Data;
 @Data
 public class DeviceDto extends Device {
 
+    /**
+     * 型号名称
+     */
+    private String modelName;
+
+    /**
+     * 设备别名
+     */
     private DeviceTypeAlias alias;
 }

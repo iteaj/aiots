@@ -135,7 +135,7 @@ public class DevicePlcController extends BaseController {
             // 西门子设备
             if(device.getDeviceTypeId() == 2) {
                 SiemensModel model = SiemensModel.valueOf(data.getModel());
-                SiemensConnectProperties properties = new SiemensConnectProperties(device.getIp(), device.getPort(), model);
+                SiemensConnectProperties properties = new SiemensConnectProperties(device.getIp(), device.getPort(), model, entity.getDeviceSn());
                 SocketClient client = siemensS7Component.getClient(properties);
                 if(status == DeviceStatus.online) {
                     if(client == null) {
@@ -148,6 +148,7 @@ public class DevicePlcController extends BaseController {
                 }
             } else if(device.getDeviceTypeId() == 3) { // 欧姆龙设备
                 OmronConnectProperties properties = new OmronConnectProperties(device.getIp(), device.getPort());
+                properties.setConnectKey(entity.getDeviceSn());
                 SocketClient client = omronComponent.getClient(properties);
                 if(status == DeviceStatus.online) {
                     if(client == null) {

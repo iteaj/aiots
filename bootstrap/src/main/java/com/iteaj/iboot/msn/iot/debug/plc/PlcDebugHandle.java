@@ -30,24 +30,28 @@ public class PlcDebugHandle implements DebugHandle<PlcDebugModel> {
         }
 
         PlcClientProtocol plcClientProtocol = null;
-        if(model.getPlcType() == 1) {
+        if(model.getPlcType() == 2) {
             try {
                 SiemensModel siemensModel = SiemensModel.valueOf(model.getModel());
                 plcClientProtocol = new SiemensS7Protocol(new SiemensConnectProperties(model.getIp(), model.getPort(), siemensModel));
             } catch (Exception e) {
                 e.printStackTrace();
-                write.write(HttpResult.Fail("不支持西门子型号["+model.getModel()+"]"));
+                write.write(HttpResult.Fail("不支持西门子型号["+model.getModel()+"]")); return;
             }
-        } else if(model.getPlcType() == 2){
+        } else if(model.getPlcType() == 3){
             plcClientProtocol = new OmronTcpProtocol(new OmronConnectProperties(model.getIp(), model.getPort()));
         } else {
             write.write(HttpResult.Fail("不支持的plc类型["+model.getPlcType()+"]")); return;
         }
 
-        Object readValue;
-        DebugResult result = new DebugResult(model);
+        Object readValue = model.getValue();
+        DebugResult result = new DebugResult(model).setDeviceSn(model.getDeviceSn())
+                .setReqTime(System.currentTimeMillis());
         try {
             if("read".equals(model.getCmd())) {
+                if(model.getType() == null) {
+                    write.write(HttpResult.Fail("错误的数据类型[null]")); return;
+                }
                 switch (model.getType()) {
                     case "bit":
                         readValue = plcClientProtocol.readBool(model.getAddress()); break;
@@ -63,6 +67,9 @@ public class PlcDebugHandle implements DebugHandle<PlcDebugModel> {
                         readValue = plcClientProtocol.readDouble(model.getAddress()); break;
                 }
             } else if("write".equals(model.getCmd())) {
+                if(model.getType() == null) {
+                    write.write(HttpResult.Fail("错误的数据类型[null]")); return;
+                }
                 switch (model.getType()) {
                     case "bit":
                         plcClientProtocol.write(model.getAddress(), true); break;
@@ -78,18 +85,27 @@ public class PlcDebugHandle implements DebugHandle<PlcDebugModel> {
                         plcClientProtocol.write(model.getAddress(), Double.valueOf(model.getValue())); break;
                 }
             } else if("message".equals(model.getCmd())) {
-                byte[] bytes = ByteUtil.hexToByte(model.getMessage().trim());
-                byte[] readFull = plcClientProtocol.readFull(bytes);
+                if(StringUtils.hasText(model.getMessage())) {
+                    byte[] bytes = ByteUtil.hexToByte(model.getMessage().trim());
+                    byte[] readFull = plcClientProtocol.readFull(bytes);
+                    readValue = readFull != null ? ByteUtil.bytesToHexByFormat(readFull) : "";
+                } else {
+                    write.write(HttpResult.Fail("请输入报文["+model.getMessage()+"]")); return;
+                }
             } else {
-                write.write(HttpResult.Fail("不支持的操作指令["+model.getCmd()+"]"));
+                write.write(HttpResult.Fail("不支持的操作指令["+model.getCmd()+"]")); return;
             }
 
+            result.setValue(readValue).setRespTime(System.currentTimeMillis())
+                .setReqMsg(ByteUtil.bytesToHexByFormat(plcClientProtocol.requestMessage().getMessage()))
+                .setRespMsg(ByteUtil.bytesToHexByFormat(plcClientProtocol.responseMessage().getMessage()));
             ExecStatus execStatus = plcClientProtocol.getExecStatus();
-            if(execStatus == ExecStatus.success) {
-
+            if(execStatus != ExecStatus.success) {
+                write.write(HttpResult.StatusCode(result, execStatus.desc, 208));
+            } else {
+                write.write(HttpResult.Success(result));
             }
 
-            write.write(HttpResult.Success(result));
         } catch (Exception e) {
             write.write(HttpResult.Fail(e.getMessage()));
         }

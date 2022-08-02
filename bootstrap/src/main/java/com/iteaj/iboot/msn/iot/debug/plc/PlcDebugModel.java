@@ -42,8 +42,8 @@ public class PlcDebugModel extends DebugModel {
     private String type;
 
     /**
-     * 1. 西门子
-     * 2. 欧姆龙
+     * 2. 西门子
+     * 3. 欧姆龙
      */
     private Integer plcType;
 }

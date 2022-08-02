@@ -17,11 +17,12 @@
         <result column="device_type_id" property="deviceTypeId" />
     </resultMap>
     <resultMap id="DtoMap" type="com.iteaj.iboot.msn.iot.dto.DeviceDto" extends="BasicMap">
-
+        <result property="modelName" column="model_name" />
     </resultMap>
     <select id="pageOfDetail" resultMap="DtoMap">
-        select a.* from iot_device a
+        select a.*, idm.model model_name from iot_device a
             left join iot_device_type idt on a.device_type_id=idt.id
+            left join iot_device_model idm on a.model=idm.id
         <where>
             <if test="entity.status!=null">
                 and a.status = #{entity.status}
