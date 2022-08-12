@@ -40,6 +40,16 @@ public class ConfigController extends BaseController {
     }
 
     /**
+     * 查询配置列表
+     * @param config
+     * @return
+     */
+    @GetMapping("/list")
+    public Result<List<Config>> list(Config config) {
+        return this.configService.list(config);
+    }
+
+    /**
      * 新增配置
      * @param config
      * @return

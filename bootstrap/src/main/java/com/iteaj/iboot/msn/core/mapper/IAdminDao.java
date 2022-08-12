@@ -14,7 +14,7 @@ public interface IAdminDao extends BaseMapper<Admin> {
 
     void createAdmin(AdminDto adminDto);
 
-    void updateAdmin(AdminDto adminDto);
+    void updateAdminRole(AdminDto adminDto);
 
     AdminDto getAdminDetailById(Long id);
 

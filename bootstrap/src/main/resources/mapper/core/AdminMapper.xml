@@ -37,9 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </foreach>
         </if>
     </insert>
-    <update id="updateAdmin">
-        update sys_admin set name=#{name},org_id=#{orgId},email=#{email},phone=#{phone}
-             ,avatar=#{avatar},status=#{status},remark=#{remark} where id=#{id};
+    <update id="updateAdminRole">
         delete from sys_admin_role where aid=#{id};
         <if test="roleIds != null and roleIds.size() > 0">
             insert into sys_admin_role (aid, rid) values

@@ -48,7 +48,8 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     @Transactional
     public void updateAdminAndRole(AdminDto adminDto) {
-        this.getBaseMapper().updateAdmin(adminDto);
+        this.updateById(adminDto);
+        this.getBaseMapper().updateAdminRole(adminDto);
     }
 
     @Override
