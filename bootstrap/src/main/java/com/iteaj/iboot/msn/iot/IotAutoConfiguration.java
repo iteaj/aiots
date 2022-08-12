@@ -21,7 +21,7 @@ public class IotAutoConfiguration {
      */
     @Bean
     public ModbusRtuForDtuServerComponent modbusRtuForDtuServerComponent() {
-        return new ModbusRtuForDtuServerComponent(new ConnectProperties(7058));
+        return new ModbusRtuForDtuServerComponent(new ConnectProperties(7058, 90, 0, 0));
     }
 
     /**
@@ -30,7 +30,7 @@ public class IotAutoConfiguration {
      */
     @Bean
     public ModbusTcpForDtuServerComponent modbusTcpForDtuServerComponent() {
-        return new ModbusTcpForDtuServerComponent(new ConnectProperties(7068));
+        return new ModbusTcpForDtuServerComponent(new ConnectProperties(7068, 90, 0, 0));
     }
 
     /**
