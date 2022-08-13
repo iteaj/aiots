@@ -62,8 +62,8 @@ public class DeviceModelServiceImpl extends BaseServiceImpl<DeviceModelMapper, D
         if(CollectionUtils.isEmpty(idList)) {
             return new BooleanResult(false);
         }
-        if(idList.size() > 0) {
-            return new BooleanResult(false).fail("不支持批量更新");
+        if(idList.size() > 1) {
+            return new BooleanResult(false).fail("不支持批量删除");
         }
 
         Serializable modelId = idList.stream().findFirst().get();
