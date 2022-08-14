@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
@@ -27,6 +28,24 @@ public class PointGroup extends BaseEntity {
      * 组名称
      */
     private String name;
+
+    /**
+     * 点位类型
+     */
+    @TableField(exist = false)
+    private Long typeId;
+
+    /**
+     * 类型名称
+     */
+    @TableField(exist = false)
+    private String typeName;
+
+    /**
+     * 型号名称
+     */
+    @TableField(exist = false)
+    private String modelName;
 
     /**
      * 所属型号

@@ -1,6 +1,6 @@
 package com.iteaj.iboot.msn.iot.service;
 
-import com.iteaj.iboot.msn.iot.entity.PointPosition;
+import com.iteaj.iboot.msn.iot.entity.Signal;
 import com.iteaj.framework.IBaseService;
 
 /**
@@ -11,6 +11,6 @@ import com.iteaj.framework.IBaseService;
  * @author iteaj
  * @since 2022-07-22
  */
-public interface IPointPositionService extends IBaseService<PointPosition> {
+public interface ISignalService extends IBaseService<Signal> {
 
 }

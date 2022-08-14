@@ -194,7 +194,7 @@ UNLOCK TABLES;
 -- Table structure for table `iot_point_position`
 --
 
-DROP TABLE IF EXISTS `iot_point_position`;
+DROP TABLE IF EXISTS iot_signal;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `iot_point_position` (
@@ -213,10 +213,10 @@ CREATE TABLE `iot_point_position` (
 -- Dumping data for table `iot_point_position`
 --
 
-LOCK TABLES `iot_point_position` WRITE;
-/*!40000 ALTER TABLE `iot_point_position` DISABLE KEYS */;
-INSERT INTO `iot_point_position` VALUES (1,'1','21',1,'14','14','2022-07-28 17:42:35');
-/*!40000 ALTER TABLE `iot_point_position` ENABLE KEYS */;
+LOCK TABLES iot_signal WRITE;
+/*!40000 ALTER TABLE iot_signal DISABLE KEYS */;
+INSERT INTO iot_signal VALUES (1,'1','21',1,'14','14','2022-07-28 17:42:35');
+/*!40000 ALTER TABLE iot_signal ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

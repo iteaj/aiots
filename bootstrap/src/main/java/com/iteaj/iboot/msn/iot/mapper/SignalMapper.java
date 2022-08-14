@@ -1,6 +1,6 @@
 package com.iteaj.iboot.msn.iot.mapper;
 
-import com.iteaj.iboot.msn.iot.entity.PointPosition;
+import com.iteaj.iboot.msn.iot.entity.Signal;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author iteaj
  * @since 2022-07-22
  */
-public interface PointPositionMapper extends BaseMapper<PointPosition> {
+public interface SignalMapper extends BaseMapper<Signal> {
 
 }

@@ -5,12 +5,12 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.iboot.msn.iot.entity.DeviceModel;
 import com.iteaj.iboot.msn.iot.entity.PointGroup;
-import com.iteaj.iboot.msn.iot.entity.PointPosition;
+import com.iteaj.iboot.msn.iot.entity.Signal;
 import com.iteaj.iboot.msn.iot.mapper.DeviceModelMapper;
 import com.iteaj.iboot.msn.iot.service.IDeviceModelService;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.iboot.msn.iot.service.IPointGroupService;
-import com.iteaj.iboot.msn.iot.service.IPointPositionService;
+import com.iteaj.iboot.msn.iot.service.ISignalService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -29,9 +29,9 @@ import java.util.Collection;
 public class DeviceModelServiceImpl extends BaseServiceImpl<DeviceModelMapper, DeviceModel> implements IDeviceModelService {
 
     private final IPointGroupService pointGroupService;
-    private final IPointPositionService pointPositionService;
+    private final ISignalService pointPositionService;
 
-    public DeviceModelServiceImpl(IPointGroupService pointGroupService, IPointPositionService pointPositionService) {
+    public DeviceModelServiceImpl(IPointGroupService pointGroupService, ISignalService pointPositionService) {
         this.pointGroupService = pointGroupService;
         this.pointPositionService = pointPositionService;
     }
@@ -72,8 +72,8 @@ public class DeviceModelServiceImpl extends BaseServiceImpl<DeviceModelMapper, D
                 .last("limit 1")).ofNullable()
                 .ifPresent(pointGroup -> {throw new ServiceException("点位组已在使用, 请先删除");});
 
-        this.pointPositionService.getOne(Wrappers.<PointPosition>lambdaQuery()
-                .eq(PointPosition::getModelId, modelId)
+        this.pointPositionService.getOne(Wrappers.<Signal>lambdaQuery()
+                .eq(Signal::getModelId, modelId)
                 .last("limit 1")).ofNullable()
                 .ifPresent(pointPosition -> {throw new ServiceException("点位记录已在使用, 请先删除");});
 

@@ -1,5 +1,7 @@
 package com.iteaj.iboot.msn.iot.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.msn.iot.entity.PointGroup;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -13,4 +15,18 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface PointGroupMapper extends BaseMapper<PointGroup> {
 
+    /**
+     * 获取详情的分页信息
+     * @param page
+     * @param entity
+     * @return
+     */
+    IPage<PointGroup> detailOfPage(Page<PointGroup> page, PointGroup entity);
+
+    /**
+     * 返回详情记录
+     * @param id
+     * @return
+     */
+    PointGroup detailById(Long id);
 }

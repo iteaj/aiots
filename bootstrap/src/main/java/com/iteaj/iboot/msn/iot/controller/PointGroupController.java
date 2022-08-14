@@ -37,7 +37,7 @@ public class PointGroupController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions({"iot:pointGroup:view"})
     public Result<IPage<PointGroup>> list(Page<PointGroup> page, PointGroup entity) {
-        return this.pointGroupService.page(page, entity);
+        return this.pointGroupService.detailOfPage(page, entity);
     }
 
     /**
@@ -47,7 +47,7 @@ public class PointGroupController extends BaseController {
     @GetMapping("/edit")
     @RequiresPermissions({"iot:pointGroup:edit"})
     public Result<PointGroup> getById(Long id) {
-        return this.pointGroupService.getById(id);
+        return this.pointGroupService.detailById(id);
     }
 
     /**

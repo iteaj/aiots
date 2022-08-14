@@ -18,8 +18,8 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-@TableName("iot_point_position")
-public class PointPosition extends BaseEntity {
+@TableName("iot_signal")
+public class Signal extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -50,5 +50,9 @@ public class PointPosition extends BaseEntity {
 
     private Date createTime;
 
+    public Signal() { }
 
+    public Signal(Integer modelId) {
+        this.modelId = modelId;
+    }
 }
