@@ -13,6 +13,14 @@
         <result column="create_time" property="createTime" />
     </resultMap>
 
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.msn.iot.entity.PointGroup" extends="BaseResultMap">
+        <collection property="signalIds" ofType="java.lang.String">
+            <constructor>
+                <arg column="signal_id" />
+            </constructor>
+        </collection>
+    </resultMap>
+
     <select id="detailOfPage" resultMap="BaseResultMap">
         select a.id, a.name, dm.model model_name, dm.id model_id, dy.id type_id, dy.name type_name
         from iot_point_group a
@@ -28,12 +36,19 @@
         </where>
     </select>
 
-    <select id="detailById" resultMap="BaseResultMap">
-        select a.id, a.name, dm.model model_name, dm.id model_id, dy.id type_id, dy.name type_name
+    <select id="detailById" resultMap="DetailResultMap">
+        select a.id, a.name, dm.model model_name, dm.id model_id, dy.id type_id, dy.name type_name, igp.signal_id
         from iot_point_group a
             left join iot_device_model dm on a.model_id=dm.id
             left join iot_device_type dy on dm.type_id=dy.id
+            left join iot_group_point igp on igp.group_id=a.id
         where a.id=#{id}
     </select>
 
+    <insert id="batchSaveGroupPoint">
+        insert into iot_group_point (signal_id, group_id) values
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item.signalId},#{item.groupId}
+        </foreach>
+    </insert>
 </mapper>

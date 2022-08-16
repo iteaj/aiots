@@ -2,8 +2,11 @@ package com.iteaj.iboot.msn.iot.mapper;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.iboot.msn.iot.entity.GroupPoint;
 import com.iteaj.iboot.msn.iot.entity.PointGroup;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -29,4 +32,10 @@ public interface PointGroupMapper extends BaseMapper<PointGroup> {
      * @return
      */
     PointGroup detailById(Long id);
+
+    /**
+     * 保存组点位列表
+     * @param list
+     */
+    void batchSaveGroupPoint(List<GroupPoint> list);
 }

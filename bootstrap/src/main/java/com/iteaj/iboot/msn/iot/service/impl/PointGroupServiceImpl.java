@@ -1,15 +1,23 @@
 package com.iteaj.iboot.msn.iot.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.iot.entity.GroupPoint;
 import com.iteaj.iboot.msn.iot.entity.PointGroup;
+import com.iteaj.iboot.msn.iot.mapper.GroupPointMapper;
 import com.iteaj.iboot.msn.iot.mapper.PointGroupMapper;
 import com.iteaj.iboot.msn.iot.service.IPointGroupService;
 import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -22,13 +30,55 @@ import org.springframework.stereotype.Service;
 @Service
 public class PointGroupServiceImpl extends BaseServiceImpl<PointGroupMapper, PointGroup> implements IPointGroupService {
 
+    private final GroupPointMapper groupPointMapper;
+
+    public PointGroupServiceImpl(GroupPointMapper groupPointMapper) {
+        this.groupPointMapper = groupPointMapper;
+    }
+
     @Override
     public PageResult<IPage<PointGroup>> detailOfPage(Page<PointGroup> page, PointGroup entity) {
-        return new PageResult<IPage<PointGroup>>(this.getBaseMapper().detailOfPage(page, entity));
+        return new PageResult<>(this.getBaseMapper().detailOfPage(page, entity));
     }
 
     @Override
     public DetailResult<PointGroup> detailById(Long id) {
         return new DetailResult<>(this.getBaseMapper().detailById(id));
+    }
+
+    @Override
+    @Transactional
+    public BooleanResult save(PointGroup entity) {
+        if(CollectionUtils.isEmpty(entity.getSignalIds())) {
+            return new BooleanResult(false).fail("未选择信号点位");
+        } else {
+            BooleanResult save = super.save(entity);
+            List<GroupPoint> groupPoints = entity.getSignalIds().stream()
+                    .map(item -> new GroupPoint(Long.valueOf(item), entity.getId()))
+                    .collect(Collectors.toList());
+
+            this.groupPointMapper.batchSaveGroupPoint(groupPoints);
+
+            return save;
+        }
+    }
+
+    @Override
+    @Transactional
+    public BooleanResult updateById(PointGroup entity) {
+        if(CollectionUtils.isEmpty(entity.getSignalIds())) {
+            return new BooleanResult(false).fail("未选择信号点位");
+        } else {
+            groupPointMapper.delete(Wrappers.<GroupPoint>lambdaQuery()
+                    .eq(GroupPoint::getGroupId, entity.getId()));
+
+            List<GroupPoint> groupPoints = entity.getSignalIds().stream()
+                    .map(item -> new GroupPoint(Long.valueOf(item), entity.getId()))
+                    .collect(Collectors.toList());
+
+            this.groupPointMapper.batchSaveGroupPoint(groupPoints);
+        }
+
+        return super.updateById(entity);
     }
 }
