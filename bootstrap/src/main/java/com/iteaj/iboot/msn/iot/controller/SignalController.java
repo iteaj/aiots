@@ -1,7 +1,10 @@
 package com.iteaj.iboot.msn.iot.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.iot.dto.SignalOfModelDto;
 import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -45,8 +48,11 @@ public class SignalController extends BaseController {
      * @param modelId 型号id
      */
     @GetMapping("/listByModel")
-    public Result<List<Signal>> listByModel(Integer modelId) {
-        return this.signalService.list(new Signal(modelId));
+    public Result<List<SignalOfModelDto>> listByModel(Integer modelId) {
+        List<SignalOfModelDto> modelDtos = this.signalService.list(new Signal(modelId)).stream().map(item -> new SignalOfModelDto().setId(item.getId().toString())
+                .setName(item.getName()).setAddress(item.getAddress())
+                .setFieldName(item.getFieldName())).collect(Collectors.toList());
+        return success(modelDtos);
     }
 
     /**

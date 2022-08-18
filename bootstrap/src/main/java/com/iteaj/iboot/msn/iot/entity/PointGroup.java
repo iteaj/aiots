@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -52,7 +54,12 @@ public class PointGroup extends BaseEntity {
      */
     private Integer modelId;
 
-    private Date createTime;
+    /**
+     * 点位信号列表
+     */
+    @TableField(exist = false)
+    private List<String> signalIds;
 
+    private Date createTime;
 
 }
