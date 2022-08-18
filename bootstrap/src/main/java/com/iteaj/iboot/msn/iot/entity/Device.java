@@ -88,5 +88,4 @@ public class Device extends BaseEntity {
     @NotNull(message = "设备类型必填")
     private Long deviceTypeId;
 
-
 }

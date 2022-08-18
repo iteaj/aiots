@@ -46,7 +46,11 @@ public class DeviceChild extends BaseEntity {
      */
     private String protocolType;
 
-    private Date createTime;
+    /**
+     * 备注
+     */
+    private String remark;
 
+    private Date createTime;
 
 }

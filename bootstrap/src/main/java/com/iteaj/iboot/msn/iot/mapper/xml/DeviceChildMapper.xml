@@ -8,6 +8,7 @@
         <result column="name" property="name" />
         <result column="uid" property="uid" />
         <result column="child_sn" property="childSn" />
+        <result column="remark" property="remark" />
         <result column="protocol_type" property="protocolType" />
         <result column="create_time" property="createTime" />
     </resultMap>

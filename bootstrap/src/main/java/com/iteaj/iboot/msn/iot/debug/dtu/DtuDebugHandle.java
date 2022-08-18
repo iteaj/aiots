@@ -17,12 +17,14 @@ import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
 import com.iteaj.iot.modbus.server.rtu.ModbusRtuBody;
 import com.iteaj.iot.modbus.server.tcp.ModbusTcpBody;
 import com.iteaj.iot.server.ServerMessage;
+import com.iteaj.iot.server.dtu.impl.CommonDtuProtocol;
 import com.iteaj.iot.server.protocol.ServerInitiativeProtocol;
 import com.iteaj.iot.utils.ByteUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 @Component
 public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
@@ -45,11 +47,11 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
                 write.write(HttpResult.Fail("请指定协议类型[protocolType]"));
             } else {
                 switch (protocolType) {
-                    case "1":
+                    case "tcp": // modbus tcp
                         modbusTcpHandle(model, write); break;
-                    case "2":
+                    case "rtu": // modbus rtu
                         modbusRtuHandle(model, write); break;
-                    case "3":
+                    case "cus": // 自定义协议
                         otherHandle(model, write); break;
                     default: write.write(HttpResult.Fail("不支持的协议类型["+protocolType+"]"));
                 }
@@ -60,7 +62,52 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
     }
 
     private void otherHandle(DtuDebugModel model, DebugWebsocketWrite write) {
-        write.write(HttpResult.Fail("暂不支持此功能"));
+        String message = model.getMessage();
+        if(!StringUtils.hasText(message)) {
+            write.write(HttpResult.Fail("未指定要发送的报文")); return;
+        }
+
+        String cmd = model.getCmd();
+        if(!StringUtils.hasText(cmd)) {
+            write.write(HttpResult.Fail("未指定操作指令")); return;
+        }
+
+        try {
+            byte[] bytes;
+            try {
+                bytes = ByteUtil.hexToByte(message);
+            } catch (Exception e) {
+                write.write(HttpResult.Fail("只支持16进制报文格式")); return;
+            }
+
+            DebugResult result = new DebugResult(model)
+                    .setDeviceSn(model.getDeviceSn())
+                    .setReqTime(System.currentTimeMillis())
+                    .setReqMsg(ByteUtil.bytesToHexByFormat(bytes));
+            byte[] respMsg = new byte[0];
+            CommonDtuProtocol protocol = new CommonDtuProtocol(model.getDeviceSn());
+            if("read".equals(cmd)) {
+                respMsg = protocol.read(bytes);
+            } else if("write".equals(cmd)) {
+                respMsg = protocol.write(bytes);
+            } else if("writeOfAsync".equals(cmd)) {
+                protocol.writeOfAsync(bytes);
+            } else {
+                write.write(HttpResult.Fail("只支持指令[read、write、writeOfAsync]")); return;
+            }
+
+            result.setRespTime(System.currentTimeMillis())
+                    .setRespMsg(ByteUtil.bytesToHexByFormat(respMsg == null ? new byte[0] : respMsg));
+            if(protocol.getExecStatus() != ExecStatus.success) {
+                write.write(HttpResult.StatusCode(result, protocol.getExecStatus().desc, 208));
+            } else {
+                write.write(HttpResult.Success(result));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            write.write(HttpResult.Fail(e.getMessage()));
+        }
     }
 
     private void modbusTcpHandle(DtuDebugModel model, DebugWebsocketWrite write) {
