@@ -75,6 +75,9 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
         <logger level="debug" name="com.iteaj.iboot" additivity="false">
             <appender-ref ref="STDOUT" />
         </logger>
+        <logger level="debug" name="com.iteaj.iot" additivity="false">
+            <appender-ref ref="STDOUT" />
+        </logger>
         <logger level="debug" name="com.iteaj.framework" additivity="false">
             <appender-ref ref="STDOUT" />
         </logger>
@@ -85,15 +88,24 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
             <appender-ref ref="STDOUT" />
         </root>
     </springProfile>
-    <springProfile name="test,prod">
+    <springProfile name="test">
+        <logger level="debug" name="com.iteaj" additivity="false">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE_INFO" />
+        </logger>
+        <root level="info">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE_INFO" />
+        </root>
+    </springProfile>
+    <springProfile name="prod">
         <logger level="info" name="com.iteaj" additivity="false">
             <appender-ref ref="STDOUT" />
             <appender-ref ref="FILE_INFO" />
-            <appender-ref ref="FILE_ERROR" />
         </logger>
-        <root level="error">
+
+        <root level="warn">
             <appender-ref ref="STDOUT" />
-            <appender-ref ref="FILE_INFO" />
             <appender-ref ref="FILE_ERROR" />
         </root>
     </springProfile>
