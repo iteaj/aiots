@@ -40,7 +40,7 @@ public class SignalController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions({"iot:signal:view"})
     public Result<IPage<Signal>> list(Page<Signal> page, Signal entity) {
-        return this.signalService.page(page, entity);
+        return this.signalService.detailByPage(page, entity);
     }
 
     /**

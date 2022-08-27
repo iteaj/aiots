@@ -7,10 +7,30 @@
         <result column="id" property="id" />
         <result column="name" property="name" />
         <result column="address" property="address" />
+        <result column="type_id" property="typeId" />
         <result column="model_id" property="modelId" />
         <result column="field_name" property="fieldName" />
         <result column="field_type" property="fieldType" />
         <result column="create_time" property="createTime" />
     </resultMap>
+
+    <select id="detailByPage" resultMap="BaseResultMap">
+        select a.id, a.name, a.address, a.model_id, a.field_name, a.field_type, a.create_time, idm.type_id from iot_signal a
+            left join iot_device_model idm on a.model_id = idm.id
+        <where>
+            <if test="entity.typeId!=null">
+                and idm.type_id=#{entity.typeId}
+            </if>
+            <if test="entity.modelId!=null">
+                and a.model_id=#{entity.modelId}
+            </if>
+            <if test="entity.name!=null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+            <if test="entity.fieldName!=null and entity.fieldName != ''">
+                and a.field_name like '%${entity.fieldName}%'
+            </if>
+        </where>
+    </select>
 
 </mapper>

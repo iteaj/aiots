@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
@@ -32,6 +33,12 @@ public class Signal extends BaseEntity {
      * 点位地址
      */
     private String address;
+
+    /**
+     * 设备类型
+     */
+    @TableField(exist = false)
+    private Long typeId;
 
     /**
      * 型号id
