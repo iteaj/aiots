@@ -1,0 +1,68 @@
+package com.iteaj.iboot.msn.iot.entity;
+
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.BaseEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+import java.util.Date;
+
+/**
+ * <p>
+ * 数据采集任务
+ * </p>
+ *
+ * @author iteaj
+ * @since 2022-08-28
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("iot_collect_task")
+public class CollectTask extends BaseEntity {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 任务名称
+     */
+    private String name;
+
+    /**
+     * 任务调度
+     */
+    private String cron;
+
+    /**
+     * 任务状态
+     */
+    private String status;
+
+    /**
+     * 采集任务说明
+     */
+    private String remark;
+
+    /**
+     * 采集的设备
+     */
+    private Long uid;
+
+    /**
+     * 所属点位组
+     */
+    private Long pointGroupId;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+
+}

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.msn.iot.mapper.CollectTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.msn.iot.entity.CollectTask">
+        <result column="id" property="id" />
+        <result column="uid" property="uid" />
+        <result column="name" property="name" />
+        <result column="cron" property="cron" />
+        <result column="status" property="status" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="point_group_id" property="pointGroupId" />
+    </resultMap>
+    <resultMap id="CollectTaskDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="BaseResultMap">
+        <result property="typeId" column="device_type_id" />
+        <result property="modelId" column="model_id" />
+        <result property="modelName" column="model_name" />
+        <result property="deviceName" column="device_name" />
+    </resultMap>
+    <resultMap id="signalDetailDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="CollectTaskDtoMap">
+        <association property="device">
+            <result property="deviceSn" column="device_sn" />
+            <result property="name" column="device_name" />
+            <result property="ip" column="ip" />
+            <result property="port" column="port" />
+            <result property="uid" column="uid" />
+        </association>
+        <collection property="signals" column="groupId=point_group_id" ofType="com.iteaj.iboot.msn.iot.entity.Signal"
+                    select="com.iteaj.iboot.msn.iot.mapper.SignalMapper.listByGroupId" />
+    </resultMap>
+    <select id="detailOfPage" resultMap="CollectTaskDtoMap">
+        select a.id, a.uid, a.name, a.cron, a.point_group_id, a.status, a.remark, a.create_time, a.update_time
+             , d.device_type_id, d.name device_name, d.model model_id, dm.model model_name from iot_collect_task a
+            left join iot_device d on a.uid = d.uid
+            left join iot_device_model dm on d.model=dm.id
+        <where>
+            <if test="entity.typeId!=null">
+                and d.device_type_id=#{entity.typeId}
+            </if>
+            <if test="entity.modelId!=null">
+                and d.model=#{entity.modelId}
+            </if>
+            <if test="entity.status!=null and entity.status!=''">
+                and a.status=#{entity.status}
+            </if>
+            <if test="entity.name!=null and entity.name!=''">
+                and a.name like '%${entity.name}%'
+            </if>
+        </where>
+    </select>
+    <select id="detailById" resultMap="CollectTaskDtoMap">
+        select a.id, a.uid, a.name, a.cron, a.point_group_id, a.status, a.remark, a.create_time, a.update_time
+             , d.device_type_id, d.model model_id, d.name device_name from iot_collect_task a
+            left join iot_device d on a.uid = d.uid
+        where a.id=#{id}
+    </select>
+
+    <select id="signalsDetailById" resultMap="signalDetailDtoMap">
+        select a.*, d.ip, d.port, d.name device_name, d.device_sn from iot_collect_task a
+            left join iot_device d on a.uid=d.uid
+        where a.id=#{id}
+    </select>
+
+</mapper>
