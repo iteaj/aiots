@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bootstrap</artifactId>
     <properties>
-        <iot.version>2.5.5</iot.version>
+        <iot.version>2.5.6</iot.version>
         <!--当前项目的根目录, 用于代码生成器-->
         <project.root.path>${project.basedir}</project.root.path>
     </properties>
