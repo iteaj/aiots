@@ -16,9 +16,8 @@ public abstract class CollectAction {
      * @param taskDto 任务
      * @param signal
      * @param call
-     * @param <T>
      */
-    public <T> void exec(CollectTaskDto taskDto, Device device, Signal signal, Consumer<T> call) {
+    public void exec(CollectTaskDto taskDto, Device device, Signal signal, Consumer<String> call) throws CollectException {
 
     }
 }

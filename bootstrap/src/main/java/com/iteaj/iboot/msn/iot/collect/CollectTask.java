@@ -28,13 +28,18 @@ public class CollectTask implements Runnable {
             long cid = UniqueIdGen.nextLong();
             List<CollectData> values = new ArrayList<>();
             taskDto.getDetails().forEach(item -> {
-                CollectData data = new CollectData();
+                CollectData data = new CollectData()
+                        .setCid(cid)
+                        .setUid(item.getUid())
+                        .setCollectTaskId(taskDto.getId());
                 CollectAction action = CollectActionFactory.getInstance().get(item.toString());
                 if(action != null) {
                     item.getSignals().forEach(signal -> {
-
                         try {
-                            action.exec(taskDto, item.getDevice(), signal, l -> {});
+                            data.setAddress(signal.getAddress());
+                            action.exec(taskDto, item.getDevice(), signal, value -> {
+                                data.setValue(value);
+                            });
                         } catch (Exception e) {
                             logger.error("采集任务失败 接口调用异常 - 任务: {} - 周期: {} - 设备: {}({}) - 点位: {}({})"
                                     , e.getMessage(), taskDto.getName(), taskDto.getCron()
