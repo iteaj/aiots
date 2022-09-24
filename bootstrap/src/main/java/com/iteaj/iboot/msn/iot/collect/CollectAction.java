@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.iot.collect;
 
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
+import com.iteaj.iboot.msn.iot.entity.Device;
 import com.iteaj.iboot.msn.iot.entity.Signal;
 
 import java.util.function.Consumer;
@@ -17,7 +18,7 @@ public abstract class CollectAction {
      * @param call
      * @param <T>
      */
-    public <T> void exec(CollectTaskDto taskDto, Signal signal, Consumer<T> call) {
+    public <T> void exec(CollectTaskDto taskDto, Device device, Signal signal, Consumer<T> call) {
 
     }
 }

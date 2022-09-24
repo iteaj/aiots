@@ -17,7 +17,6 @@ import java.util.Date;
  * @since 2022-08-28
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_collect_task")
 public class CollectTask extends BaseEntity {
@@ -63,6 +62,5 @@ public class CollectTask extends BaseEntity {
      * 更新时间
      */
     private Date updateTime;
-
 
 }

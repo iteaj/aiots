@@ -1,17 +1,22 @@
 package com.iteaj.iboot.msn.iot.collect;
 
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
-import com.iteaj.iboot.msn.iot.entity.CollectEntity;
-import com.iteaj.iot.plc.siemens.SiemensS7Protocol;
+import com.iteaj.iboot.msn.iot.entity.CollectData;
+import com.iteaj.iboot.msn.iot.service.ICollectDataService;
 import com.iteaj.iot.utils.UniqueIdGen;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class CollectTask implements Runnable {
 
     private CollectTaskDto taskDto;
+    private Logger logger = LoggerFactory.getLogger("IOT:DATA:COLLECT");
 
     public CollectTask(CollectTaskDto taskDto) {
         this.taskDto = taskDto;
@@ -19,34 +24,35 @@ public class CollectTask implements Runnable {
 
     @Override
     public void run() {
-        long cid = UniqueIdGen.nextLong();
-        taskDto.getSignals().forEach(signal -> {
-//            SiemensS7Protocol protocol = new SiemensS7Protocol(properties);
-//            String type = signal.getFieldType();
-//            Object value = null;
-//            switch (type) {
-////                    case "1":
-////                        value = protocol.read()
-//                case "2":
-//                    value = protocol.readInt16(signal.getAddress()); break;
-//                case "3":
-//                    value = protocol.readInt32(signal.getAddress()); break;
-//                case "4":
-//                    value = protocol.readInt64(signal.getAddress()); break;
-//                case "5":
-//                    value = protocol.readFloat(signal.getAddress()); break;
-//                case "6":
-//                    value = protocol.readDouble(signal.getAddress()); break;
-//                case "7":
-//                    value = protocol.readBool(signal.getAddress()); break;
-//            }
+        if(taskDto != null && !CollectionUtils.isEmpty(taskDto.getDetails())) {
+            long cid = UniqueIdGen.nextLong();
+            List<CollectData> values = new ArrayList<>();
+            taskDto.getDetails().forEach(item -> {
+                CollectData data = new CollectData();
+                CollectAction action = CollectActionFactory.getInstance().get(item.toString());
+                if(action != null) {
+                    item.getSignals().forEach(signal -> {
 
-            // 保存记录到mongo
-//            CollectEntity collectEntity = new CollectEntity().setCid(cid).setCollectTime(new Date())
-//                    .setUid(device.getUid()).setDeviceSn(device.getDeviceSn()).setValue(value)
-//                    .setSignalId(signal.getId()).setTaskId(taskDto.getId()).setAddress(signal.getAddress());
-//
-//            System.out.println(collectEntity);
-        });
+                        try {
+                            action.exec(taskDto, item.getDevice(), signal, l -> {});
+                        } catch (Exception e) {
+                            logger.error("采集任务失败 接口调用异常 - 任务: {} - 周期: {} - 设备: {}({}) - 点位: {}({})"
+                                    , e.getMessage(), taskDto.getName(), taskDto.getCron()
+                                    , item.getDevice().getName(), item.getDevice().getUid()
+                                    , signal.getName(), signal.getAddress(), e);
+                        }
+                    });
+                } else {
+
+                }
+
+                values.add(data);
+            });
+
+
+        } else {
+            logger.error("采集任务失败 任务不存在");
+        }
+
     }
 }
