@@ -18,6 +18,8 @@ public abstract class CollectAction {
      * @param call
      */
     public void exec(CollectTaskDto taskDto, Device device, Signal signal, Consumer<String> call) throws CollectException {
-
+        if(device == null || signal == null) {
+            throw new CollectException("");
+        }
     }
 }

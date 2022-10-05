@@ -10,15 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
-public class CollectTask implements Runnable {
+public class CollectActionTask implements Runnable {
 
     private CollectTaskDto taskDto;
     private Logger logger = LoggerFactory.getLogger("IOT:DATA:COLLECT");
 
-    public CollectTask(CollectTaskDto taskDto) {
+    public CollectActionTask(CollectTaskDto taskDto) {
         this.taskDto = taskDto;
     }
 
@@ -31,16 +32,19 @@ public class CollectTask implements Runnable {
                 CollectData data = new CollectData()
                         .setCid(cid)
                         .setUid(item.getUid())
+                        .setCollectTime(new Date())
                         .setCollectTaskId(taskDto.getId());
                 CollectAction action = CollectActionFactory.getInstance().get(item.toString());
                 if(action != null) {
                     item.getSignals().forEach(signal -> {
                         try {
-                            data.setAddress(signal.getAddress());
+                            data.setAddress(signal.getAddress()).setFieldType(signal.getFieldType());
                             action.exec(taskDto, item.getDevice(), signal, value -> {
-                                data.setValue(value);
+                                // 设置采集的值和采集时间
+                                data.setValue(value).setCollectTime(new Date()).setStatus(true);
                             });
                         } catch (Exception e) {
+                            data.setStatus(false).setReason(e.getMessage());
                             logger.error("采集任务失败 接口调用异常 - 任务: {} - 周期: {} - 设备: {}({}) - 点位: {}({})"
                                     , e.getMessage(), taskDto.getName(), taskDto.getCron()
                                     , item.getDevice().getName(), item.getDevice().getUid()
@@ -48,7 +52,7 @@ public class CollectTask implements Runnable {
                         }
                     });
                 } else {
-
+                    data.setStatus(false).setReason("没有设置采集动作");
                 }
 
                 values.add(data);

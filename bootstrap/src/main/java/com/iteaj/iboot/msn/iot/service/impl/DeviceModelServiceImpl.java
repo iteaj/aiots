@@ -5,7 +5,6 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.iboot.msn.iot.entity.DeviceModel;
 import com.iteaj.iboot.msn.iot.entity.PointGroup;
-import com.iteaj.iboot.msn.iot.entity.Signal;
 import com.iteaj.iboot.msn.iot.mapper.DeviceModelMapper;
 import com.iteaj.iboot.msn.iot.service.IDeviceModelService;
 import com.iteaj.framework.BaseServiceImpl;

@@ -23,6 +23,11 @@ public class CollectData extends BaseEntity {
     private Long uid;
 
     /**
+     * 信号id
+     */
+    private Long signalId;
+
+    /**
      * 值类型
      */
     private Integer fieldType;

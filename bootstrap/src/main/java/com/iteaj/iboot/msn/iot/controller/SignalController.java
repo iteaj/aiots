@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.iboot.msn.iot.entity.Signal;
 import com.iteaj.iboot.msn.iot.service.ISignalService;
 import com.iteaj.framework.BaseController;
 
