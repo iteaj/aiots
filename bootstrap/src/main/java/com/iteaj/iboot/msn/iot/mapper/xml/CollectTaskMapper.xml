@@ -15,27 +15,13 @@
         <result column="point_group_id" property="pointGroupId" />
     </resultMap>
     <resultMap id="CollectTaskDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="BaseResultMap">
-        <result property="typeId" column="device_type_id" />
-        <result property="modelId" column="model_id" />
-        <result property="modelName" column="model_name" />
-        <result property="deviceName" column="device_name" />
+
     </resultMap>
     <resultMap id="signalDetailDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="CollectTaskDtoMap">
-        <association property="device">
-            <result property="deviceSn" column="device_sn" />
-            <result property="name" column="device_name" />
-            <result property="ip" column="ip" />
-            <result property="port" column="port" />
-            <result property="uid" column="uid" />
-        </association>
-        <collection property="signals" column="groupId=point_group_id" ofType="com.iteaj.iboot.msn.iot.entity.Signal"
-                    select="com.iteaj.iboot.msn.iot.mapper.SignalMapper.listByGroupId" />
+
     </resultMap>
     <select id="detailOfPage" resultMap="CollectTaskDtoMap">
-        select a.id, a.uid, a.name, a.cron, a.point_group_id, a.status, a.remark, a.create_time, a.update_time
-             , d.device_type_id, d.name device_name, d.model model_id, dm.model model_name from iot_collect_task a
-            left join iot_device d on a.uid = d.uid
-            left join iot_device_model dm on d.model=dm.id
+        select a.id, a.name, a.cron, a.status, a.remark, a.create_time, a.update_time from iot_collect_task a
         <where>
             <if test="entity.typeId!=null">
                 and d.device_type_id=#{entity.typeId}
@@ -52,16 +38,12 @@
         </where>
     </select>
     <select id="detailById" resultMap="CollectTaskDtoMap">
-        select a.id, a.uid, a.name, a.cron, a.point_group_id, a.status, a.remark, a.create_time, a.update_time
-             , d.device_type_id, d.model model_id, d.name device_name from iot_collect_task a
-            left join iot_device d on a.uid = d.uid
+        select a.id, a.name, a.cron, a.status, a.remark, a.create_time, a.update_time from iot_collect_task a
         where a.id=#{id}
     </select>
 
     <select id="signalsDetailById" resultMap="signalDetailDtoMap">
-        select a.*, d.ip, d.port, d.name device_name, d.device_sn from iot_collect_task a
-            left join iot_device d on a.uid=d.uid
-        where a.id=#{id}
+        select a.* from iot_collect_task a where a.id=#{id}
     </select>
 
 </mapper>

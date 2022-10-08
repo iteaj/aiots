@@ -1,9 +1,18 @@
 package com.iteaj.iboot.msn.iot.collect;
 
+import com.iteaj.iboot.msn.iot.collect.action.CollectAction;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CollectActionFactory {
+public class CollectActionFactory implements InitializingBean {
+
+    @Autowired(required = false)
+    private List<CollectAction> actions;
 
     protected CollectActionFactory() { }
 
@@ -49,5 +58,14 @@ public class CollectActionFactory {
      */
     public CollectAction register(String actionName, CollectAction collectAction) {
         return actionMap.putIfAbsent(actionName, collectAction);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if(!CollectionUtils.isEmpty(actions)) {
+            this.actions.forEach(item -> {
+//                if(item.)
+            });
+        }
     }
 }

@@ -44,16 +44,6 @@ public class CollectTask extends BaseEntity {
     private String remark;
 
     /**
-     * 采集的设备
-     */
-    private Long uid;
-
-    /**
-     * 所属点位组
-     */
-    private Long pointGroupId;
-
-    /**
      * 创建时间
      */
     private Date createTime;
