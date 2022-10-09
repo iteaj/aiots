@@ -51,9 +51,9 @@ public class Signal extends BaseEntity {
     private String fieldName;
 
     /**
-     * 字段类型(int、float、...)
+     * 字段类型(字典 iot_field_type)
      */
-    private String fieldType;
+    private Integer fieldType;
 
     private Date createTime;
 

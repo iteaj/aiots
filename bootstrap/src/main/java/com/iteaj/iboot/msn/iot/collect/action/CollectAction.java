@@ -13,6 +13,18 @@ import java.util.function.Consumer;
 public abstract class CollectAction {
 
     /**
+     * 采集动作名称
+     * @return
+     */
+    public abstract String getName();
+
+    /**
+     * 采集动作说明
+     * @return
+     */
+    public abstract String getDesc();
+
+    /**
      * 执行调用
      * @param taskDto 任务
      * @param signal

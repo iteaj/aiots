@@ -40,9 +40,7 @@ public class CollectActionTask implements Runnable {
                     item.getSignals().forEach(signal -> {
                         try {
                             data.setAddress(signal.getAddress());
-                            if(StringUtils.hasText(signal.getFieldType())) {
-                                data.setFieldType(Integer.valueOf(signal.getFieldType()));
-                            }
+                            data.setFieldType(signal.getFieldType());
 
                             action.exec(taskDto, item.getDevice(), signal, value -> {
                                 // 设置采集的值和采集时间

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
@@ -58,6 +59,12 @@ public class Device extends BaseEntity {
      * 设备型号
      */
     private Integer model;
+
+    /**
+     * 型号名称
+     */
+    @TableField(exist = false)
+    private String modelName;
 
     /**
      * 设备状态
