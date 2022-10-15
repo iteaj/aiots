@@ -3,6 +3,7 @@ package com.iteaj.iboot.msn.iot.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -18,6 +19,11 @@ public class CollectDetail extends BaseEntity {
      * 设备uid
      */
     private Long uid;
+
+    /**
+     * 采集动作
+     */
+    private String action;
 
     /**
      * 采集任务id
@@ -38,7 +44,7 @@ public class CollectDetail extends BaseEntity {
      * 采集设备
      */
     @TableField(exist = false)
-    private Device device;
+    private DeviceDto device;
 
     /**
      * 组点位列表

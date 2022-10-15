@@ -3,6 +3,7 @@ package com.iteaj.iboot.msn.iot.collect.action;
 import com.iteaj.iboot.msn.iot.collect.CollectException;
 import com.iteaj.iboot.msn.iot.consts.IotConsts;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
+import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.Device;
 import com.iteaj.iboot.msn.iot.entity.Signal;
 import com.iteaj.iot.consts.ExecStatus;
@@ -31,24 +32,31 @@ public class SiemensCollectAction extends CollectAction {
     }
 
     @Override
-    protected void doExec(CollectTaskDto taskDto, Device device, Signal signal, Consumer<String> call) {
+    public void validate(Signal signal) {
+        super.validate(signal);
+    }
+
+    @Override
+    public void validate(DeviceDto device) {
+        super.validate(device);
+
         if(StringUtils.hasText(device.getIp()) || device.getPort() == null) {
-            throw new CollectException("设备["+device.getDeviceSn()+"]没有指定ip或者端口号");
+            throw new CollectException("PLC设备["+device.getDeviceSn()+"]没有指定ip或者端口号");
         }
 
-        String address = signal.getAddress();
-        if(!StringUtils.hasText(address)) {
-            throw new CollectException("设备["+device.getDeviceSn()+"]没有指定点位["+signal.getName()+"]地址");
-        }
-
-        SiemensModel model;
         try {
-            model = SiemensModel.valueOf(device.getModelName());
+            SiemensModel.valueOf(device.getModelName());
         } catch (Exception e) {
             throw new CollectException("西门子设备["+device.getDeviceSn()+"]型号错误["+device.getModelName()+"]");
         }
+    }
+
+    @Override
+    protected void doExec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call) {
 
         Object value = "";
+        String address = signal.getAddress();
+        SiemensModel model = SiemensModel.valueOf(device.getModelName());
         SiemensS7Protocol protocol = new SiemensS7Protocol(new SiemensConnectProperties(device.getIp(), device.getPort(), model));
         Integer fieldType = signal.getFieldType();
         switch (fieldType) {

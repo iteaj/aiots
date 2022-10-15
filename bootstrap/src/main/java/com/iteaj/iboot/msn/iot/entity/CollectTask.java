@@ -44,6 +44,11 @@ public class CollectTask extends BaseEntity {
     private String remark;
 
     /**
+     * 任务失败的原因
+     */
+    private String reason;
+
+    /**
      * 创建时间
      */
     private Date createTime;

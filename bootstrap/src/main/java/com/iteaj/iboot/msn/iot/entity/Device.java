@@ -1,10 +1,7 @@
 package com.iteaj.iboot.msn.iot.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
-
+import com.iteaj.framework.BaseEntity;
 import com.iteaj.iboot.msn.iot.consts.DeviceStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,6 +9,7 @@ import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * <p>
@@ -59,12 +57,6 @@ public class Device extends BaseEntity {
      * 设备型号
      */
     private Integer model;
-
-    /**
-     * 型号名称
-     */
-    @TableField(exist = false)
-    private String modelName;
 
     /**
      * 设备状态

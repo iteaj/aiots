@@ -5,14 +5,13 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.msn.iot.entity.CollectTask">
         <result column="id" property="id" />
-        <result column="uid" property="uid" />
         <result column="name" property="name" />
         <result column="cron" property="cron" />
+        <result column="reason" property="reason" />
         <result column="status" property="status" />
         <result column="remark" property="remark" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
-        <result column="point_group_id" property="pointGroupId" />
     </resultMap>
     <resultMap id="CollectTaskDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="BaseResultMap">
 

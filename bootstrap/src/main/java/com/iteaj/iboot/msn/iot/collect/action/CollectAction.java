@@ -2,8 +2,10 @@ package com.iteaj.iboot.msn.iot.collect.action;
 
 import com.iteaj.iboot.msn.iot.collect.CollectException;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
+import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.Device;
 import com.iteaj.iboot.msn.iot.entity.Signal;
+import org.springframework.util.StringUtils;
 
 import java.util.function.Consumer;
 
@@ -25,18 +27,35 @@ public abstract class CollectAction {
     public abstract String getDesc();
 
     /**
+     * 点位数据校验
+     * @param signal
+     */
+    public void validate(Signal signal) throws CollectException {
+        String address = signal.getAddress();
+        if(!StringUtils.hasText(address)) {
+            throw new CollectException("点位["+signal.getName()+"]没有指定地址");
+        }
+    }
+
+    /**
+     * 设备数据校验
+     * @param device
+     */
+    public void validate(DeviceDto device) throws CollectException {
+        if(device == null) {
+            throw new CollectException("参数[device]不能为null");
+        }
+    }
+
+    /**
      * 执行调用
      * @param taskDto 任务
      * @param signal
      * @param call
      */
-    public void exec(CollectTaskDto taskDto, Device device, Signal signal, Consumer<String> call) throws CollectException {
-        if(device == null || signal == null) {
-            throw new CollectException("设备或点位不存在");
-        }
-
+    public void exec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call) throws CollectException {
         doExec(taskDto, device, signal, call);
     }
 
-    protected abstract void doExec(CollectTaskDto taskDto, Device device, Signal signal, Consumer<String> call);
+    protected abstract void doExec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call);
 }

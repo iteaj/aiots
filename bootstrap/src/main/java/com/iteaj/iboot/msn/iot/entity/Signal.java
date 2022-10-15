@@ -41,6 +41,11 @@ public class Signal extends BaseEntity {
     private Long typeId;
 
     /**
+     * 自定义报文
+     */
+    private String message;
+
+    /**
      * 型号id
      */
     private Integer modelId;

@@ -8,7 +8,6 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,8 +65,6 @@ public class CollectActionTask implements Runnable {
 
                 values.add(data);
             });
-
-
         } else {
             logger.error("采集任务失败 任务不存在");
         }
