@@ -5,6 +5,7 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +33,10 @@ public class CollectActionFactory implements InitializingBean {
      * @return
      */
     public CollectAction get(String actionName) {
+        if(!StringUtils.hasText(actionName)) {
+            return null;
+        }
+
         return actionMap.get(actionName);
     }
 

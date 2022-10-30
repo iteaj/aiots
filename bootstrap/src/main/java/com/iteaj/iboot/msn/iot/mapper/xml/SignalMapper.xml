@@ -6,6 +6,8 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.msn.iot.entity.Signal">
         <result column="id" property="id" />
         <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="encode" property="encode" />
         <result column="address" property="address" />
         <result column="message" property="message" />
         <result column="type_id" property="typeId" />
@@ -16,7 +18,8 @@
     </resultMap>
 
     <select id="detailByPage" resultMap="BaseResultMap">
-        select a.id, a.name, a.address, a.model_id, a.field_name, a.field_type, a.create_time, idm.type_id from iot_signal a
+        select a.id, a.name, a.address, a.model_id, a.field_name, a.field_type, a.create_time
+             , a.message, a.encode, a.type, idm.type_id from iot_signal a
             left join iot_device_model idm on a.model_id = idm.id
         <where>
             <if test="entity.typeId!=null">
@@ -34,4 +37,8 @@
         </where>
     </select>
 
+
+    <select id="collectByPointGroupId" resultMap="BaseResultMap">
+        select * from iot_signal a left join iot_group_point g on g.signal_id=a.id where g.group_id=#{groupId}
+    </select>
 </mapper>

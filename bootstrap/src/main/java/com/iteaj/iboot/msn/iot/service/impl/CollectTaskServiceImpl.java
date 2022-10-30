@@ -34,7 +34,7 @@ public class CollectTaskServiceImpl extends BaseServiceImpl<CollectTaskMapper, C
     }
 
     @Override
-    public CollectTaskDto signalsDetailById(Long id) {
-        return getBaseMapper().signalsDetailById(id);
+    public CollectTaskDto collectDetailById(Long id) {
+        return getBaseMapper().collectDetailById(id);
     }
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -41,9 +42,19 @@ public class Signal extends BaseEntity {
     private Long typeId;
 
     /**
+     * 信号类型(1. 点位 2. 自定义报文)
+     */
+    private Integer type;
+
+    /**
      * 自定义报文
      */
     private String message;
+
+    /**
+     * 报文编码(HEX, UTF8, ASCII)
+     */
+    private String encode;
 
     /**
      * 型号id

@@ -22,5 +22,5 @@ public interface ICollectTaskService extends IBaseService<CollectTask> {
 
     DetailResult<CollectTaskDto> detailById(Long id);
 
-    CollectTaskDto signalsDetailById(Long id);
+    CollectTaskDto collectDetailById(Long id);
 }

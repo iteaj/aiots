@@ -26,6 +26,11 @@ public class CollectDetail extends BaseEntity {
     private String action;
 
     /**
+     * 子设备
+     */
+    private String childSn;
+
+    /**
      * 采集任务id
      */
     private Long collectTaskId;

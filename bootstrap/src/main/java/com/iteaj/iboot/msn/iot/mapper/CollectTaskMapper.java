@@ -20,5 +20,5 @@ public interface CollectTaskMapper extends BaseMapper<CollectTask> {
 
     CollectTaskDto detailById(Long id);
 
-    CollectTaskDto signalsDetailById(Long id);
+    CollectTaskDto collectDetailById(Long id);
 }

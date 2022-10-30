@@ -16,10 +16,10 @@
         <result column="update_time" property="updateTime" />
         <result column="device_type_id" property="deviceTypeId" />
     </resultMap>
-    <resultMap id="DtoMap" type="com.iteaj.iboot.msn.iot.dto.DeviceDto" extends="BasicMap">
+    <resultMap id="DeviceDtoMap" type="com.iteaj.iboot.msn.iot.dto.DeviceDto" extends="BasicMap">
         <result property="modelName" column="model_name" />
     </resultMap>
-    <select id="pageOfDetail" resultMap="DtoMap">
+    <select id="pageOfDetail" resultMap="DeviceDtoMap">
         select a.*, idm.model model_name from iot_device a
             left join iot_device_type idt on a.device_type_id=idt.id
             left join iot_device_model idm on a.model=idm.id
@@ -46,4 +46,7 @@
         select count(1) today, count(status='online' or null) online from iot_device
     </select>
 
+    <select id="getByUid" resultMap="DeviceDtoMap">
+        select * from iot_device where uid=#{uid}
+    </select>
 </mapper>

@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.iboot.msn.iot.collect.action.CollectAction;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
-import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.CollectTask;
 import com.iteaj.iboot.msn.iot.service.ICollectTaskService;
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Iterator;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
@@ -37,8 +36,8 @@ public class CollectService implements InitializingBean {
         this.collectTaskService = collectTaskService;
     }
 
-    public void statusSwitch(Long id, String status) {
-        CollectTaskDto taskDto = collectTaskService.signalsDetailById(id);
+    public void statusSwitch(Long id, String status) throws CollectException{
+        CollectTaskDto taskDto = collectTaskService.collectDetailById(id);
 
         if(taskDto == null) {
             throw new ServiceException("采集任务不存在");
@@ -73,14 +72,14 @@ public class CollectService implements InitializingBean {
         collectTaskService.update(Wrappers.<CollectTask>lambdaUpdate()
                 .set(CollectTask::getStatus, status)
                 .set(CollectTask::getReason, "")
+                .set(CollectTask::getUpdateTime, new Date())
                 .eq(CollectTask::getId, id));
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         collectTaskService.list(Wrappers.<CollectTask>lambdaQuery().eq(CollectTask::getStatus, "run"))
-                .stream().filter(task -> StringUtils.hasText(task.getCron()))
-                    .map(item -> collectTaskService.signalsDetailById(item.getId()))
+                .stream().map(item -> collectTaskService.collectDetailById(item.getId()))
                     .filter(item -> item != null && !CollectionUtils.isEmpty(item.getDetails()))
                     .map(item -> validateTask(item))
                     .filter(item -> item instanceof CollectTaskDto) // 校验之后重新过滤
@@ -89,6 +88,15 @@ public class CollectService implements InitializingBean {
 
     private Object validateTask(CollectTaskDto taskDto) {
         try {
+            if(!StringUtils.hasText(taskDto.getCron())) {
+                collectTaskService.update(Wrappers.<CollectTask>lambdaUpdate()
+                        .set(CollectTask::getStatus, "fail")
+                        .set(CollectTask::getReason, "没有配置cron")
+                        .eq(CollectTask::getId, taskDto.getId()));
+
+                return "没有配置cron";
+            }
+
             taskDto.getDetails().forEach(item -> {
                 String reason = null;
                 if(item.getDevice() == null) {
@@ -101,20 +109,21 @@ public class CollectService implements InitializingBean {
 
                 CollectAction collectAction = actionFactory.get(item.getAction());
                 if(collectAction == null) {
-                    reason = "没有可用的采集动作["+item.getAction()+"]";
-                }
-
-                try {
-                    collectAction.validate(item.getDevice());
-                    item.getSignals().forEach(signal -> collectAction.validate(signal));
-                } catch (CollectException e) {
-                    reason = e.getMessage();
+                    reason = "没有可用的采集动作[action="+item.getAction()+"]";
+                } else {
+                    try {
+                        collectAction.validate(item.getDevice());
+                        item.getSignals().forEach(signal -> collectAction.validate(signal));
+                    } catch (CollectException e) {
+                        reason = e.getMessage();
+                    }
                 }
 
                 if(reason != null) {
                     collectTaskService.update(Wrappers.<CollectTask>lambdaUpdate()
                             .set(CollectTask::getStatus, "fail")
                             .set(CollectTask::getReason, reason)
+                            .set(CollectTask::getUpdateTime, null)
                             .eq(CollectTask::getId, taskDto.getId()));
 
                     throw new CollectException(reason);

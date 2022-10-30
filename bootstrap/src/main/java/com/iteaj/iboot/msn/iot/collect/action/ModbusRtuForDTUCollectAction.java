@@ -34,14 +34,15 @@ public class ModbusRtuForDTUCollectAction extends CollectAction {
     @Override
     public void validate(DeviceDto device) {
         super.validate(device);
-
-        if(!StringUtils.hasText(device.getDeviceSn())) {
-            throw new CollectException("未指定设备编号");
-        }
     }
 
     @Override
     protected void doExec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call) {
-//        ModbusRtuForDtuCommonProtocol.buildRead02(device.getDeviceSn(), ).request();
+        Integer type = signal.getFieldType();
+        switch (type) {
+            case 7:
+//                ModbusRtuForDtuCommonProtocol.buildRead01(device.getDeviceSn(), ).request();
+                break;
+        }
     }
 }

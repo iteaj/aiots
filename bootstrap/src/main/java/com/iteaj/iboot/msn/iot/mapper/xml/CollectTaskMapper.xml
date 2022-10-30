@@ -16,18 +16,24 @@
     <resultMap id="CollectTaskDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="BaseResultMap">
 
     </resultMap>
-    <resultMap id="signalDetailDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="CollectTaskDtoMap">
-
+    <resultMap id="CollectDetailMap" type="com.iteaj.iboot.msn.iot.entity.CollectDetail">
+        <result property="id" column="did" />
+        <result property="uid" column="uid" />
+        <result property="childSn" column="child_sn" />
+        <result property="collectTaskId" column="collect_task_id" />
+        <result property="pointGroupId" column="point_group_id" />
+        <association property="device" javaType="com.iteaj.iboot.msn.iot.entity.Device"
+                     select="com.iteaj.iboot.msn.iot.mapper.DeviceMapper.getByUid" column="uid=uid"/>
+        <collection property="signals" select="com.iteaj.iboot.msn.iot.mapper.SignalMapper.collectByPointGroupId"
+                    ofType="com.iteaj.iboot.msn.iot.entity.Signal" column="groupId=did" />
     </resultMap>
-    <select id="detailOfPage" resultMap="CollectTaskDtoMap">
-        select a.id, a.name, a.cron, a.status, a.remark, a.create_time, a.update_time from iot_collect_task a
+
+    <resultMap id="collectDetailDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="CollectTaskDtoMap">
+        <collection property="details" ofType="com.iteaj.iboot.msn.iot.entity.CollectDetail" resultMap="CollectDetailMap"/>
+    </resultMap>
+    <select id="detailOfPage" resultMap="BaseResultMap">
+        select a.* from iot_collect_task a
         <where>
-            <if test="entity.typeId!=null">
-                and d.device_type_id=#{entity.typeId}
-            </if>
-            <if test="entity.modelId!=null">
-                and d.model=#{entity.modelId}
-            </if>
             <if test="entity.status!=null and entity.status!=''">
                 and a.status=#{entity.status}
             </if>
@@ -41,8 +47,10 @@
         where a.id=#{id}
     </select>
 
-    <select id="signalsDetailById" resultMap="signalDetailDtoMap">
-        select a.* from iot_collect_task a where a.id=#{id}
+    <select id="collectDetailById" resultMap="collectDetailDtoMap">
+        select a.*, d.id did, d.uid, d.child_sn, d.point_group_id, d.collect_task_id from iot_collect_task a
+            left join iot_collect_detail d on a.id=d.collect_task_id
+        where a.id=#{id}
     </select>
 
 </mapper>

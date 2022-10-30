@@ -45,6 +45,10 @@ public abstract class CollectAction {
         if(device == null) {
             throw new CollectException("参数[device]不能为null");
         }
+
+        if(!StringUtils.hasText(device.getDeviceSn())) {
+            throw new CollectException("未指定设备编号");
+        }
     }
 
     /**
