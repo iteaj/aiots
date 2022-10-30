@@ -2,21 +2,28 @@ package com.iteaj.iboot.msn.iot;
 
 import com.iteaj.iboot.msn.iot.collect.CollectActionFactory;
 import com.iteaj.iboot.msn.iot.collect.action.*;
+import com.iteaj.iboot.msn.iot.collect.store.RDBMStoreAction;
+import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
 import com.iteaj.iot.plc.omron.OmronComponent;
 import com.iteaj.iot.plc.siemens.SiemensS7Component;
 import com.iteaj.iot.server.dtu.impl.CommonDtuServerComponent;
+import com.iteaj.iot.tools.db.rdbms.RdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @Profile("iot")
 @ComponentScan({"com.iteaj.iboot.msn.iot"})
 @MapperScan({"com.iteaj.iboot.msn.iot.mapper"})
+@AutoConfigureAfter(JdbcTemplateAutoConfiguration.class)
 public class IotAutoConfiguration {
 
     /**
@@ -97,5 +104,26 @@ public class IotAutoConfiguration {
     @Bean
     public CollectActionFactory collectActionFactory() {
         return CollectActionFactory.getInstance();
+    }
+
+    @Bean
+    @ConditionalOnBean(JdbcTemplate.class)
+    public RdbmsSqlManager rdbmsSqlManager(JdbcTemplate jdbcTemplate) {
+        return new RdbmsSqlManager(jdbcTemplate);
+    }
+
+    /**
+     * 关系型数据库采集存储
+     * @return
+     */
+    @Bean
+    @ConditionalOnBean(RdbmsSqlManager.class)
+    public RDBMStoreAction rdbmStoreAction() {
+        return new RDBMStoreAction();
+    }
+
+    @Bean
+    public StoreActionFactory storeActionFactory() {
+        return StoreActionFactory.getInstance();
     }
 }

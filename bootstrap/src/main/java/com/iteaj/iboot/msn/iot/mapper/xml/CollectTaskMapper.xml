@@ -20,6 +20,8 @@
         <result property="id" column="did" />
         <result property="uid" column="uid" />
         <result property="childSn" column="child_sn" />
+        <result property="storeAction" column="store_action" />
+        <result property="collectAction" column="collect_action" />
         <result property="collectTaskId" column="collect_task_id" />
         <result property="pointGroupId" column="point_group_id" />
         <association property="device" javaType="com.iteaj.iboot.msn.iot.entity.Device"

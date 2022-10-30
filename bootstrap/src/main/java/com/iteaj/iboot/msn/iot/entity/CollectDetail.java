@@ -23,7 +23,12 @@ public class CollectDetail extends BaseEntity {
     /**
      * 采集动作
      */
-    private String action;
+    private String collectAction;
+
+    /**
+     * 存储动作
+     */
+    private String storeAction;
 
     /**
      * 子设备

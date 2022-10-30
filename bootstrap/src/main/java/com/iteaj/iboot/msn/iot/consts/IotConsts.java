@@ -28,6 +28,8 @@ public interface IotConsts {
      */
     String COLLECT_ACTION_MODBUS_DTU_TCP = "MODBUS:DTU:TCP";
 
+    String STORE_ACTION_RDBMS = "STORE:RDBMS";
+
     int FIELD_TYPE_BYTE = 1;
 
     int FIELD_TYPE_SHORT = 2;

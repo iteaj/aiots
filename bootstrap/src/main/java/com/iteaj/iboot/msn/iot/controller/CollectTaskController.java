@@ -4,7 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.iot.collect.CollectActionFactory;
+import com.iteaj.iboot.msn.iot.collect.CollectException;
+import com.iteaj.iboot.msn.iot.collect.CollectOption;
 import com.iteaj.iboot.msn.iot.collect.CollectService;
+import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.msn.iot.entity.CollectTask;
 import com.iteaj.iboot.msn.iot.service.ICollectTaskService;
@@ -28,10 +32,14 @@ public class CollectTaskController extends BaseController {
 
     private final CollectService collectService;
     private final ICollectTaskService collectTaskService;
-
-    public CollectTaskController(CollectService collectService, ICollectTaskService collectTaskService) {
+    private final StoreActionFactory storeActionFactory;
+    private final CollectActionFactory collectActionFactory;
+    public CollectTaskController(CollectService collectService, ICollectTaskService collectTaskService
+            , StoreActionFactory storeActionFactory, CollectActionFactory collectActionFactory) {
         this.collectService = collectService;
         this.collectTaskService = collectTaskService;
+        this.storeActionFactory = storeActionFactory;
+        this.collectActionFactory = collectActionFactory;
     }
 
     /**
@@ -86,8 +94,30 @@ public class CollectTaskController extends BaseController {
     @PostMapping("/status")
     @RequiresPermissions({"iot:collectTask:status"})
     public Result<Boolean> status(@RequestBody CollectTask entity) {
-        collectService.statusSwitch(entity.getId(), entity.getStatus());
+        try {
+            collectService.statusSwitch(entity.getId(), entity.getStatus());
+        } catch (CollectException e) {
+            return Result.fail(e.getMessage());
+        }
         return success();
+    }
+
+    /**
+     * 采集动作
+     * @return
+     */
+    @GetMapping("collectActions")
+    public Result<List<CollectOption>> collectActions() {
+        return success(collectActionFactory.options());
+    }
+
+    /**
+     * 存储动作
+     * @return
+     */
+    @GetMapping("storeActions")
+    public Result<List<CollectOption>> storeActions() {
+        return success(storeActionFactory.options());
     }
 }
 

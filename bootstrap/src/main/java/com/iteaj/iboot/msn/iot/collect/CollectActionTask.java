@@ -1,6 +1,8 @@
 package com.iteaj.iboot.msn.iot.collect;
 
 import com.iteaj.iboot.msn.iot.collect.action.CollectAction;
+import com.iteaj.iboot.msn.iot.collect.store.StoreAction;
+import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.msn.iot.entity.CollectData;
 import com.iteaj.iot.utils.UniqueIdGen;
@@ -63,7 +65,13 @@ public class CollectActionTask implements Runnable {
                     data.setStatus(false).setReason("没有设置采集动作");
                 }
 
-                values.add(data);
+                // 存储
+                if(!CollectionUtils.isEmpty(values)) {
+                    StoreAction storeAction = StoreActionFactory.getInstance().get(item.getStoreAction());
+                    if(storeAction != null) {
+                        storeAction.store(values);
+                    }
+                }
             });
         } else {
             logger.error("采集任务失败 任务不存在");

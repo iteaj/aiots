@@ -1,5 +1,7 @@
 package com.iteaj.iboot.msn.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -30,6 +32,7 @@ public class DeviceModel extends BaseEntity {
     /**
      * 型号
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String model;
 
     /**

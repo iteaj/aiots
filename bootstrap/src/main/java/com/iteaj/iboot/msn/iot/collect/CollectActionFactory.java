@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class CollectActionFactory implements InitializingBean {
 
@@ -91,6 +92,12 @@ public class CollectActionFactory implements InitializingBean {
      */
     public CollectAction register(CollectAction collectAction) {
         return actionMap.putIfAbsent(collectAction.getName(), collectAction);
+    }
+
+    public List<CollectOption> options() {
+        return this.actionMap.values().stream()
+                .map(item -> new CollectOption(item.getDesc(), item.getName()))
+                .collect(Collectors.toList());
     }
 
     @Override

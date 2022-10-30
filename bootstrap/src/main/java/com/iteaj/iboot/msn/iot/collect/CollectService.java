@@ -3,6 +3,7 @@ package com.iteaj.iboot.msn.iot.collect;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.iboot.msn.iot.collect.action.CollectAction;
+import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.msn.iot.entity.CollectTask;
 import com.iteaj.iboot.msn.iot.service.ICollectTaskService;
@@ -20,19 +21,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
+/**
+ * 数据采集服务
+ */
 @Service
 public class CollectService implements InitializingBean {
 
     private final CollectActionFactory actionFactory;
     private final ThreadPoolTaskScheduler scheduler;
+    private final StoreActionFactory storeActionFactory;
     private final ICollectTaskService collectTaskService;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Long, ScheduledFuture> scheduledFutureMap = new ConcurrentHashMap<>();
 
     public CollectService(CollectActionFactory actionFactory, ThreadPoolTaskScheduler scheduler
-            , ICollectTaskService collectTaskService) {
+            , StoreActionFactory storeActionFactory, ICollectTaskService collectTaskService) {
         this.actionFactory = actionFactory;
         this.scheduler = scheduler;
+        this.storeActionFactory = storeActionFactory;
         this.collectTaskService = collectTaskService;
     }
 
@@ -107,9 +113,9 @@ public class CollectService implements InitializingBean {
                     reason = "没有配置采集点位";
                 }
 
-                CollectAction collectAction = actionFactory.get(item.getAction());
+                CollectAction collectAction = actionFactory.get(item.getCollectAction());
                 if(collectAction == null) {
-                    reason = "没有可用的采集动作[action="+item.getAction()+"]";
+                    reason = "没有可用的采集动作[action="+item.getCollectAction()+"]";
                 } else {
                     try {
                         collectAction.validate(item.getDevice());
