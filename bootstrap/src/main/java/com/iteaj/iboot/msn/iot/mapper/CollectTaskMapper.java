@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.CollectTask;
 
 /**
@@ -21,4 +22,6 @@ public interface CollectTaskMapper extends BaseMapper<CollectTask> {
     CollectTaskDto detailById(Long id);
 
     CollectTaskDto collectDetailById(Long id);
+
+    Page<CollectDetail> collectDetailPageById(Page page, Long id);
 }

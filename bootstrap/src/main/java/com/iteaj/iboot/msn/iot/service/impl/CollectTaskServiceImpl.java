@@ -7,6 +7,7 @@ import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.CollectTask;
 import com.iteaj.iboot.msn.iot.mapper.CollectTaskMapper;
 import com.iteaj.iboot.msn.iot.service.ICollectTaskService;
@@ -36,5 +37,11 @@ public class CollectTaskServiceImpl extends BaseServiceImpl<CollectTaskMapper, C
     @Override
     public CollectTaskDto collectDetailById(Long id) {
         return getBaseMapper().collectDetailById(id);
+    }
+
+    @Override
+    public PageResult<Page<CollectDetail>> collectDetailPageById(Page page, Long id) {
+        Page<CollectDetail> detailPage = this.baseMapper.collectDetailPageById(page, id);
+        return new PageResult<>(detailPage);
     }
 }

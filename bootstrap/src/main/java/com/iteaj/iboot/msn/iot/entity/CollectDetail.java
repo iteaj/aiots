@@ -21,6 +21,12 @@ public class CollectDetail extends BaseEntity {
     private Long uid;
 
     /**
+     * 设备名称
+     */
+    @TableField(exist = false)
+    private String deviceName;
+
+    /**
      * 采集动作
      */
     private String collectAction;
@@ -41,9 +47,21 @@ public class CollectDetail extends BaseEntity {
     private Long collectTaskId;
 
     /**
+     * 任务名称
+     */
+    @TableField(exist = false)
+    private String collectTaskName;
+
+    /**
      * 点位组
      */
     private Long pointGroupId;
+
+    /**
+     * 点位组名称
+     */
+    @TableField(exist = false)
+    private String pointGroupName;
 
     /**
      * 创建时间

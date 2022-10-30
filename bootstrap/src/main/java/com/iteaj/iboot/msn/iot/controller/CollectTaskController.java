@@ -3,6 +3,7 @@ package com.iteaj.iboot.msn.iot.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.iot.collect.CollectActionFactory;
 import com.iteaj.iboot.msn.iot.collect.CollectException;
@@ -10,6 +11,7 @@ import com.iteaj.iboot.msn.iot.collect.CollectOption;
 import com.iteaj.iboot.msn.iot.collect.CollectService;
 import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.CollectTask;
 import com.iteaj.iboot.msn.iot.service.ICollectTaskService;
 import org.apache.shiro.authz.annotation.Logical;
@@ -100,6 +102,18 @@ public class CollectTaskController extends BaseController {
             return Result.fail(e.getMessage());
         }
         return success();
+    }
+
+    /**
+     * 获取采集详情
+     * @param page
+     * @param id
+     * @return
+     */
+    @GetMapping("/details")
+    public Result<Page<CollectDetail>> details(Page page, Long id) {
+        PageResult<Page<CollectDetail>> detailPageResult = collectTaskService.collectDetailPageById(page, id);
+        return detailPageResult;
     }
 
     /**

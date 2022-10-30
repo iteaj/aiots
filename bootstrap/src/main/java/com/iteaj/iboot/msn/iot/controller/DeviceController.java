@@ -1,6 +1,9 @@
 package com.iteaj.iboot.msn.iot.controller;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -77,6 +80,16 @@ public class DeviceController extends BaseController {
     @RequiresPermissions({"iot:device:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceService.removeByIds(idList);
+    }
+
+    /**
+     * 获取指定型号下面的设备列表
+     * @param modelId
+     * @return
+     */
+    @GetMapping("listByModel")
+    public Result<List<Device>> listByModel(Long modelId) {
+        return this.deviceService.list(Wrappers.<Device>lambdaQuery().eq(Device::getModel, modelId));
     }
 }
 

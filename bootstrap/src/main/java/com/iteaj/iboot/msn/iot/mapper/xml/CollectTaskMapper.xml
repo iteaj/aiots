@@ -55,4 +55,11 @@
         where a.id=#{id}
     </select>
 
+    <select id="collectDetailPageById" resultType="com.iteaj.iboot.msn.iot.entity.CollectDetail">
+        select a.*, ct.name deviceName, pg.name collectTaskName from iot_collect_detail a
+            left join iot_collect_task ct on a.collect_task_id=ct.id
+            left join iot_point_group pg on a.point_group_id=pg.id
+        where a.collect_task_id=#{id}
+    </select>
+
 </mapper>

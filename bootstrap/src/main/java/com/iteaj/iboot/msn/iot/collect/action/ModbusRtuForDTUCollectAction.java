@@ -23,7 +23,7 @@ public class ModbusRtuForDTUCollectAction extends CollectAction {
 
     @Override
     public String getDesc() {
-        return "使用DTU的modbus rtu协议";
+        return "基于DTU的modbus rtu协议";
     }
 
     @Override
