@@ -1,6 +1,8 @@
 package com.iteaj.iboot.msn.iot.controller;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.web.bind.annotation.*;
@@ -68,6 +70,16 @@ public class PointGroupController extends BaseController {
     @RequiresPermissions({"iot:pointGroup:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.pointGroupService.removeByIds(idList);
+    }
+
+    /**
+     * 获取指定型号下的点位组列表
+     * @param modelId
+     * @return
+     */
+    @GetMapping("listByModelId")
+    public Result<List<PointGroup>> listByModelId(Long modelId) {
+        return this.pointGroupService.list(Wrappers.<PointGroup>lambdaQuery().eq(PointGroup::getModelId, modelId));
     }
 }
 

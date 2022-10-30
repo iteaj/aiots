@@ -21,10 +21,28 @@ public class CollectDetail extends BaseEntity {
     private Long uid;
 
     /**
+     * 设备类型
+     */
+    @TableField(exist = false)
+    private Long deviceTypeId;
+
+    /**
+     * 型号
+     */
+    @TableField(exist = false)
+    private Long modelId;
+
+    /**
      * 设备名称
      */
     @TableField(exist = false)
     private String deviceName;
+
+    /**
+     * 设备编号
+     */
+    @TableField(exist = false)
+    private String deviceSn;
 
     /**
      * 采集动作
@@ -40,6 +58,12 @@ public class CollectDetail extends BaseEntity {
      * 子设备
      */
     private String childSn;
+
+    /**
+     * 子设备名称
+     */
+    @TableField(exist = false)
+    private String childName;
 
     /**
      * 采集任务id

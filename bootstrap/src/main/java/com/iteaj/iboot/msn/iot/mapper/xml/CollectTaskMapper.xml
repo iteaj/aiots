@@ -50,14 +50,15 @@
     </select>
 
     <select id="collectDetailById" resultMap="collectDetailDtoMap">
-        select a.*, d.id did, d.uid, d.child_sn, d.point_group_id, d.collect_task_id from iot_collect_task a
+        select a.*, d.id did, d.uid, d.child_sn, d.point_group_id, d.collect_task_id, d.collect_action, d.store_action from iot_collect_task a
             left join iot_collect_detail d on a.id=d.collect_task_id
         where a.id=#{id}
     </select>
 
     <select id="collectDetailPageById" resultType="com.iteaj.iboot.msn.iot.entity.CollectDetail">
-        select a.*, ct.name deviceName, pg.name collectTaskName from iot_collect_detail a
+        select a.*, ct.name deviceName, pg.name collectTaskName, dc.name childName from iot_collect_detail a
             left join iot_collect_task ct on a.collect_task_id=ct.id
+            left join iot_device_child dc on dc.uid=a.uid
             left join iot_point_group pg on a.point_group_id=pg.id
         where a.collect_task_id=#{id}
     </select>

@@ -36,7 +36,7 @@ public class CollectActionTask implements Runnable {
                         .setUid(item.getUid())
                         .setCollectTime(new Date())
                         .setCollectTaskId(taskDto.getId());
-                CollectAction action = CollectActionFactory.getInstance().get(item.toString());
+                CollectAction action = CollectActionFactory.getInstance().get(item.getCollectAction());
                 if(action != null) {
                     item.getSignals().forEach(signal -> {
                         try {

@@ -1,6 +1,8 @@
 package com.iteaj.iboot.msn.iot.controller;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +66,15 @@ public class DeviceChildController extends BaseController {
     @PostMapping("/del")
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceChildService.removeByIds(idList);
+    }
+
+    /**
+     * 或者指定设备下的子设备列表
+     * @param uid 设备uid
+     */
+    @GetMapping("/listByUid")
+    public Result<List<DeviceChild>> listByUid(Long uid) {
+        return this.deviceChildService.list(Wrappers.<DeviceChild>lambdaQuery().eq(DeviceChild::getUid, uid));
     }
 }
 

@@ -105,18 +105,6 @@ public class CollectTaskController extends BaseController {
     }
 
     /**
-     * 获取采集详情
-     * @param page
-     * @param id
-     * @return
-     */
-    @GetMapping("/details")
-    public Result<Page<CollectDetail>> details(Page page, Long id) {
-        PageResult<Page<CollectDetail>> detailPageResult = collectTaskService.collectDetailPageById(page, id);
-        return detailPageResult;
-    }
-
-    /**
      * 采集动作
      * @return
      */
