@@ -1,13 +1,10 @@
 package com.iteaj.iboot.msn.iot.collect.action;
 
-import com.iteaj.iboot.msn.iot.collect.CollectException;
 import com.iteaj.iboot.msn.iot.consts.IotConsts;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
-import com.iteaj.iboot.msn.iot.entity.Device;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.Signal;
-import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuCommonProtocol;
-import org.springframework.util.StringUtils;
 
 import java.util.function.Consumer;
 
@@ -37,7 +34,7 @@ public class ModbusRtuForDTUCollectAction extends CollectAction {
     }
 
     @Override
-    protected void doExec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call) {
+    protected void doExec(CollectTaskDto taskDto, CollectDetail detail, Signal signal, Consumer<String> call) {
         Integer type = signal.getFieldType();
         switch (type) {
             case 7:

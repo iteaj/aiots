@@ -3,7 +3,7 @@ package com.iteaj.iboot.msn.iot.collect.action;
 import com.iteaj.iboot.msn.iot.collect.CollectException;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
-import com.iteaj.iboot.msn.iot.entity.Device;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.Signal;
 import org.springframework.util.StringUtils;
 
@@ -54,12 +54,13 @@ public abstract class CollectAction {
     /**
      * 执行调用
      * @param taskDto 任务
+     * @param detail
      * @param signal
      * @param call
      */
-    public void exec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call) throws CollectException {
-        doExec(taskDto, device, signal, call);
+    public void exec(CollectTaskDto taskDto, CollectDetail detail, Signal signal, Consumer<String> call) throws CollectException {
+        doExec(taskDto, detail, signal, call);
     }
 
-    protected abstract void doExec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call);
+    protected abstract void doExec(CollectTaskDto taskDto, CollectDetail detail, Signal signal, Consumer<String> call);
 }

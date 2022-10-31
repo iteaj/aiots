@@ -4,14 +4,11 @@ import com.iteaj.iboot.msn.iot.collect.CollectException;
 import com.iteaj.iboot.msn.iot.consts.IotConsts;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
-import com.iteaj.iboot.msn.iot.entity.Device;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.Signal;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.plc.omron.OmronConnectProperties;
 import com.iteaj.iot.plc.omron.OmronTcpProtocol;
-import com.iteaj.iot.plc.siemens.SiemensConnectProperties;
-import com.iteaj.iot.plc.siemens.SiemensModel;
-import com.iteaj.iot.plc.siemens.SiemensS7Protocol;
 import org.springframework.util.StringUtils;
 
 import java.util.function.Consumer;
@@ -48,9 +45,10 @@ public class OmronCollectAction extends CollectAction {
     }
 
     @Override
-    protected void doExec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call) {
+    protected void doExec(CollectTaskDto taskDto, CollectDetail detail, Signal signal, Consumer<String> call) {
         Object value = "";
         String address = signal.getAddress();
+        DeviceDto device = detail.getDevice();
         OmronTcpProtocol protocol = new OmronTcpProtocol(new OmronConnectProperties(device.getIp(), device.getPort()));
         Integer fieldType = signal.getFieldType();
         switch (fieldType) {

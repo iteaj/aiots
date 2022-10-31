@@ -29,23 +29,25 @@ public class CollectActionTask implements Runnable {
     public void run() {
         if(taskDto != null && !CollectionUtils.isEmpty(taskDto.getDetails())) {
             long cid = UniqueIdGen.nextLong();
-            List<CollectData> values = new ArrayList<>();
             taskDto.getDetails().forEach(item -> {
-                CollectData data = new CollectData()
-                        .setCid(cid)
-                        .setUid(item.getUid())
-                        .setCollectTime(new Date())
-                        .setCollectTaskId(taskDto.getId());
+                List<CollectData> values = new ArrayList<>();
                 CollectAction action = CollectActionFactory.getInstance().get(item.getCollectAction());
                 if(action != null) {
                     item.getSignals().forEach(signal -> {
+                        Date date = new Date();
+                        CollectData data = new CollectData()
+                                .setCid(cid).setReason("")
+                                .setStatus(false).setCreateTime(date)
+                                .setCollectTime(date).setUid(item.getUid())
+                                .setSignalId(signal.getId()).setCollectTaskId(taskDto.getId());
+
                         try {
                             data.setAddress(signal.getAddress());
                             data.setFieldType(signal.getFieldType());
 
-                            action.exec(taskDto, item.getDevice(), signal, value -> {
+                            action.exec(taskDto, item, signal, value -> {
                                 // 设置采集的值和采集时间
-                                data.setValue(value).setCollectTime(new Date()).setStatus(true);
+                                data.setValue(value).setStatus(true);
                             });
                         } catch (CollectException e) {
                             data.setStatus(false).setReason(e.getMessage());
@@ -60,9 +62,9 @@ public class CollectActionTask implements Runnable {
                                     , item.getDevice().getName(), item.getDevice().getUid()
                                     , signal.getName(), signal.getAddress(), e);
                         }
+
+                        values.add(data);
                     });
-                } else {
-                    data.setStatus(false).setReason("没有设置采集动作");
                 }
 
                 // 存储

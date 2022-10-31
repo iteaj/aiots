@@ -4,6 +4,7 @@ import com.iteaj.iboot.msn.iot.collect.CollectException;
 import com.iteaj.iboot.msn.iot.consts.IotConsts;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.Signal;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.server.dtu.impl.CommonDtuProtocol;
@@ -42,7 +43,7 @@ public class CommonDtuCollectAction extends CollectAction {
     }
 
     @Override
-    protected void doExec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call) {
+    protected void doExec(CollectTaskDto taskDto, CollectDetail detail, Signal signal, Consumer<String> call) {
         byte[] message;
         if(signal.getEncode().equals("HEX")) {
             message = ByteUtil.hexToByte(signal.getMessage());
@@ -52,6 +53,7 @@ public class CommonDtuCollectAction extends CollectAction {
             message = signal.getMessage().getBytes(StandardCharsets.UTF_8);
         }
 
+        DeviceDto device = detail.getDevice();
         CommonDtuProtocol protocol = new CommonDtuProtocol(device.getDeviceSn());
         byte[] read = protocol.read(message);
 

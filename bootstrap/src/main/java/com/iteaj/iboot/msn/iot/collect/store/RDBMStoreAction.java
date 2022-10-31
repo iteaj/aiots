@@ -5,6 +5,7 @@ import com.iteaj.iboot.msn.iot.entity.CollectData;
 import com.iteaj.iot.tools.db.rdbms.RdbmsSqlManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,6 +28,6 @@ public class RDBMStoreAction extends StoreAction {
 
     @Override
     public void store(List<CollectData> data) {
-        rdbmsSqlManager.insert(data.getClass(), data);
+        rdbmsSqlManager.batchInsert(CollectData.class, Arrays.asList(data.toArray()));
     }
 }

@@ -4,7 +4,7 @@ import com.iteaj.iboot.msn.iot.collect.CollectException;
 import com.iteaj.iboot.msn.iot.consts.IotConsts;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
-import com.iteaj.iboot.msn.iot.entity.Device;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.Signal;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.plc.siemens.SiemensConnectProperties;
@@ -52,10 +52,11 @@ public class SiemensCollectAction extends CollectAction {
     }
 
     @Override
-    protected void doExec(CollectTaskDto taskDto, DeviceDto device, Signal signal, Consumer<String> call) {
+    protected void doExec(CollectTaskDto taskDto, CollectDetail detail, Signal signal, Consumer<String> call) {
 
         Object value = "";
         String address = signal.getAddress();
+        DeviceDto device = detail.getDevice();
         SiemensModel model = SiemensModel.valueOf(device.getModelName());
         SiemensS7Protocol protocol = new SiemensS7Protocol(new SiemensConnectProperties(device.getIp(), device.getPort(), model));
         Integer fieldType = signal.getFieldType();
