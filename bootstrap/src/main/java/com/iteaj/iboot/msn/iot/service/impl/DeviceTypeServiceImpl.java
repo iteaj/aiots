@@ -1,6 +1,9 @@
 package com.iteaj.iboot.msn.iot.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.iboot.msn.iot.entity.DeviceType;
@@ -30,5 +33,34 @@ public class DeviceTypeServiceImpl extends BaseServiceImpl<DeviceTypeMapper, Dev
                 .map(value -> TreeUtils.toTrees(value)
                         .stream().collect(Collectors.toList())).get();
         return new ListResult<>(types);
+    }
+
+    @Override
+    public BooleanResult save(DeviceType entity) {
+        super.save(entity);
+        if(entity.getPid() != null && entity.getPid() != 0) {
+            DeviceType parent = this.getById(entity.getPid())
+                    .ofNullable().orElseThrow(() -> new ServiceException("父类型不存在"));
+            entity.setPath(parent.getPath()+","+entity.getId());
+        } else {
+            entity.setPath(entity.getId().toString());
+        }
+
+        return this.update(Wrappers.<DeviceType>lambdaUpdate()
+                .set(DeviceType::getPath, entity.getPath())
+                .eq(DeviceType::getId, entity.getId()));
+    }
+
+    @Override
+    public BooleanResult updateById(DeviceType entity) {
+        if(entity.getPid() != null && entity.getPid() != 0) {
+            DeviceType parent = this.getById(entity.getPid())
+                    .ofNullable().orElseThrow(() -> new ServiceException("父类型不存在"));
+
+            entity.setPath(parent.getPath()+","+entity.getId());
+        } else {
+            entity.setPath(entity.getId().toString());
+        }
+        return super.updateById(entity);
     }
 }

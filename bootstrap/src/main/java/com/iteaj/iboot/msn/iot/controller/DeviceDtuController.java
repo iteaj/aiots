@@ -39,7 +39,7 @@ public class DeviceDtuController extends BaseController {
     */
     @GetMapping("/view")
     @RequiresPermissions({"iot:dtu:view"})
-    public Result<IPage<Device>> list(Page<Device> page, DeviceDto entity) {
+    public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
         entity.setAlias(DeviceTypeAlias.DTU);
         return this.deviceService.pageOfDetail(page, entity);
     }

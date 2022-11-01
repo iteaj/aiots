@@ -30,6 +30,12 @@ public class DeviceModel extends BaseEntity {
     private Integer typeId;
 
     /**
+     * 设备类型名称
+     */
+    @TableField(exist = false)
+    private String typeName;
+
+    /**
      * 型号
      */
     @TableField(condition = SqlCondition.LIKE)

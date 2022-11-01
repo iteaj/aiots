@@ -1,6 +1,8 @@
 package com.iteaj.iboot.msn.iot.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.msn.iot.entity.DeviceModel;
 
 /**
@@ -13,4 +15,5 @@ import com.iteaj.iboot.msn.iot.entity.DeviceModel;
  */
 public interface DeviceModelMapper extends BaseMapper<DeviceModel> {
 
+    IPage<DeviceModel> detailOfPage(Page<DeviceModel> page, DeviceModel entity);
 }

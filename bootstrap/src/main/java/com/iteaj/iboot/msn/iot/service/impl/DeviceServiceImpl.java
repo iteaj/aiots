@@ -31,7 +31,7 @@ import java.util.Date;
 public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> implements IDeviceService {
 
     @Override
-    public Result<IPage<Device>> pageOfDetail(Page<Device> page, DeviceDto entity) {
+    public Result<IPage<DeviceDto>> pageOfDetail(Page<Device> page, DeviceDto entity) {
         return new PageResult<>(getBaseMapper().pageOfDetail(page, entity));
     }
 

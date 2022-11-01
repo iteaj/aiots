@@ -1,8 +1,11 @@
 package com.iteaj.iboot.msn.iot.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.msn.iot.entity.DeviceModel;
 import com.iteaj.iboot.msn.iot.entity.PointGroup;
 import com.iteaj.iboot.msn.iot.entity.Signal;
@@ -78,5 +81,10 @@ public class DeviceModelServiceImpl extends BaseServiceImpl<DeviceModelMapper, D
                 .ifPresent(pointPosition -> {throw new ServiceException("点位记录已在使用, 请先删除");});
 
         return super.removeByIds(idList);
+    }
+
+    @Override
+    public PageResult<IPage<DeviceModel>> detailOfPage(Page<DeviceModel> page, DeviceModel entity) {
+        return new PageResult<>(this.getBaseMapper().detailOfPage(page, entity));
     }
 }

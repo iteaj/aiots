@@ -118,7 +118,7 @@ public class CollectService implements InitializingBean {
                     reason = "没有可用的采集动作[action="+item.getCollectAction()+"]";
                 } else {
                     try {
-                        collectAction.validate(item.getDevice());
+                        collectAction.validate(item);
                         item.getSignals().forEach(signal -> collectAction.validate(signal));
                     } catch (CollectException e) {
                         reason = e.getMessage();

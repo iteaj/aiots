@@ -38,7 +38,7 @@ public class CommonDtuCollectAction extends CollectAction {
     }
 
     @Override
-    public void validate(DeviceDto deviceDto) {
+    public void validate(CollectDetail deviceDto) {
         super.validate(deviceDto);
     }
 

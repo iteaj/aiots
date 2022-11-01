@@ -36,11 +36,11 @@ public class OmronCollectAction extends CollectAction {
     }
 
     @Override
-    public void validate(DeviceDto device) {
-        super.validate(device);
-
+    public void validate(CollectDetail detail) {
+        super.validate(detail);
+        DeviceDto device = detail.getDevice();
         if(StringUtils.hasText(device.getIp()) || device.getPort() == null) {
-            throw new CollectException("欧姆龙设备["+device.getDeviceSn()+"]没有指定ip或者端口号");
+            throw new CollectException("欧姆龙设备["+ device.getDeviceSn()+"]没有指定ip或者端口号");
         }
     }
 

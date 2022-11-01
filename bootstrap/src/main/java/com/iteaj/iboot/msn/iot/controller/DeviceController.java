@@ -5,6 +5,7 @@ import java.util.List;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -38,8 +39,8 @@ public class DeviceController extends BaseController {
     */
     @GetMapping("/view")
     @RequiresPermissions({"iot:device:view"})
-    public Result<IPage<Device>> list(Page<Device> page, Device entity) {
-        return this.deviceService.page(page, entity);
+    public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
+        return this.deviceService.pageOfDetail(page, entity);
     }
 
     /**

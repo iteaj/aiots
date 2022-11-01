@@ -28,7 +28,7 @@
             left join iot_device_type dy on dm.type_id=dy.id
         <where>
             <if test="entity.typeId != null">
-                and dm.type_id=#{entity.typeId}
+                and find_in_set(#{entity.typeId}, dy.path)
             </if>
             <if test="entity.modelId != null">
                 and a.model_id=#{entity.modelId}

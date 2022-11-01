@@ -13,6 +13,11 @@ public class DeviceDto extends Device {
     private String modelName;
 
     /**
+     * 设备类型名称
+     */
+    private String deviceTypeName;
+
+    /**
      * 设备别名
      */
     private DeviceTypeAlias alias;

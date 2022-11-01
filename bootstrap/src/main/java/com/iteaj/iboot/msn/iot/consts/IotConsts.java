@@ -44,5 +44,5 @@ public interface IotConsts {
 
     int FIELD_TYPE_BOOLEAN = 7;
 
-
+    int FIELD_TYPE_STRING = 9;
 }

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 public enum DeviceTypeAlias {
     PLC("plc"),
     DTU("dtu"),
+    MODBUS("modbus"),
     GATEWAY("网关"),
     ;
 

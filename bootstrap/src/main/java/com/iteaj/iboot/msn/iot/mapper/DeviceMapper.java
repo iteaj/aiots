@@ -24,7 +24,7 @@ public interface DeviceMapper extends BaseMapper<Device> {
      * @param entity
      * @return
      */
-    IPage<Device> pageOfDetail(Page<Device> page, DeviceDto entity);
+    IPage<DeviceDto> pageOfDetail(Page<Device> page, DeviceDto entity);
 
     /**
      * 统计当前设备信息

@@ -39,7 +39,7 @@ public class DeviceModelController extends BaseController {
     @GetMapping("/view")
     @RequiresPermissions({"iot:deviceModel:view"})
     public Result<IPage<DeviceModel>> list(Page<DeviceModel> page, DeviceModel entity) {
-        return this.deviceModelService.page(page, entity);
+        return this.deviceModelService.detailOfPage(page, entity);
     }
 
     /**
@@ -51,7 +51,7 @@ public class DeviceModelController extends BaseController {
     public Result<List<DeviceModel>> listByType(Integer typeId) {
         return this.deviceModelService.list(Wrappers
                 .<DeviceModel>lambdaQuery()
-                .eq(typeId != -1, DeviceModel::getTypeId, typeId));
+                .eq(typeId != null && typeId != -1, DeviceModel::getTypeId, typeId));
     }
 
     /**

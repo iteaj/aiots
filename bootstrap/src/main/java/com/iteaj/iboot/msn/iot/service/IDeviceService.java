@@ -26,7 +26,7 @@ public interface IDeviceService extends IBaseService<Device> {
      * @param entity
      * @return
      */
-    Result<IPage<Device>> pageOfDetail(Page<Device> page, DeviceDto entity);
+    Result<IPage<DeviceDto>> pageOfDetail(Page<Device> page, DeviceDto entity);
 
     /**
      * 更新设备状态

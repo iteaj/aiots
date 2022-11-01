@@ -57,7 +57,7 @@ public class DevicePlcController extends BaseController {
     */
     @GetMapping("/view")
     @RequiresPermissions({"iot:plc:view"})
-    public Result<IPage<Device>> list(Page<Device> page, DeviceDto entity) {
+    public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
         entity.setAlias(DeviceTypeAlias.PLC);
         return this.deviceService.pageOfDetail(page, entity);
     }

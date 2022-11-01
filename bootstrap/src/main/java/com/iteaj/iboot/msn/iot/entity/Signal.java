@@ -47,6 +47,11 @@ public class Signal extends BaseEntity {
     private Integer type;
 
     /**
+     * 读取的寄存器(点位)数量
+     */
+    private Integer num;
+
+    /**
      * 自定义报文
      */
     private String message;

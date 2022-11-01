@@ -2,7 +2,6 @@ package com.iteaj.iboot.msn.iot.collect.action;
 
 import com.iteaj.iboot.msn.iot.collect.CollectException;
 import com.iteaj.iboot.msn.iot.dto.CollectTaskDto;
-import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.Signal;
 import org.springframework.util.StringUtils;
@@ -39,14 +38,14 @@ public abstract class CollectAction {
 
     /**
      * 设备数据校验
-     * @param device
+     * @param detail
      */
-    public void validate(DeviceDto device) throws CollectException {
-        if(device == null) {
+    public void validate(CollectDetail detail) throws CollectException {
+        if(detail == null || detail.getDevice() == null) {
             throw new CollectException("参数[device]不能为null");
         }
 
-        if(!StringUtils.hasText(device.getDeviceSn())) {
+        if(!StringUtils.hasText(detail.getDevice().getDeviceSn())) {
             throw new CollectException("未指定设备编号");
         }
     }

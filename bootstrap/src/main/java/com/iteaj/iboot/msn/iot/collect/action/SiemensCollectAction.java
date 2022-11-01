@@ -37,17 +37,18 @@ public class SiemensCollectAction extends CollectAction {
     }
 
     @Override
-    public void validate(DeviceDto device) {
-        super.validate(device);
+    public void validate(CollectDetail detail) {
+        super.validate(detail);
 
+        DeviceDto device = detail.getDevice();
         if(StringUtils.hasText(device.getIp()) || device.getPort() == null) {
-            throw new CollectException("PLC设备["+device.getDeviceSn()+"]没有指定ip或者端口号");
+            throw new CollectException("PLC设备["+ detail.getDeviceSn()+"]没有指定ip或者端口号");
         }
 
         try {
             SiemensModel.valueOf(device.getModelName());
         } catch (Exception e) {
-            throw new CollectException("西门子设备["+device.getDeviceSn()+"]型号错误["+device.getModelName()+"]");
+            throw new CollectException("西门子设备["+ detail.getDeviceSn()+"]型号错误["+ device.getModelName()+"]");
         }
     }
 
