@@ -26,14 +26,9 @@
         from iot_point_group a
             left join iot_device_model dm on a.model_id=dm.id
             left join iot_device_type dy on dm.type_id=dy.id
-        <where>
-            <if test="entity.typeId != null">
-                and find_in_set(#{entity.typeId}, dy.path)
-            </if>
-            <if test="entity.modelId != null">
-                and a.model_id=#{entity.modelId}
-            </if>
-        </where>
+
+
+
     </select>
 
     <select id="detailById" resultMap="DetailResultMap">
