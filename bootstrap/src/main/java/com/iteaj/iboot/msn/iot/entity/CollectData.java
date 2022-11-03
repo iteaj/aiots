@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.iot.tools.annotation.IotField;
@@ -72,12 +73,13 @@ public class CollectData extends BaseEntity {
     /**
      * 采集时间
      */
-    @IotField("collect_time")
+    @IotField(value = "collect_time", type = 93)
     private Date collectTime;
 
     /**
      * 创建时间
      */
-    @IotField("create_time")
+    @IotField(value = "create_time", type = 93)
     private Date createTime;
+
 }

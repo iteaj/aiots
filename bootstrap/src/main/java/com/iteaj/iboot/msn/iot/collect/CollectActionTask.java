@@ -28,18 +28,18 @@ public class CollectActionTask implements Runnable {
     @Override
     public void run() {
         if(taskDto != null && !CollectionUtils.isEmpty(taskDto.getDetails())) {
+            Date date = new Date(); // 任务开始时间
             long cid = UniqueIdGen.nextLong();
             taskDto.getDetails().forEach(item -> {
                 List<CollectData> values = new ArrayList<>();
                 CollectAction action = CollectActionFactory.getInstance().get(item.getCollectAction());
                 if(action != null) {
                     item.getSignals().forEach(signal -> {
-                        Date date = new Date();
                         CollectData data = new CollectData()
                                 .setCid(cid).setReason("")
                                 .setStatus(false).setCreateTime(date)
-                                .setCollectTime(date).setUid(item.getUid())
-                                .setSignalId(signal.getId()).setCollectTaskId(taskDto.getId());
+                                .setUid(item.getUid()).setSignalId(signal.getId())
+                                .setCollectTaskId(taskDto.getId());
 
                         try {
                             data.setAddress(signal.getAddress());
@@ -47,16 +47,16 @@ public class CollectActionTask implements Runnable {
 
                             action.exec(taskDto, item, signal, value -> {
                                 // 设置采集的值和采集时间
-                                data.setValue(value).setStatus(true);
+                                data.setValue(value).setCollectTime(new Date()).setStatus(true);
                             });
                         } catch (CollectException e) {
-                            data.setStatus(false).setReason(e.getMessage());
+                            data.setStatus(false).setCollectTime(new Date()).setReason(e.getMessage());
                             logger.error("采集任务失败 接口调用异常 - 任务: {} - 周期: {} - 设备: {}({}) - 点位: {}({})"
                                     , e.getMessage(), taskDto.getName(), taskDto.getCron()
                                     , item.getDevice().getName(), item.getDevice().getUid()
                                     , signal.getName(), signal.getAddress(), e);
                         } catch (Exception e) {
-                            data.setStatus(false).setReason("未知错误");
+                            data.setStatus(false).setCollectTime(new Date()).setReason("未知错误");
                             logger.error("采集任务失败 接口调用异常 - 任务: {} - 周期: {} - 设备: {}({}) - 点位: {}({})"
                                     , e.getMessage(), taskDto.getName(), taskDto.getCron()
                                     , item.getDevice().getName(), item.getDevice().getUid()

@@ -16,6 +16,7 @@ import com.iteaj.iboot.msn.iot.entity.CollectTask;
 import com.iteaj.iboot.msn.iot.service.ICollectTaskService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -72,8 +73,14 @@ public class CollectTaskController extends BaseController {
     @PostMapping("/saveOrUpdate")
     @RequiresPermissions(value = {"iot:collectTask:edit", "iot:collectTask:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody CollectTask entity) {
-        if(entity.getStatus().equals("run")) {
+        if(entity.getStatus() != null && entity.getStatus().equals("run")) {
             return fail("请先停止任务后在更新");
+        }
+
+        try {
+            CronExpression.parse(entity.getCron());
+        } catch (Exception e) {
+            return fail("任务调度表达式错误");
         }
 
         return this.collectTaskService.saveOrUpdate(entity);

@@ -16,5 +16,39 @@
         <result column="collect_time" property="collectTime" />
         <result column="collect_task_id" property="collectTaskId" />
     </resultMap>
+    <resultMap id="DtoResultMap" type="com.iteaj.iboot.msn.iot.dto.CollectDataDto" extends="BaseResultMap">
+        <result property="deviceSn" column="device_sn" />
+        <result property="deviceName" column="device_name" />
+    </resultMap>
+
+    <select id="detailOfPage" resultMap="DtoResultMap">
+        select a.id, a.cid, a.uid, a.signal_id, a.field_type, a.collect_task_id, a.address, a.value
+             , a.status, a.reason, a.collect_time, a.create_time, d.name device_name, d.device_sn
+        from iot_collect_data a left join iot_device d on a.uid=d.uid
+        <where>
+            <if test="entity.uid != null">
+                and a.uid=#{entity.uid}
+            </if>
+            <if test="entity.cid != null">
+                and a.cid=#{entity.cid}
+            </if>
+            <if test="entity.deviceTypeId != null">
+                and d.device_type_id=#{entity.deviceTypeId}
+            </if>
+            <if test="entity.modelId != null">
+                and d.model=#{entity.modelId}
+            </if>
+            <if test="entity.signalId != null">
+                and a.signal_id=#{entity.signalId}
+            </if>
+            <if test="entity.collectTaskId != null">
+                and a.collect_task_id=#{entity.collectTaskId}
+            </if>
+            <if test="entity.status != null">
+                and a.status=#{entity.status}
+            </if>
+        </where>
+        order by a.collect_time desc
+    </select>
 
 </mapper>

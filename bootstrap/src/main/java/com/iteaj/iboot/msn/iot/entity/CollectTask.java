@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 /**
@@ -26,11 +27,13 @@ public class CollectTask extends BaseEntity {
     /**
      * 任务名称
      */
+    @NotBlank(message = "任务名称不能为空")
     private String name;
 
     /**
      * 任务调度
      */
+    @NotBlank(message = "任务调度不能为空")
     private String cron;
 
     /**
