@@ -28,7 +28,16 @@ public interface IotConsts {
      */
     String COLLECT_ACTION_MODBUS_DTU_TCP = "MODBUS:DTU:TCP";
 
+    /**
+     * mqtt存储
+     */
+    String STORE_ACTION_MQTT = "STORE:MQTT";
+
+    /**
+     * RDBMS存储
+     */
     String STORE_ACTION_RDBMS = "STORE:RDBMS";
+
 
     int FIELD_TYPE_BYTE = 1;
 

@@ -8,6 +8,9 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.iot.entity.PointGroup;
 import com.iteaj.framework.IBaseService;
 
+import java.io.Serializable;
+import java.util.Collection;
+
 /**
  * <p>
  * 点位组 服务类
@@ -32,4 +35,11 @@ public interface IPointGroupService extends IBaseService<PointGroup> {
      * @return
      */
     DetailResult<PointGroup> detailById(Long id);
+
+    /**
+     * 是否有被点位组使用
+     * @param list
+     * @return
+     */
+    Boolean isBindSignals(Collection<? extends Serializable> list);
 }

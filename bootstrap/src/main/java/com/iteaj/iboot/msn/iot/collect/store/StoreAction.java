@@ -1,8 +1,11 @@
 package com.iteaj.iboot.msn.iot.collect.store;
 
+import com.iteaj.iboot.msn.iot.collect.CollectException;
 import com.iteaj.iboot.msn.iot.entity.CollectData;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class StoreAction {
 
@@ -19,8 +22,15 @@ public abstract class StoreAction {
     public abstract String getDesc();
 
     /**
+     * 校验配置
+     * @param jsonConfig
+     */
+    public abstract void configValidate(Map<String, Object> jsonConfig) throws CollectException;
+
+    /**
      * 存储
+     * @param detail
      * @param data
      */
-    public abstract void store(List<CollectData> data);
+    public abstract void store(CollectDetail detail, List<CollectData> data);
 }

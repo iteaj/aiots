@@ -2,8 +2,10 @@ package com.iteaj.iboot.msn.iot;
 
 import com.iteaj.iboot.msn.iot.collect.CollectActionFactory;
 import com.iteaj.iboot.msn.iot.collect.action.*;
+import com.iteaj.iboot.msn.iot.collect.store.MqttStoreAction;
 import com.iteaj.iboot.msn.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
+import com.iteaj.iot.client.mqtt.gateway.MqttGatewayComponent;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
@@ -122,8 +124,24 @@ public class IotAutoConfiguration {
         return new RDBMStoreAction();
     }
 
+    /**
+     * mqtt存储
+     * @return
+     */
+    @Bean
+    @ConditionalOnBean(MqttStoreAction.class)
+    public MqttGatewayComponent mqttGatewayComponent() {
+        return new MqttGatewayComponent();
+    }
+
+    @Bean
+    public MqttStoreAction mqttStoreAction() {
+        return new MqttStoreAction();
+    }
+
     @Bean
     public StoreActionFactory storeActionFactory() {
         return StoreActionFactory.getInstance();
     }
+
 }

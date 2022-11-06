@@ -59,6 +59,16 @@ public class Device extends BaseEntity {
     private Integer model;
 
     /**
+     * 设备账号
+     */
+    private String account;
+
+    /**
+     * 设备密码
+     */
+    private String password;
+
+    /**
      * 设备状态
      */
     private DeviceStatus status;

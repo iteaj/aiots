@@ -3,6 +3,9 @@ package com.iteaj.iboot.msn.iot.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.msn.iot.collect.CollectException;
+import com.iteaj.iboot.msn.iot.collect.store.StoreAction;
+import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.service.ICollectDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +49,16 @@ public class CollectDetailController extends BaseController {
      */
     @PostMapping("/saveOrUpdate")
     public Result<Boolean> save(@RequestBody CollectDetail entity) {
+        StoreAction storeAction = StoreActionFactory.getInstance().get(entity.getStoreAction());
+        if(storeAction != null) {
+            try {
+                // 做配置校验
+                storeAction.configValidate(entity.resolveConfig());
+            } catch (CollectException e) {
+                return fail(e.getMessage());
+            }
+        }
+
         return this.collectDetailService.saveOrUpdate(entity);
     }
 

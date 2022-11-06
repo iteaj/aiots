@@ -19,11 +19,15 @@
     <resultMap id="CollectDetailMap" type="com.iteaj.iboot.msn.iot.entity.CollectDetail">
         <result property="id" column="did" />
         <result property="uid" column="uid" />
+        <result property="extend" column="extend"/>
         <result property="childSn" column="child_sn" />
+        <result property="storeUid" column="store_uid" />
         <result property="storeAction" column="store_action" />
         <result property="collectAction" column="collect_action" />
         <result property="collectTaskId" column="collect_task_id" />
         <result property="pointGroupId" column="point_group_id" />
+        <association property="store" javaType="com.iteaj.iboot.msn.iot.entity.Device"
+                     select="com.iteaj.iboot.msn.iot.mapper.DeviceMapper.getByUid" column="uid=store_uid"/>
         <association property="device" javaType="com.iteaj.iboot.msn.iot.entity.Device"
                      select="com.iteaj.iboot.msn.iot.mapper.DeviceMapper.getByUid" column="uid=uid"/>
         <collection property="signals" select="com.iteaj.iboot.msn.iot.mapper.SignalMapper.collectByPointGroupId"
@@ -50,7 +54,8 @@
     </select>
 
     <select id="collectDetailById" resultMap="collectDetailDtoMap">
-        select a.*, d.id did, d.uid, d.child_sn, d.point_group_id, d.collect_task_id, d.collect_action, d.store_action from iot_collect_task a
+        select a.*, d.id did, d.uid, d.child_sn, d.point_group_id, d.extend
+             , d.collect_task_id, d.collect_action, d.store_action, d.store_uid from iot_collect_task a
             left join iot_collect_detail d on a.id=d.collect_task_id
         where a.id=#{id}
     </select>

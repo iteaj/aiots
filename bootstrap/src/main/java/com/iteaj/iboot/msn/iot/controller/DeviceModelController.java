@@ -51,7 +51,7 @@ public class DeviceModelController extends BaseController {
     public Result<List<DeviceModel>> listByType(Integer typeId) {
         return this.deviceModelService.list(Wrappers
                 .<DeviceModel>lambdaQuery()
-                .eq(typeId != null && typeId != -1, DeviceModel::getTypeId, typeId));
+                .eq(DeviceModel::getTypeId, typeId));
     }
 
     /**

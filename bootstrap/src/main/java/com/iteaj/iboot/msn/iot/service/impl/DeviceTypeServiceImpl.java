@@ -5,14 +5,21 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.result.NumberResult;
 import com.iteaj.framework.utils.TreeUtils;
+import com.iteaj.iboot.msn.iot.entity.DeviceModel;
 import com.iteaj.iboot.msn.iot.entity.DeviceType;
 import com.iteaj.iboot.msn.iot.mapper.DeviceTypeMapper;
+import com.iteaj.iboot.msn.iot.service.IDeviceModelService;
 import com.iteaj.iboot.msn.iot.service.IDeviceTypeService;
 import com.iteaj.framework.BaseServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +33,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class DeviceTypeServiceImpl extends BaseServiceImpl<DeviceTypeMapper, DeviceType> implements IDeviceTypeService {
+
+    @Autowired
+    private IDeviceModelService deviceModelService;
 
     @Override
     public ListResult<DeviceType> tree(DeviceType entity) {
@@ -62,5 +72,21 @@ public class DeviceTypeServiceImpl extends BaseServiceImpl<DeviceTypeMapper, Dev
             entity.setPath(entity.getId().toString());
         }
         return super.updateById(entity);
+    }
+
+    @Override
+    public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
+        if(CollectionUtils.isEmpty(idList)) {
+            return new BooleanResult(false);
+        }
+
+        NumberResult<Integer> count = deviceModelService.count(Wrappers
+                .<DeviceModel>lambdaQuery().in(DeviceModel::getTypeId, idList));
+        Integer integer = count.ofNullable().orElse(0);
+        if(integer > 0) {
+            throw new ServiceException("此设备类型已在设备型号中被使用");
+        }
+
+        return super.removeByIds(idList);
     }
 }

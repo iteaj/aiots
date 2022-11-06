@@ -1,6 +1,5 @@
 package com.iteaj.iboot.msn.iot.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.iot.tools.annotation.IotField;

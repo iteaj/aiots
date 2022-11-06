@@ -49,7 +49,8 @@ public class SignalController extends BaseController {
      */
     @GetMapping("/listByModel")
     public Result<List<SignalOfModelDto>> listByModel(Integer modelId) {
-        List<SignalOfModelDto> modelDtos = this.signalService.list(new Signal(modelId)).stream().map(item -> new SignalOfModelDto().setId(item.getId().toString())
+        List<SignalOfModelDto> modelDtos = this.signalService.list(new Signal(modelId))
+                .stream().map(item -> new SignalOfModelDto().setId(item.getId().toString())
                 .setName(item.getName()).setAddress(item.getAddress())
                 .setFieldName(item.getFieldName())).collect(Collectors.toList());
         return success(modelDtos);

@@ -2,11 +2,13 @@ package com.iteaj.iboot.msn.iot.collect.store;
 
 import com.iteaj.iboot.msn.iot.consts.IotConsts;
 import com.iteaj.iboot.msn.iot.entity.CollectData;
+import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iot.tools.db.rdbms.RdbmsSqlManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 关系型数据库存储
@@ -27,7 +29,12 @@ public class RDBMStoreAction extends StoreAction {
     }
 
     @Override
-    public void store(List<CollectData> data) {
+    public void configValidate(Map<String, Object> jsonConfig) {
+
+    }
+
+    @Override
+    public void store(CollectDetail detail, List<CollectData> data) {
         rdbmsSqlManager.batchInsert(CollectData.class, Arrays.asList(data.toArray()));
     }
 }

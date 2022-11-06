@@ -11,6 +11,8 @@
         <result column="port" property="port" />
         <result column="model" property="model" />
         <result column="status" property="status" />
+        <result column="account" property="account" />
+        <result column="password" property="password" />
         <result column="device_sn" property="deviceSn" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />

@@ -71,7 +71,7 @@ public class CollectActionTask implements Runnable {
                 if(!CollectionUtils.isEmpty(values)) {
                     StoreAction storeAction = StoreActionFactory.getInstance().get(item.getStoreAction());
                     if(storeAction != null) {
-                        storeAction.store(values);
+                        storeAction.store(item, values);
                     }
                 }
             });

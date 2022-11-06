@@ -6,6 +6,8 @@ import com.iteaj.iboot.msn.iot.entity.GroupPoint;
 import com.iteaj.iboot.msn.iot.entity.PointGroup;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -38,4 +40,11 @@ public interface PointGroupMapper extends BaseMapper<PointGroup> {
      * @param list
      */
     void batchSaveGroupPoint(List<GroupPoint> list);
+
+    /**
+     * 是否绑定信号
+     * @param list
+     * @return
+     */
+    Boolean isBindSignals(Collection<? extends Serializable> list);
 }

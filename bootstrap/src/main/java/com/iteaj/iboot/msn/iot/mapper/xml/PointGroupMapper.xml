@@ -40,6 +40,16 @@
         where a.id=#{id}
     </select>
 
+    <select id="isBindSignals" resultType="java.lang.Boolean">
+        select a.group_id is not null from iot_group_point a
+        where a.signal_id in (
+            <foreach collection="list" item="id" separator=",">
+                #{id}
+            </foreach>
+        )
+        limit 1
+    </select>
+
     <insert id="batchSaveGroupPoint">
         insert into iot_group_point (signal_id, group_id) values
         <foreach collection="list" item="item" open="(" close=")" separator=",">

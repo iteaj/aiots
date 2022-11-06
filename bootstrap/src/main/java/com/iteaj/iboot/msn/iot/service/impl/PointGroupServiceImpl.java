@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,11 @@ public class PointGroupServiceImpl extends BaseServiceImpl<PointGroupMapper, Poi
     @Override
     public DetailResult<PointGroup> detailById(Long id) {
         return new DetailResult<>(this.getBaseMapper().detailById(id));
+    }
+
+    @Override
+    public Boolean isBindSignals(Collection<? extends Serializable> list) {
+        return getBaseMapper().isBindSignals(list);
     }
 
     @Override
