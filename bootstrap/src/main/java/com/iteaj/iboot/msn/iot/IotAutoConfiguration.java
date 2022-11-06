@@ -129,7 +129,6 @@ public class IotAutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnBean(MqttStoreAction.class)
     public MqttGatewayComponent mqttGatewayComponent() {
         return new MqttGatewayComponent();
     }
