@@ -6,6 +6,7 @@ import com.iteaj.iboot.msn.iot.collect.store.MqttStoreAction;
 import com.iteaj.iboot.msn.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
 import com.iteaj.iot.client.mqtt.gateway.MqttGatewayComponent;
+import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
@@ -143,4 +144,8 @@ public class IotAutoConfiguration {
         return StoreActionFactory.getInstance();
     }
 
+    @Bean
+    public DefaultMqttComponent defaultMqttComponent() {
+        return new DefaultMqttComponent();
+    }
 }

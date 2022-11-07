@@ -10,17 +10,14 @@ import com.iteaj.iboot.msn.iot.consts.DeviceStatus;
 import com.iteaj.iboot.msn.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.Device;
-import com.iteaj.iboot.msn.iot.entity.DeviceModel;
 import com.iteaj.iboot.msn.iot.service.IDeviceModelService;
 import com.iteaj.iboot.msn.iot.service.IDeviceService;
-import com.iteaj.iot.client.SocketClient;
-import com.iteaj.iot.plc.omron.OmronComponent;
-import com.iteaj.iot.plc.omron.OmronConnectProperties;
-import com.iteaj.iot.plc.siemens.SiemensConnectProperties;
-import com.iteaj.iot.plc.siemens.SiemensModel;
-import com.iteaj.iot.plc.siemens.SiemensS7Component;
+import com.iteaj.iot.client.mqtt.MqttClient;
+import com.iteaj.iot.client.mqtt.MqttConnectProperties;
+import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,11 +34,14 @@ public class DeviceMqttController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IDeviceModelService deviceModelService;
+    private final DefaultMqttComponent defaultMqttComponent;
 
     public DeviceMqttController(IDeviceService deviceService
-            , IDeviceModelService deviceModelService) {
+            , IDeviceModelService deviceModelService
+            , @Autowired(required = false) DefaultMqttComponent defaultMqttComponent) {
         this.deviceService = deviceService;
         this.deviceModelService = deviceModelService;
+        this.defaultMqttComponent = defaultMqttComponent;
     }
 
     /**
@@ -113,9 +113,29 @@ public class DeviceMqttController extends BaseController {
             return fail("未指定连接状态");
         }
 
+        if(this.defaultMqttComponent == null) {
+            return fail("没有启用mqtt组件");
+        }
+
         Device entity = deviceService.getById(device.getId()).getData();
         if(entity == null) {
             return fail("设备不存在["+device.getDeviceSn()+"]");
+        }
+
+        MqttConnectProperties properties = new MqttConnectProperties(entity.getIp(), entity.getPort(), entity.getDeviceSn());
+        properties.setUsername(entity.getAccount());
+        properties.setPassword(entity.getPassword());
+        MqttClient client = this.defaultMqttComponent.getClient(properties);
+        if(status == DeviceStatus.online) {
+            if(client == null) {
+                this.defaultMqttComponent.createNewClientAndConnect(properties);
+            } else {
+                client.connect(null, 3000).syncUninterruptibly();
+            }
+        } else {
+            if(client != null) {
+                client.disconnect(false).syncUninterruptibly();
+            }
         }
 
         return success();
