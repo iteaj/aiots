@@ -1,8 +1,11 @@
 package com.iteaj.framework.result;
 
+import com.iteaj.framework.exception.ServiceException;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -23,7 +26,16 @@ public class ListResult<E> extends OptionalResult<List<E>, ListResult<E>> {
     }
 
     public int size() {
-        return getData().size();
+        return getData() != null ? getData().size() : 0;
+    }
+
+    @Override
+    public Optional<List<E>> of() {
+        try {
+            return super.of();
+        } catch (Exception e) {
+            throw new ServiceException("获取不到记录");
+        }
     }
 
     public Iterator iterable() {

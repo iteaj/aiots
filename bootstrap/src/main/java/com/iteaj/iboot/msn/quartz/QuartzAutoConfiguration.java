@@ -32,6 +32,9 @@ import javax.sql.DataSource;
 @MapperScan({"com.iteaj.iboot.msn.quartz.mapper"})
 public class QuartzAutoConfiguration implements BeanFactoryPostProcessor, BeanDefinitionRegistryPostProcessor {
 
+    private final static String DEFAULT_JOB_GROUP_NAME = "JOB:GROUP:IBOOT";
+    private final static String DEFAULT_TRIGGER_GROUP_NAME = "TRIGGER:GROUP:IBOOT";
+
     @Bean("schedulerFactoryBean")
     public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory, DataSource dataSource){
 
@@ -43,8 +46,12 @@ public class QuartzAutoConfiguration implements BeanFactoryPostProcessor, BeanDe
         // 设置Quartz相关配置
         factoryBean.setConfigLocation(new ClassPathResource("quartz.properties"));
 
+        // 不自动启用
+        factoryBean.setAutoStartup(false);
+
         // 延时20秒启动
         factoryBean.setStartupDelay(20);
+
         // 使用数据库存储时需要用到的数据源
         factoryBean.setDataSource(dataSource);
         return factoryBean;
@@ -55,9 +62,9 @@ public class QuartzAutoConfiguration implements BeanFactoryPostProcessor, BeanDe
         return schedulerFactoryBean.getScheduler();
     }
 
-    @Bean("schedulerManager")
-    public SchedulerManager sysSchedulerManager(Scheduler scheduler) {
-        return new SchedulerManager(scheduler, Scheduler.DEFAULT_GROUP, Scheduler.DEFAULT_GROUP);
+    @Bean("defaultSchedulerManager")
+    public SchedulerManager defaultSchedulerManager(Scheduler scheduler) {
+        return new SchedulerManager(scheduler, DEFAULT_JOB_GROUP_NAME, DEFAULT_TRIGGER_GROUP_NAME);
     }
 
 //    @Bean

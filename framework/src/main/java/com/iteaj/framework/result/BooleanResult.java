@@ -12,6 +12,10 @@ public class BooleanResult extends OptionalResult<Boolean, BooleanResult> {
         super(value);
     }
 
+    public BooleanResult(Boolean value, String message) {
+        super(value, message, value == true ? DCODE : HttpResult.DEFAULT_ERROR_CODE);
+    }
+
     public BooleanResult(Boolean data, String message, long code) {
         super(data, message, code);
     }

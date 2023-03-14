@@ -1,7 +1,5 @@
 package com.iteaj.iboot.msn.quartz.jobs;
 
-import com.iteaj.iboot.msn.quartz.QuartzJob;
-import com.iteaj.iboot.msn.quartz.QuartzJobContext;
 import com.iteaj.util.CommonUtils;
 import org.quartz.JobDetail;
 import org.quartz.*;
@@ -84,11 +82,13 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
                     return;
                 }
 
-                final String name = method.getName();
+                QuartzJob methodAnnotation = method.getAnnotation(QuartzJob.class);
+                final String name = beanName + ":" + method.getName();
+
                 final QuartzJobContext context = cache.get(name);
                 if(context != null) {
-                    throw new BeanCreationException(String.format("定时任务方法重复[%s.%s -> %s.%s]"
-                            , beanName, name, context.getBean().getClass().getSimpleName(), name));
+                    throw new BeanCreationException(String.format("定时任务方法重复[%s -> %s]"
+                            , beanName, name));
                 } else {
                     cache.put(name, new QuartzJobContext(bean, method));
                 }
@@ -109,11 +109,13 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
     /**
      * 运行并发执行
      */
-    public static class EmptyJob implements Job {
+    public class EmptyJob implements Job {
         protected EmptyJob() {}
 
         @Override
-        public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException { }
+        public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+            SpringSupportJob.this.execute(jobExecutionContext);
+        }
     }
 
     /**
@@ -121,7 +123,7 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
      */
     @DisallowConcurrentExecution
     @PersistJobDataAfterExecution
-    public static class NonConcurrentEmptyJob extends EmptyJob {
+    public class NonConcurrentEmptyJob extends EmptyJob {
         protected NonConcurrentEmptyJob() {}
     }
 }

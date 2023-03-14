@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.quartz;
+package com.iteaj.iboot.msn.quartz.jobs;
 
 import lombok.Data;
 import org.quartz.JobDataMap;

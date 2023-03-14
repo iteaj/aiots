@@ -23,10 +23,8 @@ public class SchedulerManager {
 
     /**
      * 添加一个定时任务，使用默认的任务组名，触发器名，触发器组名
-     * @param jobName
-     *            任务名
-     * @param cls
-     *            任务
+     * @param jobName 任务名
+     * @param cls 任务
      */
     public void addJob(String jobName, Class<? extends Job> cls, String cron) {
         addJob(jobName, JOB_GROUP_NAME, jobName, TRIGGER_GROUP_NAME, cls, cron, null, null);
@@ -83,17 +81,30 @@ public class SchedulerManager {
     /**
      * 更新作业
      * @param jobName
+     * @param isConCurrent 是否并发  使用默认作业{@link SpringSupportJob} <hr>
+     *     {@link com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob.EmptyJob}
+     *     {@link com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob.NonConcurrentEmptyJob}
      */
-    public void updateJob(String jobName, boolean isConCurrent, String desc) {
+    public void updateJob(String jobName, boolean isConCurrent, JobDataMap map, String desc) {
+        Class jobClass = isConCurrent ? SpringSupportJob.EMPTY_JOB : SpringSupportJob.NON_CONCURRENT_EMPTY_JOB;
+        this.updateJob(jobName, jobClass, map, desc);
+    }
+
+    /**
+     * 更新作业
+     * @param jobName 作业名称
+     * @param jobClass 作业
+     * @param map 作业数据
+     */
+    public void updateJob(String jobName, Class<? extends Job> jobClass, JobDataMap map, String desc) {
 
         try {
             final JobKey jobKey = new JobKey(jobName);
             final JobDetail jobDetail = scheduler.getJobDetail(jobKey);
             if (jobDetail == null) throw new RuntimeException("作业不存在[" + jobName + "]");
 
-            Class jobClass = isConCurrent ? SpringSupportJob.EMPTY_JOB : SpringSupportJob.NON_CONCURRENT_EMPTY_JOB;
             JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName, JOB_GROUP_NAME)
-                    .usingJobData(jobDetail.getJobDataMap()).storeDurably().withDescription(desc).build();
+                    .usingJobData(map).storeDurably().withDescription(desc).build();
 
             // 覆盖掉原先的作业信息
             scheduler.addJob(job, true);
@@ -132,6 +143,15 @@ public class SchedulerManager {
     }
 
     /**
+     * 移除一个任务<hr>
+     *     作业名和触发器名称相同
+     * @param jobName
+     */
+    public void removeJob(String jobName) {
+        this.resumeJob(jobName, jobName);
+    }
+
+    /**
      * 移除一个任务
      * @param jobName
      * @param triggerName
@@ -144,7 +164,7 @@ public class SchedulerManager {
             Trigger trigger = scheduler.getTrigger(triggerKey);
             if (trigger == null) return;
 
-            scheduler.pauseTrigger(triggerKey);// 停止触发器
+//            scheduler.pauseTrigger(triggerKey);// 停止触发器
             scheduler.unscheduleJob(triggerKey);// 移除触发器
             scheduler.deleteJob(jobKey);// 删除任务
         } catch (Exception e) {
@@ -154,9 +174,7 @@ public class SchedulerManager {
 
     public boolean exists(String jobName) {
         try {
-            JobDetail jobDetail = scheduler.getJobDetail(JobKey.jobKey(jobName, JOB_GROUP_NAME));
-
-            return jobDetail != null;
+            return scheduler.getJobDetail(JobKey.jobKey(jobName, JOB_GROUP_NAME)) != null;
         } catch (SchedulerException e) {
             throw new RuntimeException(e);
         }
