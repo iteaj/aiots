@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * @author iteaj
  * @since 1.0
  */
-@QuartzJob("作业示例说明")
+@QuartzJob(desc = "作业示例说明")
 public class DemoJob implements Job {
 
     private Logger logger = LoggerFactory.getLogger(DemoJob.class);

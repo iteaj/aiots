@@ -99,7 +99,7 @@ public class SchedulerManager {
     public void updateJob(String jobName, Class<? extends Job> jobClass, JobDataMap map, String desc) {
 
         try {
-            final JobKey jobKey = new JobKey(jobName);
+            final JobKey jobKey = new JobKey(jobName, JOB_GROUP_NAME);
             final JobDetail jobDetail = scheduler.getJobDetail(jobKey);
             if (jobDetail == null) throw new RuntimeException("作业不存在[" + jobName + "]");
 

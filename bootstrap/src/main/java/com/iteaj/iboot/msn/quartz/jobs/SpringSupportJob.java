@@ -24,7 +24,7 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
 
     private AutowireCapableBeanFactory beanFactory;
     public final static Class<EmptyJob> EMPTY_JOB = EmptyJob.class;
-    public final static String JOB_EXPRESSION = "expression";
+    public final static String JOB_EXPRESSION = "METHOD:EXPRESSION";
     private Logger logger = LoggerFactory.getLogger(SpringSupportJob.class);
     private Map<String, QuartzJobContext> cache = new ConcurrentHashMap<>(16);
     public final static Class<NonConcurrentEmptyJob> NON_CONCURRENT_EMPTY_JOB = NonConcurrentEmptyJob.class;
@@ -109,12 +109,12 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
     /**
      * 运行并发执行
      */
-    public class EmptyJob implements Job {
+    public static class EmptyJob implements Job {
         protected EmptyJob() {}
 
         @Override
         public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-            SpringSupportJob.this.execute(jobExecutionContext);
+//            SpringSupportJob.this.execute(jobExecutionContext);
         }
     }
 
@@ -123,7 +123,7 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
      */
     @DisallowConcurrentExecution
     @PersistJobDataAfterExecution
-    public class NonConcurrentEmptyJob extends EmptyJob {
+    public static class NonConcurrentEmptyJob extends EmptyJob {
         protected NonConcurrentEmptyJob() {}
     }
 }

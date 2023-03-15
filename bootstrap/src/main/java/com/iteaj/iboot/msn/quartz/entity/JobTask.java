@@ -44,7 +44,7 @@ public class JobTask extends BaseEntity {
     /**
      * 是否并发
      */
-    private Boolean conCurrent;
+    private Boolean concurrent;
 
     /**
      * 创建时间

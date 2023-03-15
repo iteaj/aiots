@@ -1,11 +1,13 @@
 package com.iteaj.iboot.msn.quartz.service.impl;
 
+import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.iboot.msn.quartz.entity.JobTask;
+import com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob;
 import com.iteaj.iboot.msn.quartz.mapper.JobTaskMapper;
 import com.iteaj.iboot.msn.quartz.scheduler.SchedulerManager;
 import com.iteaj.iboot.msn.quartz.service.IJobTaskService;
@@ -30,17 +32,13 @@ public class JobTaskServiceImpl extends BaseServiceImpl<JobTaskMapper, JobTask> 
     @Override
     @Transactional
     public BooleanResult saveOrUpdate(JobTask entity) {
-        String jobName = getJobName(entity);
         JobDataMap dataMap = getJobDataMap(entity);
-        JobTask data = this.getOne(Wrappers.<JobTask>lambdaQuery().eq(JobTask::getJobName, jobName)).getData();
         if(entity.getId() != null) {
-            if(!data.getId().equals(entity.getId())) {
-                return new BooleanResult(false, "执行方法已经存在");
-            }
-
-            schedulerManager.updateJob(jobName, entity.getConCurrent(), dataMap, entity.getRemark());
+            schedulerManager.updateJob(entity.getJobName(), entity.getConcurrent(), dataMap, entity.getRemark());
         } else {
-            schedulerManager.addJob(jobName, entity.getConCurrent(), entity.getCron(), dataMap, entity.getRemark());
+            String jobName = getJobName(entity);
+            entity.setJobName(jobName);
+            schedulerManager.addJob(jobName, entity.getConcurrent(), entity.getCron(), dataMap, entity.getRemark());
         }
 
         return super.saveOrUpdate(entity);
@@ -48,9 +46,12 @@ public class JobTaskServiceImpl extends BaseServiceImpl<JobTaskMapper, JobTask> 
 
     private JobDataMap getJobDataMap(JobTask entity) {
         int indexOfArgs = entity.getMethod().indexOf("(");
-        String args = entity.getMethod().substring(indexOfArgs, entity.getMethod().length() - 1);
+        String args = entity.getMethod().substring(indexOfArgs + 1, entity.getMethod().length() - 1);
         JobDataMap dataMap = new JobDataMap();
-        if(args.startsWith("'") || args.startsWith("\"")) {
+        dataMap.put(SpringSupportJob.JOB_EXPRESSION, entity.getMethod().substring(0, indexOfArgs));
+        if(args.equals("")) {
+            return dataMap;
+        } else if(args.startsWith("'") || args.startsWith("\"")) {
             dataMap.put("param", args.substring(1, args.length() - 1));
         } else if(args.startsWith("{")) {
             dataMap.put("param", JSONObject.parse(args));
@@ -62,13 +63,7 @@ public class JobTaskServiceImpl extends BaseServiceImpl<JobTaskMapper, JobTask> 
     }
 
     private String getJobName(JobTask entity) {
-        String method = entity.getMethod();
-        if(!StringUtils.hasText(method)) {
-            throw new ServiceException("未指定要执行的方法");
-        }
-
-        int indexOfArgs = method.indexOf("(");
-        return method.substring(0, indexOfArgs);
+        return UUID.fastUUID().toString(false);
     }
 
     @Override

@@ -5,7 +5,9 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.quartz.entity.JobTask;
+import com.iteaj.iboot.msn.quartz.scheduler.SchedulerManager;
 import com.iteaj.iboot.msn.quartz.service.IJobTaskService;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +18,11 @@ import java.util.List;
 public class JobTaskController extends BaseController {
 
     private final IJobTaskService jobTaskService;
+    private final SchedulerManager schedulerManager;
 
-    public JobTaskController(IJobTaskService jobTaskService) {
+    public JobTaskController(IJobTaskService jobTaskService, SchedulerManager schedulerManager) {
         this.jobTaskService = jobTaskService;
+        this.schedulerManager = schedulerManager;
     }
 
     /**
@@ -60,5 +64,35 @@ public class JobTaskController extends BaseController {
     @PostMapping("del")
     public BooleanResult del(@RequestBody List<Long> ids) {
         return this.jobTaskService.removeByIds(ids);
+    }
+
+    /**
+     * 修改状态
+     * @param status 状态
+     * @param entity
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    public Result<Object> status(@PathVariable String status, @RequestBody JobTask entity) {
+        if("paused".equals(status)) {
+            this.schedulerManager.pauseJob(entity.getJobName());
+        } else if("resume".equals(status)) {
+            this.schedulerManager.resumeJob(entity.getJobName());
+        } else {
+            return fail("不支持的操作");
+        }
+
+        return success("修改状态成功");
+    }
+
+    /**
+     * 运行一次
+     * @param entity
+     * @return
+     */
+    @PostMapping("once")
+    public Result once(@RequestBody JobTask entity) {
+        this.schedulerManager.fireJob(entity.getJobName());
+        return success("触发成功");
     }
 }

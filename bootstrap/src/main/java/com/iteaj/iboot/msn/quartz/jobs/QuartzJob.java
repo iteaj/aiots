@@ -13,8 +13,15 @@ import java.lang.annotation.Target;
 public @interface QuartzJob {
 
     /**
-     * 作业说明
+     * bean名称
+     * @see Component#value()
      * @return
      */
     String value() default "";
+
+    /**
+     * 作业说明
+     * @return
+     */
+    String desc() default "";
 }

@@ -47,7 +47,7 @@ public class QuartzAutoConfiguration implements BeanFactoryPostProcessor, BeanDe
         factoryBean.setConfigLocation(new ClassPathResource("quartz.properties"));
 
         // 不自动启用
-        factoryBean.setAutoStartup(false);
+//        factoryBean.setAutoStartup(false);
 
         // 延时20秒启动
         factoryBean.setStartupDelay(20);
