@@ -124,7 +124,7 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
 
         @Override
         public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-//            SpringSupportJob.this.execute(jobExecutionContext);
+
         }
     }
 
