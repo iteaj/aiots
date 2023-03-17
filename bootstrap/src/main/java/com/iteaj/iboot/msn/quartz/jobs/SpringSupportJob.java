@@ -15,18 +15,26 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, BeanPostProcessor {
 
     private AutowireCapableBeanFactory beanFactory;
+
     public final static Class<EmptyJob> EMPTY_JOB = EmptyJob.class;
     public final static String JOB_EXPRESSION = "METHOD:EXPRESSION";
+
+    private List<Map<String, String>> optionValues = new ArrayList<>();
     private Logger logger = LoggerFactory.getLogger(SpringSupportJob.class);
     private Map<String, QuartzJobContext> cache = new ConcurrentHashMap<>(16);
+
     public final static Class<NonConcurrentEmptyJob> NON_CONCURRENT_EMPTY_JOB = NonConcurrentEmptyJob.class;
 
     @Override
@@ -74,23 +82,25 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        final QuartzJob annotation = bean.getClass().getAnnotation(QuartzJob.class);
+        final QuartzTask annotation = bean.getClass().getAnnotation(QuartzTask.class);
         if(annotation != null) {
 
             ReflectionUtils.doWithLocalMethods(bean.getClass(), method -> {
-                if(!Modifier.isPublic(method.getModifiers())) {
+                QuartzJob methodAnnotation = method.getAnnotation(QuartzJob.class);
+                if(methodAnnotation == null) {
                     return;
                 }
 
-                QuartzJob methodAnnotation = method.getAnnotation(QuartzJob.class);
-                final String name = beanName + ":" + method.getName();
-
+                final String name = beanName + "." + method.getName();
                 final QuartzJobContext context = cache.get(name);
                 if(context != null) {
                     throw new BeanCreationException(String.format("定时任务方法重复[%s -> %s]"
                             , beanName, name));
                 } else {
                     cache.put(name, new QuartzJobContext(bean, method));
+                    HashMap<String, String> option = new HashMap<>();
+                    option.put("label", name); option.put("value", name);
+                    optionValues.add(option);
                 }
             });
         }
@@ -100,7 +110,7 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
 
     public QuartzJobContext getContext(String expression) {
         if(CommonUtils.isNotBlank(expression)) {
-            return cache.get(expression.substring(0, expression.indexOf("(")));
+            return cache.get(expression);
         } else {
             return null;
         }
@@ -125,5 +135,9 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
     @PersistJobDataAfterExecution
     public static class NonConcurrentEmptyJob extends EmptyJob {
         protected NonConcurrentEmptyJob() {}
+    }
+
+    public List<Map<String, String>> getOptionValues() {
+        return optionValues;
     }
 }

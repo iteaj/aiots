@@ -3,9 +3,11 @@ package com.iteaj.iboot.msn.quartz.jobs;
 import lombok.Data;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
+import org.springframework.beans.BeanUtils;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 
@@ -23,13 +25,21 @@ public class QuartzJobContext {
 
     public Object invoke(String expression, JobExecutionContext jobExecutionContext) {
         final JobDataMap jobDataMap = jobExecutionContext.getJobDetail().getJobDataMap();
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        Object[] params = new Object[parameterTypes.length];
+        if(parameterTypes.length > 0) {
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if(JobDataMap.class.isAssignableFrom(parameterTypes[i])) {
+                    params[i] = jobDataMap;
+                } else if(JobExecutionContext.class.isAssignableFrom(parameterTypes[i])) {
+                    params[i] = jobExecutionContext;
+                } else {
+                    params[i] = null;
+                }
+            }
+        }
 
-        final StandardEvaluationContext context = new StandardEvaluationContext();
-
-        context.setVariable("bean", bean);
-        context.setVariable("data", jobDataMap);
-        context.setVariable("context", jobExecutionContext);
-        return parser.parseExpression("#bean."+expression).getValue(context);
+        return ReflectionUtils.invokeMethod(method, bean, params);
     }
 
 }

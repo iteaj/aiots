@@ -37,6 +37,11 @@ public class JobTask extends BaseEntity {
     private String method;
 
     /**
+     * 执行参数
+     */
+    private String params;
+
+    /**
      * 作业名称
      */
     private String jobName;

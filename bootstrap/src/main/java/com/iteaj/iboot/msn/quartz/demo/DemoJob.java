@@ -1,6 +1,5 @@
 package com.iteaj.iboot.msn.quartz.demo;
 
-import com.iteaj.iboot.msn.quartz.jobs.QuartzJob;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
  * @author iteaj
  * @since 1.0
  */
-@QuartzJob(desc = "作业示例说明")
 public class DemoJob implements Job {
 
     private Logger logger = LoggerFactory.getLogger(DemoJob.class);

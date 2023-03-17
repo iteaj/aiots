@@ -45,18 +45,23 @@ public class JobTaskServiceImpl extends BaseServiceImpl<JobTaskMapper, JobTask> 
     }
 
     private JobDataMap getJobDataMap(JobTask entity) {
-        int indexOfArgs = entity.getMethod().indexOf("(");
-        String args = entity.getMethod().substring(indexOfArgs + 1, entity.getMethod().length() - 1);
+        String args = entity.getParams();
         JobDataMap dataMap = new JobDataMap();
-        dataMap.put(SpringSupportJob.JOB_EXPRESSION, entity.getMethod().substring(0, indexOfArgs));
-        if(args.equals("")) {
-            return dataMap;
-        } else if(args.startsWith("'") || args.startsWith("\"")) {
-            dataMap.put("param", args.substring(1, args.length() - 1));
-        } else if(args.startsWith("{")) {
-            dataMap.put("param", JSONObject.parse(args));
-        } else {
-            dataMap.put("param", args);
+        dataMap.put(SpringSupportJob.JOB_EXPRESSION, entity.getMethod());
+        try {
+            if(!StringUtils.hasText(args)) {
+                return dataMap;
+            } else if(args.startsWith("'") || args.startsWith("\"")) {
+                dataMap.put("params", args.substring(1, args.length() - 1));
+            } else if(args.startsWith("{")) {
+                dataMap.put("params", JSONObject.parseObject(args));
+            } else if(args.startsWith("[")) {
+                dataMap.put("params", JSONObject.parseArray(args));
+            } else {
+                dataMap.put("params", args);
+            }
+        } catch (Exception e) {
+            throw new ServiceException("参数格式化异常：" + args);
         }
 
         return dataMap;

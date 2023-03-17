@@ -7,21 +7,26 @@ import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.quartz.entity.JobTask;
+import com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob;
 import com.iteaj.iboot.msn.quartz.scheduler.SchedulerManager;
 import com.iteaj.iboot.msn.quartz.service.IJobTaskService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/quartz/task")
 public class JobTaskController extends BaseController {
 
     private final IJobTaskService jobTaskService;
+    private final SpringSupportJob springSupportJob;
     private final SchedulerManager schedulerManager;
 
-    public JobTaskController(IJobTaskService jobTaskService, SchedulerManager schedulerManager) {
+    public JobTaskController(IJobTaskService jobTaskService
+            , SpringSupportJob springSupportJob, SchedulerManager schedulerManager) {
         this.jobTaskService = jobTaskService;
+        this.springSupportJob = springSupportJob;
         this.schedulerManager = schedulerManager;
     }
 
@@ -95,4 +100,14 @@ public class JobTaskController extends BaseController {
         this.schedulerManager.fireJob(entity.getJobName());
         return success("触发成功");
     }
+
+    /**
+     * 可执行方法列表
+     * @return
+     */
+    @GetMapping("taskMethods")
+    public Result<List<Map<String, String>>> taskMethods() {
+        return success(springSupportJob.getOptionValues());
+    }
+
 }
