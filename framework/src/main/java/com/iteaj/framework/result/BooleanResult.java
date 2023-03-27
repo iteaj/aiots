@@ -24,4 +24,12 @@ public class BooleanResult extends OptionalResult<Boolean, BooleanResult> {
     public Boolean getData() {
         return super.getData() == null ? false : super.getData();
     }
+
+    public static BooleanResult buildFalse(String msg) {
+        return new BooleanResult(false, msg);
+    }
+
+    public static BooleanResult buildTrue(String msg) {
+        return new BooleanResult(true, msg);
+    }
 }

@@ -32,7 +32,7 @@ public class JobTask extends BaseEntity {
 
     /**
      * 执行的方法: <hr>
-     *     spring的bean名+method e.g: task.test('1')
+     *     spring的bean名+method e.g: task.test
      */
     private String method;
 

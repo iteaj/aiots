@@ -1,5 +1,6 @@
 package com.iteaj.iboot.boot;
 
+import com.iteaj.iboot.common.IBootControllerAdvice;
 import com.iteaj.iboot.msn.core.CoreAutoConfiguration;
 import com.iteaj.iboot.msn.iot.IotAutoConfiguration;
 import com.iteaj.iboot.msn.lcd.LowCodeGenAutoConfiguration;
@@ -7,6 +8,7 @@ import com.iteaj.iboot.msn.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -26,11 +28,18 @@ import org.springframework.context.annotation.ComponentScan;
         // 以下是IBoot的核心配置(必须启用)
         CoreAutoConfiguration.class, // 系统管理模块
 })
-@SpringBootApplication(exclude = {org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration.class})
+@SpringBootApplication(
+        exclude = {org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration.class}
+)
 public class IBootApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(IBootApplication.class, args);
     }
 
+
+    @Bean
+    public IBootControllerAdvice bootControllerAdvice() {
+        return new IBootControllerAdvice();
+    }
 }

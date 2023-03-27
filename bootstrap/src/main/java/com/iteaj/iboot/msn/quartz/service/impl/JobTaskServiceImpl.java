@@ -15,6 +15,7 @@ import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -74,6 +75,10 @@ public class JobTaskServiceImpl extends BaseServiceImpl<JobTaskMapper, JobTask> 
     @Override
     @Transactional
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
+        if(CollectionUtils.isEmpty(idList)) {
+            return BooleanResult.buildFalse("请指定要删除的作业");
+        }
+
         this.listByIds(idList).stream().forEach(item -> {
             schedulerManager.removeJob(item.getJobName());
         });

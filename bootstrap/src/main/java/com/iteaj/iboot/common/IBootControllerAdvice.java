@@ -1,8 +1,12 @@
-package com.iteaj.framework.exception;
+package com.iteaj.iboot.common;
 
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.auth.SecurityException;
+import org.apache.shiro.ShiroException;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
@@ -17,7 +21,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 @RestControllerAdvice
-public class FrameworkControllerAdvice {
+public class IBootControllerAdvice {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -25,12 +29,22 @@ public class FrameworkControllerAdvice {
      * 全局未知异常处理
      * @return
      */
-    @ResponseBody
     @ExceptionHandler(Throwable.class)
     protected <E> Result<E> unknownExceptionHandle(Throwable e) {
         logger.error("未知错误", e.getMessage(), e);
 
         return Result.fail("系统异常");
+    }
+
+    @ExceptionHandler(ShiroException.class)
+    protected Result shiroExceptionHandle(ShiroException e) {
+        if(e instanceof UnauthorizedException) {
+            return Result.fail("您无此功能权限");
+        } else if(e instanceof AuthenticationException) {
+            return Result.fail("请先认证");
+        } else {
+            return Result.fail("未认证或者无此权限");
+        }
     }
 
     /**
