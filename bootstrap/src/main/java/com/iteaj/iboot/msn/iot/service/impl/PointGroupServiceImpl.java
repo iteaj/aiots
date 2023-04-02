@@ -50,7 +50,8 @@ public class PointGroupServiceImpl extends BaseServiceImpl<PointGroupMapper, Poi
 
     @Override
     public Boolean isBindSignals(Collection<? extends Serializable> list) {
-        return getBaseMapper().isBindSignals(list);
+        Boolean bindSignals = getBaseMapper().isBindSignals(list);
+        return bindSignals == null ? false : bindSignals;
     }
 
     @Override

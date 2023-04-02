@@ -8,6 +8,7 @@ import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
 import com.iteaj.iot.client.mqtt.gateway.MqttGatewayComponent;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
 import com.iteaj.iot.config.ConnectProperties;
+import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientComponent;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
 import com.iteaj.iot.plc.omron.OmronComponent;
@@ -45,6 +46,20 @@ public class IotAutoConfiguration {
     @Bean
     public ModbusTcpForDtuServerComponent modbusTcpForDtuServerComponent() {
         return new ModbusTcpForDtuServerComponent(new ConnectProperties(7068, 90, 0, 0));
+    }
+
+    /**
+     * modbus tcp client组件
+     * @return
+     */
+    @Bean
+    public ModbusTcpClientComponent modbusTcpClientComponent() {
+        return new ModbusTcpClientComponent();
+    }
+
+    @Bean
+    public ModbusTcpClientCollectAction modbusTcpClientCollectAction() {
+        return new ModbusTcpClientCollectAction();
     }
 
     /**

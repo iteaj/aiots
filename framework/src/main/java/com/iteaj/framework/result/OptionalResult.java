@@ -1,6 +1,8 @@
 package com.iteaj.framework.result;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * create time: 2019/7/26
@@ -23,6 +25,14 @@ public abstract class OptionalResult<E, _this extends AbstractResult<E>> extends
 
     public Optional<E> of() {
         return Optional.of(getData());
+    }
+
+    public _this ifPresent(BiConsumer<E, _this> consumer) {
+        if(this.getData() != null) {
+            consumer.accept(this.getData(), (_this) this);
+        }
+
+        return (_this) this;
     }
 
     public Optional<E> ofNullable() {
