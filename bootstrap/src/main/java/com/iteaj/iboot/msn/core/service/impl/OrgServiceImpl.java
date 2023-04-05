@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.core.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.iboot.common.CacheKeys;
 import com.iteaj.iboot.msn.core.entity.Admin;
 import com.iteaj.iboot.msn.core.mapper.IOrgDao;
 import com.iteaj.iboot.msn.core.entity.Org;
@@ -13,6 +14,9 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
@@ -27,6 +31,7 @@ import java.util.List;
  */
 @Service
 @AllArgsConstructor
+@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_DICT})
 public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOrgService {
 
     private final IAdminService adminService;
@@ -97,5 +102,11 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
     public ListResult<Org> selectTrees(Org org) {
         ListResult<Org> selectList = this.list(org);
         return new ListResult((List<Org>) TreeUtils.toTrees(selectList.getData(), 0l));
+    }
+
+    @Override
+    @Cacheable(key = "'ORG:LIST'")
+    public ListResult<Org> list() {
+        return super.list();
     }
 }

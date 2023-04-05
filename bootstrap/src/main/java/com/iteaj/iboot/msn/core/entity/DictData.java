@@ -2,11 +2,13 @@ package com.iteaj.iboot.msn.core.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.iteaj.framework.spi.excel.ExcelDict;
 import com.iteaj.iboot.msn.core.enums.Status;
 import com.iteaj.framework.BaseEntity;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -17,7 +19,7 @@ import java.util.Date;
  */
 @Data
 @TableName("sys_dict_data")
-public class DictData extends BaseEntity {
+public class DictData extends BaseEntity implements ExcelDict {
 
     /**
      * 排序
@@ -55,4 +57,14 @@ public class DictData extends BaseEntity {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateTime;
+
+    @Override
+    public String toName(Object entity) {
+        return this.label;
+    }
+
+    @Override
+    public Serializable toValue(Object entity) {
+        return this.value;
+    }
 }

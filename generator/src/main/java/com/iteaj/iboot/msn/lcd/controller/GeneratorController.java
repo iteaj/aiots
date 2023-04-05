@@ -223,25 +223,17 @@ public class GeneratorController extends BaseController implements InitializingB
      * @param dto
      */
     @PostMapping("vue")
-    public Result<String> download(@RequestBody GenConfigDto dto, HttpServletResponse response) throws IOException {
-        try {
-            initTableQuerySql(null, null, dto.getTables());
-            ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
-                    , properties.getLsc(), new TemplateConfig(), properties.getLgc());
+    public void download(@RequestBody GenConfigDto dto, HttpServletResponse response) throws IOException {
+        initTableQuerySql(null, null, dto.getTables());
+        ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
+                , properties.getLsc(), new TemplateConfig(), properties.getLgc());
+        int i = 3/0;
+        response.setContentType("application/octet-stream");
 
-            response.setContentType("application/octet-stream");
-
-            // 生成文件
-            ServletOutputStream outputStream = response.getOutputStream();
-            new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(outputStream
-                    , properties)).setConfig(configBuilder).execute();
-
-            // 二进制流必须返回null
-            return null;
-        } catch (IOException e) {
-            response.setContentType("application/json");
-            return fail("下载失败");
-        }
+        // 生成文件
+        ServletOutputStream outputStream = response.getOutputStream();
+        new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(outputStream
+                , properties)).setConfig(configBuilder).execute();
     }
 
     /**

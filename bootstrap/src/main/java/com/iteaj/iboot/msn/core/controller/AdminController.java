@@ -3,7 +3,10 @@ package com.iteaj.iboot.msn.core.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.framework.utils.ExcelExportParams;
+import com.iteaj.framework.utils.ExcelUtils;
 import com.iteaj.iboot.msn.core.dto.AdminDto;
 import com.iteaj.iboot.msn.core.dto.PasswordDto;
 import com.iteaj.iboot.msn.core.entity.Admin;
@@ -12,6 +15,9 @@ import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -60,7 +66,7 @@ public class AdminController extends BaseController {
      */
     @GetMapping("/edit")
     @RequiresPermissions("core:admin:edit")
-    public Result edit(Long id) {
+    public Result<AdminDto> edit(Long id) {
         return this.adminService.getAdminDetailById(id);
     }
 
@@ -71,9 +77,9 @@ public class AdminController extends BaseController {
      */
     @PostMapping("/edit")
     @RequiresPermissions("core:admin:edit")
-    public Result edit(@RequestBody AdminDto admin) {
+    public Result<Boolean> edit(@RequestBody AdminDto admin) {
         this.adminService.updateAdminAndRole(admin);
-        return success();
+        return success(true);
     }
 
     /**
@@ -83,9 +89,26 @@ public class AdminController extends BaseController {
      */
     @PostMapping("/del")
     @RequiresPermissions("core:admin:del")
-    public Result del(@RequestBody List<Long> list) {
+    public Result<Boolean> del(@RequestBody List<Long> list) {
         this.adminService.deleteAllJoinByIds(list);
         return success();
+    }
+
+    /**
+     * 导出用户
+     * @param page
+     * @param admin
+     */
+    @GetMapping("export")
+    public void excelExport(Page<Admin> page, Admin admin, HttpServletResponse response) throws IOException {
+        ServletOutputStream outputStream = response.getOutputStream();
+        this.adminService.page(page, admin).ifPresent((a, b) -> {
+            try {
+                ExcelUtils.exportExcel(a.getRecords(), Admin.class, new ExcelExportParams(), outputStream);
+            } catch (IOException e) {
+                throw new ServiceException(e.getMessage(), e);
+            }
+        });
     }
 
     @PostMapping("/modUserInfo")

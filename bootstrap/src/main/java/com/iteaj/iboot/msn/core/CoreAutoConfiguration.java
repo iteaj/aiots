@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.core;
 
+import cn.afterturn.easypoi.handler.inter.IExcelDictHandler;
 import com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration;
 import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
 import com.iteaj.framework.autoconfigure.ShiroAutoConfiguration;
@@ -8,6 +9,8 @@ import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.security.shiro.AccessFilterWrapper;
 import com.iteaj.framework.spi.admin.ResourceManager;
+import com.iteaj.framework.spi.excel.ExcelDictHandle;
+import com.iteaj.framework.spi.excel.IExcelService;
 import com.iteaj.iboot.msn.core.config.shiro.ShiroAdminFilter;
 import com.iteaj.iboot.msn.core.config.shiro.ShiroAdminAuthRealm;
 import com.iteaj.iboot.msn.core.config.shiro.ShiroOnlineListener;
@@ -133,6 +136,11 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     @Bean
     public LoggerService loggerService() {
         return new AdminLoggerService();
+    }
+
+    @Bean
+    public IExcelDictHandler excelDictHandler(IExcelService excelService) {
+        return new ExcelDictHandle(excelService);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.iteaj.framework.Entity;
 
 import java.beans.Transient;
 import java.util.Collections;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 /**
@@ -36,6 +37,15 @@ public class PageResult<T extends IPage> extends OptionalResult<T, PageResult<T>
     @Transient
     public long getTotal() {
         return getData().getTotal();
+    }
+
+    @Override
+    public PageResult<T> ifPresent(BiConsumer<T, PageResult<T>> consumer) {
+        if(this.getData().getRecords() != null) {
+            consumer.accept(this.getData(), this);
+        }
+
+        return this;
     }
 
     /**
