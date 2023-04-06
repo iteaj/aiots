@@ -27,8 +27,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </collection>
     </resultMap>
     <insert id="createAdmin">
-        insert into sys_admin (name, org_id, account, email, phone, sex, avatar, password, status, login_ip,login_date, remark) value
-        (#{name},#{orgId},#{account},#{email},#{phone},#{sex},#{avatar},#{password},#{status},#{loginIp},#{loginDate},#{remark});
+        insert into sys_admin (name, org_id, account, email, phone, sex, avatar, password, status, login_ip,login_date, remark, create_time) value
+        (#{name},#{orgId},#{account},#{email},#{phone},#{sex},#{avatar},#{password},#{status},#{loginIp},#{loginDate},#{remark}, now());
         set @lastId=LAST_INSERT_ID();
         <if test="roleIds != null">
             insert into sys_admin_role (aid, rid) values
@@ -47,7 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
     </update>
     <update id="updatePwdById">
-        update sys_admin set password=#{password} where id=#{id}
+        update sys_admin set password=#{password}, update_time=now() where id=#{id}
     </update>
     <delete id="deleteAllJoinByIds">
         delete from sys_admin where id in (

@@ -26,7 +26,7 @@ public class Admin extends BaseEntity {
 
     /*性别*/
     @Excel(name = "性别", orderNum = "60", dict = "core_sex")
-    private Integer sex;
+    private String sex;
 
     /*所属部门*/
     @Excel(name = "部门", orderNum = "40", dict = "org_id")

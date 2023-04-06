@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -48,7 +49,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     @Transactional
     public void updateAdminAndRole(AdminDto adminDto) {
-        this.updateById(adminDto);
+        this.updateById(adminDto.setUpdateTime(new Date()));
         this.getBaseMapper().updateAdminRole(adminDto);
     }
 
