@@ -24,51 +24,80 @@ import java.util.Date;
 @Accessors(chain = true)
 public class Admin extends BaseEntity {
 
-    /*性别*/
+    /**
+     * 性别
+     */
     @Excel(name = "性别", orderNum = "60", dict = "core_sex")
     private String sex;
 
-    /*所属部门*/
+    /**
+     * 所属部门
+     */
     @Excel(name = "部门", orderNum = "40", dict = "org_id")
     private Long orgId;
 
-    /*用户昵称*/
+    /**
+     * 用户昵称
+     */
     @TableField(condition = SqlCondition.LIKE)
     @Excel(name = "用户名", orderNum = "10")
     private String name;
 
+    /**
+     * 邮箱
+     */
     @Excel(name = "邮箱", orderNum = "50")
     private String email;
 
+    /**
+     * 手机号
+     */
     @Excel(name = "手机号", orderNum = "30")
     @TableField(condition = SqlCondition.LIKE)
     private String phone;
 
-    /*用户头像*/
+    /**
+     * 用户头像
+     */
     private String avatar;
 
+    /**
+     * 备注
+     */
     private String remark;
 
-    /*用户账号, 不进行更新操作*/
+    /**
+     * 用户账号
+     */
     @TableField(updateStrategy = FieldStrategy.NEVER)
     @Excel(name = "用户账号", orderNum = "20")
     private String account;
 
-    /*登录ip*/
+    /**
+     * 登录ip
+     */
     private String loginIp;
 
-    /*登录时间*/
+    /**
+     * 登录时间
+     */
     private Date loginDate;
 
-    /*密码, 不进行密码更新*/
+    /**
+     * 密码
+     */
     @JsonIgnore
     private String password;
 
-    /*账号使用状态*/
+    /**
+     * 用户状态(enabled, disabled)
+     */
     @Excel(name = "用户账号", orderNum = "70")
     private UseStatus status;
 
-
+    /**
+     * 创建时间
+     */
     @Excel(name = "创建时间", orderNum = "90", exportFormat = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
@@ -79,6 +108,7 @@ public class Admin extends BaseEntity {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateTime;
 
+    @JsonIgnore
     public boolean isSuperUser() {
         return this.getId() == 1l;
     }
