@@ -35,13 +35,11 @@ public class ExcelServiceImpl implements IExcelService {
     public String toDictName(String dictType, Serializable dictValue) {
         RequestAttributes attributes = RequestContextHolder.currentRequestAttributes();
         Object attribute = attributes.getAttribute(DICT_CACHE_TO_NAME, RequestAttributes.SCOPE_REQUEST);
-        if(attribute instanceof Map) {
+        if(attribute instanceof Map) { // 从请求对象里面获取数据
             Map<Serializable, String> stringMap = ((Map<String, Map<Serializable, String>>) attribute).get(dictType);
             return stringMap != null ? stringMap.get(dictValue) : null;
-        } else {
+        } else { // 将数据写入到请求对象
             Map<String, Map<Serializable, String>> map = new HashMap<>();
-            long currentTimeMillis = System.currentTimeMillis();
-
             dictDataService.list().forEach(item -> {
                 Map<Serializable, String> stringMap = map.get(item.getType());
                 if(stringMap == null) {
@@ -51,7 +49,6 @@ public class ExcelServiceImpl implements IExcelService {
                 stringMap.put(item.getValue(), item.getLabel());
             });
 
-            System.out.println(System.currentTimeMillis() - currentTimeMillis);
             attributes.setAttribute(DICT_CACHE_TO_NAME, map, RequestAttributes.SCOPE_REQUEST);
             Map<Serializable, String> stringMap = map.get(dictType);
             return stringMap != null ? stringMap.get(dictValue) : null;
@@ -62,10 +59,10 @@ public class ExcelServiceImpl implements IExcelService {
     public Serializable toDictValue(String dictType, String dictName) {
         RequestAttributes attributes = RequestContextHolder.currentRequestAttributes();
         Object attribute = attributes.getAttribute(DICT_CACHE_TO_VALUE, RequestAttributes.SCOPE_REQUEST);
-        if(attribute instanceof Map) {
+        if(attribute instanceof Map) { // 从请求对象里面获取数据
             Map<String, Serializable> stringMap = ((Map<String, Map<String, Serializable>>) attribute).get(dictType);
             return stringMap != null ? stringMap.get(dictName) : null;
-        } else {
+        } else { // 将数据写入到请求对象
             Map<String, Map<String, Serializable>> map = new HashMap<>();
             dictDataService.list().forEach(item -> {
                 Map<String, Serializable> stringMap = map.get(item.getType());
@@ -86,12 +83,12 @@ public class ExcelServiceImpl implements IExcelService {
     public String toOrgName(Serializable id) {
         RequestAttributes attributes = RequestContextHolder.currentRequestAttributes();
         Object attribute = attributes.getAttribute(ORG_CACHE, RequestAttributes.SCOPE_REQUEST);
-        if(attribute instanceof List) {
+        if(attribute instanceof List) { // 从请求对象里面获取数据
             Org org = ((List<Org>) attribute).stream()
                     .filter(item -> item.getId().equals(id))
                     .findFirst().get();
             return org != null ? org.getName() : null;
-        } else {
+        } else { // 将数据写入到请求对象
             List<Org> data = orgService.list()
                     .ofNullable().orElse(Collections.emptyList());
             attributes.setAttribute(ORG_CACHE, data, RequestAttributes.SCOPE_REQUEST);
@@ -104,16 +101,15 @@ public class ExcelServiceImpl implements IExcelService {
     public Serializable toOrgValue(String name) {
         RequestAttributes attributes = RequestContextHolder.currentRequestAttributes();
         Object attribute = attributes.getAttribute(ORG_CACHE, RequestAttributes.SCOPE_REQUEST);
-        if(attribute instanceof List) {
+        if(attribute instanceof List) { // 从请求对象里面获取数据
             Org org = ((List<Org>) attribute).stream()
                     .filter(item -> item.getName().equals(name))
                     .findFirst().get();
 
             return org != null ? org.getId() : null;
-        } else {
+        } else { // 将数据写入到请求对象
             List<Org> data = orgService.list()
                     .ofNullable().orElse(Collections.emptyList());
-
             attributes.setAttribute(ORG_CACHE, data, RequestAttributes.SCOPE_REQUEST);
             Org org = data.stream()
                     .filter(item -> item.getName().equals(name))
