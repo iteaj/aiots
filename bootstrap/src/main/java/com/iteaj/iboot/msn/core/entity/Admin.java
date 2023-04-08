@@ -33,26 +33,26 @@ public class Admin extends BaseEntity {
     /**
      * 所属部门
      */
-    @Excel(name = "部门", orderNum = "40", dict = "org_id")
+    @Excel(name = "部门", orderNum = "30", dict = "org_id", width = 20)
     private Long orgId;
 
     /**
      * 用户昵称
      */
     @TableField(condition = SqlCondition.LIKE)
-    @Excel(name = "用户名", orderNum = "10")
+    @Excel(name = "用户昵称", orderNum = "20", width = 18)
     private String name;
 
     /**
      * 邮箱
      */
-    @Excel(name = "邮箱", orderNum = "50")
+    @Excel(name = "邮箱", orderNum = "50", width = 20)
     private String email;
 
     /**
      * 手机号
      */
-    @Excel(name = "手机号", orderNum = "30")
+    @Excel(name = "手机号", orderNum = "40", width = 16)
     @TableField(condition = SqlCondition.LIKE)
     private String phone;
 
@@ -70,7 +70,7 @@ public class Admin extends BaseEntity {
      * 用户账号
      */
     @TableField(updateStrategy = FieldStrategy.NEVER)
-    @Excel(name = "用户账号", orderNum = "20")
+    @Excel(name = "用户账号", orderNum = "10", width = 18)
     private String account;
 
     /**
@@ -92,13 +92,13 @@ public class Admin extends BaseEntity {
     /**
      * 用户状态(enabled, disabled)
      */
-    @Excel(name = "用户账号", orderNum = "70")
+    @Excel(name = "用户状态", orderNum = "70", replace = {"启用_enabled", "禁用_disabled"})
     private UseStatus status;
 
     /**
      * 创建时间
      */
-    @Excel(name = "创建时间", orderNum = "90", exportFormat = "yyyy-MM-dd")
+    @Excel(name = "创建时间", orderNum = "90", exportFormat = "yyyy-MM-dd", width = 15)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date createTime;

@@ -30,7 +30,7 @@ public class IBootControllerAdvice {
      * @return
      */
     @ExceptionHandler(Throwable.class)
-    protected <E> Result<E> unknownExceptionHandle(Throwable e) {
+    protected <E> Result<E> exceptionHandle(Throwable e) {
         logger.error("未知错误", e.getMessage(), e);
 
         return Result.fail("系统异常");

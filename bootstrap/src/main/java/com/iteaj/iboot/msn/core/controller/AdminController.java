@@ -13,6 +13,7 @@ import com.iteaj.iboot.msn.core.entity.Admin;
 import com.iteaj.iboot.msn.core.service.IAdminService;
 import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletOutputStream;
@@ -104,7 +105,11 @@ public class AdminController extends BaseController {
         ServletOutputStream outputStream = response.getOutputStream();
         this.adminService.page(page, admin).ifPresent((a, b) -> {
             try {
-                ExcelUtils.exportExcel(a.getRecords(), Admin.class, new ExcelExportParams(), outputStream);
+                if(!CollectionUtils.isEmpty(a.getRecords())) {
+                    ExcelUtils.exportExcel(a.getRecords(), Admin.class, new ExcelExportParams(), outputStream);
+                } else {
+                    throw new ServiceException("未指定要导出的数据");
+                }
             } catch (IOException e) {
                 throw new ServiceException(e.getMessage(), e);
             }
