@@ -81,7 +81,7 @@ public class OrgController extends BaseController {
      */
     @PostMapping("/del")
     @RequiresPermissions("core:org:del")
-    public Result<Boolean> add(@RequestBody List<Long> list) {
+    public Result<Boolean> del(@RequestBody List<Long> list) {
         return this.organizeService.removeByIds(list);
     }
 }

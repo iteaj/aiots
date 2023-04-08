@@ -15,6 +15,7 @@ import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,13 @@ import java.util.List;
  */
 @Service
 @AllArgsConstructor
-@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_DICT})
+@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_ORG})
 public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOrgService {
 
     private final IAdminService adminService;
 
     @Override
+    @CacheEvict(allEntries = true)
     public BooleanResult save(Org entity) {
         final BooleanResult booleanResult = super.save(entity);
         if(entity.getPid() == 0) {
@@ -55,6 +57,7 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
     }
 
     @Override
+    @CacheEvict(allEntries = true)
     public BooleanResult updateById(Org entity) {
         if(entity.getPid() > 0) {
             DetailResult<Org> parent = getById(entity.getPid());
@@ -72,6 +75,7 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
     }
 
     @Override
+    @CacheEvict(allEntries = true)
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
         if(idList.size() == 0) {
             throw new ServiceException("未选择要删除的数据");
@@ -105,7 +109,7 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
     }
 
     @Override
-    @Cacheable(key = "'ORG:LIST'")
+    @Cacheable(key = "'list'")
     public ListResult<Org> list() {
         return super.list();
     }

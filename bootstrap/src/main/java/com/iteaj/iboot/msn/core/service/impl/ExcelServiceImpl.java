@@ -40,6 +40,8 @@ public class ExcelServiceImpl implements IExcelService {
             return stringMap != null ? stringMap.get(dictValue) : null;
         } else {
             Map<String, Map<Serializable, String>> map = new HashMap<>();
+            long currentTimeMillis = System.currentTimeMillis();
+
             dictDataService.list().forEach(item -> {
                 Map<Serializable, String> stringMap = map.get(item.getType());
                 if(stringMap == null) {
@@ -49,6 +51,7 @@ public class ExcelServiceImpl implements IExcelService {
                 stringMap.put(item.getValue(), item.getLabel());
             });
 
+            System.out.println(System.currentTimeMillis() - currentTimeMillis);
             attributes.setAttribute(DICT_CACHE_TO_NAME, map, RequestAttributes.SCOPE_REQUEST);
             Map<Serializable, String> stringMap = map.get(dictType);
             return stringMap != null ? stringMap.get(dictValue) : null;
@@ -110,6 +113,7 @@ public class ExcelServiceImpl implements IExcelService {
         } else {
             List<Org> data = orgService.list()
                     .ofNullable().orElse(Collections.emptyList());
+
             attributes.setAttribute(ORG_CACHE, data, RequestAttributes.SCOPE_REQUEST);
             Org org = data.stream()
                     .filter(item -> item.getName().equals(name))

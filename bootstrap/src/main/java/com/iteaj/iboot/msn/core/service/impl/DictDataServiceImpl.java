@@ -9,10 +9,13 @@ import com.iteaj.iboot.msn.core.entity.DictData;
 import com.iteaj.iboot.msn.core.mapper.IDictDataDao;
 import com.iteaj.iboot.msn.core.service.IDictDataService;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -26,18 +29,38 @@ import java.util.List;
 public class DictDataServiceImpl extends BaseServiceImpl<IDictDataDao, DictData> implements IDictDataService {
 
     @Override
+    @CacheEvict(allEntries = true)
+    public BooleanResult save(DictData entity) {
+        return super.save(entity);
+    }
+
+    @Override
+    @CacheEvict(allEntries = true)
+    public BooleanResult updateById(DictData entity) {
+        return super.updateById(entity);
+    }
+
+    @Override
+    @Cacheable(key = "'selectByType:'+#type")
     public ListResult<DictData> selectByType(String type) {
         List<DictData> list = getBaseMapper().selectList(Wrappers.<DictData>query().eq("type", type));
         return new ListResult<>(list);
     }
 
     @Override
+    @CacheEvict(allEntries = true)
+    public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
+        return super.removeByIds(idList);
+    }
+
+    @Override
+    @CacheEvict(key = "'selectByType'+#type", beforeInvocation = true)
     public BooleanResult removeByType(String type) {
         return this.remove(Wrappers.<DictData>lambdaQuery().eq(DictData::getType, type));
     }
 
     @Override
-    @Cacheable(key = "'DICT:LIST'")
+    @Cacheable(key = "'list'")
     public ListResult<DictData> list() {
         return super.list();
     }
