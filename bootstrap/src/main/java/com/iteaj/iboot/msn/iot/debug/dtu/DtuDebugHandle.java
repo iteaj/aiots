@@ -184,7 +184,8 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
         ModbusRtuForDtuCommonProtocol protocol;
         if(StringUtils.hasText(model.getMessage())) {
             try {
-                byte[] bytes = ByteUtil.hexToByte(model.getMessage());
+                String hexMsg = model.getMessage().replaceAll(" ", "");
+                byte[] bytes = ByteUtil.hexToByte(hexMsg);
                 protocol = ModbusRtuForDtuCommonProtocol.build(model.getDeviceSn(), bytes, null);
             } catch (Exception e) {
                 write.write(HttpResult.Fail("报文只支持十六进制格式")); return;

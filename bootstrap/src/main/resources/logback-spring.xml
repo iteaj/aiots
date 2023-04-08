@@ -72,15 +72,24 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
 
     <!--开发环境日志输出级别配置-->
     <springProfile name="dev">
-        <logger level="debug" name="com.iteaj.iboot" additivity="false">
-            <appender-ref ref="STDOUT" />
-        </logger>
-        <logger level="debug" name="com.iteaj.iot" additivity="false">
-            <appender-ref ref="STDOUT" />
-        </logger>
         <logger level="debug" name="com.iteaj.framework" additivity="false">
             <appender-ref ref="STDOUT" />
         </logger>
+        <logger level="debug" name="com.iteaj.iboot" additivity="false">
+            <appender-ref ref="STDOUT" />
+        </logger>
+        <!--    打印下线事件日志    -->
+        <logger level="debug" name="com.iteaj.iot.server.handle.EventManagerHandler" additivity="false">
+            <appender-ref ref="STDOUT" />
+        </logger>
+        <!-- 打印服务端写出到设备的十六进制报文(TCP协议) -->
+<!--        <logger level="trace" name="com.iteaj.iot.server.codec.DeviceProtocolEncoder" additivity="false">-->
+<!--            <appender-ref ref="STDOUT" />-->
+<!--        </logger>-->
+        <!-- 打印服务端写出到设备的十六进制报文(UDP协议) -->
+<!--        <logger level="trace" name="com.iteaj.iot.server.codec.UdpServerProtocolEncoder" additivity="false">-->
+<!--            <appender-ref ref="STDOUT" />-->
+<!--        </logger>-->
         <logger level="info" name="org.springframework" additivity="false">
             <appender-ref ref="STDOUT" />
         </logger>
