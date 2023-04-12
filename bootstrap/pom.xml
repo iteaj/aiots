@@ -41,6 +41,11 @@
             <artifactId>iot-plc</artifactId>
             <version>${iot.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${iot.version}</version>
+            <artifactId>iot-serial</artifactId>
+        </dependency>
         <!-- iot end -->
 
         <dependency>
