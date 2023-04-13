@@ -316,11 +316,11 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
 
         try {
             switch (type) {
-                case "int": return ByteUtil.getBytesOfReverse(Integer.valueOf(model.getWriteValue()));
-                case "float": return ByteUtil.getBytesOfReverse(Float.valueOf(model.getWriteValue()));
-                case "double": return ByteUtil.getBytesOfReverse(Double.valueOf(model.getWriteValue()));
+                case "int": return ByteUtil.getBytes(Integer.valueOf(model.getWriteValue()));
+                case "float": return ByteUtil.getBytes(Float.valueOf(model.getWriteValue()));
+                case "double": return ByteUtil.getBytes(Double.valueOf(model.getWriteValue()));
                 case "short": return ByteUtil.getBytesOfReverse(Short.valueOf(model.getWriteValue()));
-                case "long": return ByteUtil.getBytesOfReverse(Long.valueOf(model.getWriteValue()));
+                case "long": return ByteUtil.getBytes(Long.valueOf(model.getWriteValue()));
                 case "boolean":
                     return model.getWriteValue().equals("0") ? ModbusCoilStatus.OFF :
                             model.getWriteValue().equals("1") ? ModbusCoilStatus.ON : null;
