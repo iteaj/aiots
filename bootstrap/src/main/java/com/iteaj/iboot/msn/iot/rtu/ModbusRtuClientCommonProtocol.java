@@ -12,14 +12,20 @@ import com.iteaj.iot.modbus.*;
 import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientMessage;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.consts.ModbusCoilStatus;
+import com.iteaj.iot.modbus.consts.ModbusErrCode;
 import com.iteaj.iot.modbus.server.rtu.ModbusRtuBody;
 import com.iteaj.iot.modbus.server.rtu.ModbusRtuHeader;
 import com.iteaj.iot.serial.SerialClient;
 import com.iteaj.iot.serial.SerialComponent;
 import com.iteaj.iot.serial.SerialConnectProperties;
+import com.iteaj.iot.server.dtu.DtuCommonProtocolType;
 import com.iteaj.iot.utils.ByteUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import org.springframework.util.ObjectUtils;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class ModbusRtuClientCommonProtocol extends ClientInitiativeSyncProtocol<ModbusRtuClientMessage> implements ModbusCommonProtocol {
@@ -59,30 +65,42 @@ public class ModbusRtuClientCommonProtocol extends ClientInitiativeSyncProtocol<
         this.buildRequestMessage();
         IotClient iotClient = this.getRtuClient();
         if(iotClient instanceof SerialClient) {
-            byte[] message = this.requestMessage().getMessage();
-            ((SerialClient) iotClient).write(message);
-            byte[] bytes = null;
-            long timeout = this.getTimeout();
-            long currentTimeMillis = System.currentTimeMillis();
+            synchronized (iotClient) {
+                if(!((SerialClient) iotClient).isOpen()) {
+                    if(!((SerialClient) iotClient).open()) {
+                        throw new ProtocolException("打开串口异常["+getClientKey()+"]");
+                    }
+                }
 
-            while (true) {
+                // 写之前清空没有读取的报文
                 int available = ((SerialClient) iotClient).bytesAvailable();
                 if(available > 0) {
-                    bytes = new byte[available];
+                    byte[] bytes = new byte[available];
                     ((SerialClient) iotClient).read(bytes);
-                    break;
                 }
 
-                if(System.currentTimeMillis() - currentTimeMillis > timeout) {
-                    this.setExecStatus(ExecStatus.timeout); break;
-                }
-            }
+                // 写新的报文
+                byte[] message = this.requestMessage().getMessage();
+                ((SerialClient) iotClient).writeOfSync(message, message.length);
+                long timeout = this.getTimeout();
+                long currentTimeMillis = System.currentTimeMillis();
 
-            if(bytes != null) {
-                ModbusRtuHeader rtuHeader = ModbusRtuHeader.buildResponseHeader(bytes);
-                ModbusRtuBody modbusRtuBody = ModbusRtuBody.buildResponseBody(bytes);
-                this.responseMessage = new ModbusRtuClientMessage(rtuHeader, modbusRtuBody);
-                this.responseMessage.setMessage(bytes);
+                ByteBuf buffer = Unpooled.buffer(256);
+                while (readBytes((SerialClient) iotClient, buffer, protocolType()) != -1) {
+                    if(System.currentTimeMillis() - currentTimeMillis > timeout) {
+                        this.setExecStatus(ExecStatus.timeout); break;
+                    }
+                }
+
+                if(buffer.readableBytes() > 0) {
+                    byte[] bytes = new byte[buffer.readableBytes()];
+                    buffer.readBytes(bytes); buffer.release();
+
+                    ModbusRtuHeader rtuHeader = ModbusRtuHeader.buildResponseHeader(bytes);
+                    ModbusRtuBody modbusRtuBody = ModbusRtuBody.buildResponseBody(bytes);
+                    this.responseMessage = new ModbusRtuClientMessage(rtuHeader, modbusRtuBody);
+                    this.responseMessage.setMessage(bytes);
+                }
             }
 
             this.buildResponseMessage();
@@ -112,6 +130,52 @@ public class ModbusRtuClientCommonProtocol extends ClientInitiativeSyncProtocol<
             return client;
         } else {
             throw new ProtocolException("获取客户端失败");
+        }
+    }
+
+    protected int readBytes(SerialClient client, ByteBuf buffer, ModbusCode code) {
+        int readableBytes = buffer.readableBytes();
+        if(readableBytes == 0) { // 先校验是否是错误报文
+            // 先读取两个字节
+            byte[] message = new byte[2];
+            client.readOfSync(message, (int) getTimeout());
+            buffer.writeBytes(message);
+            int respCode = message[1] & 0xFF;
+            if(respCode > 0x80) { // 错误报文
+                message = new byte[3];
+                // 读取剩下的3个字节
+                client.readOfSync(message, (int) getTimeout());
+                buffer.writeBytes(message);
+
+                return -1; // 结束
+            }
+        }
+
+        // 写类型的报文
+        if(code.getCode() >= 0x05) {
+            if(readableBytes < 8) {
+                // 读取剩下的六个字节
+                byte[] message = new byte[6];
+                client.readOfSync(message, (int) getTimeout());
+                buffer.writeBytes(message);
+            }
+
+            return -1; // 结束
+        } else { // 读类型的报文
+            if(readableBytes > 2) { // 已经获取长度字段
+                buffer.readerIndex(2);
+                int length = buffer.readByte() & 0xFF;
+                // 读取剩下的报文
+                byte[] message = new byte[length + 2]; // 长度字段 + CRC
+                client.readOfSync(message, (int) getTimeout());
+                buffer.writeBytes(message).resetReaderIndex();
+                return -1; //读取结束
+            } else {
+                // 读取第三个字节
+                byte[] message = new byte[1];
+                client.readOfSync(message, (int) getTimeout());
+                buffer.writeBytes(message); return message.length;
+            }
         }
     }
 
@@ -297,7 +361,7 @@ public class ModbusRtuClientCommonProtocol extends ClientInitiativeSyncProtocol<
     }
 
     @Override
-    public ProtocolType protocolType() {
+    public ModbusCode protocolType() {
         return this.code;
     }
 }
