@@ -25,9 +25,11 @@ public class ModbusTcpClientCollectAction extends AbstractModbusCollectAction{
         DeviceDto device = detail.getDevice();
         Integer childSn = Integer.valueOf(detail.getChildSn());
         Integer address = Integer.valueOf(signal.getAddress());
+
         if(address > 40001) {
             address = address - 40001;
         }
+
         if(type == IotConsts.FIELD_TYPE_BOOLEAN) {
             address = address - 1;
         }

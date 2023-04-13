@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.iot.service;
 
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.msn.iot.entity.Serial;
 import com.iteaj.framework.IBaseService;
 
@@ -13,4 +14,5 @@ import com.iteaj.framework.IBaseService;
  */
 public interface ISerialService extends IBaseService<Serial> {
 
+    DetailResult<Serial> getByCom(String com);
 }

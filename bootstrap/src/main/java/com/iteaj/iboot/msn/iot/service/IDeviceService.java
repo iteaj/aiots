@@ -47,4 +47,11 @@ public interface IDeviceService extends IBaseService<Device> {
      * @return
      */
     CurrentDeviceDto countCurrentDevice();
+
+    /**
+     * 获取设备详情
+     * @param id
+     * @return
+     */
+    DetailResult<DeviceDto> detailById(Long id);
 }

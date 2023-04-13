@@ -4,9 +4,12 @@ import com.iteaj.framework.result.HttpResult;
 import com.iteaj.iboot.msn.iot.debug.DebugHandle;
 import com.iteaj.iboot.msn.iot.debug.DebugResult;
 import com.iteaj.iboot.msn.iot.debug.DebugWebsocketWrite;
+import com.iteaj.iboot.msn.iot.rtu.ModbusRtuClientCommonProtocol;
 import com.iteaj.iot.Message;
 import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.client.ClientConnectProperties;
+import com.iteaj.iot.client.ClientMessage;
+import com.iteaj.iot.client.protocol.ClientInitiativeProtocol;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.Payload;
@@ -20,6 +23,7 @@ import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
 import com.iteaj.iot.modbus.server.rtu.ModbusRtuBody;
 import com.iteaj.iot.modbus.server.tcp.ModbusTcpBody;
 import com.iteaj.iot.modbus.server.tcp.ModbusTcpHeader;
+import com.iteaj.iot.serial.SerialConnectProperties;
 import com.iteaj.iot.server.ServerMessage;
 import com.iteaj.iot.server.dtu.impl.CommonDtuProtocol;
 import com.iteaj.iot.server.protocol.ServerInitiativeProtocol;
@@ -53,8 +57,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                     case "tcp": // modbus tcp
                         modbusTcpHandle(model, write); break;
                     case "rtu": // modbus rtu
-//                        modbusRtuHandle(model, write); break;
-                        write.write(HttpResult.Fail("暂时不支持RTU")); return;
+                        modbusRtuHandle(model, write); break;
                     default: write.write(HttpResult.Fail("不支持的协议类型["+protocolType+"]"));
                 }
             }
@@ -119,6 +122,8 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
             }
         }
 
+        ClientConnectProperties properties = new ClientConnectProperties(model.getHost(), model.getPort());
+        protocol.setClientKey(properties);
         sendProtocolRequest(model, write, protocol);
     }
 
@@ -139,11 +144,16 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
     }
 
     private void modbusRtuHandle(ModbusDebugModel model, DebugWebsocketWrite write) {
-        ModbusTcpClientCommonProtocol protocol = null;
+        ModbusRtuClientCommonProtocol protocol = null;
         if(StringUtils.hasText(model.getMessage())) {
             try {
-                byte[] bytes = ByteUtil.hexToByte(model.getMessage());
-//                protocol = ModbusTcpClientCommonProtocol.build(model.getDeviceSn(), bytes, null);
+                try {
+                    String hexMsg = model.getMessage().replaceAll(" ", "");
+                    byte[] bytes = ByteUtil.hexToByte(hexMsg);
+                    protocol = ModbusRtuClientCommonProtocol.build(bytes);
+                } catch (Exception e) {
+                    write.write(HttpResult.Fail("报文只支持十六进制格式")); return;
+                }
             } catch (Exception e) {
                 write.write(HttpResult.Fail("报文只支持十六进制格式")); return;
             }
@@ -156,39 +166,42 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
             Integer address = Integer.valueOf(model.getChildSn());
             switch (cmd) {
                 case "01":
-                    protocol = ModbusTcpClientCommonProtocol.buildRead01(address
+                    protocol = ModbusRtuClientCommonProtocol.buildRead01(address
                             , model.getStart(), this.getTypeCoilNum(model)); break;
                 case "02":
-                    protocol = ModbusTcpClientCommonProtocol.buildRead02(address
+                    protocol = ModbusRtuClientCommonProtocol.buildRead02(address
                             , model.getStart(), this.getTypeCoilNum(model)); break;
                 case "03":
-                    protocol = ModbusTcpClientCommonProtocol.buildRead03(address
+                    protocol = ModbusRtuClientCommonProtocol.buildRead03(address
                             , model.getStart(), this.getTypeCoilNum(model)); break;
                 case "04":
-                    protocol = ModbusTcpClientCommonProtocol.buildRead04(address
+                    protocol = ModbusRtuClientCommonProtocol.buildRead04(address
                             , model.getStart(), this.getTypeCoilNum(model)); break;
                 case "05":
                     Object writeValue = parseWriteValue(model);
                     if(writeValue == null) {
                         write.write(HttpResult.Fail("写05功能码的值只能是[0 或 1]")); return;
                     }
-                    protocol = ModbusTcpClientCommonProtocol.buildWrite05(address
+                    protocol = ModbusRtuClientCommonProtocol.buildWrite05(address
                             , model.getStart(), (ModbusCoilStatus) writeValue); break;
                 case "06":
-                    protocol = ModbusTcpClientCommonProtocol.buildWrite06(address
+                    protocol = ModbusRtuClientCommonProtocol.buildWrite06(address
                             , model.getStart(), (byte[]) parseWriteValue(model)); break;
                 case "10":
                     byte[] writeBytes = (byte[]) parseWriteValue(model);
-                    protocol = ModbusTcpClientCommonProtocol.buildWrite10(address
+                    protocol = ModbusRtuClientCommonProtocol.buildWrite10(address
                             , model.getStart(), writeBytes.length / 2, writeBytes); break;
                 case "0F":
-                    protocol = ModbusTcpClientCommonProtocol.buildWrite0F(
+                    protocol = ModbusRtuClientCommonProtocol.buildWrite0F(
                             address, model.getStart(), (byte[]) parseWriteValue(model)); break;
                 default: write.write(HttpResult.Fail("不支持的指令["+cmd+"]"));
                     return;
             }
         }
 
+        SerialConnectProperties config = new SerialConnectProperties(model.getDeviceSn(), model.getBaudRate())
+                .config(model.getDataBits(), model.getStopBits(), model.getParity());
+        protocol.setClientKey(config);
         sendProtocolRequest(model, write, protocol);
     }
 
@@ -224,12 +237,11 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
      * @param write
      * @param protocol
      */
-    private void sendProtocolRequest(ModbusDebugModel model, DebugWebsocketWrite write, ModbusTcpClientCommonProtocol protocol) {
+    private void sendProtocolRequest(ModbusDebugModel model, DebugWebsocketWrite write, ClientInitiativeProtocol protocol) {
         try {
             DebugResult result = new DebugResult(model).setReqTime(System.currentTimeMillis());
-            ClientConnectProperties properties = new ClientConnectProperties(model.getHost(), model.getPort());
 
-            protocol.request(properties, protocol1 -> {
+            protocol.request(protocol1 -> {
                 result.setDeviceSn(model.getDeviceSn());
                 result.setRespTime(System.currentTimeMillis());
 
@@ -237,7 +249,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                     result.setReqMsg(ByteUtil.bytesToHexByFormat(protocol.requestMessage().getMessage()));
                 }
 
-                ModbusTcpClientMessage clientMessage = protocol.responseMessage();
+                ClientMessage clientMessage = protocol.responseMessage();
                 if(clientMessage != null) {
                     result.setRespMsg(ByteUtil.bytesToHexByFormat(clientMessage.getMessage()));
                 }
@@ -289,9 +301,6 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
             case "double": return payload.readDouble(model.getStart());
             case "short": return payload.readShort(model.getStart());
             case "long": return payload.readLong(model.getStart());
-            case "boolean":
-                return model.getWriteValue().equals("0") ? ModbusCoilStatus.OFF :
-                        model.getWriteValue().equals("1") ? ModbusCoilStatus.ON : null;
             case "string":
                 int length = Integer.valueOf(model.getWriteValue());
                 return payload.readString(model.getStart(), length);

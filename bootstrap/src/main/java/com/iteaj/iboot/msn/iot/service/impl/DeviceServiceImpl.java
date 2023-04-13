@@ -74,4 +74,9 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     public CurrentDeviceDto countCurrentDevice() {
         return getBaseMapper().countCurrentDevice();
     }
+
+    @Override
+    public DetailResult<DeviceDto> detailById(Long id) {
+        return new DetailResult<>(this.getBaseMapper().detailById(id));
+    }
 }

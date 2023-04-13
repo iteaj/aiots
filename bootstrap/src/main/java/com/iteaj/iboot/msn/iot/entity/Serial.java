@@ -3,6 +3,8 @@ package com.iteaj.iboot.msn.iot.entity;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import com.iteaj.iboot.msn.iot.consts.SerialStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -56,7 +58,7 @@ public class Serial extends BaseEntity {
     /**
      * 状态
      */
-    private String status;
+    private SerialStatus status;
 
     private Date createTime;
 

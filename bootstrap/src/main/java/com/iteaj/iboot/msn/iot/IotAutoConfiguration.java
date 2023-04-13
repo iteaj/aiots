@@ -5,6 +5,7 @@ import com.iteaj.iboot.msn.iot.collect.action.*;
 import com.iteaj.iboot.msn.iot.collect.store.MqttStoreAction;
 import com.iteaj.iboot.msn.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.msn.iot.collect.store.StoreActionFactory;
+import com.iteaj.iboot.msn.iot.service.ISerialService;
 import com.iteaj.iot.client.mqtt.gateway.MqttGatewayComponent;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
 import com.iteaj.iot.config.ConnectProperties;
@@ -13,6 +14,7 @@ import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
 import com.iteaj.iot.plc.omron.OmronComponent;
 import com.iteaj.iot.plc.siemens.SiemensS7Component;
+import com.iteaj.iot.serial.SerialComponent;
 import com.iteaj.iot.server.dtu.impl.CommonDtuServerComponent;
 import com.iteaj.iot.tools.db.rdbms.RdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
@@ -62,6 +64,11 @@ public class IotAutoConfiguration {
         return new ModbusTcpClientCollectAction();
     }
 
+    @Bean
+    public ModbusRtuClientCollectAction modbusRtuClientCollectAction(ISerialService serialService) {
+        return new ModbusRtuClientCollectAction(serialService);
+    }
+
     /**
      * 通用dtu设备组件
      * @return
@@ -99,6 +106,15 @@ public class IotAutoConfiguration {
     @ConditionalOnBean(SiemensS7Component.class)
     public SiemensCollectAction siemensCollectAction() {
         return new SiemensCollectAction();
+    }
+
+    /**
+     * 启用串口组件
+     * @return
+     */
+    @Bean
+    public SerialComponent serialComponent() {
+        return SerialComponent.instance();
     }
 
     @Bean

@@ -3,6 +3,7 @@ package com.iteaj.iboot.msn.iot.entity;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
@@ -124,6 +125,10 @@ public class CollectDetail extends BaseEntity {
      */
     @TableField(exist = false)
     private List<Signal> signals;
+
+    @JsonIgnore
+    @TableField(exist = false)
+    private Map<String, Object> params;
 
     public Map<String, Object> resolveConfig() {
         if(StringUtils.hasText(this.getExtend())) {

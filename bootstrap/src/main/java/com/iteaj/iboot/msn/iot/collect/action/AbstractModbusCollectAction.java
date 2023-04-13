@@ -49,30 +49,42 @@ public abstract class AbstractModbusCollectAction extends CollectAction {
         }
 
         if(syncProtocol.getExecStatus() == ExecStatus.success) {
-            Payload payload = commonProtocol.getPayload();
-            switch (type) {
-                case IotConsts.FIELD_TYPE_BOOLEAN:
-                    value = payload.readBoolean(address); break;
-                case IotConsts.FIELD_TYPE_SHORT:
-                    value = payload.readShort(address); break;
-                case IotConsts.FIELD_TYPE_INT:
-                    value = payload.readInt(address); break;
-                case IotConsts.FIELD_TYPE_FLOAT:
-                    value = payload.readFloat(address); break;
-                case IotConsts.FIELD_TYPE_DOUBLE:
-                    value = payload.readDouble(address); break;
-                case IotConsts.FIELD_TYPE_LONG:
-                    value = payload.readLong(address); break;
-                case IotConsts.FIELD_TYPE_STRING:
-                    value = payload.readString(address, signal.getNum()); break;
-                default:
-                    value = ByteUtil.bytesToHex(payload.getPayload()); break;
-            }
-
+            value = resolveValue(signal.getNum(), type, address, commonProtocol.getPayload());
             call.accept(value.toString());
         } else {
             throw new CollectException(syncProtocol.getExecStatus().desc);
         }
+    }
+
+    /**
+     *
+     * @param num 读取的字符串数量
+     * @param type 字段类型
+     * @param address 寄存器地址
+     * @param payload 读取到的负载
+     * @return
+     */
+    protected Object resolveValue(Integer num, Integer type, Integer address, Payload payload) {
+        Object value;
+        switch (type) {
+            case IotConsts.FIELD_TYPE_BOOLEAN:
+                value = payload.readBoolean(address); break;
+            case IotConsts.FIELD_TYPE_SHORT:
+                value = payload.readShort(address); break;
+            case IotConsts.FIELD_TYPE_INT:
+                value = payload.readInt(address); break;
+            case IotConsts.FIELD_TYPE_FLOAT:
+                value = payload.readFloat(address); break;
+            case IotConsts.FIELD_TYPE_DOUBLE:
+                value = payload.readDouble(address); break;
+            case IotConsts.FIELD_TYPE_LONG:
+                value = payload.readLong(address); break;
+            case IotConsts.FIELD_TYPE_STRING:
+                value = payload.readString(address, num); break;
+            default:
+                value = ByteUtil.bytesToHex(payload.getPayload()); break;
+        }
+        return value;
     }
 
     protected abstract ModbusCommonProtocol getModbusCommonProtocol(Integer type, String deviceSn, Integer childSn, Integer address, Integer num);

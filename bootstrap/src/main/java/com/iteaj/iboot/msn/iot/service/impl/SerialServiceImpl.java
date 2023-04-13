@@ -1,5 +1,7 @@
 package com.iteaj.iboot.msn.iot.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.msn.iot.entity.Serial;
 import com.iteaj.iboot.msn.iot.mapper.SerialMapper;
 import com.iteaj.iboot.msn.iot.service.ISerialService;
@@ -17,4 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class SerialServiceImpl extends BaseServiceImpl<SerialMapper, Serial> implements ISerialService {
 
+    @Override
+    public DetailResult<Serial> getByCom(String com) {
+        return getOne(Wrappers.<Serial>lambdaQuery().eq(Serial::getCom, com));
+    }
 }

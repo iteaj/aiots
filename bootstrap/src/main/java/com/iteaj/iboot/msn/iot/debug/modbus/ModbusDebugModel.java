@@ -45,4 +45,24 @@ public class ModbusDebugModel extends DebugModel {
      * 协议类型(modbus tcp or rtu)
      */
     private String protocolType;
+
+    /**
+     * 波特率
+     */
+    private Integer baudRate;
+
+    /**
+     * 数据位
+     */
+    private Integer dataBits;
+
+    /**
+     * 校验位
+     */
+    private Integer parity;
+
+    /**
+     * 停止位
+     */
+    private Integer stopBits;
 }

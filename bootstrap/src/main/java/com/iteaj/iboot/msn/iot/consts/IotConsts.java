@@ -34,6 +34,11 @@ public interface IotConsts {
     String COLLECT_ACTION_MODBUS_TCP = "CLIENT:MODBUS:TCP";
 
     /**
+     * modbus rtu for client
+     */
+    String COLLECT_ACTION_MODBUS_RTU = "CLIENT:MODBUS:RTU";
+
+    /**
      * mqtt存储
      */
     String STORE_ACTION_MQTT = "STORE:MQTT";

@@ -7,10 +7,14 @@
         <result column="id" property="id" />
         <result column="ip" property="ip" />
         <result column="uid" property="uid" />
+        <result column="lat" property="lat" />
+        <result column="lon" property="lon" />
         <result column="name" property="name" />
         <result column="port" property="port" />
         <result column="model" property="model" />
+        <result column="extend" property="extend" />
         <result column="status" property="status" />
+        <result column="address" property="address" />
         <result column="account" property="account" />
         <result column="password" property="password" />
         <result column="device_sn" property="deviceSn" />
@@ -51,5 +55,11 @@
 
     <select id="getByUid" resultMap="DeviceDtoMap">
         select * from iot_device where uid=#{uid}
+    </select>
+    <select id="detailById" resultType="com.iteaj.iboot.msn.iot.dto.DeviceDto">
+        select a.*, idm.model model_name, idt.name device_type_name from iot_device a
+             left join iot_device_type idt on a.device_type_id=idt.id
+             left join iot_device_model idm on a.model=idm.id
+        where a.id=#{id}
     </select>
 </mapper>

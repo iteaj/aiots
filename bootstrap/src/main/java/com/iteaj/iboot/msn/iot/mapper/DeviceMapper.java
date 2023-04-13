@@ -31,4 +31,6 @@ public interface DeviceMapper extends BaseMapper<Device> {
      * @return
      */
     CurrentDeviceDto countCurrentDevice();
+
+    DeviceDto detailById(Long id);
 }

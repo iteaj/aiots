@@ -54,9 +54,29 @@ public class Device extends BaseEntity {
     private Long userId;
 
     /**
+     * 拓展字段
+     */
+    private String extend;
+
+    /**
      * 设备型号
      */
     private Integer model;
+
+    /**
+     * 经度
+     */
+    private String lon;
+
+    /**
+     * 纬度
+     */
+    private String lat;
+
+    /**
+     * 地址
+     */
+    private String address;
 
     /**
      * 设备账号
