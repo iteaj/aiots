@@ -52,6 +52,15 @@ public class SerialController extends BaseController {
     }
 
     /**
+     * 列表查询
+     * @param entity 搜索条件
+     */
+    @GetMapping("/list")
+    public Result<List<Serial>> list(Serial entity) {
+        return this.serialService.list(entity);
+    }
+
+    /**
     * 获取编辑记录
     * @param id 记录id
     */
