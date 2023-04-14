@@ -92,7 +92,7 @@ public class ModbusRtuClientCommonProtocol extends ClientInitiativeSyncProtocol<
                     }
                 }
 
-                if(buffer.readableBytes() > 0) {
+                if(this.getExecStatus() == ExecStatus.success && buffer.readableBytes() > 0) {
                     byte[] bytes = new byte[buffer.readableBytes()];
                     buffer.readBytes(bytes); buffer.release();
 

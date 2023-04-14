@@ -137,7 +137,7 @@ public class SerialController extends BaseController {
                 return fail("串口未挂载或被暂用");
             }
         } else {
-            if(client.isOpen()) {
+            if(client != null && client.isOpen()) {
                 serialService.update(Wrappers.<Serial>lambdaUpdate()
                         .set(Serial::getStatus, status)
                         .eq(Serial::getId, device.getId()));

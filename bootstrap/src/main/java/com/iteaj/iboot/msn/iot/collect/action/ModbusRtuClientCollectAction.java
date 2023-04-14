@@ -35,7 +35,7 @@ public class ModbusRtuClientCollectAction extends AbstractModbusCollectAction{
     @Override
     public void validate(CollectDetail detail) {
         super.validate(detail);
-        String deviceSn = detail.getDeviceSn();
+        String deviceSn = detail.getDevice().getDeviceSn();
         Serial serial = serialService.getOne(Wrappers.<Serial>lambdaQuery().eq(Serial::getCom, deviceSn))
                 .ofNullable()
                 .orElseThrow(() -> new CollectException("串口不存在[" + deviceSn + "]"));
