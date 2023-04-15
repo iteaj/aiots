@@ -134,6 +134,10 @@ public class ModbusRtuClientCommonProtocol extends ClientInitiativeSyncProtocol<
     }
 
     protected int readBytes(SerialClient client, ByteBuf buffer, ModbusCode code) {
+        if(client.bytesAvailable() == 0) {
+            return 0; // 无需读取
+        }
+
         int readableBytes = buffer.readableBytes();
         if(readableBytes == 0) { // 先校验是否是错误报文
             // 先读取两个字节
