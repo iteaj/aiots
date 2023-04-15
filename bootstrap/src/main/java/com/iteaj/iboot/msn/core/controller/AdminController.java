@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.core.controller;
 
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
@@ -15,6 +16,7 @@ import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -93,6 +95,18 @@ public class AdminController extends BaseController {
     public Result<Boolean> del(@RequestBody List<Long> list) {
         this.adminService.deleteAllJoinByIds(list);
         return success();
+    }
+
+    /**
+     * 导入用户
+     * @param file
+     */
+    @PostMapping("import")
+    public Result<String> excelImport(MultipartFile file) throws IOException {
+        List<Admin> admins = ExcelUtils.importExcel(file, Admin.class, new ImportParams());
+        this.adminService.saveBatch(admins);
+
+        return success("导入成功");
     }
 
     /**

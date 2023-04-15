@@ -1,13 +1,18 @@
 package com.iteaj.framework.utils;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
+import com.iteaj.framework.exception.ServiceException;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.List;
 
 public final class ExcelUtils {
 
@@ -28,5 +33,13 @@ public final class ExcelUtils {
         sheets.write(outputStream);
         outputStream.flush();
         outputStream.close();
+    }
+
+    public static <T> List<T> importExcel(MultipartFile file, Class<T> clazz, ImportParams importParams) throws ServiceException {
+        try {
+            return ExcelImportUtil.importExcel(file.getInputStream(), clazz, importParams);
+        } catch (Exception e) {
+            throw new ServiceException("读取文件失败");
+        }
     }
 }
