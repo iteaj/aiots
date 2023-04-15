@@ -110,6 +110,6 @@ public class ModbusRtuClientCollectAction extends AbstractModbusCollectAction{
 
     @Override
     public String getDesc() {
-        return "基于client modbus rtu采集";
+        return "ModbusRtu采集器";
     }
 }

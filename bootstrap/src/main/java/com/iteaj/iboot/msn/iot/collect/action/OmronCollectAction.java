@@ -27,7 +27,7 @@ public class OmronCollectAction extends CollectAction {
 
     @Override
     public String getDesc() {
-        return "欧姆龙PLC协议";
+        return "欧姆龙PLC采集器";
     }
 
     @Override

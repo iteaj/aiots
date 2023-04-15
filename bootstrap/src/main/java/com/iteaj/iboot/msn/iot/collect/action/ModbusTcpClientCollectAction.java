@@ -100,6 +100,6 @@ public class ModbusTcpClientCollectAction extends AbstractModbusCollectAction{
 
     @Override
     public String getDesc() {
-        return "基于client modbus tcp组件";
+        return "ModbusTcp采集器";
     }
 }

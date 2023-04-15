@@ -28,7 +28,7 @@ public class SiemensCollectAction extends CollectAction {
 
     @Override
     public String getDesc() {
-        return "西门子PLC协议";
+        return "西门子PLC采集器";
     }
 
     @Override

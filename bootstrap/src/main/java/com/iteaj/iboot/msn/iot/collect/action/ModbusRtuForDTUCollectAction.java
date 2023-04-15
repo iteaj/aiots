@@ -22,7 +22,7 @@ public class ModbusRtuForDTUCollectAction extends AbstractModbusCollectAction {
 
     @Override
     public String getDesc() {
-        return "基于DTU的modbus rtu协议";
+        return "DTU+ModbusRtu采集器";
     }
 
     @Override

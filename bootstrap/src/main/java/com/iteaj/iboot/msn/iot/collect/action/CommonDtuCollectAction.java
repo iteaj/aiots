@@ -23,7 +23,7 @@ public class CommonDtuCollectAction extends CollectAction {
 
     @Override
     public String getDesc() {
-        return "基于DTU的通用设备协议";
+        return "通用DTU采集器";
     }
 
     @Override
