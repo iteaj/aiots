@@ -54,8 +54,8 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String uploadRootUri = properties.getUploadRootUri();
-        String uploadRootDir = properties.getUploadRootDir();
+        String uploadRootUri = properties.getUploadPattern();
+        String uploadRootDir = properties.getUploadLocation();
         if(uploadRootUri != null && uploadRootDir != null) {
             if(uploadRootUri.endsWith("/")) {
                 uploadRootUri = uploadRootUri+"**";

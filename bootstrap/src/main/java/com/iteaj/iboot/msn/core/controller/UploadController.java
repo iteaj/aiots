@@ -169,7 +169,7 @@ public class UploadController extends BaseController implements InitializingBean
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        String uploadRootDir = properties.getUploadRootDir();
+        String uploadRootDir = properties.getUploadLocation();
         if(!CommonUtils.isBlank(uploadRootDir)) {
             if(uploadRootDir.endsWith("/")) {
                 uploadRootDir = uploadRootDir.substring(0, uploadRootDir.length()-1);
@@ -185,13 +185,19 @@ public class UploadController extends BaseController implements InitializingBean
                 return;
             }
         }
-        String uploadRootUri = properties.getUploadRootUri();
+        String uploadRootUri = properties.getUploadPattern();
         if(!CommonUtils.isBlank(uploadRootUri)) {
+            if(uploadRootUri.contains("*")) {
+                uploadRootUri = uploadRootUri.replaceAll("\\*", "");
+            }
+
             if(uploadRootUri.endsWith("/")) {
                 this.uploadRootUri = uploadRootUri.substring(0, uploadRootUri.length()-1);
             }
 
             this.uploadRootUri = uploadRootUri;
+        } else {
+            logger.error("未配置上传文件的访问pattern[framework.upload-pattern]");
         }
     }
 
