@@ -20,7 +20,7 @@ public class FrameworkProperties {
     /**
      * shiro配置
      */
-    private Shiro shiro;
+//    private Shiro shiro;
 
     /**
      * 文件上传的跟目录
