@@ -26,6 +26,7 @@ CREATE TABLE `iot_collect_data` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `cid` bigint NOT NULL COMMENT '任务执行标识',
   `uid` bigint DEFAULT NULL COMMENT '设备uid',
+  `child_sn` varchar(64) DEFAULT NULL COMMENT '子设备编号',
   `signal_id` bigint NOT NULL COMMENT '信号id',
   `field_type` tinyint DEFAULT NULL COMMENT '数据类型',
   `collect_task_id` bigint NOT NULL COMMENT '任务id',

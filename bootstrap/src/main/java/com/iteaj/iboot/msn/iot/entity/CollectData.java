@@ -28,6 +28,12 @@ public class CollectData extends BaseEntity {
     private Long uid;
 
     /**
+     * 子设备编号child_sn
+     */
+    @IotField("child_sn")
+    private String childSn;
+
+    /**
      * 信号id
      */
     @IotField("signal_id")

@@ -39,7 +39,7 @@ public class CollectActionTask implements Runnable {
                                 .setCid(cid).setReason("")
                                 .setStatus(false).setCreateTime(date)
                                 .setUid(item.getUid()).setSignalId(signal.getId())
-                                .setCollectTaskId(taskDto.getId());
+                                .setCollectTaskId(taskDto.getId()).setChildSn(item.getChildSn());
 
                         try {
                             data.setAddress(signal.getAddress());
