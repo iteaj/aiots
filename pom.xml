@@ -204,6 +204,17 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <compilerArgs>
+                        <!--获取方法的参数名-->
+                        <compilerArg>-parameters</compilerArg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
