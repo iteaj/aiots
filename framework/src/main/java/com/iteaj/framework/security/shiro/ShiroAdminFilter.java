@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.core.config.shiro;
+package com.iteaj.framework.security.shiro;
 
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.web.WebUtils;
@@ -23,5 +23,10 @@ public class ShiroAdminFilter extends UserFilter {
         }
 
         return super.onAccessDenied(request, response);
+    }
+
+    @Override
+    protected String getName() {
+        return super.getName();
     }
 }

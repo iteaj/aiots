@@ -1,10 +1,10 @@
-package com.iteaj.iboot.msn.core.config.shiro;
+package com.iteaj.framework.security.shiro;
 
 import com.google.code.kaptcha.Constants;
-import com.iteaj.framework.security.shiro.ShiroUtil;
-import com.iteaj.iboot.msn.core.entity.Admin;
-import com.iteaj.iboot.msn.core.service.IAdminService;
-import com.iteaj.iboot.msn.core.service.IMenuService;
+import com.iteaj.framework.Entity;
+import com.iteaj.framework.security.AuthenticationService;
+import com.iteaj.framework.security.AuthorizationService;
+import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
 import com.iteaj.util.DigestUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -24,12 +24,12 @@ import java.util.Objects;
  * @author iteaj
  * @since 1.0
  */
-public class ShiroAdminAuthRealm extends AuthorizingRealm {
+public class ShiroAdminRealm extends AuthorizingRealm {
 
     @Autowired
-    private IAdminService adminService;
+    private AuthorizationService authorizationService;
     @Autowired
-    private IMenuService menuService;
+    private AuthenticationService authenticationService;
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -38,10 +38,10 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        Admin admin = (Admin) principals.getPrimaryPrincipal();
+        Entity admin = (Entity) principals.getPrimaryPrincipal();
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
 
-        List<String> permissions = this.menuService.selectPermissions(admin.getId());
+        Collection<String> permissions = this.authorizationService.getPermissions(admin.getId());
         authorizationInfo.addStringPermissions(permissions);
 
         return authorizationInfo;
@@ -70,7 +70,7 @@ public class ShiroAdminAuthRealm extends AuthorizingRealm {
                 throw new AuthenticationException("验证码错误");
             }
 
-            Admin admin = adminService.getByAccount(userName);
+            AuthenticationUser admin = authenticationService.getByAccount(userName);
             if(admin == null) {
                 throw new AccountException("账户不存在");
             }

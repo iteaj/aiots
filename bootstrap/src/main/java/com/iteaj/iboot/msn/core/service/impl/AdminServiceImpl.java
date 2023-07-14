@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.core.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.iteaj.framework.security.AuthenticationService;
 import com.iteaj.iboot.msn.core.dto.AdminDto;
 import com.iteaj.iboot.msn.core.entity.Admin;
 import com.iteaj.iboot.msn.core.mapper.IAdminDao;
@@ -19,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implements IAdminService {
+public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implements IAdminService, AuthenticationService {
 
     @Override
     public Admin getByAccount(String username) {

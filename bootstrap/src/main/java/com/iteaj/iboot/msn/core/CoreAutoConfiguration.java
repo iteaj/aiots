@@ -11,8 +11,8 @@ import com.iteaj.framework.security.shiro.AccessFilterWrapper;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.excel.ExcelDictHandle;
 import com.iteaj.framework.spi.excel.IExcelService;
-import com.iteaj.iboot.msn.core.config.shiro.ShiroAdminFilter;
-import com.iteaj.iboot.msn.core.config.shiro.ShiroAdminAuthRealm;
+import com.iteaj.framework.security.shiro.ShiroAdminFilter;
+import com.iteaj.framework.security.shiro.ShiroAdminRealm;
 import com.iteaj.iboot.msn.core.config.shiro.ShiroOnlineListener;
 import com.iteaj.iboot.msn.core.exception.AsyncExceptionHandler;
 import com.iteaj.iboot.msn.core.service.AdminLoggerService;
@@ -78,24 +78,6 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
 
         advisorAutoProxyCreator.setProxyTargetClass(true);
         return advisorAutoProxyCreator;
-    }
-
-    /**
-     * shiro实现的用户认证、授权
-     * @return
-     */
-    @Bean("frameworkAuthRealm")
-    public ShiroAdminAuthRealm shiroAdminAuthRealm() {
-        return new ShiroAdminAuthRealm();
-    }
-
-    /**
-     * 创建一个名称叫{@code framework}的shiro全局配置过滤器
-     * @return
-     */
-    @Bean("frameworkAccessFilter")
-    public AccessFilterWrapper frameworkAccessFilter() {
-        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new ShiroAdminFilter());
     }
 
     /**

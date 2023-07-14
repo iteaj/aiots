@@ -6,6 +6,7 @@ import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.security.AuthorizationService;
 import com.iteaj.framework.security.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.utils.TreeUtils;
@@ -23,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService, InitializingBean {
+public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService, AuthorizationService, InitializingBean {
 
     private Map<Long, Menu> idMenuMap = new HashMap<>(128);
     private Map<String, Menu> loggerMenuCache = new HashMap<>(128);
@@ -166,5 +167,11 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                     this.idMenuMap.put(item.getId(), item);
                     this.loggerMenuCache.put(item.getUrl(), item);
                 });
+    }
+
+
+    @Override
+    public Collection<String> getPermissions(Serializable userId) {
+        return selectPermissions((Long) userId);
     }
 }

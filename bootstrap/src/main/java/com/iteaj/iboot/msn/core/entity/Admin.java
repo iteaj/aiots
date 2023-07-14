@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
 import com.iteaj.iboot.msn.core.enums.Sex;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.consts.UseStatus;
@@ -22,7 +23,7 @@ import java.util.Date;
 @Data
 @TableName("sys_admin")
 @Accessors(chain = true)
-public class Admin extends BaseEntity {
+public class Admin extends BaseEntity implements AuthenticationUser {
 
     /**
      * 性别

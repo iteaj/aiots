@@ -56,6 +56,24 @@ public class ShiroAutoConfiguration {
     }
 
     /**
+     * shiro实现的用户认证、授权
+     * @return
+     */
+    @Bean(name = {"frameworkAuthRealm", "shiroAdminRealm"})
+    public ShiroAdminRealm shiroAdminRealm() {
+        return new ShiroAdminRealm();
+    }
+
+    /**
+     * 创建一个名称叫{@code framework}的shiro全局配置过滤器
+     * @return
+     */
+    @Bean("frameworkAccessFilter")
+    public AccessFilterWrapper frameworkAccessFilter() {
+        return new AccessFilterWrapper(CoreConst.FRAMEWORK_FILTER_NAME, new ShiroAdminFilter());
+    }
+
+    /**
      * 使用框架认证过滤器
      * @return
      */

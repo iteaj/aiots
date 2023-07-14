@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.core.config.shiro;
+package com.iteaj.framework.security.shiro;
 
 import lombok.Data;
 import org.apache.shiro.authc.UsernamePasswordToken;
