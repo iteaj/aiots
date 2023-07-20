@@ -13,13 +13,8 @@
     <artifactId>iboot-knife4j</artifactId>
     <description>基于openapi规范、smart-doc插件、knife4j实现的文档管理插件</description>
 
-    <properties>
-        <knife4j.version>4.0.0</knife4j.version>
-    </properties>
-
     <dependencies>
         <dependency>
-            <version>${knife4j.version}</version>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-aggregation-spring-boot-starter</artifactId>
         </dependency>

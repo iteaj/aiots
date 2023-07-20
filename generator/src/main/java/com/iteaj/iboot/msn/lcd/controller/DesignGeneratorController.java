@@ -1,5 +1,7 @@
 package com.iteaj.iboot.msn.lcd.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -24,7 +26,6 @@ import com.iteaj.iboot.msn.lcd.dto.ReviewDto;
 import com.iteaj.iboot.msn.lcd.entity.LcdDesign;
 import com.iteaj.iboot.msn.lcd.gen.DesignConfigBuilder;
 import com.iteaj.iboot.msn.lcd.service.ILcdDesignService;
-import com.iteaj.util.CommonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -101,7 +102,7 @@ public class DesignGeneratorController extends BaseController {
      */
     @PostMapping("vue")
     public Result<byte[]> download(@RequestBody GenConfigDto dto) throws IOException {
-        if(!CommonUtils.isNotEmpty(dto.getTables())) {
+        if(!CollectionUtil.isNotEmpty(dto.getTables())) {
             return fail("请选择生成的表");
         }
 
@@ -161,7 +162,7 @@ public class DesignGeneratorController extends BaseController {
      */
     @GetMapping("review")
     public Result<ReviewDto> review(String tableName) {
-        if(CommonUtils.isBlank(tableName)) {
+        if(StrUtil.isBlank(tableName)) {
             return fail("请指定要预览的表");
         }
 

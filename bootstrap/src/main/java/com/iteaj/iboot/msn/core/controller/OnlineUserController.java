@@ -7,13 +7,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
-import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.iboot.msn.core.entity.OnlineUser;
 import com.iteaj.iboot.msn.core.service.IOnlineUserService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.session.UnknownSessionException;
-import org.apache.shiro.session.Session;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -48,11 +46,11 @@ public class OnlineUserController extends BaseController {
         result.<OnlineUser>stream()
                 .filter(item -> item.getStatus() == OnlineStatus.Online)
                 .forEach(item -> {
-                    final Session session = ShiroUtil.getSession(item.getSessionId());
-                    if(session == null) {
-                        item.setStatus(OnlineStatus.Offline);
-                        updateToOffline.add(item);
-                    }
+//                    final Session session = ShiroUtil.getSession(item.getSessionId());
+//                    if(session == null) {
+//                        item.setStatus(OnlineStatus.Offline);
+//                        updateToOffline.add(item);
+//                    }
         });
 
         this.onlineUserService.updateBatchById(updateToOffline);
@@ -68,10 +66,10 @@ public class OnlineUserController extends BaseController {
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         if(idList.size() == 1) {
             this.onlineUserService.getById(idList.get(0)).ofNullable().ifPresent(item -> {
-                if(item.getStatus() == OnlineStatus.Online
-                        && null == ShiroUtil.getSession(item.getSessionId())) {
-                    throw new IllegalStateException("客户端在线, 请先剔除");
-                }
+//                if(item.getStatus() == OnlineStatus.Online
+//                        && null == ShiroUtil.getSession(item.getSessionId())) {
+//                    throw new IllegalStateException("客户端在线, 请先剔除");
+//                }
             });
         } else {
             this.onlineUserService.listByIds(idList).forEach(item -> {
@@ -102,7 +100,7 @@ public class OnlineUserController extends BaseController {
         }
 
         try {
-            ShiroUtil.offline(entity.getSessionId()); // 剔除用户下线
+//            ShiroUtil.offline(entity.getSessionId()); // 剔除用户下线
         } catch (UnknownSessionException e) {
             this.onlineUserService.updateBySessionId(entity.setStatus(OnlineStatus.Offline));
         }

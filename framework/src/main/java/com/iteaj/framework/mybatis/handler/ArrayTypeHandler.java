@@ -1,6 +1,7 @@
 package com.iteaj.framework.mybatis.handler;
 
-import com.iteaj.util.CommonUtils;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
@@ -23,7 +24,7 @@ public class ArrayTypeHandler extends BaseTypeHandler<String[]> {
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, String[] parameter, JdbcType jdbcType) throws SQLException {
-        if(CommonUtils.isNotEmpty(parameter)) {
+        if(ArrayUtil.isNotEmpty(parameter)) {
             ps.setString(i, String.join(",", parameter));
         } else {
             ps.setString(i, null);
@@ -33,7 +34,7 @@ public class ArrayTypeHandler extends BaseTypeHandler<String[]> {
     @Override
     public String[] getNullableResult(ResultSet rs, String columnName) throws SQLException {
         String string = rs.getString(columnName);
-        if(CommonUtils.isNotBlank(string)) {
+        if(StrUtil.isNotBlank(string)) {
             return string.split(",");
         }
 
@@ -43,7 +44,7 @@ public class ArrayTypeHandler extends BaseTypeHandler<String[]> {
     @Override
     public String[] getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         String string = rs.getString(columnIndex);
-        if(CommonUtils.isNotBlank(string)) {
+        if(StrUtil.isNotBlank(string)) {
             return string.split(",");
         }
 

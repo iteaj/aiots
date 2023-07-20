@@ -1,7 +1,7 @@
 package com.iteaj.iboot.msn.lcd.vue;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
-import com.iteaj.util.CommonUtils;
 
 /**
  * form 表单类型
@@ -73,7 +73,7 @@ public enum FormType {
             case CLOB:
                 return Textarea;
             default:
-                if(CommonUtils.isNotBlank(comment)) {
+                if(StrUtil.isNotBlank(comment)) {
                     if(comment.contains("字典")) {
                         return Dict;
                     }

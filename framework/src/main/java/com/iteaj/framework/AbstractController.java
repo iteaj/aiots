@@ -1,12 +1,8 @@
 package com.iteaj.framework;
 
 import com.iteaj.framework.result.Result;
-import com.iteaj.util.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 
 /**
  * create time: 2018/7/7

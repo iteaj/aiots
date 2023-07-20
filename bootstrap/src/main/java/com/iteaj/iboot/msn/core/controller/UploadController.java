@@ -1,11 +1,11 @@
 package com.iteaj.iboot.msn.core.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.BaseController;
-import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
-import com.iteaj.iboot.msn.core.entity.Admin;
-import com.iteaj.util.CommonUtils;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.SecurityUtil;
+import com.iteaj.iboot.msn.core.entity.Admin;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -89,7 +89,7 @@ public class UploadController extends BaseController implements InitializingBean
     @PostMapping("avatar")
     public Result avatar(MultipartFile avatar) {
         try {
-            Admin admin = (Admin) ShiroUtil.getUser();
+            Admin admin = SecurityUtil.getLoginUser().map(item -> (Admin) item).get();
             String fileUrl = this.createFile(avatar, "avatar_"+admin.getId(), "/avatar");
             return success(fileUrl, "上传成功");
         } catch (IOException e) {
@@ -157,11 +157,11 @@ public class UploadController extends BaseController implements InitializingBean
     private String genFilePath(String originalFilename, String fileName, String subPath) {
         // 生成文件名
         String fileType = getFileType(originalFilename);
-        fileName = CommonUtils.isNotBlank(fileName) ? fileName + fileType
+        fileName = StrUtil.isNotBlank(fileName) ? fileName + fileType
                 :  UUID.randomUUID() + fileType;
 
         // 生成文件路径
-        if(CommonUtils.isBlank(subPath)) subPath = commonSubPath;
+        if(StrUtil.isBlank(subPath)) subPath = commonSubPath;
         else if(!subPath.endsWith("/")) subPath = subPath + "/";
 
         return subPath + fileName;
@@ -170,7 +170,7 @@ public class UploadController extends BaseController implements InitializingBean
     @Override
     public void afterPropertiesSet() throws Exception {
         String uploadRootDir = properties.getUploadLocation();
-        if(!CommonUtils.isBlank(uploadRootDir)) {
+        if(!StrUtil.isBlank(uploadRootDir)) {
             if(uploadRootDir.endsWith("/")) {
                 uploadRootDir = uploadRootDir.substring(0, uploadRootDir.length()-1);
             }
@@ -186,7 +186,7 @@ public class UploadController extends BaseController implements InitializingBean
             }
         }
         String uploadRootUri = properties.getUploadPattern();
-        if(!CommonUtils.isBlank(uploadRootUri)) {
+        if(!StrUtil.isBlank(uploadRootUri)) {
             if(uploadRootUri.contains("*")) {
                 uploadRootUri = uploadRootUri.replaceAll("\\*", "");
             }

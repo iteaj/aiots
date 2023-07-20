@@ -3,16 +3,15 @@ package com.iteaj.iboot.msn.core.controller;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.iboot.plugin.shiro.ShiroUtil;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.utils.ExcelExportParams;
 import com.iteaj.framework.utils.ExcelUtils;
 import com.iteaj.iboot.msn.core.dto.AdminDto;
 import com.iteaj.iboot.msn.core.dto.PasswordDto;
 import com.iteaj.iboot.msn.core.entity.Admin;
 import com.iteaj.iboot.msn.core.service.IAdminService;
-import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -132,12 +131,12 @@ public class AdminController extends BaseController {
 
     @PostMapping("/modUserInfo")
     public Result modUserInfo(@RequestBody Admin admin) {
-        BaseEntity principal = ShiroUtil.getUser();
-        if(principal == null) return fail("未登录");
-
-        admin.setId(principal.getId());
-        this.adminService.updateCurrentUserInfo(admin);
-        return success("修改成功");
+        return SecurityUtil.getLoginUser()
+                .map(item -> {
+                    admin.setId((Long) item.getId());
+                    this.adminService.updateCurrentUserInfo(admin);
+                    return success();
+                }).orElse(fail("未登录"));
     }
 
     /**

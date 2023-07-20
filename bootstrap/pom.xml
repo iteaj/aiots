@@ -97,11 +97,23 @@
 <!--            <groupId>com.github.ben-manes.caffeine</groupId>-->
 <!--        </dependency>-->
 
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>${shiro.version}</version>
+        </dependency>
+
         <!-- iboot plugin -->
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>iboot-shiro</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>iboot-shiro</artifactId>
             <version>${project.version}</version>
+            <artifactId>iboot-SaToken</artifactId>
         </dependency>
 
         <dependency>

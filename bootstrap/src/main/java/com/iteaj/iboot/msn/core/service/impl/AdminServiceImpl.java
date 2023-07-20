@@ -1,17 +1,19 @@
 package com.iteaj.iboot.msn.core.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.security.AuthenticationService;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.iboot.msn.core.dto.AdminDto;
 import com.iteaj.iboot.msn.core.entity.Admin;
 import com.iteaj.iboot.msn.core.mapper.IAdminDao;
 import com.iteaj.iboot.msn.core.service.IAdminService;
-import com.iteaj.iboot.plugin.shiro.ShiroUtil;
-import com.iteaj.util.CommonUtils;
-import com.iteaj.util.DigestUtils;
-import com.iteaj.framework.BaseServiceImpl;
-import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.result.DetailResult;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,10 +41,10 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
         Admin byAccount = this.getByAccount(adminDto.getAccount());
         if(null != byAccount) throw new ServiceException("此账号已经存在："+adminDto.getAccount());
 
-        if(CommonUtils.isNotBlank(adminDto.getPassword())) {
-            adminDto.setPassword(DigestUtils.md5Hex(adminDto.getPassword().getBytes()));
+        if(StrUtil.isNotBlank(adminDto.getPassword())) {
+            adminDto.setPassword(SecureUtil.md5(adminDto.getPassword()));
         } else { // 没有设置密码则密码初始为账号
-            adminDto.setPassword(DigestUtils.md5Hex(adminDto.getAccount().getBytes()));
+            adminDto.setPassword(SecureUtil.md5(adminDto.getAccount()));
         }
 
         this.getBaseMapper().createAdmin(adminDto);
@@ -67,9 +69,9 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
      */
     @Override
     public void updatePwdById(Long id, String password, String oldPwd) {
-        if(null == id || CommonUtils.isBlank(password))
+        if(null == id || StrUtil.isBlank(password))
             throw new ServiceException("更新密码失败");
-        if(CommonUtils.isBlank(oldPwd))
+        if(StrUtil.isBlank(oldPwd))
             throw new ServiceException("请输入原密码");
 
         oldPwd = DigestUtils.md5Hex(oldPwd.getBytes());
@@ -85,7 +87,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     @Override
     public void deleteAllJoinByIds(List<Long> list) {
-        if(CommonUtils.isNotEmpty(list)) {
+        if(CollectionUtil.isNotEmpty(list)) {
             getBaseMapper().deleteAllJoinByIds(list);
         }
     }
@@ -97,7 +99,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     @Override
     public void updateCurrentUserInfo(Admin admin) {
-        if(CommonUtils.isNotBlank(admin.getPassword())) {
+        if(StrUtil.isNotBlank(admin.getPassword())) {
             String md5Hex = DigestUtils.md5Hex(admin.getPassword().getBytes());
             admin.setPassword(md5Hex);
         }
@@ -105,7 +107,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
         this.updateById(admin);
 
         // 更新当前登录的信息
-        Admin principal = (Admin) ShiroUtil.getUser();
+        Admin principal = (Admin) SecurityUtil.getLoginUser().get();
         principal.setAvatar(admin.getAvatar()).setEmail(admin.getEmail())
                 .setPhone(admin.getPhone()).setRemark(admin.getRemark())
                 .setName(admin.getName()).setSex(admin.getSex());
@@ -118,7 +120,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     @Override
     public void setAdminPassword(Long id, String password) {
-        if(null == id || CommonUtils.isBlank(password))
+        if(null == id || StrUtil.isBlank(password))
             throw new ServiceException("请检查要设置的密码");
 
         this.getById(id).ofNullable().orElseThrow(()

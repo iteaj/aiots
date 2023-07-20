@@ -1,16 +1,16 @@
 package com.iteaj.iboot.msn.core.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
-import com.iteaj.iboot.msn.core.mapper.IRoleDao;
 import com.iteaj.iboot.msn.core.dto.RoleDto;
 import com.iteaj.iboot.msn.core.entity.Role;
+import com.iteaj.iboot.msn.core.mapper.IRoleDao;
 import com.iteaj.iboot.msn.core.service.IRoleService;
-import com.iteaj.util.CommonUtils;
-import com.iteaj.framework.BaseServiceImpl;
-import com.iteaj.framework.result.DetailResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,12 +45,12 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
     @Override
     @Transactional
     public void delRoleAndPermByIds(List<Long> list) {
-        if(CommonUtils.isNotEmpty(list)) {
+        if(CollectionUtil.isNotEmpty(list)) {
             if(list.size() > 1) {
                 throw new ServiceException("不支持批量删除");
             }
             List<Long> adminIds = this.listBindAdminOfRole(list.get(0));
-            if(CommonUtils.isNotEmpty(adminIds)) {
+            if(CollectionUtil.isNotEmpty(adminIds)) {
                 throw new ServiceException("此角色已被使用");
             }
 
@@ -75,7 +75,7 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
 
     @Override
     public void updateRolePermsById(RoleDto role) {
-        if(!CommonUtils.isNotEmpty(role.getMenuIds())) {
+        if(!CollectionUtil.isNotEmpty(role.getMenuIds())) {
             throw new ServiceException("请选择权限");
         }
         this.getOne(Wrappers.<Role>lambdaQuery().eq(Role::getName, role.getName()))

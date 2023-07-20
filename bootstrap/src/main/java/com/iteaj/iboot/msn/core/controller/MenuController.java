@@ -1,9 +1,9 @@
 package com.iteaj.iboot.msn.core.controller;
 
-import com.iteaj.iboot.plugin.shiro.ShiroUtil;
-import com.iteaj.iboot.msn.core.entity.Menu;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.SecurityUtil;
+import com.iteaj.iboot.msn.core.entity.Menu;
 import com.iteaj.iboot.msn.core.service.IMenuService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +40,8 @@ public class MenuController extends BaseController {
      */
     @GetMapping("/bars")
     public Result<List<Menu>> bars() {
-        return menuService.selectMenuBarTrees((Long) ShiroUtil.getId(), ShiroUtil.isSuper());
+        Long loginId = SecurityUtil.getLoginId().map(item -> (Long) item).orElse(null);
+        return menuService.selectMenuBarTrees(loginId, SecurityUtil.isSuper());
     }
 
     /**

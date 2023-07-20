@@ -1,6 +1,6 @@
 package com.iteaj.iboot.msn.quartz.jobs;
 
-import com.iteaj.util.CommonUtils;
+import cn.hutool.core.util.StrUtil;
 import org.quartz.JobDetail;
 import org.quartz.*;
 import org.quartz.spi.JobFactory;
@@ -15,9 +15,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -109,7 +107,7 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
     }
 
     public QuartzJobContext getContext(String expression) {
-        if(CommonUtils.isNotBlank(expression)) {
+        if(StrUtil.isNotBlank(expression)) {
             return cache.get(expression);
         } else {
             return null;

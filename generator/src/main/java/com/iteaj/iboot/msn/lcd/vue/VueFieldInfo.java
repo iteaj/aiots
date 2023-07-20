@@ -1,10 +1,10 @@
 package com.iteaj.iboot.msn.lcd.vue;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.generator.config.po.TableField;
 import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
 import com.iteaj.iboot.msn.lcd.LowCodeProperties;
 import com.iteaj.iboot.msn.lcd.utils.LowCodeUtil;
-import com.iteaj.util.CommonUtils;
 import lombok.Data;
 
 import java.util.Set;
@@ -64,7 +64,7 @@ public class VueFieldInfo {
                 switch (this.formType) {
                     case Input:
                     case Textarea:
-                        if(CommonUtils.isBlank((String) aDefault)) {
+                        if(StrUtil.isBlank((String) aDefault)) {
                             return "";
                         } else {
                             return "defaultValue=\""+aDefault+"\"";
@@ -101,7 +101,7 @@ public class VueFieldInfo {
     private boolean isSearchComponent(LowCodeProperties properties) {
         String name = this.tableField.getName();
         Set<String> include = properties.getForm().getSearch();
-        if(include != null && CommonUtils.isNotBlank(name)) {
+        if(include != null && StrUtil.isNotBlank(name)) {
             for(String item : include) {
                 if(name.contains(item)) {
                     return true;

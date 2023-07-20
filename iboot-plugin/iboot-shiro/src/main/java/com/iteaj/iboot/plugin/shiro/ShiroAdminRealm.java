@@ -4,6 +4,7 @@ import com.google.code.kaptcha.Constants;
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.security.AuthenticationService;
 import com.iteaj.framework.security.AuthorizationService;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
 import com.iteaj.util.DigestUtils;
 import org.apache.shiro.authc.*;
@@ -33,7 +34,7 @@ public class ShiroAdminRealm extends AuthorizingRealm {
 
     @Override
     public boolean supports(AuthenticationToken token) {
-        return token != null && ShiroAdminToken.class.isAssignableFrom(token.getClass());
+        return token != null && ShiroSecurityToken.class.isAssignableFrom(token.getClass());
     }
 
     @Override
@@ -49,10 +50,10 @@ public class ShiroAdminRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        ShiroAdminToken shiroAdminToken = (ShiroAdminToken) token;
+        ShiroSecurityToken shiroAdminToken = (ShiroSecurityToken) token;
 
-        String userName = shiroAdminToken.getUsername();
-        String password = new String(shiroAdminToken.getPassword());
+        String userName = shiroAdminToken.getAccount();
+        String password = shiroAdminToken.getPassword();
 
         final HttpServletRequest request = ShiroUtil.getRequest();
         final HttpSession session = request.getSession();
@@ -98,7 +99,7 @@ public class ShiroAdminRealm extends AuthorizingRealm {
      */
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
-        return ShiroUtil.isSuper() ||
+        return SecurityUtil.isSuper() ||
                 super.isPermitted(principals, permission);
     }
 
@@ -110,7 +111,7 @@ public class ShiroAdminRealm extends AuthorizingRealm {
      */
     @Override
     public boolean hasRole(PrincipalCollection principal, String roleIdentifier) {
-        return ShiroUtil.isSuper() ||
+        return SecurityUtil.isSuper() ||
             super.hasRole(principal, roleIdentifier);
     }
 }

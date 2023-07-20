@@ -1,6 +1,6 @@
 package com.iteaj.iboot.msn.lcd.utils;
 
-import com.iteaj.util.CommonUtils;
+import cn.hutool.core.util.StrUtil;
 
 public class LowCodeUtil {
 
@@ -10,7 +10,7 @@ public class LowCodeUtil {
      * @return
      */
     public static String removeBracket(String val) {
-        if(CommonUtils.isNotBlank(val)) {
+        if(StrUtil.isNotBlank(val)) {
             int indexOf = val.indexOf("(");
             if(indexOf == -1) {
                 indexOf = val.indexOf("（");
@@ -47,7 +47,7 @@ public class LowCodeUtil {
      * @return
      */
     public static String getModuleName(String comment) {
-        if(CommonUtils.isBlank(comment)) {
+        if(StrUtil.isBlank(comment)) {
             return "";
         }
 
@@ -64,7 +64,7 @@ public class LowCodeUtil {
      * @return
      */
     public static String firstLowerServiceName(String serviceName) {
-        if(CommonUtils.isBlank(serviceName)) {
+        if(StrUtil.isBlank(serviceName)) {
             return "";
         }
 

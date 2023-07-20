@@ -4,16 +4,12 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.auth.SecurityException;
-import org.apache.shiro.ShiroException;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolation;
@@ -34,17 +30,6 @@ public class IBootControllerAdvice {
         logger.error("未知错误", e.getMessage(), e);
 
         return Result.fail("系统异常");
-    }
-
-    @ExceptionHandler(ShiroException.class)
-    protected Result shiroExceptionHandle(ShiroException e) {
-        if(e instanceof UnauthorizedException) {
-            return Result.fail("您无此功能权限");
-        } else if(e instanceof AuthenticationException) {
-            return Result.fail("请先认证");
-        } else {
-            return Result.fail("未认证或者无此权限");
-        }
     }
 
     /**

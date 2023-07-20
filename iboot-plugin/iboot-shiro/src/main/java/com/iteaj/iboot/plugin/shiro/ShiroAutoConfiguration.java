@@ -4,8 +4,10 @@ import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.autoconfigure.SessionCacheProperties;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.framework.security.SecurityService;
 import com.iteaj.iboot.plugin.shiro.online.OnlineSessionDAO;
 import com.iteaj.iboot.plugin.shiro.online.OnlineSessionManager;
+import com.iteaj.iboot.plugin.shiro.online.ShiroOnlineListener;
 import com.iteaj.iboot.plugin.shiro.redis.ShiroRedisSessionCacheManager;
 import org.apache.shiro.authc.AbstractAuthenticator;
 import org.apache.shiro.authc.AuthenticationListener;
@@ -75,6 +77,15 @@ public class ShiroAutoConfiguration {
     }
 
     /**
+     * 监听用户上线/离线
+     * @return
+     */
+    @Bean
+    public SessionListener shiroOnlineListener() {
+        return new ShiroOnlineListener();
+    }
+
+    /**
      * 使用框架认证过滤器
      * @return
      */
@@ -85,6 +96,11 @@ public class ShiroAutoConfiguration {
 
         chain.addPathDefinition("/**", CoreConst.FRAMEWORK_FILTER_NAME);
         return chain;
+    }
+
+    @Bean
+    public SecurityService securityService() {
+        return new ShiroSecurityService();
     }
 
     /**

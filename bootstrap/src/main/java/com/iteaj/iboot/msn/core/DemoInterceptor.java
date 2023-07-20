@@ -1,7 +1,7 @@
 package com.iteaj.iboot.msn.core;
 
+import cn.hutool.json.JSONUtil;
 import com.iteaj.framework.result.Result;
-import com.iteaj.util.JsonUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -37,7 +37,7 @@ public class DemoInterceptor implements HandlerInterceptor, WebMvcConfigurer {
         // 其他post接口全部拦截
         if("POST".equalsIgnoreCase(method)) {
             response.setContentType("application/json;charset=utf-8");
-            response.getWriter().print(JsonUtils.toJson(Result.fail("演示环境不允许操作")));
+            response.getWriter().print(JSONUtil.toJsonStr(Result.fail("演示环境不允许操作")));
             return false;
         }
 

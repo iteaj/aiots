@@ -1,5 +1,7 @@
 package com.iteaj.iboot.msn.lcd.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.config.GlobalConfig;
 import com.baomidou.mybatisplus.generator.config.TemplateConfig;
@@ -21,7 +23,6 @@ import com.iteaj.framework.spi.admin.MenuResource;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.admin.UrlResource;
-import com.iteaj.util.CommonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
@@ -72,7 +73,7 @@ public class GeneratorController extends BaseController implements InitializingB
         initTableQuerySql(name, prefix, null);
         List<TableInfo> tableInfoList = new ConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc()).getTableInfoList();
-        if(CommonUtils.isNotEmpty(tableInfoList)) {
+        if(CollectionUtil.isNotEmpty(tableInfoList)) {
             tableInfoList.forEach(item -> {
                 item.setFields(null); // 不写字段信息到前端
                 item.setCommonFields(null);
@@ -166,7 +167,7 @@ public class GeneratorController extends BaseController implements InitializingB
      * @param configBuilder
      */
     private void genMenu(GenConfigDto dto, ConfigBuilder configBuilder) {
-        if(dto.getMenuId() != null && CommonUtils.isNotEmpty(configBuilder.getTableInfoList())) {
+        if(dto.getMenuId() != null && CollectionUtil.isNotEmpty(configBuilder.getTableInfoList())) {
             StringBuilder url = new StringBuilder();
             Connection conn = properties.getLdc().getConn();
             try(Statement statement = conn.createStatement()) {
@@ -243,7 +244,7 @@ public class GeneratorController extends BaseController implements InitializingB
      */
     @GetMapping("review")
     public Result<ReviewDto> review(String tableName) {
-        if(CommonUtils.isBlank(tableName)) {
+        if(StrUtil.isBlank(tableName)) {
             return fail("请指定要预览的表");
         }
 
@@ -287,11 +288,11 @@ public class GeneratorController extends BaseController implements InitializingB
             public String tablesSql() {
                 StringBuilder sql = new StringBuilder("select * from information_schema.tables where TABLE_SCHEMA='").append(database).append("'");
 
-                if(CommonUtils.isNotBlank(name) && CommonUtils.isNotBlank(prefix)) {
+                if(StrUtil.isNotBlank(name) && StrUtil.isNotBlank(prefix)) {
                     sql.append("and TABLE_NAME LIKE '%").append(name).append("%' and TABLE_NAME LIKE ").append(prefix).append("%");
-                } else if(CommonUtils.isNotBlank(name)) {
+                } else if(StrUtil.isNotBlank(name)) {
                     sql.append("and TABLE_NAME LIKE '%").append(name).append("%'");
-                } else if(CommonUtils.isNotBlank(prefix)) {
+                } else if(StrUtil.isNotBlank(prefix)) {
                     sql.append("and TABLE_NAME LIKE '").append(prefix).append("%'");
                 } else if(!CollectionUtils.isEmpty(tables)) {
                     String collect = tables.stream().map(item -> "'" + item + "'").collect(Collectors.joining(","));
@@ -326,7 +327,7 @@ public class GeneratorController extends BaseController implements InitializingB
     @Override
     public void afterPropertiesSet() throws Exception {
         final String moduleName = this.properties.getLpc().getModuleName();
-        if(CommonUtils.isBlank(moduleName)) {
+        if(StrUtil.isBlank(moduleName)) {
             throw new BeanInitializationException("没有指定代码生成器要生成的模块[low.code.lpc.module-name]");
         }
 
@@ -337,7 +338,7 @@ public class GeneratorController extends BaseController implements InitializingB
             this.database = matcher.group("db");
         }
 
-        if(CommonUtils.isBlank(this.database)) {
+        if(StrUtil.isBlank(this.database)) {
             throw new BeanInitializationException("没有指定代码生成器所要生成的数据库");
         }
     }

@@ -2,7 +2,7 @@ package com.iteaj.iboot.msn.core.service;
 
 import com.iteaj.framework.logger.AccessLogger;
 import com.iteaj.framework.logger.LoggerService;
-import com.iteaj.iboot.plugin.shiro.ShiroUtil;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.iboot.msn.core.entity.AccessLog;
 import com.iteaj.iboot.msn.core.entity.Admin;
 import com.iteaj.iboot.msn.core.entity.Menu;
@@ -29,8 +29,8 @@ public class AdminLoggerService implements LoggerService {
                 .setIp(entity.getIp()).setUrl(entity.getUrl())
                 .setMillis(entity.getExecTime()).setStatus(entity.isStatus());
 
-        if(ShiroUtil.isLogin()) {
-            final Admin admin = ShiroUtil.getUser();
+        if(SecurityUtil.isLogin()) {
+            final Admin admin = SecurityUtil.getLoginUser().map(item -> (Admin) item).get();
             accessLog.setUserId(admin.getId()).setUserName(admin.getName());
         }
 

@@ -16,7 +16,6 @@
         <!-- Sa-Token 权限认证，在线文档：https://sa-token.cc -->
         <dependency>
             <groupId>cn.dev33</groupId>
-            <version>1.35.0.RC</version>
             <artifactId>sa-token-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>

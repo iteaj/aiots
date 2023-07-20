@@ -3,12 +3,13 @@ package com.iteaj.framework.security;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public interface AuthorizationService {
 
-    default Collection<String> getRoles(Serializable userId) {
-        return Collections.EMPTY_SET;
+    default List<String> getRoles(Serializable userId) {
+        return Collections.EMPTY_LIST;
     }
 
-    Collection<String> getPermissions(Serializable userId);
+    List<String> getPermissions(Serializable userId);
 }

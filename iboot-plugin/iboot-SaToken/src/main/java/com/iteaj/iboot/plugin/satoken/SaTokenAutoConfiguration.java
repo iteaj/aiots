@@ -1,7 +1,10 @@
 package com.iteaj.iboot.plugin.satoken;
 
 import cn.dev33.satoken.stp.StpInterface;
+import com.iteaj.framework.security.AuthenticationService;
 import com.iteaj.framework.security.AuthorizationService;
+import com.iteaj.framework.security.SecurityService;
+import com.iteaj.iboot.plugin.satoken.impl.SaTokenSecurityService;
 import com.iteaj.iboot.plugin.satoken.impl.StpInterfaceImpl;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
@@ -18,6 +21,11 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
     @Bean
     public StpInterface stpInterfaceImpl(AuthorizationService authorizationService) {
         return new StpInterfaceImpl(authorizationService);
+    }
+
+    @Bean
+    public SecurityService securityService(AuthenticationService authenticationService) {
+        return new SaTokenSecurityService(authenticationService);
     }
 
     @Override

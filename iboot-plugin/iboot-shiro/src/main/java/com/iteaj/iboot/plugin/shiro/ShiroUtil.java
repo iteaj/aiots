@@ -1,6 +1,5 @@
 package com.iteaj.iboot.plugin.shiro;
 
-import com.iteaj.framework.Entity;
 import com.iteaj.framework.consts.CoreConst;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.SecurityUtils;
@@ -17,57 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 
 public class ShiroUtil {
-
-    public static Serializable getId() {
-        final Entity user = getUser();
-        return user != null ? user.getId() : null;
-    }
-
-    /**
-     * 返回当前登录的用户
-     * @return
-     */
-    public static <T extends Entity> T getUser() {
-        try {
-            final Object principal = SecurityUtils.getSubject().getPrincipal();
-            if(principal instanceof Entity) {
-                return ((T) principal);
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * 是否已经认证登录
-     * @return
-     */
-    public static boolean isLogin() {
-        return getUser() != null;
-    }
-
-    /**
-     * 后台管理端：当前用户是否超级管理员
-     * @return
-     */
-    public static boolean isSuper() {
-        if(getUser().getId() instanceof Number) {
-            return isSuper(((Number) getUser().getId()).longValue());
-        }
-
-        return false;
-    }
-
-    /**
-     * 后台管理端：验证用户是不是超级管理员
-     * @param id
-     * @return
-     */
-    public static boolean isSuper(Long id) {
-        return id == 1l;
-    }
 
     /**
      * 剔除用户下线

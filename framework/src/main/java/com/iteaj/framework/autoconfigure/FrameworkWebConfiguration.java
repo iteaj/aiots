@@ -3,6 +3,8 @@ package com.iteaj.framework.autoconfigure;
 import com.iteaj.framework.cache.CacheEntry;
 import com.iteaj.framework.cache.SerializerType;
 import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.security.SecurityService;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import com.iteaj.framework.spi.auth.WebAuthHandler;
 import com.iteaj.framework.spi.auth.handle.AccountAuthHandler;
@@ -26,6 +28,16 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
 
     public FrameworkWebConfiguration(FrameworkProperties properties) {
         this.properties = properties;
+    }
+
+    /**
+     * 安全工具
+     * @param securityService
+     * @return
+     */
+    @Bean
+    public SecurityUtil securityUtil(SecurityService securityService) {
+        return SecurityUtil.getInstance(securityService);
     }
 
     /**

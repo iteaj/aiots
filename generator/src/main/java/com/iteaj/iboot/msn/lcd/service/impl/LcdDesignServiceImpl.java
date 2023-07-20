@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.lcd.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.iteaj.framework.exception.ServiceException;
@@ -10,7 +11,6 @@ import com.iteaj.iboot.msn.lcd.entity.LcdDesign;
 import com.iteaj.iboot.msn.lcd.mapper.LcdDesignMapper;
 import com.iteaj.iboot.msn.lcd.service.ILcdDesignService;
 import com.iteaj.framework.BaseServiceImpl;
-import com.iteaj.util.CommonUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,11 +30,11 @@ public class LcdDesignServiceImpl extends BaseServiceImpl<LcdDesignMapper, LcdDe
 
     @Override
     public BooleanResult save(LcdDesign entity) {
-        if(CommonUtils.isBlank(entity.getName())) {
+        if(StrUtil.isBlank(entity.getName())) {
             throw new ServiceException("功能名必填");
         }
 
-        if(CommonUtils.isBlank(entity.getTableName())) {
+        if(StrUtil.isBlank(entity.getTableName())) {
             throw new ServiceException("表名必填");
         }
 

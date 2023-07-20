@@ -2,13 +2,17 @@ package com.iteaj.iboot.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
-import com.iteaj.iboot.plugin.shiro.ShiroAdminToken;
+import com.iteaj.framework.security.SecurityException;
+import com.iteaj.framework.security.SecurityToken;
+import com.iteaj.framework.security.SecurityUtil;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 用户管理中心接口
@@ -24,12 +28,10 @@ public class LoginController extends BaseController {
      * @return
      */
     @PostMapping("login")
-    public Result login(@RequestBody ShiroAdminToken token) {
+    public Result login(@RequestBody SecurityToken token, HttpServletRequest request, HttpServletResponse response) {
         try {
-            SecurityUtils.getSubject().login(token);
+            SecurityUtil.login(token, request, response);
         } catch (SecurityException e) {
-            return fail(e.getMessage());
-        } catch (AuthenticationException e) {
             return fail(e.getMessage());
         } catch (Exception e) {
             return fail("登录失败");

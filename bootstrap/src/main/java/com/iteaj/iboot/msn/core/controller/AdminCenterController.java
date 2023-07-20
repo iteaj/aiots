@@ -2,7 +2,7 @@ package com.iteaj.iboot.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
-import com.iteaj.iboot.plugin.shiro.ShiroUtil;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.iboot.msn.core.dto.AdminDto;
 import com.iteaj.iboot.msn.core.dto.PasswordDto;
 import com.iteaj.iboot.msn.core.entity.Admin;
@@ -34,7 +34,8 @@ public class AdminCenterController extends BaseController {
      */
     @GetMapping("menus")
     public Result<List<Menu>> menus() {
-        return menuService.selectMenuBarTrees((Long) ShiroUtil.getId(), ShiroUtil.isSuper());
+        Long loginId = SecurityUtil.getLoginId().map(item -> (Long) item).orElse(null);
+        return menuService.selectMenuBarTrees(loginId, SecurityUtil.isSuper());
     }
 
     /**
@@ -53,7 +54,9 @@ public class AdminCenterController extends BaseController {
      */
     @GetMapping("detail")
     public Result<AdminDto> detail() {
-        Serializable id = ShiroUtil.getUser().getId();
+        Serializable id = SecurityUtil
+                .getLoginId()
+                .orElse(null);
 
         return adminService.getAdminCenter(id);
     }

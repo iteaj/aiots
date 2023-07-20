@@ -1,12 +1,11 @@
 package com.iteaj.framework.mybatis.handler;
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.iteaj.util.CommonUtils;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
@@ -48,7 +47,7 @@ public class JacksonTypeHandler extends BaseTypeHandler<ContainerNode> {
     @Override
     public ContainerNode getNullableResult(ResultSet rs, String columnName) throws SQLException {
         String string = rs.getString(columnName);
-        if(CommonUtils.isNotBlank(string)) {
+        if(StrUtil.isNotBlank(string)) {
             try {
                 return mapper.readValue(string, ContainerNode.class);
             } catch (IOException e) {

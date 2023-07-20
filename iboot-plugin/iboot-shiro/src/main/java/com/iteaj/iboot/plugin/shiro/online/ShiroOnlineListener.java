@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.core.config.shiro;
+package com.iteaj.iboot.plugin.shiro.online;
 
 import com.iteaj.framework.Entity;
 import com.iteaj.iboot.plugin.shiro.ShiroUtil;

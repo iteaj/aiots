@@ -8,11 +8,9 @@ import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.excel.ExcelDictHandle;
 import com.iteaj.framework.spi.excel.IExcelService;
-import com.iteaj.iboot.msn.core.config.shiro.ShiroOnlineListener;
 import com.iteaj.iboot.msn.core.exception.AsyncExceptionHandler;
 import com.iteaj.iboot.msn.core.service.AdminLoggerService;
 import com.iteaj.iboot.msn.core.service.AdminResourceManager;
-import org.apache.shiro.session.SessionListener;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -96,15 +94,6 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
         chain.addPathDefinition("/doc/**", "anon");
         chain.addPathDefinition("/favicon.ico", "anon");
         return chain;
-    }
-
-    /**
-     * 监听用户上线/离线
-     * @return
-     */
-    @Bean
-    public SessionListener eventSessionListener() {
-        return new ShiroOnlineListener();
     }
 
     /**
