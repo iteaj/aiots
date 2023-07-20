@@ -104,17 +104,17 @@
         </dependency>
 
         <!-- iboot plugin -->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>iboot-shiro</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>com.iteaj</groupId>
+            <artifactId>iboot-shiro</artifactId>
             <version>${project.version}</version>
-            <artifactId>iboot-SaToken</artifactId>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <artifactId>iboot-SaToken</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.iteaj</groupId>

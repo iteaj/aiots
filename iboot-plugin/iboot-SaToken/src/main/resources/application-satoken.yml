@@ -17,11 +17,11 @@ sa-token:
   token-style: uuid
 
   # 是否尝试从 header 里读取 Token
-  is-read-header: true
+  is-read-header: false
   # 是否在登录后将 Token 写入到响应头
-  is-write-header: true
+  is-write-header: false
   # 是否尝试从 cookie 里读取 Token，此值为 false 后，StpUtil.login(id) 登录时也不会再往前端注入Cookie
-  is-read-cookie: false
+  is-read-cookie: true
   #jwt秘钥 （只有集成 sa-token-temp-jwt 模块时此参数才会生效）
   # https://sa-token.cc/doc.html#/plugin/jwt-extend
   jwt-secret-key: 46451515

@@ -1,12 +1,12 @@
 package com.iteaj.iboot.plugin.shiro;
 
+import cn.hutool.crypto.SecureUtil;
 import com.google.code.kaptcha.Constants;
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.security.AuthenticationService;
 import com.iteaj.framework.security.AuthorizationService;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
-import com.iteaj.util.DigestUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -78,7 +78,7 @@ public class ShiroAdminRealm extends AuthorizingRealm {
 
             // 密码校验
             String passwordDigest = admin.getPassword().toUpperCase();
-            String md5Hex = DigestUtils.md5Hex(password.getBytes()).toUpperCase();
+            String md5Hex = SecureUtil.md5(password).toUpperCase();
 
             if(!Objects.equals(passwordDigest, md5Hex)) {
                 throw new CredentialsException("密码校验失败");

@@ -11,6 +11,13 @@ public class SecurityToken {
     private String account;
 
     /**
+     * 用户名
+     * @see #account
+     */
+    @Deprecated
+    private String username;
+
+    /**
      * 密码
      */
     private String password;
@@ -21,4 +28,9 @@ public class SecurityToken {
     private String captcha;
 
     private boolean rememberMe = false;
+
+    public void setUsername(String username) {
+        this.account = username;
+        this.username = username;
+    }
 }

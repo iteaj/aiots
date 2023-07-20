@@ -1,8 +1,8 @@
 package com.iteaj.iboot.plugin.shiro;
 
+import cn.hutool.json.JSONUtil;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.web.WebUtils;
-import com.iteaj.util.JsonUtils;
 import org.apache.shiro.web.filter.authc.UserFilter;
 
 import javax.servlet.ServletRequest;
@@ -17,7 +17,7 @@ public class ShiroAdminFilter extends UserFilter {
         if(WebUtils.isAjax((HttpServletRequest) request)) {
             response.setContentType("application/json;charset=utf-8");
             ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print(JsonUtils.toJson(Result.fail("未认证")));
+            response.getWriter().print(JSONUtil.toJsonStr(Result.fail("未认证")));
             response.getWriter().flush();
             return false;
         }
