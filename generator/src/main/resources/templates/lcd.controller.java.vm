@@ -19,9 +19,7 @@ import ${superControllerClassPackage};
 #end
 
 /**
- * <p>
  * $!{cfg.moduleName}管理
- * </p>
  *
  * @author ${author}
  * @since ${date}

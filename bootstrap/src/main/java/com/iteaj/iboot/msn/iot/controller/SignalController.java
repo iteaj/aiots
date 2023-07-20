@@ -15,9 +15,7 @@ import com.iteaj.iboot.msn.iot.service.ISignalService;
 import com.iteaj.framework.BaseController;
 
 /**
- * <p>
  * 寄存器点位管理
- * </p>
  *
  * @author iteaj
  * @since 2022-07-22

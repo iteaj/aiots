@@ -15,9 +15,7 @@ import com.iteaj.iboot.msn.iot.service.IDeviceService;
 import com.iteaj.framework.BaseController;
 
 /**
- * <p>
  * 设备管理
- * </p>
  *
  * @author iteaj
  * @since 2022-05-15

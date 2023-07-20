@@ -1,4 +1,4 @@
-package com.iteaj.framework.security.shiro;
+package com.iteaj.iboot.plugin.shiro;
 
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.exception.ServiceException;
@@ -10,7 +10,10 @@ import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.filter.InvalidRequestFilter;
-import org.apache.shiro.web.filter.mgt.*;
+import org.apache.shiro.web.filter.mgt.DefaultFilter;
+import org.apache.shiro.web.filter.mgt.FilterChainManager;
+import org.apache.shiro.web.filter.mgt.FilterChainResolver;
+import org.apache.shiro.web.filter.mgt.PathMatchingFilterChainResolver;
 import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
 import org.springframework.beans.factory.BeanInitializationException;

@@ -7,7 +7,7 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.security.AuthorizationService;
-import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.iboot.msn.core.entity.Menu;

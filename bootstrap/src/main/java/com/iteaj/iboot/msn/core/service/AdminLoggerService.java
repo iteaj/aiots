@@ -2,7 +2,7 @@ package com.iteaj.iboot.msn.core.service;
 
 import com.iteaj.framework.logger.AccessLogger;
 import com.iteaj.framework.logger.LoggerService;
-import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import com.iteaj.iboot.msn.core.entity.AccessLog;
 import com.iteaj.iboot.msn.core.entity.Admin;
 import com.iteaj.iboot.msn.core.entity.Menu;

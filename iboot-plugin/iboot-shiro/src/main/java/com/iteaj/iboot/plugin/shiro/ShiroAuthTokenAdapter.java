@@ -1,4 +1,4 @@
-package com.iteaj.framework.security.shiro;
+package com.iteaj.iboot.plugin.shiro;
 
 import com.iteaj.framework.spi.auth.AuthToken;
 import org.apache.shiro.authc.AuthenticationToken;

@@ -2,7 +2,6 @@ package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.spi.auth.WebAuthAction;
 import lombok.Data;
-import org.apache.shiro.session.Session;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -18,7 +17,6 @@ public class SessionCacheProperties {
     /**
      * 全局过期时间(秒)
      * @see WebAuthAction#expireTime() 可以指定各端(pc,webapp)的过期时间
-     * @see com.iteaj.framework.security.shiro.online.OnlineSessionManager#applyGlobalSessionTimeout(Session)
      */
     private long expire = 30 * 60;
 

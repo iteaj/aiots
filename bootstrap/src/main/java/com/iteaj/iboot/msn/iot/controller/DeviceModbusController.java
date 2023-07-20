@@ -29,9 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
  * modbus设备管理
- * </p>
  *
  * @author iteaj
  * @since 2022-05-15

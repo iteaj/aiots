@@ -1,4 +1,4 @@
-package com.iteaj.framework.security.shiro;
+package com.iteaj.iboot.plugin.shiro;
 
 import lombok.Data;
 import org.apache.shiro.authc.UsernamePasswordToken;

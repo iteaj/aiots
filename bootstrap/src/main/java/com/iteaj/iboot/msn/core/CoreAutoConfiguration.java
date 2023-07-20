@@ -3,16 +3,11 @@ package com.iteaj.iboot.msn.core;
 import cn.afterturn.easypoi.handler.inter.IExcelDictHandler;
 import com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration;
 import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
-import com.iteaj.framework.autoconfigure.ShiroAutoConfiguration;
-import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.security.shiro.AccessFilterWrapper;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.excel.ExcelDictHandle;
 import com.iteaj.framework.spi.excel.IExcelService;
-import com.iteaj.framework.security.shiro.ShiroAdminFilter;
-import com.iteaj.framework.security.shiro.ShiroAdminRealm;
 import com.iteaj.iboot.msn.core.config.shiro.ShiroOnlineListener;
 import com.iteaj.iboot.msn.core.exception.AsyncExceptionHandler;
 import com.iteaj.iboot.msn.core.service.AdminLoggerService;
@@ -41,7 +36,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @EnableAsync
 @ImportAutoConfiguration({
-        ShiroAutoConfiguration.class, // shiro权限配置
         CaptchaAutoConfiguration.class, // 校验码配置
         FrameworkWebConfiguration.class // 框架Web容器配置
 })

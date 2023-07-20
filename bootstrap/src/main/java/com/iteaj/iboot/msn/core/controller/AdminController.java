@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import com.iteaj.framework.utils.ExcelExportParams;
 import com.iteaj.framework.utils.ExcelUtils;
 import com.iteaj.iboot.msn.core.dto.AdminDto;

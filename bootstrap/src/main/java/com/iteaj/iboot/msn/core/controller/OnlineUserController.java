@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.iboot.msn.core.entity.OnlineUser;
 import com.iteaj.iboot.msn.core.service.IOnlineUserService;

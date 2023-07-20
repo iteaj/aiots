@@ -1,6 +1,6 @@
 package com.iteaj.iboot.msn.core.controller;
 
-import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import com.iteaj.iboot.msn.core.entity.Menu;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;

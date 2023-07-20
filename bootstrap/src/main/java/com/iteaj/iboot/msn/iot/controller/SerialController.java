@@ -23,9 +23,7 @@ import com.iteaj.iboot.msn.iot.service.ISerialService;
 import com.iteaj.framework.BaseController;
 
 /**
- * <p>
  * 串口设备管理
- * </p>
  *
  * @author iteaj
  * @since 2023-04-12

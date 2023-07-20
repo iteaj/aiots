@@ -1,20 +1,16 @@
-package com.iteaj.framework.security.shiro.online;
+package com.iteaj.iboot.plugin.shiro.online;
 
-import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
-import com.iteaj.framework.spi.auth.WebAuthAction;
-import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.framework.consts.CoreConst;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * create time: 2020/6/25

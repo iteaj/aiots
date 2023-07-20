@@ -1,4 +1,4 @@
-package com.iteaj.framework.security.shiro;
+package com.iteaj.iboot.plugin.shiro;
 
 import com.google.code.kaptcha.Constants;
 import com.iteaj.framework.Entity;
@@ -20,7 +20,7 @@ import java.util.Objects;
 
 /**
  * create time: 2021/3/27
- *  shiro 认证和授权的实现
+ *  shiro 后台管理端认证和授权的实现
  * @author iteaj
  * @since 1.0
  */

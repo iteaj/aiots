@@ -1,7 +1,7 @@
 package com.iteaj.iboot.msn.core.config.shiro;
 
 import com.iteaj.framework.Entity;
-import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import com.iteaj.framework.spi.admin.event.OnlinePayload;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.framework.spi.event.EventUtils;

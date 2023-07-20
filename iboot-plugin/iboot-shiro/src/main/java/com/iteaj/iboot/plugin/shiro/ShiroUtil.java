@@ -1,14 +1,12 @@
-package com.iteaj.framework.security.shiro;
+package com.iteaj.iboot.plugin.shiro;
 
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.spi.auth.AuthToken;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.session.Session;
-import org.apache.shiro.session.SessionException;
 import org.apache.shiro.session.UnknownSessionException;
 import org.apache.shiro.session.mgt.DefaultSessionKey;
 import org.apache.shiro.session.mgt.NativeSessionManager;
@@ -16,7 +14,6 @@ import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.util.ThreadContext;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 
 public class ShiroUtil {

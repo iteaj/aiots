@@ -1,4 +1,4 @@
-package com.iteaj.framework.security.shiro;
+package com.iteaj.iboot.plugin.shiro;
 
 import org.apache.shiro.web.filter.AccessControlFilter;
 

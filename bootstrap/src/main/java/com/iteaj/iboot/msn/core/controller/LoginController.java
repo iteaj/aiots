@@ -2,7 +2,7 @@ package com.iteaj.iboot.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.security.shiro.ShiroAdminToken;
+import com.iteaj.iboot.plugin.shiro.ShiroAdminToken;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;

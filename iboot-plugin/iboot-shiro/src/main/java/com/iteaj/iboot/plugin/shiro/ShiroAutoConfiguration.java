@@ -1,11 +1,12 @@
-package com.iteaj.framework.autoconfigure;
+package com.iteaj.iboot.plugin.shiro;
 
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
+import com.iteaj.framework.autoconfigure.SessionCacheProperties;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.security.shiro.*;
-import com.iteaj.framework.security.shiro.online.OnlineSessionDAO;
-import com.iteaj.framework.security.shiro.online.OnlineSessionManager;
-import com.iteaj.framework.security.shiro.redis.ShiroRedisSessionCacheManager;
+import com.iteaj.iboot.plugin.shiro.online.OnlineSessionDAO;
+import com.iteaj.iboot.plugin.shiro.online.OnlineSessionManager;
+import com.iteaj.iboot.plugin.shiro.redis.ShiroRedisSessionCacheManager;
 import org.apache.shiro.authc.AbstractAuthenticator;
 import org.apache.shiro.authc.AuthenticationListener;
 import org.apache.shiro.authc.Authenticator;

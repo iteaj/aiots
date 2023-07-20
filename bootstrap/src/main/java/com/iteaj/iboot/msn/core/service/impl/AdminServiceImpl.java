@@ -6,7 +6,7 @@ import com.iteaj.iboot.msn.core.dto.AdminDto;
 import com.iteaj.iboot.msn.core.entity.Admin;
 import com.iteaj.iboot.msn.core.mapper.IAdminDao;
 import com.iteaj.iboot.msn.core.service.IAdminService;
-import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import com.iteaj.util.CommonUtils;
 import com.iteaj.util.DigestUtils;
 import com.iteaj.framework.BaseServiceImpl;

@@ -1,6 +1,7 @@
 package com.iteaj.framework.autoconfigure;
 
 import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
+import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,8 +62,8 @@ public class RedisJsonAutoConfiguration {
         redisTemplate.setHashKeySerializer(redisTemplate.getStringSerializer());
 
         // value 使用Fastjson序列化
-        FastJsonRedisSerializer<Object> valueSerializer =
-                new FastJsonRedisSerializer<>(Object.class);
+        GenericFastJsonRedisSerializer valueSerializer =
+                new GenericFastJsonRedisSerializer();
 
         redisTemplate.setValueSerializer(valueSerializer);
         redisTemplate.setHashValueSerializer(valueSerializer);

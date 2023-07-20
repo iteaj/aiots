@@ -1,8 +1,8 @@
-package com.iteaj.framework.security.shiro.redis;
+package com.iteaj.iboot.plugin.shiro.redis;
 
 import com.iteaj.framework.autoconfigure.SessionCacheProperties;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.framework.security.shiro.ShiroUtil;
+import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import lombok.SneakyThrows;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;

@@ -1,0 +1,4 @@
+org.springframework.context.ApplicationListener=\
+com.iteaj.iboot.plugin.swagger.Knife4jAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.iteaj.iboot.plugin.swagger.Knife4jAutoConfiguration

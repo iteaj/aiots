@@ -58,9 +58,9 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
         String uploadRootDir = properties.getUploadLocation();
         if(uploadRootUri != null && uploadRootDir != null) {
             if(uploadRootUri.endsWith("/")) {
-                uploadRootUri = uploadRootUri+"**";
+                uploadRootUri = uploadRootUri+"*";
             } else {
-                uploadRootUri = uploadRootUri+"/**";
+                uploadRootUri = uploadRootUri+"/*";
             }
             if(!uploadRootDir.endsWith("/")) {
                 uploadRootDir = uploadRootDir + "/";
@@ -70,7 +70,7 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
                     .addResourceLocations("file:"+uploadRootDir);
         }
 
-        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+        registry.addResourceHandler("/static/*").addResourceLocations("classpath:/static/");
     }
 
 }

@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
  * 数据采集任务管理
- * </p>
  *
  * @author iteaj
  * @since 2022-08-28

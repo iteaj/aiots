@@ -1,9 +1,7 @@
-package com.iteaj.framework.security.shiro.online;
+package com.iteaj.iboot.plugin.shiro.online;
 
-import com.iteaj.framework.spi.OnlineSession;
 import com.iteaj.framework.spi.admin.auth.OnlineService;
 import org.apache.shiro.session.Session;
-import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;

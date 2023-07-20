@@ -14,9 +14,7 @@ import com.iteaj.iboot.msn.iot.service.IPointGroupService;
 import com.iteaj.framework.BaseController;
 
 /**
- * <p>
  * 点位组管理
- * </p>
  *
  * @author iteaj
  * @since 2022-07-22
