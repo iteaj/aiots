@@ -74,10 +74,7 @@ public class CaptchaAutoConfiguration {
     @Bean
     @Order(20)
     public OrderFilterChainDefinition captchaFilterChainDefinition() {
-        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
-
-        chain.addPathDefinition("/valid/captcha", "anon");
-        return chain;
+        return new OrderFilterChainDefinition().addAnon("/valid/captcha");
     }
 
     /**

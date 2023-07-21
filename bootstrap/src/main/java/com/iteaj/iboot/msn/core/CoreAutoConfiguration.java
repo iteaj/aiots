@@ -73,27 +73,20 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     }
 
     /**
-     * 静态资源拦截可以匿名访问, 访问拦截顺序必须靠前
      * @return
      */
     @Bean
-    @Order(value = 18) //
-    public OrderFilterChainDefinition staticFilterChainDefinition() {
-        OrderFilterChainDefinition chain = new OrderFilterChainDefinition();
+    @Order(value = 18)
+    public OrderFilterChainDefinition coreFilterChainDefinition() {
+        return new OrderFilterChainDefinition()
+                .addAnon("/core/login", "/js/**", "/css/**", "/img/**"
+                        , "/libs/**", "/static/**", "/doc/**", "/favicon.ico");
+    }
 
-        chain.addPathDefinition("/core/login", "anon");
-
-        // 静态资源这里配置所有请求路径都可以匿名访问
-        chain.addPathDefinition("/js/**", "anon");
-        chain.addPathDefinition("/css/**", "anon");
-        chain.addPathDefinition("/img/**", "anon");
-        chain.addPathDefinition("/libs/**", "anon");
-        chain.addPathDefinition("/static/**", "anon");
-
-        // api文档
-        chain.addPathDefinition("/doc/**", "anon");
-        chain.addPathDefinition("/favicon.ico", "anon");
-        return chain;
+    @Bean
+    @Order(value = 9999)
+    public OrderFilterChainDefinition authFilterChainDefinition() {
+        return new OrderFilterChainDefinition().addInclude("/**");
     }
 
     /**

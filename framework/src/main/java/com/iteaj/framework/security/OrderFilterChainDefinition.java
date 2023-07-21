@@ -1,6 +1,7 @@
 package com.iteaj.framework.security;
 
 import cn.hutool.core.util.ArrayUtil;
+import com.iteaj.framework.consts.CoreConst;
 import org.springframework.core.Ordered;
 
 import java.util.Arrays;
@@ -20,6 +21,21 @@ public class OrderFilterChainDefinition implements Ordered {
         if(ArrayUtil.isNotEmpty(antPath)) {
             Arrays.stream(antPath).forEach(item -> {
                 this.filterChainDefinitionMap.put(item, "anon");
+            });
+        }
+
+        return this;
+    }
+
+    /**
+     * 新增需要认证url
+     * @param antPath
+     * @return
+     */
+    public OrderFilterChainDefinition addInclude(String... antPath) {
+        if(ArrayUtil.isNotEmpty(antPath)) {
+            Arrays.stream(antPath).forEach(item -> {
+                this.filterChainDefinitionMap.put(item, CoreConst.FRAMEWORK_FILTER_NAME);
             });
         }
 
