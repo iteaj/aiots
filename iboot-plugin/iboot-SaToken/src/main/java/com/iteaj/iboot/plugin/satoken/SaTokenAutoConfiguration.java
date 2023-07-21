@@ -1,7 +1,6 @@
 package com.iteaj.iboot.plugin.satoken;
 
 import cn.dev33.satoken.context.SaHolder;
-import cn.dev33.satoken.context.model.SaResponse;
 import cn.dev33.satoken.filter.SaServletFilter;
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpUtil;

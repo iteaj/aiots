@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.satoken.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.security.AuthenticationService;
 import com.iteaj.framework.security.SecurityException;
@@ -36,6 +37,11 @@ public class SaTokenSecurityService implements SecurityService {
         AuthenticationUser byAccount = this.authenticationService.getByAccount(token.getAccount());
         if(byAccount == null) {
             throw new SecurityException("账号不存在");
+        }
+
+        String md5 = SecureUtil.md5(token.getPassword());
+        if(!md5.equals(byAccount.getPassword())) {
+            throw new SecurityException("密码不匹配");
         }
 
         StpUtil.login(token.getAccount(), token.isRememberMe());
