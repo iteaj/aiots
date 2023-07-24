@@ -10,6 +10,8 @@ public interface CoreConst {
 
     String FRAMEWORK_FILTER_NAME = "framework";
 
+    String CAPTCHA_CODE = "code";
+
     String WEB_USER_AGENT = "WEB_USER_AGENT";
 
     String SESSION_AUTH_CONTEXT = "SESSION_AUTH_CONTEXT";
@@ -44,7 +46,7 @@ public interface CoreConst {
     /**
      * session缓存前缀
      */
-    String SESSION_KEY_PREFIX = "IFSCF:";
+    String SESSION_KEY_PREFIX = "WEB:SESSION:";
     /**
      * 权限缓存前缀
      */

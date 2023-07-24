@@ -1,5 +1,6 @@
 package com.iteaj.framework.autoconfigure;
 
+import com.iteaj.framework.captcha.CaptchaType;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -13,14 +14,24 @@ public class FrameworkProperties {
     private String domain;
 
     /**
+     * 是否启用集群模式
+     */
+    private boolean cluster;
+
+    /**
      *  认证授权配置信息
      */
     private Auth auth = new Auth();
 
     /**
-     * shiro配置
+     * web环境配置
      */
-    private Shiro shiro;
+    private Web web = new Web();
+
+    /**
+     * 校验码配置
+     */
+    private CaptchaConfig captcha = new CaptchaConfig();
 
     /**
      * 文件上传的跟目录
@@ -34,14 +45,40 @@ public class FrameworkProperties {
      */
     private String uploadPattern;
 
+    @Data
+    public static class Web {
+
+        /**
+         * session配置
+         */
+        private Session session = new Session();
+    }
+
     public static class Auth extends AuthConfig { }
 
     @Data
-    public static class Shiro {
+    public static class Session {
 
         /**
-         * 启用redis支持(集群)
+         * 过期时间(秒)
          */
-        private boolean redis;
+        private long expire = 30 * 60;
+
+        /**
+         * 缓存名称
+         */
+        private String name = "IBoot:Session";
+    }
+
+    @Data
+    public static class CaptchaConfig {
+
+        /**
+         * 有效期(秒)
+         * 默认1分钟
+         */
+        private long expire = 1 * 60;
+
+        private CaptchaType type = CaptchaType.Math;
     }
 }

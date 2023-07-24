@@ -1,22 +1,35 @@
 package com.iteaj.framework.autoconfigure;
 
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.Producer;
+import com.iteaj.framework.captcha.CaptchaMapper;
+import com.iteaj.framework.captcha.CaptchaService;
 import com.iteaj.framework.captcha.KaptchaCreator;
+import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.result.HttpResult;
+import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.framework.security.SecurityUtil;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -25,37 +38,40 @@ import java.io.IOException;
  * @author iteaj
  * @since 1.0
  */
+@EnableScheduling
 @RequestMapping("/valid")
 @Controller("CaptchaController")
+@MapperScan(basePackages = "com.iteaj.framework.captcha")
 public class CaptchaAutoConfiguration {
 
     @Autowired
-    private Producer producer;
+    private CaptchaService captchaService;
+
+    /**
+     * 生成code
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("/code")
+    public Result<String> code() {
+        String uuid = IdUtil.fastSimpleUUID();
+        return HttpResult.Success(uuid);
+    }
 
     /**
      * 获取验证码
      * @return
      */
     @GetMapping("/captcha")
-    public void captcha(HttpSession session, HttpServletResponse response) throws IOException {
+    public void captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String code = request.getParameter(CoreConst.CAPTCHA_CODE);
+        if(StrUtil.isBlank(code)) {
+            throw new ServiceException("未指定code");
+        }
+
         try(ServletOutputStream out = response.getOutputStream()){
             handleResponseHeader(response);
-
-            // 创建要生产的文本已经图片
-            // MathTextCreator对象创建的文本用'@'分割文本和值 e.g. 3+5=?@8
-            String[] split = producer.createText().split("@");
-            BufferedImage image = producer.createImage(split[0]);
-
-            /**
-             * 放入Session
-             */
-            session.setAttribute(Constants.KAPTCHA_SESSION_KEY
-                    , split.length==2 ? split[1] : split[0]);
-            /**
-             * 放入的时间
-             */
-            session.setAttribute(Constants.KAPTCHA_SESSION_DATE
-                    , System.currentTimeMillis());
+            BufferedImage image = captchaService.createCaptcha(code);
 
             // 写入图片到输出流
             ImageIO.write(image, "jpg", out);
@@ -74,7 +90,7 @@ public class CaptchaAutoConfiguration {
     @Bean
     @Order(20)
     public OrderFilterChainDefinition captchaFilterChainDefinition() {
-        return new OrderFilterChainDefinition().addAnon("/valid/captcha");
+        return new OrderFilterChainDefinition().addAnon("/valid/**");
     }
 
     /**
@@ -82,7 +98,7 @@ public class CaptchaAutoConfiguration {
      * @return
      */
     @Bean(name = "charCaptcha")
-    @ConditionalOnProperty(value = "msn.core.captcha-type", havingValue = "char")
+    @ConditionalOnProperty(value = "framework.captcha.type", havingValue = "Char")
     public Producer charCaptcha(){
         return KaptchaCreator.charInstance();
     }
@@ -93,8 +109,20 @@ public class CaptchaAutoConfiguration {
      */
     @Primary
     @Bean(name = "mathCaptcha")
-    @ConditionalOnProperty(value = "msn.core.captcha-type", havingValue = "math")
+    @ConditionalOnProperty(value = "framework.captcha.type", havingValue = "Math", matchIfMissing = true)
     public Producer mathCaptcha(){
         return KaptchaCreator.mathInstance();
+    }
+
+    /**
+     * 验证码服务
+     * @param captchaMapper
+     * @param producer
+     * @return
+     */
+    @Bean
+    public CaptchaService captchaService(CaptchaMapper captchaMapper
+            , Producer producer, FrameworkProperties properties) {
+        return new CaptchaService(producer, captchaMapper, properties);
     }
 }

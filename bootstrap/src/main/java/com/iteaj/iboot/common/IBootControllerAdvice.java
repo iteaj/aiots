@@ -3,7 +3,7 @@ package com.iteaj.iboot.common;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.spi.auth.SecurityException;
+import com.iteaj.framework.security.SecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;

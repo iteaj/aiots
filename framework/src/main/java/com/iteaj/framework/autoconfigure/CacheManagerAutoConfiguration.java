@@ -10,8 +10,10 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.MemoryUnit;
 import org.ehcache.jsr107.Eh107Configuration;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -24,6 +26,7 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
@@ -43,6 +46,7 @@ import java.util.Map;
  * @since 1.0
  */
 @EnableCaching
+@ImportAutoConfiguration(CacheManagerAutoConfiguration.RedisConfiguration.class)
 public class CacheManagerAutoConfiguration {
 
     /**
@@ -51,14 +55,15 @@ public class CacheManagerAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({CacheManager.class})
-    public CacheManager defaultCacheManager() {
+    public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager();
     }
 
     /**
      * Redis缓存配置
      */
-    @ConditionalOnClass(name = {"org.springframework.data.redis.cache.RedisCacheManager", "org.springframework.data.redis.core.RedisTemplate"})
+    @ConditionalOnProperty(value = "framework.cluster", havingValue = "true")
+    @ConditionalOnClass(name = {"org.springframework.data.redis.connection.RedisConnectionFactory"})
     public static class RedisConfiguration {
 
         @Primary
@@ -105,7 +110,7 @@ public class CacheManagerAutoConfiguration {
 
         public RedisCacheConfiguration defaultCacheConfiguration(ClassLoader classLoader) {
             return RedisCacheConfiguration.defaultCacheConfig().serializeValuesWith(RedisSerializationContext
-                    .SerializationPair.fromSerializer(new JdkSerializationRedisSerializer(classLoader)));
+                    .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
         }
     }
 

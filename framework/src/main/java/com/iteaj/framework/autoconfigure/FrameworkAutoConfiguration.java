@@ -2,6 +2,7 @@ package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.spi.event.EventUtils;
 import com.iteaj.framework.spring.SpringUtils;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +15,8 @@ import org.springframework.context.annotation.Bean;
  */
 @ImportAutoConfiguration({
         MybatisPlusConfiguration.class,
+        RedisJsonAutoConfiguration.class,
         CacheManagerAutoConfiguration.class,
-        RedisJsonAutoConfiguration.class
 })
 @EnableConfigurationProperties({FrameworkProperties.class})
 public class FrameworkAutoConfiguration {

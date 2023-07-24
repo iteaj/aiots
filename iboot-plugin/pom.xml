@@ -17,6 +17,7 @@
         <module>iboot-shiro</module>
         <module>iboot-knife4j</module>
         <module>iboot-SaToken</module>
+        <module>iboot-oauth2</module>
     </modules>
 
     <dependencies>

@@ -34,6 +34,7 @@ public class LoginController extends BaseController {
         } catch (SecurityException e) {
             return fail(e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return fail("登录失败");
         }
 
@@ -45,8 +46,8 @@ public class LoginController extends BaseController {
      * @return
      */
     @PostMapping("logout")
-    public Result logout() {
-        SecurityUtils.getSubject().logout();
+    public Result logout(HttpServletRequest request, HttpServletResponse response) {
+        SecurityUtil.logout(request, response);
         return success("注销成功");
     }
 }

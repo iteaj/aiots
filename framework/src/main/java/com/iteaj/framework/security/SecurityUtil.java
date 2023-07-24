@@ -1,10 +1,13 @@
 package com.iteaj.framework.security;
 
 import com.iteaj.framework.Entity;
+import com.iteaj.framework.consts.CoreConst;
+import eu.bitwalker.useragentutils.UserAgent;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Optional;
 
 public class SecurityUtil {
@@ -50,6 +53,80 @@ public class SecurityUtil {
         return getLoginId()
                 .map(item -> item.equals(loginId))
                 .orElse(false);
+    }
+
+    /**
+     * @return 返回浏览器的Agent信息
+     */
+    public static UserAgent getAgent() {
+        return (UserAgent) getRequest().getAttribute(CoreConst.WEB_USER_AGENT);
+    }
+
+    /**
+     * @return 返回当前请求{@code HttpServletRequest}对象
+     */
+    public static HttpServletRequest getRequest() {
+        return securityService.getRequest();
+    }
+
+    /**
+     * @return 返回当前请求的{@code HttpServletResponse}对象
+     */
+    public static HttpServletResponse getResponse() {
+        return securityService.getResponse();
+    }
+
+    /**
+     * 从request里面获取对应的属性
+     * @param key
+     * @param <T>
+     * @return
+     */
+    public static <T> Optional<T> getRequestAttr(String key) {
+        return Optional.ofNullable((T) getRequest().getAttribute(key));
+    }
+
+    /**
+     * 将名为key的一个属性放到request
+     * @param key
+     * @param value
+     * @return
+     */
+    public static SecurityUtil setRequestAttr(String key, Object value) {
+        getRequest().setAttribute(key, value);
+        return SecurityUtil.instance;
+    }
+
+    /**
+     * 返回session里面所有的属性
+     * @return
+     */
+    public static Collection<String> getSessionKeys() {
+        return securityService.getSessionKeys();
+    }
+
+    /**
+     * 从session里面获取对应的属性
+     * @param key
+     * @param <T>
+     * @return
+     */
+    public static <T> Optional<T> getSessionAttr(String key) {
+        return securityService.getSessionAttr(key);
+    }
+
+    /**
+     * 将名为key的一个属性放到session
+     * @param key
+     * @param value
+     * @return
+     */
+    public static SecurityService setSessionAttr(String key, Object value) {
+        return securityService.setSessionAttr(key, value);
+    }
+
+    public static Object removeSessionAttr(String key) {
+        return securityService.removeSessionAttr(key);
     }
 
     /**

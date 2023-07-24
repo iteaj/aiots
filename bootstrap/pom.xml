@@ -67,7 +67,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
@@ -104,22 +107,32 @@
         </dependency>
 
         <!-- iboot plugin -->
+        <!-- Shiro权限认证插件(和SaToken二选其一)-->
 <!--        <dependency>-->
 <!--            <groupId>com.iteaj</groupId>-->
 <!--            <artifactId>iboot-shiro</artifactId>-->
 <!--            <version>${project.version}</version>-->
 <!--        </dependency>-->
 
+        <!-- SaToken权限认证插件(和Shiro二选其一)-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <version>${project.version}</version>
             <artifactId>iboot-SaToken</artifactId>
         </dependency>
 
+        <!-- knife4j Api文档插件-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <version>${project.version}</version>
             <artifactId>iboot-knife4j</artifactId>
+        </dependency>
+
+        <!-- oauth2服务插件-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-oauth2</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

@@ -1,6 +1,6 @@
 package com.iteaj.iboot.plugin.shiro.redis;
 
-import com.iteaj.framework.autoconfigure.SessionCacheProperties;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.iboot.plugin.shiro.ShiroUtil;
 import lombok.SneakyThrows;
@@ -10,6 +10,7 @@ import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.cache.MapCache;
 import org.apache.shiro.session.Session;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
@@ -31,16 +32,13 @@ import java.util.stream.Collectors;
  */
 public class ShiroRedisSessionCacheManager implements CacheManager, InitializingBean {
 
+    @Autowired
     private RedisTemplate redisTemplate;
-    private SessionCacheProperties config;
+    @Autowired
+    private FrameworkProperties properties;
 
     private ValueOperations valueOperations;
     private final ConcurrentMap<String, Cache> caches = new ConcurrentHashMap();
-
-    public ShiroRedisSessionCacheManager(RedisTemplate redisTemplate, SessionCacheProperties config) {
-        this.redisTemplate = redisTemplate;
-        this.config = config;
-    }
 
     @Override
     public Cache getCache(String s) throws CacheException {
@@ -131,6 +129,7 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
     @Override
     public void afterPropertiesSet() throws Exception {
         this.valueOperations = redisTemplate.opsForValue();
-        this.caches.put(config.getName(), new RedisSessionCache());
+        FrameworkProperties.Session session = this.properties.getWeb().getSession();
+        this.caches.put(session.getName(), new RedisSessionCache());
     }
 }

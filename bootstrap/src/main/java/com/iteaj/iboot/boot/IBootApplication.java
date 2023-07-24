@@ -20,7 +20,7 @@ import org.springframework.context.annotation.ComponentScan;
  *     1. 直接通过配置文件 {@see application.properties} spring.profiles.include=iot,qrtz
  *     2. 直接注释掉
  */
-@ImportAutoConfiguration({
+@ImportAutoConfiguration(value = {
         IotAutoConfiguration.class, // 物联网模块
         QuartzAutoConfiguration.class, // 定时任务模块
         LowCodeGenAutoConfiguration.class, // 低代码代码生成器模块
@@ -28,9 +28,7 @@ import org.springframework.context.annotation.ComponentScan;
         // 以下是IBoot的核心配置(必须启用)
         CoreAutoConfiguration.class, // 系统管理模块
 })
-@SpringBootApplication(
-        exclude = {org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration.class}
-)
+@SpringBootApplication
 public class IBootApplication {
 
     public static void main(String[] args) {

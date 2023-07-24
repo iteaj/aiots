@@ -1,10 +1,14 @@
 package com.iteaj.framework.security;
 
 import com.iteaj.framework.Entity;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface SecurityService {
@@ -22,6 +26,49 @@ public interface SecurityService {
      * @return 用户对象
      */
     Optional<Entity> getUser();
+
+    /**
+     * 返回当前请求
+     * @return
+     */
+    default HttpServletRequest getRequest() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        return requestAttributes.getRequest();
+    }
+
+    default HttpServletResponse getResponse() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        return requestAttributes.getResponse();
+    }
+
+    /**
+     * 返回session里面所有的属性
+     * @return
+     */
+    Collection<String> getSessionKeys();
+
+    /**
+     * 从session里面获取对应的属性
+     * @param key
+     * @param <T>
+     * @return
+     */
+    <T> Optional<T> getSessionAttr(String key);
+
+    /**
+     * 将名为key的一个属性放到session
+     * @param key
+     * @param value
+     * @return
+     */
+    SecurityService setSessionAttr(String key, Object value);
+
+    /**
+     * @param key
+     * @return 移除的对象
+     */
+    Object removeSessionAttr(String key);
+
 
     /**
      * 获取当前登入的用户id
@@ -45,4 +92,5 @@ public interface SecurityService {
      * @param response
      */
     void login(SecurityToken token, HttpServletRequest request, HttpServletResponse response) throws SecurityException;
+
 }

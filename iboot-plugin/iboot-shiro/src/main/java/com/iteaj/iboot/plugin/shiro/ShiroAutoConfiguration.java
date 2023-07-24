@@ -1,7 +1,6 @@
 package com.iteaj.iboot.plugin.shiro;
 
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
-import com.iteaj.framework.autoconfigure.SessionCacheProperties;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.security.SecurityService;
@@ -25,11 +24,8 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.servlet.Filter;
 import java.util.*;
@@ -42,19 +38,14 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-@ImportAutoConfiguration({ShiroAutoConfiguration.
-        RedisSessionCacheManagerConfiguration.class})
-@EnableConfigurationProperties(SessionCacheProperties.class)
 public class ShiroAutoConfiguration {
 
     private final FrameworkProperties properties;
-    private final SessionCacheProperties cacheProperties;
     @Autowired
     private ObjectProvider<AuthenticationListener> authentication;
 
-    public ShiroAutoConfiguration(FrameworkProperties properties, SessionCacheProperties cacheProperties) {
+    public ShiroAutoConfiguration(FrameworkProperties properties) {
         this.properties = properties;
-        this.cacheProperties = cacheProperties;
     }
 
     /**
@@ -127,8 +118,9 @@ public class ShiroAutoConfiguration {
     @Bean
     public SessionDAO sessionDAO() {
         OnlineSessionDAO sessionDAO = new OnlineSessionDAO();
+        FrameworkProperties.Session session = properties.getWeb().getSession();
         // 设置缓存名称
-        sessionDAO.setActiveSessionsCacheName(cacheProperties.getName());
+        sessionDAO.setActiveSessionsCacheName(session.getName());
         return sessionDAO;
     }
 
@@ -141,7 +133,8 @@ public class ShiroAutoConfiguration {
         sessionManager.setSessionValidationSchedulerEnabled(true);
 
         // 设定全局缓存时间
-        long expireTime = TimeUnit.SECONDS.toMillis(cacheProperties.getExpire());
+        FrameworkProperties.Session session = properties.getWeb().getSession();
+        long expireTime = TimeUnit.SECONDS.toMillis(session.getExpire());
         sessionManager.setGlobalSessionTimeout(expireTime);
 
         sessionManager.setSessionDAO(sessionDAO);
@@ -167,15 +160,10 @@ public class ShiroAutoConfiguration {
         return securityManager;
     }
 
-    /**
-     * redis session cache session集群配置
-     */
-    @ConditionalOnProperty(value = "framework.shiro.redis", havingValue = "true")
-    public static class RedisSessionCacheManagerConfiguration {
-
-        @Bean
-        public CacheManager cacheManager(RedisTemplate redisTemplate, SessionCacheProperties properties) {
-            return new ShiroRedisSessionCacheManager(redisTemplate, properties);
-        }
+    @Bean
+    @ConditionalOnProperty(value = "framework.cluster", havingValue = "true")
+    public CacheManager cacheManager() {
+        return new ShiroRedisSessionCacheManager();
     }
+
 }
