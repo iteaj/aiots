@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.satoken.impl;
 
+import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.iteaj.framework.Entity;
@@ -88,7 +89,10 @@ public class SaTokenSecurityService implements SecurityService {
             throw new SecurityException("密码不匹配");
         }
 
-        StpUtil.login(((Entity) byAccount).getId(), token.isRememberMe());
+        SaLoginModel saLoginModel = new SaLoginModel()
+                .setIsWriteHeader(true)
+                .setIsLastingCookie(token.isRememberMe());
+        StpUtil.login(((Entity) byAccount).getId(), saLoginModel);
         StpUtil.getSession().set("user", byAccount);
     }
 }

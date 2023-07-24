@@ -3,13 +3,17 @@ package com.iteaj.iboot.plugin.oauth2;
 import cn.dev33.satoken.oauth2.logic.SaOAuth2Template;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.iboot.plugin.oauth2.sa.SaOAuth2TemplateImpl;
+import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
+import com.iteaj.iboot.plugin.oauth2.service.Oauth2UserService;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.Ordered;
 
-@ComponentScan("com.iteaj.iboot.plugin.oauth2.controller")
+@MapperScan("com.iteaj.iboot.plugin.oauth2.mapper")
+@ComponentScan("com.iteaj.iboot.plugin.oauth2")
 public class Oauth2AutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
     @Override
@@ -23,8 +27,8 @@ public class Oauth2AutoConfiguration implements ApplicationListener<ApplicationE
     }
 
     @Bean
-    public SaOAuth2Template saOAuth2TemplateImpl() {
-        return new SaOAuth2TemplateImpl();
+    public SaOAuth2Template saOAuth2TemplateImpl(Oauth2AppService oauth2AppService, Oauth2UserService oauth2UserService) {
+        return new SaOAuth2TemplateImpl(oauth2AppService, oauth2UserService);
     }
 
     @Override
