@@ -48,13 +48,36 @@ public class FrameworkProperties {
     @Data
     public static class Web {
 
+        private Auth auth = new Auth();
+
         /**
          * session配置
          */
         private Session session = new Session();
     }
 
-    public static class Auth extends AuthConfig { }
+    @Data
+    public static class Auth{
+        /**
+         * 系统统一注销地址
+         */
+        private String logoutUri = "/auth/logout";
+
+        /**
+         * 原生app请求头的token名称
+         */
+        private String tokenName = "access_token";
+
+        /**
+         * 浏览器, 小程序等超时时间(秒) 默认30分钟
+         */
+        private long timeout = 30 * 60;
+
+        /**
+         * 原生app超时时间(秒) 默认30天
+         */
+        private long appTimeout = 30 * 24 * 60 * 60;
+    }
 
     @Data
     public static class Session {

@@ -1,7 +1,7 @@
 ############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
 sa-token:
   # token 名称（同时也是 cookie 名称）
-  token-name: access_token
+  token-name: ${framework.web.auth.token-name}
   # token前缀，例如填写 Bearer 实际传参 satoken: Bearer xxxx-xxxx-xxxx-xxxx
   # token-prefix: Bearer
 
