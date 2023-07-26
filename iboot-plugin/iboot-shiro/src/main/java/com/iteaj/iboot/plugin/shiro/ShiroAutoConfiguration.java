@@ -19,8 +19,6 @@ import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.session.mgt.eis.SessionDAO;
-import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthorizingMethodInterceptor;
-import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
@@ -79,21 +77,6 @@ public class ShiroAutoConfiguration {
     @Bean
     public SecurityService securityService(AuthorizationService authorizationService) {
         return new ShiroSecurityService(authorizationService);
-    }
-
-    /**
-     * shiro 启用权限注解拦截
-     * @param securityManager
-     * @return
-     */
-    @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(RealmSecurityManager securityManager) {
-        AuthorizationAttributeSourceAdvisor sourceAdvisor = new AuthorizationAttributeSourceAdvisor();
-
-        sourceAdvisor.setSecurityManager(securityManager);
-        sourceAdvisor.setAdvice(new AopAllianceAnnotationsAuthorizingMethodInterceptor());
-
-        return sourceAdvisor;
     }
 
     @Bean
