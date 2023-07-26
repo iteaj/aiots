@@ -185,6 +185,6 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
     @Override
     public List<String> getPermissions(Serializable userId) {
-        return selectPermissions((Long) userId);
+        return selectPermissions(Long.valueOf(userId.toString()));
     }
 }
