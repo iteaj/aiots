@@ -20,7 +20,7 @@ import com.iteaj.iot.plc.siemens.SiemensConnectProperties;
 import com.iteaj.iot.plc.siemens.SiemensModel;
 import com.iteaj.iot.plc.siemens.SiemensS7Component;
 import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,7 +54,7 @@ public class DevicePlcController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:plc:view"})
+    @CheckPermission({"iot:plc:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
         entity.setAlias(DeviceTypeAlias.PLC);
         return this.deviceService.pageOfDetail(page, entity);
@@ -65,7 +65,7 @@ public class DevicePlcController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:plc:edit"})
+    @CheckPermission({"iot:plc:edit"})
     public Result<Device> getEditDetail(Long id) {
         return this.deviceService.getById(id);
     }
@@ -75,7 +75,7 @@ public class DevicePlcController extends BaseController {
      * @param entity
      */
     @PostMapping("/saveOrUpdate")
-    @RequiresPermissions(value = {"iot:plc:edit", "iot:plc:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:plc:edit", "iot:plc:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Device entity) {
         // plc新增
         DetailResult<Device> one;
@@ -102,7 +102,7 @@ public class DevicePlcController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:plc:del"})
+    @CheckPermission({"iot:plc:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceService.removeByIds(idList);
     }
@@ -113,7 +113,7 @@ public class DevicePlcController extends BaseController {
      * @return
      */
     @PostMapping("connect")
-    @RequiresPermissions({"iot:plc:connect"})
+    @CheckPermission({"iot:plc:connect"})
     public Result connect(@RequestBody Device device, DeviceStatus status) {
         if(status == null) {
             return fail("未指定连接状态");

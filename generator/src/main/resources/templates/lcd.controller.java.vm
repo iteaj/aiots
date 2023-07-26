@@ -4,7 +4,7 @@ import java.util.List;
 import com.iteaj.framework.result.Result;
 import org.springframework.web.bind.annotation.*;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import ${package.Entity}.${entity};
@@ -52,7 +52,7 @@ public class ${table.controllerName} {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions(value = {"${package.ModuleName}:${table.entityPath}:view"})
+    @CheckPermission(value = {"${package.ModuleName}:${table.entityPath}:view"})
     public Result<IPage<${dto}>> list(Page<${dto}> page, ${dto} entity) {
         return this.${cfg.serviceName}.detailPage(page, entity);
     }
@@ -62,7 +62,7 @@ public class ${table.controllerName} {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:edit"})
+    @CheckPermission({"${package.ModuleName}:${table.entityPath}:edit"})
     public Result<${dto}> getEditDetail(Long id) {
         return this.${cfg.serviceName}.detailById(id);
     }
@@ -72,7 +72,7 @@ public class ${table.controllerName} {
     * @param entity
     */
     @PostMapping("/edit")
-    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:edit"})
+    @CheckPermission({"${package.ModuleName}:${table.entityPath}:edit"})
     public Result<Boolean> edit(@RequestBody ${entity} entity) {
         return this.${cfg.serviceName}.updateById(entity);
     }
@@ -82,7 +82,7 @@ public class ${table.controllerName} {
     * @param entity
     */
     @PostMapping("/add")
-    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:add"})
+    @CheckPermission({"${package.ModuleName}:${table.entityPath}:add"})
     public Result<Boolean> add(@RequestBody ${entity} entity) {
         return this.${cfg.serviceName}.save(entity);
     }
@@ -92,7 +92,7 @@ public class ${table.controllerName} {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:del"})
+    @CheckPermission({"${package.ModuleName}:${table.entityPath}:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.${cfg.serviceName}.removeByIds(idList);
     }
@@ -103,7 +103,7 @@ public class ${table.controllerName} {
     * @param entity 导出参数
     */
     @GetMapping("/export")
-    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:export"})
+    @CheckPermission({"${package.ModuleName}:${table.entityPath}:export"})
     public void exportRecord(Page<${dto}> page, ${dto} entity, HttpServletResponse response) {
         this.${cfg.serviceName}.detailPage(page, entity);
         ExcelExportUtil.exportExcel(null, ${dto}.class, page.getRecords());
@@ -117,7 +117,7 @@ public class ${table.controllerName} {
     * @param file 导入文件
     */
     @PostMapping("/import")
-    @RequiresPermissions({"${package.ModuleName}:${table.entityPath}:import"})
+    @CheckPermission({"${package.ModuleName}:${table.entityPath}:import"})
     public void importRecord(MultipartFile file, ${dto} entity) throws Exception {
         ExcelImportUtil.importExcel(file.getInputStream(), ${dto}.class, null);
     }

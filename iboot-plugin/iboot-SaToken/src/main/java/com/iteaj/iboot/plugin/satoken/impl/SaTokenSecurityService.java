@@ -14,17 +14,20 @@ import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 public class SaTokenSecurityService implements SecurityService {
 
     private final CaptchaService captchaService;
+    private final AuthorizationService authorizationService;
     private final AuthenticationService authenticationService;
 
     public SaTokenSecurityService(CaptchaService captchaService
-            , AuthenticationService authenticationService) {
+            , AuthorizationService authorizationService, AuthenticationService authenticationService) {
         this.captchaService = captchaService;
+        this.authorizationService = authorizationService;
         this.authenticationService = authenticationService;
     }
 
@@ -32,6 +35,39 @@ public class SaTokenSecurityService implements SecurityService {
     public Optional<Entity> getUser() {
         Entity user = (Entity) StpUtil.getSession().get("user");
         return Optional.ofNullable(user);
+    }
+
+    @Override
+    public Optional<List<String>> getRoles() {
+        return getLoginId().map(item -> authorizationService.getRoles(item));
+    }
+
+    @Override
+    public boolean hasRole(String role) {
+        return StpUtil.hasRole(role);
+    }
+
+    @Override
+    public boolean hasRole(Logical logical, String... roles) {
+        if(logical == Logical.AND) {
+            return StpUtil.hasRoleAnd(roles);
+        } else {
+            return StpUtil.hasRoleOr(roles);
+        }
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return StpUtil.hasPermission(permission);
+    }
+
+    @Override
+    public boolean hasPermission(Logical logical, String... permissions) {
+        if(logical == Logical.AND) {
+            return StpUtil.hasPermissionAnd(permissions);
+        } else {
+            return StpUtil.hasPermissionOr(permissions);
+        }
     }
 
     @Override

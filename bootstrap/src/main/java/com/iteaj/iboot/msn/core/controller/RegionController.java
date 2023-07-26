@@ -4,7 +4,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.core.entity.Region;
 import com.iteaj.iboot.msn.core.service.IRegionService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,7 +33,7 @@ public class RegionController extends BaseController {
      * @return
      */
     @GetMapping("/view")
-    @RequiresPermissions("core:region:view")
+    @CheckPermission("core:region:view")
     public Result<List<Region>> view(Region region) {
         return this.regionService.list(region);
     }

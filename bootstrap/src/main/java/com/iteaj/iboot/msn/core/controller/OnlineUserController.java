@@ -10,7 +10,7 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.iboot.msn.core.entity.OnlineUser;
 import com.iteaj.iboot.msn.core.service.IOnlineUserService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.apache.shiro.session.UnknownSessionException;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +38,7 @@ public class OnlineUserController extends BaseController {
     * @param entity
     */
     @GetMapping("/view")
-    @RequiresPermissions(value = {"core:online:view"})
+    @CheckPermission(value = {"core:online:view"})
     public Result<IPage<OnlineUser>> list(Page<OnlineUser> page, OnlineUser entity) {
         page.addOrder(OrderItem.asc("status"), OrderItem.desc("login_time"));
         List<OnlineUser> updateToOffline = new ArrayList<>();
@@ -62,7 +62,7 @@ public class OnlineUserController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions(value = {"core:online:del"})
+    @CheckPermission(value = {"core:online:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         if(idList.size() == 1) {
             this.onlineUserService.getById(idList.get(0)).ofNullable().ifPresent(item -> {
@@ -88,7 +88,7 @@ public class OnlineUserController extends BaseController {
      * @return
      */
     @PostMapping("offline")
-    @RequiresPermissions(value = {"core:online:offline"})
+    @CheckPermission(value = {"core:online:offline"})
     public Result<Boolean> offline(@RequestBody OnlineUser entity, HttpSession session) {
         if(entity.getStatus() == OnlineStatus.Offline) {
             return fail("此用户不在线");

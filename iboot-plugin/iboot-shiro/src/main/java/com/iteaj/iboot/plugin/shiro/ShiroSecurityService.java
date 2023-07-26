@@ -3,24 +3,73 @@ package com.iteaj.iboot.plugin.shiro;
 import cn.hutool.core.bean.BeanUtil;
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.security.*;
 import com.iteaj.framework.security.SecurityException;
-import com.iteaj.framework.security.SecurityService;
-import com.iteaj.framework.security.SecurityToken;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.session.Session;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ShiroSecurityService implements SecurityService {
 
+    private final AuthorizationService authorizationService;
+
+    public ShiroSecurityService(AuthorizationService authorizationService) {
+        this.authorizationService = authorizationService;
+    }
+
     public Optional<Entity> getUser() {
         return Optional.ofNullable((Entity) SecurityUtils.getSubject().getPrincipal());
+    }
+
+    @Override
+    public Optional<List<String>> getRoles() {
+        return getLoginId().map(item -> authorizationService.getRoles(item));
+    }
+
+    @Override
+    public boolean hasRole(String role) {
+        return SecurityUtils.getSubject().hasRole(role);
+    }
+
+    @Override
+    public boolean hasRole(Logical logical, String... roles) {
+        if(logical == Logical.AND) {
+            return SecurityUtils.getSubject().hasAllRoles(Arrays.asList(roles));
+        } else {
+            for(boolean item : SecurityUtils.getSubject().hasRoles(Arrays.asList(roles))) {
+                if(item) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return SecurityUtils.getSubject().isPermitted(permission);
+    }
+
+    @Override
+    public boolean hasPermission(Logical logical, String... permissions) {
+        if(logical == Logical.AND) {
+            return SecurityUtils.getSubject().isPermittedAll(permissions);
+        } else {
+            boolean[] permitted = SecurityUtils.getSubject().isPermitted(permissions);
+            for(boolean item : permitted) {
+                if(item) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     @Override

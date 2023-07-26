@@ -4,7 +4,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.iboot.msn.core.entity.Org;
 import com.iteaj.iboot.msn.core.service.IOrgService;
 import com.iteaj.framework.result.Result;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class OrgController extends BaseController {
      * @return
      */
     @GetMapping("/view")
-    @RequiresPermissions("core:org:view")
+    @CheckPermission("core:org:view")
     public Result<List<Org>> view(Org org) {
         return this.organizeService.selectTrees(org);
     }
@@ -47,7 +47,7 @@ public class OrgController extends BaseController {
      * @return
      */
     @PostMapping("/add")
-    @RequiresPermissions("core:org:add")
+    @CheckPermission("core:org:add")
     public Result<Boolean> add(@RequestBody Org org) {
         return this.organizeService.save(org);
     }
@@ -58,7 +58,7 @@ public class OrgController extends BaseController {
      * @return
      */
     @GetMapping("/edit")
-    @RequiresPermissions("core:org:edit")
+    @CheckPermission("core:org:edit")
     public Result<Org> edit(Integer id) {
         return this.organizeService.getById(id);
     }
@@ -69,7 +69,7 @@ public class OrgController extends BaseController {
      * @return
      */
     @PostMapping("/edit")
-    @RequiresPermissions("core:org:edit")
+    @CheckPermission("core:org:edit")
     public Result<Boolean> edit(@RequestBody Org org) {
         return this.organizeService.updateById(org);
     }
@@ -80,7 +80,7 @@ public class OrgController extends BaseController {
      * @return
      */
     @PostMapping("/del")
-    @RequiresPermissions("core:org:del")
+    @CheckPermission("core:org:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {
         return this.organizeService.removeByIds(list);
     }

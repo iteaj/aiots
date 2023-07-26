@@ -22,7 +22,7 @@ import com.iteaj.iot.serial.SerialClient;
 import com.iteaj.iot.serial.SerialComponent;
 import com.iteaj.iot.serial.SerialConnectProperties;
 import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,7 +60,7 @@ public class DeviceModbusController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:modbus:view"})
+    @CheckPermission({"iot:modbus:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
         entity.setAlias(DeviceTypeAlias.MODBUS);
         return this.deviceService.pageOfDetail(page, entity);
@@ -71,7 +71,7 @@ public class DeviceModbusController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:modbus:edit"})
+    @CheckPermission({"iot:modbus:edit"})
     public Result<Device> detail(Long id) {
         return this.deviceService.getById(id);
     }
@@ -81,7 +81,7 @@ public class DeviceModbusController extends BaseController {
      * @param entity
      */
     @PostMapping("/saveOrUpdate")
-    @RequiresPermissions(value = {"iot:modbus:edit", "iot:modbus:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:modbus:edit", "iot:modbus:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Device entity) {
         // modbus新增
         DetailResult<Device> one;
@@ -108,7 +108,7 @@ public class DeviceModbusController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:modbus:del"})
+    @CheckPermission({"iot:modbus:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceService.removeByIds(idList);
     }
@@ -119,7 +119,7 @@ public class DeviceModbusController extends BaseController {
      * @return
      */
     @PostMapping("connect/{status}")
-    @RequiresPermissions({"iot:modbus:connect"})
+    @CheckPermission({"iot:modbus:connect"})
     public Result connect(@RequestBody Device device, @PathVariable DeviceStatus status) {
         if(status == null) {
             return fail("未指定连接状态");

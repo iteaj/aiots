@@ -5,7 +5,7 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.msn.iot.consts.TypeAliasOptions;
 import org.springframework.web.bind.annotation.*;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.iboot.msn.iot.entity.DeviceType;
 import com.iteaj.iboot.msn.iot.service.IDeviceTypeService;
 import com.iteaj.framework.BaseController;
@@ -30,7 +30,7 @@ public class DeviceTypeController extends BaseController {
     * 列表查询
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:deviceType:view"})
+    @CheckPermission({"iot:deviceType:view"})
     public Result<List<DeviceType>> list(DeviceType entity) {
         return this.deviceTypeService.tree(entity);
     }
@@ -47,7 +47,7 @@ public class DeviceTypeController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:deviceType:edit"})
+    @CheckPermission({"iot:deviceType:edit"})
     public Result<DeviceType> getEditDetail(Long id) {
         return this.deviceTypeService.getById(id);
     }
@@ -57,7 +57,7 @@ public class DeviceTypeController extends BaseController {
     * @param entity
     */
     @PostMapping("/edit")
-    @RequiresPermissions({"iot:deviceType:edit"})
+    @CheckPermission({"iot:deviceType:edit"})
     public Result<Boolean> edit(@RequestBody DeviceType entity) {
         return this.deviceTypeService.updateById(entity);
     }
@@ -67,7 +67,7 @@ public class DeviceTypeController extends BaseController {
     * @param entity
     */
     @PostMapping("/add")
-    @RequiresPermissions({"iot:deviceType:add"})
+    @CheckPermission({"iot:deviceType:add"})
     public Result<Boolean> add(@RequestBody DeviceType entity) {
         return this.deviceTypeService.save(entity);
     }
@@ -77,7 +77,7 @@ public class DeviceTypeController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:deviceType:del"})
+    @CheckPermission({"iot:deviceType:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceTypeService.removeByIds(idList);
     }

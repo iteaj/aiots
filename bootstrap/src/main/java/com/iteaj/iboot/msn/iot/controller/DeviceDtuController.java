@@ -9,7 +9,7 @@ import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.Device;
 import com.iteaj.iboot.msn.iot.service.IDeviceService;
 import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class DeviceDtuController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:dtu:view"})
+    @CheckPermission({"iot:dtu:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
         entity.setAlias(DeviceTypeAlias.DTU);
         return this.deviceService.pageOfDetail(page, entity);
@@ -47,7 +47,7 @@ public class DeviceDtuController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:dtu:edit"})
+    @CheckPermission({"iot:dtu:edit"})
     public Result<Device> getEditDetail(Long id) {
         return this.deviceService.getById(id);
     }
@@ -57,7 +57,7 @@ public class DeviceDtuController extends BaseController {
     * @param entity
     */
     @PostMapping("/saveOrUpdate")
-    @RequiresPermissions(value = {"iot:dtu:edit", "iot:dtu:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:dtu:edit", "iot:dtu:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Device entity) {
         return this.deviceService.saveOrUpdate(entity);
     }
@@ -67,7 +67,7 @@ public class DeviceDtuController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:dtu:del"})
+    @CheckPermission({"iot:dtu:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceService.removeByIds(idList);
     }

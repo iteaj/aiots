@@ -15,7 +15,7 @@ import com.iteaj.iot.serial.SerialComponent;
 import com.iteaj.iot.serial.SerialConnectProperties;
 import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.web.bind.annotation.*;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.msn.iot.entity.Serial;
@@ -44,7 +44,7 @@ public class SerialController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:serial:view"})
+    @CheckPermission({"iot:serial:view"})
     public Result<IPage<Serial>> list(Page<Serial> page, Serial entity) {
         return this.serialService.page(page, entity);
     }
@@ -63,7 +63,7 @@ public class SerialController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:serial:edit"})
+    @CheckPermission({"iot:serial:edit"})
     public Result<Serial> getById(Long id) {
         return this.serialService.getById(id);
     }
@@ -83,7 +83,7 @@ public class SerialController extends BaseController {
     * @param entity
     */
     @PostMapping("/saveOrUpdate")
-    @RequiresPermissions(value = {"iot:serial:edit", "iot:serial:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:serial:edit", "iot:serial:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Serial entity) {
         return this.serialService.saveOrUpdate(entity);
     }
@@ -93,7 +93,7 @@ public class SerialController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:serial:del"})
+    @CheckPermission({"iot:serial:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.serialService.removeByIds(idList);
     }
@@ -114,7 +114,7 @@ public class SerialController extends BaseController {
     }
 
     @PostMapping("connect/{status}")
-    @RequiresPermissions({"iot:serial:connect"})
+    @CheckPermission({"iot:serial:connect"})
     public Result<Boolean> connect(@RequestBody Serial device, @PathVariable SerialStatus status) {
         SerialClient client = SerialComponent.instance().getClient(device.getCom());
         if(status == SerialStatus.open) {

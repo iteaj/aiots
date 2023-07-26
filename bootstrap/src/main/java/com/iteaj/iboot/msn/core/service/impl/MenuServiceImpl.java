@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.core.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.consts.PermStatus;
@@ -139,15 +140,28 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
     @Override
     public List<String> selectPermissions(Long adminId) {
+        List<String> permissions = new ArrayList<>();
         if(SecurityUtil.isSuper(adminId)) {
-            return this.getBaseMapper()
+            this.getBaseMapper()
                     .selectList(Wrappers.<Menu>lambdaQuery()
                             .ne(Menu::getStatus, PermStatus.disabled)
                             .ne(Menu::getType, MenuType.M)).stream()
                     .filter(item -> StringUtils.hasText(item.getPerms()))
-                    .map(item -> item.getPerms()).collect(Collectors.toList());
+                    .map(item -> item.getPerms().split(","))
+                    .forEach(item -> permissions.addAll(Arrays.asList(item)));
+
+            return permissions;
         } else {
-            return this.getBaseMapper().selectPermissions(adminId);
+            List<String> selectPermissions = this.getBaseMapper().selectPermissions(adminId);
+            if(!CollectionUtils.isEmpty(selectPermissions)) {
+                selectPermissions.forEach(item -> {
+                    if(StrUtil.isNotBlank(item)) {
+                        permissions.addAll(Arrays.asList(item.split(",")));
+                    }
+                });
+            }
+
+            return permissions;
         }
 
     }
@@ -168,7 +182,6 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                     this.loggerMenuCache.put(item.getUrl(), item);
                 });
     }
-
 
     @Override
     public List<String> getPermissions(Serializable userId) {

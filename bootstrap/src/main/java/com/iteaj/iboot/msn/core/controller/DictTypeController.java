@@ -6,7 +6,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.iboot.msn.core.entity.DictType;
 import com.iteaj.iboot.msn.core.service.IDictTypeService;
 import com.iteaj.framework.result.Result;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class DictTypeController extends BaseController {
      * @return
      */
     @GetMapping("/view")
-    @RequiresPermissions("core:dictType:view")
+    @CheckPermission("core:dictType:view")
     public Result<Page<DictType>> list(DictType dictType, Page page) {
         return dictTypeService.page(page.addOrder(OrderItem.desc("create_time")), dictType);
     }
@@ -53,7 +53,7 @@ public class DictTypeController extends BaseController {
      * @return
      */
     @PostMapping("/add")
-    @RequiresPermissions("core:dictType:add")
+    @CheckPermission("core:dictType:add")
     public Result<Boolean> add(@RequestBody DictType dictType) {
         return dictTypeService.save(dictType);
     }
@@ -64,7 +64,7 @@ public class DictTypeController extends BaseController {
      * @return
      */
     @GetMapping("/edit")
-    @RequiresPermissions("core:dictType:edit")
+    @CheckPermission("core:dictType:edit")
     public Result<DictType> edit(Long id) {
         return dictTypeService.getById(id);
     }
@@ -75,7 +75,7 @@ public class DictTypeController extends BaseController {
      * @return
      */
     @PostMapping("/edit")
-    @RequiresPermissions("core:dictType:edit")
+    @CheckPermission("core:dictType:edit")
     public Result<Boolean> edit(@RequestBody DictType dictType) {
         return dictTypeService.updateById(dictType);
     }
@@ -86,7 +86,7 @@ public class DictTypeController extends BaseController {
      * @return
      */
     @PostMapping("/del")
-    @RequiresPermissions("core:dictType:del")
+    @CheckPermission("core:dictType:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {
         return dictTypeService.removeByIds(list);
     }

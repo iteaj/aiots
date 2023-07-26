@@ -28,6 +28,40 @@ public interface SecurityService {
     Optional<Entity> getUser();
 
     /**
+     * 获取当前登录用户的角色列表
+     * @return
+     */
+    Optional<List<String>> getRoles();
+
+    /**
+     * 是否有角色
+     * @param role
+     * @return
+     */
+    boolean hasRole(String role);
+
+    /**
+     * 是否有角色
+     * @param roles
+     * @return
+     */
+    boolean hasRole(Logical logical, String... roles);
+
+    /**
+     * 是否有权限
+     * @param permission
+     * @return
+     */
+    boolean hasPermission(String permission);
+
+    /**
+     * 是否有权限
+     * @param permissions
+     * @return
+     */
+    boolean hasPermission(Logical logical, String... permissions);
+
+    /**
      * 返回当前请求
      * @return
      */

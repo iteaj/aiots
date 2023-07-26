@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.web.bind.annotation.*;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.msn.iot.entity.DeviceModel;
@@ -35,7 +35,7 @@ public class DeviceModelController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:deviceModel:view"})
+    @CheckPermission({"iot:deviceModel:view"})
     public Result<IPage<DeviceModel>> list(Page<DeviceModel> page, DeviceModel entity) {
         return this.deviceModelService.detailOfPage(page, entity);
     }
@@ -57,7 +57,7 @@ public class DeviceModelController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:deviceModel:edit"})
+    @CheckPermission({"iot:deviceModel:edit"})
     public Result<DeviceModel> getById(Long id) {
         return this.deviceModelService.getById(id);
     }
@@ -67,7 +67,7 @@ public class DeviceModelController extends BaseController {
     * @param entity
     */
     @PostMapping("/saveOrUpdate")
-    @RequiresPermissions(value = {"iot:deviceModel:edit", "iot:deviceModel:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:deviceModel:edit", "iot:deviceModel:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody DeviceModel entity) {
         return this.deviceModelService.saveOrUpdate(entity);
     }
@@ -77,7 +77,7 @@ public class DeviceModelController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:deviceModel:del"})
+    @CheckPermission({"iot:deviceModel:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceModelService.removeByIds(idList);
     }

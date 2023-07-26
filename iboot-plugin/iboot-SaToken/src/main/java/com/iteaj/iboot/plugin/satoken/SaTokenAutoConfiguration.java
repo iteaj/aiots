@@ -10,10 +10,7 @@ import cn.hutool.json.JSONUtil;
 import com.iteaj.framework.captcha.CaptchaService;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.security.AuthenticationService;
-import com.iteaj.framework.security.AuthorizationService;
-import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.framework.security.SecurityService;
+import com.iteaj.framework.security.*;
 import com.iteaj.iboot.plugin.satoken.impl.SaTokenSecurityService;
 import com.iteaj.iboot.plugin.satoken.impl.StpInterfaceImpl;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -23,6 +20,8 @@ import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEven
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -33,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-public class SaTokenAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
+public class SaTokenAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered, WebMvcConfigurer {
 
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
@@ -46,8 +45,18 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
     }
 
     @Bean
-    public SecurityService securityService(CaptchaService captchaService, AuthenticationService authenticationService) {
-        return new SaTokenSecurityService(captchaService, authenticationService);
+    public SecurityService securityService(CaptchaService captchaService
+            , AuthorizationService authorizationService, AuthenticationService authenticationService) {
+        return new SaTokenSecurityService(captchaService, authorizationService, authenticationService);
+    }
+
+    /**
+     * 增加权限校验拦截器
+     * @param registry
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new SecurityInterceptor());
     }
 
     @Bean

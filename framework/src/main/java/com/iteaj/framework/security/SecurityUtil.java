@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public class SecurityUtil {
@@ -53,6 +54,24 @@ public class SecurityUtil {
         return getLoginId()
                 .map(item -> item.equals(loginId))
                 .orElse(false);
+    }
+
+    /**
+     * 是否有角色
+     * @param roles
+     * @return
+     */
+    public static boolean hasRole(Logical logical, String... roles) {
+        return securityService.hasRole(logical, roles);
+    }
+
+    /**
+     * 是否有权限
+     * @param permissions
+     * @return
+     */
+    public static boolean hasPermission(Logical logical, String... permissions) {
+        return securityService.hasPermission(logical, permissions);
     }
 
     /**
@@ -135,6 +154,14 @@ public class SecurityUtil {
      */
     public static Optional<Entity> getLoginUser() {
         return securityService.getUser();
+    }
+
+    /**
+     * 获取当前登录的角色列表
+     * @return
+     */
+    public static Optional<List<String>> getLoginRoles() {
+        return securityService.getRoles();
     }
 
     /**

@@ -5,7 +5,6 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityException;
 import com.iteaj.framework.security.SecurityToken;
 import com.iteaj.framework.security.SecurityUtil;
-import org.apache.shiro.SecurityUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

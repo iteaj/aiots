@@ -50,7 +50,7 @@ public class IBootControllerAdvice {
      */
     @ExceptionHandler(SecurityException.class)
     protected <E> Result<E> securityHandle(SecurityException e) {
-        logger.error("认证授权失败", e);
+        logger.error("安全校验失败", e);
         return HttpResult.Fail(e.getMessage());
     }
 

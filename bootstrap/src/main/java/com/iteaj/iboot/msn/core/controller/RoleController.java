@@ -11,7 +11,7 @@ import com.iteaj.iboot.msn.core.entity.Role;
 import com.iteaj.iboot.msn.core.service.IMenuService;
 import com.iteaj.iboot.msn.core.service.IRoleService;
 import com.iteaj.framework.result.Result;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public class RoleController extends BaseController {
      * @return
      */
     @GetMapping("/view")
-    @RequiresPermissions("core:role:view")
+    @CheckPermission("core:role:view")
     public Result<IPage<Role>> view(Page page, Role role) {
         page.addOrder(OrderItem.asc("sort"));
         return this.roleService.page(page, role);
@@ -71,7 +71,7 @@ public class RoleController extends BaseController {
      * @return
      */
     @PostMapping("/add")
-    @RequiresPermissions("core:add:view")
+    @CheckPermission("core:add:view")
     public Result add(@RequestBody RoleDto role) {
         this.roleService.createRoleAndPerms(role);
         return success();
@@ -93,7 +93,7 @@ public class RoleController extends BaseController {
      * @return
      */
     @PostMapping("/edit")
-    @RequiresPermissions("core:role:edit")
+    @CheckPermission("core:role:edit")
     public Result<Boolean> edit(@RequestBody Role role) {
         return this.roleService.updateById(role);
     }
@@ -115,7 +115,7 @@ public class RoleController extends BaseController {
      * @return
      */
     @PostMapping("/perm")
-    @RequiresPermissions("core:role:perm")
+    @CheckPermission("core:role:perm")
     public Result<Boolean> editFunc(@RequestBody RoleDto role) {
         this.roleService.updateRolePermsById(role);
         return success();
@@ -127,7 +127,7 @@ public class RoleController extends BaseController {
      * @return
      */
     @PostMapping("/del")
-    @RequiresPermissions("core:del:view")
+    @CheckPermission("core:del:view")
     public Result del(@RequestBody List<Long> list) {
         this.roleService.delRoleAndPermByIds(list);
         return success();

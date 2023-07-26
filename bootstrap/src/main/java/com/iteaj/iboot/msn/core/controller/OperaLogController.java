@@ -5,7 +5,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.core.entity.AccessLog;
 import com.iteaj.iboot.msn.core.service.IAccessLogService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class OperaLogController extends BaseController {
      * @return
      */
     @GetMapping("/view")
-    @RequiresPermissions("core:log:view")
+    @CheckPermission("core:log:view")
     public Result view(Page page, AccessLog accessLog) {
         return this.operaLogService.page(page, accessLog);
     }
@@ -43,7 +43,7 @@ public class OperaLogController extends BaseController {
      * @return
      */
     @PostMapping("/del")
-    @RequiresPermissions("core:log:del")
+    @CheckPermission("core:log:del")
     public Result del(@RequestBody List<Long> list) {
         return this.operaLogService.removeByIds(list);
     }

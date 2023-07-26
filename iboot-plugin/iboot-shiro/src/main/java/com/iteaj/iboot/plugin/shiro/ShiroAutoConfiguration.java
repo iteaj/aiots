@@ -2,6 +2,7 @@ package com.iteaj.iboot.plugin.shiro;
 
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.security.AuthorizationService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.security.SecurityService;
 import com.iteaj.iboot.plugin.shiro.online.OnlineSessionDAO;
@@ -76,8 +77,8 @@ public class ShiroAutoConfiguration {
     }
 
     @Bean
-    public SecurityService securityService() {
-        return new ShiroSecurityService();
+    public SecurityService securityService(AuthorizationService authorizationService) {
+        return new ShiroSecurityService(authorizationService);
     }
 
     /**

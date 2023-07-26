@@ -7,7 +7,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.core.entity.Config;
 import com.iteaj.iboot.msn.core.service.IConfigService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class ConfigController extends BaseController {
      * @return
      */
     @GetMapping("/view")
-    @RequiresPermissions("core:config:view")
+    @CheckPermission("core:config:view")
     public Result<IPage<Config>> view(Page page, Config config) {
         return this.configService.page(page.addOrder(OrderItem.desc("create_time")), config);
     }
@@ -55,7 +55,7 @@ public class ConfigController extends BaseController {
      * @return
      */
     @PostMapping("/add")
-    @RequiresPermissions("core:config:add")
+    @CheckPermission("core:config:add")
     public Result<Boolean> add(@RequestBody Config config) {
         return this.configService.save(config);
     }
@@ -76,7 +76,7 @@ public class ConfigController extends BaseController {
      * @return
      */
     @PostMapping("/edit")
-    @RequiresPermissions("core:config:edit")
+    @CheckPermission("core:config:edit")
     public Result<Boolean> edit(@RequestBody Config config) {
         return this.configService.updateById(config);
     }
@@ -87,7 +87,7 @@ public class ConfigController extends BaseController {
      * @return
      */
     @PostMapping("/del")
-    @RequiresPermissions("core:config:del")
+    @CheckPermission("core:config:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {
         return this.configService.removeByIds(list);
     }

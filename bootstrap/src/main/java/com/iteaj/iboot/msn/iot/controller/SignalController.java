@@ -8,7 +8,7 @@ import com.iteaj.iboot.msn.iot.dto.SignalOfModelDto;
 import com.iteaj.iboot.msn.iot.entity.Signal;
 import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.web.bind.annotation.*;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.msn.iot.service.ISignalService;
@@ -36,7 +36,7 @@ public class SignalController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:signal:view"})
+    @CheckPermission({"iot:signal:view"})
     public Result<IPage<Signal>> list(Page<Signal> page, Signal entity) {
         return this.signalService.detailByPage(page, entity);
     }
@@ -59,7 +59,7 @@ public class SignalController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:signal:edit"})
+    @CheckPermission({"iot:signal:edit"})
     public Result<Signal> getById(Long id) {
         return this.signalService.getById(id);
     }
@@ -69,7 +69,7 @@ public class SignalController extends BaseController {
     * @param entity
     */
     @PostMapping("/saveOrUpdate")
-    @RequiresPermissions(value = {"iot:signal:edit", "iot:signal:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:signal:edit", "iot:signal:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Signal entity) {
         return this.signalService.saveOrUpdate(entity);
     }
@@ -79,7 +79,7 @@ public class SignalController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:signal:del"})
+    @CheckPermission({"iot:signal:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.signalService.removeByIds(idList);
     }

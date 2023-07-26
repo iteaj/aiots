@@ -5,7 +5,7 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.iboot.msn.core.entity.Menu;
 import com.iteaj.iboot.msn.core.service.IMenuService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class MenuController extends BaseController {
      * @return
      */
     @GetMapping("/view")
-    @RequiresPermissions("core:menu:view")
+    @CheckPermission("core:menu:view")
     public Result<List<Menu>> list(Menu menu) {
         return menuService.selectMenuTrees(menu);
     }
@@ -60,7 +60,7 @@ public class MenuController extends BaseController {
      * @return
      */
     @PostMapping("/add")
-    @RequiresPermissions("core:menu:add")
+    @CheckPermission("core:menu:add")
     public Result<Boolean> add(@RequestBody Menu menu) {
         return menuService.save(menu);
     }
@@ -71,7 +71,7 @@ public class MenuController extends BaseController {
      * @return
      */
     @PostMapping("/del")
-    @RequiresPermissions("core:menu:del")
+    @CheckPermission("core:menu:del")
     public Result<Boolean> del(@RequestBody List<Long> idList) {
         return menuService.removeByIds(idList);
     }
@@ -82,7 +82,7 @@ public class MenuController extends BaseController {
      * @return
      */
     @GetMapping("/edit")
-    @RequiresPermissions("core:menu:edit")
+    @CheckPermission("core:menu:edit")
     public Result<Menu> edit(Long id) {
         return menuService.getById(id);
     }
@@ -93,7 +93,7 @@ public class MenuController extends BaseController {
      * @return
      */
     @PostMapping("/edit")
-    @RequiresPermissions("core:menu:edit")
+    @CheckPermission("core:menu:edit")
     public Result<Boolean> edit(@RequestBody Menu menu) {
         return menuService.updateById(menu);
     }

@@ -7,7 +7,7 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import org.springframework.web.bind.annotation.*;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.msn.iot.entity.Device;
@@ -36,7 +36,7 @@ public class DeviceController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:device:view"})
+    @CheckPermission({"iot:device:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
         return this.deviceService.pageOfDetail(page, entity);
     }
@@ -46,7 +46,7 @@ public class DeviceController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:device:edit"})
+    @CheckPermission({"iot:device:edit"})
     public Result<Device> getEditDetail(Long id) {
         return this.deviceService.getById(id);
     }
@@ -56,7 +56,7 @@ public class DeviceController extends BaseController {
     * @param entity
     */
     @PostMapping("/edit")
-    @RequiresPermissions({"iot:device:edit"})
+    @CheckPermission({"iot:device:edit"})
     public Result<Boolean> edit(@RequestBody Device entity) {
         return this.deviceService.updateById(entity);
     }
@@ -66,7 +66,7 @@ public class DeviceController extends BaseController {
     * @param entity
     */
     @PostMapping("/add")
-    @RequiresPermissions({"iot:device:add"})
+    @CheckPermission({"iot:device:add"})
     public Result<Boolean> add(@RequestBody Device entity) {
         return this.deviceService.save(entity);
     }
@@ -76,7 +76,7 @@ public class DeviceController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:device:del"})
+    @CheckPermission({"iot:device:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceService.removeByIds(idList);
     }

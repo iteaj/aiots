@@ -16,7 +16,7 @@ import com.iteaj.iot.client.mqtt.MqttClient;
 import com.iteaj.iot.client.mqtt.MqttConnectProperties;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
 import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,7 +50,7 @@ public class DeviceMqttController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:mqtt:view"})
+    @CheckPermission({"iot:mqtt:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
         entity.setAlias(DeviceTypeAlias.MQTT);
         return this.deviceService.pageOfDetail(page, entity);
@@ -61,7 +61,7 @@ public class DeviceMqttController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:mqtt:edit"})
+    @CheckPermission({"iot:mqtt:edit"})
     public Result<Device> getEditDetail(Long id) {
         return this.deviceService.getById(id);
     }
@@ -71,7 +71,7 @@ public class DeviceMqttController extends BaseController {
      * @param entity
      */
     @PostMapping("/saveOrUpdate")
-    @RequiresPermissions(value = {"iot:mqtt:edit", "iot:mqtt:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:mqtt:edit", "iot:mqtt:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Device entity) {
         // plc新增
         DetailResult<Device> one;
@@ -96,7 +96,7 @@ public class DeviceMqttController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:mqtt:del"})
+    @CheckPermission({"iot:mqtt:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceService.removeByIds(idList);
     }
@@ -107,7 +107,7 @@ public class DeviceMqttController extends BaseController {
      * @return
      */
     @PostMapping("connect")
-    @RequiresPermissions({"iot:mqtt:connect"})
+    @CheckPermission({"iot:mqtt:connect"})
     public Result connect(@RequestBody Device device, DeviceStatus status) {
         if(status == null) {
             return fail("未指定连接状态");

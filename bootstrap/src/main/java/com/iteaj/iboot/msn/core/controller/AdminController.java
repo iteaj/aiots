@@ -12,7 +12,7 @@ import com.iteaj.iboot.msn.core.dto.AdminDto;
 import com.iteaj.iboot.msn.core.dto.PasswordDto;
 import com.iteaj.iboot.msn.core.entity.Admin;
 import com.iteaj.iboot.msn.core.service.IAdminService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,7 +44,7 @@ public class AdminController extends BaseController {
      * @return
      */
     @GetMapping("/view")
-    @RequiresPermissions("core:admin:view")
+    @CheckPermission("core:admin:view")
     public Result view(Page page, Admin admin) {
         return this.adminService.page(page, admin);
     }
@@ -55,7 +55,7 @@ public class AdminController extends BaseController {
      * @return
      */
     @PostMapping("/add")
-    @RequiresPermissions("core:admin:add")
+    @CheckPermission("core:admin:add")
     public Result add(@RequestBody AdminDto admin) {
         this.adminService.createAdmin(admin);
         return success();
@@ -67,7 +67,7 @@ public class AdminController extends BaseController {
      * @return
      */
     @GetMapping("/edit")
-    @RequiresPermissions("core:admin:edit")
+    @CheckPermission("core:admin:edit")
     public Result<AdminDto> edit(Long id) {
         return this.adminService.getAdminDetailById(id);
     }
@@ -78,7 +78,7 @@ public class AdminController extends BaseController {
      * @return
      */
     @PostMapping("/edit")
-    @RequiresPermissions("core:admin:edit")
+    @CheckPermission("core:admin:edit")
     public Result<Boolean> edit(@RequestBody AdminDto admin) {
         this.adminService.updateAdminAndRole(admin);
         return success(true);
@@ -90,7 +90,7 @@ public class AdminController extends BaseController {
      * @return
      */
     @PostMapping("/del")
-    @RequiresPermissions("core:admin:del")
+    @CheckPermission("core:admin:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {
         this.adminService.deleteAllJoinByIds(list);
         return success();
@@ -144,7 +144,7 @@ public class AdminController extends BaseController {
      * @return
      */
     @PostMapping("pwd")
-    @RequiresPermissions("core:admin:pwd")
+    @CheckPermission("core:admin:pwd")
     public Result updatePwd(@RequestBody PasswordDto passwordDto) {
         this.adminService.setAdminPassword(passwordDto
                 .getId(), passwordDto.getPassword());

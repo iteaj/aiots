@@ -57,7 +57,7 @@ public class FrameworkProperties {
     }
 
     @Data
-    public static class Auth{
+    public static class Auth {
         /**
          * 系统统一注销地址
          */

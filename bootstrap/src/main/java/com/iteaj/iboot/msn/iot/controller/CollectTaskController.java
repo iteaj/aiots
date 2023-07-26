@@ -15,7 +15,7 @@ import com.iteaj.iboot.msn.iot.entity.CollectDetail;
 import com.iteaj.iboot.msn.iot.entity.CollectTask;
 import com.iteaj.iboot.msn.iot.service.ICollectTaskService;
 import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,7 +49,7 @@ public class CollectTaskController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:collectTask:view"})
+    @CheckPermission({"iot:collectTask:view"})
     public Result<IPage<CollectTaskDto>> list(Page<CollectTaskDto> page, CollectTaskDto entity) {
         return this.collectTaskService.detailOfPage(page, entity);
     }
@@ -59,7 +59,7 @@ public class CollectTaskController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:collectTask:edit"})
+    @CheckPermission({"iot:collectTask:edit"})
     public Result<CollectTaskDto> getById(Long id) {
         return this.collectTaskService.detailById(id);
     }
@@ -69,7 +69,7 @@ public class CollectTaskController extends BaseController {
     * @param entity
     */
     @PostMapping("/saveOrUpdate")
-    @RequiresPermissions(value = {"iot:collectTask:edit", "iot:collectTask:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:collectTask:edit", "iot:collectTask:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody CollectTask entity) {
         if(entity.getStatus() != null && entity.getStatus().equals("run")) {
             return fail("请先停止任务后在更新");
@@ -89,7 +89,7 @@ public class CollectTaskController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:collectTask:del"})
+    @CheckPermission({"iot:collectTask:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.collectTaskService.removeByIds(idList);
     }
@@ -99,7 +99,7 @@ public class CollectTaskController extends BaseController {
      * @param entity
      */
     @PostMapping("/status")
-    @RequiresPermissions({"iot:collectTask:status"})
+    @CheckPermission({"iot:collectTask:status"})
     public Result<Boolean> status(@RequestBody CollectTask entity) {
         try {
             collectService.statusSwitch(entity.getId(), entity.getStatus());

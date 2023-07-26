@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.Result;
 import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.web.bind.annotation.*;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.msn.iot.entity.PointGroup;
@@ -35,7 +35,7 @@ public class PointGroupController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @RequiresPermissions({"iot:pointGroup:view"})
+    @CheckPermission({"iot:pointGroup:view"})
     public Result<IPage<PointGroup>> list(Page<PointGroup> page, PointGroup entity) {
         return this.pointGroupService.detailOfPage(page, entity);
     }
@@ -45,7 +45,7 @@ public class PointGroupController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @RequiresPermissions({"iot:pointGroup:edit"})
+    @CheckPermission({"iot:pointGroup:edit"})
     public Result<PointGroup> getById(Long id) {
         return this.pointGroupService.detailById(id);
     }
@@ -55,7 +55,7 @@ public class PointGroupController extends BaseController {
     * @param entity
     */
     @PostMapping("/saveOrUpdate")
-    @RequiresPermissions(value = {"iot:pointGroup:edit", "iot:pointGroup:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:pointGroup:edit", "iot:pointGroup:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody PointGroup entity) {
         return this.pointGroupService.saveOrUpdate(entity);
     }
@@ -65,7 +65,7 @@ public class PointGroupController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @RequiresPermissions({"iot:pointGroup:del"})
+    @CheckPermission({"iot:pointGroup:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.pointGroupService.removeByIds(idList);
     }
