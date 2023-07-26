@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.msn.iot.dto.SignalOfModelDto;
 import com.iteaj.iboot.msn.iot.entity.Signal;
-import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;

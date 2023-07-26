@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.msn.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.msn.iot.dto.DeviceDto;
 import com.iteaj.iboot.msn.iot.entity.Device;
 import com.iteaj.iboot.msn.iot.service.IDeviceService;
-import org.apache.shiro.authz.annotation.Logical;
 import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
