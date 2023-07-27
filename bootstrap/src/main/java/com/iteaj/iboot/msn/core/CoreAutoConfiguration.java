@@ -8,6 +8,7 @@ import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.security.shiro.AccessFilterWrapper;
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.excel.ExcelDictHandle;
 import com.iteaj.framework.spi.excel.IExcelService;
@@ -64,6 +65,11 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     @Bean
     public ResourceManager menuResourceManager() {
         return new AdminResourceManager();
+    }
+
+    @Bean
+    public Module coreModule() {
+        return Module.build("sys", "系统模块", 0);
     }
 
     /**

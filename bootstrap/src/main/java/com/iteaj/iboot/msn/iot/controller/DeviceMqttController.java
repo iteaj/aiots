@@ -15,6 +15,7 @@ import com.iteaj.iboot.msn.iot.service.IDeviceService;
 import com.iteaj.iot.client.mqtt.MqttClient;
 import com.iteaj.iot.client.mqtt.MqttConnectProperties;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
+import com.iteaj.iot.client.mqtt.impl.DefaultMqttConnectProperties;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,7 +123,8 @@ public class DeviceMqttController extends BaseController {
             return fail("设备不存在["+device.getDeviceSn()+"]");
         }
 
-        MqttConnectProperties properties = new MqttConnectProperties(entity.getIp(), entity.getPort(), entity.getDeviceSn());
+        DefaultMqttConnectProperties properties = new DefaultMqttConnectProperties(entity.getIp()
+                , entity.getPort(), entity.getDeviceSn(), null, null);
         properties.setUsername(entity.getAccount());
         properties.setPassword(entity.getPassword());
         MqttClient client = this.defaultMqttComponent.getClient(properties);

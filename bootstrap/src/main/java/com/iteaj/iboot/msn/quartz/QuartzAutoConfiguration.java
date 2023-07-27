@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.quartz;
 
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob;
 import com.iteaj.iboot.msn.quartz.scheduler.SchedulerManager;
 import org.mybatis.spring.annotation.MapperScan;
@@ -34,6 +35,11 @@ public class QuartzAutoConfiguration implements BeanFactoryPostProcessor, BeanDe
 
     private final static String DEFAULT_JOB_GROUP_NAME = "JOB:GROUP:IBOOT";
     private final static String DEFAULT_TRIGGER_GROUP_NAME = "TRIGGER:GROUP:IBOOT";
+
+    @Bean
+    public Module quartzModule() {
+        return Module.build("quartz", "任务调度模块", 77777);
+    }
 
     @Bean("schedulerFactoryBean")
     public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory, DataSource dataSource){

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.msn.iot;
 
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.iboot.msn.iot.collect.CollectActionFactory;
 import com.iteaj.iboot.msn.iot.collect.action.*;
 import com.iteaj.iboot.msn.iot.collect.store.MqttStoreAction;
@@ -31,6 +32,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @MapperScan({"com.iteaj.iboot.msn.iot.mapper"})
 @AutoConfigureAfter(JdbcTemplateAutoConfiguration.class)
 public class IotAutoConfiguration {
+
+    /**
+     * 物联网模块
+     * @return
+     */
+    @Bean
+    public Module iotModule() {
+        return Module.build("iot", "物联网模块", 55555);
+    }
 
     /**
      * 启用modbus rtu 组件
