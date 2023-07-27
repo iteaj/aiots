@@ -1,6 +1,8 @@
 package com.iteaj.iboot.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.logger.LoggerType;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityException;
 import com.iteaj.framework.security.SecurityToken;
@@ -27,6 +29,7 @@ public class LoginController extends BaseController {
      * @return
      */
     @PostMapping("login")
+    @Logger(value = "系统登录", type = LoggerType.Login)
     public Result login(@RequestBody SecurityToken token, HttpServletRequest request, HttpServletResponse response) {
         try {
             SecurityUtil.login(token, request, response);
@@ -45,6 +48,7 @@ public class LoginController extends BaseController {
      * @return
      */
     @PostMapping("logout")
+    @Logger(value = "系统注销", type = LoggerType.Logout)
     public Result logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityUtil.logout(request, response);
         return success("注销成功");

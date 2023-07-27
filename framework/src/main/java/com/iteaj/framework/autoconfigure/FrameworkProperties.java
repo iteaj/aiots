@@ -19,11 +19,6 @@ public class FrameworkProperties {
     private boolean cluster;
 
     /**
-     *  认证授权配置信息
-     */
-    private Auth auth = new Auth();
-
-    /**
      * web环境配置
      */
     private Web web = new Web();
@@ -47,6 +42,11 @@ public class FrameworkProperties {
 
     @Data
     public static class Web {
+
+        /**
+         * 启用日志记录
+         */
+        private boolean logger;
 
         private Auth auth = new Auth();
 

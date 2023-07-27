@@ -2,13 +2,12 @@ package com.iteaj.framework.logger;
 
 /**
  * create time: 2020/4/21
- *
+ *  日志类型
  * @author iteaj
  * @since 1.0
  */
 public enum LoggerType {
-    UnAuthor("未授权"), UnAuth("未认证"), Error("未知异常")
-    , Success("操作成功"), Login("用户登录"), Logout("用户注销");
+    Func("功能日志"), Login("登录日志"), Logout("注销日志");
 
     public String desc;
 

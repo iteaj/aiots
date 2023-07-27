@@ -32,9 +32,18 @@ public class SaTokenSecurityService implements SecurityService {
     }
 
     @Override
+    public boolean isLogin() {
+        return StpUtil.isLogin();
+    }
+
+    @Override
     public Optional<Entity> getUser() {
-        Entity user = (Entity) StpUtil.getSession().get("user");
-        return Optional.ofNullable(user);
+        if(isLogin()) {
+            Entity user = (Entity) StpUtil.getSession().get("user");
+            return Optional.ofNullable(user);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override

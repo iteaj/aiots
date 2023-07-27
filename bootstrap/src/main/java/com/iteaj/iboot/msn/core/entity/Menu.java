@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.TreeEntity;
 import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.spi.admin.MenuType;
+import com.iteaj.framework.spi.admin.UrlResource;
 import com.iteaj.iboot.msn.core.enums.Status;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -20,7 +21,7 @@ import java.util.Date;
 @Data
 @TableName("sys_menu")
 @Accessors(chain = true)
-public class Menu extends TreeEntity implements LoggerMenu {
+public class Menu extends TreeEntity implements UrlResource {
 
     /**菜单地址*/
     private String url;
@@ -65,13 +66,4 @@ public class Menu extends TreeEntity implements LoggerMenu {
         return this;
     }
 
-    @Override
-    public boolean isCollect() {
-        return this.log == null ? false : this.log;
-    }
-
-    @Override
-    public String getDesc() {
-        return this.logDesc;
-    }
 }

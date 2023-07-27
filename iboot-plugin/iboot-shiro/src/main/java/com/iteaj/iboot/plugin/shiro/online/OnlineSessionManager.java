@@ -5,6 +5,7 @@ import com.iteaj.framework.consts.CoreConst;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 
 import javax.servlet.ServletRequest;
@@ -24,6 +25,8 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
 
     public OnlineSessionManager(FrameworkProperties frameworkProperties) {
         this.properties = frameworkProperties;
+        String tokenName = this.properties.getWeb().getAuth().getTokenName();
+        this.setSessionIdCookie(new SimpleCookie(tokenName));
     }
 
     /**
@@ -36,14 +39,15 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
     @Override
     protected Serializable getSessionId(ServletRequest request, ServletResponse response) {
         HttpServletRequest servletRequest = (HttpServletRequest)request;
-        UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
 
+        UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
         servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
 
         // 尝试从header获取access_token作为sessionId
         Browser browser = userAgent.getBrowser();
         if(browser != null && browser.getBrowserType() == BrowserType.APP) {
-            String tokenName = properties.getAuth().getTokenName();
+            FrameworkProperties.Web web = properties.getWeb();
+            String tokenName = web.getAuth().getTokenName();
             // 从请求头里面获取token, 作为sessionId
             return servletRequest.getHeader(tokenName);
         }

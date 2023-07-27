@@ -56,7 +56,7 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SecurityInterceptor());
+        registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/**");
     }
 
     @Bean

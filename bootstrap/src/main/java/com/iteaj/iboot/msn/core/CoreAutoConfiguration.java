@@ -3,13 +3,12 @@ package com.iteaj.iboot.msn.core;
 import cn.afterturn.easypoi.handler.inter.IExcelDictHandler;
 import com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration;
 import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
-import com.iteaj.framework.logger.LoggerService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.excel.ExcelDictHandle;
 import com.iteaj.framework.spi.excel.IExcelService;
 import com.iteaj.iboot.msn.core.exception.AsyncExceptionHandler;
-import com.iteaj.iboot.msn.core.service.AdminLoggerService;
+import com.iteaj.iboot.msn.core.listener.LoggerListener;
 import com.iteaj.iboot.msn.core.service.AdminResourceManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
@@ -59,6 +58,15 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     }
 
     /**
+     * 日志监听
+     * @return
+     */
+    @Bean
+    public LoggerListener loggerListener() {
+        return new LoggerListener();
+    }
+
+    /**
      *  开启自动代理
      * @return
      */
@@ -87,15 +95,6 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     @Order(value = 9999)
     public OrderFilterChainDefinition authFilterChainDefinition() {
         return new OrderFilterChainDefinition().addInclude("/**");
-    }
-
-    /**
-     * 管理端日志记录服务
-     * @return
-     */
-    @Bean
-    public LoggerService loggerService() {
-        return new AdminLoggerService();
     }
 
     @Bean

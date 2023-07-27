@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.logger.LoggerType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -24,27 +25,28 @@ public class AccessLog extends BaseEntity {
      * 请求ip
      */
     private String ip;
+
     /**
      * 请求地址
      */
     private String url;
-    /**
-     * 所属模块
-     */
-    private String msn;
+
     /**
      * 功能类型
      */
-    private String type;
+    private LoggerType type;
+
     /**
      * 访问用户
      */
     private Long userId;
+
     /**
      * 使用时间
      */
     @TableField(condition = "%s >= #{%s}")
     private Long millis;
+
     /**
      * 用户名
      */
@@ -55,6 +57,7 @@ public class AccessLog extends BaseEntity {
      * 状态
      */
     private Boolean status;
+
     /**
      * 错误消息
      */
@@ -66,15 +69,12 @@ public class AccessLog extends BaseEntity {
     private String title;
 
     /**
-     * 执行时间
+     * 创建时间
      */
     private Date createTime;
 
-    public AccessLog() { }
-
-    public AccessLog(String type, String userName) {
-        this.type = type;
-        this.userName = userName;
+    public AccessLog() {
+        this.createTime = new Date();
     }
 
 }

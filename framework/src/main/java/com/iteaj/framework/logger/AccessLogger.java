@@ -3,8 +3,6 @@ package com.iteaj.framework.logger;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-
 /**
  * create time: 2021/7/1
  *
@@ -21,27 +19,48 @@ public class AccessLogger {
     private String url;
 
     /**
+     * 功能简介
+     */
+    private String profile;
+
+    /**
      * 访问ip
      */
     private String ip;
 
     /**
-     * 执行时间
+     * 访问时间(毫秒)
      */
-    private long execTime;
+    private long startTime;
+
+    /**
+     * 执行时间(毫秒)
+     */
+    private long millis;
 
     /**
      * 成功或者失败说明
      */
-    private String remark;
+    private String errMsg;
 
     /**
      * 执行状态 true 成功 false 失败
      */
     private boolean status;
 
-    public AccessLogger(String url, String remark) {
+    private LoggerType type;
+
+    private final static String ERR_MSG = "成功";
+
+    public AccessLogger() {
+        this.status = true;
+        this.setErrMsg(ERR_MSG);
+    }
+
+    public AccessLogger(String url, LoggerType type, String profile) {
+        this();
         this.url = url;
-        this.remark = remark;
+        this.type = type;
+        this.profile = profile;
     }
 }

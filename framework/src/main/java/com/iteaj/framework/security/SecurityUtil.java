@@ -62,6 +62,10 @@ public class SecurityUtil {
      * @return
      */
     public static boolean hasRole(Logical logical, String... roles) {
+        if(isSuper()) { // 超级管理员不做校验
+            return true;
+        }
+
         return securityService.hasRole(logical, roles);
     }
 
@@ -71,6 +75,10 @@ public class SecurityUtil {
      * @return
      */
     public static boolean hasPermission(Logical logical, String... permissions) {
+        if(isSuper()) { // 超级管理员不做校验
+            return true;
+        }
+
         return securityService.hasPermission(logical, permissions);
     }
 

@@ -64,45 +64,40 @@ public class ShiroAdminRealm extends AuthorizingRealm {
         String userName = shiroAdminToken.getAccount();
         String password = shiroAdminToken.getPassword();
 
-        try {
-            /**
-             * 获取校验码
-             * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
-             */
-            String captcha = shiroAdminToken.getCaptcha();
-            String code = SecurityUtil.getRequest().getParameter(CoreConst.CAPTCHA_CODE);
-            if(code == null) {
-                throw new SecurityException("校验码校验失败");
-            }
-
-            // 获取校验码并判断是否过期
-            Captcha serviceCaptcha = captchaService.removeCaptcha(code);
-            if(serviceCaptcha == null || serviceCaptcha.isExpire()) {
-                throw new SecurityException("验证码已失效");
-            }
-
-            if(!Objects.equals(serviceCaptcha.getCaptcha(), captcha)) {
-                throw new SecurityException("验证码校验失败");
-            }
-
-            AuthenticationUser admin = authenticationService.getByAccount(userName);
-            if(admin == null) {
-                throw new SecurityException("账户不存在");
-            }
-
-            // 密码校验
-            String passwordDigest = admin.getPassword().toUpperCase();
-            String md5Hex = SecureUtil.md5(password).toUpperCase();
-
-            if(!Objects.equals(passwordDigest, md5Hex)) {
-                throw new SecurityException("密码校验失败");
-            }
-
-            return new SimpleAuthenticationInfo(admin, token.getCredentials(), this.getName());
-        } finally {
-            SecurityUtil.removeSessionAttr(Constants.KAPTCHA_SESSION_KEY);
-            SecurityUtil.removeSessionAttr(Constants.KAPTCHA_SESSION_DATE);
+        /**
+         * 获取校验码
+         * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
+         */
+        String captcha = shiroAdminToken.getCaptcha();
+        String code = SecurityUtil.getRequest().getParameter(CoreConst.CAPTCHA_CODE);
+        if(code == null) {
+            throw new SecurityException("校验码校验失败");
         }
+
+        // 获取校验码并判断是否过期
+        Captcha serviceCaptcha = captchaService.removeCaptcha(code);
+        if(serviceCaptcha == null || serviceCaptcha.isExpire()) {
+            throw new SecurityException("验证码已失效");
+        }
+
+        if(!Objects.equals(serviceCaptcha.getCaptcha(), captcha)) {
+            throw new SecurityException("验证码校验失败");
+        }
+
+        AuthenticationUser admin = authenticationService.getByAccount(userName);
+        if(admin == null) {
+            throw new SecurityException("账户不存在");
+        }
+
+        // 密码校验
+        String passwordDigest = admin.getPassword().toUpperCase();
+        String md5Hex = SecureUtil.md5(password).toUpperCase();
+
+        if(!Objects.equals(passwordDigest, md5Hex)) {
+            throw new SecurityException("密码校验失败");
+        }
+
+        return new SimpleAuthenticationInfo(admin, token.getCredentials(), this.getName());
     }
 
     /**

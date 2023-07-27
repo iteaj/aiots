@@ -2,9 +2,12 @@ package com.iteaj.iboot.plugin.shiro;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.iteaj.framework.Entity;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
+import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.security.*;
 import com.iteaj.framework.security.SecurityException;
+import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.session.Session;
@@ -16,10 +19,18 @@ import java.util.stream.Collectors;
 
 public class ShiroSecurityService implements SecurityService {
 
+    private final FrameworkProperties properties;
     private final AuthorizationService authorizationService;
 
-    public ShiroSecurityService(AuthorizationService authorizationService) {
+    public ShiroSecurityService(FrameworkProperties properties
+            , AuthorizationService authorizationService) {
+        this.properties = properties;
         this.authorizationService = authorizationService;
+    }
+
+    @Override
+    public boolean isLogin() {
+        return SecurityUtils.getSubject().getPrincipal() != null;
     }
 
     public Optional<Entity> getUser() {
@@ -112,6 +123,13 @@ public class ShiroSecurityService implements SecurityService {
 
         try {
             SecurityUtils.getSubject().login(securityToken);
+
+            UserAgent agent = (UserAgent)request.getAttribute(CoreConst.WEB_USER_AGENT);
+            if(agent != null) {
+                FrameworkProperties.Web web = properties.getWeb();
+                String tokenName = web.getAuth().getTokenName();
+                response.setHeader(tokenName);
+            }
         } catch (AuthenticationException e) {
             throw new SecurityException(e.getMessage(), e);
         }

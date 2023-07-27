@@ -4,6 +4,7 @@ import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.AuthorizationService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.framework.security.SecurityInterceptor;
 import com.iteaj.framework.security.SecurityService;
 import com.iteaj.iboot.plugin.shiro.online.OnlineSessionDAO;
 import com.iteaj.iboot.plugin.shiro.online.OnlineSessionManager;
@@ -25,6 +26,8 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.Filter;
 import java.util.*;
@@ -37,7 +40,7 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-public class ShiroAutoConfiguration {
+public class ShiroAutoConfiguration implements WebMvcConfigurer {
 
     private final FrameworkProperties properties;
     @Autowired
@@ -74,16 +77,32 @@ public class ShiroAutoConfiguration {
         return new ShiroOnlineListener();
     }
 
+    /**
+     * 基于Shiro框架实现的安全校验服务
+     * @param authorizationService
+     * @return
+     */
     @Bean
     public SecurityService securityService(AuthorizationService authorizationService) {
-        return new ShiroSecurityService(authorizationService);
+        return new ShiroSecurityService(properties, authorizationService);
+    }
+
+    /**
+     * 权限校验拦截器
+     * @see com.iteaj.framework.security.CheckPermission
+     * @see com.iteaj.framework.security.CheckRole
+     * @return
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/**");
     }
 
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions
             , SecurityManager securityManager, List<AccessFilterWrapper> filters) {
 
-        ShiroFilterFactoryBean factoryBean = new ShiroFilterLogFactoryBean();
+        ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
         factoryBean.setSecurityManager(securityManager);
 
         // 处理过滤器
