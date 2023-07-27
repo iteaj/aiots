@@ -1,6 +1,6 @@
 package com.iteaj.iboot.msn.core.enums;
 
-import com.baomidou.mybatisplus.core.enums.IEnum;
+import com.baomidou.mybatisplus.annotation.IEnum;
 
 public enum Sex implements IEnum<String> {
     man, woman, non;
