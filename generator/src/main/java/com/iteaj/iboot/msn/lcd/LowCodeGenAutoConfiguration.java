@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.lcd;
 
 import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.framework.spi.admin.Module;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,6 +18,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableConfigurationProperties(LowCodeProperties.class)
 @PropertySource("classpath:application-lcg.properties")
 public class LowCodeGenAutoConfiguration implements InitializingBean, WebMvcConfigurer {
+
+    @Bean
+    public Module devModule() {
+        return Module.build("dev", "低代码模块", 99999);
+    }
 
     /**
      * 低代码模块无需认证授权
