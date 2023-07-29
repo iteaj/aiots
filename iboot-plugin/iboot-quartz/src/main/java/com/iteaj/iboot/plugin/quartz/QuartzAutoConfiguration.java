@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.quartz;
+package com.iteaj.iboot.plugin.quartz;
 
 import com.iteaj.iboot.plugin.quartz.jobs.SpringSupportJob;
 import com.iteaj.iboot.plugin.quartz.scheduler.SchedulerManager;
@@ -20,8 +20,8 @@ import javax.sql.DataSource;
  * @since 1.0
  */
 @EnableScheduling
-@ComponentScan({"com.iteaj.iboot.msn.quartz"})
-@MapperScan({"com.iteaj.iboot.msn.quartz.mapper"})
+@ComponentScan({"com.iteaj.iboot.plugin.quartz"})
+@MapperScan({"com.iteaj.iboot.plugin.quartz.mapper"})
 public class QuartzAutoConfiguration {
 
     private final static String DEFAULT_JOB_GROUP_NAME = "JOB:GROUP:IBOOT";
