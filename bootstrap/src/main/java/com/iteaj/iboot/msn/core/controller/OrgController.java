@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.iboot.msn.core.entity.Org;
 import com.iteaj.iboot.msn.core.service.IOrgService;
 import com.iteaj.framework.result.Result;
@@ -29,6 +30,7 @@ public class OrgController extends BaseController {
      * @param org
      * @return
      */
+    @Logger("查询机构列表")
     @GetMapping("/view")
     @CheckPermission("core:org:view")
     public Result<List<Org>> view(Org org) {
@@ -46,6 +48,7 @@ public class OrgController extends BaseController {
      * @param org
      * @return
      */
+    @Logger("新增机构记录")
     @PostMapping("/add")
     @CheckPermission("core:org:add")
     public Result<Boolean> add(@RequestBody Org org) {
@@ -68,6 +71,7 @@ public class OrgController extends BaseController {
      * @param org
      * @return
      */
+    @Logger("修改机构记录")
     @PostMapping("/edit")
     @CheckPermission("core:org:edit")
     public Result<Boolean> edit(@RequestBody Org org) {
@@ -79,6 +83,7 @@ public class OrgController extends BaseController {
      * @param list
      * @return
      */
+    @Logger("删除机构记录")
     @PostMapping("/del")
     @CheckPermission("core:org:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {

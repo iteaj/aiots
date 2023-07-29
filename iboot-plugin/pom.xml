@@ -18,6 +18,7 @@
         <module>iboot-knife4j</module>
         <module>iboot-SaToken</module>
         <module>iboot-oauth2</module>
+        <module>iboot-quartz</module>
     </modules>
 
     <dependencies>

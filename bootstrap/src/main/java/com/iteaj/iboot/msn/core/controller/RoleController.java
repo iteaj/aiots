@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.iboot.msn.core.dto.RoleDto;
 import com.iteaj.iboot.msn.core.dto.RoleFuncDto;
 import com.iteaj.iboot.msn.core.entity.Menu;
@@ -39,6 +40,7 @@ public class RoleController extends BaseController {
      * @param role
      * @return
      */
+    @Logger("查询角色列表")
     @GetMapping("/view")
     @CheckPermission("core:role:view")
     public Result<IPage<Role>> view(Page page, Role role) {
@@ -70,6 +72,7 @@ public class RoleController extends BaseController {
      * @param role
      * @return
      */
+    @Logger("新增角色记录")
     @PostMapping("/add")
     @CheckPermission("core:add:view")
     public Result add(@RequestBody RoleDto role) {
@@ -92,6 +95,7 @@ public class RoleController extends BaseController {
      * @param role
      * @return
      */
+    @Logger("修改角色记录")
     @PostMapping("/edit")
     @CheckPermission("core:role:edit")
     public Result<Boolean> edit(@RequestBody Role role) {
@@ -114,6 +118,7 @@ public class RoleController extends BaseController {
      * @param role
      * @return
      */
+    @Logger("修改角色及权限")
     @PostMapping("/perm")
     @CheckPermission("core:role:perm")
     public Result<Boolean> editFunc(@RequestBody RoleDto role) {
@@ -126,6 +131,7 @@ public class RoleController extends BaseController {
      * @param list
      * @return
      */
+    @Logger("删除角色记录")
     @PostMapping("/del")
     @CheckPermission("core:del:view")
     public Result del(@RequestBody List<Long> list) {

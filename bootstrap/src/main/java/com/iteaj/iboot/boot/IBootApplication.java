@@ -4,7 +4,6 @@ import com.iteaj.iboot.common.IBootControllerAdvice;
 import com.iteaj.iboot.msn.core.CoreAutoConfiguration;
 import com.iteaj.iboot.msn.iot.IotAutoConfiguration;
 import com.iteaj.iboot.msn.lcd.LowCodeGenAutoConfiguration;
-import com.iteaj.iboot.msn.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,7 +21,6 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @ImportAutoConfiguration(value = {
         IotAutoConfiguration.class, // 物联网模块
-        QuartzAutoConfiguration.class, // 定时任务模块
         LowCodeGenAutoConfiguration.class, // 低代码代码生成器模块
 
         // 以下是IBoot的核心配置(必须启用)

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
@@ -37,6 +38,7 @@ public class OnlineUserController extends BaseController {
     * @param page 分页
     * @param entity
     */
+    @Logger("查询在线户行")
     @GetMapping("/view")
     @CheckPermission(value = {"core:online:view"})
     public Result<IPage<OnlineUser>> list(Page<OnlineUser> page, OnlineUser entity) {
@@ -61,6 +63,7 @@ public class OnlineUserController extends BaseController {
     * 删除在线记录
     * @param idList
     */
+    @Logger("删除在线用户记录")
     @PostMapping("/del")
     @CheckPermission(value = {"core:online:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
@@ -87,6 +90,7 @@ public class OnlineUserController extends BaseController {
      * @param entity
      * @return
      */
+    @Logger("剔除用户下线")
     @PostMapping("offline")
     @CheckPermission(value = {"core:online:offline"})
     public Result<Boolean> offline(@RequestBody OnlineUser entity, HttpSession session) {

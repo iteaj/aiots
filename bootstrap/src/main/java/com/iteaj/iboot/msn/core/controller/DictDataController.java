@@ -2,6 +2,7 @@ package com.iteaj.iboot.msn.core.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.iboot.msn.core.entity.DictData;
 import com.iteaj.iboot.msn.core.service.IDictDataService;
 import com.iteaj.framework.result.Result;
@@ -28,6 +29,7 @@ public class DictDataController extends BaseController {
      * @param dictData
      * @return
      */
+    @Logger("查询字典数据")
     @GetMapping("/view")
     public Result<List<DictData>> list(DictData dictData) {
         return dictDataService.list(Wrappers.lambdaQuery(dictData).orderByAsc(DictData::getSort));
@@ -48,6 +50,7 @@ public class DictDataController extends BaseController {
      * @param data
      * @return
      */
+    @Logger("新增字典数据")
     @PostMapping("/add")
     public Result add(@RequestBody DictData data) {
         return dictDataService.save(data);
@@ -58,6 +61,7 @@ public class DictDataController extends BaseController {
      * @param list
      * @return
      */
+    @Logger("删除字典数据记录")
     @PostMapping("/del")
     public Result del(@RequestBody List<Long> list) {
         return dictDataService.removeByIds(list);
@@ -78,6 +82,7 @@ public class DictDataController extends BaseController {
      * @param data
      * @return
      */
+    @Logger("修改字典数据记录")
     @PostMapping("/edit")
     public Result edit(@RequestBody DictData data) {
         return dictDataService.updateById(data);

@@ -2,6 +2,7 @@ package com.iteaj.iboot.msn.core.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.core.entity.AccessLog;
 import com.iteaj.iboot.msn.core.service.IAccessLogService;
@@ -31,6 +32,7 @@ public class OperaLogController extends BaseController {
      * @param accessLog
      * @return
      */
+    @Logger("查看操作日志")
     @GetMapping("/view")
     @CheckPermission("core:log:view")
     public Result view(Page page, AccessLog accessLog) {
@@ -42,6 +44,7 @@ public class OperaLogController extends BaseController {
      * @param list
      * @return
      */
+    @Logger("删除操作日志")
     @PostMapping("/del")
     @CheckPermission("core:log:del")
     public Result del(@RequestBody List<Long> list) {

@@ -3,6 +3,7 @@ package com.iteaj.iboot.msn.core.controller;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.iboot.msn.core.entity.DictType;
 import com.iteaj.iboot.msn.core.service.IDictTypeService;
 import com.iteaj.framework.result.Result;
@@ -31,6 +32,7 @@ public class DictTypeController extends BaseController {
      * @param page
      * @return
      */
+    @Logger("查询字典列表")
     @GetMapping("/view")
     @CheckPermission("core:dictType:view")
     public Result<Page<DictType>> list(DictType dictType, Page page) {
@@ -52,6 +54,7 @@ public class DictTypeController extends BaseController {
      * @param dictType
      * @return
      */
+    @Logger("新增字典")
     @PostMapping("/add")
     @CheckPermission("core:dictType:add")
     public Result<Boolean> add(@RequestBody DictType dictType) {
@@ -74,6 +77,7 @@ public class DictTypeController extends BaseController {
      * @param dictType
      * @return
      */
+    @Logger("修改字典记录")
     @PostMapping("/edit")
     @CheckPermission("core:dictType:edit")
     public Result<Boolean> edit(@RequestBody DictType dictType) {
@@ -85,6 +89,7 @@ public class DictTypeController extends BaseController {
      * @param list
      * @return
      */
+    @Logger("删除字典记录")
     @PostMapping("/del")
     @CheckPermission("core:dictType:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {

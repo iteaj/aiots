@@ -82,8 +82,8 @@ public class SchedulerManager {
      * 更新作业
      * @param jobName
      * @param isConCurrent 是否并发  使用默认作业{@link SpringSupportJob} <hr>
-     *     {@link com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob.EmptyJob}
-     *     {@link com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob.NonConcurrentEmptyJob}
+     *     {@link SpringSupportJob.EmptyJob}
+     *     {@link SpringSupportJob.NonConcurrentEmptyJob}
      */
     public void updateJob(String jobName, boolean isConCurrent, JobDataMap map, String desc) {
         Class jobClass = isConCurrent ? SpringSupportJob.EMPTY_JOB : SpringSupportJob.NON_CONCURRENT_EMPTY_JOB;

@@ -3,10 +3,8 @@ package com.iteaj.iboot.msn.quartz.jobs;
 import lombok.Data;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
-import org.springframework.beans.BeanUtils;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;

@@ -3,6 +3,7 @@ package com.iteaj.iboot.msn.core.controller;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.iboot.msn.core.entity.Admin;
@@ -46,6 +47,7 @@ public class UploadController extends BaseController implements InitializingBean
      * @param file
      * @return
      */
+    @Logger("上传单文件")
     @PostMapping
     public Result<String> upload(MultipartFile file, String subPath) {
         try {
@@ -61,6 +63,7 @@ public class UploadController extends BaseController implements InitializingBean
      * @param file
      * @return
      */
+    @Logger("批量上传文件")
     @PostMapping("/batch")
     public Result<List<String>> batch(MultipartFile[] file, String subPath) {
         List<String> urls = new ArrayList<>();

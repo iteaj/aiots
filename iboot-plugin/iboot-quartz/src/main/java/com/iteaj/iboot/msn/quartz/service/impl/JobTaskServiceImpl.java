@@ -2,7 +2,6 @@ package com.iteaj.iboot.msn.quartz.service.impl;
 
 import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;

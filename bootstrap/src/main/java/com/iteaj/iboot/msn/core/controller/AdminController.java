@@ -4,6 +4,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.utils.ExcelExportParams;
@@ -23,7 +24,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- *  后台用户管理功能
+ * 用户管理
  * @author iteaj
  * @since 1.0
  */
@@ -43,6 +44,7 @@ public class AdminController extends BaseController {
      * @param admin
      * @return
      */
+    @Logger("用户分页列表")
     @GetMapping("/view")
     @CheckPermission("core:admin:view")
     public Result view(Page page, Admin admin) {
@@ -50,10 +52,11 @@ public class AdminController extends BaseController {
     }
 
     /**
-     * 新增用户
+     * 新增用户及角色
      * @param admin
      * @return
      */
+    @Logger("新增用户")
     @PostMapping("/add")
     @CheckPermission("core:admin:add")
     public Result add(@RequestBody AdminDto admin) {
@@ -66,6 +69,7 @@ public class AdminController extends BaseController {
      * @param id
      * @return
      */
+    @Logger("获取用户详情")
     @GetMapping("/edit")
     @CheckPermission("core:admin:edit")
     public Result<AdminDto> edit(Long id) {
@@ -73,10 +77,11 @@ public class AdminController extends BaseController {
     }
 
     /**
-     * 修改用户
+     * 修改用户及角色
      * @param admin
      * @return
      */
+    @Logger("修改用户及角色")
     @PostMapping("/edit")
     @CheckPermission("core:admin:edit")
     public Result<Boolean> edit(@RequestBody AdminDto admin) {
@@ -89,6 +94,7 @@ public class AdminController extends BaseController {
      * @param list
      * @return
      */
+    @Logger("删除用户")
     @PostMapping("/del")
     @CheckPermission("core:admin:del")
     public Result<Boolean> del(@RequestBody List<Long> list) {
@@ -100,6 +106,7 @@ public class AdminController extends BaseController {
      * 导入用户
      * @param file
      */
+    @Logger("导入用户")
     @PostMapping("import")
     public Result<String> excelImport(MultipartFile file) throws IOException {
         List<Admin> admins = ExcelUtils.importExcel(file, Admin.class, new ImportParams());
@@ -113,6 +120,7 @@ public class AdminController extends BaseController {
      * @param page
      * @param admin
      */
+    @Logger("导出用户")
     @GetMapping("export")
     public void excelExport(Page<Admin> page, Admin admin, HttpServletResponse response) throws IOException {
         ServletOutputStream outputStream = response.getOutputStream();
@@ -129,6 +137,12 @@ public class AdminController extends BaseController {
         });
     }
 
+    /**
+     * 修改用户信息
+     * @param admin
+     * @return
+     */
+    @Logger("修改用户")
     @PostMapping("/modUserInfo")
     public Result modUserInfo(@RequestBody Admin admin) {
         return SecurityUtil.getLoginUser()
@@ -143,6 +157,7 @@ public class AdminController extends BaseController {
      * 设置用户密码
      * @return
      */
+    @Logger("修改用户密码")
     @PostMapping("pwd")
     @CheckPermission("core:admin:pwd")
     public Result updatePwd(@RequestBody PasswordDto passwordDto) {

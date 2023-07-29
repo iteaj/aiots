@@ -1,19 +1,19 @@
 package com.iteaj.iboot.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.iboot.msn.core.entity.Region;
 import com.iteaj.iboot.msn.core.service.IRegionService;
-import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 /**
- * 区域管理
+ * 行政区管理
  * @author iteaj
  * @since 1.0
  */
@@ -28,10 +28,11 @@ public class RegionController extends BaseController {
     }
 
     /**
-     * 获取区域列表
+     * 获取列表
      * @param region
      * @return
      */
+    @Logger("查询行政区列表")
     @GetMapping("/view")
     @CheckPermission("core:region:view")
     public Result<List<Region>> view(Region region) {
@@ -43,7 +44,6 @@ public class RegionController extends BaseController {
      * @param id
      * @return
      */
-    @ResponseBody
     @GetMapping("/getById")
     public Result<Region> getById(Long id) {
         return this.regionService.getById(id);

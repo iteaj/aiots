@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.TreeEntity;
-import com.iteaj.framework.logger.LoggerMenu;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.spi.admin.UrlResource;
 import com.iteaj.iboot.msn.core.enums.Status;
@@ -40,10 +39,6 @@ public class Menu extends TreeEntity implements UrlResource {
     private String remark;
     /**菜单类型*/
     private MenuType type;
-    /**是否记录日志*/
-    private Boolean log;
-    /**日志信息*/
-    private String logDesc;
 
     /**创建时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd")

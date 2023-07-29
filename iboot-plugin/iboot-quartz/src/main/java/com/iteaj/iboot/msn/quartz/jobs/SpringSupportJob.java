@@ -1,7 +1,6 @@
 package com.iteaj.iboot.msn.quartz.jobs;
 
 import cn.hutool.core.util.StrUtil;
-import org.quartz.JobDetail;
 import org.quartz.*;
 import org.quartz.spi.JobFactory;
 import org.quartz.spi.TriggerFiredBundle;

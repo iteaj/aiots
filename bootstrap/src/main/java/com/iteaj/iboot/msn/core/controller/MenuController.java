@@ -1,6 +1,7 @@
 package com.iteaj.iboot.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.iboot.msn.core.entity.Menu;
@@ -29,6 +30,7 @@ public class MenuController extends BaseController {
      * @param menu
      * @return
      */
+    @Logger("查询菜单列表")
     @GetMapping("/view")
     @CheckPermission("core:menu:view")
     public Result<List<Menu>> list(Menu menu) {
@@ -59,6 +61,7 @@ public class MenuController extends BaseController {
      * @param menu
      * @return
      */
+    @Logger("新增菜单记录")
     @PostMapping("/add")
     @CheckPermission("core:menu:add")
     public Result<Boolean> add(@RequestBody Menu menu) {
@@ -70,6 +73,7 @@ public class MenuController extends BaseController {
      * @param idList
      * @return
      */
+    @Logger("删除菜单记录")
     @PostMapping("/del")
     @CheckPermission("core:menu:del")
     public Result<Boolean> del(@RequestBody List<Long> idList) {
@@ -92,6 +96,7 @@ public class MenuController extends BaseController {
      * @param menu
      * @return
      */
+    @Logger("修改菜单记录")
     @PostMapping("/edit")
     @CheckPermission("core:menu:edit")
     public Result<Boolean> edit(@RequestBody Menu menu) {
