@@ -8,17 +8,38 @@ import org.springframework.core.Ordered;
  * @author iteaj
  * @since 1.0
  */
-public interface Module extends Ordered {
+public class Module implements Ordered {
+
+    private int order;
+    private String msn;
+    private String name;
+
+    protected Module(String msn, String name, int order) {
+        this.order = order;
+        this.msn = msn;
+        this.name = name;
+    }
 
     /**
-     * 模块编号
+     *
+     * @param msn 模块编号不能重复
+     * @param name
+     * @param order
      * @return
      */
-    String getMsn();
+    public static Module build(String msn, String name, int order) {
+        return new Module(msn, name, order);
+    }
 
-    /**
-     * 模块编号对应的说明
-     * @return
-     */
-    String getName();
+    public String getMsn() {
+        return this.msn;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getOrder() {
+        return this.order;
+    }
 }
