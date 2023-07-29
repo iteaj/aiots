@@ -1,6 +1,6 @@
-package com.iteaj.iboot.msn.quartz.scheduler;
+package com.iteaj.iboot.plugin.quartz.scheduler;
 
-import com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob;
+import com.iteaj.iboot.plugin.quartz.jobs.SpringSupportJob;
 import org.quartz.*;
 
 /**

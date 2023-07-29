@@ -1,7 +1,7 @@
-package com.iteaj.iboot.msn.quartz.demo;
+package com.iteaj.iboot.plugin.quartz.demo;
 
-import com.iteaj.iboot.msn.quartz.jobs.QuartzJob;
-import com.iteaj.iboot.msn.quartz.jobs.QuartzTask;
+import com.iteaj.iboot.plugin.quartz.jobs.QuartzJob;
+import com.iteaj.iboot.plugin.quartz.jobs.QuartzTask;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;

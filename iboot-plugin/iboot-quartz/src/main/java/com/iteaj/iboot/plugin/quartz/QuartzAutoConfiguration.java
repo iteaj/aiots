@@ -1,19 +1,12 @@
 package com.iteaj.iboot.msn.quartz;
 
-import com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob;
-import com.iteaj.iboot.msn.quartz.scheduler.SchedulerManager;
+import com.iteaj.iboot.plugin.quartz.jobs.SpringSupportJob;
+import com.iteaj.iboot.plugin.quartz.scheduler.SchedulerManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.quartz.Scheduler;
 import org.quartz.spi.JobFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -26,11 +19,10 @@ import javax.sql.DataSource;
  * @author iteaj
  * @since 1.0
  */
-@Profile("qrtz")
 @EnableScheduling
 @ComponentScan({"com.iteaj.iboot.msn.quartz"})
 @MapperScan({"com.iteaj.iboot.msn.quartz.mapper"})
-public class QuartzAutoConfiguration implements BeanFactoryPostProcessor, BeanDefinitionRegistryPostProcessor {
+public class QuartzAutoConfiguration {
 
     private final static String DEFAULT_JOB_GROUP_NAME = "JOB:GROUP:IBOOT";
     private final static String DEFAULT_TRIGGER_GROUP_NAME = "TRIGGER:GROUP:IBOOT";
@@ -67,27 +59,8 @@ public class QuartzAutoConfiguration implements BeanFactoryPostProcessor, BeanDe
         return new SchedulerManager(scheduler, DEFAULT_JOB_GROUP_NAME, DEFAULT_TRIGGER_GROUP_NAME);
     }
 
-//    @Bean
-//    public JobFactory jobFactory() {
-//        return new SpringSupportJob();
-//    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        final SpringSupportJob bean = beanFactory.getBean(SpringSupportJob.class);
-        beanFactory.addBeanPostProcessor(bean);
-    }
-
-    @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        final boolean b = registry.containsBeanDefinition(SpringSupportJob.class.getName());
-        if(b) {
-            return;
-        } else {
-            final GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
-            beanDefinition.setBeanClass(SpringSupportJob.class);
-            beanDefinition.setAutowireCandidate(true);
-            registry.registerBeanDefinition(SpringSupportJob.class.getName(), beanDefinition);
-        }
+    @Bean
+    public JobFactory jobFactory() {
+        return new SpringSupportJob();
     }
 }

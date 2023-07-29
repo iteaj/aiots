@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.quartz.entity;
+package com.iteaj.iboot.plugin.quartz.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;

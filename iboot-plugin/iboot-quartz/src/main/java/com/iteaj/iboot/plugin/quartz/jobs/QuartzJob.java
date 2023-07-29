@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.quartz.jobs;
+package com.iteaj.iboot.plugin.quartz.jobs;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.quartz.jobs;
+package com.iteaj.iboot.plugin.quartz.jobs;
 
 import org.springframework.stereotype.Component;
 

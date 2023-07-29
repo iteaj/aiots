@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.quartz.controller;
+package com.iteaj.iboot.plugin.quartz.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
@@ -6,10 +6,10 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
-import com.iteaj.iboot.msn.quartz.entity.JobTask;
-import com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob;
-import com.iteaj.iboot.msn.quartz.scheduler.SchedulerManager;
-import com.iteaj.iboot.msn.quartz.service.IJobTaskService;
+import com.iteaj.iboot.plugin.quartz.entity.JobTask;
+import com.iteaj.iboot.plugin.quartz.jobs.SpringSupportJob;
+import com.iteaj.iboot.plugin.quartz.scheduler.SchedulerManager;
+import com.iteaj.iboot.plugin.quartz.service.IJobTaskService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.iteaj.iboot.msn.quartz.demo;
+package com.iteaj.iboot.plugin.quartz.demo;
 
 import org.quartz.Job;
 import org.quartz.JobDataMap;

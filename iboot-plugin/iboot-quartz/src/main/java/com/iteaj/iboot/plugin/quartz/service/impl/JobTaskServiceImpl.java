@@ -1,15 +1,15 @@
-package com.iteaj.iboot.msn.quartz.service.impl;
+package com.iteaj.iboot.plugin.quartz.service.impl;
 
 import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.iboot.msn.quartz.entity.JobTask;
-import com.iteaj.iboot.msn.quartz.jobs.SpringSupportJob;
-import com.iteaj.iboot.msn.quartz.mapper.JobTaskMapper;
-import com.iteaj.iboot.msn.quartz.scheduler.SchedulerManager;
-import com.iteaj.iboot.msn.quartz.service.IJobTaskService;
+import com.iteaj.iboot.plugin.quartz.entity.JobTask;
+import com.iteaj.iboot.plugin.quartz.jobs.SpringSupportJob;
+import com.iteaj.iboot.plugin.quartz.mapper.JobTaskMapper;
+import com.iteaj.iboot.plugin.quartz.scheduler.SchedulerManager;
+import com.iteaj.iboot.plugin.quartz.service.IJobTaskService;
 import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
