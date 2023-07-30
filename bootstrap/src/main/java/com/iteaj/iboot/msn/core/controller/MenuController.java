@@ -4,6 +4,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.iboot.msn.core.entity.Menu;
 import com.iteaj.iboot.msn.core.service.IMenuService;
 import com.iteaj.framework.security.CheckPermission;
@@ -19,9 +20,11 @@ import java.util.List;
 @RequestMapping("/core/menu")
 public class MenuController extends BaseController {
 
+    private final List<Module> modules;
     private final IMenuService menuService;
 
-    public MenuController(IMenuService menuService) {
+    public MenuController(List<Module> modules, IMenuService menuService) {
+        this.modules = modules;
         this.menuService = menuService;
     }
 
@@ -38,7 +41,8 @@ public class MenuController extends BaseController {
     }
 
     /**
-     * @return 菜单栏所需的列表
+     * 菜单栏菜单列表
+     * @return 菜单列表
      */
     @GetMapping("/bars")
     public Result<List<Menu>> bars() {
@@ -103,4 +107,12 @@ public class MenuController extends BaseController {
         return menuService.updateById(menu);
     }
 
+    /**
+     * 获取模块列表
+     * @return
+     */
+    @GetMapping("msn")
+    public Result<List<Module>> msn() {
+        return success(this.modules);
+    }
 }

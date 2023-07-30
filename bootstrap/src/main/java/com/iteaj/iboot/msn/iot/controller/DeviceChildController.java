@@ -1,17 +1,15 @@
 package com.iteaj.iboot.msn.iot.controller;
 
-import java.util.List;
-
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.iteaj.framework.result.Result;
-import org.apache.shiro.authz.annotation.Logical;
-import org.springframework.web.bind.annotation.*;
-import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.msn.iot.entity.DeviceChild;
 import com.iteaj.iboot.msn.iot.service.IDeviceChildService;
-import com.iteaj.framework.BaseController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 子设备管理

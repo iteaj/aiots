@@ -1,8 +1,9 @@
 package ${package.Controller};
 
 import java.util.List;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
-import org.apache.shiro.authz.annotation.Logical;
+import com.iteaj.framework.security.Logical;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -18,10 +19,7 @@ import ${superControllerClassPackage};
 #end
 
 /**
- * <p>
  * $!{cfg.moduleName}管理
- * </p>
- *
  * @author ${author}
  * @since ${date}
  */
@@ -52,6 +50,7 @@ public class ${table.controllerName} {
     * @param page 分页
     * @param entity 搜索条件
     */
+    @Logger("浏览$!{cfg.moduleName}功能")
     @GetMapping("/view")
     @CheckPermission({"${package.ModuleName}:${table.entityPath}:view"})
     public Result<IPage<${entity}>> list(Page<${entity}> page, ${entity} entity) {
@@ -72,9 +71,10 @@ public class ${table.controllerName} {
     * 新增或者更新记录
     * @param entity
     */
+    @Logger("新增或者更新$!{cfg.moduleName}记录")
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"${package.ModuleName}:${table.entityPath}:edit", "${package.ModuleName}:${table.entityPath}:add"}, logical = Logical.OR)
-    public Result<Boolean> save(@RequestBody ${entity} entity) {
+    public Result<Boolean> saveOrUpdate(@RequestBody ${entity} entity) {
         return this.${cfg.serviceName}.saveOrUpdate(entity);
     }
 
@@ -82,6 +82,7 @@ public class ${table.controllerName} {
     * 删除指定记录
     * @param idList
     */
+    @Logger("删除$!{cfg.moduleName}记录")
     @PostMapping("/del")
     @CheckPermission({"${package.ModuleName}:${table.entityPath}:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {

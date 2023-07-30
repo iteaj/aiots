@@ -12,7 +12,6 @@ import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.iboot.msn.core.entity.OnlineUser;
 import com.iteaj.iboot.msn.core.service.IOnlineUserService;
 import com.iteaj.framework.security.CheckPermission;
-import org.apache.shiro.session.UnknownSessionException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -103,11 +102,6 @@ public class OnlineUserController extends BaseController {
             return fail("不允许下线自己");
         }
 
-        try {
-//            ShiroUtil.offline(entity.getSessionId()); // 剔除用户下线
-        } catch (UnknownSessionException e) {
-            this.onlineUserService.updateBySessionId(entity.setStatus(OnlineStatus.Offline));
-        }
         return success("剔除用户成功");
     }
 }

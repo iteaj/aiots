@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.shiro;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.google.code.kaptcha.Constants;
 import com.iteaj.framework.Entity;
@@ -61,17 +62,9 @@ public class ShiroAdminRealm extends AuthorizingRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         ShiroSecurityToken shiroAdminToken = (ShiroSecurityToken) token;
 
-        String userName = shiroAdminToken.getAccount();
-        String password = shiroAdminToken.getPassword();
-
-        /**
-         * 获取校验码
-         * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
-         */
-        String captcha = shiroAdminToken.getCaptcha();
-        String code = SecurityUtil.getRequest().getParameter(CoreConst.CAPTCHA_CODE);
-        if(code == null) {
-            throw new SecurityException("校验码校验失败");
+        String code = shiroAdminToken.getCode();
+        if(StrUtil.isBlank(code)) {
+            throw new SecurityException("验证码已失效");
         }
 
         // 获取校验码并判断是否过期
@@ -80,10 +73,17 @@ public class ShiroAdminRealm extends AuthorizingRealm {
             throw new SecurityException("验证码已失效");
         }
 
+        /**
+         * 获取校验码
+         * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
+         */
+        String captcha = shiroAdminToken.getCaptcha();
         if(!Objects.equals(serviceCaptcha.getCaptcha(), captcha)) {
             throw new SecurityException("验证码校验失败");
         }
 
+        String userName = shiroAdminToken.getAccount();
+        String password = shiroAdminToken.getPassword();
         AuthenticationUser admin = authenticationService.getByAccount(userName);
         if(admin == null) {
             throw new SecurityException("账户不存在");

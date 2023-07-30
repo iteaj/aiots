@@ -6,6 +6,11 @@ import lombok.Data;
 public class SecurityToken {
 
     /**
+     * 校验码token
+     */
+    private String code;
+
+    /**
      * 账号
      */
     private String account;

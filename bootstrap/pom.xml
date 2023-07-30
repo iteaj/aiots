@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <version>1.3.0</version>
         <groupId>com.iteaj</groupId>
         <artifactId>iboot</artifactId>
+        <version>${reversion}</version>
     </parent>
 
     <name>iboot:bootstrap</name>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bootstrap</artifactId>
     <properties>
-        <iot.version>2.6.0</iot.version>
         <!--当前项目的根目录, 用于代码生成器-->
         <project.root.path>${project.basedir}</project.root.path>
     </properties>
@@ -19,34 +18,51 @@
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>iot-boot-starter</artifactId>
-            <version>${iot.version}</version>
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
-            <version>${iot.version}</version>
             <artifactId>iot-server</artifactId>
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
-            <version>${iot.version}</version>
             <artifactId>iot-modbus</artifactId>
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>iot-mqtt</artifactId>
-            <version>${iot.version}</version>
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>iot-plc</artifactId>
-            <version>${iot.version}</version>
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
-            <version>${iot.version}</version>
             <artifactId>iot-serial</artifactId>
         </dependency>
         <!-- iot end -->
+
+        <!-- 消息源sms4j(https://wind.kim/) -->
+        <dependency>
+            <groupId>org.dromara.sms4j</groupId>
+            <artifactId>sms4j-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dromara.sms4j</groupId>
+            <artifactId>sms4j-Email-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <version>${hutool.version}</version>
+            <artifactId>hutool-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <version>${hutool.version}</version>
+            <artifactId>hutool-cron</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.hibernate.validator</groupId>
@@ -90,13 +106,7 @@
 <!--            <groupId>com.github.ben-manes.caffeine</groupId>-->
 <!--        </dependency>-->
 
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-core</artifactId>
-            <version>${shiro.version}</version>
-        </dependency>
-
-        <!-- iboot plugin -->
+        <!-- iboot 可选插件 -->
         <!-- Shiro权限认证插件(和SaToken二选其一)-->
 <!--        <dependency>-->
 <!--            <groupId>com.iteaj</groupId>-->
@@ -111,6 +121,20 @@
             <artifactId>iboot-SaToken</artifactId>
         </dependency>
 
+        <!-- Oauth2服务插件(使用SaToken开发)-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-oauth2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Quartz定时任务插件 -->
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>iboot-quartz</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+
         <!-- knife4j Api文档插件-->
         <dependency>
             <groupId>com.iteaj</groupId>
@@ -118,12 +142,7 @@
             <artifactId>iboot-knife4j</artifactId>
         </dependency>
 
-        <!-- oauth2服务插件-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>iboot-oauth2</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
     </dependencies>
 
     <build>

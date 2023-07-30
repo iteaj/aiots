@@ -109,7 +109,7 @@ public class SaTokenSecurityService implements SecurityService {
 
     @Override
     public void login(SecurityToken token, HttpServletRequest request, HttpServletResponse response) throws SecurityException {
-        String code = SecurityUtil.getRequest().getParameter(CoreConst.CAPTCHA_CODE);
+        String code = token.getCode();
         if(code == null) {
             throw new SecurityException("校验码校验失败");
         }

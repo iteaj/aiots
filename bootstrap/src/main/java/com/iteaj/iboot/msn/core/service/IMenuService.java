@@ -38,20 +38,6 @@ public interface IMenuService extends IBaseService<Menu> {
     Menu getByUrl(String url);
 
     /**
-     * 获取url
-     * @param url
-     * @return
-     */
-    Menu getByUrlFromCache(String url);
-
-    /**
-     * 通过id获取菜单
-     * @param id
-     * @return
-     */
-    Menu getByIdFromCache(Long id);
-
-    /**
      * 获取自定管理员拥有的权限
      * @param adminId
      * @return

@@ -10,6 +10,7 @@ import com.iteaj.iboot.msn.core.service.IAccessLogService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
 import java.util.Optional;
 
 public class LoggerListener implements FrameworkListener<PayloadEvent<AccessLogger>> {
@@ -29,7 +30,8 @@ public class LoggerListener implements FrameworkListener<PayloadEvent<AccessLogg
         source.ifPresent(item -> {
             Admin admin = (Admin) item;
             accessLog.setUserId((Long) item.getId())
-                    .setUserName(admin.getName());
+                    .setUserName(admin.getName())
+                    .setCreateTime(new Date());
         });
 
         accessLogService.save(accessLog);

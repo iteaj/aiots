@@ -7,10 +7,10 @@
     </parent>
 
     <name>iboot:root</name>
-    <version>1.3.0</version>
     <packaging>pom</packaging>
     <groupId>com.iteaj</groupId>
     <artifactId>iboot</artifactId>
+    <version>${reversion}</version>
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
@@ -23,10 +23,13 @@
         <module>iboot-plugin</module>
     </modules>
     <properties>
+        <reversion>2.0.0</reversion>
         <p6spy.version>3.8.6</p6spy.version>
         <kaptcha.version>2.3.2</kaptcha.version>
         <servlet.version>3.1.0</servlet.version>
 
+        <iot.version>2.6.0</iot.version>
+        <sms4j.version>2.2.0</sms4j.version>
         <shiro.version>1.7.1</shiro.version>
         <hutool.version>5.7.18</hutool.version>
         <okhttp3.version>4.5.0</okhttp3.version>
@@ -115,6 +118,37 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.iteaj</groupId>
+                <artifactId>iot-boot-starter</artifactId>
+                <version>${iot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <version>${iot.version}</version>
+                <artifactId>iot-server</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <version>${iot.version}</version>
+                <artifactId>iot-modbus</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <artifactId>iot-mqtt</artifactId>
+                <version>${iot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <artifactId>iot-plc</artifactId>
+                <version>${iot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <version>${iot.version}</version>
+                <artifactId>iot-serial</artifactId>
+            </dependency>
+
+            <dependency>
                 <groupId>com.baomidou</groupId>
                 <version>${mybatis.plus.version}</version>
                 <artifactId>mybatis-plus-generator</artifactId>
@@ -149,6 +183,27 @@
                 <artifactId>sa-token-redis-jackson</artifactId>
             </dependency>
 
+            <dependency>
+                <version>${sms4j.version}</version>
+                <groupId>org.dromara.sms4j</groupId>
+                <artifactId>sms4j-spring-boot-starter</artifactId>
+            </dependency>
+
+            <dependency>
+                <version>${sms4j.version}</version>
+                <groupId>org.dromara.sms4j</groupId>
+                <artifactId>sms4j-Email-core</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>cn.hutool</groupId>
+                        <artifactId>hutool-http</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>cn.hutool</groupId>
+                        <artifactId>hutool-cron</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
             <dependency>
                 <artifactId>okhttp</artifactId>
@@ -194,6 +249,31 @@
                         <compilerArg>-parameters</compilerArg>
                     </compilerArgs>
                 </configuration>
+            </plugin>
+            <plugin>
+                <version>1.2.7</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

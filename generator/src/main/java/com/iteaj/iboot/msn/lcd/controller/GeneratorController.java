@@ -195,7 +195,7 @@ public class GeneratorController extends BaseController implements InitializingB
             final String comment = LowCodeUtil.getModuleName(tableInfo.getComment());
             String url = "/"+properties.getLpc().getModuleName()+"/" + tableInfo.getEntityPath();
             String perm = properties.getLpc().getModuleName()+":"+tableInfo.getEntityPath();
-            String insertSql= String.format("insert into sys_menu (pid, name, url, perms, type, log, sort) value (%s, '%s', '%s', '%s', 'V', 0, 158);"
+            String insertSql= String.format("insert into sys_menu (pid, name, url, perms, type, sort) value (%s, '%s', '%s', '%s', 'V', 158);"
                     , dto.getMenuId(), comment, url, perm+":"+"view");
             statement.executeUpdate(insertSql);
 
@@ -204,15 +204,15 @@ public class GeneratorController extends BaseController implements InitializingB
             resultSet.next();
             final long pid = resultSet.getLong(1);
 
-            StringBuilder batchSql = new StringBuilder("insert into sys_menu (pid, name, url, perms, type, log_desc, sort) values ");
+            StringBuilder batchSql = new StringBuilder("insert into sys_menu (pid, name, url, perms, type, sort) values ");
             // 查询列表
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '查询%s', 5),", pid, "查询", url+"/view", perm+":view", comment));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 5),", pid, "查询", url+"/view", perm+":view", comment));
             // 新增
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '新增%s', 10),", pid, "新增", url+"/add", perm+":add", comment));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 10),", pid, "新增", url+"/add", perm+":add", comment));
             // 修改
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '修改%s记录', 15),", pid, "修改", url+"/edit", perm+":edit", comment));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 15),", pid, "修改", url+"/edit", perm+":edit", comment));
             // 删除
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '删除%s记录', 20);", pid, "删除", url+"/del", perm+":del", comment));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', 20);", pid, "删除", url+"/del", perm+":del", comment));
             statement.executeUpdate(batchSql.toString());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -228,7 +228,6 @@ public class GeneratorController extends BaseController implements InitializingB
         initTableQuerySql(null, null, dto.getTables());
         ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc());
-        int i = 3/0;
         response.setContentType("application/octet-stream");
 
         // 生成文件

@@ -2,7 +2,10 @@ package com.iteaj.iboot.msn.iot.debug.websocket;
 
 import com.alibaba.fastjson.JSON;
 import com.iteaj.framework.result.HttpResult;
-import com.iteaj.iboot.msn.iot.debug.*;
+import com.iteaj.iboot.msn.iot.debug.DebugHandle;
+import com.iteaj.iboot.msn.iot.debug.DebugHandleFactory;
+import com.iteaj.iboot.msn.iot.debug.DebugRequestModel;
+import com.iteaj.iboot.msn.iot.debug.DebugWebsocketWrite;
 import com.iteaj.iot.CoreConst;
 import com.iteaj.iot.Message;
 import com.iteaj.iot.codec.filter.RegisterParams;
@@ -13,7 +16,6 @@ import com.iteaj.iot.websocket.HttpRequestWrapper;
 import com.iteaj.iot.websocket.WebSocketFilter;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.apache.shiro.session.mgt.SessionManager;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.Optional;

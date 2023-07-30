@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.TreeEntity;
+import com.iteaj.framework.spi.admin.MenuResource;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.spi.admin.UrlResource;
 import com.iteaj.iboot.msn.core.enums.Status;
@@ -20,13 +21,17 @@ import java.util.Date;
 @Data
 @TableName("sys_menu")
 @Accessors(chain = true)
-public class Menu extends TreeEntity implements UrlResource {
+public class Menu extends TreeEntity implements MenuResource {
 
     /**菜单地址*/
     private String url;
     /**菜单名称*/
     @TableField(condition = SqlCondition.LIKE)
     private String name;
+    /**
+     * 所属模块
+     */
+    private String msn;
     /**排序*/
     private Integer sort;
     /**图标*/

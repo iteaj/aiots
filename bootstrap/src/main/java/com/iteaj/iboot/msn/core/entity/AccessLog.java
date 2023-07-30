@@ -73,8 +73,4 @@ public class AccessLog extends BaseEntity {
      */
     private Date createTime;
 
-    public AccessLog() {
-        this.createTime = new Date();
-    }
-
 }

@@ -128,7 +128,7 @@ public class ShiroSecurityService implements SecurityService {
             if(agent != null) {
                 FrameworkProperties.Web web = properties.getWeb();
                 String tokenName = web.getAuth().getTokenName();
-                response.setHeader(tokenName);
+                response.setHeader(tokenName, "");
             }
         } catch (AuthenticationException e) {
             throw new SecurityException(e.getMessage(), e);
