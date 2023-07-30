@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.generator.config.TemplateConfig;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.querys.MySqlQuery;
+import com.iteaj.framework.spi.admin.*;
 import com.iteaj.iboot.msn.lcd.LowCodeProperties;
 import com.iteaj.iboot.msn.lcd.VelocityReviewTemplateEngine;
 import com.iteaj.iboot.msn.lcd.dto.GenConfigDto;
@@ -19,10 +20,6 @@ import com.iteaj.iboot.msn.lcd.utils.LowCodeUtil;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.spi.admin.MenuResource;
-import com.iteaj.framework.spi.admin.MenuType;
-import com.iteaj.framework.spi.admin.ResourceManager;
-import com.iteaj.framework.spi.admin.UrlResource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
@@ -31,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -51,14 +47,16 @@ import java.util.stream.Collectors;
 public class GeneratorController extends BaseController implements InitializingBean {
 
     private String database;
+    private final List<Module> modules;
     private final LowCodeProperties properties;
     private final ResourceManager resourceManager;
     private final FrameworkProperties frameworkProperties;
     private Pattern pattern = Pattern.compile("jdbc:.*((//)|@)(?<host>.+):(?<port>\\d+)/(?<db>.*)\\?.*");
 
-    public GeneratorController(LowCodeProperties properties
+    public GeneratorController(List<Module> modules, LowCodeProperties properties
             , ResourceManager resourceManager
             , FrameworkProperties frameworkProperties) {
+        this.modules = modules;
         this.properties = properties;
         this.resourceManager = resourceManager;
         this.frameworkProperties = frameworkProperties;
@@ -116,6 +114,15 @@ public class GeneratorController extends BaseController implements InitializingB
                 , properties.getProjectRootPath())
                 .setModuleName(properties.getLpc().getModuleName())
                 .setParentPackage(properties.getLpc().getParent()));
+    }
+
+    /**
+     * 获取当前系统已经注册的模块
+     * @return
+     */
+    @GetMapping("msn")
+    public Result<List<Module>> getModules() {
+        return success(this.modules);
     }
 
     /**

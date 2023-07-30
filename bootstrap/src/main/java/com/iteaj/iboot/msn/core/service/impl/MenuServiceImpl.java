@@ -10,6 +10,7 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.security.AuthorizationService;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.admin.MenuType;
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.iboot.msn.core.entity.Menu;
 import com.iteaj.iboot.msn.core.mapper.IMenuDao;
@@ -24,6 +25,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService, AuthorizationService {
+
+    private final List<Module> modules;
+
+    public MenuServiceImpl(List<Module> modules) {
+        this.modules = modules;
+    }
 
     @Override
     public BooleanResult save(Menu entity) {
@@ -61,10 +68,15 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
     @Override
     public ListResult<Menu> selectMenuBarTrees(Long aid, boolean isSuper) {
         // 只查询已经注册过的模块的菜单列表
+        List<String> msn = modules.stream()
+                .map(item -> item.getMsn())
+                .collect(Collectors.toList());
         List<Menu> allMenus = this.getBaseMapper()
-                .selectList(Wrappers.<Menu>query()
-                        .ne("status", PermStatus.disabled)
-                        .orderByAsc("sort"));
+                .selectList(Wrappers.<Menu>lambdaQuery()
+                        .ne(Menu::getStatus, PermStatus.disabled)
+                        .in(Menu::getMsn, msn)
+                        .orderByAsc(Menu::getSort));
+
         if(CollectionUtils.isEmpty(allMenus)) {
             return new ListResult<>(Collections.emptyList());
         }
