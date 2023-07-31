@@ -41,7 +41,7 @@ public class PageResult<T extends IPage> extends OptionalResult<T, PageResult<T>
 
     @Override
     public PageResult<T> ifPresent(BiConsumer<T, PageResult<T>> consumer) {
-        if(this.getData().getRecords() != null) {
+        if(this.getData() != null && this.getData().getRecords() != null) {
             consumer.accept(this.getData(), this);
         }
 

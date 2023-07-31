@@ -2,6 +2,7 @@ package com.iteaj.framework.result;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -25,6 +26,14 @@ public abstract class OptionalResult<E, _this extends AbstractResult<E>> extends
 
     public Optional<E> of() {
         return Optional.of(getData());
+    }
+
+    public _this ifPresent(Consumer<E> consumer) {
+        if(this.getData() != null) {
+            consumer.accept(this.getData());
+        }
+
+        return (_this) this;
     }
 
     public _this ifPresent(BiConsumer<E, _this> consumer) {
