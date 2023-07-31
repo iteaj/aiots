@@ -18,6 +18,10 @@ import java.util.Date;
 @TableName("sys_org")
 @Accessors(chain = true)
 public class Org extends TreeEntity {
+    /**
+     * 当前树节点的父节点
+     */
+    private Long pid;
 
     /**
      * 部门名称

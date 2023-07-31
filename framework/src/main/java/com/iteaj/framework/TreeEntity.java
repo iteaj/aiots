@@ -15,10 +15,7 @@ import java.util.TreeSet;
  */
 @Data
 @Accessors(chain = true)
-public class TreeEntity extends BaseEntity {
-
-    /**当前树节点的父节点*/
-    private Long pid;
+public abstract class TreeEntity extends BaseEntity {
 
     /**
      * 此节点的子节点
@@ -26,13 +23,7 @@ public class TreeEntity extends BaseEntity {
     @TableField(exist = false)
     private Collection children;
 
-    public Long getPid() {
-        return pid;
-    }
-
-    public void setPid(Long pid) {
-        this.pid = pid;
-    }
+    public abstract Long getPid();
 
     public TreeEntity addChild(TreeEntity entity) {
         if(CollectionUtils.isEmpty(this.children)) {

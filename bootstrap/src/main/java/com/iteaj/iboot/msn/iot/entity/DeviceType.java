@@ -23,6 +23,10 @@ import java.util.Date;
 public class DeviceType extends TreeEntity {
 
     private static final long serialVersionUID = 1L;
+    /**
+     * 父节点
+     */
+    private Long pid;
 
     /**
      * 路径

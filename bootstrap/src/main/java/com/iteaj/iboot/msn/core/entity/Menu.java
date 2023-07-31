@@ -23,6 +23,8 @@ import java.util.Date;
 @Accessors(chain = true)
 public class Menu extends TreeEntity implements MenuResource {
 
+    /**当前树节点的父节点*/
+    private Long pid;
     /**菜单地址*/
     private String url;
     /**菜单名称*/
