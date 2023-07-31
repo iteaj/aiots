@@ -42,6 +42,16 @@ public class AccessLog extends BaseEntity {
     private Long userId;
 
     /**
+     * 请求参数
+     */
+    private String params;
+
+    /**
+     * 请求方法
+     */
+    private String method;
+
+    /**
      * 使用时间
      */
     @TableField(condition = "%s >= #{%s}")

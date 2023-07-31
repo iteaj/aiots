@@ -34,6 +34,16 @@ public class AccessLogger {
     private long startTime;
 
     /**
+     * 请求参数
+     */
+    private String params;
+
+    /**
+     * 请求方法
+     */
+    private String method;
+
+    /**
      * 执行时间(毫秒)
      */
     private long millis;

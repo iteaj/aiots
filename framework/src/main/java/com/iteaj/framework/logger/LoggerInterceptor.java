@@ -20,8 +20,12 @@ public class LoggerInterceptor implements HandlerInterceptor {
         if(handler instanceof HandlerMethod) {
             Logger logger = ((HandlerMethod) handler).getMethod().getAnnotation(Logger.class);
             if(logger != null) {
+                String methodName = ((HandlerMethod) handler).getMethod().getName();
+                String beanName = ((HandlerMethod) handler).getMethod().getDeclaringClass().getSimpleName();
                 AccessLogger accessLogger = new AccessLogger(request.getRequestURI(), logger.type(), logger.value())
                         .setIp(WebUtils.getIpAddress(request))
+                        .setParams(request.getQueryString())
+                        .setMethod(beanName + "." + methodName)
                         .setStartTime(System.currentTimeMillis());
 
                 request.setAttribute(ACCESS_LOGGER, accessLogger);
