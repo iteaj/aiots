@@ -16,8 +16,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="remark" column="remark" />
         <result property="orgId"    column="org_id"  />
         <result property="account"    column="account"  />
-        <result property="loginIp"    column="login_ip"  />
-        <result property="loginDate"    column="login_date"  />
         <result property="createTime"    column="create_time"  />
         <result property="updateTime"    column="update_time"  />
     </resultMap>
@@ -27,8 +25,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </collection>
     </resultMap>
     <insert id="createAdmin">
-        insert into sys_admin (name, org_id, account, email, phone, sex, avatar, password, status, login_ip,login_date, remark, create_time) value
-        (#{name},#{orgId},#{account},#{email},#{phone},#{sex},#{avatar},#{password},#{status},#{loginIp},#{loginDate},#{remark}, now());
+        insert into sys_admin (name, org_id, account, email, phone, sex, avatar, password, status, remark, create_time) value
+        (#{name},#{orgId},#{account},#{email},#{phone},#{sex},#{avatar},#{password},#{status}, #{remark}, now());
         set @lastId=LAST_INSERT_ID();
         <if test="roleIds != null">
             insert into sys_admin_role (aid, rid) values
