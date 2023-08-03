@@ -1,14 +1,13 @@
 package com.iteaj.iboot.plugin.oauth2.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.Entity;
 import lombok.Data;
 
 @Data
 @TableName("oauth2_app")
-public class Oauth2App implements Entity<Long> {
-
-    private Long id;
+public class Oauth2App extends BaseEntity {
 
     /**
      * 应用id
@@ -70,5 +69,8 @@ public class Oauth2App implements Entity<Long> {
      */
     private Long pastTokenTimeout;
 
+    /**
+     * 创建时间
+     */
     private String createTime;
 }

@@ -14,7 +14,7 @@ public class Oauth2UserServiceImpl extends BaseServiceImpl<Oauth2UserMapper, Oau
     @Override
     public DetailResult<Oauth2User> getByClientIdAndLoginId(String clientId, Object loginId) {
         return getOne(Wrappers.<Oauth2User>lambdaQuery()
-                .eq(Oauth2User::getAppid, clientId)
+                .eq(Oauth2User::getClientId, clientId)
                 .eq(Oauth2User::getLoginId, loginId));
     }
 }

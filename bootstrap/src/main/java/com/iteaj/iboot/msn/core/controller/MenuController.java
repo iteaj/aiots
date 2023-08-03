@@ -2,6 +2,7 @@ package com.iteaj.iboot.msn.core.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.admin.Module;
@@ -10,6 +11,7 @@ import com.iteaj.iboot.msn.core.service.IMenuService;
 import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,12 +48,24 @@ public class MenuController extends BaseController {
      */
     @GetMapping("/bars")
     public Result<List<Menu>> bars() {
-        Long loginId = SecurityUtil.getLoginId().map(item -> (Long) item).orElse(null);
-        return menuService.selectMenuBarTrees(loginId, SecurityUtil.isSuper());
+        return SecurityUtil.getLoginId()
+                .map(item -> menuService.selectMenuBarTrees(item, SecurityUtil.isSuper()))
+                .orElse(new ListResult(Collections.EMPTY_LIST));
     }
 
     /**
-     * 获取类型是目录和视图的菜单列表
+     * 获取权限列表
+     * @return
+     */
+    @GetMapping("/permissions")
+    public Result<List<String>> permissions() {
+        return SecurityUtil.getLoginId()
+                .map(item -> success(menuService.selectPermissions(item)))
+                .orElse(fail("获取失败"));
+    }
+
+    /**
+     * 获取除权限外的菜单
      * @return
      */
     @GetMapping("/parent")

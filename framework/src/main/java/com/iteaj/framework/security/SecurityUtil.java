@@ -176,8 +176,10 @@ public class SecurityUtil {
      * 获取当前登入用户的id
      * @return 用户id
      */
-    public static Optional<Serializable> getLoginId() {
-        return securityService.getLoginId();
+    public static Optional<Long> getLoginId() {
+        return securityService
+                .getLoginId()
+                .map(item -> (Long) item);
     }
 
     /**
