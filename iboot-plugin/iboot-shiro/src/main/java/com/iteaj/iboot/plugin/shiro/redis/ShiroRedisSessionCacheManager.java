@@ -2,7 +2,7 @@ package com.iteaj.iboot.plugin.shiro.redis;
 
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
-import com.iteaj.iboot.plugin.shiro.ShiroUtil;
+import com.iteaj.framework.security.SecurityUtil;
 import lombok.SneakyThrows;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
@@ -64,23 +64,24 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
         @Override
         public Session get(String s) throws CacheException {
             // 首先先从线程上下文获取session, 将session和线程绑定
-            Session session = ShiroUtil.getRequestAttr(s);
-            if(session != null) {
-                return session;
+            Object session = SecurityUtil.getRequestAttr(s).orElse(null);
+            if(session instanceof Session) {
+                return (Session) session;
             }
 
-            session = (Session) valueOperations.get(CoreConst.SESSION_KEY_PREFIX +s);
-            if(session != null) {
-                ShiroUtil.setRequestAttr(s, session);
+            session = valueOperations.get(CoreConst.SESSION_KEY_PREFIX +s);
+            if(session instanceof Session) {
+                SecurityUtil.setRequestAttr(s, session);
+                return (Session) session;
             }
 
-            return session;
+            return null;
         }
 
         @Override
         public Session put(String s, Session session) throws CacheException {
             valueOperations.set(CoreConst.SESSION_KEY_PREFIX+s, session, session.getTimeout(), TimeUnit.MILLISECONDS);
-            ShiroUtil.setRequestAttr(s, session);
+            SecurityUtil.setRequestAttr(s, session);
             return session;
         }
 

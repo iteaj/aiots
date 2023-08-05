@@ -11,9 +11,11 @@ import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -122,13 +124,17 @@ public class ShiroSecurityService implements SecurityService {
         BeanUtil.copyProperties(token, securityToken);
 
         try {
-            SecurityUtils.getSubject().login(securityToken);
+            Subject subject = SecurityUtils.getSubject();
+            subject.login(securityToken);
 
-            UserAgent agent = (UserAgent)request.getAttribute(CoreConst.WEB_USER_AGENT);
-            if(agent != null) {
-                FrameworkProperties.Web web = properties.getWeb();
-                String tokenName = web.getAuth().getTokenName();
-                response.setHeader(tokenName, "");
+            FrameworkProperties.Web web = properties.getWeb();
+            FrameworkProperties.Session session = web.getSession();
+
+            // 将token写入到header
+            if(session.isWriteHeader()) {
+                String tokenName = session.getTokenName();
+                Serializable sessionId = subject.getSession().getId();
+                response.setHeader(tokenName, (String) sessionId);
             }
         } catch (AuthenticationException e) {
             throw new SecurityException(e.getMessage(), e);

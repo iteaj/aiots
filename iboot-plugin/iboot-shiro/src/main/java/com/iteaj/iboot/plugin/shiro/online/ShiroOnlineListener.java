@@ -1,7 +1,7 @@
 package com.iteaj.iboot.plugin.shiro.online;
 
 import com.iteaj.framework.Entity;
-import com.iteaj.iboot.plugin.shiro.ShiroUtil;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.admin.event.OnlinePayload;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.framework.spi.event.EventUtils;
@@ -61,9 +61,9 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
     @Override
     public void onSuccess(AuthenticationToken authenticationToken, AuthenticationInfo authenticationInfo) {
         try {
-            final UserAgent agent = ShiroUtil.getAgent();
-            final String ipAddress = WebUtils.getIpAddress(ShiroUtil.getRequest());
-            final HttpSession session = ShiroUtil.getRequest().getSession();
+            final UserAgent agent = SecurityUtil.getAgent();
+            final String ipAddress = WebUtils.getIpAddress(SecurityUtil.getRequest());
+            final HttpSession session = SecurityUtil.getRequest().getSession();
 
             final OnlinePayload onlinePayload = new OnlinePayload(OnlineStatus.Online, session.getId())
                     .setUserAgent(agent).setAccessIp(ipAddress)

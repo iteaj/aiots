@@ -60,9 +60,9 @@ public class ShiroAdminRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        ShiroSecurityToken shiroAdminToken = (ShiroSecurityToken) token;
+        ShiroSecurityToken shiroToken = (ShiroSecurityToken) token;
 
-        String code = shiroAdminToken.getCode();
+        String code = shiroToken.getCode();
         if(StrUtil.isBlank(code)) {
             throw new SecurityException("验证码已失效");
         }
@@ -77,13 +77,13 @@ public class ShiroAdminRealm extends AuthorizingRealm {
          * 获取校验码
          * @see com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration#captcha(HttpSession, HttpServletResponse) 获取校验码接口
          */
-        String captcha = shiroAdminToken.getCaptcha();
+        String captcha = shiroToken.getCaptcha();
         if(!Objects.equals(serviceCaptcha.getCaptcha(), captcha)) {
             throw new SecurityException("验证码校验失败");
         }
 
-        String userName = shiroAdminToken.getAccount();
-        String password = shiroAdminToken.getPassword();
+        String userName = shiroToken.getAccount();
+        String password = shiroToken.getPassword();
         AuthenticationUser admin = authenticationService.getByAccount(userName);
         if(admin == null) {
             throw new SecurityException("账户不存在");

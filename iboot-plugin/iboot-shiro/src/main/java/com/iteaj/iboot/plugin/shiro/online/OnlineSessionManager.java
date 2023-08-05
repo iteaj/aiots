@@ -25,8 +25,9 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
 
     public OnlineSessionManager(FrameworkProperties frameworkProperties) {
         this.properties = frameworkProperties;
-        String tokenName = this.properties.getWeb().getAuth().getTokenName();
-        this.setSessionIdCookie(new SimpleCookie(tokenName));
+        String tokenName = this.properties.getWeb().getSession().getTokenName();
+        // 修改cookie的名称
+        this.getSessionIdCookie().setName(tokenName);
     }
 
     /**
@@ -44,22 +45,15 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
 
         // 尝试从header获取access_token作为sessionId
-        Browser browser = userAgent.getBrowser();
-        if(browser != null && browser.getBrowserType() == BrowserType.APP) {
-            FrameworkProperties.Web web = properties.getWeb();
-            String tokenName = web.getAuth().getTokenName();
-            // 从请求头里面获取token, 作为sessionId
-            return servletRequest.getHeader(tokenName);
+        FrameworkProperties.Web web = properties.getWeb();
+        String tokenName = web.getSession().getTokenName();
+        String token = servletRequest.getHeader(tokenName);
+        if(token != null) {
+            return token;
         }
 
         // 从cookie中获取
         return super.getSessionId(request, response);
     }
 
-
-
-    @Override
-    public boolean isServletContainerSessions() {
-        return false;
-    }
 }

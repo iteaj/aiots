@@ -48,8 +48,6 @@ public class FrameworkProperties {
          */
         private boolean logger;
 
-        private Auth auth = new Auth();
-
         /**
          * session配置
          */
@@ -57,40 +55,27 @@ public class FrameworkProperties {
     }
 
     @Data
-    public static class Auth {
-        /**
-         * 系统统一注销地址
-         */
-        private String logoutUri = "/auth/logout";
+    public static class Session {
 
         /**
-         * 原生app请求头的token名称
-         */
-        private String tokenName = "access_token";
-
-        /**
-         * 浏览器, 小程序等超时时间(秒) 默认30分钟
+         * token过期时间(秒)
          */
         private long timeout = 30 * 60;
 
         /**
-         * 原生app超时时间(秒) 默认30天
+         * token是否写到header(默认false)
          */
-        private long appTimeout = 30 * 24 * 60 * 60;
-    }
-
-    @Data
-    public static class Session {
-
-        /**
-         * 过期时间(秒)
-         */
-        private long expire = 30 * 60;
+        private boolean writeHeader = false;
 
         /**
          * 缓存名称
          */
         private String name = "IBoot:Session";
+
+        /**
+         * token名称
+         */
+        private String tokenName = "access_token";
     }
 
     @Data

@@ -137,7 +137,7 @@ public class ShiroAutoConfiguration implements WebMvcConfigurer {
 
         // 设定全局缓存时间
         FrameworkProperties.Session session = properties.getWeb().getSession();
-        long expireTime = TimeUnit.SECONDS.toMillis(session.getExpire());
+        long expireTime = TimeUnit.SECONDS.toMillis(session.getTimeout());
         sessionManager.setGlobalSessionTimeout(expireTime);
 
         sessionManager.setSessionDAO(sessionDAO);
