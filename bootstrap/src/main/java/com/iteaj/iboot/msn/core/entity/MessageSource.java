@@ -8,9 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * <p>
  * 消息源
- * </p>
  *
  * @author iteaj
  * @since 2023-07-30
@@ -33,11 +31,35 @@ public class MessageSource extends BaseEntity {
      */
     private String name;
 
+    /**
+     * 通道类型
+     */
+    private String channel;
+
     private String signature;
 
     private String accessKeyId;
 
     private String accessKeySecret;
+    /**
+     * 发件人邮件地址
+     */
+    private String fromAddress;
+
+    /**
+     * smtp服务器地址
+     */
+    private String smtpServer;
+
+    /**
+     * 账号
+     */
+    private String username;
+
+    /**
+     * 密码
+     */
+    private String password;
 
     /**
      * 创建时间
