@@ -7,7 +7,6 @@ import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.security.SecurityInterceptor;
 import com.iteaj.framework.security.SecurityService;
 import com.iteaj.iboot.plugin.shiro.online.OnlineSessionDAO;
-import com.iteaj.iboot.plugin.shiro.online.OnlineSessionManager;
 import com.iteaj.iboot.plugin.shiro.online.ShiroOnlineListener;
 import com.iteaj.iboot.plugin.shiro.redis.ShiroRedisSessionCacheManager;
 import org.apache.shiro.authc.AbstractAuthenticator;

@@ -1,4 +1,4 @@
-package com.iteaj.iboot.plugin.shiro.online;
+package com.iteaj.iboot.plugin.shiro;
 
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
@@ -26,9 +26,10 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
 
     public OnlineSessionManager(FrameworkProperties frameworkProperties) {
         this.properties = frameworkProperties;
-        String tokenName = this.properties.getWeb().getSession().getTokenName();
+        FrameworkProperties.Session session = properties.getWeb().getSession();
+
         // 修改cookie的名称
-        this.getSessionIdCookie().setName(tokenName);
+        this.getSessionIdCookie().setName(session.getTokenName());
     }
 
     /**
