@@ -7,6 +7,7 @@ import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -46,10 +47,12 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
 
         // 尝试从header获取access_token作为sessionId
         FrameworkProperties.Web web = properties.getWeb();
-        String tokenName = web.getSession().getTokenName();
-        String token = servletRequest.getHeader(tokenName);
-        if(token != null) {
-            return token;
+        if(web.getSession().isWriteHeader()) {
+            String tokenName = web.getSession().getTokenName();
+            String token = servletRequest.getHeader(tokenName);
+            if(StringUtils.hasText(token)) {
+                return token;
+            }
         }
 
         // 从cookie中获取
