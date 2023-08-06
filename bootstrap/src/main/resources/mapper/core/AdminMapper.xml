@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.iboot.msn.core.mapper.IAdminDao">
+<mapper namespace="com.iteaj.iboot.module.core.mapper.IAdminDao">
 
-    <resultMap type="com.iteaj.iboot.msn.core.entity.Admin" id="OriMap">
+    <resultMap type="com.iteaj.iboot.module.core.entity.Admin" id="OriMap">
         <id property="id"    column="id"  />
         <result property="sex" column="sex" />
 <!--        <result property="sort" column="sort" />-->
@@ -19,7 +19,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"  />
         <result property="updateTime"    column="update_time"  />
     </resultMap>
-    <resultMap id="JoinAdminRoleMap" type="com.iteaj.iboot.msn.core.dto.AdminDto" extends="OriMap">
+    <resultMap id="JoinAdminRoleMap" type="com.iteaj.iboot.module.core.dto.AdminDto" extends="OriMap">
         <collection property="roleIds" ofType="long">
             <result property="roleIds" column="rid" />
         </collection>
@@ -70,7 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             left join sys_admin_role ar on a.rid=ar.rid
         where ar.aid=#{id}
     </select>
-    <select id="getAdminCenter" resultType="com.iteaj.iboot.msn.core.dto.AdminDto">
+    <select id="getAdminCenter" resultType="com.iteaj.iboot.module.core.dto.AdminDto">
         select a.*, o.name deptName, group_concat(r.name) roleNames from sys_admin a
             left join sys_admin_role ar on a.id = ar.aid
             left join sys_role r on r.id=ar.rid

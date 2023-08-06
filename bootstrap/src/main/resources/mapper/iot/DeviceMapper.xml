@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.iboot.msn.iot.mapper.DeviceMapper">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.DeviceMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BasicMap" type="com.iteaj.iboot.msn.iot.entity.Device">
+    <resultMap id="BasicMap" type="com.iteaj.iboot.module.iot.entity.Device">
         <result column="id" property="id" />
         <result column="ip" property="ip" />
         <result column="uid" property="uid" />
@@ -22,7 +22,7 @@
         <result column="update_time" property="updateTime" />
         <result column="device_type_id" property="deviceTypeId" />
     </resultMap>
-    <resultMap id="DeviceDtoMap" type="com.iteaj.iboot.msn.iot.dto.DeviceDto" extends="BasicMap">
+    <resultMap id="DeviceDtoMap" type="com.iteaj.iboot.module.iot.dto.DeviceDto" extends="BasicMap">
         <result property="modelName" column="model_name" />
         <result property="deviceTypeName" column="device_type_name" />
     </resultMap>
@@ -49,14 +49,14 @@
         </where>
     </select>
 
-    <select id="countCurrentDevice" resultType="com.iteaj.iboot.msn.iot.dto.CurrentDeviceDto">
+    <select id="countCurrentDevice" resultType="com.iteaj.iboot.module.iot.dto.CurrentDeviceDto">
         select count(1) today, count(status='online' or null) online from iot_device
     </select>
 
     <select id="getByUid" resultMap="DeviceDtoMap">
         select * from iot_device where uid=#{uid}
     </select>
-    <select id="detailById" resultType="com.iteaj.iboot.msn.iot.dto.DeviceDto">
+    <select id="detailById" resultType="com.iteaj.iboot.module.iot.dto.DeviceDto">
         select a.*, idm.model model_name, idt.name device_type_name from iot_device a
              left join iot_device_type idt on a.device_type_id=idt.id
              left join iot_device_model idm on a.model=idm.id

@@ -1,9 +1,8 @@
 package com.iteaj.iboot.boot;
 
 import com.iteaj.iboot.common.IBootControllerAdvice;
-import com.iteaj.iboot.msn.core.CoreAutoConfiguration;
-import com.iteaj.iboot.msn.iot.IotAutoConfiguration;
-import com.iteaj.iboot.msn.lcd.LowCodeGenAutoConfiguration;
+import com.iteaj.iboot.module.core.CoreAutoConfiguration;
+import com.iteaj.iboot.module.iot.IotAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,7 +20,6 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @ImportAutoConfiguration(value = {
         IotAutoConfiguration.class, // 物联网模块
-        LowCodeGenAutoConfiguration.class, // 低代码代码生成器模块
 
         // 以下是IBoot的核心配置(必须启用)
         CoreAutoConfiguration.class, // 系统管理模块

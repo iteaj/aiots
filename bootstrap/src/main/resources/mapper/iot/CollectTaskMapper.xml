@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.iboot.msn.iot.mapper.CollectTaskMapper">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.CollectTaskMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.iteaj.iboot.msn.iot.entity.CollectTask">
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.CollectTask">
         <result column="id" property="id" />
         <result column="name" property="name" />
         <result column="cron" property="cron" />
@@ -13,10 +13,10 @@
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
     </resultMap>
-    <resultMap id="CollectTaskDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="BaseResultMap">
+    <resultMap id="CollectTaskDtoMap" type="com.iteaj.iboot.module.iot.dto.CollectTaskDto" extends="BaseResultMap">
 
     </resultMap>
-    <resultMap id="CollectDetailMap" type="com.iteaj.iboot.msn.iot.entity.CollectDetail">
+    <resultMap id="CollectDetailMap" type="com.iteaj.iboot.module.iot.entity.CollectDetail">
         <result property="id" column="did" />
         <result property="uid" column="uid" />
         <result property="extend" column="extend"/>
@@ -26,16 +26,16 @@
         <result property="collectAction" column="collect_action" />
         <result property="collectTaskId" column="collect_task_id" />
         <result property="pointGroupId" column="point_group_id" />
-        <association property="store" javaType="com.iteaj.iboot.msn.iot.entity.Device"
-                     select="com.iteaj.iboot.msn.iot.mapper.DeviceMapper.getByUid" column="uid=store_uid"/>
-        <association property="device" javaType="com.iteaj.iboot.msn.iot.entity.Device"
-                     select="com.iteaj.iboot.msn.iot.mapper.DeviceMapper.getByUid" column="uid=uid"/>
-        <collection property="signals" select="com.iteaj.iboot.msn.iot.mapper.SignalMapper.collectByPointGroupId"
-                    ofType="com.iteaj.iboot.msn.iot.entity.Signal" column="groupId=point_group_id" />
+        <association property="store" javaType="com.iteaj.iboot.module.iot.entity.Device"
+                     select="com.iteaj.iboot.module.iot.mapper.DeviceMapper.getByUid" column="uid=store_uid"/>
+        <association property="device" javaType="com.iteaj.iboot.module.iot.entity.Device"
+                     select="com.iteaj.iboot.module.iot.mapper.DeviceMapper.getByUid" column="uid=uid"/>
+        <collection property="signals" select="com.iteaj.iboot.module.iot.mapper.SignalMapper.collectByPointGroupId"
+                    ofType="com.iteaj.iboot.module.iot.entity.Signal" column="groupId=point_group_id" />
     </resultMap>
 
-    <resultMap id="collectDetailDtoMap" type="com.iteaj.iboot.msn.iot.dto.CollectTaskDto" extends="CollectTaskDtoMap">
-        <collection property="details" ofType="com.iteaj.iboot.msn.iot.entity.CollectDetail" resultMap="CollectDetailMap"/>
+    <resultMap id="collectDetailDtoMap" type="com.iteaj.iboot.module.iot.dto.CollectTaskDto" extends="CollectTaskDtoMap">
+        <collection property="details" ofType="com.iteaj.iboot.module.iot.entity.CollectDetail" resultMap="CollectDetailMap"/>
     </resultMap>
     <select id="detailOfPage" resultMap="BaseResultMap">
         select a.* from iot_collect_task a
@@ -60,7 +60,7 @@
         where a.id=#{id}
     </select>
 
-    <select id="collectDetailPageById" resultType="com.iteaj.iboot.msn.iot.entity.CollectDetail">
+    <select id="collectDetailPageById" resultType="com.iteaj.iboot.module.iot.entity.CollectDetail">
         select a.*, ct.name deviceName, pg.name collectTaskName, dc.name childName from iot_collect_detail a
             left join iot_collect_task ct on a.collect_task_id=ct.id
             left join iot_device_child dc on dc.uid=a.uid
