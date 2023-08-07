@@ -1,5 +1,6 @@
 package com.iteaj.framework.autoconfigure;
 
+import com.iteaj.framework.exception.FrameworkException;
 import com.iteaj.framework.logger.LoggerInterceptor;
 import com.iteaj.framework.security.SecurityService;
 import com.iteaj.framework.security.SecurityUtil;
@@ -50,23 +51,21 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String uploadRootUri = properties.getUploadPattern();
-        String uploadRootDir = properties.getUploadLocation();
+        FrameworkProperties.Upload upload = properties.getWeb().getUpload();
+        String uploadRootUri = upload.getPattern();
+        String uploadRootDir = upload.getLocation();
         if(uploadRootUri != null && uploadRootDir != null) {
-            if(uploadRootUri.endsWith("/")) {
-                uploadRootUri = uploadRootUri+"*";
-            } else {
-                uploadRootUri = uploadRootUri+"/*";
+            if(!uploadRootUri.endsWith("**")) {
+                throw new FrameworkException("配置项[framework.web.upload.pattern]必须以**结尾");
             }
+
             if(!uploadRootDir.endsWith("/")) {
                 uploadRootDir = uploadRootDir + "/";
             }
 
             registry.addResourceHandler(uploadRootUri)
-                    .addResourceLocations("file:"+uploadRootDir);
+                    .addResourceLocations(uploadRootDir);
         }
-
-        registry.addResourceHandler("/static/*").addResourceLocations("classpath:/static/");
     }
 
 }

@@ -28,18 +28,6 @@ public class FrameworkProperties {
      */
     private CaptchaConfig captcha = new CaptchaConfig();
 
-    /**
-     * 文件上传的跟目录
-     * @see #uploadPattern 此uri将映射到此目录
-     * 注：只有 uploadRootDir 和 uploadRootDir 都不为空才会生效
-     */
-    private String uploadLocation;
-    /**
-     * 上传的文件访问的路径前缀
-     * @see #uploadLocation 此访问路径将映射到此目录
-     */
-    private String uploadPattern;
-
     @Data
     public static class Web {
 
@@ -49,9 +37,31 @@ public class FrameworkProperties {
         private boolean logger;
 
         /**
+         * 文件上传配置
+         */
+        private Upload upload = new Upload();
+
+        /**
          * session配置
          */
         private Session session = new Session();
+    }
+
+    /**
+     * 文件上传配置
+     */
+    @Data
+    public static class Upload {
+
+        /**
+         * 文件访问pattern如 /file/**
+         */
+        private String pattern = "/file/**";
+
+        /**
+         * 文件存放路径以file: 或 classpath: 开头
+         */
+        private String location = "file:D:/upload/";
     }
 
     @Data

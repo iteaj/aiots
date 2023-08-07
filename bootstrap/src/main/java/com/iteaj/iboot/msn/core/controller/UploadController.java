@@ -172,8 +172,10 @@ public class UploadController extends BaseController implements InitializingBean
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        String uploadRootDir = properties.getUploadLocation();
+        FrameworkProperties.Upload upload = properties.getWeb().getUpload();
+        String uploadRootDir = upload.getLocation();
         if(!StrUtil.isBlank(uploadRootDir)) {
+            uploadRootDir = uploadRootDir.split(":")[1];
             if(uploadRootDir.endsWith("/")) {
                 uploadRootDir = uploadRootDir.substring(0, uploadRootDir.length()-1);
             }
@@ -188,7 +190,7 @@ public class UploadController extends BaseController implements InitializingBean
                 return;
             }
         }
-        String uploadRootUri = properties.getUploadPattern();
+        String uploadRootUri = upload.getPattern();
         if(!StrUtil.isBlank(uploadRootUri)) {
             if(uploadRootUri.contains("*")) {
                 uploadRootUri = uploadRootUri.replaceAll("\\*", "");
