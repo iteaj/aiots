@@ -30,7 +30,8 @@ public class ExcelDictHandle implements IExcelDictHandler {
     @Override
     public String toValue(String dict, Object obj, String name, Object value) {
         if(dict.equals("org_id")) {
-            return (String) excelService.toOrgValue((String) value);
+            Serializable orgValue = excelService.toOrgValue((String) value);
+            return orgValue == null ? null : orgValue.toString();
         }
         return (String) excelService.toDictValue(dict, (String) value);
     }
