@@ -67,7 +67,7 @@ public class ExcelServiceImpl implements IExcelService {
                     map.put(item.getType(), stringMap = new HashMap<>());
                 }
 
-                stringMap.put(item.getValue(), item.getLabel());
+                stringMap.put(item.getLabel(), item.getValue());
             });
 
             attributes.setAttribute(DICT_CACHE_TO_VALUE, map, RequestAttributes.SCOPE_REQUEST);
