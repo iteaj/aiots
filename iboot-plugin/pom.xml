@@ -14,10 +14,17 @@
     <artifactId>iboot-plugin</artifactId>
 
     <modules>
+        <!--代码生成器插件-->
+        <module>iboot-code</module>
+        <!--shiro权限校验插件-->
         <module>iboot-shiro</module>
+        <!--knife4j api文档插件-->
         <module>iboot-knife4j</module>
+        <!--SaToken权限校验插件-->
         <module>iboot-SaToken</module>
+        <!--SaToken Oauth2插件-->
         <module>iboot-oauth2</module>
+        <!--quartz定时任务插件-->
         <module>iboot-quartz</module>
     </modules>
 

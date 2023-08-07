@@ -14,12 +14,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
-        <!-- 代码生成器 -->
-        <module>generator</module>
         <!--系统架构层-->
         <module>framework</module>
         <!--项目启动SpringBoot入口-->
         <module>bootstrap</module>
+        <!--iboot插件模块-->
         <module>iboot-plugin</module>
     </modules>
     <properties>
