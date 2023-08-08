@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.core.controller;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
@@ -78,7 +79,7 @@ public class UploadController extends BaseController implements InitializingBean
 
             });
         } catch (Exception e) {
-            return fail("上传失败");
+            throw new ServiceException("上传文件失败", e);
         }
 
         return success(urls);
@@ -205,7 +206,7 @@ public class UploadController extends BaseController implements InitializingBean
 
             this.uploadRootUri = uploadRootUri;
         } else {
-            logger.error("未配置上传文件的访问pattern[framework.upload-pattern]");
+            logger.error("未配置上传文件的访问pattern[framework.web.upload.pattern]");
         }
     }
 

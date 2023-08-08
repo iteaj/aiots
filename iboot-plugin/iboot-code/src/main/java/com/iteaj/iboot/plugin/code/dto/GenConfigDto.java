@@ -8,6 +8,11 @@ import java.util.List;
 public class GenConfigDto {
 
     /**
+     * 所属模块
+     */
+    private String msn;
+
+    /**
      * 父菜单的id
      */
     private Long menuId;

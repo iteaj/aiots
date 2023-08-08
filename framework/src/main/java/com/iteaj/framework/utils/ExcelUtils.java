@@ -4,10 +4,12 @@ import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import com.iteaj.framework.exception.ServiceException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,6 +32,29 @@ public final class ExcelUtils {
 
     public static void exportExcel(Collection<?> records, Class<?> entityClass, ExportParams params, OutputStream outputStream) throws IOException {
         Workbook sheets = ExcelExportUtil.exportExcel(params, entityClass, records);
+        sheets.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+    }
+
+    public static void exportExcel(Collection<?> records, List<ExcelExportEntity> entityList, ExportParams params, OutputStream outputStream) throws IOException {
+        Workbook sheets = ExcelExportUtil.exportExcel(params, entityList, records);
+        sheets.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+    }
+
+    public static void exportExcel(Collection<?> records, Class<?> entityClass, ExportParams params, HttpServletResponse response) throws IOException {
+        ServletOutputStream outputStream = response.getOutputStream();
+        Workbook sheets = ExcelExportUtil.exportExcel(params, entityClass, records);
+        sheets.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+    }
+
+    public static void exportExcel(Collection<?> records, List<ExcelExportEntity> entityList, ExportParams params, HttpServletResponse response) throws IOException {
+        ServletOutputStream outputStream = response.getOutputStream();
+        Workbook sheets = ExcelExportUtil.exportExcel(params, entityList, records);
         sheets.write(outputStream);
         outputStream.flush();
         outputStream.close();
