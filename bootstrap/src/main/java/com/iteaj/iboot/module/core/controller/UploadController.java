@@ -175,7 +175,10 @@ public class UploadController extends BaseController implements InitializingBean
         FrameworkProperties.Upload upload = properties.getWeb().getUpload();
         String uploadRootDir = upload.getLocation();
         if(!StrUtil.isBlank(uploadRootDir)) {
-            uploadRootDir = uploadRootDir.split(":")[1];
+            uploadRootDir = uploadRootDir.contains("file:") ?
+                    uploadRootDir.split("file:")[1]
+                    : uploadRootDir.split("classpath:")[1];
+
             if(uploadRootDir.endsWith("/")) {
                 uploadRootDir = uploadRootDir.substring(0, uploadRootDir.length()-1);
             }
