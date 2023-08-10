@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.core;
 
 import cn.afterturn.easypoi.handler.inter.IExcelDictHandler;
+import com.iteaj.framework.FrameworkConfigurer;
 import com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration;
 import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
@@ -12,10 +13,8 @@ import com.iteaj.iboot.module.core.exception.AsyncExceptionHandler;
 import com.iteaj.iboot.module.core.listener.LoggerListener;
 import com.iteaj.iboot.module.core.service.AdminResourceManager;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -40,7 +39,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan({"com.iteaj.iboot.module.core"})
 @MapperScan({"com.iteaj.iboot.module.core.mapper"})
 @EnableConfigurationProperties(CoreProperties.class)
-public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer {
+public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer, FrameworkConfigurer {
 
     private final CoreProperties coreProperties;
 
@@ -67,23 +66,13 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
         return new LoggerListener();
     }
 
-    @Bean
-    public Module coreModule() {
-        return Module.build("sys", "系统模块", 0);
-    }
-
     /**
-     *  开启自动代理
+     * 注册系统模块
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean(DefaultAdvisorAutoProxyCreator.class)
-    public DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator() {
-        DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator =
-                new DefaultAdvisorAutoProxyCreator();
-
-        advisorAutoProxyCreator.setProxyTargetClass(true);
-        return advisorAutoProxyCreator;
+    public Module sysModule() {
+        return Module.module("sys", "系统模块", 0, "core");
     }
 
     /**

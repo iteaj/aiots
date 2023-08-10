@@ -30,7 +30,7 @@ public class QuartzAutoConfiguration {
 
     @Bean
     public Module quartzModule() {
-        return Module.build("quartz", "任务调度模块", 77777);
+        return Module.module("quartz", "任务调度模块", 77777);
     }
 
     @Bean("schedulerFactoryBean")

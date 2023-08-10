@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.config.GlobalConfig;
+import com.baomidou.mybatisplus.generator.config.PackageConfig;
 import com.baomidou.mybatisplus.generator.config.TemplateConfig;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
@@ -11,10 +12,7 @@ import com.baomidou.mybatisplus.generator.config.querys.MySqlQuery;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.iboot.plugin.code.LowCodeProperties;
 import com.iteaj.iboot.plugin.code.VelocityReviewTemplateEngine;
-import com.iteaj.iboot.plugin.code.dto.GenConfigDto;
-import com.iteaj.iboot.plugin.code.dto.GenDirDto;
-import com.iteaj.iboot.plugin.code.dto.GenInit;
-import com.iteaj.iboot.plugin.code.dto.ReviewDto;
+import com.iteaj.iboot.plugin.code.dto.*;
 import com.iteaj.iboot.plugin.code.vue.VelocityVueTemplateZipEngine;
 import com.iteaj.iboot.plugin.code.utils.LowCodeUtil;
 import com.iteaj.framework.BaseController;
@@ -24,10 +22,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -90,7 +91,7 @@ public class GeneratorController extends BaseController implements InitializingB
         GenInit genInit = new GenInit();
         genInit.setMsn(properties.getLpc().getModuleName());
         genInit.setParentPath(properties.getLpc().getParent());
-        genInit.setProjectPath(properties.getProjectRootPath());
+        genInit.setProjectPath(properties.getProjectPath());
         return success(genInit);
     }
 
@@ -111,18 +112,53 @@ public class GeneratorController extends BaseController implements InitializingB
     @GetMapping("getOutDir")
     public Result<GenDirDto> getOutDir() {
         return success(new GenDirDto(properties.getLgc().getOutputDir()
-                , properties.getProjectRootPath())
+                , properties.getProjectPath())
                 .setModuleName(properties.getLpc().getModuleName())
                 .setParentPackage(properties.getLpc().getParent()));
     }
 
     /**
-     * 获取当前系统已经注册的模块
+     * 获取当前系统模块路径
      * @return
      */
     @GetMapping("msn")
-    public Result<List<Module>> getModules() {
-        return success(this.modules);
+    public Result<List<ProjectPathDto>> getModules() {
+        String projectPath = properties.getProjectPath();
+        File file = new File(projectPath);
+        List<ProjectPathDto> modules = new ArrayList<>();
+        if(file.exists() && file.isDirectory()) {
+            Arrays.stream(file.listFiles()).forEach(pathname -> {
+                if(pathname.isDirectory()) {
+                    if(pathname.getName().equals("bootstrap")) {
+                        ProjectPathDto bootstrap = new ProjectPathDto(pathname.getName(), pathname.getPath(), false);
+                        File file1 = new File(pathname, "/src/main/java/com/iteaj/iboot/module");
+                        if(file1.isDirectory()) {
+                            File[] files = file1.listFiles();
+                            for (File module : files) {
+                                bootstrap.addChildren(module.getName(), pathname.getPath(), module.getName(), false);
+                            }
+                        }
+
+                        modules.add(bootstrap);
+                    } else if(pathname.getName().equals("iboot-plugin")) {
+                        ProjectPathDto plugins = new ProjectPathDto(pathname.getName(), pathname.getPath(), true);
+                        Arrays.stream(pathname.listFiles()).forEach(fileItem -> {
+                            if(fileItem.isDirectory()) {
+                                File file1 = new File(fileItem, "/src/main/java/com/iteaj/iboot/plugin");
+                                if(file1.isDirectory()) {
+                                    String module = file1.list()[0];
+                                    plugins.addChildren(fileItem.getName(), fileItem.getPath(), module, true);
+                                }
+                            }
+                        });
+
+                        modules.add(plugins);
+                    }
+                }
+            });
+        }
+
+        return success(modules);
     }
 
     /**
@@ -146,13 +182,18 @@ public class GeneratorController extends BaseController implements InitializingB
 
         initTableQuerySql(null, null, dto.getTables());
         GlobalConfig globalConfig = new GlobalConfig();
-        BeanUtils.copyProperties(properties.getLgc(), globalConfig);
 
+        BeanUtils.copyProperties(properties.getLgc(), globalConfig);
         // 设置输出目录
-        globalConfig.setOutputDir(dto.getOutDir());
+        globalConfig.setOutputDir(dto.getOutDir() + String.format("%ssrc%smain%sjava", File.separator, File.separator, File.separator));
+
+        PackageConfig packageConfig = new PackageConfig();
+        BeanUtils.copyProperties(properties.getLpc(), packageConfig);
+        packageConfig.setModuleName(dto.getPackageName()).setParent(dto.getParent());
+
         // 文件是否覆盖
         globalConfig.setFileOverride(dto.isFileOverride());
-        ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
+        ConfigBuilder configBuilder = new ConfigBuilder(packageConfig, properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), globalConfig);
 
         configBuilder.setInjectionConfig(new ExtraInjectionConfig().setConfig(configBuilder));
@@ -233,7 +274,12 @@ public class GeneratorController extends BaseController implements InitializingB
     @PostMapping("vue")
     public void download(@RequestBody GenConfigDto dto, HttpServletResponse response) throws IOException {
         initTableQuerySql(null, null, dto.getTables());
-        ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
+
+        PackageConfig packageConfig = new PackageConfig();
+        BeanUtils.copyProperties(properties.getLpc(), packageConfig);
+        packageConfig.setModuleName(dto.getPackageName());
+
+        ConfigBuilder configBuilder = new ConfigBuilder(packageConfig, properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc());
         response.setContentType("application/octet-stream");
 
@@ -245,17 +291,27 @@ public class GeneratorController extends BaseController implements InitializingB
 
     /**
      * 预览生成的源代码
-     * @param tableName
+     * @param dto
      * @return
      */
-    @GetMapping("review")
-    public Result<ReviewDto> review(String tableName) {
+    @PostMapping("review")
+    public Result<ReviewDto> review(@RequestBody GenConfigDto dto) {
+        String tableName = dto.getTables().get(0);
         if(StrUtil.isBlank(tableName)) {
             return fail("请指定要预览的表");
         }
 
+        String msn = dto.getMsn();
+        if(!StringUtils.hasText(msn)) {
+            msn = "-";
+        }
+
+        PackageConfig packageConfig = new PackageConfig();
+        BeanUtils.copyProperties(properties.getLpc(), packageConfig);
+        packageConfig.setModuleName(dto.getPackageName()).setParent(dto.getParent());
+
         initTableQuerySql(null, null, Arrays.asList(tableName));
-        ConfigBuilder configBuilder = new ConfigBuilder(properties.getLpc(), properties.getLdc()
+        ConfigBuilder configBuilder = new ConfigBuilder(packageConfig, properties.getLdc()
                 , properties.getLsc(), new TemplateConfig(), properties.getLgc());
 
         // 生成文件
@@ -263,7 +319,7 @@ public class GeneratorController extends BaseController implements InitializingB
         new AutoGenerator().setConfig(configBuilder).setTemplateEngine(engine).execute();
 
         final ReviewDto reviewDto = engine.getReviewDto();
-        reviewDto.setMenuSql(this.getMenuSql(configBuilder, ""));
+        reviewDto.setMenuSql(this.getMenuSql(configBuilder, msn));
         return success(reviewDto);
     }
 

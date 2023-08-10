@@ -40,7 +40,7 @@ public class LowCodeProperties {
     /**
      * 本地项目根路径
      */
-    private String projectRootPath;
+    private String projectPath;
 
     public static class LcdGlobalConfig extends GlobalConfig { }
     public static class LcdPackageConfig extends PackageConfig { }

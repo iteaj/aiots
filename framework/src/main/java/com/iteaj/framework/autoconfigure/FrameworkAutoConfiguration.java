@@ -1,5 +1,6 @@
 package com.iteaj.framework.autoconfigure;
 
+import com.iteaj.framework.ModuleRegistry;
 import com.iteaj.framework.spi.event.EventUtils;
 import com.iteaj.framework.spring.SpringUtils;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -31,4 +32,8 @@ public class FrameworkAutoConfiguration {
         return SpringUtils.getInstance();
     }
 
+    @Bean
+    public ModuleRegistry moduleRegistry() {
+        return new ModuleRegistry();
+    }
 }

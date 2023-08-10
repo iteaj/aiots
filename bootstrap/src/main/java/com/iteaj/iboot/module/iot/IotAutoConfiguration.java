@@ -39,7 +39,7 @@ public class IotAutoConfiguration {
      */
     @Bean
     public Module iotModule() {
-        return Module.build("iot", "物联网模块", 55555);
+        return Module.module("iot", "物联网模块", 55555);
     }
 
     /**

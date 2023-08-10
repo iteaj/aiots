@@ -9,10 +9,7 @@
     <name>iboot:bootstrap</name>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bootstrap</artifactId>
-    <properties>
-        <!--当前项目的根目录, 用于代码生成器-->
-        <project.root.path>${project.basedir}</project.root.path>
-    </properties>
+
     <dependencies>
         <!-- iot 物联网框架jar依赖 start -->
         <dependency>
@@ -147,27 +144,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-                <filtering>false</filtering>
-                <directory>src/main/resources</directory>
-            </resource>
-            <resource>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.yml</include>
-                    <include>**/*.yaml</include>
-                    <include>**/*.json</include>
-                    <include>/META-INF/*</include>
-                    <include>**/*.properties</include>
-                </includes>
-                <filtering>true</filtering>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

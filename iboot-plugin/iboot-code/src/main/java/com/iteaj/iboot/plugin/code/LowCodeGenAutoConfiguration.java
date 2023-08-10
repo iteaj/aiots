@@ -27,7 +27,7 @@ public class LowCodeGenAutoConfiguration implements InitializingBean, WebMvcConf
 
     @Bean
     public Module devModule() {
-        return Module.build("dev", "低代码模块", 99999);
+        return Module.module("dev", "低代码模块", 99999);
     }
 
     /**

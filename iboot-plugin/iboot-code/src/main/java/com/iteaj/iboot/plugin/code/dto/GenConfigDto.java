@@ -8,9 +8,19 @@ import java.util.List;
 public class GenConfigDto {
 
     /**
-     * 所属模块
+     * 菜单msn
      */
     private String msn;
+
+    /**
+     * 父包名
+     */
+    private String parent;
+
+    /**
+     * 模块包
+     */
+    private String packageName;
 
     /**
      * 父菜单的id
