@@ -1,7 +1,6 @@
 package com.iteaj.iboot.module.core;
 
 import cn.afterturn.easypoi.handler.inter.IExcelDictHandler;
-import com.iteaj.framework.FrameworkConfigurer;
 import com.iteaj.framework.autoconfigure.CaptchaAutoConfiguration;
 import com.iteaj.framework.autoconfigure.FrameworkWebConfiguration;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
@@ -39,7 +38,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan({"com.iteaj.iboot.module.core"})
 @MapperScan({"com.iteaj.iboot.module.core.mapper"})
 @EnableConfigurationProperties(CoreProperties.class)
-public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer, FrameworkConfigurer {
+public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer {
 
     private final CoreProperties coreProperties;
 
