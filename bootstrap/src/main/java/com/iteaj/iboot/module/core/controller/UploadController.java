@@ -206,7 +206,7 @@ public class UploadController extends BaseController implements InitializingBean
 
             this.uploadRootUri = uploadRootUri;
         } else {
-            logger.error("未配置上传文件的访问pattern[framework.web.upload.pattern]");
+            logger.warn("未配置上传文件的访问pattern[framework.web.upload.pattern]");
         }
     }
 

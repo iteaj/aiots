@@ -1,5 +1,8 @@
 package com.iteaj.iboot.module.core.entity;
 
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
@@ -36,11 +39,21 @@ public class MessageSource extends BaseEntity {
      */
     private String channel;
 
+    /**
+     * signature 签名
+     */
     private String signature;
 
+    /**
+     * accessKeyId
+     */
     private String accessKeyId;
 
+    /**
+     * accessKeySecret
+     */
     private String accessKeySecret;
+
     /**
      * 发件人邮件地址
      */
@@ -62,9 +75,14 @@ public class MessageSource extends BaseEntity {
     private String password;
 
     /**
+     * 额外配置
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
+
+    /**
      * 创建时间
      */
     private Date createTime;
-
 
 }

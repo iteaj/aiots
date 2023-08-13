@@ -388,11 +388,6 @@ public class GeneratorController extends BaseController implements InitializingB
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        final String moduleName = this.properties.getLpc().getModuleName();
-        if(StrUtil.isBlank(moduleName)) {
-            throw new BeanInitializationException("没有指定代码生成器要生成的模块[low.code.lpc.module-name]");
-        }
-
         // 数据源配置
         LowCodeProperties.LcdDataSourceConfig ldc = properties.getLdc();
         Matcher matcher = pattern.matcher(ldc.getUrl());

@@ -66,6 +66,8 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
             registry.addResourceHandler(uploadRootUri)
                     .addResourceLocations(uploadRootDir);
         }
+
+        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
     }
 
 }

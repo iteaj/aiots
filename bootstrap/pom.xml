@@ -38,17 +38,6 @@
         </dependency>
         <!-- iot end -->
 
-        <!-- 消息源sms4j(https://wind.kim/) -->
-        <dependency>
-            <groupId>org.dromara.sms4j</groupId>
-            <artifactId>sms4j-spring-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.dromara.sms4j</groupId>
-            <artifactId>sms4j-Email-core</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>cn.hutool</groupId>
             <version>${hutool.version}</version>
