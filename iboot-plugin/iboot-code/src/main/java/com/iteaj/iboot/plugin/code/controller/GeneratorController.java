@@ -21,6 +21,8 @@ import com.iteaj.framework.result.Result;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -49,15 +50,17 @@ public class GeneratorController extends BaseController implements InitializingB
 
     private String database;
     private final List<Module> modules;
+    private final Environment environment;
     private final LowCodeProperties properties;
     private final ResourceManager resourceManager;
     private final FrameworkProperties frameworkProperties;
     private Pattern pattern = Pattern.compile("jdbc:.*((//)|@)(?<host>.+):(?<port>\\d+)/(?<db>.*)\\?.*");
 
-    public GeneratorController(List<Module> modules, LowCodeProperties properties
-            , ResourceManager resourceManager
+    public GeneratorController(List<Module> modules, Environment environment
+            , LowCodeProperties properties, ResourceManager resourceManager
             , FrameworkProperties frameworkProperties) {
         this.modules = modules;
+        this.environment = environment;
         this.properties = properties;
         this.resourceManager = resourceManager;
         this.frameworkProperties = frameworkProperties;
@@ -126,36 +129,42 @@ public class GeneratorController extends BaseController implements InitializingB
         String projectPath = properties.getProjectPath();
         File file = new File(projectPath);
         List<ProjectPathDto> modules = new ArrayList<>();
-        if(file.exists() && file.isDirectory()) {
-            Arrays.stream(file.listFiles()).forEach(pathname -> {
-                if(pathname.isDirectory()) {
-                    if(pathname.getName().equals("bootstrap")) {
-                        ProjectPathDto bootstrap = new ProjectPathDto(pathname.getName(), pathname.getPath(), false);
-                        File file1 = new File(pathname, "/src/main/java/com/iteaj/iboot/module");
-                        if(file1.isDirectory()) {
-                            File[] files = file1.listFiles();
-                            for (File module : files) {
-                                bootstrap.addChildren(module.getName(), pathname.getPath(), module.getName(), false);
-                            }
-                        }
-
-                        modules.add(bootstrap);
-                    } else if(pathname.getName().equals("iboot-plugin")) {
-                        ProjectPathDto plugins = new ProjectPathDto(pathname.getName(), pathname.getPath(), true);
-                        Arrays.stream(pathname.listFiles()).forEach(fileItem -> {
-                            if(fileItem.isDirectory()) {
-                                File file1 = new File(fileItem, "/src/main/java/com/iteaj/iboot/plugin");
-                                if(file1.isDirectory()) {
-                                    String module = file1.list()[0];
-                                    plugins.addChildren(fileItem.getName(), fileItem.getPath(), module, true);
+        if(environment.acceptsProfiles(Profiles.of("dev"))) {
+            if(file.exists() && file.isDirectory()) {
+                Arrays.stream(file.listFiles()).forEach(pathname -> {
+                    if(pathname.isDirectory()) {
+                        if(pathname.getName().equals("bootstrap")) {
+                            ProjectPathDto bootstrap = new ProjectPathDto(pathname.getName(), pathname.getPath(), false);
+                            File file1 = new File(pathname, "/src/main/java/com/iteaj/iboot/module");
+                            if(file1.isDirectory()) {
+                                File[] files = file1.listFiles();
+                                for (File module : files) {
+                                    bootstrap.addChildren(module.getName(), pathname.getPath(), module.getName(), false);
                                 }
                             }
-                        });
 
-                        modules.add(plugins);
+                            modules.add(bootstrap);
+                        } else if(pathname.getName().equals("iboot-plugin")) {
+                            ProjectPathDto plugins = new ProjectPathDto(pathname.getName(), pathname.getPath(), true);
+                            Arrays.stream(pathname.listFiles()).forEach(fileItem -> {
+                                if(fileItem.isDirectory()) {
+                                    File file1 = new File(fileItem, "/src/main/java/com/iteaj/iboot/plugin");
+                                    if(file1.isDirectory()) {
+                                        String module = file1.list()[0];
+                                        plugins.addChildren(fileItem.getName(), fileItem.getPath(), module, true);
+                                    }
+                                }
+                            });
+
+                            modules.add(plugins);
+                        }
                     }
-                }
-            });
+                });
+            }
+        } else {
+            ProjectPathDto pathDto = new ProjectPathDto("bootstrap", "-", false);
+            pathDto.addChildren("preview", "非开发环境仅做预览使用", false);
+            modules.add(pathDto);
         }
 
         return success(modules);
@@ -319,15 +328,15 @@ public class GeneratorController extends BaseController implements InitializingB
         new AutoGenerator().setConfig(configBuilder).setTemplateEngine(engine).execute();
 
         final ReviewDto reviewDto = engine.getReviewDto();
-        reviewDto.setMenuSql(this.getMenuSql(configBuilder, msn));
+        reviewDto.setMenuSql(this.getMenuSql(configBuilder, msn, dto.getPackageName()));
         return success(reviewDto);
     }
 
-    private String getMenuSql(ConfigBuilder configBuilder, String msn) {
+    private String getMenuSql(ConfigBuilder configBuilder, String msn, String packageName) {
         final TableInfo tableInfo = configBuilder.getTableInfoList().get(0);
         final String comment = LowCodeUtil.getModuleName(tableInfo.getComment());
-        String url = "/"+properties.getLpc().getModuleName()+"/" + tableInfo.getEntityPath();
-        String perm = properties.getLpc().getModuleName()+":"+tableInfo.getEntityPath();
+        String url = "/"+packageName+"/" + tableInfo.getEntityPath();
+        String perm = packageName+":"+tableInfo.getEntityPath();
 
         StringBuilder batchSql = new StringBuilder();
         batchSql.append(String.format("insert into sys_menu (pid, name, url, perms, type, remark, msn, sort) \n\tvalue (%s, '%s管理', '%s', '%s', 'V', '浏览%s', '%s', 158);\n", 0, comment, url, perm+":"+"view", comment, msn));
