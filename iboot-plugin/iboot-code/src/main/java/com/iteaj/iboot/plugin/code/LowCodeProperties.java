@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.generator.config.GlobalConfig;
 import com.baomidou.mybatisplus.generator.config.PackageConfig;
 import com.baomidou.mybatisplus.generator.config.StrategyConfig;
 import lombok.Data;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.util.Set;
 
 /**
@@ -14,7 +17,7 @@ import java.util.Set;
  */
 @Data
 @ConfigurationProperties("low.code")
-public class LowCodeProperties {
+public class LowCodeProperties implements InitializingBean {
 
     /**
      * 全局配置
@@ -41,6 +44,21 @@ public class LowCodeProperties {
      * 本地项目根路径
      */
     private String projectPath;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if(this.getLpc() == null) {
+            this.lpc = new LcdPackageConfig();
+        }
+
+        if(StringUtils.hasText(this.getProjectPath())) {
+            // 获取父路径
+            File file = new File(this.getProjectPath());
+            if(file.exists() && file.isDirectory()) {
+                this.projectPath = file.getParentFile().getParentFile().getPath();
+            }
+        }
+    }
 
     public static class LcdGlobalConfig extends GlobalConfig { }
     public static class LcdPackageConfig extends PackageConfig { }
