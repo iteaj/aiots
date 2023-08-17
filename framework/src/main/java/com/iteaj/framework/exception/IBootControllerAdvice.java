@@ -1,6 +1,5 @@
-package com.iteaj.iboot.common;
+package com.iteaj.framework.exception;
 
-import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityException;

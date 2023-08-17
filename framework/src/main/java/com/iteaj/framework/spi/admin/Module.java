@@ -58,9 +58,8 @@ public class Module implements Ordered {
     }
 
     /**
-     *
-     * @param msn 模块编号不能重复
-     * @param name
+     * @param msn 模块编号不能重复 用于菜单的msn字段
+     * @param name 模块名称
      * @param order
      * @return
      */
@@ -69,9 +68,10 @@ public class Module implements Ordered {
     }
 
     /**
-     * @param msn 模块编号不能重复
-     * @param name
+     * @param msn 模块编号不能重复 用于菜单的msn字段
+     * @param name 模块名称
      * @param order
+     * @param packageName 此模块的包命
      * @return
      */
     public static Module module(String msn, String name, int order, String packageName) {
@@ -79,9 +79,11 @@ public class Module implements Ordered {
     }
 
     /**
-     * @param msn 模块编号不能重复
+     * @param msn 模块编号不能重复 用于菜单的msn字段
      * @param name
      * @param order
+     * @param tablePrefix 模块的表前缀
+     * @param packageName 此模块的包名
      * @return
      */
     public static Module module(String msn, String name, int order, String tablePrefix, String packageName) {
@@ -100,6 +102,7 @@ public class Module implements Ordered {
         return this.name;
     }
 
+    @Override
     public int getOrder() {
         return this.order;
     }

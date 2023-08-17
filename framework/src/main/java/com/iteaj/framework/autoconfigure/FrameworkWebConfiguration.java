@@ -1,6 +1,7 @@
 package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.exception.FrameworkException;
+import com.iteaj.framework.exception.IBootControllerAdvice;
 import com.iteaj.framework.logger.LoggerInterceptor;
 import com.iteaj.framework.security.SecurityService;
 import com.iteaj.framework.security.SecurityUtil;
@@ -43,6 +44,11 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
         if(properties.getWeb().isLogger()) {
             registry.addInterceptor(new LoggerInterceptor()).addPathPatterns("/**");
         }
+    }
+
+    @Bean
+    public IBootControllerAdvice bootControllerAdvice() {
+        return new IBootControllerAdvice();
     }
 
     /**

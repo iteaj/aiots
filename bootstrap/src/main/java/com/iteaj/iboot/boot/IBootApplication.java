@@ -1,12 +1,10 @@
 package com.iteaj.iboot.boot;
 
-import com.iteaj.iboot.common.IBootControllerAdvice;
 import com.iteaj.iboot.module.core.CoreAutoConfiguration;
 import com.iteaj.iboot.module.iot.IotAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -31,9 +29,4 @@ public class IBootApplication {
         SpringApplication.run(IBootApplication.class, args);
     }
 
-
-    @Bean
-    public IBootControllerAdvice bootControllerAdvice() {
-        return new IBootControllerAdvice();
-    }
 }
