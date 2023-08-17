@@ -73,6 +73,7 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                 .collect(Collectors.toList());
         List<Menu> allMenus = this.getBaseMapper()
                 .selectList(Wrappers.<Menu>lambdaQuery()
+                        .ne(Menu::getType, MenuType.A)
                         .ne(Menu::getStatus, PermStatus.disabled)
                         .in(Menu::getMsn, msn)
                         .orderByAsc(Menu::getSort));

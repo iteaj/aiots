@@ -30,16 +30,6 @@ public class AdminCenterController extends BaseController {
     private IAdminService adminService;
 
     /**
-     * 菜单栏
-     * @return
-     */
-    @GetMapping("menus")
-    public Result<List<Menu>> menus() {
-        Long loginId = SecurityUtil.getLoginId().map(item -> (Long) item).orElse(null);
-        return menuService.selectMenuBarTrees(loginId, SecurityUtil.isSuper());
-    }
-
-    /**
      * 上传用户头像
      * @param file
      * @return
