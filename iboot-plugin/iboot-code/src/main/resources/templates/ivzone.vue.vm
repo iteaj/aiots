@@ -26,7 +26,7 @@
         <UButton func="reset">重置</UButton>
       </template>
     </UViewModal>
-    <UViewTable :columns="columns">
+    <UViewTable :columns="columns" :scroll="{x: 1200}">
       <template #action="{record}">
         <UTag func="edit" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/edit" v-auth="'${package.ModuleName}:#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end:edit'">修改</UTag>
         <UTag func="del" :data="record" url="/${package.ModuleName}/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/del" v-auth="'${package.ModuleName}:#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end:del'">删除</UTag>
@@ -44,7 +44,7 @@ export default {
         #foreach($field in ${cfg.vueFields})
           {field: "${field.field}", title: "${field.label}"},
         #end
-          {field: 'action', title: '操作', type: 'action'},
+          {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 230},
       ]);
 
     let rules = reactive({
