@@ -111,11 +111,11 @@
         </dependency>
 
         <!-- Oauth2服务插件(使用SaToken开发)-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>iboot-oauth2</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>iboot-oauth2</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
 
         <!-- Quartz定时任务插件 -->
 <!--        <dependency>-->
@@ -130,11 +130,19 @@
             <version>${project.version}</version>
             <artifactId>iboot-knife4j</artifactId>
         </dependency>
+
+        <!-- 消息源插件(短信, email, 钉钉...) -->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>iboot-message</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
+                <version>${springboot.version}</version>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>

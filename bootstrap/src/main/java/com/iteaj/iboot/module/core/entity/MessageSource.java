@@ -1,14 +1,16 @@
 package com.iteaj.iboot.module.core.entity;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
-import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.Date;
 
 /**
  * 消息源
@@ -77,8 +79,8 @@ public class MessageSource extends BaseEntity {
     /**
      * 额外配置
      */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
-    private JSONObject config;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ObjectNode config;
 
     /**
      * 创建时间

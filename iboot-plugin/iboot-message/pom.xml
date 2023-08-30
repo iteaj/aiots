@@ -22,8 +22,8 @@
 
         <!-- 消息源sms4j(https://wind.kim/) -->
         <dependency>
+            <artifactId>sms4j-core</artifactId>
             <groupId>org.dromara.sms4j</groupId>
-            <artifactId>sms4j-spring-boot-starter</artifactId>
         </dependency>
 
         <dependency>

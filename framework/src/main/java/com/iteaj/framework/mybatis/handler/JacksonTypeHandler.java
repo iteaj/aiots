@@ -26,7 +26,6 @@ import java.sql.SQLException;
  * @since 1.0
  */
 @MappedTypes(value = {ArrayNode.class, ObjectNode.class, ContainerNode.class})
-@MappedJdbcTypes(value = {JdbcType.CHAR, JdbcType.VARCHAR})
 public class JacksonTypeHandler extends BaseTypeHandler<ContainerNode> {
 
     private static ObjectMapper mapper = new ObjectMapper();

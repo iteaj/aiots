@@ -1,11 +1,20 @@
 package com.iteaj.iboot.module.core.controller;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.message.MessageManager;
+import com.iteaj.framework.spi.message.MessageService;
 import com.iteaj.iboot.module.core.entity.MessageSource;
 import com.iteaj.iboot.module.core.service.IMessageSourceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -22,9 +31,12 @@ import com.iteaj.framework.BaseController;
 @RequestMapping("/core/messageSource")
 public class MessageSourceController extends BaseController {
 
+    private final MessageManager messageManager;
     private final IMessageSourceService messageSourceService;
 
-    public MessageSourceController(IMessageSourceService messageSourceService) {
+    public MessageSourceController(@Autowired(required = false) MessageManager messageManager
+            , IMessageSourceService messageSourceService) {
+        this.messageManager = messageManager;
         this.messageSourceService = messageSourceService;
     }
 
@@ -70,6 +82,30 @@ public class MessageSourceController extends BaseController {
     @CheckPermission({"core:messageSource:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.messageSourceService.removeByIds(idList);
+    }
+
+    /**
+     * 获取平台支持的消息类型
+     * @return
+     */
+    @GetMapping("/types")
+    public Result<List<IVOption>> types() {
+        if(messageManager == null) {
+            return success(Collections.emptyList());
+        } else {
+            List<IVOption> options = this.messageManager.getTypes().stream().map(type -> {
+                List<MessageService> services = this.messageManager.getServices(type);
+                MessageService messageService = services.get(0);
+
+                IVOption ivOption = new IVOption(messageService.getName(), messageService.getType());
+                services.forEach(channel -> ivOption.addChildren(channel.getChannelName()
+                        , channel.getChannelId(), channel.getConfigParams()));
+
+                return ivOption;
+            }).collect(Collectors.toList());
+
+            return success(options);
+        }
     }
 }
 
