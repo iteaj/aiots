@@ -303,8 +303,8 @@ public class GeneratorController extends BaseController implements InitializingB
      * @param dto
      * @return
      */
-    @PostMapping("review")
-    public Result<ReviewDto> review(@RequestBody GenConfigDto dto) {
+    @GetMapping("review")
+    public Result<ReviewDto> review(GenConfigDto dto) {
         String tableName = dto.getTables().get(0);
         if(StrUtil.isBlank(tableName)) {
             return fail("请指定要预览的表");
