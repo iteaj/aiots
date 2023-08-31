@@ -1,26 +1,27 @@
 package com.iteaj.framework.spi.message;
 
-import cn.hutool.json.JSONObject;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Data;
 
-public interface MessageConfig {
+@Data
+public class MessageConfig {
 
-    /**
-     * 获取服务类型
-     * @see MessageService#getType()
-     * @return
-     */
-    String getType();
+    private String type;
 
-    /**
-     * 获取通道标识
-     * @return
-     */
-    String getChannelId();
+    private String channelId;
 
-    /**
-     * 额外配置
-     * @return
-     */
-    JSONObject getConfig();
+    private ObjectNode config;
 
+    protected MessageConfig() { }
+
+    public MessageConfig(String type, String channelId, ObjectNode config) {
+        this.type = type;
+        this.config = config;
+        this.channelId = channelId;
+        this.type = MessageType.Sms.name();
+    }
+
+    public String getConfig(String key) {
+        return this.config.get(key).asText();
+    }
 }

@@ -1,7 +1,8 @@
 package com.iteaj.iboot.plugin.message.service;
 
 import com.iteaj.framework.exception.FrameworkException;
-import com.iteaj.framework.spi.message.sms.SmsConfig;
+import com.iteaj.framework.spi.message.MessageConfig;
+import com.iteaj.framework.spi.message.SendModel;
 import com.iteaj.framework.spi.message.sms.SmsMessageService;
 import org.dromara.sms4j.aliyun.config.AlibabaConfig;
 import org.dromara.sms4j.api.SmsBlend;
@@ -24,7 +25,7 @@ public abstract class Sms4jMessageService extends SmsMessageService {
     }
 
     @Override
-    public void send(SmsConfig config, Object args) {
+    public void send(MessageConfig config, SendModel model) {
         try {
             SupplierType supplierType = SupplierType.valueOf(config.getChannelId());
             BaseConfig build = AlibabaConfig.builder().build();

@@ -42,41 +42,6 @@ public class MessageSource extends BaseEntity {
     private String channel;
 
     /**
-     * signature 签名
-     */
-    private String signature;
-
-    /**
-     * accessKeyId
-     */
-    private String accessKeyId;
-
-    /**
-     * accessKeySecret
-     */
-    private String accessKeySecret;
-
-    /**
-     * 发件人邮件地址
-     */
-    private String fromAddress;
-
-    /**
-     * smtp服务器地址
-     */
-    private String smtpServer;
-
-    /**
-     * 账号
-     */
-    private String username;
-
-    /**
-     * 密码
-     */
-    private String password;
-
-    /**
      * 额外配置
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
@@ -87,4 +52,9 @@ public class MessageSource extends BaseEntity {
      */
     private Date createTime;
 
+    public MessageSource() { }
+
+    public MessageSource(String type) {
+        this.type = type;
+    }
 }

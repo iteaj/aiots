@@ -4,7 +4,7 @@ import com.iteaj.framework.ParamMeta;
 
 import java.util.List;
 
-public interface MessageService<C extends MessageConfig> {
+public interface MessageService {
 
     String DEFAULT_CHANNEL = "DEFAULT";
 
@@ -48,7 +48,7 @@ public interface MessageService<C extends MessageConfig> {
     /**
      * 发送参数
      * @param config
-     * @param args
+     * @param model
      */
-    void send(C config, Object args);
+    void send(MessageConfig config, SendModel model);
 }

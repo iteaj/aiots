@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 短信服务
  */
-public abstract class SmsMessageService implements MessageService<SmsConfig> {
+public abstract class SmsMessageService implements MessageService {
 
     private List<ParamMeta> params = new ArrayList<>();
 
