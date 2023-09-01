@@ -13,6 +13,7 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.*;
 import com.iteaj.iboot.plugin.satoken.impl.SaTokenSecurityService;
 import com.iteaj.iboot.plugin.satoken.impl.StpInterfaceImpl;
+import com.iteaj.iboot.plugin.satoken.listener.SaTokenOnlineListener;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -37,6 +38,11 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         event.getEnvironment().addActiveProfile("satoken");
+    }
+
+    @Bean
+    public SaTokenOnlineListener saTokenOnlineListener() {
+        return new SaTokenOnlineListener();
     }
 
     @Bean

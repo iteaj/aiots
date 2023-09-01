@@ -14,6 +14,8 @@ public interface CoreConst {
 
     String WEB_USER_AGENT = "WEB_USER_AGENT";
 
+    String WEB_LOGIN_USER = "WEB_LOGIN_USER";
+
     String SESSION_AUTH_CONTEXT = "SESSION_AUTH_CONTEXT";
 
     String WEB_SESSION_CACHE = "WEB_SESSION_CACHE";

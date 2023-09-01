@@ -113,6 +113,12 @@ public interface SecurityService {
     }
 
     /**
+     * 注销指定的会话
+     * @param sessionId
+     */
+    void logout(Object sessionId);
+
+    /**
      * 注销
      * @param request
      * @param response
@@ -127,4 +133,10 @@ public interface SecurityService {
      */
     void login(SecurityToken token, HttpServletRequest request, HttpServletResponse response) throws SecurityException;
 
+    /**
+     * 校验是否当前登录用户
+     * @param sessionId
+     * @return
+     */
+    boolean isCurrentUser(Object sessionId);
 }

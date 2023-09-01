@@ -8,7 +8,9 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
+import com.iteaj.iboot.module.core.dto.OnlineCountDto;
 import com.iteaj.iboot.module.core.entity.OnlineUser;
 import com.iteaj.iboot.module.core.service.IOnlineUserService;
 import com.iteaj.framework.security.CheckPermission;
@@ -37,25 +39,12 @@ public class OnlineUserController extends BaseController {
     * @param page 分页
     * @param entity
     */
-    @Logger("查询在线户行")
+    @Logger("查询在线用户")
     @GetMapping("/view")
     @CheckPermission(value = {"core:online:view"})
     public Result<IPage<OnlineUser>> list(Page<OnlineUser> page, OnlineUser entity) {
         page.addOrder(OrderItem.asc("status"), OrderItem.desc("login_time"));
-        List<OnlineUser> updateToOffline = new ArrayList<>();
-        final PageResult<IPage<OnlineUser>> result = this.onlineUserService.page(page, entity);
-        result.<OnlineUser>stream()
-                .filter(item -> item.getStatus() == OnlineStatus.Online)
-                .forEach(item -> {
-//                    final Session session = ShiroUtil.getSession(item.getSessionId());
-//                    if(session == null) {
-//                        item.setStatus(OnlineStatus.Offline);
-//                        updateToOffline.add(item);
-//                    }
-        });
-
-        this.onlineUserService.updateBatchById(updateToOffline);
-        return result;
+        return this.onlineUserService.page(page, entity);
     }
 
     /**
@@ -92,17 +81,37 @@ public class OnlineUserController extends BaseController {
     @Logger("剔除用户下线")
     @PostMapping("offline")
     @CheckPermission(value = {"core:online:offline"})
-    public Result<Boolean> offline(@RequestBody OnlineUser entity, HttpSession session) {
+    public Result<Boolean> offline(@RequestBody OnlineUser entity) {
         if(entity.getStatus() == OnlineStatus.Offline) {
             return fail("此用户不在线");
         }
 
-        final String sessionId = session.getId();
-        if(sessionId.equals(entity.getSessionId())) {
-            return fail("不允许下线自己");
+        if(SecurityUtil.isCurrentUser(entity.getSessionId())) {
+            return fail("不允许剔除自己");
         }
 
-        return success("剔除用户成功");
+        SecurityUtil.logout(entity.getSessionId());
+        return success("剔除成功");
+    }
+
+    /**
+     * 统计当天用户信息
+     * @return
+     */
+    @GetMapping("countToday")
+    public Result<OnlineCountDto> countToday() {
+        OnlineCountDto countDto = onlineUserService.countCurrentOnline();
+        return success(countDto);
+    }
+
+    /**
+     * 统计最近一个月的访问用户
+     * @return
+     */
+    @GetMapping("countLastMonth")
+    public Result<List> countLastMonth() {
+
+        return success();
     }
 }
 

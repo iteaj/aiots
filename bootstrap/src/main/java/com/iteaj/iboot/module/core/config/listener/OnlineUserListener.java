@@ -1,31 +1,32 @@
 package com.iteaj.iboot.module.core.config.listener;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.spi.admin.event.OnlinePayload;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
 import com.iteaj.framework.spi.event.FrameworkListener;
 import com.iteaj.framework.spi.event.PayloadEvent;
 import com.iteaj.iboot.module.core.entity.Admin;
 import com.iteaj.iboot.module.core.entity.OnlineUser;
-import com.iteaj.iboot.module.core.service.IOnlineUserService;
 import com.iteaj.iboot.module.core.enums.ClientType;
+import com.iteaj.iboot.module.core.service.IOnlineUserService;
 import eu.bitwalker.useragentutils.DeviceType;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 /**
  * 监听用户在线状态
  */
-@Component
-public class OnlineUserListener implements FrameworkListener<PayloadEvent<OnlinePayload>> {
+public class OnlineUserListener implements FrameworkListener<PayloadEvent<OnlinePayload>>, InitializingBean {
 
-    private final IOnlineUserService service;
-
-    public OnlineUserListener(IOnlineUserService service) {
-        this.service = service;
-    }
+    @Autowired
+    private IOnlineUserService service;
+    @Autowired
+    private FrameworkProperties properties;
 
     @Async
     @Override
@@ -41,10 +42,14 @@ public class OnlineUserListener implements FrameworkListener<PayloadEvent<Online
             final String os = agent.getOperatingSystem().getName();
             final DeviceType deviceType = agent.getOperatingSystem().getDeviceType();
             final ClientType clientType = ClientType.valueOf(deviceType.name());
-            onlineUser.setLoginTime(new Date())
-                    .setOs(os).setStatus(type).setBrowse(browse)
-                    .setType(clientType).setUserNick(admin.getName())
-                    .setAccount(admin.getAccount()).setAccessIp(payload.getAccessIp())
+            onlineUser.setOs(os)
+                    .setLoginTime(new Date())
+                    .setStatus(type)
+                    .setBrowse(browse)
+                    .setType(clientType)
+                    .setUserNick(admin.getName())
+                    .setAccount(admin.getAccount())
+                    .setAccessIp(payload.getAccessIp())
                     .setExpireTime(payload.getExpireTime());
 
             service.save(onlineUser);
@@ -53,4 +58,13 @@ public class OnlineUserListener implements FrameworkListener<PayloadEvent<Online
         }
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // 如果不是集群则更新所有的用户为离线
+        if(!properties.isCluster()) {
+            service.update(Wrappers.<OnlineUser>lambdaUpdate()
+                    .set(OnlineUser::getStatus, OnlineStatus.Offline)
+                    .eq(OnlineUser::getStatus, OnlineStatus.Online));
+        }
+    }
 }

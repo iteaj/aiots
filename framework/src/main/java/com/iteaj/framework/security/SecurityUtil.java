@@ -183,6 +183,15 @@ public class SecurityUtil {
     }
 
     /**
+     * 注销指定会话
+     * @param sessionId
+     * @throws SecurityException
+     */
+    public static void logout(Object sessionId) throws SecurityException {
+        securityService.logout(sessionId);
+    }
+
+    /**
      * 注销
      * @param request
      * @param response
@@ -199,5 +208,14 @@ public class SecurityUtil {
      */
     public static void login(SecurityToken token, HttpServletRequest request, HttpServletResponse response) throws SecurityException {
         securityService.login(token, request, response);
+    }
+
+    /**
+     * 校验此sessionId是否当前用户
+     * @param sessionId
+     * @return
+     */
+    public static boolean isCurrentUser(Object sessionId) {
+        return securityService.isCurrentUser(sessionId);
     }
 }

@@ -110,6 +110,11 @@ public class ShiroSecurityService implements SecurityService {
     }
 
     @Override
+    public void logout(Object sessionId) {
+
+    }
+
+    @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         try {
             SecurityUtils.getSubject().logout();

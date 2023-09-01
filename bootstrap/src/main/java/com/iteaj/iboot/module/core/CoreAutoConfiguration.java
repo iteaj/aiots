@@ -8,6 +8,7 @@ import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.excel.ExcelDictHandle;
 import com.iteaj.framework.spi.excel.IExcelService;
+import com.iteaj.iboot.module.core.config.listener.OnlineUserListener;
 import com.iteaj.iboot.module.core.exception.AsyncExceptionHandler;
 import com.iteaj.iboot.module.core.listener.LoggerListener;
 import com.iteaj.iboot.module.core.service.AdminResourceManager;
@@ -63,6 +64,11 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     @Bean
     public LoggerListener loggerListener() {
         return new LoggerListener();
+    }
+
+    @Bean
+    public OnlineUserListener onlineUserListener() {
+        return new OnlineUserListener();
     }
 
     /**

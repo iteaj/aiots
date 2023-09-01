@@ -1,6 +1,8 @@
 package com.iteaj.iboot.plugin.satoken.impl;
 
+import cn.dev33.satoken.session.TokenSign;
 import cn.dev33.satoken.stp.SaLoginModel;
+import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.iteaj.framework.Entity;
@@ -10,6 +12,7 @@ import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.SecurityException;
 import com.iteaj.framework.security.*;
 import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
+import eu.bitwalker.useragentutils.UserAgent;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +42,8 @@ public class SaTokenSecurityService implements SecurityService {
     @Override
     public Optional<Entity> getUser() {
         if(isLogin()) {
-            Entity user = (Entity) StpUtil.getSession().get("user");
+            TokenSign tokenSign = StpUtil.getSession().getTokenSignList().get(0);
+            Entity user = (Entity) tokenSign.getTag();
             return Optional.ofNullable(user);
         } else {
             return Optional.empty();
@@ -103,6 +107,11 @@ public class SaTokenSecurityService implements SecurityService {
     }
 
     @Override
+    public void logout(Object sessionId) {
+        StpUtil.logoutByTokenValue(sessionId.toString());
+    }
+
+    @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) throws SecurityException {
         StpUtil.logout();
     }
@@ -134,10 +143,27 @@ public class SaTokenSecurityService implements SecurityService {
             throw new SecurityException("密码不匹配");
         }
 
+        UserAgent agent = (UserAgent) request.getAttribute(CoreConst.WEB_USER_AGENT);
+
         SaLoginModel saLoginModel = new SaLoginModel()
                 .setIsWriteHeader(true)
+                .setTokenSignTag(byAccount)
                 .setIsLastingCookie(token.isRememberMe());
+
+        if(agent != null) {
+            try {
+                saLoginModel.setDevice(agent.getOperatingSystem().getDeviceType().getName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         StpUtil.login(((Entity) byAccount).getId(), saLoginModel);
-        StpUtil.getSession().set("user", byAccount);
+    }
+
+    @Override
+    public boolean isCurrentUser(Object sessionId) {
+        SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+        return Objects.equals(tokenInfo.tokenValue, sessionId);
     }
 }
