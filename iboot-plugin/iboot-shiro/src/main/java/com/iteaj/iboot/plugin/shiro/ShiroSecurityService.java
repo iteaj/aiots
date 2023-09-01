@@ -145,4 +145,9 @@ public class ShiroSecurityService implements SecurityService {
             throw new SecurityException(e.getMessage(), e);
         }
     }
+
+    @Override
+    public boolean isCurrentUser(Object sessionId) {
+        return false;
+    }
 }
