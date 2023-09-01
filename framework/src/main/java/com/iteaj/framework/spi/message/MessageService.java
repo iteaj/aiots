@@ -1,14 +1,18 @@
 package com.iteaj.framework.spi.message;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iteaj.framework.ParamMeta;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MessageService {
 
     String DEFAULT_CHANNEL = "DEFAULT";
 
     String DEFAULT_CHANNEL_NAME = "默认";
+
+    ObjectMapper mapper = new ObjectMapper();
 
     /**
      * 消息类型
@@ -50,5 +54,11 @@ public interface MessageService {
      * @param config
      * @param model
      */
-    void send(MessageConfig config, SendModel model);
+    Optional<Object> send(MessageConfig config, SendModel model);
+
+    /**
+     * 移除消息配置
+     * @param config
+     */
+    boolean remove(MessageConfig config);
 }

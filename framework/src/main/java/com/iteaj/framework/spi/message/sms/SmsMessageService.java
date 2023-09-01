@@ -15,14 +15,13 @@ public abstract class SmsMessageService implements MessageService {
     private List<ParamMeta> params = new ArrayList<>();
 
     public SmsMessageService() {
-        this.buildConfigParams();
+        this.buildConfigParams(this.params);
     }
 
-    protected void buildConfigParams() {
-        params.add(ParamMeta.buildRequired("signature", "signature"));
+    protected void buildConfigParams(List<ParamMeta> params) {
         params.add(ParamMeta.buildRequired("accessKeyId", "accessKeyId"));
         params.add(ParamMeta.buildRequired("accessKeySecret", "accessKeySecret"));
-        params.add(ParamMeta.build("regionId", "regionId", "可选(cn-hangzhou)"));
+        params.add(ParamMeta.buildRequired("signature", "signature"));
     }
 
 

@@ -1,6 +1,13 @@
 package com.iteaj.framework.spi.message;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.iteaj.framework.json.StringToMapDeserializer;
 import lombok.Data;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Data
 public class SendModel {
@@ -36,6 +43,7 @@ public class SendModel {
      * 模板名称
      * @see #templateId
      */
-    private String templateName;
+    @JsonDeserialize(using = StringToMapDeserializer.class)
+    private Map<String, String> templateName;
 
 }

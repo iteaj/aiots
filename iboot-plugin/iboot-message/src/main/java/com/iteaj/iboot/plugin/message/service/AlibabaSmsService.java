@@ -2,7 +2,7 @@ package com.iteaj.iboot.plugin.message.service;
 
 import org.dromara.sms4j.provider.enumerate.SupplierType;
 
-public class AlibabaService extends Sms4jMessageService {
+public class AlibabaSmsService extends Sms4jMessageService {
 
     @Override
     public String getChannelId() {
@@ -13,4 +13,5 @@ public class AlibabaService extends Sms4jMessageService {
     public String getChannelName() {
         return SupplierType.ALIBABA.getName();
     }
+
 }

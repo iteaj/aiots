@@ -69,7 +69,18 @@ public class MessageSourceController extends BaseController {
     @Logger("新增或者更新消息源记录")
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"core:messageSource:edit", "core:messageSource:add"}, logical = Logical.OR)
-    public Result<Boolean> save(@RequestBody MessageSource entity) {
+    public Result<Boolean> saveOrUpdate(@RequestBody MessageSource entity) {
+        if(entity.getId() != null) {
+            this.messageSourceService.getById(entity.getId()).ifPresent(record -> {
+                // 移除已经创建的通道配置
+                MessageService service = messageManager.getService(record.getType(), record.getChannel());
+                if(service != null) {
+                    service.remove(new MessageConfig(record.getType()
+                            , record.getChannel(), record.getConfig()));
+                }
+            });
+        }
+
         return this.messageSourceService.saveOrUpdate(entity);
     }
 
@@ -81,6 +92,17 @@ public class MessageSourceController extends BaseController {
     @PostMapping("/del")
     @CheckPermission({"core:messageSource:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
+        this.messageSourceService.listByIds(idList).ifPresent(item -> {
+            item.forEach(record -> {
+                // 移除已经创建的通道配置
+                MessageService service = messageManager.getService(record.getType(), record.getChannel());
+                if(service != null) {
+                    service.remove(new MessageConfig(record.getType()
+                            , record.getChannel(), record.getConfig()));
+                }
+            });
+        });
+
         return this.messageSourceService.removeByIds(idList);
     }
 

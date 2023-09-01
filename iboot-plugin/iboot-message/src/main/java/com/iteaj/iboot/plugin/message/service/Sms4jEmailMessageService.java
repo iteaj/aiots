@@ -12,13 +12,14 @@ import org.dromara.email.core.factory.MailFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class Sms4jEmailMessageService extends EmailMessageService {
 
     private Map<String, MailClient> cacheClient = new HashMap<>();
 
     @Override
-    public void send(MessageConfig config, SendModel model) {
+    public Optional<Object> send(MessageConfig config, SendModel model) {
         String smtpServer = config.getConfig("smtpServer");
         String fromAddress = config.getConfig("fromAddress");
         if(StrUtil.isBlank(smtpServer) || StrUtil.isBlank(fromAddress)) {
@@ -53,5 +54,14 @@ public class Sms4jEmailMessageService extends EmailMessageService {
         // knlijuorwpetbhij
         String[] send = model.getAccept().split(",");
         mailClient.sendMail(Arrays.asList(send), model.getTitle(), model.getContent().toString());
+
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean remove(MessageConfig config) {
+        String smtpServer = config.getConfig("smtpServer");
+        String fromAddress = config.getConfig("fromAddress");
+        return cacheClient.remove(smtpServer + ":" + fromAddress) != null;
     }
 }
