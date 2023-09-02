@@ -6,16 +6,19 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.iteaj.framework.Entity;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.captcha.Captcha;
 import com.iteaj.framework.captcha.CaptchaService;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.security.SecurityException;
 import com.iteaj.framework.security.*;
 import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
+import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -24,11 +27,14 @@ import java.util.Optional;
 public class SaTokenSecurityService implements SecurityService {
 
     private final CaptchaService captchaService;
+    private final FrameworkProperties properties;
     private final AuthorizationService authorizationService;
     private final AuthenticationService authenticationService;
 
     public SaTokenSecurityService(CaptchaService captchaService
-            , AuthorizationService authorizationService, AuthenticationService authenticationService) {
+            , FrameworkProperties properties, AuthorizationService authorizationService
+            , AuthenticationService authenticationService) {
+        this.properties = properties;
         this.captchaService = captchaService;
         this.authorizationService = authorizationService;
         this.authenticationService = authenticationService;
@@ -107,7 +113,7 @@ public class SaTokenSecurityService implements SecurityService {
     }
 
     @Override
-    public void logout(Object sessionId) {
+    public void logout(Serializable sessionId) {
         StpUtil.logoutByTokenValue(sessionId.toString());
     }
 
@@ -146,12 +152,22 @@ public class SaTokenSecurityService implements SecurityService {
         UserAgent agent = (UserAgent) request.getAttribute(CoreConst.WEB_USER_AGENT);
 
         SaLoginModel saLoginModel = new SaLoginModel()
-                .setIsWriteHeader(true)
                 .setTokenSignTag(byAccount)
                 .setIsLastingCookie(token.isRememberMe());
 
+        // 如果配置了token写到header
+        FrameworkProperties.Session session = properties.getWeb().getSession();
+        if(session.isWriteHeader()) {
+            saLoginModel.setIsWriteHeader(true);
+        }
+
         if(agent != null) {
             try {
+                // 如果配置了自动选择token, app请求必须将token写到header
+                if(session.isAutomaticToken() && agent.getBrowser().getBrowserType() == BrowserType.APP) {
+                    saLoginModel.setIsWriteHeader(true);
+                }
+
                 saLoginModel.setDevice(agent.getOperatingSystem().getDeviceType().getName());
             } catch (Exception e) {
                 e.printStackTrace();

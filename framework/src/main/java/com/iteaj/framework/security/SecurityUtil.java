@@ -187,7 +187,7 @@ public class SecurityUtil {
      * @param sessionId
      * @throws SecurityException
      */
-    public static void logout(Object sessionId) throws SecurityException {
+    public static void logout(Serializable sessionId) throws SecurityException {
         securityService.logout(sessionId);
     }
 

@@ -116,7 +116,7 @@ public interface SecurityService {
      * 注销指定的会话
      * @param sessionId
      */
-    void logout(Object sessionId);
+    void logout(Serializable sessionId);
 
     /**
      * 注销

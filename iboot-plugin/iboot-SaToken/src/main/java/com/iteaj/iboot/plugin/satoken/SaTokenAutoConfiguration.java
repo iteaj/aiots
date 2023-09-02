@@ -7,6 +7,7 @@ import cn.dev33.satoken.filter.SaServletFilter;
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.captcha.CaptchaService;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.result.Result;
@@ -51,9 +52,9 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
     }
 
     @Bean
-    public SecurityService securityService(CaptchaService captchaService
+    public SecurityService securityService(CaptchaService captchaService, FrameworkProperties properties
             , AuthorizationService authorizationService, AuthenticationService authenticationService) {
-        return new SaTokenSecurityService(captchaService, authorizationService, authenticationService);
+        return new SaTokenSecurityService(captchaService, properties, authorizationService, authenticationService);
     }
 
     /**

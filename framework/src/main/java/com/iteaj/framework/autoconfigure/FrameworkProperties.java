@@ -73,9 +73,14 @@ public class FrameworkProperties {
         private long timeout = 30 * 60;
 
         /**
-         * token是否写到header(默认false)
+         * token是否写到header(为true优先读取header)
          */
         private boolean writeHeader = false;
+
+        /**
+         * 自动选择token(浏览器使用cookie, app使用header)
+         */
+        private boolean automaticToken = false;
 
         /**
          * 缓存名称

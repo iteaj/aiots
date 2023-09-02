@@ -2,11 +2,10 @@ package com.iteaj.iboot.plugin.shiro;
 
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
-import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
-import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletRequest;
@@ -46,18 +45,47 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
         servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
 
-        // 尝试从header获取access_token作为sessionId
         FrameworkProperties.Web web = properties.getWeb();
-        if(web.getSession().isWriteHeader()) {
-            String tokenName = web.getSession().getTokenName();
-            String token = servletRequest.getHeader(tokenName);
-            if(StringUtils.hasText(token)) {
+
+        // 自动选择
+        if(web.getSession().isAutomaticToken()) {
+            // 尝试从header获取access_token作为sessionId
+            if(web.getSession().isWriteHeader()) {
+                String token = getTokenFromHeader(servletRequest, web);
+                if (token != null) {
+                    return token;
+                }
+            }
+
+            try {
+                // app 从头部获取token
+                if(userAgent.getBrowser().getBrowserType() == BrowserType.APP) {
+                    return getTokenFromHeader(servletRequest, web);
+                }
+            } catch (Exception e) { // 如果有异常不做任何处理
+                e.printStackTrace();
+            }
+        } else if(web.getSession().isWriteHeader()) {
+            // 尝试从header获取access_token作为sessionId
+            String token = getTokenFromHeader(servletRequest, web);
+            if (token != null) {
                 return token;
             }
         }
 
         // 从cookie中获取
         return super.getSessionId(request, response);
+    }
+
+    @Nullable
+    private String getTokenFromHeader(HttpServletRequest servletRequest, FrameworkProperties.Web web) {
+        String tokenName = web.getSession().getTokenName();
+        String token = servletRequest.getHeader(tokenName);
+        if(StringUtils.hasText(token)) {
+            return token;
+        }
+
+        return null;
     }
 
 }
