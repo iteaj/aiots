@@ -40,4 +40,12 @@ public class SaTokenOnlineListener extends SaTokenListenerForSimple {
                 , new OnlinePayload(OnlineStatus.Offline, tokenValue)
                 .setAccessTime(new Date())));
     }
+
+    @Override
+    public void doKickout(String loginType, Object loginId, String tokenValue) {
+        // 发布session 停止事件
+        EventUtils.publish(new PayloadEvent(tokenValue
+                , new OnlinePayload(OnlineStatus.Offline, tokenValue)
+                .setAccessTime(new Date())));
+    }
 }

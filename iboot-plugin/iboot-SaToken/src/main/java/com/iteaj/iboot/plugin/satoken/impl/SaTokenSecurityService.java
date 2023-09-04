@@ -114,7 +114,7 @@ public class SaTokenSecurityService implements SecurityService {
 
     @Override
     public void logout(Serializable sessionId) {
-        StpUtil.logoutByTokenValue(sessionId.toString());
+        StpUtil.kickoutByTokenValue(sessionId.toString());
     }
 
     @Override
