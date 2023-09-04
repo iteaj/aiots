@@ -346,13 +346,13 @@ public class GeneratorController extends BaseController implements InitializingB
         batchSql.append("set @pid = (select last_insert_id());\n");
         batchSql.append("insert into sys_menu (pid, name, url, perms, type, remark, msn, sort) values \n");
         // 查询列表
-        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '查询%s', '%s', 5),\n", "@pid", "查询", url+"/view", perm+":view", comment, msn));
+        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '查询', '%s', 5),\n", "@pid", "查询", url+"/view", perm+":view", msn));
         // 新增
-        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '新增%s', '%s', 10),\n", "@pid", "新增", url+"/add", perm+":add", comment, msn));
+        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '新增', '%s', 10),\n", "@pid", "新增", url+"/add", perm+":add", msn));
         // 修改
-        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '修改%s', '%s', 15),\n", "@pid", "修改", url+"/edit", perm+":edit", comment, msn));
+        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '修改', '%s', 15),\n", "@pid", "修改", url+"/edit", perm+":edit", msn));
         // 删除
-        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '删除%s', '%s', 20);", "@pid", "删除", url+"/del", perm+":del", comment, msn));
+        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '删除', '%s', 20);", "@pid", "删除", url+"/del", perm+":del", msn));
         return batchSql.toString();
     }
 
