@@ -7,9 +7,7 @@
         <result column="id" property="id" />
         <result column="type" property="type" />
         <result column="name" property="name" />
-        <result column="signature" property="signature" />
-        <result column="access_key_id" property="accessKeyId" />
-        <result column="access_key_secret" property="accessKeySecret" />
+        <result column="channel" property="channel" />
         <result column="create_time" property="createTime" />
     </resultMap>
 

@@ -36,7 +36,7 @@ public class PostController extends BaseController {
     @Logger("浏览岗位管理功能")
     @CheckPermission({"core:post:view"})
     public Result<IPage<Post>> list(Page<Post> page, Post entity) {
-        return this.postService.page(page, entity);
+        return this.postService.pageDetail(page, entity);
     }
 
     /**
