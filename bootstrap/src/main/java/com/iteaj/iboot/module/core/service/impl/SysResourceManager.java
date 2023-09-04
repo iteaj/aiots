@@ -1,10 +1,12 @@
-package com.iteaj.iboot.module.core.service;
+package com.iteaj.iboot.module.core.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.iboot.module.core.entity.Menu;
+import com.iteaj.iboot.module.core.service.IDictTypeService;
+import com.iteaj.iboot.module.core.service.IMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -18,12 +20,20 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-public class AdminResourceManager implements ResourceManager{
+public class SysResourceManager implements ResourceManager{
 
     @Autowired
     private IMenuService menuService;
     @Autowired
     private IDictTypeService dictTypeService;
+
+    @Override
+    public String getMsnByMenuId(Long menuId) {
+        return menuService.getById(menuId)
+                .ofNullable()
+                .map(item -> item.getMsn())
+                .orElse(null);
+    }
 
     @Override
     public UrlResource getByUrl(String url) {

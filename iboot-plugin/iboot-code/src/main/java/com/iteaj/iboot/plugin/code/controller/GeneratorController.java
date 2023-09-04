@@ -226,10 +226,13 @@ public class GeneratorController extends BaseController implements InitializingB
     private void genMenu(GenConfigDto dto, ConfigBuilder configBuilder) {
         if(dto.getMenuId() != null && CollectionUtil.isNotEmpty(configBuilder.getTableInfoList())) {
             StringBuilder url = new StringBuilder();
+            // 获取父菜单的msn作为子菜单的msn
+            dto.setMsn(resourceManager.getMsnByMenuId(dto.getMenuId()));
+
             Connection conn = properties.getLdc().getConn();
             try(Statement statement = conn.createStatement()) {
                 configBuilder.getTableInfoList().forEach(tableInfo -> {
-                    url.append("/").append(properties.getLpc().getModuleName())
+                    url.append("/").append(dto.getPackageName())
                             .append("/").append(tableInfo.getEntityPath());
 
                     // 菜单url已经存在
@@ -250,8 +253,8 @@ public class GeneratorController extends BaseController implements InitializingB
     private void writeMenuToDb(TableInfo tableInfo, GenConfigDto dto, LowCodeProperties properties, Statement statement) {
         try {
             final String comment = LowCodeUtil.getModuleName(tableInfo.getComment());
-            String url = "/"+properties.getLpc().getModuleName()+"/" + tableInfo.getEntityPath();
-            String perm = properties.getLpc().getModuleName()+":"+tableInfo.getEntityPath();
+            String url = "/"+dto.getPackageName()+"/" + tableInfo.getEntityPath();
+            String perm = dto.getPackageName()+":"+tableInfo.getEntityPath();
             String insertSql= String.format("insert into sys_menu (pid, name, url, perms, type, msn, sort) value (%s, '%s', '%s', '%s', 'V', '%s', 158);"
                     , dto.getMenuId(), comment, url, perm+":"+"view", dto.getMsn());
             statement.executeUpdate(insertSql);
@@ -263,13 +266,13 @@ public class GeneratorController extends BaseController implements InitializingB
 
             StringBuilder batchSql = new StringBuilder("insert into sys_menu (pid, name, url, perms, type, msn, sort) values ");
             // 查询列表
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 5),", pid, "查询", url+"/view", perm+":view", comment, dto.getMsn()));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 5),", pid, "查询", url+"/view", perm+":view", dto.getMsn()));
             // 新增
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 10),", pid, "新增", url+"/add", perm+":add", comment, dto.getMsn()));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 10),", pid, "新增", url+"/add", perm+":add", dto.getMsn()));
             // 修改
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 15),", pid, "修改", url+"/edit", perm+":edit", comment, dto.getMsn()));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 15),", pid, "修改", url+"/edit", perm+":edit", dto.getMsn()));
             // 删除
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 20);", pid, "删除", url+"/del", perm+":del", comment, dto.getMsn()));
+            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 20);", pid, "删除", url+"/del", perm+":del", dto.getMsn()));
             statement.executeUpdate(batchSql.toString());
         } catch (SQLException e) {
             e.printStackTrace();

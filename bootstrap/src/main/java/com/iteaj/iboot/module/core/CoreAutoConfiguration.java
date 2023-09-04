@@ -11,7 +11,7 @@ import com.iteaj.framework.spi.excel.IExcelService;
 import com.iteaj.iboot.module.core.config.listener.OnlineUserListener;
 import com.iteaj.iboot.module.core.exception.AsyncExceptionHandler;
 import com.iteaj.iboot.module.core.listener.LoggerListener;
-import com.iteaj.iboot.module.core.service.AdminResourceManager;
+import com.iteaj.iboot.module.core.service.impl.SysResourceManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -54,7 +54,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
 
     @Bean
     public ResourceManager menuResourceManager() {
-        return new AdminResourceManager();
+        return new SysResourceManager();
     }
 
     /**

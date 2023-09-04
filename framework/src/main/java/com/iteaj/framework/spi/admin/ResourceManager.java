@@ -17,6 +17,13 @@ import java.util.Map;
 public interface ResourceManager {
 
     /**
+     * 通过菜单id获取对应得msn
+     * @param menuId
+     * @return
+     */
+    String getMsnByMenuId(Long menuId);
+
+    /**
      * 获取数据通过url信息
      * @param url
      * @return

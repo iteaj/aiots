@@ -53,6 +53,7 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                     throw new ServiceException("同级已经存在菜单名称["+entity.getName()+"]");
                 });
 
+        entity.setUpdateTime(new Date());
         return super.updateById(entity);
     }
 
