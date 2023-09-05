@@ -15,6 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="status" column="status" />
         <result property="remark" column="remark" />
         <result property="orgId"    column="org_id"  />
+        <result property="postId"    column="post_id"  />
         <result property="account"    column="account"  />
         <result property="createTime"    column="create_time"  />
         <result property="updateTime"    column="update_time"  />
@@ -25,8 +26,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </collection>
     </resultMap>
     <insert id="createAdmin">
-        insert into sys_admin (name, org_id, account, email, phone, sex, avatar, password, status, remark, create_time) value
-        (#{name},#{orgId},#{account},#{email},#{phone},#{sex},#{avatar},#{password},#{status}, #{remark}, now());
+        insert into sys_admin (name, org_id, post_id, account, email, phone, sex, avatar, password, status, remark, create_time) value
+        (#{name},#{orgId}, #{postId}, #{account},#{email},#{phone},#{sex},#{avatar},#{password},#{status}, #{remark}, now());
         set @lastId=LAST_INSERT_ID();
         <if test="roleIds != null">
             insert into sys_admin_role (aid, rid) values
@@ -79,5 +80,31 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="getAdminPassword" resultType="java.lang.String">
         select password from sys_admin where id=#{id}
+    </select>
+    <select id="pageDetail" resultType="com.iteaj.iboot.module.core.dto.AdminDto">
+        select a.*, o.name org_name, p.name post_name from sys_admin a
+            left join sys_org o on a.org_id=o.id
+            left join sys_post p on a.post_id = p.id
+        <where>
+            <if test="entity.orgId!=null">
+                and a.org_id=#{entity.orgId}
+            </if>
+            <if test="entity.postId != null">
+                and a.post_id=#{entity.postId}
+            </if>
+            <if test="entity.status != null">
+                and a.status=#{entity.status}
+            </if>
+            <if test="entity.account!=null and entity.account!=''">
+                and a.account like '%${entity.account}%'
+            </if>
+            <if test="entity.name!=null and entity.name!=''">
+                and a.name like '%${entity.name}%'
+            </if>
+            <if test="entity.phone!=null and entity.phone!=''">
+                and a.phone like '%${entity.phone}%'
+            </if>
+        </where>
+        order by a.create_time desc, a.org_id
     </select>
 </mapper>

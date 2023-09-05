@@ -19,7 +19,12 @@ public class AdminDto extends Admin {
     /**
      * 所属部门
      */
-    private String deptName;
+    private String orgName;
+
+    /**
+     * 岗位名称
+     */
+    private String postName;
 
     /**
      * 角色名称列表

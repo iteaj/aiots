@@ -1,7 +1,11 @@
 package com.iteaj.iboot.module.core.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.core.dto.AdminDto;
 import com.iteaj.iboot.module.core.entity.Admin;
 
@@ -51,4 +55,12 @@ public interface IAdminService extends IBaseService<Admin> {
      * @param password
      */
     void setAdminPassword(Long id, String password);
+
+    /**
+     * 查询用户详情
+     * @param page
+     * @param admin
+     * @return
+     */
+    PageResult<IPage<AdminDto>> pageDetail(Page page, Admin admin);
 }

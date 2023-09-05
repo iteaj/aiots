@@ -4,9 +4,12 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.security.AuthenticationService;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.iboot.module.core.dto.AdminDto;
@@ -128,6 +131,11 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
         String md5Hex = DigestUtils.md5Hex(password.getBytes());
         getBaseMapper().updatePwdById(id, md5Hex);
+    }
+
+    @Override
+    public PageResult<IPage<AdminDto>> pageDetail(Page page, Admin admin) {
+        return new PageResult<>(getBaseMapper().pageDetail(page, admin));
     }
 
 }

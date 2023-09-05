@@ -48,7 +48,7 @@ public class AdminController extends BaseController {
     @GetMapping("/view")
     @CheckPermission("core:admin:view")
     public Result view(Page page, Admin admin) {
-        return this.adminService.page(page, admin);
+        return this.adminService.pageDetail(page, admin);
     }
 
     /**

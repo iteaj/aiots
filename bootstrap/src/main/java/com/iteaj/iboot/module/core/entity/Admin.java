@@ -37,6 +37,11 @@ public class Admin extends BaseEntity implements AuthenticationUser {
     private Long orgId;
 
     /**
+     * 所属岗位
+     */
+    private Long postId;
+
+    /**
      * 用户昵称
      */
     @TableField(condition = SqlCondition.LIKE)
