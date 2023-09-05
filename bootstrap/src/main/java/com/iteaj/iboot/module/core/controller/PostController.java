@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.core.controller;
 
 import java.util.List;
 import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,16 @@ public class PostController extends BaseController {
     @CheckPermission({"core:post:view"})
     public Result<IPage<Post>> list(Page<Post> page, Post entity) {
         return this.postService.pageDetail(page, entity);
+    }
+
+    /**
+     * 获取岗位列表
+     * @param entity
+     * @return
+     */
+    @GetMapping("/list")
+    public ListResult<Post> list(Post entity) {
+        return this.postService.list(entity);
     }
 
     /**
