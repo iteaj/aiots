@@ -23,15 +23,16 @@ public class Notify extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 机构id
-     */
-    private Long orgId;
 
     /**
      * 消息标题
      */
     private String title;
+
+    /**
+     * 机构id
+     */
+    private Long createUser;
 
     /**
      * 消息内容
@@ -42,11 +43,6 @@ public class Notify extends BaseEntity {
      * 消息类型
      */
     private String type;
-
-    /**
-     * 状态(true.已读 false.未读)
-     */
-    private Boolean status;
 
     /**
      * 创建时间

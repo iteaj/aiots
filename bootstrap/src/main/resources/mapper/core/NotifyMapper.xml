@@ -5,11 +5,10 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.core.entity.Notify">
         <result column="id" property="id" />
-        <result column="org_id" property="orgId" />
+        <result column="type" property="type" />
         <result column="title" property="title" />
         <result column="content" property="content" />
-        <result column="type" property="type" />
-        <result column="status" property="status" />
+        <result column="create_user" property="createUser" />
         <result column="create_time" property="createTime" />
     </resultMap>
 

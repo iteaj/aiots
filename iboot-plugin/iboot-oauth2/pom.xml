@@ -25,5 +25,9 @@
             <artifactId>sa-token-oauth2</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>me.zhyd.oauth</groupId>
+            <artifactId>JustAuth</artifactId>
+        </dependency>
     </dependencies>
 </project>

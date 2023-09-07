@@ -34,6 +34,7 @@
         <okhttp3.version>4.5.0</okhttp3.version>
         <excelpoi.version>4.3.0</excelpoi.version>
         <fastjson.version>1.2.78</fastjson.version>
+        <JustAuth.version>1.16.5</JustAuth.version>
         <izone.boot.version>1.2.1</izone.boot.version>
         <springboot.version>2.7.2</springboot.version>
         <mybatis.plus.version>3.4.1</mybatis.plus.version>
@@ -183,7 +184,11 @@
                 <version>${SaToken.version}</version>
                 <artifactId>sa-token-redis-jackson</artifactId>
             </dependency>
-
+            <dependency>
+                <groupId>me.zhyd.oauth</groupId>
+                <artifactId>JustAuth</artifactId>
+                <version>${JustAuth.version}</version>
+            </dependency>
             <!-- 短信和邮件 -->
             <dependency>
                 <version>${sms4j.version}</version>
@@ -240,6 +245,22 @@
     </repositories>
     <build>
         <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <filtering>false</filtering>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+                <directory>src/main/java</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

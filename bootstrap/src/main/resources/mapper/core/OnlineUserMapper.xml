@@ -32,7 +32,7 @@
     </sql>
     <!-- 批量插入 -->
     <insert id="insertAsBatch">
-        insert into sys_online_user (browse, account, expire_time, location, access_ip, login_time, os, status, user_nick, app_type) VALUES
+        insert into sys_online_user (browse, account, expire_time, location, access_ip, login_time, os, status, user_nick, type) VALUES
         <foreach collection="list" separator="," item="item">
             (#{item.browse},#{item.account},#{item.expireTime},#{item.location},#{item.loginIp},#{item.loginTime},#{item.os},
 		#{item.status},#{item.userNick},#{item.appType})
@@ -41,8 +41,10 @@
 
     <!--  统计当天在线和当前在线人数  -->
     <select id="countCurrentOnline" resultType="com.iteaj.iboot.module.core.dto.OnlineCountDto">
-        select count(distinct if(status='online', access_ip, null)) currentOnline
-             , count(distinct access_ip) todayAccess from sys_online_user where date(create_time) = date(now())
+        select count(if(status='online', 1, null)) currentOnline
+             , count(distinct account) loginAccount
+             , count(distinct access_ip) todayAccess
+        from sys_online_user where date(create_time) = date(now())
     </select>
 
     <!--  统计当天访问人数  -->

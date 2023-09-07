@@ -14,4 +14,9 @@ public class OnlineCountDto {
      * 当天访问人数
      */
     private long todayAccess;
+
+    /**
+     * 登录账号数
+     */
+    private long loginAccount;
 }
