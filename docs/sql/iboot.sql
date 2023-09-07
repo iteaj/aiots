@@ -2,7 +2,7 @@
 --
 -- Host: 127.0.0.1    Database: iboot
 -- ------------------------------------------------------
--- Server version	8.0.25
+-- Server version	8.0.34-0ubuntu0.20.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -115,7 +115,7 @@ CREATE TABLE `iot_collect_task` (
 
 LOCK TABLES `iot_collect_task` WRITE;
 /*!40000 ALTER TABLE `iot_collect_task` DISABLE KEYS */;
-INSERT INTO `iot_collect_task` VALUES (1,'plc采集','0/30 * * * * ?','fail','S71200设备采集任务','没有可用的采集动作[action=MODBUS:DTU:TCP]','2022-08-28 15:29:51',NULL),(2,'plc数据采集','0/30 * * * * ?','stop','采集基于modbus_tcp协议的plc设备数据','','2023-03-19 15:14:24',NULL),(3,'modbus测试','0/30 * * * * ?','stop','用于测试modbus设备协议的数据采集','','2023-04-14 22:41:34','2023-04-15 00:19:57');
+INSERT INTO `iot_collect_task` VALUES (1,'plc采集','0/30 * * * * ?','stop','S71200设备采集任务','','2022-08-28 15:29:51','2023-08-17 09:44:54'),(3,'modbus测试','0/30 * * * * ?','stop','用于测试modbus设备协议的数据采集','','2023-04-14 22:41:34','2023-04-15 00:19:57');
 /*!40000 ALTER TABLE `iot_collect_task` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -158,7 +158,7 @@ CREATE TABLE `iot_device` (
 
 LOCK TABLES `iot_device` WRITE;
 /*!40000 ALTER TABLE `iot_device` DISABLE KEYS */;
-INSERT INTO `iot_device` VALUES (5,1550801539290628000,'欧姆龙PLC',NULL,NULL,'172.16.30.1',9600,7,'offline',NULL,NULL,'',NULL,NULL,'omron001','2023-04-15 01:29:11','2022-07-23 19:14:34',NULL,3),(6,1555798233911939000,'RTU协议测试',NULL,NULL,NULL,NULL,10,'offline',NULL,NULL,'',NULL,NULL,'RTU_IOT_MODBUS_01','2023-04-15 01:29:11','2022-08-06 14:09:38',NULL,8),(8,1559835702382841900,'DTU模拟设测试',NULL,NULL,NULL,NULL,19,'offline',NULL,NULL,'',NULL,NULL,'100000000003','2023-04-15 01:29:11','2022-08-17 17:33:06',NULL,10),(16,1582605843000504300,'温湿度测试',NULL,NULL,NULL,NULL,9,'offline',NULL,NULL,'',NULL,NULL,'45332450','2023-04-15 01:29:11','2022-10-19 13:33:31',NULL,9),(19,1642094499355742200,'电流采集',NULL,NULL,'127.0.0.1',502,20,'offline',NULL,NULL,'',NULL,NULL,'MODBUS:CLIENT:01','2023-04-15 01:29:11','2023-04-01 17:20:11',NULL,23),(20,1646147083234230300,'test',NULL,NULL,NULL,NULL,21,'offline',NULL,NULL,'',NULL,NULL,'COM2','2023-04-15 01:29:11','2023-04-12 21:43:43',NULL,24);
+INSERT INTO `iot_device` VALUES (5,1550801539290628000,'欧姆龙PLC',NULL,NULL,'172.16.30.1',9600,7,'offline',NULL,NULL,'',NULL,NULL,'omron001','2023-09-07 01:42:08','2022-07-23 19:14:34',NULL,3),(6,1555798233911939000,'RTU协议测试',NULL,NULL,NULL,NULL,10,'offline',NULL,NULL,'',NULL,NULL,'RTU_IOT_MODBUS_01','2023-09-07 01:42:08','2022-08-06 14:09:38',NULL,8),(8,1559835702382841900,'DTU模拟设测试',NULL,NULL,NULL,NULL,19,'offline',NULL,NULL,'',NULL,NULL,'100000000003','2023-09-07 01:42:08','2022-08-17 17:33:06',NULL,10),(16,1582605843000504300,'温湿度测试',NULL,NULL,NULL,NULL,9,'offline',NULL,NULL,'',NULL,NULL,'45332450','2023-09-07 01:42:08','2022-10-19 13:33:31',NULL,9),(19,1642094499355742200,'电流采集',NULL,NULL,'127.0.0.1',502,20,'offline',NULL,NULL,'',NULL,NULL,'MODBUS:CLIENT:01','2023-09-07 01:42:08','2023-04-01 17:20:11',NULL,23),(20,1646147083234230300,'test',NULL,NULL,NULL,NULL,21,'offline',NULL,NULL,'',NULL,NULL,'COM2','2023-09-07 01:42:08','2023-04-12 21:43:43',NULL,24);
 /*!40000 ALTER TABLE `iot_device` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -398,6 +398,92 @@ INSERT INTO `iot_signal` VALUES (1,'电压值','100','',1,0,1,NULL,'voltage',3,'
 UNLOCK TABLES;
 
 --
+-- Table structure for table `oauth2_app`
+--
+
+DROP TABLE IF EXISTS `oauth2_app`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `oauth2_app` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `client_id` varchar(64) NOT NULL COMMENT '应用标识',
+  `client_secret` varchar(64) DEFAULT NULL COMMENT '应用密钥',
+  `contract_scope` varchar(128) DEFAULT NULL COMMENT '应用签约权限(逗号隔开)',
+  `allow_url` varchar(512) DEFAULT NULL COMMENT '允许授权的url(多个用逗号隔开)',
+  `client_name` varchar(64) DEFAULT NULL COMMENT '应用名称',
+  `access_token_timeout` bigint DEFAULT NULL COMMENT 'access_token保存的时间(秒)',
+  `refresh_token_timeout` bigint DEFAULT NULL COMMENT 'refresh-token保存的时间(秒)',
+  `client_token_timeout` bigint DEFAULT NULL COMMENT 'client-token保存的时间(秒)',
+  `past_token_timeout` bigint DEFAULT NULL COMMENT 'past-client-token保存的时间(秒)',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='oauth2应用';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `oauth2_app`
+--
+
+LOCK TABLES `oauth2_app` WRITE;
+/*!40000 ALTER TABLE `oauth2_app` DISABLE KEYS */;
+/*!40000 ALTER TABLE `oauth2_app` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `oauth2_client_user`
+--
+
+DROP TABLE IF EXISTS `oauth2_client_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `oauth2_client_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `type` varchar(16) NOT NULL COMMENT '第三方类型',
+  `user_id` bigint DEFAULT NULL COMMENT '关联的用户/会员',
+  `user_type` varchar(16) DEFAULT NULL COMMENT '用户类型(sys、vip)',
+  `openid` varchar(64) NOT NULL COMMENT '第三方openid',
+  `nickname` varchar(64) DEFAULT NULL COMMENT '昵称',
+  `avatar_url` varchar(128) DEFAULT NULL COMMENT '头像地址',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '绑定时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='第三方用户';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `oauth2_client_user`
+--
+
+LOCK TABLES `oauth2_client_user` WRITE;
+/*!40000 ALTER TABLE `oauth2_client_user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `oauth2_client_user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `oauth2_user`
+--
+
+DROP TABLE IF EXISTS `oauth2_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `oauth2_user` (
+  `id` bigint DEFAULT NULL COMMENT '用户id',
+  `login_id` varchar(32) NOT NULL COMMENT '用户标识',
+  `client_id` varchar(64) DEFAULT NULL COMMENT '所属应用',
+  `openid` varchar(64) DEFAULT NULL COMMENT '用户openid',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `oauth2_user`
+--
+
+LOCK TABLES `oauth2_user` WRITE;
+/*!40000 ALTER TABLE `oauth2_user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `oauth2_user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `qrtz_job_task`
 --
 
@@ -446,13 +532,15 @@ CREATE TABLE `sys_access_log` (
   `type` varchar(16) NOT NULL DEFAULT '' COMMENT '功能类型',
   `millis` int DEFAULT NULL COMMENT '操作毫秒数',
   `user_id` bigint DEFAULT '0' COMMENT '操作人员',
+  `params` varchar(256) DEFAULT NULL COMMENT '接口参数',
+  `method` varchar(64) DEFAULT NULL COMMENT '接口方法',
   `user_name` varchar(50) DEFAULT '' COMMENT '操作人员',
   `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '操作状态',
   `err_msg` varchar(512) NOT NULL DEFAULT '' COMMENT '异常消息',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
   `update_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8982 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='操作日志记录';
+) ENGINE=InnoDB AUTO_INCREMENT=15943 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='操作日志记录';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -474,6 +562,7 @@ DROP TABLE IF EXISTS `sys_admin`;
 CREATE TABLE `sys_admin` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `org_id` bigint DEFAULT NULL COMMENT '部门ID',
+  `post_id` bigint NOT NULL COMMENT '所属岗位',
   `account` char(24) NOT NULL COMMENT '登录账号',
   `name` varchar(30) NOT NULL COMMENT '用户名称',
   `email` varchar(50) DEFAULT '' COMMENT '用户邮箱',
@@ -491,7 +580,7 @@ CREATE TABLE `sys_admin` (
   `update_time` timestamp NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `t_admin_account_uindex` (`account`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员信息表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -500,7 +589,7 @@ CREATE TABLE `sys_admin` (
 
 LOCK TABLES `sys_admin` WRITE;
 /*!40000 ALTER TABLE `sys_admin` DISABLE KEYS */;
-INSERT INTO `sys_admin` VALUES (1,3,'admin','超级管理员','iteaj@outlook.com','13123456028',3,'/img/logo.png','a66abb5684c45962d887564f08346e8d','enabled','127.0.0.1','2018-03-16 11:33:00','做回自己, 活出未来(iteaj)','admin','2018-03-15 11:33:00','admin','2018-03-14 19:33:00'),(7,1,'demo','demo','iteaj@outlook.com','13123456029',3,NULL,'202cb962ac59075b964b07152d234b70','enabled',NULL,NULL,'用于演示.','','2023-04-06 09:30:10','','2023-04-06 01:30:15');
+INSERT INTO `sys_admin` VALUES (1,1,2,'admin','超级管理员','iteaj@outlook.com','13123456028',3,'/img/logo.png','a66abb5684c45962d887564f08346e8d','enabled','127.0.0.1','2018-03-16 11:33:00','做回自己, 活出未来(iteaj)','admin','2018-03-15 00:00:00','admin','2023-09-05 05:53:42'),(7,5,3,'demo','demo','iteaj@outlook.com','13123456029',3,NULL,'e10adc3949ba59abbe56e057f20f883e','enabled',NULL,NULL,'用于演示.','','2023-04-06 00:00:00','','2023-09-05 06:54:57'),(13,3,1,'iteaj','iteaj','shopingidn@gmail.com','13123456028',3,NULL,'a88b27088abf12811cf7df0f1421d7e1','enabled','',NULL,NULL,'','2023-09-05 13:59:21','',NULL);
 /*!40000 ALTER TABLE `sys_admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -523,8 +612,36 @@ CREATE TABLE `sys_admin_role` (
 
 LOCK TABLES `sys_admin_role` WRITE;
 /*!40000 ALTER TABLE `sys_admin_role` DISABLE KEYS */;
-INSERT INTO `sys_admin_role` VALUES (1,3),(1,4),(7,4);
+INSERT INTO `sys_admin_role` VALUES (1,2),(13,2),(7,4);
 /*!40000 ALTER TABLE `sys_admin_role` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sys_captcha`
+--
+
+DROP TABLE IF EXISTS `sys_captcha`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sys_captcha` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `code` char(36) NOT NULL,
+  `captcha` varchar(8) DEFAULT NULL COMMENT '验证码',
+  `expire_time` int DEFAULT NULL COMMENT '过期时间(秒)',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sys_capt_code_uindex` (`code`)
+) ENGINE=InnoDB AUTO_INCREMENT=1699623078721593347 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='验证码';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sys_captcha`
+--
+
+LOCK TABLES `sys_captcha` WRITE;
+/*!40000 ALTER TABLE `sys_captcha` DISABLE KEYS */;
+INSERT INTO `sys_captcha` VALUES (1699453972982636545,'65457c1d52dd4c21b31cb4b715150368','0',60,'2023-09-07 00:06:16'),(1699470741348655105,'349a1d6fe3b743c590123dac8a4364bb','2',60,'2023-09-07 01:12:54'),(1699477163960541186,'79c2183d94334f73bb50f247d3f75f24','6',60,'2023-09-07 01:38:25'),(1699485682709405698,'874b97f514d24623b1d8095e47f95e1f','0',60,'2023-09-07 02:12:16'),(1699487514399711234,'b8a55ed062384edab33d93fc8a3e32e5','17',60,'2023-09-07 02:19:33'),(1699495480532246529,'8145d4210ec844cdbf3a0c119915bccb','3',60,'2023-09-07 02:51:12'),(1699497322548928513,'68af07e680fd41f69673e2f74e8df830','0',60,'2023-09-07 02:58:31'),(1699510942909440002,'e5a4d8f819b547dc968bdd5630413af6','24',60,'2023-09-07 03:52:39'),(1699523923374350338,'d0a1576af287441984022507c0c165e4','2',60,'2023-09-07 04:44:14'),(1699544868772225025,'db5dc19375c24b00ab757b20ac88ab66','1',60,'2023-09-07 06:07:27'),(1699578825903546369,'ae7986ae968642f68bad924f911be496','11',60,'2023-09-07 08:22:23'),(1699580085096521730,'fc139ae215144f31b3aeffc7680bbed5','15',60,'2023-09-07 08:27:24'),(1699583230023409665,'d942dca2da23454ab045ea3733a80f7b','6',60,'2023-09-07 08:39:53'),(1699588876408037378,'3932c8940898432bbb7cb3601b014549','10',60,'2023-09-07 09:02:20'),(1699590799056019458,'04e693675da84365b7d991ae230c7cb6','8',60,'2023-09-07 09:09:58'),(1699590828290318337,'786c80af39974bf888c2cf1ca5147908','0',60,'2023-09-07 09:10:05'),(1699606795699462146,'d018c0527bca4f548f314444a6018ccc','14',60,'2023-09-07 10:13:32'),(1699619394134581249,'40d3479db86e4b04b0600ccc60d386f9','28',60,'2023-09-07 11:03:36'),(1699619418738368514,'1e9021c6eb55478ca1bb60f15f2ac817','5',60,'2023-09-07 11:03:41'),(1699619419912773633,'295a03d101f442448c2bd0f7656e16e2','14',60,'2023-09-07 11:03:42');
+/*!40000 ALTER TABLE `sys_captcha` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -554,7 +671,7 @@ CREATE TABLE `sys_config` (
 
 LOCK TABLES `sys_config` WRITE;
 /*!40000 ALTER TABLE `sys_config` DISABLE KEYS */;
-INSERT INTO `sys_config` VALUES (1,'系统名称','sys_name','工业物联网管理平台','sys','系统的名称','2019-12-04 07:25:31',NULL),(2,'菜单展开级别','sys_menu_style','one','sys','one：展开一级  more: 展开多级','2022-08-11 11:15:33',NULL),(3,'系统logo','sys_logo','/img/logo.png','sys','系统顶部logo图片地址','2022-08-12 10:04:15',NULL);
+INSERT INTO `sys_config` VALUES (1,'系统名称','sys_name','城联IOT平台','sys','系统的名称','2019-12-04 07:25:31',NULL),(2,'菜单展开级别','sys_menu_style','one','sys','one：展开一级  more: 展开多级','2022-08-11 11:15:33',NULL),(3,'系统logo','sys_logo','/img/logo.png','sys','系统顶部logo图片地址','2022-08-12 10:04:15',NULL);
 /*!40000 ALTER TABLE `sys_config` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -637,17 +754,17 @@ CREATE TABLE `sys_menu` (
   `pid` bigint DEFAULT '0' COMMENT '父菜单ID',
   `sort` int DEFAULT '0' COMMENT '显示顺序',
   `url` varchar(200) DEFAULT '#' COMMENT '请求地址',
+  `msn` char(16) DEFAULT NULL COMMENT '所属模块',
   `type` enum('A','M','V') NOT NULL COMMENT '菜单类型: A.权限、M.菜单、V.视图',
-  `log` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否记录日志',
-  `log_desc` varchar(64) NOT NULL DEFAULT '' COMMENT '日志说明',
   `status` enum('enabled','disabled') DEFAULT 'enabled' COMMENT '菜单状态',
   `perms` varchar(100) DEFAULT NULL COMMENT '权限标识',
   `icon` varchar(100) DEFAULT '#' COMMENT '菜单图标',
   `remark` varchar(512) DEFAULT '' COMMENT '备注',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1305 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单权限表';
+  PRIMARY KEY (`id`),
+  KEY `sys_menu_msn_index` (`msn`)
+) ENGINE=InnoDB AUTO_INCREMENT=1334 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单权限表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -656,8 +773,91 @@ CREATE TABLE `sys_menu` (
 
 LOCK TABLES `sys_menu` WRITE;
 /*!40000 ALTER TABLE `sys_menu` DISABLE KEYS */;
-INSERT INTO `sys_menu` VALUES (1058,'系统管理',0,50,'#1','M',1,'','enabled',NULL,'iz-icon-sys','','2021-09-25 00:00:00',NULL),(1060,'用户管理',1058,0,'/core/admin','V',0,'','enabled','core:admin:view','iz-icon-sys-user','','2021-09-25 11:18:39',NULL),(1065,'角色管理',1058,1,'/core/role','V',0,'','enabled','core:role:view','iz-icon-sys-role','','2021-09-25 11:18:39',NULL),(1066,'菜单管理',1058,2,'/core/menu','V',0,'浏览菜单信息','enabled','core:menu:view','iz-icon-menu','','2021-09-25 11:18:39',NULL),(1069,'新增',1066,1,'/core/menu/add','A',1,'新增菜单','enabled','core:menu:add','#','','2021-09-25 11:18:39',NULL),(1070,'编辑',1066,2,'/core/menu/edit','A',1,'修改菜单信息','enabled','core:menu:edit','#','','2021-09-25 11:18:39',NULL),(1071,'删除',1066,3,'/core/menu/del','A',1,'删除菜单','enabled','core:menu:del','#','','2021-09-25 11:18:39',NULL),(1072,'查询',1066,0,'/core/menu/view','A',1,'浏览菜单信息','enabled','core:menu:view','#','','2021-09-25 11:18:39',NULL),(1090,'字典管理',1058,8,'/core/dict','V',0,'','enabled','core:dictType:view','iz-icon-zidianguanli','','2021-09-25 11:18:39',NULL),(1092,'新增',1090,0,'/core/dictType/add','A',1,'新增字典类型','enabled','core:dictType:add','#','','2021-09-25 11:18:39',NULL),(1093,'修改',1090,0,'/core/dictType/edit','A',1,'修改字典类型','enabled','core:dictType:edit','#','','2021-09-25 11:18:39',NULL),(1094,'查询',1090,0,'/core/dictType/view','A',1,'浏览字典信息','enabled','core:dictType:view','#','','2021-09-25 11:18:39',NULL),(1108,'部门管理',1058,50,'/core/org','V',0,'','enabled','core:org:view','iz-icon-jigouguanli','','2021-09-25 11:18:39',NULL),(1113,'新增',1108,0,'/core/org/add','A',1,'新增组织机构','enabled','core:org:add','#','','2021-09-25 11:18:39',NULL),(1114,'删除',1108,0,'/core/org/del','A',1,'删除组织机构','enabled','core:org:del','#','','2021-09-25 11:18:39',NULL),(1115,'修改',1108,0,'/core/org/edit','A',1,'修改组织机构','enabled','core:org:edit','#','','2021-09-25 11:18:39',NULL),(1116,'查询',1108,0,'/core/org/view','A',1,'浏览组织机构信息','enabled','core:org:view','#','','2021-09-25 11:18:39',NULL),(1117,'新增',1060,0,'/core/admin/add','A',1,'','enabled','core:admin:add','#','','2021-09-25 11:18:39',NULL),(1118,'删除',1060,0,'/core/admin/del','A',1,'删除用户信息','enabled','core:admin:del','#','','2021-09-25 11:18:39',NULL),(1119,'修改',1060,0,'/core/admin/edit','A',1,'修改用户信息','enabled','core:admin:edit','#','','2021-09-25 11:18:39',NULL),(1120,'查询',1060,0,'/core/admin/view','A',1,'浏览用户信息','enabled','core:admin:view','#','','2021-09-25 11:18:39',NULL),(1121,'新增',1065,0,'/core/role/add','A',1,'新增用户角色','enabled','core:role:add','#','','2021-09-25 11:18:39',NULL),(1122,'删除',1065,0,'/core/role/del','A',1,'删除用户角色','enabled','core:role:del','#','','2021-09-25 11:18:39',NULL),(1123,'修改',1065,0,'/core/role/edit','A',1,'修改用户角色','enabled','core:role:edit','#','','2021-09-25 11:18:39',NULL),(1124,'查询',1065,0,'/core/role/view','A',1,'浏览用户角色','enabled','core:role:view','#','','2021-09-25 11:18:39',NULL),(1125,'设置密码',1060,0,'/core/admin/pwd','A',1,'修改用户密码','enabled','core:admin:pwd','#','修改用户密码','2021-09-25 11:18:39',NULL),(1127,'系统配置',1058,5,'/core/config','V',0,'','enabled','core:config:view','iz-icon-sysconfig','','2021-09-25 11:18:39',NULL),(1128,'新增',1127,0,'/core/config/add','A',1,'新增系统配置','enabled','core:config:add','#','','2021-09-25 11:18:39',NULL),(1129,'删除',1127,0,'/core/config/del','A',1,'删除系统配置','enabled','core:config:del','#','','2021-09-25 11:18:39',NULL),(1130,'修改',1127,0,'/core/config/edit','A',1,'修改系统配置','enabled','core:config:edit','#','','2021-09-25 11:18:39',NULL),(1131,'查询',1127,0,'/core/config/view','A',1,'浏览系统配置','enabled','core:config:view','#','','2021-09-25 11:18:39',NULL),(1132,'操作日志',1156,18,'/core/log','V',0,'','enabled','core:log:view','iz-icon-log','','2021-09-25 11:18:39',NULL),(1134,'删除',1132,0,'/core/log/del','A',1,'删除访问日志','enabled','core:log:del','#','','2021-09-25 11:18:39',NULL),(1136,'查询',1132,0,'/core/log/view','A',0,'','enabled','core:log:view','#','','2021-09-25 11:18:39',NULL),(1137,'详情',1066,0,'','A',0,'','enabled','core:menu:detail','#','','2021-09-25 11:18:39',NULL),(1156,'系统监控',0,100,'#','M',0,'','enabled',NULL,'iz-icon-sys-monitor','','2021-09-25 00:00:00',NULL),(1157,'在线用户',1156,0,'/core/online','V',1,'在线用户操作','enabled','core:online:user','iz-icon-online-user','','2021-09-25 11:18:39',NULL),(1162,'定时任务',1156,50,'/quartz/task','V',1,'作业监控','enabled','quartz:task:view','iz-icon-quartz','','2021-09-25 00:00:00',NULL),(1163,'新增',1162,0,'/quartz/triggers/add','A',1,'','enabled','quartz:trigger:add','#','','2021-09-25 11:18:39',NULL),(1164,'删除',1162,0,'/quartz/triggers/del','A',1,'','enabled','quartz:trigger:del','#','','2021-09-25 11:18:39',NULL),(1165,'修改',1162,0,'/quartz/triggers/edit','A',1,'','enabled','quartz:trigger:edit','#','','2021-09-25 11:18:39',NULL),(1166,'查询',1162,0,'/quartz/triggers/view','A',1,'','enabled','quartz:trigger:view','#','','2021-09-25 11:18:39',NULL),(1167,'暂停',1162,5,'/quartz/triggers/paused','A',1,'暂停作业','enabled','quartz:triggers:paused','#','','2021-09-25 11:18:39',NULL),(1168,'运行一次',1162,0,'/quartz/triggers/run','A',1,'运行一次作业','enabled','quartz:triggers:run','#','','2021-09-25 11:18:39',NULL),(1217,'分配权限',1065,68,'/core/role/perm','A',1,'','enabled','core:role:perm','#','',NULL,NULL),(1218,'删除',1157,68,'/core/online/del','A',1,'','enabled','core:online:del','#','',NULL,NULL),(1219,'下线',1157,68,'/core/online/offline','A',1,'','enabled','core:online:offline','#','',NULL,NULL),(1220,'查询',1157,68,'/core/online/view','A',1,'','enabled','core:online:view','#','',NULL,NULL),(1221,'删除',1090,68,'/core/dictType/del','A',1,'','enabled','core:dictType:del','#','',NULL,NULL),(1222,'开发工具',0,150,'#','M',0,'','enabled',NULL,'iz-icon-kaifa','',NULL,NULL),(1223,'代码生成',1222,10,'/gen/code','V',0,'','enabled','gen:code:view','iz-icon-code','',NULL,NULL),(1224,'工业物联网',0,30,'#','M',1,'','enabled',NULL,'iz-icon-iiot','',NULL,NULL),(1225,'设备类型',1304,158,'/iot/deviceType','V',0,'','enabled','iot:deviceType:view','iz-icon-type','',NULL,NULL),(1226,'查询',1225,5,'/iot/deviceType/view','A',1,'查询设备类型','enabled','iot:deviceType:view','#','',NULL,NULL),(1227,'新增',1225,10,'/iot/deviceType/add','A',1,'新增设备类型','enabled','iot:deviceType:add','#','',NULL,NULL),(1228,'修改',1225,15,'/iot/deviceType/edit','A',1,'修改设备类型记录','enabled','iot:deviceType:edit','#','',NULL,NULL),(1229,'删除',1225,20,'/iot/deviceType/del','A',1,'删除设备类型记录','enabled','iot:deviceType:del','#','',NULL,NULL),(1230,'设备信息',1304,128,'/iot/device','V',0,'','enabled','iot:device:view','iz-icon-device','',NULL,NULL),(1231,'查询',1230,5,'/iot/device/view','A',1,'查询设备','enabled','iot:device:view','#','',NULL,NULL),(1232,'新增',1230,10,'/iot/device/add','A',1,'新增设备','enabled','iot:device:add','#','',NULL,NULL),(1233,'修改',1230,15,'/iot/device/edit','A',1,'修改设备记录','enabled','iot:device:edit','#','',NULL,NULL),(1234,'删除',1230,20,'/iot/device/del','A',1,'删除设备记录','enabled','iot:device:del','#','',NULL,NULL),(1235,'PLC管理',1224,200,'/iot/plc','V',1,'','enabled','iot:plc:view','iz-icon-plc','',NULL,NULL),(1236,'新增',1235,28,'/iot/plc/add','A',1,'','enabled','iot:plc:add','#','',NULL,NULL),(1237,'DTU管理',1224,250,'/iot/dtu','V',0,'','enabled','iot:dtu:view','iz-icon-dtube','',NULL,NULL),(1238,'新增',1237,60,'/iot/dtu/add','A',1,'','enabled','iot:dtu:add','#','',NULL,NULL),(1239,'查询',1237,30,'/iot/dtu/view','A',1,'','enabled','iot:dtu:view','#','',NULL,NULL),(1240,'修改',1237,0,'/iot/dtu/edit','A',1,'','enabled','iot:dtu:edit','#','',NULL,NULL),(1241,'调试',1237,90,'/iot/dtu/debug','A',1,'','enabled','iot:dtu:debug','#','',NULL,NULL),(1242,'删除',1237,120,'/iot/dtu/del','A',1,'','enabled','iot:dtu:del','#','',NULL,NULL),(1243,'修改',1235,58,'/iot/plc/edit','A',1,'','enabled','iot:plc:edit','#','',NULL,NULL),(1244,'删除',1235,78,'/iot/plc/del','A',1,'','enabled','iot:plc:del','#','',NULL,NULL),(1245,'调试',1235,98,'/iot/plc/debug','A',1,'','enabled','iot:plc:debug','#','',NULL,NULL),(1246,'查询',1235,18,'/iot/plc/view','A',1,'','enabled','iot:plc:view','#','',NULL,NULL),(1247,'子设备',1237,160,'/iot/dtu/child','A',0,'','enabled','iot:dtu:child','#','',NULL,NULL),(1248,'子设备',1224,158,'/iot/deviceChild','V',0,'','disabled','iot:deviceChild:view','#','',NULL,NULL),(1249,'查询',1248,5,'/iot/deviceChild/view','A',1,'查询子设备','enabled','iot:deviceChild:view','#','',NULL,NULL),(1250,'新增',1248,10,'/iot/deviceChild/add','A',1,'新增子设备','enabled','iot:deviceChild:add','#','',NULL,NULL),(1251,'修改',1248,15,'/iot/deviceChild/edit','A',1,'修改子设备记录','enabled','iot:deviceChild:edit','#','',NULL,NULL),(1252,'删除',1248,20,'/iot/deviceChild/del','A',1,'删除子设备记录','enabled','iot:deviceChild:del','#','',NULL,NULL),(1255,'网络调试',1273,300,'/iot/debug','V',0,'','enabled','','iz-icon-debug-tools','',NULL,NULL),(1256,'点位组管理',1272,58,'/iot/pointGroup','V',0,'','enabled','iot:pointGroup:view','iz-icon-set','',NULL,NULL),(1257,'查询',1256,5,'/iot/pointGroup/view','A',1,'查询点位组','enabled','iot:pointGroup:view','#','',NULL,NULL),(1258,'新增',1256,10,'/iot/pointGroup/add','A',1,'新增点位组','enabled','iot:pointGroup:add','#','',NULL,NULL),(1259,'修改',1256,15,'/iot/pointGroup/edit','A',1,'修改点位组记录','enabled','iot:pointGroup:edit','#','',NULL,NULL),(1260,'删除',1256,20,'/iot/pointGroup/del','A',1,'删除点位组记录','enabled','iot:pointGroup:del','#','',NULL,NULL),(1261,'点位管理',1272,18,'/iot/signal','V',0,'','enabled','iot:signal:view','iz-icon-signal','',NULL,NULL),(1262,'查询',1261,5,'/iot/signal/view','A',1,'查询寄存器点位','enabled','iot:signal:view','#','',NULL,NULL),(1263,'新增',1261,10,'/iot/signal/add','A',1,'新增寄存器点位','enabled','iot:signal:add','#','',NULL,NULL),(1264,'修改',1261,15,'/iot/signal/edit','A',1,'修改寄存器点位记录','enabled','iot:signal:edit','#','',NULL,NULL),(1265,'删除',1261,20,'/iot/signal/del','A',1,'删除寄存器点位记录','enabled','iot:signal:del','#','',NULL,NULL),(1266,'设备型号',1304,158,'/iot/deviceModel','V',0,'','enabled','iot:deviceModel:view','iz-icon-model','',NULL,NULL),(1267,'查询',1266,5,'/iot/deviceModel/view','A',1,'查询设备型号','enabled','iot:deviceModel:view','#','',NULL,NULL),(1268,'新增',1266,10,'/iot/deviceModel/add','A',1,'新增设备型号','enabled','iot:deviceModel:add','#','',NULL,NULL),(1269,'修改',1266,15,'/iot/deviceModel/edit','A',1,'修改设备型号记录','enabled','iot:deviceModel:edit','#','',NULL,NULL),(1270,'删除',1266,20,'/iot/deviceModel/del','A',1,'删除设备型号记录','enabled','iot:deviceModel:del','#','',NULL,NULL),(1271,'连接',1235,108,'/iot/plc/connect','A',1,'','enabled','iot:plc:connect','#','',NULL,NULL),(1272,'数据采集',1224,300,'#','M',0,'','enabled',NULL,'iz-icon-collect','',NULL,NULL),(1273,'调试工具',1224,320,'#','M',0,'','enabled',NULL,'iz-icon-debug','',NULL,NULL),(1274,'DTU模拟',1273,20,'/iot/simulator/dtu','V',0,'','enabled',NULL,'#','',NULL,NULL),(1275,'采集任务管理',1272,158,'/iot/collectTask','V',0,'','enabled','iot:collectTask:view','iz-icon-collect-task','',NULL,NULL),(1276,'查询',1275,5,'/iot/collectTask/view','A',1,'查询数据采集任务','enabled','iot:collectTask:view','#','',NULL,NULL),(1277,'新增',1275,10,'/iot/collectTask/add','A',1,'新增数据采集任务','enabled','iot:collectTask:add','#','',NULL,NULL),(1278,'修改',1275,15,'/iot/collectTask/edit','A',1,'修改数据采集任务记录','enabled','iot:collectTask:edit','#','',NULL,NULL),(1279,'删除',1275,20,'/iot/collectTask/del','A',1,'删除数据采集任务记录','enabled','iot:collectTask:del','#','',NULL,NULL),(1281,'配置',1275,25,'','A',1,'','enabled','iot:collectTask:config','#','',NULL,NULL),(1282,'Modbus管理',1224,280,'/iot/modbus','V',1,'','enabled',NULL,'iz-icon-modbus','',NULL,NULL),(1283,'新增',1282,10,'/iot/modbus/add','A',1,'','enabled','iot:modbus:add','#','',NULL,NULL),(1284,'编辑',1282,50,'/iot/modbus/edit','A',1,'','enabled','iot:modbus:edit','#','',NULL,NULL),(1285,'删除',1282,80,'/iot/modbus/del','A',1,'','enabled','iot:modbus:del','#','',NULL,NULL),(1286,'浏览',1282,5,'/iot/modbus/view','A',1,'','enabled','iot:modbus:view','#','',NULL,NULL),(1287,'数据',1275,30,'#','A',1,'','enabled','iot:collectTask:data','#','',NULL,NULL),(1288,'采集数据列表',1272,188,'/iot/collectData','V',1,'','enabled','iot:collectData:view','#','',NULL,NULL),(1289,'导出',1060,80,'/core/admin/export','A',1,'','enabled','core:admin:export','#','',NULL,NULL),(1290,'调试',1282,100,'/iot/modbus/debug','A',1,'','enabled','iot:modbus:debug','#','',NULL,NULL),(1291,'连接',1282,90,'/iot/modbus/connect','A',1,'','enabled','iot:modbus:connect','#','',NULL,NULL),(1292,'导入',1060,70,'/core/admin/import','A',1,'','enabled','core:admin:import','#','',NULL,NULL),(1293,'串口设备',1224,158,'/iot/serial','V',0,'','enabled','iot:serial:view','iz-icon-serial','',NULL,NULL),(1294,'查询',1293,5,'/iot/serial/view','A',1,'查询串口设备','enabled','iot:serial:view','#','',NULL,NULL),(1295,'新增',1293,10,'/iot/serial/add','A',1,'新增串口设备','enabled','iot:serial:add','#','',NULL,NULL),(1296,'修改',1293,15,'/iot/serial/edit','A',1,'修改串口设备记录','enabled','iot:serial:edit','#','',NULL,NULL),(1297,'删除',1293,20,'/iot/serial/del','A',1,'删除串口设备记录','enabled','iot:serial:del','#','',NULL,NULL),(1303,'连接',1293,25,'/iot/serial/connect','A',1,'','enabled','iot:serial:connect','#','',NULL,NULL),(1304,'基础信息',0,20,'#','M',0,'','enabled','#','iz-icon-basic-config','',NULL,NULL);
+INSERT INTO `sys_menu` VALUES (1058,'系统管理',0,50,'#','sys','M','enabled',NULL,'iz-icon-sys','','2021-09-25 00:00:00',NULL),(1060,'用户管理',1058,0,'/core/admin','sys','V','enabled','core:admin:view','iz-icon-sys-user','','2021-09-25 11:18:39',NULL),(1065,'角色管理',1058,1,'/core/role','sys','V','enabled','core:role:view','iz-icon-sys-role','','2021-09-25 11:18:39',NULL),(1066,'菜单管理',1058,2,'/core/menu','sys','V','enabled','core:menu:view','iz-icon-menu','','2021-09-25 11:18:39',NULL),(1069,'新增',1066,1,'/core/menu/add','sys','A','enabled','core:menu:add','#','','2021-09-25 11:18:39',NULL),(1070,'编辑',1066,2,'/core/menu/edit','sys','A','enabled','core:menu:edit','#','','2021-09-25 11:18:39',NULL),(1071,'删除',1066,3,'/core/menu/del','sys','A','enabled','core:menu:del','#','','2021-09-25 11:18:39',NULL),(1072,'查询',1066,0,'/core/menu/view','sys','A','enabled','core:menu:view','#','','2021-09-25 11:18:39',NULL),(1090,'字典管理',1058,8,'/core/dict','sys','V','enabled','core:dictType:view','iz-icon-zidianguanli','','2021-09-25 11:18:39',NULL),(1092,'新增',1090,0,'/core/dictType/add','sys','A','enabled','core:dictType:add','#','','2021-09-25 11:18:39',NULL),(1093,'修改',1090,0,'/core/dictType/edit','sys','A','enabled','core:dictType:edit','#','','2021-09-25 11:18:39',NULL),(1094,'查询',1090,0,'/core/dictType/view','sys','A','enabled','core:dictType:view','#','','2021-09-25 11:18:39',NULL),(1108,'组织机构',1058,50,'/core/org','sys','V','enabled','core:org:view','iz-icon-jigouguanli','','2021-09-25 00:00:00','2023-09-04 16:25:18'),(1113,'新增',1108,0,'/core/org/add','sys','A','enabled','core:org:add','#','','2021-09-25 11:18:39',NULL),(1114,'删除',1108,0,'/core/org/del','sys','A','enabled','core:org:del','#','','2021-09-25 11:18:39',NULL),(1115,'修改',1108,0,'/core/org/edit','sys','A','enabled','core:org:edit','#','','2021-09-25 11:18:39',NULL),(1116,'查询',1108,0,'/core/org/view','sys','A','enabled','core:org:view','#','','2021-09-25 11:18:39',NULL),(1117,'新增',1060,0,'/core/admin/add','sys','A','enabled','core:admin:add','#','','2021-09-25 11:18:39',NULL),(1118,'删除',1060,0,'/core/admin/del','sys','A','enabled','core:admin:del','#','','2021-09-25 11:18:39',NULL),(1119,'修改',1060,0,'/core/admin/edit','sys','A','enabled','core:admin:edit','#','','2021-09-25 11:18:39',NULL),(1120,'查询',1060,0,'/core/admin/view','sys','A','enabled','core:admin:view','#','','2021-09-25 11:18:39',NULL),(1121,'新增',1065,0,'/core/role/add','sys','A','enabled','core:role:add','#','','2021-09-25 11:18:39',NULL),(1122,'删除',1065,0,'/core/role/del','sys','A','enabled','core:role:del','#','','2021-09-25 11:18:39',NULL),(1123,'修改',1065,0,'/core/role/edit','sys','A','enabled','core:role:edit','#','','2021-09-25 11:18:39',NULL),(1124,'查询',1065,0,'/core/role/view','sys','A','enabled','core:role:view','#','','2021-09-25 11:18:39',NULL),(1125,'设置密码',1060,0,'/core/admin/pwd','sys','A','enabled','core:admin:pwd','#','修改用户密码','2021-09-25 11:18:39',NULL),(1127,'系统配置',1058,5,'/core/config','sys','V','enabled','core:config:view','iz-icon-sysconfig','','2021-09-25 11:18:39',NULL),(1128,'新增',1127,0,'/core/config/add','sys','A','enabled','core:config:add','#','','2021-09-25 11:18:39',NULL),(1129,'删除',1127,0,'/core/config/del','sys','A','enabled','core:config:del','#','','2021-09-25 11:18:39',NULL),(1130,'修改',1127,0,'/core/config/edit','sys','A','enabled','core:config:edit','#','','2021-09-25 11:18:39',NULL),(1131,'查询',1127,0,'/core/config/view','sys','A','enabled','core:config:view','#','','2021-09-25 11:18:39',NULL),(1132,'操作日志',1156,18,'/core/log','sys','V','enabled','core:log:view','iz-icon-log','','2021-09-25 11:18:39',NULL),(1134,'删除',1132,0,'/core/log/del','sys','A','enabled','core:log:del','#','','2021-09-25 11:18:39',NULL),(1136,'查询',1132,0,'/core/log/view','sys','A','enabled','core:log:view','#','','2021-09-25 11:18:39',NULL),(1137,'详情',1066,0,'','sys','A','enabled','core:menu:detail','#','','2021-09-25 11:18:39',NULL),(1156,'系统运维',0,100,'#','sys','M','enabled',NULL,'iz-icon-sys-monitor','','2021-09-25 00:00:00','2023-09-05 18:00:03'),(1157,'会话管理',1156,12,'/core/online','sys','V','enabled','core:online:user','iz-icon-online-user','','2021-09-25 00:00:00','2023-09-04 17:51:20'),(1162,'定时任务',1156,50,'/quartz/task','iot','V','enabled','quartz:task:view','iz-icon-quartz','','2021-09-25 00:00:00',NULL),(1163,'新增',1162,0,'/quartz/triggers/add','iot','A','enabled','quartz:trigger:add','#','','2021-09-25 11:18:39',NULL),(1164,'删除',1162,0,'/quartz/triggers/del','iot','A','enabled','quartz:trigger:del','#','','2021-09-25 11:18:39',NULL),(1165,'修改',1162,0,'/quartz/triggers/edit','iot','A','enabled','quartz:trigger:edit','#','','2021-09-25 11:18:39',NULL),(1166,'查询',1162,0,'/quartz/triggers/view','iot','A','enabled','quartz:trigger:view','#','','2021-09-25 11:18:39',NULL),(1167,'暂停',1162,5,'/quartz/triggers/paused','iot','A','enabled','quartz:triggers:paused','#','','2021-09-25 11:18:39',NULL),(1168,'运行一次',1162,0,'/quartz/triggers/run','iot','A','enabled','quartz:triggers:run','#','','2021-09-25 11:18:39',NULL),(1217,'分配权限',1065,68,'/core/role/perm','sys','A','enabled','core:role:perm','#','','2023-05-23 15:28:31',NULL),(1218,'删除',1157,68,'/core/online/del','iot','A','enabled','core:online:del','#','','2023-05-23 15:28:31',NULL),(1219,'下线',1157,68,'/core/online/offline','iot','A','enabled','core:online:offline','#','','2023-05-23 15:28:31',NULL),(1220,'查询',1157,68,'/core/online/view','iot','A','enabled','core:online:view','#','','2023-05-23 15:28:31',NULL),(1221,'删除',1090,68,'/core/dictType/del','iot','A','enabled','core:dictType:del','#','','2023-05-23 15:28:31',NULL),(1222,'开发工具',0,150,'#','dev','M','enabled',NULL,'iz-icon-kaifa','','2023-05-23 15:28:31',NULL),(1223,'代码生成',1222,10,'/gen/code','dev','V','enabled','gen:code:view','iz-icon-code','','2023-05-23 15:28:31',NULL),(1224,'工业物联网',0,30,'#','iot','M','enabled',NULL,'iz-icon-iiot','','2023-05-23 15:28:31',NULL),(1225,'设备类型',1304,158,'/iot/deviceType','iot','V','enabled','iot:deviceType:view','iz-icon-type','','2023-05-23 15:28:31',NULL),(1226,'查询',1225,5,'/iot/deviceType/view','iot','A','enabled','iot:deviceType:view','#','','2023-05-23 15:28:31',NULL),(1227,'新增',1225,10,'/iot/deviceType/add','iot','A','enabled','iot:deviceType:add','#','','2023-05-23 15:28:31',NULL),(1228,'修改',1225,15,'/iot/deviceType/edit','iot','A','enabled','iot:deviceType:edit','#','','2023-05-23 15:28:31',NULL),(1229,'删除',1225,20,'/iot/deviceType/del','iot','A','enabled','iot:deviceType:del','#','','2023-05-23 15:28:31',NULL),(1230,'设备信息',1304,128,'/iot/device','iot','V','enabled','iot:device:view','iz-icon-device','','2023-05-23 15:28:31',NULL),(1231,'查询',1230,5,'/iot/device/view','iot','A','enabled','iot:device:view','#','','2023-05-23 15:28:31',NULL),(1232,'新增',1230,10,'/iot/device/add','iot','A','enabled','iot:device:add','#','','2023-05-23 15:28:31',NULL),(1233,'修改',1230,15,'/iot/device/edit','iot','A','enabled','iot:device:edit','#','','2023-05-23 15:28:31',NULL),(1234,'删除',1230,20,'/iot/device/del','iot','A','enabled','iot:device:del','#','','2023-05-23 15:28:31',NULL),(1235,'PLC管理',1224,200,'/iot/plc','iot','V','enabled','iot:plc:view','iz-icon-plc','','2023-05-23 15:28:31',NULL),(1236,'新增',1235,28,'/iot/plc/add','iot','A','enabled','iot:plc:add','#','','2023-05-23 15:28:31',NULL),(1237,'DTU管理',1224,250,'/iot/dtu','iot','V','enabled','iot:dtu:view','iz-icon-dtube','','2023-05-23 15:28:31',NULL),(1238,'新增',1237,60,'/iot/dtu/add','iot','A','enabled','iot:dtu:add','#','','2023-05-23 15:28:31',NULL),(1239,'查询',1237,30,'/iot/dtu/view','iot','A','enabled','iot:dtu:view','#','','2023-05-23 15:28:31',NULL),(1240,'修改',1237,0,'/iot/dtu/edit','iot','A','enabled','iot:dtu:edit','#','','2023-05-23 15:28:31',NULL),(1241,'调试',1237,90,'/iot/dtu/debug','iot','A','enabled','iot:dtu:debug','#','','2023-05-23 15:28:31',NULL),(1242,'删除',1237,120,'/iot/dtu/del','iot','A','enabled','iot:dtu:del','#','','2023-05-23 15:28:31',NULL),(1243,'修改',1235,58,'/iot/plc/edit','iot','A','enabled','iot:plc:edit','#','','2023-05-23 15:28:31',NULL),(1244,'删除',1235,78,'/iot/plc/del','iot','A','enabled','iot:plc:del','#','','2023-05-23 15:28:31',NULL),(1245,'调试',1235,98,'/iot/plc/debug','iot','A','enabled','iot:plc:debug','#','','2023-05-23 15:28:31',NULL),(1246,'查询',1235,18,'/iot/plc/view','iot','A','enabled','iot:plc:view','#','','2023-05-23 15:28:31',NULL),(1247,'子设备',1237,160,'/iot/dtu/child','iot','A','enabled','iot:dtu:child','#','','2023-05-23 15:28:31',NULL),(1248,'子设备',1224,158,'/iot/deviceChild','iot','V','disabled','iot:deviceChild:view','#','','2023-05-23 15:28:31',NULL),(1249,'查询',1248,5,'/iot/deviceChild/view','iot','A','enabled','iot:deviceChild:view','#','','2023-05-23 15:28:31',NULL),(1250,'新增',1248,10,'/iot/deviceChild/add','iot','A','enabled','iot:deviceChild:add','#','','2023-05-23 15:28:31',NULL),(1251,'修改',1248,15,'/iot/deviceChild/edit','iot','A','enabled','iot:deviceChild:edit','#','','2023-05-23 15:28:31',NULL),(1252,'删除',1248,20,'/iot/deviceChild/del','iot','A','enabled','iot:deviceChild:del','#','','2023-05-23 15:28:31',NULL),(1255,'网络调试',1273,300,'/iot/debug','iot','V','enabled','','iz-icon-debug-tools','','2023-05-23 15:28:31',NULL),(1256,'点位组管理',1272,58,'/iot/pointGroup','iot','V','enabled','iot:pointGroup:view','iz-icon-set','','2023-05-23 15:28:31',NULL),(1257,'查询',1256,5,'/iot/pointGroup/view','iot','A','enabled','iot:pointGroup:view','#','','2023-05-23 15:28:31',NULL),(1258,'新增',1256,10,'/iot/pointGroup/add','iot','A','enabled','iot:pointGroup:add','#','','2023-05-23 15:28:31',NULL),(1259,'修改',1256,16,'/iot/pointGroup/edit','iot','A','enabled','iot:pointGroup:edit','#','','2023-05-23 15:28:31',NULL),(1260,'删除',1256,20,'/iot/pointGroup/del','iot','A','enabled','iot:pointGroup:del','#','','2023-05-23 15:28:31',NULL),(1261,'点位管理',1272,18,'/iot/signal','iot','V','enabled','iot:signal:view','iz-icon-signal','','2023-05-23 15:28:31',NULL),(1262,'查询',1261,5,'/iot/signal/view','iot','A','enabled','iot:signal:view','#','','2023-05-23 15:28:31',NULL),(1263,'新增',1261,10,'/iot/signal/add','iot','A','enabled','iot:signal:add','#','','2023-05-23 15:28:31',NULL),(1264,'修改',1261,15,'/iot/signal/edit','iot','A','enabled','iot:signal:edit','#','','2023-05-23 15:28:31',NULL),(1265,'删除',1261,20,'/iot/signal/del','iot','A','enabled','iot:signal:del','#','','2023-05-23 15:28:31',NULL),(1266,'设备型号',1304,158,'/iot/deviceModel','iot','V','enabled','iot:deviceModel:view','iz-icon-model','','2023-05-23 15:28:31',NULL),(1267,'查询',1266,5,'/iot/deviceModel/view','iot','A','enabled','iot:deviceModel:view','#','','2023-05-23 15:28:31',NULL),(1268,'新增',1266,10,'/iot/deviceModel/add','iot','A','enabled','iot:deviceModel:add','#','','2023-05-23 15:28:31',NULL),(1269,'修改',1266,15,'/iot/deviceModel/edit','iot','A','enabled','iot:deviceModel:edit','#','','2023-05-23 15:28:31',NULL),(1270,'删除',1266,20,'/iot/deviceModel/del','iot','A','enabled','iot:deviceModel:del','#','','2023-05-23 15:28:31',NULL),(1271,'连接',1235,108,'/iot/plc/connect','iot','A','enabled','iot:plc:connect','#','','2023-05-23 15:28:31',NULL),(1272,'数据采集',1224,300,'#','iot','M','enabled',NULL,'iz-icon-collect','','2023-05-23 15:28:31',NULL),(1273,'调试工具',1224,320,'#','iot','M','enabled',NULL,'iz-icon-debug','','2023-05-23 15:28:31',NULL),(1274,'DTU模拟',1273,20,'/iot/simulator/dtu','iot','V','enabled',NULL,'#','','2023-05-23 15:28:31',NULL),(1275,'采集任务管理',1272,158,'/iot/collectTask','iot','V','enabled','iot:collectTask:view','iz-icon-collect-task','','2023-05-23 15:28:31',NULL),(1276,'查询',1275,5,'/iot/collectTask/view','iot','A','enabled','iot:collectTask:view','#','','2023-05-23 15:28:31',NULL),(1277,'新增',1275,10,'/iot/collectTask/add','iot','A','enabled','iot:collectTask:add','#','','2023-05-23 15:28:31',NULL),(1278,'修改',1275,15,'/iot/collectTask/edit','iot','A','enabled','iot:collectTask:edit','#','','2023-05-23 15:28:31',NULL),(1279,'删除',1275,20,'/iot/collectTask/del','iot','A','enabled','iot:collectTask:del','#','','2023-05-23 15:28:31',NULL),(1281,'配置',1275,25,'','iot','A','enabled','iot:collectTask:config','#','','2023-05-23 15:28:31',NULL),(1282,'Modbus管理',1224,280,'/iot/modbus','iot','V','enabled',NULL,'iz-icon-modbus','','2023-05-23 15:28:31',NULL),(1283,'新增',1282,10,'/iot/modbus/add','iot','A','enabled','iot:modbus:add','#','','2023-05-23 15:28:31',NULL),(1284,'编辑',1282,50,'/iot/modbus/edit','iot','A','enabled','iot:modbus:edit','#','','2023-05-23 15:28:31',NULL),(1285,'删除',1282,80,'/iot/modbus/del','iot','A','enabled','iot:modbus:del','#','','2023-05-23 15:28:31',NULL),(1286,'浏览',1282,5,'/iot/modbus/view','iot','A','enabled','iot:modbus:view','#','','2023-05-23 15:28:31',NULL),(1287,'数据',1275,30,'#','iot','A','enabled','iot:collectTask:data','#','','2023-05-23 15:28:31',NULL),(1288,'采集数据列表',1272,188,'/iot/collectData','iot','V','enabled','iot:collectData:view','#','','2023-05-23 15:28:31',NULL),(1289,'导出',1060,80,'/core/admin/export','sys','A','enabled','core:admin:export','#','','2023-05-23 15:28:31',NULL),(1290,'调试',1282,100,'/iot/modbus/debug','iot','A','enabled','iot:modbus:debug','#','','2023-05-23 15:28:31',NULL),(1291,'连接',1282,90,'/iot/modbus/connect','iot','A','enabled','iot:modbus:connect','#','','2023-05-23 15:28:31',NULL),(1292,'导入',1060,70,'/core/admin/import','sys','A','enabled','core:admin:import','#','','2023-05-23 15:28:31',NULL),(1293,'串口设备',1224,158,'/iot/serial','iot','V','enabled','iot:serial:view','iz-icon-serial','','2023-05-23 15:28:31',NULL),(1294,'查询',1293,5,'/iot/serial/view','iot','A','enabled','iot:serial:view','#','','2023-05-23 15:28:31',NULL),(1295,'新增',1293,10,'/iot/serial/add','iot','A','enabled','iot:serial:add','#','','2023-05-23 15:28:31',NULL),(1296,'修改',1293,15,'/iot/serial/edit','iot','A','enabled','iot:serial:edit','#','','2023-05-23 15:28:31',NULL),(1297,'删除',1293,20,'/iot/serial/del','iot','A','enabled','iot:serial:del','#','','2023-05-23 15:28:31',NULL),(1303,'连接',1293,25,'/iot/serial/connect','iot','A','enabled','iot:serial:connect','#','','2023-05-23 15:28:31',NULL),(1304,'基础信息',0,20,'#','iot','M','enabled','#','iz-icon-basic-config','','2023-05-23 15:28:31',NULL),(1306,'消息配置',1156,8,'/core/messageSource','sys','V','enabled','core:messageSource:view','iz-icon-message','','2023-05-23 00:00:00','2023-09-04 17:57:40'),(1307,'查询',1306,5,'/core/messageSource/view','sys','A','enabled','core:messageSource:view','#','','2023-05-23 15:28:31',NULL),(1308,'新增',1306,10,'/core/messageSource/add','sys','A','enabled','core:messageSource:add','#','','2023-05-23 15:28:31',NULL),(1309,'修改',1306,15,'/core/messageSource/edit','sys','A','enabled','core:messageSource:edit','#','','2023-05-23 15:28:31',NULL),(1310,'删除',1306,20,'/core/messageSource/del','sys','A','enabled','core:messageSource:del','#','','2023-05-23 15:28:31',NULL),(1311,'调试',1306,25,'/core/messageSource/debug/#','sys','A','enabled','core:messageSource:debug','#','','2023-05-23 15:28:31',NULL),(1329,'岗位管理',1058,158,'/core/post','sys','V','enabled','core:post:view','iz-icon-post','','2023-05-23 00:00:00','2023-09-04 17:49:47'),(1330,'查询',1329,5,'/core/post/view','sys','A','enabled','core:post:view','#','','2023-05-23 15:28:31',NULL),(1331,'新增',1329,10,'/core/post/add','sys','A','enabled','core:post:add','#','','2023-05-23 15:28:31',NULL),(1332,'修改',1329,15,'/core/post/edit','sys','A','enabled','core:post:edit','#','','2023-05-23 15:28:31',NULL),(1333,'删除',1329,20,'/core/post/del','sys','A','enabled','core:post:del','#','','2023-05-23 15:28:31',NULL);
 /*!40000 ALTER TABLE `sys_menu` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sys_message_source`
+--
+
+DROP TABLE IF EXISTS `sys_message_source`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sys_message_source` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `type` char(32) NOT NULL COMMENT '消息类型(email,sms,...)',
+  `name` char(64) NOT NULL COMMENT '消息源名称',
+  `channel` char(16) DEFAULT NULL COMMENT '通道类型',
+  `config` json DEFAULT NULL COMMENT '其它配置',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='消息源';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sys_message_source`
+--
+
+LOCK TABLES `sys_message_source` WRITE;
+/*!40000 ALTER TABLE `sys_message_source` DISABLE KEYS */;
+INSERT INTO `sys_message_source` VALUES (1,'Sms','阿里云短信测试','ALIBABA','{\"signature\": \"sdf\", \"accessKeyId\": \"sdf\", \"accessKeySecret\": \"sdf\"}','2023-08-27 21:48:41'),(3,'Email','QQ邮件测试','DEFAULT','{\"port\": \"465\", \"password\": \"knlijuorwpetbhij\", \"username\": \"97235681@qq.com\", \"smtpServer\": \"smtp.qq.com\", \"fromAddress\": \"97235681@qq.com\"}','2023-08-31 18:52:16');
+/*!40000 ALTER TABLE `sys_message_source` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sys_notify`
+--
+
+DROP TABLE IF EXISTS `sys_notify`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sys_notify` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(128) DEFAULT NULL COMMENT '消息主题',
+  `content` varchar(256) DEFAULT NULL COMMENT '消息内容',
+  `type` varchar(16) DEFAULT NULL COMMENT '消息类型',
+  `create_user` bigint DEFAULT NULL COMMENT '发送人',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `table_name_create_time_index` (`create_time` DESC),
+  KEY `table_name_org_id_index` (`create_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统通知';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sys_notify`
+--
+
+LOCK TABLES `sys_notify` WRITE;
+/*!40000 ALTER TABLE `sys_notify` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sys_notify` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sys_notify_user`
+--
+
+DROP TABLE IF EXISTS `sys_notify_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sys_notify_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `notify_id` bigint NOT NULL COMMENT '所属通知',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '已读状态(false未读 true已读)',
+  `read_time` datetime DEFAULT NULL COMMENT '已读时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='消息通知用户';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sys_notify_user`
+--
+
+LOCK TABLES `sys_notify_user` WRITE;
+/*!40000 ALTER TABLE `sys_notify_user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sys_notify_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -684,7 +884,7 @@ CREATE TABLE `sys_online_user` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '系统最后访问时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `t_online_user_session_id_uindex` (`session_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4887 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='在线用户';
+) ENGINE=InnoDB AUTO_INCREMENT=7387 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='在线用户';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -693,7 +893,7 @@ CREATE TABLE `sys_online_user` (
 
 LOCK TABLES `sys_online_user` WRITE;
 /*!40000 ALTER TABLE `sys_online_user` DISABLE KEYS */;
-INSERT INTO `sys_online_user` VALUES (4834,'2c332997-40ef-4a55-8a36-0caa5152a2b4','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-01 17:16:04',1800,'2023-04-01 09:16:04','2023-04-01 18:15:13'),(4835,'17b55b03-b720-40cb-990b-bad928e84644','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-02 10:18:13',1800,'2023-04-02 02:18:13','2023-04-02 11:15:13'),(4836,'1b8e173b-e2b3-4589-9616-716754c3ae9d','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-02 15:05:24',1800,'2023-04-02 07:05:24','2023-04-02 17:15:13'),(4837,'3456e329-8cab-4cc8-8c89-845a5ec47cb3','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-02 17:58:27',1800,'2023-04-02 09:58:26','2023-04-02 19:15:13'),(4838,'4c5ec2b4-ad8b-4f85-8219-fa4e92fc46d1','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-04 09:09:49',1800,'2023-04-04 01:09:48','2023-04-04 09:09:48'),(4839,'7a72067d-b2c6-4370-887b-8deaaedc8a38','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-05 10:17:59',1800,'2023-04-05 02:17:59','2023-04-05 10:17:59'),(4840,'0f555664-7788-4010-8a73-d5aeeb088073','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-05 10:52:36',1800,'2023-04-05 02:52:36','2023-04-05 12:41:35'),(4841,'14d03656-6d8e-4d0b-b25d-4075604a7ad5','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-05 16:32:59',1800,'2023-04-05 08:32:58','2023-04-05 16:32:58'),(4842,'d3ba87e0-1fa8-45b5-963a-1afe2a4a20a0','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-05 16:52:10',1800,'2023-04-05 08:52:09','2023-04-05 16:52:09'),(4843,'8aeed68f-9547-481a-9d89-9cd42bc0864d','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-05 17:03:25',1800,'2023-04-05 09:03:25','2023-04-05 17:03:25'),(4844,'8e012890-f6c3-4016-9236-83480ec04e6c','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-05 17:08:53',1800,'2023-04-05 09:08:52','2023-04-05 18:08:48'),(4845,'fc81a915-3785-4c82-aca8-60586a884eab','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-06 09:21:37',1800,'2023-04-06 01:21:36','2023-04-06 09:21:36'),(4846,'58c39c12-0222-470c-baca-13c09ce1ce36','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-06 09:29:12',1800,'2023-04-06 01:29:12','2023-04-06 09:29:12'),(4847,'4ae37b7c-fead-4f40-940e-c636bc9d18da','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-06 09:34:47',1800,'2023-04-06 01:34:46','2023-04-06 09:34:46'),(4848,'a6d5d84d-ece2-49ec-8feb-2d77b218c1dd','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-08 11:36:54',1800,'2023-04-08 03:36:54','2023-04-08 11:36:54'),(4849,'4a4c4c85-f1bd-460c-b177-8d5c10eb855b','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-08 11:42:54',1800,'2023-04-08 03:42:53','2023-04-08 12:22:16'),(4850,'087678c5-f036-4eb2-90c3-8dd6b2a34d2a','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-08 12:22:24',1800,'2023-04-08 04:22:23','2023-04-08 12:22:23'),(4851,'b69e6b2e-031a-43a3-a914-c5691d7d76e1','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-08 12:28:55',1800,'2023-04-08 04:28:55','2023-04-08 12:28:55'),(4852,'3dabb5ef-ed93-4dd0-b689-75449110533e','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-08 12:46:52',1800,'2023-04-08 04:46:52','2023-04-08 12:46:52'),(4853,'6c070287-0f6d-4719-8701-f2fdacbaa79f','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-08 12:56:14',1800,'2023-04-08 04:56:13','2023-04-08 12:56:13'),(4854,'d23b27f6-9c52-4fd3-98f8-d17c43559187','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-08 13:05:36',1800,'2023-04-08 05:05:35','2023-04-08 13:54:32'),(4855,'b370c821-60a7-410a-b51d-adc53d242260','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-08 14:00:17',1800,'2023-04-08 06:00:17','2023-04-08 14:00:17'),(4856,'94be6192-7930-4125-a4fd-710f80e9b81f','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-08 14:32:08',1800,'2023-04-08 06:32:08','2023-04-08 14:32:08'),(4857,'aa332abd-4509-40cf-a2cb-40e5bf315d2a','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-08 14:42:42',1800,'2023-04-08 06:42:42','2023-04-08 14:42:42'),(4858,'52ef3af7-7cf6-46db-b153-8c7f4852f67c','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-09 19:03:43',1800,'2023-04-09 11:03:43','2023-04-09 20:00:21'),(4859,'1ae16124-4db1-452d-b055-edf8d9db5d1d','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-09 20:00:26',1800,'2023-04-09 12:00:26','2023-04-09 21:22:22'),(4860,'023e93a3-1feb-437f-bf60-163ab9323bca','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-09 21:25:47',1800,'2023-04-09 13:25:47','2023-04-09 23:03:35'),(4861,'f41d2271-5eaf-4043-95ff-c93879ecc103','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-10 09:07:19',1800,'2023-04-10 01:07:18','2023-04-10 09:07:18'),(4862,'f6ebcb6d-0d56-4fdc-9861-5d1f5bd3a8ac','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-10 22:30:17',1800,'2023-04-10 14:30:17','2023-04-10 23:29:42'),(4863,'db3d1955-90aa-44d7-96f5-066fefd11ea4','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-11 20:48:48',1800,'2023-04-11 12:48:48','2023-04-11 22:48:32'),(4864,'f2f33708-898a-4747-8130-9f210853f777','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-12 10:47:33',1800,'2023-04-12 02:47:32','2023-04-12 10:47:32'),(4865,'7d37e862-9e68-48d5-ae92-14cedf216bf7','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-12 10:59:28',1800,'2023-04-12 02:59:28','2023-04-12 10:59:28'),(4866,'77526a00-9308-49ec-a3ac-ff52ac303103','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-12 11:26:16',1800,'2023-04-12 03:26:15','2023-04-12 11:26:15'),(4867,'f027c467-dae7-4a69-a52a-b7fcc8ddc207','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-12 11:31:33',1800,'2023-04-12 03:31:32','2023-04-12 12:31:29'),(4868,'4f13a8de-685f-41fe-ba83-53aa734817d4','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-12 12:52:12',1800,'2023-04-12 04:52:12','2023-04-12 12:52:12'),(4869,'5bd7d83e-711d-43f8-b8c0-da897948a5b5','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-12 13:43:34',1800,'2023-04-12 05:43:34','2023-04-12 13:43:34'),(4870,'0a81a6c6-19ea-4bef-9ddc-0b12e23b18a2','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-12 21:11:05',1800,'2023-04-12 13:11:04','2023-04-12 23:11:00'),(4871,'142bb523-2d37-40f4-9237-4b265e0fe592','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-13 07:42:18',1800,'2023-04-12 23:42:17','2023-04-13 08:42:10'),(4872,'18064ce8-98e9-41b3-b7d0-df183825baed','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 09:27:50',1800,'2023-04-13 01:27:50','2023-04-13 09:27:50'),(4873,'36251546-2cfa-4a18-b91e-78d3ebdf3a2e','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 09:34:17',1800,'2023-04-13 01:34:16','2023-04-13 09:34:16'),(4874,'3e44bed4-3027-4fb8-a82d-f15fbb753ec0','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 09:53:03',1800,'2023-04-13 01:53:03','2023-04-13 09:53:03'),(4875,'ed24a3c0-ea40-48f3-a2e7-ce04bb438cbd','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 10:07:04',1800,'2023-04-13 02:07:03','2023-04-13 10:07:03'),(4876,'8210df4f-6e5c-476e-abcc-7c36ea700364','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 10:14:41',1800,'2023-04-13 02:14:40','2023-04-13 10:14:40'),(4877,'360e724b-0c80-46db-865b-f74feece3808','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 10:22:19',1800,'2023-04-13 02:22:19','2023-04-13 10:22:19'),(4878,'f771bb02-1db8-476c-96fb-da5ff351c9a1','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 10:48:54',1800,'2023-04-13 02:48:54','2023-04-13 10:48:54'),(4879,'7ceb1c8b-d528-41d7-bfd2-a3a3b34aeb05','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 11:10:28',1800,'2023-04-13 03:10:28','2023-04-13 11:10:28'),(4880,'5eecc7ca-1370-4163-863d-24d46e682b2d','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-13 11:41:15',1800,'2023-04-13 03:41:15','2023-04-13 12:41:13'),(4881,'0b8221bd-3647-4f9a-9131-ed99699cdea7','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 14:35:39',1800,'2023-04-13 06:35:38','2023-04-13 14:35:38'),(4882,'6163616e-e2b5-4761-857b-f8d8d052b0f4','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-13 16:36:23',1800,'2023-04-13 08:36:22','2023-04-13 17:36:20'),(4883,'8ae5f9c7-3941-4fef-bf2d-e200c876981b','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-13 17:39:57',1800,'2023-04-13 09:39:57','2023-04-13 17:39:57'),(4884,'be2313ba-04a4-41e4-9f33-be058ca9fa82','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-04-14 22:40:22',1800,'2023-04-14 14:40:21','2023-04-15 08:10:45'),(4885,'2683b412-757a-40c9-9403-34986304b01d','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-15 08:18:45',1800,'2023-04-15 00:18:44','2023-04-15 08:18:44'),(4886,'e6ac5af8-5161-4e43-a984-a7d24b11b3bd','admin','超级管理员','127.0.0.1','Chrome 11','Windows 10','Online','COMPUTER','','2023-04-15 08:38:54',1800,'2023-04-15 00:38:53','2023-04-15 08:38:53');
+INSERT INTO `sys_online_user` VALUES (7212,'442640c7-d7a8-41e2-a026-be60338bd9ab','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-01 17:19:49',2592000,'2023-09-01 09:26:56','2023-09-01 17:46:34'),(7213,'e8bdb5a9-85bf-42af-b1c0-1a60aa9a5af0','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-01 17:27:23',2592000,'2023-09-01 09:27:35','2023-09-01 17:36:33'),(7215,'2b0291a2-85b6-4e04-8a97-56cb4d07d1c8','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-01 17:36:38',2592000,'2023-09-01 09:36:39','2023-09-01 17:46:34'),(7216,'94f2b334-d0f2-462d-98a3-d2765b66deda','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-01 17:46:45',2592000,'2023-09-01 09:46:47','2023-09-01 18:09:05'),(7217,'2fcee020-2e5f-425f-8104-a605dfb5966b','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-01 18:09:15',2592000,'2023-09-01 10:09:16','2023-09-01 18:18:24'),(7218,'651a1109-e714-402c-a31a-95c7fbd1e2fa','admin','超级管理员','124.222.187.121','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-01 18:18:32',2592000,'2023-09-01 10:18:31','2023-09-01 18:19:26'),(7219,'fd13662b-4f13-4470-8753-b6f92d40cb04','admin','超级管理员','124.222.187.121','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-01 20:47:48',2592000,'2023-09-01 12:47:47','2023-09-02 11:57:48'),(7220,'3c0b8ea9-8334-45db-b7f3-10886c1a848c','admin','超级管理员','124.222.187.121','Chrome Mobile','Android 1.x','Offline','MOBILE','','2023-09-01 22:03:10',2592000,'2023-09-01 14:03:10','2023-09-02 13:57:15'),(7229,'6426a470-0b83-4d09-b27b-54e99de64b21','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-02 13:58:13',2592000,'2023-09-02 05:58:13','2023-09-02 14:01:19'),(7230,'603a07d1-cb76-45b2-b8cb-fa7996ba2bdf','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-02 14:01:48',2592000,'2023-09-02 06:01:48','2023-09-02 14:30:20'),(7231,'ae102272-e611-4fa6-8bcd-d045911dccb6','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-02 14:34:05',2592000,'2023-09-02 06:34:04','2023-09-02 14:56:44'),(7232,'0959f3af-fff8-4799-85ee-49a4c9e25341','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-02 14:57:03',2592000,'2023-09-02 06:57:03','2023-09-04 11:17:25'),(7239,'9df04566-8b54-430e-82d6-15b9675344e6','admin','超级管理员','124.222.187.121','Chrome 9','Windows 10','Offline','COMPUTER','','2023-09-02 15:55:09',2592000,'2023-09-02 07:55:09','2023-09-04 09:26:14'),(7256,'af0564ae-5bbf-45a9-bb65-aa1aef417341','admin','超级管理员','124.222.187.121','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-04 09:31:37',2592000,'2023-09-04 01:31:36','2023-09-05 08:20:55'),(7260,'54319ea3-422b-4d75-950d-e024f2db5d9b','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-04 11:18:39',7200,'2023-09-04 03:18:39','2023-09-04 11:48:13'),(7262,'a5fa9007-a126-4252-aa97-a43092133417','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-04 11:48:47',7200,'2023-09-04 03:48:47','2023-09-04 17:10:30'),(7266,'004643bd-68b7-496c-b668-a85c2ce201cb','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-04 14:03:56',7200,'2023-09-04 06:03:56','2023-09-04 17:10:30'),(7278,'50fc306f-15e0-4fb0-add9-4a6b2bbc305a','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-04 16:04:11',7200,'2023-09-04 08:04:11','2023-09-04 17:10:30'),(7281,'ad6b0867-2132-4d3f-8f9f-d17298318bb1','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-04 17:15:34',7200,'2023-09-04 09:15:34','2023-09-04 17:19:20'),(7283,'25cf1536-89ce-4801-b417-e524a89651cd','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-04 17:31:39',7200,'2023-09-04 09:31:39','2023-09-04 17:34:57'),(7285,'3b06600c-05f4-4a1d-8a37-6fbc0bc7af68','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-04 17:35:15',7200,'2023-09-04 09:35:15','2023-09-05 13:47:58'),(7297,'ce51fc02-ecdf-4634-a2e7-6a2c02588e99','admin','超级管理员','124.222.187.121','Chrome 8','Windows 10','Offline','COMPUTER','','2023-09-05 08:24:46',2592000,'2023-09-05 00:24:46','2023-09-05 09:20:04'),(7299,'320a440f-c254-4612-bf67-0f4d43a510fe','admin','超级管理员','124.222.187.121','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 09:27:34',2592000,'2023-09-05 01:27:34','2023-09-05 11:00:30'),(7305,'0b3a4975-3080-4f71-ab16-7d3f91b2b5a3','admin','超级管理员','124.222.187.121','Chrome 11','Mac OS X','Offline','COMPUTER','','2023-09-05 11:07:51',2592000,'2023-09-05 03:07:51','2023-09-05 14:45:21'),(7308,'c19176f3-99f5-4026-800d-465d9c2c2e04','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 13:48:19',7200,'2023-09-05 05:48:19','2023-09-05 13:49:59'),(7309,'bdde54fd-9294-47e4-b634-4f4a57e36dfe','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 13:50:14',7200,'2023-09-05 05:50:14','2023-09-05 13:54:59'),(7311,'70d50551-7cc5-4cd1-a490-32e2723cbcb8','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 13:55:39',7200,'2023-09-05 05:55:39','2023-09-05 13:58:45'),(7312,'f8190b47-21f6-4c45-ab20-b20425c18372','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 13:59:03',7200,'2023-09-05 05:59:04','2023-09-05 14:01:10'),(7313,'c7b9f288-8820-4d19-857d-2a524308accc','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 14:01:22',7200,'2023-09-05 06:01:23','2023-09-05 14:03:12'),(7314,'cedc0826-e7fa-40d6-8189-2d1e550d08c4','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 14:03:21',7200,'2023-09-05 06:03:22','2023-09-05 14:03:59'),(7315,'ecb1a7f7-b267-4253-b4b6-9ee5f70b7436','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 14:04:21',7200,'2023-09-05 06:04:22','2023-09-05 17:54:59'),(7321,'11c32c78-391b-49a6-9f6e-907e2c5ee608','admin','超级管理员','124.222.187.121','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 14:45:47',2592000,'2023-09-05 06:45:46','2023-09-05 17:54:59'),(7324,'d6bf9969-41a4-4bcf-b28e-3a2f259edb64','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 16:05:00',7200,'2023-09-05 08:05:01','2023-09-05 17:54:59'),(7337,'7cfcad46-71d0-41bd-896f-589045cf7d7f','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 17:58:42',7200,'2023-09-05 09:58:42','2023-09-06 17:38:44'),(7338,'d93dc15a-e6c1-492f-8239-4099186b57aa','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-05 19:59:00',7200,'2023-09-05 11:59:01','2023-09-06 17:38:44'),(7355,'3aaf5c96-305a-45ff-87b5-1e7af2dc10b8','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-06 13:38:32',7200,'2023-09-06 05:38:32','2023-09-06 17:38:44'),(7362,'3339d208-fd4f-424e-974a-e51feff8cdcf','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-06 15:42:57',7200,'2023-09-06 07:42:57','2023-09-06 17:38:44'),(7366,'9c25845e-16ba-4044-b606-2049e6c58ccd','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-06 17:42:19',7200,'2023-09-06 09:42:19','2023-09-06 19:51:40'),(7370,'d3549daf-fdbc-4882-a925-bc91f0818af5','admin','超级管理员','124.222.187.121','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-06 19:52:15',7200,'2023-09-06 11:52:15','2023-09-07 09:19:13'),(7371,'b782cf41-a8a7-48fe-a048-fe689b81c8e9','admin','超级管理员','124.222.187.121','Chrome Mobile','Android 1.x','Offline','MOBILE','','2023-09-06 19:54:21',7200,'2023-09-06 11:54:20','2023-09-07 09:19:13'),(7374,'bd98f6d9-2111-44ad-b7c1-533f1deb799f','admin','超级管理员','124.222.187.121','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-07 09:10:13',7200,'2023-09-07 01:10:12','2023-09-07 09:19:13'),(7375,'f9eebd74-b3f0-4ffe-a0ea-d5ac68b286c1','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-07 09:11:59',7200,'2023-09-07 01:11:59','2023-09-07 09:19:13'),(7378,'413fa7f5-e445-4782-afa2-9dd45b78105e','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Offline','COMPUTER','','2023-09-07 09:33:02',2592000,'2023-09-07 01:33:02','2023-09-07 09:42:17'),(7379,'77950801-d4f6-4b42-a5bc-a6222d622340','admin','超级管理员','0:0:0:0:0:0:0:1','Chrome 11','Windows 10','Online','COMPUTER','','2023-09-07 09:43:19',2592000,'2023-09-07 01:43:20','2023-09-07 09:43:20');
 /*!40000 ALTER TABLE `sys_online_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -727,8 +927,36 @@ CREATE TABLE `sys_org` (
 
 LOCK TABLES `sys_org` WRITE;
 /*!40000 ALTER TABLE `sys_org` DISABLE KEYS */;
-INSERT INTO `sys_org` VALUES (1,0,1,'厦门由源创科技',0,'iteaj',NULL,'1','','2019-11-26 09:20:59','',NULL),(2,1,1,'运维部',0,'iteaj',NULL,'1,2','','2019-11-26 01:21:01','',NULL),(3,2,2,'技术部',0,'iteaj','rewre','1,2,3','','2019-11-26 18:19:23','',NULL),(5,2,2,'测试部',0,'test','13123456029','1,2,5','','2021-06-06 15:51:12','',NULL);
+INSERT INTO `sys_org` VALUES (1,0,1,'厦门由源创科技',0,'iteaj',NULL,'1','','2019-11-26 09:20:59','',NULL),(2,1,1,'运维部',0,'iteaj',NULL,'1,2','','2019-11-26 01:21:01','',NULL),(3,1,2,'技术部',0,'iteaj','13123456028','1,3','','2019-11-26 18:19:23','',NULL),(5,2,2,'测试部',0,'test','13123456029','1,2,5','','2021-06-06 15:51:12','',NULL);
 /*!40000 ALTER TABLE `sys_org` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sys_post`
+--
+
+DROP TABLE IF EXISTS `sys_post`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sys_post` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `sort` mediumint DEFAULT '0' COMMENT '排序',
+  `name` varchar(64) NOT NULL COMMENT '岗位名称',
+  `org_id` bigint NOT NULL COMMENT '所属机构',
+  `remark` varchar(256) DEFAULT NULL COMMENT '岗位介绍',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='岗位管理';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sys_post`
+--
+
+LOCK TABLES `sys_post` WRITE;
+/*!40000 ALTER TABLE `sys_post` DISABLE KEYS */;
+INSERT INTO `sys_post` VALUES (1,10,'技术总监',3,NULL,'2023-09-04 17:32:20'),(2,10,'CEO',1,'公司总负责人','2023-09-05 13:53:26'),(3,10,'高级测试',5,NULL,'2023-09-05 14:54:02');
+/*!40000 ALTER TABLE `sys_post` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -778,7 +1006,7 @@ CREATE TABLE `sys_role` (
   `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色信息表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -787,7 +1015,7 @@ CREATE TABLE `sys_role` (
 
 LOCK TABLES `sys_role` WRITE;
 /*!40000 ALTER TABLE `sys_role` DISABLE KEYS */;
-INSERT INTO `sys_role` VALUES (2,'管理员',2,'1','enabled',NULL,'','2019-11-27 16:48:35','',NULL),(3,'技术总监',10,'1','enabled','CTO','','2019-11-27 08:00:00','',NULL),(4,'演示角色',8,'1','enabled','用于演示','','2020-04-24 12:03:38','',NULL);
+INSERT INTO `sys_role` VALUES (2,'管理员',2,'1','enabled','123','','2019-11-27 08:00:00','',NULL),(3,'技术总监',10,'1','enabled','CTO','','2019-11-27 08:00:00','',NULL),(4,'演示角色',8,'1','enabled','用于演示','','2020-04-24 08:00:00','',NULL);
 /*!40000 ALTER TABLE `sys_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -811,7 +1039,7 @@ CREATE TABLE `sys_role_menu` (
 
 LOCK TABLES `sys_role_menu` WRITE;
 /*!40000 ALTER TABLE `sys_role_menu` DISABLE KEYS */;
-INSERT INTO `sys_role_menu` VALUES (2,1),(2,1058),(2,1060),(2,1065),(2,1066),(2,1069),(2,1070),(2,1071),(2,1072),(2,1090),(2,1092),(2,1093),(2,1094),(2,1095),(2,1108),(2,1113),(2,1114),(2,1115),(2,1116),(2,1117),(2,1118),(2,1119),(2,1120),(2,1121),(2,1122),(2,1123),(2,1124),(2,1125),(2,1127),(2,1128),(2,1129),(2,1130),(2,1131),(2,1132),(2,1133),(2,1134),(2,1135),(2,1136),(2,1137),(2,1156),(2,1157),(2,1159),(2,1161),(2,1162),(2,1163),(2,1164),(2,1165),(2,1166),(2,1167),(2,1168),(3,1),(3,1058),(3,1060),(3,1065),(3,1066),(3,1069),(3,1070),(3,1071),(3,1072),(3,1090),(3,1092),(3,1093),(3,1094),(3,1108),(3,1113),(3,1114),(3,1115),(3,1116),(3,1117),(3,1118),(3,1119),(3,1120),(3,1121),(3,1122),(3,1123),(3,1124),(3,1125),(3,1126),(3,1127),(3,1128),(3,1129),(3,1130),(3,1131),(3,1132),(3,1134),(3,1136),(3,1137),(3,1156),(3,1157),(3,1162),(3,1163),(3,1164),(3,1165),(3,1166),(3,1167),(3,1168),(3,1217),(3,1218),(3,1219),(3,1220),(3,1221),(4,1101),(4,1102),(4,1103),(4,1107),(4,1126),(4,1138),(4,1139),(4,1140),(4,1141),(4,1142),(4,1143),(4,1144),(4,1145),(4,1146),(4,1147),(4,1148),(4,1149),(4,1150),(4,1169),(4,1170),(4,1171),(4,1172),(4,1173),(4,1174);
+INSERT INTO `sys_role_menu` VALUES (2,1058),(2,1060),(2,1065),(2,1066),(2,1069),(2,1070),(2,1071),(2,1072),(2,1090),(2,1092),(2,1093),(2,1094),(2,1108),(2,1113),(2,1114),(2,1115),(2,1116),(2,1117),(2,1118),(2,1119),(2,1120),(2,1121),(2,1122),(2,1123),(2,1124),(2,1125),(2,1127),(2,1128),(2,1129),(2,1130),(2,1131),(2,1132),(2,1134),(2,1136),(2,1137),(2,1156),(2,1157),(2,1162),(2,1163),(2,1164),(2,1165),(2,1166),(2,1167),(2,1168),(2,1217),(2,1218),(2,1219),(2,1220),(2,1221),(2,1224),(2,1235),(2,1236),(2,1237),(2,1238),(2,1239),(2,1240),(2,1241),(2,1242),(2,1243),(2,1244),(2,1245),(2,1246),(2,1247),(2,1248),(2,1249),(2,1250),(2,1251),(2,1252),(2,1255),(2,1256),(2,1257),(2,1258),(2,1259),(2,1260),(2,1261),(2,1262),(2,1263),(2,1264),(2,1265),(2,1271),(2,1272),(2,1273),(2,1274),(2,1275),(2,1276),(2,1277),(2,1278),(2,1279),(2,1281),(2,1282),(2,1283),(2,1284),(2,1285),(2,1286),(2,1287),(2,1288),(2,1289),(2,1290),(2,1291),(2,1292),(2,1293),(2,1294),(2,1295),(2,1296),(2,1297),(2,1303),(2,1306),(2,1307),(2,1308),(2,1309),(2,1310),(3,1058),(3,1060),(3,1065),(3,1066),(3,1069),(3,1070),(3,1071),(3,1072),(3,1090),(3,1092),(3,1093),(3,1094),(3,1108),(3,1113),(3,1114),(3,1115),(3,1116),(3,1117),(3,1118),(3,1119),(3,1120),(3,1121),(3,1122),(3,1123),(3,1124),(3,1125),(3,1127),(3,1128),(3,1129),(3,1130),(3,1131),(3,1132),(3,1134),(3,1136),(3,1137),(3,1156),(3,1157),(3,1162),(3,1163),(3,1164),(3,1165),(3,1166),(3,1167),(3,1168),(3,1217),(3,1218),(3,1219),(3,1220),(3,1221),(3,1224),(3,1231),(3,1234),(3,1235),(3,1236),(3,1237),(3,1238),(3,1239),(3,1240),(3,1241),(3,1242),(3,1243),(3,1244),(3,1245),(3,1246),(3,1247),(3,1248),(3,1249),(3,1250),(3,1251),(3,1252),(3,1255),(3,1256),(3,1257),(3,1258),(3,1259),(3,1260),(3,1261),(3,1262),(3,1263),(3,1264),(3,1265),(3,1271),(3,1272),(3,1273),(3,1274),(3,1275),(3,1276),(3,1277),(3,1278),(3,1279),(3,1281),(3,1282),(3,1283),(3,1284),(3,1285),(3,1286),(3,1287),(3,1288),(3,1289),(3,1290),(3,1291),(3,1292),(3,1293),(3,1294),(3,1295),(3,1296),(3,1297),(3,1303),(3,1306),(3,1307),(3,1308),(3,1309),(3,1310),(4,1222),(4,1223);
 /*!40000 ALTER TABLE `sys_role_menu` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -857,4 +1085,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-04-15 11:02:46
+-- Dump completed on 2023-09-07 11:22:34
