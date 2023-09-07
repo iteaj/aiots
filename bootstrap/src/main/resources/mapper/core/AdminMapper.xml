@@ -86,14 +86,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             left join sys_org o on a.org_id=o.id
             left join sys_post p on a.post_id = p.id
         <where>
-            <if test="entity.orgId!=null">
-                and a.org_id=#{entity.orgId}
-            </if>
             <if test="entity.postId != null">
                 and a.post_id=#{entity.postId}
             </if>
             <if test="entity.status != null">
                 and a.status=#{entity.status}
+            </if>
+            <if test="entity.orgId!=null">
+                and find_in_set(#{entity.orgId}, o.path)
             </if>
             <if test="entity.account!=null and entity.account!=''">
                 and a.account like '%${entity.account}%'
