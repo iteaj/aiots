@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * <p>
- * 设备类型
+ * 产品类型
  * </p>
  *
  * @author iteaj

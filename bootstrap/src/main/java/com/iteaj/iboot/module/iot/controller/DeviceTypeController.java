@@ -11,7 +11,7 @@ import com.iteaj.iboot.module.iot.service.IDeviceTypeService;
 import com.iteaj.framework.BaseController;
 
 /**
- * 设备类型管理
+ * 产品类型管理
  *
  * @author iteaj
  * @since 2022-05-15
