@@ -10,7 +10,8 @@ public class Knife4jAutoConfiguration implements ApplicationListener<Application
 
     @Bean
     public OrderFilterChainDefinition swaggerFilterChainDefinition() {
-        return new OrderFilterChainDefinition().addAnon("/swagger/**", "/doc.html", "/webjars/**", "/openapi/**", "/v3/api-docs/**");
+        return new OrderFilterChainDefinition().addAnon("/swagger/**", "/swagger-resources/**", "/swagger-instance/**"
+                , "/doc.html", "/webjars/**", "/openapi/**", "/v3/api-docs/**");
     }
 
     @Override
