@@ -1,0 +1,94 @@
+package com.iteaj.iboot.module.iot.entity;
+
+import com.iteaj.framework.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.Date;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+/**
+ * <p>
+ * 协议网关
+ * </p>
+ *
+ * @author iteaj
+ * @since 2023-09-12
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("iot_gateway")
+public class Gateway extends BaseEntity {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 网关名称
+     */
+    private String name;
+
+    /**
+     * 网关类型(客户端、服务端)
+     */
+    private String type;
+
+    /**
+     * 主机地址
+     */
+    private String host;
+
+    /**
+     * 网关端口
+     */
+    private Integer port;
+
+    /**
+     * 用户名
+     */
+    private String username;
+
+    /**
+     * 是否启用ssl
+     */
+    private Boolean ssl;
+
+    /**
+     * 密码
+     */
+    private String password;
+
+    /**
+     * 所属协议
+     */
+    private Long protocolId;
+
+    /**
+     * 读写空闲(秒)
+     */
+    private Long allIdle;
+
+    /**
+     * 读空闲(秒)
+     */
+    private Long readIdle;
+
+    /**
+     * 写空闲(秒)
+     */
+    private Long writeIdle;
+
+    /**
+     * 备注
+     */
+    private String remark;
+
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+
+}
