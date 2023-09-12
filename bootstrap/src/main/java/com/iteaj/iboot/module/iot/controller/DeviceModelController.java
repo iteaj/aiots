@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 设备型号管理
+ * 产品管理
  *
  * @author iteaj
  * @since 2022-07-22
