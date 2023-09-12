@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.TreeEntity;
 import lombok.Data;
@@ -37,6 +38,12 @@ public class DeviceType extends TreeEntity {
      * 类型名称
      */
     private String name;
+
+    /**
+     * 父类型名称
+     */
+    @TableField(exist = false)
+    private String parentName;
 
     /**
      * 类型别名
