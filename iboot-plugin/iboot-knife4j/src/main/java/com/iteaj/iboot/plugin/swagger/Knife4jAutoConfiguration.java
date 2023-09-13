@@ -1,12 +1,21 @@
 package com.iteaj.iboot.plugin.swagger;
 
 import com.iteaj.framework.security.OrderFilterChainDefinition;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
+import org.springframework.web.context.ServletContextAware;
 
-public class Knife4jAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
+import javax.servlet.ServletContext;
+
+public class Knife4jAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered, InitializingBean {
+
+    @Autowired
+    private ServerProperties serverProperties;
 
     @Bean
     public OrderFilterChainDefinition swaggerFilterChainDefinition() {
@@ -23,4 +32,16 @@ public class Knife4jAutoConfiguration implements ApplicationListener<Application
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 5;
     }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Integer port = serverProperties.getPort();
+        String contextPath = serverProperties.getServlet().getContextPath();
+        System.out.println(String.format("------------------------------------------------- 启用knife4j api文档插件 -----------------------------------------------\r\n" +
+                "                              knife4j访问地址：http://127.0.0.1:%s%s%s)                                           \r\n" +
+                "                       smart-doc访问地址：http://127.0.0.1:%s%s%s)                              \r\n" +
+                "-----------------------------------------------------------------------------------------------------------------------"
+                , port + "", contextPath, "/doc.html", port + "", contextPath, "/static/doc/index.html"));
+    }
+
 }
