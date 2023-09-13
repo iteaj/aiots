@@ -5,21 +5,39 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.DeviceModel">
         <result column="id" property="id" />
-        <result column="type_id" property="typeId" />
         <result column="model" property="model" />
-        <result column="type_name" property="typeName" />
         <result column="remark" property="remark" />
+        <result column="type_id" property="typeId" />
+        <result column="type_name" property="typeName" />
+        <result column="gateway_id" property="gatewayId" />
+        <result column="gateway_name" property="gatewayName" />
+        <result column="gateway_type" property="gatewayType" />
+        <result column="protocol_id" property="protocolId" />
+        <result column="protocol_name" property="protocolName" />
+        <result column="create_time" property="createTime" />
     </resultMap>
 
-    <select id="detailOfPage" resultType="com.iteaj.iboot.module.iot.entity.DeviceModel">
-        select a.*, idt.name type_name from iot_device_model a
+    <select id="detailOfPage" resultType="com.iteaj.iboot.module.iot.dto.ProductDto">
+        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.name protocol_name
+        from iot_device_model a
             left join iot_device_type idt on a.type_id=idt.id
+            left join iot_gateway ig on a.gateway_id=ig.id
+            left join iot_protocol ip on ip.id = a.protocol_id
         <where>
+            <if test="entity.gatewayId != null">
+                and a.gateway_id=#{entity.gatewayId}
+            </if>
+            <if test="entity.protocolId != null">
+                and a.protocol_id=#{entity.protocolId}
+            </if>
             <if test="entity.typeId != null">
                 and find_in_set(#{entity.typeId}, idt.path)
             </if>
-            <if test="entity.model != null">
+            <if test="entity.model != null and entity.model != ''">
                 and a.model like '%${entity.model}%'
+            </if>
+            <if test="entity.code != null and entity.code != ''">
+                and a.code like '%${entity.code}%'
             </if>
         </where>
     </select>

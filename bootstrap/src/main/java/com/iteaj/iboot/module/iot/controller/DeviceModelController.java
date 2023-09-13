@@ -7,6 +7,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.DeviceModel;
 import com.iteaj.iboot.module.iot.service.IDeviceModelService;
 import org.springframework.web.bind.annotation.*;
@@ -36,17 +37,17 @@ public class DeviceModelController extends BaseController {
     */
     @GetMapping("/view")
     @CheckPermission({"iot:deviceModel:view"})
-    public Result<IPage<DeviceModel>> list(Page<DeviceModel> page, DeviceModel entity) {
+    public Result<IPage<ProductDto>> list(Page<DeviceModel> page, DeviceModel entity) {
         return this.deviceModelService.detailOfPage(page, entity);
     }
 
     /**
-     * 通过设备类型获取设备型号列表
+     * 获取指定类型下面的列表
      * @param typeId -1将获取所有
      * @return
      */
     @GetMapping("/listByType")
-    public Result<List<DeviceModel>> listByType(Integer typeId) {
+    public Result<List<DeviceModel>> listByType(Long typeId) {
         return this.deviceModelService.list(Wrappers
                 .<DeviceModel>lambdaQuery()
                 .eq(typeId != -1, DeviceModel::getTypeId, typeId));

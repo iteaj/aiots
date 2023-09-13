@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.DeviceModel;
 import com.iteaj.iboot.module.iot.entity.PointGroup;
 import com.iteaj.iboot.module.iot.entity.Signal;
@@ -44,7 +45,7 @@ public class DeviceModelServiceImpl extends BaseServiceImpl<DeviceModelMapper, D
         this.getOne(Wrappers.<DeviceModel>lambdaQuery()
                 .eq(DeviceModel::getTypeId, entity.getTypeId())
                 .eq(DeviceModel::getModel, entity.getModel()))
-                .ofNullable().ifPresent(one -> {throw new ServiceException("此设备型号已经存在["+entity.getModel()+"]");});
+                .ofNullable().ifPresent(one -> {throw new ServiceException("此产品已经存在["+entity.getModel()+"]");});
 
         return super.save(entity);
     }
@@ -55,7 +56,7 @@ public class DeviceModelServiceImpl extends BaseServiceImpl<DeviceModelMapper, D
                 .ne(DeviceModel::getId, entity.getId())
                 .eq(DeviceModel::getTypeId, entity.getTypeId())
                 .eq(DeviceModel::getModel, entity.getModel()))
-                .ofNullable().ifPresent(one -> {throw new ServiceException("此设备型号已经存在["+entity.getModel()+"]");});
+                .ofNullable().ifPresent(one -> {throw new ServiceException("此产品已经存在["+entity.getModel()+"]");});
 
         return super.updateById(entity);
     }
@@ -69,22 +70,22 @@ public class DeviceModelServiceImpl extends BaseServiceImpl<DeviceModelMapper, D
             return new BooleanResult(false).fail("不支持批量删除");
         }
 
-        Serializable modelId = idList.stream().findFirst().get();
-        this.pointGroupService.getOne(Wrappers.<PointGroup>lambdaQuery()
-                .eq(PointGroup::getModelId, modelId)
-                .last("limit 1")).ofNullable()
-                .ifPresent(pointGroup -> {throw new ServiceException("点位组已在使用, 请先删除");});
-
-        this.pointPositionService.getOne(Wrappers.<Signal>lambdaQuery()
-                .eq(Signal::getModelId, modelId)
-                .last("limit 1")).ofNullable()
-                .ifPresent(pointPosition -> {throw new ServiceException("点位记录已在使用, 请先删除");});
+//        Serializable modelId = idList.stream().findFirst().get();
+//        this.pointGroupService.getOne(Wrappers.<PointGroup>lambdaQuery()
+//                .eq(PointGroup::getModelId, modelId)
+//                .last("limit 1")).ofNullable()
+//                .ifPresent(pointGroup -> {throw new ServiceException("点位组已在使用, 请先删除");});
+//
+//        this.pointPositionService.getOne(Wrappers.<Signal>lambdaQuery()
+//                .eq(Signal::getModelId, modelId)
+//                .last("limit 1")).ofNullable()
+//                .ifPresent(pointPosition -> {throw new ServiceException("点位记录已在使用, 请先删除");});
 
         return super.removeByIds(idList);
     }
 
     @Override
-    public PageResult<IPage<DeviceModel>> detailOfPage(Page<DeviceModel> page, DeviceModel entity) {
+    public PageResult<IPage<ProductDto>> detailOfPage(Page page, DeviceModel entity) {
         return new PageResult<>(this.getBaseMapper().detailOfPage(page, entity));
     }
 }

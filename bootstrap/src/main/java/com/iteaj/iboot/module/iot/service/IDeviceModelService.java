@@ -2,9 +2,10 @@ package com.iteaj.iboot.module.iot.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.framework.result.PageResult;
-import com.iteaj.iboot.module.iot.entity.DeviceModel;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.result.PageResult;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.entity.DeviceModel;
 
 /**
  * <p>
@@ -16,5 +17,5 @@ import com.iteaj.framework.IBaseService;
  */
 public interface IDeviceModelService extends IBaseService<DeviceModel> {
 
-    PageResult<IPage<DeviceModel>> detailOfPage(Page<DeviceModel> page, DeviceModel entity);
+    PageResult<IPage<ProductDto>> detailOfPage(Page page, DeviceModel entity);
 }

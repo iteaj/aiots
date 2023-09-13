@@ -4,9 +4,12 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.iboot.module.iot.consts.GatewayType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.Date;
 
 /**
  * <p>
@@ -25,6 +28,11 @@ public class DeviceModel extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 图标
+     */
+    private String logo;
+
+    /**
      * 设备类型
      */
     private Integer typeId;
@@ -36,15 +44,46 @@ public class DeviceModel extends BaseEntity {
     private String typeName;
 
     /**
-     * 型号
+     * 产品名称
      */
     @TableField(condition = SqlCondition.LIKE)
     private String model;
 
     /**
-     * 型号说明
+     * 绑定的网关
+     */
+    private Long gatewayId;
+
+    /**
+     * 网关类型
+     */
+    @TableField(exist = false)
+    private GatewayType gatewayType;
+
+    /**
+     * 网关名称
+     */
+    @TableField(exist = false)
+    private String gatewayName;
+
+    /**
+     * 绑定的协议
+     */
+    private Long protocolId;
+
+    /**
+     * 协议名称
+     */
+    @TableField(exist = false)
+    private Long protocolName;
+
+    /**
+     * 产品说明
      */
     private String remark;
 
-
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 }
