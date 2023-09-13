@@ -14,6 +14,7 @@ import com.iteaj.iboot.module.iot.service.IDeviceTypeService;
 import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
@@ -73,10 +74,15 @@ public class DeviceTypeServiceImpl extends BaseServiceImpl<DeviceTypeMapper, Dev
     }
 
     @Override
+    @Transactional
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
         if(CollectionUtils.isEmpty(idList)) {
             return new BooleanResult(false);
         }
+
+        this.list(Wrappers.<DeviceType>lambdaQuery().in(DeviceType::getPid, idList)).ifPresent(item -> {
+            throw new ServiceException("请先删除对应的子类型");
+        });
 
         NumberResult<Integer> count = deviceModelService.count(Wrappers
                 .<DeviceModel>lambdaQuery().in(DeviceModel::getTypeId, idList));
