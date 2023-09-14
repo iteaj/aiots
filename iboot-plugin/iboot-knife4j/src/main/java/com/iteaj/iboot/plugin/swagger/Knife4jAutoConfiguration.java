@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.swagger;
 
+import com.iteaj.framework.plugin.Plugin;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import org.springframework.web.context.ServletContextAware;
 
 import javax.servlet.ServletContext;
 
-public class Knife4jAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered, InitializingBean {
+public class Knife4jAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered, Plugin {
 
     @Autowired
     private ServerProperties serverProperties;
@@ -34,13 +35,23 @@ public class Knife4jAutoConfiguration implements ApplicationListener<Application
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public String getPluginName() {
+        return "Knife4j";
+    }
+
+    @Override
+    public String getPluginDesc() {
+        return "使用Smart-doc和knife4j框架实现的文档";
+    }
+
+    @Override
+    public void banner() {
         Integer port = serverProperties.getPort();
         String contextPath = serverProperties.getServlet().getContextPath();
         System.out.println(String.format("------------------------------------------------- 启用knife4j api文档插件 -----------------------------------------------\r\n" +
-                "                              knife4j访问地址：http://127.0.0.1:%s%s%s)                                           \r\n" +
-                "                       smart-doc访问地址：http://127.0.0.1:%s%s%s)                              \r\n" +
-                "-----------------------------------------------------------------------------------------------------------------------"
+                        "                              knife4j访问地址：http://127.0.0.1:%s%s%s)                                           \r\n" +
+                        "                       smart-doc访问地址：http://127.0.0.1:%s%s%s)                              \r\n" +
+                        "-----------------------------------------------------------------------------------------------------------------------"
                 , port + "", contextPath, "/doc.html", port + "", contextPath, "/static/doc/index.html"));
     }
 

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.code;
 
+import com.iteaj.framework.plugin.Plugin;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.Module;
 import org.mybatis.spring.annotation.MapperScan;
@@ -17,7 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @MapperScan({"com.iteaj.iboot.plugin.code.mapper"})
 @EnableConfigurationProperties(LowCodeProperties.class)
 @PropertySource("classpath:application-lcg.properties")
-public class LowCodeGenAutoConfiguration implements InitializingBean, WebMvcConfigurer {
+public class LowCodeGenAutoConfiguration implements WebMvcConfigurer, Plugin {
 
     private final LowCodeProperties lowCodeProperties;
 
@@ -44,10 +45,12 @@ public class LowCodeGenAutoConfiguration implements InitializingBean, WebMvcConf
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        System.out.println(
-                "****************************************************************\r\n" +
-                "*                         启用低代码设计插件                       *\r\n" +
-                "****************************************************************\r" );
+    public String getPluginName() {
+        return "code";
+    }
+
+    @Override
+    public String getPluginDesc() {
+        return "代码生成器";
     }
 }

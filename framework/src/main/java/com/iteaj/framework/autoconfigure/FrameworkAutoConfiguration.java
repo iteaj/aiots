@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
  * @since 1.0
  */
 @ImportAutoConfiguration({
+        PluginAutoConfiguration.class,
         MybatisPlusConfiguration.class,
         RedisJsonAutoConfiguration.class,
         CacheManagerAutoConfiguration.class,
