@@ -59,9 +59,9 @@ public class Gateway extends BaseEntity {
     private String password;
 
     /**
-     * 所属协议
+     * 协议类型
      */
-    private Long protocolId;
+    private String protocolType;
 
     /**
      * 读写空闲(秒)

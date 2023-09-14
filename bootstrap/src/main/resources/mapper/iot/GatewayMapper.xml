@@ -9,16 +9,16 @@
         <result column="type" property="type" />
         <result column="host" property="host" />
         <result column="port" property="port" />
-        <result column="username" property="username" />
         <result column="ssl" property="ssl" />
+        <result column="username" property="username" />
         <result column="password" property="password" />
-        <result column="protocol_id" property="protocolId" />
         <result column="all_idle" property="allIdle" />
         <result column="read_idle" property="readIdle" />
         <result column="write_idle" property="writeIdle" />
         <result column="remark" property="remark" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
+        <result column="protocol_type" property="protocolType" />
     </resultMap>
 
 </mapper>
