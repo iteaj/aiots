@@ -30,9 +30,9 @@ public class PluginManagerService implements ApplicationListener<ApplicationStar
                 .collect(Collectors.joining("、"));
         logger.info("框架已加载完成所有插件[{}]", plugins);
 //        System.out.println("------------------------------------------------- 已启用的插件 -----------------------------------------------");
-//        this.plugins.forEach(item -> {
-//            item.banner();
-//        });
+        this.plugins.forEach(item -> {
+            item.banner();
+        });
 //        System.out.println("------------------------------------------------------------------------------------------------------------");
     }
 }
