@@ -33,6 +33,11 @@ public class DeviceModel extends BaseEntity {
     private String logo;
 
     /**
+     * 产品代码
+     */
+    private String code;
+
+    /**
      * 设备类型
      */
     private Integer typeId;
