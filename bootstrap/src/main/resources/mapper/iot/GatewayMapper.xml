@@ -21,4 +21,8 @@
         <result column="protocol_type" property="protocolType" />
     </resultMap>
 
+    <select id="isBindProduct" resultType="java.lang.Boolean">
+        select count(*) > 0 from iot_device_model where gateway_id=#{gatewayId}
+    </select>
+
 </mapper>

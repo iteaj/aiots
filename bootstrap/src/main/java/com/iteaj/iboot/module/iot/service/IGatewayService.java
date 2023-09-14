@@ -13,4 +13,5 @@ import com.iteaj.framework.IBaseService;
  */
 public interface IGatewayService extends IBaseService<Gateway> {
 
+    boolean isBindProduct(Long gatewayId);
 }

@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface GatewayMapper extends BaseMapper<Gateway> {
 
+    Boolean isBindProduct(Long gatewayId);
 }
