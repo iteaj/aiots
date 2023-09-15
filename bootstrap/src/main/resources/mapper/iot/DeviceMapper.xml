@@ -56,8 +56,8 @@
     <select id="getByUid" resultMap="DeviceDtoMap">
         select * from iot_device where uid=#{uid}
     </select>
-    <select id="detailById" resultType="com.iteaj.iboot.module.iot.dto.DeviceDto">
-        select a.*, idm.model model_name, idt.name device_type_name from iot_device a
+    <select id="detailById" resultMap="DeviceDtoMap">
+        select a.*, idm.name product_name, idt.name product_type_name from iot_device a
              left join iot_product_type idt on a.product_type_id=idt.id
              left join iot_product idm on a.product_id=idm.id
         where a.id=#{id}
