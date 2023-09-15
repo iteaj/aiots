@@ -19,8 +19,8 @@
 
     <select id="detailOfPage" resultType="com.iteaj.iboot.module.iot.dto.ProductDto">
         select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.name protocol_name
-        from iot_device_model a
-            left join iot_device_type idt on a.type_id=idt.id
+        from product_id a
+            left join iot_product_type idt on a.type_id=idt.id
             left join iot_gateway ig on a.gateway_id=ig.id
             left join iot_protocol ip on ip.id = a.protocol_id
         <where>

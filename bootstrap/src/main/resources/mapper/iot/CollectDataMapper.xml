@@ -32,11 +32,11 @@
             <if test="entity.cid != null">
                 and a.cid=#{entity.cid}
             </if>
-            <if test="entity.deviceTypeId != null">
-                and d.device_type_id=#{entity.deviceTypeId}
+            <if test="entity.productTypeId != null">
+                and d.product_type_id=#{entity.productTypeId}
             </if>
-            <if test="entity.modelId != null">
-                and d.model=#{entity.modelId}
+            <if test="entity.productId != null">
+                and d.product_id=#{entity.productId}
             </if>
             <if test="entity.signalId != null">
                 and a.signal_id=#{entity.signalId}

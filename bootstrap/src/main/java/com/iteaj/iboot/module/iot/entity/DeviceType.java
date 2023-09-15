@@ -20,7 +20,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-@TableName("iot_device_type")
+@TableName("iot_product_type")
 public class DeviceType extends TreeEntity {
 
     private static final long serialVersionUID = 1L;

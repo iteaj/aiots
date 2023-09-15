@@ -22,7 +22,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-@TableName("iot_device_model")
+@TableName("product_id")
 public class DeviceModel extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

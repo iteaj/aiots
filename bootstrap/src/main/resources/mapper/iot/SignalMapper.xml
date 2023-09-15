@@ -20,8 +20,8 @@
     <select id="detailByPage" resultMap="BaseResultMap">
         select a.id, a.name, a.address, a.model_id, a.field_name, a.field_type, a.create_time
              , a.message, a.encode, a.type, idm.type_id from iot_signal a
-            left join iot_device_model idm on a.model_id = idm.id
-            left join iot_device_type idt on idm.type_id=idt.id
+            left join product_id idm on a.model_id = idm.id
+            left join iot_product_type idt on idm.type_id=idt.id
         <where>
             <if test="entity.typeId!=null">
                 and find_in_set(#{entity.typeId}, idt.path)

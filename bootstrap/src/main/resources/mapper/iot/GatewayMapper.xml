@@ -22,7 +22,7 @@
     </resultMap>
 
     <select id="isBindProduct" resultType="java.lang.Boolean">
-        select count(*) > 0 from iot_device_model where gateway_id=#{gatewayId}
+        select count(*) > 0 from product_id where gateway_id=#{gatewayId}
     </select>
 
 </mapper>
