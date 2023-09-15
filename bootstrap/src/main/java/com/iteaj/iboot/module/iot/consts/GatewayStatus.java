@@ -2,6 +2,6 @@ package com.iteaj.iboot.module.iot.consts;
 
 public enum GatewayStatus {
 
-    stop, // 停用
-    start // 启用
+    stop, // 停止
+    start // 开启
 }

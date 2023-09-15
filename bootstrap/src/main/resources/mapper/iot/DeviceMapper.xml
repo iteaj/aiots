@@ -23,11 +23,11 @@
         <result column="product_type_id" property="productTypeId" />
     </resultMap>
     <resultMap id="DeviceDtoMap" type="com.iteaj.iboot.module.iot.dto.DeviceDto" extends="BasicMap">
-        <result property="modelName" column="model_name" />
-        <result property="deviceTypeName" column="device_type_name" />
+        <result property="productName" column="product_name" />
+        <result property="productTypeName" column="product_type_name" />
     </resultMap>
     <select id="pageOfDetail" resultMap="DeviceDtoMap">
-        select a.*, idm.model model_name, idt.name device_type_name from iot_device a
+        select a.*, idm.name product_name, idt.name product_type_name from iot_device a
             left join iot_product_type idt on a.product_type_id=idt.id
             left join iot_product idm on a.product_id=idm.id
         <where>
@@ -37,8 +37,8 @@
             <if test="entity.alias!=null">
                 and idt.alias = #{entity.alias}
             </if>
-            <if test="entity.deviceTypeId!=null">
-                and a.product_type_id = #{entity.deviceTypeId}
+            <if test="entity.productTypeId!=null">
+                and a.product_type_id = #{entity.productTypeId}
             </if>
             <if test="entity.deviceSn!=null and entity.deviceSn!=''">
                 and a.device_sn like '%${entity.deviceSn}%'

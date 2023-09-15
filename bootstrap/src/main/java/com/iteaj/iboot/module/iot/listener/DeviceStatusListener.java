@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.listener;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -11,7 +12,7 @@ import com.iteaj.iot.event.ClientStatusEventListener;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -20,13 +21,15 @@ import java.util.Date;
  * 设备上下线状态事件监听
  */
 @Component
-public class DeviceStatusListener implements ClientStatusEventListener, DisposableBean {
+public class DeviceStatusListener implements ClientStatusEventListener, InitializingBean {
 
     private final IDeviceService deviceService;
+    private final FrameworkProperties properties;
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public DeviceStatusListener(IDeviceService deviceService) {
+    public DeviceStatusListener(IDeviceService deviceService, FrameworkProperties properties) {
         this.deviceService = deviceService;
+        this.properties = properties;
     }
 
     @Override
@@ -54,14 +57,13 @@ public class DeviceStatusListener implements ClientStatusEventListener, Disposab
     }
 
     @Override
-    public void destroy() throws Exception {
-        // 程序关闭时 更新所有的设备状态到离线
-        deviceService.update(Wrappers.<Device>lambdaUpdate()
-                .set(Device::getStatus, DeviceStatus.offline)
-                .set(Device::getSwitchTime, new Date()));
-
-        if(logger.isDebugEnabled()) {
-            logger.debug("程序关闭... 更新所有设备状态到[offline]");
+    public void afterPropertiesSet() throws Exception {
+        if(!properties.isCluster()) {
+            // 系统重启时 更新所有的设备状态到离线
+            deviceService.update(Wrappers.<Device>lambdaUpdate()
+                    .set(Device::getStatus, DeviceStatus.offline)
+                    .set(Device::getSwitchTime, new Date()));
         }
     }
+
 }

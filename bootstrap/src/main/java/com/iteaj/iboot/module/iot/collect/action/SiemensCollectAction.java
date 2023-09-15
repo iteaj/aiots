@@ -46,9 +46,9 @@ public class SiemensCollectAction extends CollectAction {
         }
 
         try {
-            SiemensModel.valueOf(device.getModelName());
+            SiemensModel.valueOf(device.getProductName());
         } catch (Exception e) {
-            throw new CollectException("西门子设备["+ detail.getDeviceSn()+"]型号错误["+ device.getModelName()+"]");
+            throw new CollectException("西门子设备["+ detail.getDeviceSn()+"]型号错误["+ device.getProductName()+"]");
         }
     }
 
@@ -58,7 +58,7 @@ public class SiemensCollectAction extends CollectAction {
         Object value = "";
         String address = signal.getAddress();
         DeviceDto device = detail.getDevice();
-        SiemensModel model = SiemensModel.valueOf(device.getModelName());
+        SiemensModel model = SiemensModel.valueOf(device.getProductName());
         SiemensS7Protocol protocol = new SiemensS7Protocol(new SiemensConnectProperties(device.getIp(), device.getPort(), model));
         Integer fieldType = signal.getFieldType();
         switch (fieldType) {

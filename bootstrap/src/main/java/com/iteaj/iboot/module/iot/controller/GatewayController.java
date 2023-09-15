@@ -4,6 +4,7 @@ import java.util.List;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -69,6 +70,20 @@ public class GatewayController extends BaseController {
     @CheckPermission({"iot:gateway:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.gatewayService.removeByIds(idList);
+    }
+
+    /**
+     * 切换网关状态
+     * @param id 网关id
+     * @param status 状态
+     * @return
+     */
+    @Logger("切换网关状态")
+    @PostMapping("switch/{status}")
+    @CheckPermission({"iot:gateway:status"})
+    public Result<Boolean> switchStatus(Long id,  @PathVariable GatewayStatus status) {
+
+        return success(true);
     }
 }
 

@@ -131,7 +131,7 @@ public class DeviceModbusController extends BaseController {
         }
 
         try {
-            String modelName = entity.getModelName();
+            String modelName = entity.getProductName();
             if(modelName.toLowerCase().contains("rtu")) {
                 Serial serial = this.serialService.getByCom(entity.getDeviceSn()).getData();
                 if(serial == null) {

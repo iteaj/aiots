@@ -8,14 +8,14 @@ import lombok.Data;
 public class DeviceDto extends Device {
 
     /**
-     * 型号名称
+     * 产品名称
      */
-    private String modelName;
+    private String productName;
 
     /**
-     * 设备类型名称
+     * 产品类型名称
      */
-    private String deviceTypeName;
+    private String productTypeName;
 
     /**
      * 设备别名

@@ -41,7 +41,7 @@
         </where>
     </select>
     <select id="detailById" resultMap="BaseResultMap">
-        select a.*, d.product_type_id, d.device_sn, d.model model_id from iot_collect_detail a
+        select a.*, d.product_type_id, d.device_sn, d.product_id model_id from iot_collect_detail a
             left join iot_device d on a.uid=d.uid
         where a.id=#{id}
     </select>
