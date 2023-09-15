@@ -124,14 +124,14 @@ public class DevicePlcController extends BaseController {
             return fail("设备不存在["+device.getDeviceSn()+"]");
         }
 
-        DeviceModel data = deviceModelService.getById(entity.getModel()).getData();
+        DeviceModel data = deviceModelService.getById(entity.getProductId()).getData();
         if(data == null) {
             return fail("错误的设备型号");
         }
 
         try {
             // 西门子设备
-            if(device.getDeviceTypeId() == 2) {
+            if(device.getProductTypeId() == 2) {
                 SiemensModel model = SiemensModel.valueOf(data.getModel());
                 SiemensConnectProperties properties = new SiemensConnectProperties(device.getIp(), device.getPort(), model, entity.getDeviceSn());
                 SocketClient client = siemensS7Component.getClient(properties);
@@ -144,7 +144,7 @@ public class DevicePlcController extends BaseController {
                 } else {
                     client.disconnect(false);
                 }
-            } else if(device.getDeviceTypeId() == 3) { // 欧姆龙设备
+            } else if(device.getProductTypeId() == 3) { // 欧姆龙设备
                 OmronConnectProperties properties = new OmronConnectProperties(device.getIp(), device.getPort());
                 properties.setConnectKey(entity.getDeviceSn());
                 SocketClient client = omronComponent.getClient(properties);

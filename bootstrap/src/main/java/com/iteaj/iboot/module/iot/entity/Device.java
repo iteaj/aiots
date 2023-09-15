@@ -59,9 +59,9 @@ public class Device extends BaseEntity {
     private String extend;
 
     /**
-     * 设备型号
+     * 所属产品
      */
-    private Integer model;
+    private Long productId;
 
     /**
      * 经度
@@ -115,6 +115,6 @@ public class Device extends BaseEntity {
      * 设备类型
      */
     @NotNull(message = "设备类型必填")
-    private Long deviceTypeId;
+    private Long productTypeId;
 
 }

@@ -87,7 +87,7 @@ public class DeviceController extends BaseController {
      */
     @GetMapping("listByModel")
     public Result<List<Device>> listByModel(Long modelId) {
-        return this.deviceService.list(Wrappers.<Device>lambdaQuery().eq(Device::getModel, modelId));
+        return this.deviceService.list(Wrappers.<Device>lambdaQuery().eq(Device::getProductId, modelId));
     }
 }
 

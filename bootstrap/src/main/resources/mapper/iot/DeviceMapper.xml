@@ -11,7 +11,7 @@
         <result column="lon" property="lon" />
         <result column="name" property="name" />
         <result column="port" property="port" />
-        <result column="model" property="model" />
+        <result column="product_id" property="productId" />
         <result column="extend" property="extend" />
         <result column="status" property="status" />
         <result column="address" property="address" />
@@ -20,7 +20,7 @@
         <result column="device_sn" property="deviceSn" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
-        <result column="device_type_id" property="deviceTypeId" />
+        <result column="product_type_id" property="productTypeId" />
     </resultMap>
     <resultMap id="DeviceDtoMap" type="com.iteaj.iboot.module.iot.dto.DeviceDto" extends="BasicMap">
         <result property="modelName" column="model_name" />

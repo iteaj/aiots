@@ -111,11 +111,11 @@
         </dependency>
 
         <!-- Oauth2服务插件(使用SaToken开发)-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>iboot-oauth2</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-oauth2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Quartz定时任务插件 -->
 <!--        <dependency>-->
