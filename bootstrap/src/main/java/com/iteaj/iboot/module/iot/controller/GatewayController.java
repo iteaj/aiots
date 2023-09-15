@@ -80,7 +80,7 @@ public class GatewayController extends BaseController {
      */
     @Logger("切换网关状态")
     @PostMapping("switch/{status}")
-    @CheckPermission({"iot:gateway:status"})
+    @CheckPermission({"iot:gateway:switch"})
     public Result<Boolean> switchStatus(Long id,  @PathVariable GatewayStatus status) {
 
         return success(true);
