@@ -37,6 +37,9 @@
             <if test="entity.alias!=null">
                 and idt.alias = #{entity.alias}
             </if>
+            <if test="entity.productName!=null">
+                and idm.name like '%${entity.productName}%'
+            </if>
             <if test="entity.productTypeId!=null">
                 and a.product_type_id = #{entity.productTypeId}
             </if>
