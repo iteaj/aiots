@@ -9,7 +9,7 @@
         <result column="type" property="type" />
         <result column="host" property="host" />
         <result column="port" property="port" />
-        <result column="ssl" property="ssl" />
+        <result column="ssl" property="useSsl" />
         <result column="username" property="username" />
         <result column="password" property="password" />
         <result column="all_idle" property="allIdle" />
@@ -22,7 +22,7 @@
     </resultMap>
 
     <select id="isBindProduct" resultType="java.lang.Boolean">
-        select count(*) > 0 from product_id where gateway_id=#{gatewayId}
+        select count(*) > 0 from iot_product where gateway_id=#{gatewayId}
     </select>
 
 </mapper>

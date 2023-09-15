@@ -53,7 +53,7 @@ public class Gateway extends BaseEntity {
     /**
      * 是否启用ssl
      */
-    private Boolean ssl;
+    private Boolean useSsl;
 
     /**
      * 密码
