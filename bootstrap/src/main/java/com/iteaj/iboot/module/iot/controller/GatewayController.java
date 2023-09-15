@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
@@ -82,7 +84,9 @@ public class GatewayController extends BaseController {
     @PostMapping("switch/{status}")
     @CheckPermission({"iot:gateway:switch"})
     public Result<Boolean> switchStatus(Long id,  @PathVariable GatewayStatus status) {
-
+        this.gatewayService.update(Wrappers.<Gateway>lambdaUpdate()
+                .set(Gateway::getStatus, status)
+                .eq(Gateway::getId, id));
         return success(true);
     }
 }
