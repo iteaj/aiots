@@ -64,6 +64,12 @@ public class Device extends BaseEntity {
     private Long productId;
 
     /**
+     * 设备类型
+     */
+    @NotNull(message = "产品类型必填")
+    private Long productTypeId;
+
+    /**
      * 经度
      */
     private String lon;
@@ -110,11 +116,5 @@ public class Device extends BaseEntity {
      * 更新时间
      */
     private Date updateTime;
-
-    /**
-     * 设备类型
-     */
-    @NotNull(message = "设备类型必填")
-    private Long productTypeId;
 
 }
