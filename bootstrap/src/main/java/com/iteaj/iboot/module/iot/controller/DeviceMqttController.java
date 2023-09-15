@@ -11,7 +11,7 @@ import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.module.iot.entity.Device;
-import com.iteaj.iboot.module.iot.service.IDeviceModelService;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iot.client.mqtt.MqttClient;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
@@ -33,11 +33,11 @@ import java.util.List;
 public class DeviceMqttController extends BaseController {
 
     private final IDeviceService deviceService;
-    private final IDeviceModelService deviceModelService;
+    private final IProductService deviceModelService;
     private final DefaultMqttComponent defaultMqttComponent;
 
     public DeviceMqttController(IDeviceService deviceService
-            , IDeviceModelService deviceModelService
+            , IProductService deviceModelService
             , @Autowired(required = false) DefaultMqttComponent defaultMqttComponent) {
         this.deviceService = deviceService;
         this.deviceModelService = deviceModelService;

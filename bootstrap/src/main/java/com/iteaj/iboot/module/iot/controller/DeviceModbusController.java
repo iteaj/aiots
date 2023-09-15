@@ -13,7 +13,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.module.iot.consts.SerialStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Serial;
-import com.iteaj.iboot.module.iot.service.IDeviceModelService;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.ISerialService;
 import com.iteaj.iot.client.ClientConnectProperties;
@@ -40,11 +40,11 @@ public class DeviceModbusController extends BaseController {
 
     private final ISerialService serialService;
     private final IDeviceService deviceService;
-    private final IDeviceModelService deviceModelService;
+    private final IProductService deviceModelService;
     private final ModbusTcpClientComponent tcpClientComponent;
     private final SerialComponent serialComponent;
     public DeviceModbusController(ISerialService serialService, IDeviceService deviceService
-            , IDeviceModelService deviceModelService
+            , IProductService deviceModelService
             , @Autowired(required = false) ModbusTcpClientComponent tcpClientComponent
             , @Autowired(required = false) SerialComponent serialComponent) {
         this.serialService = serialService;

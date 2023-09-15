@@ -1,7 +1,7 @@
 package com.iteaj.iboot.module.iot.service;
 
 import com.iteaj.framework.result.ListResult;
-import com.iteaj.iboot.module.iot.entity.DeviceType;
+import com.iteaj.iboot.module.iot.entity.ProductType;
 import com.iteaj.framework.IBaseService;
 
 /**
@@ -12,11 +12,11 @@ import com.iteaj.framework.IBaseService;
  * @author iteaj
  * @since 2022-05-15
  */
-public interface IDeviceTypeService extends IBaseService<DeviceType> {
+public interface IProductTypeService extends IBaseService<ProductType> {
 
     /**
      * 获取树形结构列表
      * @return
      */
-    ListResult<DeviceType> tree(DeviceType entity);
+    ListResult<ProductType> tree(ProductType entity);
 }

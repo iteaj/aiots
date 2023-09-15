@@ -11,8 +11,8 @@ import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.module.iot.entity.Device;
-import com.iteaj.iboot.module.iot.entity.DeviceModel;
-import com.iteaj.iboot.module.iot.service.IDeviceModelService;
+import com.iteaj.iboot.module.iot.entity.Product;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iot.client.SocketClient;
 import com.iteaj.iot.plc.omron.OmronComponent;
@@ -37,10 +37,10 @@ public class DevicePlcController extends BaseController {
 
     private final IDeviceService deviceService;
     private final OmronComponent omronComponent;
-    private final IDeviceModelService deviceModelService;
+    private final IProductService deviceModelService;
     private final SiemensS7Component siemensS7Component;
     public DevicePlcController(IDeviceService deviceService
-            , OmronComponent omronComponent, IDeviceModelService deviceModelService
+            , OmronComponent omronComponent, IProductService deviceModelService
             , SiemensS7Component siemensS7Component) {
         this.deviceService = deviceService;
         this.omronComponent = omronComponent;
@@ -124,7 +124,7 @@ public class DevicePlcController extends BaseController {
             return fail("设备不存在["+device.getDeviceSn()+"]");
         }
 
-        DeviceModel data = deviceModelService.getById(entity.getProductId()).getData();
+        Product data = deviceModelService.getById(entity.getProductId()).getData();
         if(data == null) {
             return fail("错误的设备型号");
         }
@@ -132,7 +132,7 @@ public class DevicePlcController extends BaseController {
         try {
             // 西门子设备
             if(device.getProductTypeId() == 2) {
-                SiemensModel model = SiemensModel.valueOf(data.getModel());
+                SiemensModel model = SiemensModel.valueOf(data.getName());
                 SiemensConnectProperties properties = new SiemensConnectProperties(device.getIp(), device.getPort(), model, entity.getDeviceSn());
                 SocketClient client = siemensS7Component.getClient(properties);
                 if(status == DeviceStatus.online) {

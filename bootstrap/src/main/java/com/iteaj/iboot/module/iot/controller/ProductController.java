@@ -8,8 +8,8 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
-import com.iteaj.iboot.module.iot.entity.DeviceModel;
-import com.iteaj.iboot.module.iot.service.IDeviceModelService;
+import com.iteaj.iboot.module.iot.entity.Product;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +22,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/iot/deviceModel")
-public class DeviceModelController extends BaseController {
+public class ProductController extends BaseController {
 
-    private final IDeviceModelService deviceModelService;
+    private final IProductService deviceModelService;
 
-    public DeviceModelController(IDeviceModelService deviceModelService) {
+    public ProductController(IProductService deviceModelService) {
         this.deviceModelService = deviceModelService;
     }
 
@@ -37,7 +37,7 @@ public class DeviceModelController extends BaseController {
     */
     @GetMapping("/view")
     @CheckPermission({"iot:deviceModel:view"})
-    public Result<IPage<ProductDto>> list(Page<DeviceModel> page, DeviceModel entity) {
+    public Result<IPage<ProductDto>> list(Page<Product> page, Product entity) {
         return this.deviceModelService.detailOfPage(page, entity);
     }
 
@@ -47,10 +47,10 @@ public class DeviceModelController extends BaseController {
      * @return
      */
     @GetMapping("/listByType")
-    public Result<List<DeviceModel>> listByType(Long typeId) {
+    public Result<List<Product>> listByType(Long typeId) {
         return this.deviceModelService.list(Wrappers
-                .<DeviceModel>lambdaQuery()
-                .eq(typeId != -1, DeviceModel::getTypeId, typeId));
+                .<Product>lambdaQuery()
+                .eq(typeId != -1, Product::getProductTypeId, typeId));
     }
 
     /**
@@ -59,7 +59,7 @@ public class DeviceModelController extends BaseController {
     */
     @GetMapping("/edit")
     @CheckPermission({"iot:deviceModel:edit"})
-    public Result<DeviceModel> getById(Long id) {
+    public Result<Product> getById(Long id) {
         return this.deviceModelService.getById(id);
     }
 
@@ -69,7 +69,7 @@ public class DeviceModelController extends BaseController {
     */
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:deviceModel:edit", "iot:deviceModel:add"}, logical = Logical.OR)
-    public Result<Boolean> save(@RequestBody DeviceModel entity) {
+    public Result<Boolean> save(@RequestBody Product entity) {
         return this.deviceModelService.saveOrUpdate(entity);
     }
 

@@ -6,8 +6,8 @@ import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.module.iot.consts.TypeAliasOptions;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
-import com.iteaj.iboot.module.iot.entity.DeviceType;
-import com.iteaj.iboot.module.iot.service.IDeviceTypeService;
+import com.iteaj.iboot.module.iot.entity.ProductType;
+import com.iteaj.iboot.module.iot.service.IProductTypeService;
 import com.iteaj.framework.BaseController;
 
 /**
@@ -18,11 +18,11 @@ import com.iteaj.framework.BaseController;
  */
 @RestController
 @RequestMapping("/iot/deviceType")
-public class DeviceTypeController extends BaseController {
+public class ProductTypeController extends BaseController {
 
-    private final IDeviceTypeService deviceTypeService;
+    private final IProductTypeService deviceTypeService;
 
-    public DeviceTypeController(IDeviceTypeService deviceTypeService) {
+    public ProductTypeController(IProductTypeService deviceTypeService) {
         this.deviceTypeService = deviceTypeService;
     }
 
@@ -31,13 +31,13 @@ public class DeviceTypeController extends BaseController {
     */
     @GetMapping("/view")
     @CheckPermission({"iot:deviceType:view"})
-    public Result<List<DeviceType>> list(DeviceType entity) {
+    public Result<List<ProductType>> list(ProductType entity) {
         return this.deviceTypeService.tree(entity);
     }
 
     @GetMapping("/tree")
-    public Result<List<DeviceType>> tree(String alias) {
-        DeviceType type = new DeviceType();
+    public Result<List<ProductType>> tree(String alias) {
+        ProductType type = new ProductType();
         type.setAlias(alias);
         return this.deviceTypeService.tree(type);
     }
@@ -48,7 +48,7 @@ public class DeviceTypeController extends BaseController {
     */
     @GetMapping("/edit")
     @CheckPermission({"iot:deviceType:edit"})
-    public Result<DeviceType> getEditDetail(Long id) {
+    public Result<ProductType> getEditDetail(Long id) {
         return this.deviceTypeService.getById(id);
     }
 
@@ -58,7 +58,7 @@ public class DeviceTypeController extends BaseController {
     */
     @PostMapping("/edit")
     @CheckPermission({"iot:deviceType:edit"})
-    public Result<Boolean> edit(@RequestBody DeviceType entity) {
+    public Result<Boolean> edit(@RequestBody ProductType entity) {
         return this.deviceTypeService.updateById(entity);
     }
 
@@ -68,7 +68,7 @@ public class DeviceTypeController extends BaseController {
     */
     @PostMapping("/add")
     @CheckPermission({"iot:deviceType:add"})
-    public Result<Boolean> add(@RequestBody DeviceType entity) {
+    public Result<Boolean> add(@RequestBody ProductType entity) {
         return this.deviceTypeService.save(entity);
     }
 

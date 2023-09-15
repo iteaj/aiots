@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
-import com.iteaj.iboot.module.iot.entity.DeviceModel;
+import com.iteaj.iboot.module.iot.entity.Product;
 
 /**
  * <p>
@@ -14,7 +14,7 @@ import com.iteaj.iboot.module.iot.entity.DeviceModel;
  * @author iteaj
  * @since 2022-07-22
  */
-public interface DeviceModelMapper extends BaseMapper<DeviceModel> {
+public interface ProductMapper extends BaseMapper<Product> {
 
-    IPage<ProductDto> detailOfPage(Page<DeviceModel> page, DeviceModel entity);
+    IPage<ProductDto> detailOfPage(Page<Product> page, Product entity);
 }

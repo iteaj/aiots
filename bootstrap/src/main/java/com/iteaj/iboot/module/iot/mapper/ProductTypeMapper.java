@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.mapper;
 
-import com.iteaj.iboot.module.iot.entity.DeviceType;
+import com.iteaj.iboot.module.iot.entity.ProductType;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author iteaj
  * @since 2022-05-15
  */
-public interface DeviceTypeMapper extends BaseMapper<DeviceType> {
+public interface ProductTypeMapper extends BaseMapper<ProductType> {
 
 }

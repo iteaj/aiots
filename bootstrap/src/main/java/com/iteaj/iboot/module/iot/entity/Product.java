@@ -13,7 +13,7 @@ import java.util.Date;
 
 /**
  * <p>
- * 设备型号
+ * 产品
  * </p>
  *
  * @author iteaj
@@ -22,8 +22,8 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-@TableName("product_id")
-public class DeviceModel extends BaseEntity {
+@TableName("iot_product")
+public class Product extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,12 +38,12 @@ public class DeviceModel extends BaseEntity {
     private String code;
 
     /**
-     * 设备类型
+     * 产品类型
      */
-    private Integer typeId;
+    private Integer productTypeId;
 
     /**
-     * 设备类型名称
+     * 类型名称
      */
     @TableField(exist = false)
     private String typeName;
@@ -52,7 +52,7 @@ public class DeviceModel extends BaseEntity {
      * 产品名称
      */
     @TableField(condition = SqlCondition.LIKE)
-    private String model;
+    private String name;
 
     /**
      * 绑定的网关

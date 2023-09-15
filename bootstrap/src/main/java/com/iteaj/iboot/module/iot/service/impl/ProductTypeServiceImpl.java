@@ -6,11 +6,11 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.NumberResult;
 import com.iteaj.framework.utils.TreeUtils;
-import com.iteaj.iboot.module.iot.entity.DeviceModel;
-import com.iteaj.iboot.module.iot.entity.DeviceType;
-import com.iteaj.iboot.module.iot.mapper.DeviceTypeMapper;
-import com.iteaj.iboot.module.iot.service.IDeviceModelService;
-import com.iteaj.iboot.module.iot.service.IDeviceTypeService;
+import com.iteaj.iboot.module.iot.entity.Product;
+import com.iteaj.iboot.module.iot.entity.ProductType;
+import com.iteaj.iboot.module.iot.mapper.ProductTypeMapper;
+import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.service.IProductTypeService;
 import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,39 +31,39 @@ import java.util.stream.Collectors;
  * @since 2022-05-15
  */
 @Service
-public class DeviceTypeServiceImpl extends BaseServiceImpl<DeviceTypeMapper, DeviceType> implements IDeviceTypeService {
+public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, ProductType> implements IProductTypeService {
 
     @Autowired
-    private IDeviceModelService deviceModelService;
+    private IProductService deviceModelService;
 
     @Override
-    public ListResult<DeviceType> tree(DeviceType entity) {
-        List<DeviceType> types = this.list(Wrappers.lambdaQuery(entity)).ofNullable()
+    public ListResult<ProductType> tree(ProductType entity) {
+        List<ProductType> types = this.list(Wrappers.lambdaQuery(entity)).ofNullable()
                 .map(value -> TreeUtils.toTrees(value)
                         .stream().collect(Collectors.toList())).get();
         return new ListResult<>(types);
     }
 
     @Override
-    public BooleanResult save(DeviceType entity) {
+    public BooleanResult save(ProductType entity) {
         super.save(entity);
         if(entity.getPid() != null && entity.getPid() != 0) {
-            DeviceType parent = this.getById(entity.getPid())
+            ProductType parent = this.getById(entity.getPid())
                     .ofNullable().orElseThrow(() -> new ServiceException("父类型不存在"));
             entity.setPath(parent.getPath()+","+entity.getId());
         } else {
             entity.setPath(entity.getId().toString());
         }
 
-        return this.update(Wrappers.<DeviceType>lambdaUpdate()
-                .set(DeviceType::getPath, entity.getPath())
-                .eq(DeviceType::getId, entity.getId()));
+        return this.update(Wrappers.<ProductType>lambdaUpdate()
+                .set(ProductType::getPath, entity.getPath())
+                .eq(ProductType::getId, entity.getId()));
     }
 
     @Override
-    public BooleanResult updateById(DeviceType entity) {
+    public BooleanResult updateById(ProductType entity) {
         if(entity.getPid() != null && entity.getPid() != 0) {
-            DeviceType parent = this.getById(entity.getPid())
+            ProductType parent = this.getById(entity.getPid())
                     .ofNullable().orElseThrow(() -> new ServiceException("父类型不存在"));
 
             entity.setPath(parent.getPath()+","+entity.getId());
@@ -80,15 +80,15 @@ public class DeviceTypeServiceImpl extends BaseServiceImpl<DeviceTypeMapper, Dev
             return new BooleanResult(false);
         }
 
-        this.list(Wrappers.<DeviceType>lambdaQuery().in(DeviceType::getPid, idList)).ifPresent(item -> {
+        this.list(Wrappers.<ProductType>lambdaQuery().in(ProductType::getPid, idList)).ifPresent(item -> {
             throw new ServiceException("请先删除对应的子类型");
         });
 
         NumberResult<Integer> count = deviceModelService.count(Wrappers
-                .<DeviceModel>lambdaQuery().in(DeviceModel::getTypeId, idList));
+                .<Product>lambdaQuery().in(Product::getProductTypeId, idList));
         Integer integer = count.ofNullable().orElse(0);
         if(integer > 0) {
-            throw new ServiceException("此设备类型已在设备型号中被使用");
+            throw new ServiceException("此类型已在使用");
         }
 
         return super.removeByIds(idList);
