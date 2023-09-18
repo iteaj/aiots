@@ -179,4 +179,16 @@ public class AdminController extends BaseController {
                 .getId(), passwordDto.getPassword());
         return success("设置成功");
     }
+
+    /**
+     * 设置用户密码
+     * @return
+     */
+    @Logger("修改当前用户密码")
+    @PostMapping("updateCurrentPwd")
+    public Result updateCurrentPwd(@RequestBody PasswordDto passwordDto) {
+        this.adminService.updatePwdById(passwordDto.getId()
+                , passwordDto.getPassword(), passwordDto.getOldPwd());
+        return success("设置成功");
+    }
 }
