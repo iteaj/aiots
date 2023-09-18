@@ -72,10 +72,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where ar.aid=#{id}
     </select>
     <select id="getAdminCenter" resultType="com.iteaj.iboot.module.core.dto.AdminDto">
-        select a.*, o.name deptName, group_concat(r.name) roleNames from sys_admin a
+        select a.*, o.name orgName, group_concat(r.name) roleNames, p.name postName from sys_admin a
             left join sys_admin_role ar on a.id = ar.aid
             left join sys_role r on r.id=ar.rid
             left join sys_org o on o.id=a.org_id
+            left join sys_post p on p.id = a.post_id
         where a.id=#{id} group by a.id
     </select>
     <select id="getAdminPassword" resultType="java.lang.String">

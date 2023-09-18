@@ -1,13 +1,21 @@
 package com.iteaj.framework.spi.file;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.InputStream;
 
 public interface FileService {
 
     /**
-     * 写文件
-     * @param bytes
-     * @throws IOException
+     * 上传文件
+     * @param stream
+     * @param targetFile
      */
-    void writer(byte[] bytes) throws IOException;
+    void upload(InputStream stream, File targetFile) throws FileException;
+
+    /**
+     * 上传文件
+     * @param stream
+     * @param targetFile
+     */
+    void upload(InputStream stream, String targetFile) throws FileException;
 }

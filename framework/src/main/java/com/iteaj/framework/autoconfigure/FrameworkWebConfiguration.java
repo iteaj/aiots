@@ -3,10 +3,12 @@ package com.iteaj.framework.autoconfigure;
 import com.iteaj.framework.exception.FrameworkException;
 import com.iteaj.framework.exception.IBootControllerAdvice;
 import com.iteaj.framework.logger.LoggerInterceptor;
+import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.security.SecurityService;
 import com.iteaj.framework.security.SecurityUtil;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -51,12 +53,34 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
         return new IBootControllerAdvice();
     }
 
+    @Bean
+    @Order(20)
+    public OrderFilterChainDefinition webFileUploadDefinition() {
+        String[] strings = resolverUploadPath();
+        OrderFilterChainDefinition definition = new OrderFilterChainDefinition();
+        if(strings.length == 2) {
+            definition.addAnon(strings[0]);
+        }
+
+        return definition.addAnon("/static/**");
+    }
+
     /**
      * 用户处理上传文件的访问路径问题
      * @param registry
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String[] strings = resolverUploadPath();
+        if(strings.length == 2) {
+            registry.addResourceHandler(strings[0])
+                    .addResourceLocations(strings[1]);
+        }
+
+        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+    }
+
+    protected String[] resolverUploadPath() {
         FrameworkProperties.Upload upload = properties.getWeb().getUpload();
         String uploadRootUri = upload.getPattern();
         String uploadRootDir = upload.getLocation();
@@ -69,12 +93,10 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
                 uploadRootDir = uploadRootDir + "/";
             }
 
-            registry.addResourceHandler(uploadRootUri)
-                    .addResourceLocations(uploadRootDir);
+            return new String[]{uploadRootUri, uploadRootDir};
         }
 
-        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+        return new String[0];
     }
-
 }
 

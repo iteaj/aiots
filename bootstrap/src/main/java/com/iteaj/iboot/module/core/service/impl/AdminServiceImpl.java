@@ -102,11 +102,6 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     @Override
     public void updateCurrentUserInfo(Admin admin) {
-        if(StrUtil.isNotBlank(admin.getPassword())) {
-            String md5Hex = DigestUtils.md5Hex(admin.getPassword().getBytes());
-            admin.setPassword(md5Hex);
-        }
-
         this.updateById(admin);
 
         // 更新当前登录的信息
@@ -118,7 +113,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
 
     @Override
     public DetailResult<AdminDto> getAdminCenter(Serializable id) {
-        return new DetailResult<AdminDto>(getBaseMapper().getAdminCenter(id));
+        return new DetailResult<>(getBaseMapper().getAdminCenter(id));
     }
 
     @Override

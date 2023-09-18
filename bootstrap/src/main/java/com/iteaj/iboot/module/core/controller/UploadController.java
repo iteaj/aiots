@@ -7,18 +7,16 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
+import com.iteaj.framework.spi.file.FileService;
 import com.iteaj.iboot.module.core.entity.Admin;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,9 +34,11 @@ public class UploadController extends BaseController implements InitializingBean
     private File rootDir; // 上传的跟目录
     private String uploadRootUri;
     private String commonSubPath = "/common/"; // 默认的子路径
+    private final FileService fileService;
     private final FrameworkProperties properties;
 
-    public UploadController(FrameworkProperties properties) {
+    public UploadController(FileService fileService, FrameworkProperties properties) {
+        this.fileService = fileService;
         this.properties = properties;
     }
 
@@ -52,8 +52,9 @@ public class UploadController extends BaseController implements InitializingBean
     @PostMapping
     public Result<String> upload(MultipartFile file, String subPath) {
         try {
-            String fileUrl = this.createFile(file, subPath);
-            return success(fileUrl, "上传成功");
+            String filePath = genFilePath(file.getOriginalFilename(), subPath);
+            this.fileService.upload(file.getInputStream(), new File(this.rootDir, filePath));
+            return success(uploadRootUri + filePath, "上传成功");
         } catch (IOException e) {
             return fail("上传失败");
         }
@@ -72,7 +73,9 @@ public class UploadController extends BaseController implements InitializingBean
         try {
             Arrays.asList(file).forEach(item -> {
                 try {
-                    urls.add(this.createFile(item, subPath));
+                    String filePath = genFilePath(item.getOriginalFilename(), subPath);
+                    this.fileService.upload(item.getInputStream(), new File(this.rootDir, filePath));
+                    urls.add(uploadRootUri + filePath);
                 } catch (IOException e) {
                     throw new RuntimeException(e.getMessage(), e);
                 }
@@ -87,58 +90,21 @@ public class UploadController extends BaseController implements InitializingBean
 
     /**
      * 上传用户头像
-     * @param avatar
+     * @param file
      * @return
      */
     @PostMapping("avatar")
-    public Result avatar(MultipartFile avatar) {
+    public Result avatar(MultipartFile file) {
         try {
             Admin admin = SecurityUtil.getLoginUser().map(item -> (Admin) item).get();
-            String fileUrl = this.createFile(avatar, "avatar_"+admin.getId(), "/avatar");
-            return success(fileUrl, "上传成功");
+
+            String filePath = genFilePath(file.getOriginalFilename(), "avatar-"+admin.getAccount(), "/avatar");
+            this.fileService.upload(file.getInputStream(), new File(this.rootDir, filePath));
+            return success(uploadRootUri + filePath, "上传成功");
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return fail("上传失败");
         }
-    }
-
-    private String createFile(MultipartFile file, String subPath) throws IOException {
-        String filePath = genFilePath(file.getOriginalFilename(), subPath);
-
-        InputStream inputStream = file.getInputStream();
-
-        File outFile = new File(this.rootDir, filePath);
-        if(!outFile.getParentFile().exists())
-            outFile.mkdirs();
-
-        FileCopyUtils.copy(inputStream, new FileOutputStream(outFile));
-
-        return uploadRootUri + filePath;
-    }
-
-    /**
-     * 创建文件
-     * @param file
-     * @param fileName
-     * @param subPath
-     * @return
-     * @throws IOException
-     */
-    private String createFile(MultipartFile file, String fileName, String subPath) throws IOException {
-        String filePath = genFilePath(file.getOriginalFilename(), fileName, subPath);
-
-        InputStream inputStream = file.getInputStream();
-
-        File outFile = new File(this.rootDir, filePath);
-        if(!outFile.getParentFile().exists())
-            outFile.mkdirs();
-
-        // 文件不存在创建
-        if(!outFile.exists()) outFile.createNewFile();
-
-        FileCopyUtils.copy(inputStream, new FileOutputStream(outFile));
-
-        return uploadRootUri + filePath;
     }
 
     /**
@@ -165,8 +131,11 @@ public class UploadController extends BaseController implements InitializingBean
                 :  UUID.randomUUID() + fileType;
 
         // 生成文件路径
-        if(StrUtil.isBlank(subPath)) subPath = commonSubPath;
-        else if(!subPath.endsWith("/")) subPath = subPath + "/";
+        if(StrUtil.isBlank(subPath)) {
+            subPath = commonSubPath;
+        } else if(!subPath.endsWith("/")) {
+            subPath = subPath + "/";
+        }
 
         return subPath + fileName;
     }

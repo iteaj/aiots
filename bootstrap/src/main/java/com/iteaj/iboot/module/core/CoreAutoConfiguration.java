@@ -88,7 +88,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     public OrderFilterChainDefinition coreFilterChainDefinition() {
         return new OrderFilterChainDefinition()
                 .addAnon("/core/login", "/js/**", "/css/**", "/img/**"
-                        , "/libs/**", "/static/**", "/doc/**", "/favicon.ico");
+                        , "/libs/**", "/doc/**", "/favicon.ico");
     }
 
     @Bean
