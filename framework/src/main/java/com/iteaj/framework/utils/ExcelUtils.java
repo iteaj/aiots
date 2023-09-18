@@ -13,6 +13,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,16 +45,23 @@ public final class ExcelUtils {
         outputStream.close();
     }
 
-    public static void exportExcel(Collection<?> records, Class<?> entityClass, ExportParams params, HttpServletResponse response) throws IOException {
+    public static void exportExcel(Collection<?> records, Class<?> entityClass, ExportParams params, String fileName, HttpServletResponse response) throws IOException {
         ServletOutputStream outputStream = response.getOutputStream();
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("content-Type", "application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xls");
         Workbook sheets = ExcelExportUtil.exportExcel(params, entityClass, records);
         sheets.write(outputStream);
         outputStream.flush();
         outputStream.close();
     }
 
-    public static void exportExcel(Collection<?> records, List<ExcelExportEntity> entityList, ExportParams params, HttpServletResponse response) throws IOException {
+    public static void exportExcel(Collection<?> records, List<ExcelExportEntity> entityList, ExportParams params, String fileName, HttpServletResponse response) throws IOException {
         ServletOutputStream outputStream = response.getOutputStream();
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("content-Type", "application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xls");
+
         Workbook sheets = ExcelExportUtil.exportExcel(params, entityList, records);
         sheets.write(outputStream);
         outputStream.flush();
