@@ -3,6 +3,8 @@ package com.iteaj.iboot.module.iot.entity;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -39,9 +41,9 @@ public class Protocol extends BaseEntity {
     private String implClass;
 
     /**
-     * 实现方式(1.二进制 2.jar 3.json)
+     * 实现方式
      */
-    private Integer implMode;
+    private ProtocolImplMode implMode;
 
     /**
      * jar文件路径

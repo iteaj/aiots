@@ -1,9 +1,12 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import java.util.List;
+
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
@@ -70,6 +73,15 @@ public class ProtocolController extends BaseController {
     @CheckPermission({"iot:protocol:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.protocolService.removeByIds(idList);
+    }
+
+    /**
+     * 协议实现方式列表
+     * @return
+     */
+    @GetMapping("implModes")
+    public Result<List<IVOption>> implModes() {
+        return success(ProtocolImplMode.options());
     }
 }
 
