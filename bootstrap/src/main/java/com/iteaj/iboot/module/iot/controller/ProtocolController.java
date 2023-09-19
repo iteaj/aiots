@@ -4,6 +4,7 @@ import java.util.List;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -35,8 +36,8 @@ public class ProtocolController extends BaseController {
     @GetMapping("/view")
     @Logger("浏览报文协议功能")
     @CheckPermission({"iot:protocol:view"})
-    public Result<IPage<Protocol>> list(Page<Protocol> page, Protocol entity) {
-        return this.protocolService.page(page, entity);
+    public Result<IPage<ProtocolDto>> list(Page<Protocol> page, ProtocolDto entity) {
+        return this.protocolService.pageDetail(page, entity);
     }
 
     /**
