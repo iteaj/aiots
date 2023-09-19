@@ -9,7 +9,24 @@
         <result column="path" property="path" />
         <result column="name" property="name" />
         <result column="remark" property="remark" />
+        <result column="parent_name" property="parentName" />
         <result column="create_time" property="createTime" />
     </resultMap>
+
+    <select id="listOfDetail" resultType="com.iteaj.iboot.module.iot.entity.ProductType">
+        select a.*, p.name parent_name from iot_product_type a
+            left join iot_product_type p on a.pid = p.id
+        <where>
+            <if test="pid != null">
+                and find_in_set(#{pid}, a.path)
+            </if>
+            <if test="name != null and name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+            <if test="alias != null and alias != ''">
+                and a.alias like '%${alias}%'
+            </if>
+        </where>
+    </select>
 
 </mapper>

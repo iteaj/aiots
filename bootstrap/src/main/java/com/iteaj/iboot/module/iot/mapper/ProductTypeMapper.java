@@ -3,6 +3,8 @@ package com.iteaj.iboot.module.iot.mapper;
 import com.iteaj.iboot.module.iot.entity.ProductType;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 设备类型 Mapper 接口
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ProductTypeMapper extends BaseMapper<ProductType> {
 
+    List<ProductType> listOfDetail(ProductType entity);
 }

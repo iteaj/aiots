@@ -12,6 +12,11 @@ public class ProtocolDto extends Protocol {
     private Long deviceCount;
 
     /**
+     * 产品名称
+     */
+    private String productName;
+
+    /**
      * 产品代码
      */
     private String productCode;

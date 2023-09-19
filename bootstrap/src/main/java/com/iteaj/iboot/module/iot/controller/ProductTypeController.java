@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.controller;
 
 import java.util.List;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.module.iot.consts.TypeAliasOptions;
 import org.springframework.web.bind.annotation.*;
@@ -70,6 +71,16 @@ public class ProductTypeController extends BaseController {
     @CheckPermission({"iot:productType:add"})
     public Result<Boolean> add(@RequestBody ProductType entity) {
         return this.productTypeService.save(entity);
+    }
+
+    /**
+     * 新增或者修改
+     * @param entity
+     */
+    @PostMapping("/saveOrUpdate")
+    @CheckPermission(value = {"iot:productType:add", "iot:productType:edit"}, logical = Logical.OR)
+    public Result<Boolean> saveOrUpdate(@RequestBody ProductType entity) {
+        return this.productTypeService.saveOrUpdate(entity);
     }
 
     /**

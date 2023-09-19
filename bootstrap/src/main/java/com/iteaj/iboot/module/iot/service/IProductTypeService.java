@@ -14,6 +14,8 @@ import com.iteaj.framework.IBaseService;
  */
 public interface IProductTypeService extends IBaseService<ProductType> {
 
+    ListResult<ProductType> listOfDetail(ProductType entity);
+
     /**
      * 获取树形结构列表
      * @return

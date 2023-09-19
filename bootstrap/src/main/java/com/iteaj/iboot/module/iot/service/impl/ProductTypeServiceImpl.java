@@ -37,8 +37,14 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, P
     private IProductService deviceModelService;
 
     @Override
+    public ListResult<ProductType> listOfDetail(ProductType entity) {
+        return new ListResult(this.getBaseMapper().listOfDetail(entity));
+    }
+
+    @Override
     public ListResult<ProductType> tree(ProductType entity) {
-        List<ProductType> types = this.list(Wrappers.lambdaQuery(entity)).ofNullable()
+        List<ProductType> types = this.listOfDetail(entity)
+                .ofNullable()
                 .map(value -> TreeUtils.toTrees(value)
                         .stream().collect(Collectors.toList())).get();
         return new ListResult<>(types);
