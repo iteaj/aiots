@@ -62,7 +62,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     @Override
-    public PageResult<IPage<ProductDto>> detailOfPage(Page page, Product entity) {
-        return new PageResult<>(this.getBaseMapper().detailOfPage(page, entity));
+    public PageResult<IPage<ProductDto>> pageOfDetail(Page page, Product entity) {
+        return new PageResult<>(this.getBaseMapper().pageOfDetail(page, entity));
     }
 }

@@ -38,7 +38,7 @@ public class ProductController extends BaseController {
     @GetMapping("/view")
     @CheckPermission({"iot:deviceModel:view"})
     public Result<IPage<ProductDto>> list(Page<Product> page, Product entity) {
-        return this.deviceModelService.detailOfPage(page, entity);
+        return this.deviceModelService.pageOfDetail(page, entity);
     }
 
     /**

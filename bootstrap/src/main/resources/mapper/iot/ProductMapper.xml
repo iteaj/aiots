@@ -17,12 +17,18 @@
         <result column="create_time" property="createTime" />
     </resultMap>
 
-    <select id="detailOfPage" resultType="com.iteaj.iboot.module.iot.dto.ProductDto">
-        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.name protocol_name
+    <resultMap id="BaseResultDtoMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultMap">
+        <result property="deviceCount" column="device_count" />
+    </resultMap>
+
+    <select id="pageOfDetail" resultMap="BaseResultDtoMap">
+        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type
+             , ip.name protocol_name, count(distinct id.id) device_count
         from iot_product a
             left join iot_product_type idt on a.product_type_id=idt.id
             left join iot_gateway ig on a.gateway_id=ig.id
             left join iot_protocol ip on ip.id = a.protocol_id
+            left join iot_device id on id.product_id=a.id
         <where>
             <if test="entity.gatewayId != null">
                 and a.gateway_id=#{entity.gatewayId}
@@ -40,6 +46,7 @@
                 and a.code like '%${entity.code}%'
             </if>
         </where>
+        group by a.id
     </select>
 
 </mapper>

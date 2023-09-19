@@ -17,5 +17,5 @@ import com.iteaj.iboot.module.iot.entity.Product;
  */
 public interface IProductService extends IBaseService<Product> {
 
-    PageResult<IPage<ProductDto>> detailOfPage(Page page, Product entity);
+    PageResult<IPage<ProductDto>> pageOfDetail(Page page, Product entity);
 }

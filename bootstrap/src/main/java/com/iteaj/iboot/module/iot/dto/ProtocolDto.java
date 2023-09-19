@@ -9,7 +9,7 @@ public class ProtocolDto extends Protocol {
     /**
      * 绑定的设备数量
      */
-    private Long deviceNum;
+    private Long deviceCount;
 
     /**
      * 产品代码

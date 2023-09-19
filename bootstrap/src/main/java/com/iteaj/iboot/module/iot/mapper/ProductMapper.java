@@ -16,5 +16,5 @@ import com.iteaj.iboot.module.iot.entity.Product;
  */
 public interface ProductMapper extends BaseMapper<Product> {
 
-    IPage<ProductDto> detailOfPage(Page<Product> page, Product entity);
+    IPage<ProductDto> pageOfDetail(Page<Product> page, Product entity);
 }

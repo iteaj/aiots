@@ -19,11 +19,11 @@
     </resultMap>
 
     <resultMap id="BaseResultDtoMap" type="com.iteaj.iboot.module.iot.dto.ProtocolDto" extends="BaseResultMap">
-        <result property="deviceNum" column="device_num" />
+        <result property="deviceCount" column="device_count" />
     </resultMap>
 
     <select id="pageDetail" resultMap="BaseResultDtoMap">
-        select a.*, count(a.id) device_num from iot_protocol a
+        select a.*, count(id.id) device_count from iot_protocol a
             left join iot_product ip on a.id=ip.protocol_id
             left join iot_device id on id.product_id = ip.id
         <where>
