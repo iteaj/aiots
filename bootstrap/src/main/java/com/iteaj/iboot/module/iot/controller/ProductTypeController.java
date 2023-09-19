@@ -17,29 +17,29 @@ import com.iteaj.framework.BaseController;
  * @since 2022-05-15
  */
 @RestController
-@RequestMapping("/iot/deviceType")
+@RequestMapping("/iot/productType")
 public class ProductTypeController extends BaseController {
 
-    private final IProductTypeService deviceTypeService;
+    private final IProductTypeService productTypeService;
 
-    public ProductTypeController(IProductTypeService deviceTypeService) {
-        this.deviceTypeService = deviceTypeService;
+    public ProductTypeController(IProductTypeService productTypeService) {
+        this.productTypeService = productTypeService;
     }
 
     /**
     * 列表查询
     */
     @GetMapping("/view")
-    @CheckPermission({"iot:deviceType:view"})
+    @CheckPermission({"iot:productType:view"})
     public Result<List<ProductType>> list(ProductType entity) {
-        return this.deviceTypeService.tree(entity);
+        return this.productTypeService.tree(entity);
     }
 
     @GetMapping("/tree")
     public Result<List<ProductType>> tree(String alias) {
         ProductType type = new ProductType();
         type.setAlias(alias);
-        return this.deviceTypeService.tree(type);
+        return this.productTypeService.tree(type);
     }
 
     /**
@@ -47,9 +47,9 @@ public class ProductTypeController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @CheckPermission({"iot:deviceType:edit"})
+    @CheckPermission({"iot:productType:edit"})
     public Result<ProductType> getEditDetail(Long id) {
-        return this.deviceTypeService.getById(id);
+        return this.productTypeService.getById(id);
     }
 
     /**
@@ -57,9 +57,9 @@ public class ProductTypeController extends BaseController {
     * @param entity
     */
     @PostMapping("/edit")
-    @CheckPermission({"iot:deviceType:edit"})
+    @CheckPermission({"iot:productType:edit"})
     public Result<Boolean> edit(@RequestBody ProductType entity) {
-        return this.deviceTypeService.updateById(entity);
+        return this.productTypeService.updateById(entity);
     }
 
     /**
@@ -67,9 +67,9 @@ public class ProductTypeController extends BaseController {
     * @param entity
     */
     @PostMapping("/add")
-    @CheckPermission({"iot:deviceType:add"})
+    @CheckPermission({"iot:productType:add"})
     public Result<Boolean> add(@RequestBody ProductType entity) {
-        return this.deviceTypeService.save(entity);
+        return this.productTypeService.save(entity);
     }
 
     /**
@@ -77,9 +77,9 @@ public class ProductTypeController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @CheckPermission({"iot:deviceType:del"})
+    @CheckPermission({"iot:productType:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.deviceTypeService.removeByIds(idList);
+        return this.productTypeService.removeByIds(idList);
     }
 
     /**

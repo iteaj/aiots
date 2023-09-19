@@ -21,13 +21,13 @@ import java.util.List;
  * @since 2022-07-22
  */
 @RestController
-@RequestMapping("/iot/deviceModel")
+@RequestMapping("/iot/product")
 public class ProductController extends BaseController {
 
-    private final IProductService deviceModelService;
+    private final IProductService productService;
 
-    public ProductController(IProductService deviceModelService) {
-        this.deviceModelService = deviceModelService;
+    public ProductController(IProductService productService) {
+        this.productService = productService;
     }
 
     /**
@@ -36,9 +36,9 @@ public class ProductController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @CheckPermission({"iot:deviceModel:view"})
+    @CheckPermission({"iot:product:view"})
     public Result<IPage<ProductDto>> list(Page<Product> page, Product entity) {
-        return this.deviceModelService.pageOfDetail(page, entity);
+        return this.productService.pageOfDetail(page, entity);
     }
 
     /**
@@ -48,7 +48,7 @@ public class ProductController extends BaseController {
      */
     @GetMapping("/listByType")
     public Result<List<Product>> listByType(Long typeId) {
-        return this.deviceModelService.list(Wrappers
+        return this.productService.list(Wrappers
                 .<Product>lambdaQuery()
                 .eq(typeId != -1, Product::getProductTypeId, typeId));
     }
@@ -58,9 +58,9 @@ public class ProductController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @CheckPermission({"iot:deviceModel:edit"})
+    @CheckPermission({"iot:product:edit"})
     public Result<Product> getById(Long id) {
-        return this.deviceModelService.getById(id);
+        return this.productService.getById(id);
     }
 
     /**
@@ -68,9 +68,9 @@ public class ProductController extends BaseController {
     * @param entity
     */
     @PostMapping("/saveOrUpdate")
-    @CheckPermission(value = {"iot:deviceModel:edit", "iot:deviceModel:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:product:edit", "iot:product:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Product entity) {
-        return this.deviceModelService.saveOrUpdate(entity);
+        return this.productService.saveOrUpdate(entity);
     }
 
     /**
@@ -78,9 +78,9 @@ public class ProductController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @CheckPermission({"iot:deviceModel:del"})
+    @CheckPermission({"iot:product:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.deviceModelService.removeByIds(idList);
+        return this.productService.removeByIds(idList);
     }
 }
 
