@@ -26,7 +26,7 @@ public enum ProtocolImplMode {
 
     public static List<IVOption> options() {
         return Arrays.stream(ProtocolImplMode.values())
-                .map(item -> new IVOption(item.name(), item.getDesc()))
+                .map(item -> new IVOption(item.getDesc(), item.name()))
                 .collect(Collectors.toList());
     }
 }
