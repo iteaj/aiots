@@ -3,10 +3,12 @@ package com.iteaj.iboot.module.iot.controller;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
+import com.iteaj.iboot.module.iot.consts.TransportProtocol;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -43,6 +45,16 @@ public class GatewayController extends BaseController {
     }
 
     /**
+     * 获取网关列表
+     * @param entity
+     * @return
+     */
+    @GetMapping("list")
+    public Result<List<Gateway>> list(Gateway entity) {
+        return this.gatewayService.list(entity);
+    }
+
+    /**
     * 获取编辑记录
     * @param id 记录id
     */
@@ -72,6 +84,15 @@ public class GatewayController extends BaseController {
     @CheckPermission({"iot:gateway:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.gatewayService.removeByIds(idList);
+    }
+
+    /**
+     * 传输协议列表
+     * @return
+     */
+    @GetMapping("transportProtocol")
+    public Result<List<IVOption>> transportProtocol() {
+        return success(TransportProtocol.options());
     }
 
     /**

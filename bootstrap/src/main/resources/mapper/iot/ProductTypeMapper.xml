@@ -29,4 +29,20 @@
         </where>
     </select>
 
+    <select id="pageOfDetail" resultType="com.iteaj.iboot.module.iot.entity.ProductType">
+        select a.*, p.name parent_name from iot_product_type a
+            left join iot_product_type p on a.pid = p.id
+        <where>
+            <if test="entity.pid != null">
+                and a.id != #{entity.pid} and find_in_set(#{entity.pid}, a.path)
+            </if>
+            <if test="entity.name != null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+            <if test="entity.alias != null and entity.alias != ''">
+                and a.alias like '%${entity.alias}%'
+            </if>
+        </where>
+    </select>
+
 </mapper>

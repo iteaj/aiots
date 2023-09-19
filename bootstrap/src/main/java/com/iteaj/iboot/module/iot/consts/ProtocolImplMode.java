@@ -26,7 +26,12 @@ public enum ProtocolImplMode {
 
     public static List<IVOption> options() {
         return Arrays.stream(ProtocolImplMode.values())
-                .map(item -> new IVOption(item.getDesc(), item.name()))
-                .collect(Collectors.toList());
+            .map(item -> {
+                if(item == Jar) {
+                    return new IVOption(item.getDesc(), item.name());
+                } else {
+                    return new IVOption(item.getDesc(), item.name(), true);
+                }
+            }).collect(Collectors.toList());
     }
 }

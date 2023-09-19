@@ -7,6 +7,7 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
+import com.iteaj.iboot.module.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
@@ -41,6 +42,15 @@ public class ProtocolController extends BaseController {
     @CheckPermission({"iot:protocol:view"})
     public Result<IPage<ProtocolDto>> list(Page<Protocol> page, ProtocolDto entity) {
         return this.protocolService.pageDetail(page, entity);
+    }
+
+    /**
+     * 获取协议列表
+     * @return
+     */
+    @GetMapping("/list")
+    public Result<List<Protocol>> list(Protocol entity) {
+        return this.protocolService.list(entity);
     }
 
     /**
@@ -83,5 +93,6 @@ public class ProtocolController extends BaseController {
     public Result<List<IVOption>> implModes() {
         return success(ProtocolImplMode.options());
     }
+
 }
 

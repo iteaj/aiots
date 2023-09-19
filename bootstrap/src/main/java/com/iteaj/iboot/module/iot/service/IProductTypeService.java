@@ -1,6 +1,9 @@
 package com.iteaj.iboot.module.iot.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.entity.ProductType;
 import com.iteaj.framework.IBaseService;
 
@@ -13,6 +16,8 @@ import com.iteaj.framework.IBaseService;
  * @since 2022-05-15
  */
 public interface IProductTypeService extends IBaseService<ProductType> {
+
+    PageResult<IPage<ProductType>> pageOfDetail(Page page, ProductType entity);
 
     ListResult<ProductType> listOfDetail(ProductType entity);
 

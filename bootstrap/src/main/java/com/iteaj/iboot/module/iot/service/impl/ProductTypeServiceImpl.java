@@ -1,10 +1,13 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.NumberResult;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.entity.ProductType;
@@ -35,6 +38,11 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, P
 
     @Autowired
     private IProductService deviceModelService;
+
+    @Override
+    public PageResult<IPage<ProductType>> pageOfDetail(Page page, ProductType entity) {
+        return new PageResult<>(this.getBaseMapper().pageOfDetail(page, entity));
+    }
 
     @Override
     public ListResult<ProductType> listOfDetail(ProductType entity) {

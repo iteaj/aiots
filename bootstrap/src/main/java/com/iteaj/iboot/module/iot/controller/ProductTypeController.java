@@ -1,6 +1,9 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
@@ -28,19 +31,22 @@ public class ProductTypeController extends BaseController {
     }
 
     /**
-    * 列表查询
+    * 分页列表查询
     */
     @GetMapping("/view")
     @CheckPermission({"iot:productType:view"})
-    public Result<List<ProductType>> list(ProductType entity) {
-        return this.productTypeService.tree(entity);
+    public Result<IPage<ProductType>> list(Page<ProductType> page, ProductType entity) {
+        return this.productTypeService.pageOfDetail(page, entity);
     }
 
+    /**
+     * 树结构列表
+     * @param entity
+     * @return
+     */
     @GetMapping("/tree")
-    public Result<List<ProductType>> tree(String alias) {
-        ProductType type = new ProductType();
-        type.setAlias(alias);
-        return this.productTypeService.tree(type);
+    public Result<List<ProductType>> tree(ProductType entity) {
+        return this.productTypeService.tree(entity);
     }
 
     /**

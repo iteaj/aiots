@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
+import com.iteaj.iboot.module.iot.consts.GatewayType;
+import com.iteaj.iboot.module.iot.consts.TransportProtocol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -33,7 +35,7 @@ public class Gateway extends BaseEntity {
     /**
      * 网关类型(客户端、服务端)
      */
-    private String type;
+    private GatewayType type;
 
     /**
      * 主机地址
@@ -61,9 +63,14 @@ public class Gateway extends BaseEntity {
     private String password;
 
     /**
-     * 协议类型
+     * 绑定协议
      */
-    private String protocolType;
+    private Long protocolId;
+
+    /**
+     * 传输协议
+     */
+    private TransportProtocol protocolType;
 
     /**
      * 网关状态
