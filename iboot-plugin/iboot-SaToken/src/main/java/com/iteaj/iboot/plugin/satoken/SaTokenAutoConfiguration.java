@@ -103,7 +103,7 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
                     SaHolder.getResponse()
                             .setStatus(HttpServletResponse.SC_UNAUTHORIZED)
                             .setHeader("Content-Type", "application/json;charset=UTF-8");
-                    return JSONUtil.toJsonStr(Result.fail("未认证"));
+                    return JSONUtil.toJsonStr(Result.fail(HttpServletResponse.SC_UNAUTHORIZED, "未认证"));
                 });
     }
 
