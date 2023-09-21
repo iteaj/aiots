@@ -4,6 +4,7 @@ import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 
+import com.iteaj.iboot.module.iot.consts.CtrlMode;
 import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,9 +32,19 @@ public class Protocol extends BaseEntity {
     private String name;
 
     /**
+     * 协议代码
+     */
+    private String code;
+
+    /**
      * 协议类型
      */
     private String type;
+
+    /**
+     * 操控方式
+     */
+    private CtrlMode ctrlMode;
 
     /**
      * 实现类
@@ -80,5 +91,7 @@ public class Protocol extends BaseEntity {
      */
     private Date updateTime;
 
-
+    public String getImplModeName() {
+        return implMode != null ? implMode.getDesc() : null;
+    }
 }
