@@ -1,13 +1,14 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.consts.CtrlMode;
 import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
-import com.iteaj.iboot.module.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
@@ -71,6 +72,7 @@ public class ProtocolController extends BaseController {
     @Logger("新增或者更新报文协议记录")
     @CheckPermission(value = {"iot:protocol:edit", "iot:protocol:add"}, logical = Logical.OR)
     public Result<Boolean> saveOrUpdate(@RequestBody Protocol entity) {
+        entity.setUpdateTime(new Date());
         return this.protocolService.saveOrUpdate(entity);
     }
 
@@ -94,5 +96,13 @@ public class ProtocolController extends BaseController {
         return success(ProtocolImplMode.options());
     }
 
+    /**
+     * 操控方式列表
+     * @return
+     */
+    @GetMapping("ctrlModes")
+    public Result<List<IVOption>> ctrlModes() {
+        return success(CtrlMode.options());
+    }
 }
 

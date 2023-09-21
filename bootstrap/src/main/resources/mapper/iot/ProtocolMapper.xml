@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.Protocol">
         <result column="id" property="id" />
         <result column="name" property="name" />
+        <result column="code" property="code" />
         <result column="type" property="type" />
         <result column="impl_class" property="implClass" />
         <result column="impl_mode" property="implMode" />
