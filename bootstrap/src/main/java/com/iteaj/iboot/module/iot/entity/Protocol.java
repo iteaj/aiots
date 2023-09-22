@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.iteaj.iboot.module.iot.consts.CtrlMode;
 import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
+import com.iteaj.iboot.module.iot.consts.TransportProtocol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -39,7 +40,7 @@ public class Protocol extends BaseEntity {
     /**
      * 协议类型
      */
-    private String type;
+    private TransportProtocol type;
 
     /**
      * 操控方式

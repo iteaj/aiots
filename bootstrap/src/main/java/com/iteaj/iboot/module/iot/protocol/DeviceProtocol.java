@@ -1,12 +1,13 @@
 package com.iteaj.iboot.module.iot.protocol;
 
-public interface ProtocolService {
+import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
+
+public interface DeviceProtocol {
 
     /**
      * 返回协议代码
      * @return
      */
     String getCode();
-
 
 }

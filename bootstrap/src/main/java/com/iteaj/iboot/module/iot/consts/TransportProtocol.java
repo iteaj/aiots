@@ -11,11 +11,11 @@ import java.util.stream.Collectors;
  */
 public enum TransportProtocol {
 
-    TCP("tcp协议"),
-    UDP("udp协议"),
-    MQTT("mqtt协议"),
-    SERIAL("串口协议"),
-    WEBSOCKET("websocket协议"),
+    TCP("TCP协议"),
+    UDP("UDP协议"),
+    MQTT("MQTT协议"),
+    SERIAL("SERIAL串口协议"),
+    WEBSOCKET("WEBSOCKET协议"),
     ;
 
     private String desc;

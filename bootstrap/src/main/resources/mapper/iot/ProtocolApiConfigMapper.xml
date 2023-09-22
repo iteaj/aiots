@@ -9,7 +9,7 @@
         <result column="protocol_api_id" property="protocolApiId" />
         <result column="protocol_attr_id" property="protocolAttrId" />
         <result column="remark" property="remark" />
-        <result column="start_index" property="startIndex" />
+        <result column="position" property="startIndex" />
         <result column="length" property="length" />
         <result column="create_time" property="createTime" />
     </resultMap>

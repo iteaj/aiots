@@ -3,6 +3,8 @@ package com.iteaj.iboot.module.iot.entity;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import com.iteaj.iboot.module.iot.collect.ProtocolApiType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -26,7 +28,7 @@ public class ProtocolApi extends BaseEntity {
     /**
      * 接口类型
      */
-    private String type;
+    private ProtocolApiType type;
 
     /**
      * 接口代码
