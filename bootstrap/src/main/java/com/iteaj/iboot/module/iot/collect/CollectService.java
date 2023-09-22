@@ -69,7 +69,7 @@ public class CollectService implements InitializingBean {
         } else if(status.equals("stop")){
             ScheduledFuture future = scheduledFutureMap.remove(id);
             if(future != null && !future.isCancelled()) {
-                future.cancel(true);
+                future.cancel(false);
             }
         } else {
             throw new IllegalArgumentException("不支持的状态["+status+"]");
@@ -122,6 +122,7 @@ public class CollectService implements InitializingBean {
                         item.getSignals().forEach(signal -> collectAction.validate(signal));
                     } catch (CollectException e) {
                         reason = e.getMessage();
+                        logger.error("校验采集动作失败 任务:{} - 动作: {} - 失败原因: {}", taskDto.getName(), collectAction.getName(), e.getMessage(), e);
                     }
                 }
 

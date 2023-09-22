@@ -41,7 +41,7 @@ public class SiemensCollectAction extends CollectAction {
         super.validate(detail);
 
         DeviceDto device = detail.getDevice();
-        if(StringUtils.hasText(device.getIp()) || device.getPort() == null) {
+        if(!StringUtils.hasText(device.getIp()) || device.getPort() == null) {
             throw new CollectException("PLC设备["+ detail.getDeviceSn()+"]没有指定ip或者端口号");
         }
 
