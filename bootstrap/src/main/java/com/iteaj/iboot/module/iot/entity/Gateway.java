@@ -6,7 +6,7 @@ import java.util.Date;
 
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayType;
-import com.iteaj.iboot.module.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -97,6 +97,9 @@ public class Gateway extends BaseEntity {
      */
     private String remark;
 
+    /**
+     * 创建时间
+     */
     private Date createTime;
 
     /**

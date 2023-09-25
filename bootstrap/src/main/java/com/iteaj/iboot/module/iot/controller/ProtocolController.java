@@ -1,15 +1,26 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.iboot.module.iot.consts.CtrlMode;
-import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.file.UploadResult;
+import com.iteaj.framework.spi.file.UploadService;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
+import com.iteaj.iboot.module.iot.entity.ProtocolApi;
+import com.iteaj.iboot.module.iot.entity.ProtocolApiConfig;
+import com.iteaj.iboot.module.iot.entity.ProtocolAttr;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -17,6 +28,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.module.iot.entity.Protocol;
 import com.iteaj.iboot.module.iot.service.IProtocolService;
 import com.iteaj.framework.BaseController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 报文协议管理
@@ -27,9 +39,11 @@ import com.iteaj.framework.BaseController;
 @RequestMapping("/iot/protocol")
 public class ProtocolController extends BaseController {
 
+    private final UploadService uploadService;
     private final IProtocolService protocolService;
 
-    public ProtocolController(IProtocolService protocolService) {
+    public ProtocolController(UploadService uploadService, IProtocolService protocolService) {
+        this.uploadService = uploadService;
         this.protocolService = protocolService;
     }
 
@@ -85,6 +99,92 @@ public class ProtocolController extends BaseController {
     @CheckPermission({"iot:protocol:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.protocolService.removeByIds(idList);
+    }
+
+    /**
+     * 导入Jar协议
+     * @param file
+     * @return
+     */
+    @Logger("导入Jar协议")
+    @PostMapping("loadProtocol")
+    public Result<String> loadProtocol(MultipartFile file) throws IOException {
+        UploadResult protocol = uploadService.upload(file.getInputStream()
+                , file.getOriginalFilename(), file.getOriginalFilename(), "protocol");
+        ProtocolSupplierManager.getInstance().load(protocol.getFile());
+        return success(protocol.getUrl(), "加载成功");
+    }
+
+    /**
+     * 获取协议详情
+     * @param id
+     * @return
+     */
+    @GetMapping("detail")
+    public Result<ProtocolDto> detail(Long id) {
+        return this.protocolService.getByDetail(id).ifPresent(item -> {
+            if(item.getImplMode() != ProtocolImplMode.Custom) {
+                DeviceProtocolSupplier supplier = ProtocolSupplierManager.getInstance().get(item.getCode());
+                if(supplier != null) {
+                    ProtocolModel protocol = supplier.getProtocol();
+                    // 协议接口
+                    protocol.getApis().values()
+                            .stream().forEach(api -> {
+                                // 协议接口
+                                ProtocolApi protocolApi = new ProtocolApi()
+                                        .setProtocolCode(protocol.getCode())
+                                        .setCode(api.getCode())
+                                        .setName(api.getName())
+                                        .setRemark(api.getRemark());
+
+                                // 协议接口上行配置
+                                List<ProtocolApiConfig> upConfig = api.getUpConfig()
+                                        .values().stream().map(config -> {
+                                    ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
+                                    return new ProtocolApiConfig()
+                                            .setSort(config.getSort())
+                                            .setLength(config.getLength())
+                                            .setRemark(config.getRemark())
+                                            .setPosition(config.getPosition())
+                                            .setProtocolApiCode(protocolApi.getCode())
+                                            .setAttrName(attr != null ? attr.getName() : null)
+                                            .setAttrType(attr != null ? attr.getType() : null)
+                                            .setAttrRemark(attr != null ? attr.getRemark() : null)
+                                            .setProtocolAttrField(config.getProtocolModelAttrField());
+                                }).collect(Collectors.toList());
+
+                                // 协议接口下行配置
+                                List<ProtocolApiConfig> downConfig = api.getDownConfig()
+                                        .values().stream().map(config -> {
+                                    ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
+                                    return new ProtocolApiConfig()
+                                            .setSort(config.getSort())
+                                            .setLength(config.getLength())
+                                            .setRemark(config.getRemark())
+                                            .setPosition(config.getPosition())
+                                            .setProtocolApiCode(protocolApi.getCode())
+                                            .setAttrName(attr != null ? attr.getName() : null)
+                                            .setAttrType(attr != null ? attr.getType() : null)
+                                            .setAttrRemark(attr != null ? attr.getRemark() : null)
+                                            .setProtocolAttrField(config.getProtocolModelAttrField());
+                                }).collect(Collectors.toList());
+
+                                item.addApis(protocolApi.setUpConfigs(upConfig).setDownConfigs(downConfig));
+                            });
+
+                    // 协议属性
+                    List<ProtocolAttr> attrs = protocol.getAttrs().values().stream()
+                            .map(attr -> new ProtocolAttr()
+                            .setProtocolCode(protocol.getCode())
+                            .setName(attr.getName())
+                            .setField(attr.getField())
+                            .setRemark(attr.getRemark())
+                            .setType(attr.getType()))
+                            .collect(Collectors.toList());
+                    item.setAttrs(attrs);
+                }
+            }
+        });
     }
 
     /**

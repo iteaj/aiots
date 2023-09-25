@@ -24,6 +24,15 @@
         <result property="productName" column="product_name" />
     </resultMap>
 
+    <resultMap id="DetailMap" type="com.iteaj.iboot.module.iot.dto.ProtocolDto" extends="BaseResultDtoMap">
+        <collection property="funcApis" column="{protocolCode=code}" ofType="ProtocolApi"
+                    select="com.iteaj.iboot.module.iot.mapper.ProtocolApiMapper.listFuncByProtocolCode" />
+        <collection property="eventApis" column="{protocolCode=code}" ofType="ProtocolApi"
+                    select="com.iteaj.iboot.module.iot.mapper.ProtocolApiMapper.listEventByProtocolCode" />
+        <collection property="attrs" column="{protocolCode=code}" ofType="ProtocolAttr"
+                    select="com.iteaj.iboot.module.iot.mapper.ProtocolAttrMapper.listByProtocolCode" />
+    </resultMap>
+
     <select id="pageDetail" resultMap="BaseResultDtoMap">
         select a.*, count(id.id) device_count, ip.name product_name from iot_protocol a
             left join iot_product ip on a.id=ip.protocol_id
@@ -37,6 +46,10 @@
             </if>
         </where>
         group by a.id
+    </select>
+
+    <select id="getByDetail" resultMap="DetailMap">
+        select * from iot_protocol where id=#{id}
     </select>
 
 </mapper>

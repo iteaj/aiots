@@ -1,6 +1,4 @@
-package com.iteaj.iboot.module.iot.common.protocol;
-
-import com.iteaj.iboot.module.iot.collect.ProtocolApiType;
+package com.iteaj.framework.spi.iot.protocol;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -8,7 +6,7 @@ import java.util.Map;
 /**
  * 协议模型接口
  */
-public class ProtocolModelApi {
+public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
 
     /**
      * 接口代码
@@ -44,11 +42,11 @@ public class ProtocolModelApi {
      */
     private Map<String, ProtocolModelApiConfig> downConfig;
 
-    public ProtocolModelApi(String code, String name, ProtocolApiType type) {
+    public AbstractProtocolModelApi(String code, String name, ProtocolApiType type) {
         this(code, name, type, new LinkedHashMap<>(), new LinkedHashMap<>());
     }
 
-    public ProtocolModelApi(String code, String name, ProtocolApiType type, Map<String
+    public AbstractProtocolModelApi(String code, String name, ProtocolApiType type, Map<String
             , ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
         this.code = code;
         this.name = name;
@@ -57,6 +55,7 @@ public class ProtocolModelApi {
         this.downConfig = downConfig;
     }
 
+    @Override
     public String getCode() {
         return code;
     }
@@ -65,6 +64,7 @@ public class ProtocolModelApi {
         this.code = code;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -73,6 +73,7 @@ public class ProtocolModelApi {
         this.name = name;
     }
 
+    @Override
     public String getRemark() {
         return remark;
     }
@@ -81,6 +82,7 @@ public class ProtocolModelApi {
         this.remark = remark;
     }
 
+    @Override
     public ProtocolApiType getType() {
         return type;
     }

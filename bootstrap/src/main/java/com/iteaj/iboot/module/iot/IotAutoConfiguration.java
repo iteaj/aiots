@@ -1,6 +1,9 @@
 package com.iteaj.iboot.module.iot;
 
+import cn.hutool.core.util.ServiceLoaderUtil;
 import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.iboot.module.iot.collect.CollectActionFactory;
 import com.iteaj.iboot.module.iot.collect.action.*;
 import com.iteaj.iboot.module.iot.collect.store.MqttStoreAction;
@@ -40,6 +43,20 @@ public class IotAutoConfiguration {
     @Bean
     public Module iotModule() {
         return Module.module("iot", "物联网模块", 55555);
+    }
+
+    /**
+     * 协议提供管理
+     * @return
+     */
+    @Bean
+    public ProtocolSupplierManager protocolSupplierManager() {
+        ProtocolSupplierManager instance = ProtocolSupplierManager.getInstance();
+        ServiceLoaderUtil.load(DeviceProtocolSupplier.class).forEach(item -> {
+            instance.register(item); // 注册协议提供
+        });
+
+        return instance;
     }
 
     /**

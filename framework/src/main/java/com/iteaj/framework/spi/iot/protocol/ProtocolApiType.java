@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.collect;
+package com.iteaj.framework.spi.iot.protocol;
 
 public enum ProtocolApiType {
 

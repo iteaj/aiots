@@ -1,6 +1,6 @@
-package com.iteaj.iboot.module.iot.common.protocol;
+package com.iteaj.framework.spi.iot.protocol;
 
-import com.iteaj.iboot.module.iot.consts.ApiConfigDirection;
+import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
 
 /**
  * 协议模型接口配置

@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.consts;
+package com.iteaj.framework.spi.iot.consts;
 
 import com.iteaj.framework.IVOption;
 

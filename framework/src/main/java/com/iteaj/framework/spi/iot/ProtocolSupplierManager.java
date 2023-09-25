@@ -1,14 +1,17 @@
-package com.iteaj.iboot.module.iot.common.spi;
+package com.iteaj.framework.spi.iot;
 
 import cn.hutool.core.lang.JarClassLoader;
-import com.iteaj.iboot.module.iot.common.protocol.ProtocolModel;
-import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
+import cn.hutool.core.util.ServiceLoaderUtil;
+import com.iteaj.framework.exception.FrameworkException;
+import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 /**
  * 协议提供管理
@@ -18,10 +21,6 @@ public class ProtocolSupplierManager {
     private Logger logger = LoggerFactory.getLogger(getClass());
     private static ProtocolSupplierManager instance = new ProtocolSupplierManager();
     private Map<String, DeviceProtocolSupplier> supplierMap = new HashMap<>(8);
-
-    static {
-        instance = new ProtocolSupplierManager();
-    }
 
     private ProtocolSupplierManager() { }
 
@@ -33,10 +32,19 @@ public class ProtocolSupplierManager {
         return instance;
     }
 
-    public ProtocolSupplierManager put(DeviceProtocolSupplier supplier) {
+    /**
+     * 注册一个协议
+     * @param supplier
+     * @return
+     */
+    public ProtocolSupplierManager register(DeviceProtocolSupplier supplier) {
         ProtocolModel protocol = supplier.getProtocol();
         if(supplier == null || protocol == null) {
             throw new IllegalArgumentException("参数错误");
+        }
+
+        if(this.contain(protocol.getCode())) {
+            throw new FrameworkException("协议已存在["+protocol.getCode()+"]");
         }
 
         supplierMap.put(protocol.getCode(), supplier);
@@ -48,13 +56,12 @@ public class ProtocolSupplierManager {
      * @param jarFile
      * @return
      */
-    public DeviceProtocolSupplier load(String jarFile) {
-        ClassLoader classLoader = getClass().getClassLoader();
-        return null;
-    }
-
-    public DeviceProtocolSupplier load(InputStream inputStream) {
-        ClassLoader classLoader = getClass().getClassLoader();
+    public DeviceProtocolSupplier load(File jarFile) {
+        JarClassLoader jarClassLoader = JarClassLoader.loadJar(jarFile);
+        ServiceLoader<DeviceProtocolSupplier> loader = ServiceLoaderUtil.load(DeviceProtocolSupplier.class, jarClassLoader);
+        loader.forEach(item -> {
+            ProtocolSupplierManager.getInstance().register(item);
+        });
         return null;
     }
 

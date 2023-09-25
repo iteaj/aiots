@@ -24,11 +24,6 @@ public class ProtocolAttr extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 所属协议
-     */
-    private Long protocolId;
-
-    /**
      * 属性代码
      */
     private String field;
@@ -53,5 +48,9 @@ public class ProtocolAttr extends BaseEntity {
      */
     private Date createTime;
 
+    /**
+     * 所属协议
+     */
+    private String protocolCode;
 
 }

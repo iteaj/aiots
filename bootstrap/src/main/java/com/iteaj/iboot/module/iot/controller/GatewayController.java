@@ -8,7 +8,7 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
-import com.iteaj.iboot.module.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;

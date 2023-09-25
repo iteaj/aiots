@@ -1,7 +1,13 @@
 package com.iteaj.iboot.module.iot.dto;
 
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.entity.Protocol;
+import com.iteaj.iboot.module.iot.entity.ProtocolApi;
+import com.iteaj.iboot.module.iot.entity.ProtocolAttr;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class ProtocolDto extends Protocol {
@@ -20,4 +26,32 @@ public class ProtocolDto extends Protocol {
      * 产品代码
      */
     private String productCode;
+
+    /**
+     * 协议属性列表
+     */
+    private List<ProtocolAttr> attrs = new ArrayList<>(16);
+
+    /**
+     * 协议功能接口列表
+     */
+    private List<ProtocolApi> funcApis = new ArrayList<>(16);
+
+
+    /**
+     * 协议事件接口列表
+     */
+    private List<ProtocolApi> eventApis = new ArrayList<>(16);
+
+    public ProtocolDto addApis(ProtocolApi api) {
+        if(api.getType() == ProtocolApiType.event) {
+            this.eventApis.add(api);
+        } else if(api.getType() == ProtocolApiType.func) {
+            this.funcApis.add(api);
+        } else {
+
+        }
+
+        return this;
+    }
 }

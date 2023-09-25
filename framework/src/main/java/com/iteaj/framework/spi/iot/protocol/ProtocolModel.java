@@ -1,7 +1,7 @@
-package com.iteaj.iboot.module.iot.common.protocol;
+package com.iteaj.framework.spi.iot.protocol;
 
-import com.iteaj.iboot.module.iot.consts.CtrlMode;
-import com.iteaj.iboot.module.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 
 import java.util.Map;
 
@@ -33,11 +33,11 @@ public interface ProtocolModel {
 
     /**
      * 协议模型接口
-     * @see java.util.LinkedHashMap<String, ProtocolModelApi>
-     * @see ProtocolModelApi#getCode() key
+     * @see java.util.LinkedHashMap<String,  AbstractProtocolModelApi >
+     * @see AbstractProtocolModelApi#getCode() key
      * @return
      */
-    Map<String, ProtocolModelApi> getApis();
+    Map<String, AbstractProtocolModelApi> getApis();
 
     /**
      * 协议模型属性

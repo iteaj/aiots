@@ -1,7 +1,5 @@
 package com.iteaj.iboot.module.iot.protocol;
 
-import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
-
 public interface DeviceProtocol {
 
     /**

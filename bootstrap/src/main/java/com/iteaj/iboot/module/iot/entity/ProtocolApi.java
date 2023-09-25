@@ -1,10 +1,12 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+import java.util.List;
 
-import com.iteaj.iboot.module.iot.collect.ProtocolApiType;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -36,11 +38,6 @@ public class ProtocolApi extends BaseEntity {
     private String code;
 
     /**
-     * 所属协议
-     */
-    private Long protocolId;
-
-    /**
      * 接口名称
      */
     private String name;
@@ -60,5 +57,20 @@ public class ProtocolApi extends BaseEntity {
      */
     private Date createTime;
 
+    /**
+     * 所属协议
+     */
+    private String protocolCode;
 
+    /**
+     * 接口上行配置列表
+     */
+    @TableField(exist = false)
+    private List<ProtocolApiConfig> upConfigs;
+
+    /**
+     * 接口下行配置列表
+     */
+    @TableField(exist = false)
+    private List<ProtocolApiConfig> downConfigs;
 }

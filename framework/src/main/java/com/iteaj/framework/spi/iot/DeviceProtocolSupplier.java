@@ -1,14 +1,13 @@
-package com.iteaj.iboot.module.iot.common.spi;
+package com.iteaj.framework.spi.iot;
 
-import com.iteaj.iboot.module.iot.common.protocol.ProtocolModel;
-import com.iteaj.iboot.module.iot.consts.ProtocolImplMode;
-import com.iteaj.iboot.module.iot.entity.Gateway;
+import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.iot.FrameworkComponent;
 
 /**
  * 协议提供
  */
-public interface DeviceProtocolSupplier {
+public interface DeviceProtocolSupplier<C extends NetworkConfig> {
 
     /**
      * 协议描述
@@ -33,5 +32,5 @@ public interface DeviceProtocolSupplier {
      * @param config
      * @return
      */
-    FrameworkComponent createComponent(Gateway config);
+    FrameworkComponent createComponent(C config);
 }

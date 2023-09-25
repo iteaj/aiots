@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.common.spi;
+package com.iteaj.framework.spi.iot;
 
 /**
  * 动态协议实现

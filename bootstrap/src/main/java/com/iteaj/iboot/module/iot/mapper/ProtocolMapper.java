@@ -18,4 +18,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface ProtocolMapper extends BaseMapper<Protocol> {
 
     IPage<ProtocolDto> pageDetail(Page page, ProtocolDto entity);
+
+    ProtocolDto getByDetail(Long id);
 }

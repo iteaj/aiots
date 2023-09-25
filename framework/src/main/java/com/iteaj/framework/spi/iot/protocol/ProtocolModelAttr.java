@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.common.protocol;
+package com.iteaj.framework.spi.iot.protocol;
 
 /**
  * 协议模型属性

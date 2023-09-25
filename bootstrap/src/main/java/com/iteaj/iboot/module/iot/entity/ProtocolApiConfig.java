@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
@@ -31,12 +32,12 @@ public class ProtocolApiConfig extends BaseEntity {
     /**
      * 所属api接口
      */
-    private Long protocolApiId;
+    private String protocolApiCode;
 
     /**
-     * 物模型属性id
+     * 物模型属性
      */
-    private Long protocolAttrId;
+    private String protocolAttrField;
 
     /**
      * 备注
@@ -44,9 +45,9 @@ public class ProtocolApiConfig extends BaseEntity {
     private String remark;
 
     /**
-     * 配置开始位置
+     * 点位地址
      */
-    private Integer startIndex;
+    private String position;
 
     /**
      * 配置长度
@@ -58,5 +59,21 @@ public class ProtocolApiConfig extends BaseEntity {
      */
     private Date createTime;
 
+    /**
+     * 属性名称
+     */
+    @TableField(exist = false)
+    private String attrName;
 
+    /**
+     * 属性类型
+     */
+    @TableField(exist = false)
+    private String attrType;
+
+    /**
+     * 属性说明
+     */
+    @TableField(exist = false)
+    private String attrRemark;
 }

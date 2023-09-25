@@ -1,8 +1,8 @@
 package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.spi.event.EventUtils;
-import com.iteaj.framework.spi.file.FileService;
-import com.iteaj.framework.spi.file.LocalFileService;
+import com.iteaj.framework.spi.file.UploadService;
+import com.iteaj.framework.spi.file.LocalUploadService;
 import com.iteaj.framework.spring.SpringUtils;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -25,9 +25,9 @@ import org.springframework.context.annotation.Bean;
 public class FrameworkAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean(FileService.class)
-    public FileService fileService() {
-        return new LocalFileService();
+    @ConditionalOnMissingBean(UploadService.class)
+    public UploadService fileService(FrameworkProperties properties) {
+        return new LocalUploadService(properties);
     }
 
     @Bean
