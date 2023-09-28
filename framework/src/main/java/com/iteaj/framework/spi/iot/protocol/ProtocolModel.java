@@ -32,18 +32,18 @@ public interface ProtocolModel {
     TransportProtocol getType();
 
     /**
-     * 协议模型接口
-     * @see java.util.LinkedHashMap<String,  AbstractProtocolModelApi >
-     * @see AbstractProtocolModelApi#getCode() key
-     * @return
-     */
-    Map<String, AbstractProtocolModelApi> getApis();
-
-    /**
      * 协议模型属性
      * @see java.util.LinkedHashMap<String, ProtocolModelAttr>
      * @see ProtocolModelAttr#getField() key
      * @return
      */
     Map<String, ProtocolModelAttr> getAttrs();
+
+    /**
+     * 协议模型接口
+     * @see java.util.LinkedHashMap<String,  AbstractProtocolModelApi >
+     * @see AbstractProtocolModelApi#getCode() key
+     * @return
+     */
+    Map<String, AbstractProtocolModelApi> getApis();
 }

@@ -10,6 +10,7 @@ import com.iteaj.iboot.module.iot.entity.CollectTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
@@ -27,14 +28,14 @@ import java.util.concurrent.ScheduledFuture;
 @Service
 public class CollectService implements InitializingBean {
 
+    private final TaskScheduler scheduler;
     private final CollectActionFactory actionFactory;
-    private final ThreadPoolTaskScheduler scheduler;
     private final StoreActionFactory storeActionFactory;
     private final ICollectTaskService collectTaskService;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Long, ScheduledFuture> scheduledFutureMap = new ConcurrentHashMap<>();
 
-    public CollectService(CollectActionFactory actionFactory, ThreadPoolTaskScheduler scheduler
+    public CollectService(CollectActionFactory actionFactory, TaskScheduler scheduler
             , StoreActionFactory storeActionFactory, ICollectTaskService collectTaskService) {
         this.actionFactory = actionFactory;
         this.scheduler = scheduler;

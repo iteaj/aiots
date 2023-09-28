@@ -4,7 +4,9 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
+import com.iteaj.iboot.module.iot.dto.GatewayDto;
 import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.iteaj.iboot.module.iot.mapper.GatewayMapper;
 import com.iteaj.iboot.module.iot.service.IGatewayService;
@@ -59,5 +61,10 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
     @Override
     public boolean isBindProduct(Long gatewayId) {
         return this.getBaseMapper().isBindProduct(gatewayId);
+    }
+
+    @Override
+    public DetailResult<GatewayDto> detailById(Long id) {
+        return new DetailResult<>(this.getBaseMapper().detailById(id));
     }
 }

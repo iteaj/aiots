@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.mapper;
 
+import com.iteaj.iboot.module.iot.dto.GatewayDto;
 import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -14,4 +15,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface GatewayMapper extends BaseMapper<Gateway> {
 
     Boolean isBindProduct(Long gatewayId);
+
+    GatewayDto detailById(Long id);
 }

@@ -93,6 +93,16 @@ public class Gateway extends BaseEntity {
     private Long writeIdle;
 
     /**
+     * clientId
+     */
+    private String clientId;
+
+    /**
+     * 最大报文长度
+     */
+    private Integer maxBytes;
+
+    /**
      * 备注
      */
     private String remark;

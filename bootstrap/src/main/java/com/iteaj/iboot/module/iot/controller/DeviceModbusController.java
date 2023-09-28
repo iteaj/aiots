@@ -148,10 +148,10 @@ public class DeviceModbusController extends BaseController {
                     }
 
                     if(!client.isOpen()) {
-                        if(!client.open()) {
+                        if(!client.connect(null, 3000)) {
                             return fail("连接失败");
                         } else {
-                            this.serialComponent.addClient(client.getConnectProperties(), client);
+                            this.serialComponent.addClient(client.getConfig(), client);
                         }
                     }
 
@@ -162,7 +162,7 @@ public class DeviceModbusController extends BaseController {
                     return success("连接成功");
                 } else {
                     if(client != null) {
-                        if(client.disconnect(false)) {
+                        if(client.disconnect()) {
                             this.serialService.update(Wrappers.<Serial>lambdaUpdate()
                                     .set(Serial::getStatus, SerialStatus.close)
                                     .eq(Serial::getId, serial.getId()));
@@ -186,7 +186,7 @@ public class DeviceModbusController extends BaseController {
                         client.reconnection();
                     }
                 } else {
-                    client.disconnect(false);
+                    client.disconnect();
                 }
 
                 return success(status == DeviceStatus.online ? "连接成功" : "断开成功");

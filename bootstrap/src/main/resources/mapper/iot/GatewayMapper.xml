@@ -21,8 +21,19 @@
         <result column="protocol_type" property="protocolType" />
     </resultMap>
 
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.dto.GatewayDto" extends="BaseResultMap">
+        <result property="ctrlMode" column="ctrl_mode" />
+        <result property="protocolCode" column="protocol_code" />
+        <result property="protocolName" column="protocol_name" />
+    </resultMap>
+
     <select id="isBindProduct" resultType="java.lang.Boolean">
         select count(*) > 0 from iot_product where gateway_id=#{gatewayId}
+    </select>
+
+    <select id="detailById" resultMap="DetailResultMap">
+        select a.*, p.name protocol_name, p.code protocol_code, p.ctrl_mode from iot_gateway a
+            left join iot_protocol p on a.protocol_id=p.id
     </select>
 
 </mapper>

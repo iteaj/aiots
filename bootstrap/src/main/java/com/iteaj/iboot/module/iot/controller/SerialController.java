@@ -124,7 +124,7 @@ public class SerialController extends BaseController {
                 SerialComponent.instance().addClient(device.getCom(), client);
             }
 
-            if(client.open()) {
+            if(client.connect(null, 3000)) {
                 serialService.update(Wrappers.<Serial>lambdaUpdate()
                         .set(Serial::getStatus, status)
                         .eq(Serial::getId, device.getId()));
@@ -137,7 +137,7 @@ public class SerialController extends BaseController {
                 serialService.update(Wrappers.<Serial>lambdaUpdate()
                         .set(Serial::getStatus, status)
                         .eq(Serial::getId, device.getId()));
-                return success(client.disconnect(false));
+                return success(client.disconnect());
             } else {
                 serialService.update(Wrappers.<Serial>lambdaUpdate()
                         .set(Serial::getStatus, status)

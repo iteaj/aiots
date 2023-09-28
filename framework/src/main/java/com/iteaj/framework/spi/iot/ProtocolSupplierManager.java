@@ -9,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 
 /**
  * 协议提供管理
@@ -53,16 +51,35 @@ public class ProtocolSupplierManager {
 
     /**
      * 从jar文件读取, 使用spi机制
-     * @param jarFile
+     * @param jarFileOrDir jar文件或者jar文件目录
      * @return
      */
-    public DeviceProtocolSupplier load(File jarFile) {
-        JarClassLoader jarClassLoader = JarClassLoader.loadJar(jarFile);
+    public List<DeviceProtocolSupplier> load(File jarFileOrDir) {
+        List<DeviceProtocolSupplier> loads = new ArrayList<>();
+
+        JarClassLoader jarClassLoader;
+        if(jarFileOrDir.isDirectory()) {
+            jarClassLoader = JarClassLoader.load(jarFileOrDir);
+        } else {
+            jarClassLoader = JarClassLoader.loadJar(jarFileOrDir);
+        }
         ServiceLoader<DeviceProtocolSupplier> loader = ServiceLoaderUtil.load(DeviceProtocolSupplier.class, jarClassLoader);
+
         loader.forEach(item -> {
+            loads.add(item);
             ProtocolSupplierManager.getInstance().register(item);
         });
-        return null;
+
+        return loads;
+    }
+
+    /**
+     * 从指定的jar目录下面加载jar包 并解析出里面的协议提供
+     * @param jarDir
+     * @return
+     */
+    public List<DeviceProtocolSupplier> load(String jarDir) {
+        return this.load(new File(jarDir));
     }
 
     /**

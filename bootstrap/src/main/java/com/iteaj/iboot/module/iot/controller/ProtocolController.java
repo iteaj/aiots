@@ -135,6 +135,7 @@ public class ProtocolController extends BaseController {
                                         .setProtocolCode(protocol.getCode())
                                         .setCode(api.getCode())
                                         .setName(api.getName())
+                                        .setType(api.getType())
                                         .setRemark(api.getRemark());
 
                                 // 协议接口上行配置

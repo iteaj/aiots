@@ -1,18 +1,18 @@
 package com.iteaj.iboot.module.iot.collect.action;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
-import com.iteaj.iboot.module.iot.rtu.ModbusRtuClientCommonProtocol;
-import com.iteaj.iboot.module.iot.service.ISerialService;
 import com.iteaj.iboot.module.iot.collect.CollectException;
 import com.iteaj.iboot.module.iot.consts.IotConsts;
+import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
+import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.CollectDetail;
 import com.iteaj.iboot.module.iot.entity.Serial;
 import com.iteaj.iboot.module.iot.entity.Signal;
+import com.iteaj.iboot.module.iot.service.ISerialService;
 import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.modbus.Payload;
+import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientProtocol;
 import com.iteaj.iot.modbus.server.rtu.ModbusRtuBody;
 import com.iteaj.iot.serial.SerialConnectProperties;
 
@@ -55,13 +55,13 @@ public class ModbusRtuClientCollectAction extends AbstractModbusCollectAction{
             address = address - 1;
         }
 
-        ModbusRtuClientCommonProtocol syncProtocol = getModbusCommonProtocol(type, device.getDeviceSn(), childSn, address, signal.getNum());
+        ModbusRtuClientProtocol syncProtocol = getModbusCommonProtocol(type, device.getDeviceSn(), childSn, address, signal.getNum());
 
         try {
             Serial serial = (Serial) detail.getParams().get("serial");
             SerialConnectProperties config = new SerialConnectProperties(serial.getCom(), serial.getBaudRate())
                     .config(serial.getDataBits(), serial.getStopBits(), serial.getParity());
-            syncProtocol.sync(3000).request(config);
+            syncProtocol.request(config);
         } catch (ProtocolException e) {
             throw new CollectException(e.getMessage());
         }
@@ -81,20 +81,20 @@ public class ModbusRtuClientCollectAction extends AbstractModbusCollectAction{
     }
 
     @Override
-    protected ModbusRtuClientCommonProtocol getModbusCommonProtocol(Integer type, String deviceSn, Integer childSn, Integer address, Integer num) {
+    protected ModbusRtuClientProtocol getModbusCommonProtocol(Integer type, String deviceSn, Integer childSn, Integer address, Integer num) {
         switch (type) {
             case IotConsts.FIELD_TYPE_BOOLEAN:
-                return ModbusRtuClientCommonProtocol.buildRead01(childSn, address, 1);
+                return ModbusRtuClientProtocol.buildRead01(childSn, address, 1);
             case IotConsts.FIELD_TYPE_SHORT:
-                return ModbusRtuClientCommonProtocol.buildRead03(childSn, address, 1);
+                return ModbusRtuClientProtocol.buildRead03(childSn, address, 1);
             case IotConsts.FIELD_TYPE_INT:
             case IotConsts.FIELD_TYPE_FLOAT:
-                return ModbusRtuClientCommonProtocol.buildRead03(childSn, address, 2);
+                return ModbusRtuClientProtocol.buildRead03(childSn, address, 2);
             case IotConsts.FIELD_TYPE_DOUBLE:
             case IotConsts.FIELD_TYPE_LONG:
-                return ModbusRtuClientCommonProtocol.buildRead03(childSn, address, 4);
+                return ModbusRtuClientProtocol.buildRead03(childSn, address, 4);
             default:
-                return ModbusRtuClientCommonProtocol.buildRead03(childSn, address, num);
+                return ModbusRtuClientProtocol.buildRead03(childSn, address, num);
         }
     }
 

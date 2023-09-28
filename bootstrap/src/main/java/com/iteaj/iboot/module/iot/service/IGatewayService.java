@@ -1,7 +1,9 @@
 package com.iteaj.iboot.module.iot.service;
 
-import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.result.DetailResult;
+import com.iteaj.iboot.module.iot.dto.GatewayDto;
+import com.iteaj.iboot.module.iot.entity.Gateway;
 
 /**
  * <p>
@@ -14,4 +16,6 @@ import com.iteaj.framework.IBaseService;
 public interface IGatewayService extends IBaseService<Gateway> {
 
     boolean isBindProduct(Long gatewayId);
+
+    DetailResult<GatewayDto> detailById(Long id);
 }

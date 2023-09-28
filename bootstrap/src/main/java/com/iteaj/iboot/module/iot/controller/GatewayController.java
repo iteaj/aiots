@@ -4,11 +4,17 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.iot.FrameworkComponent;
+import com.iteaj.iot.FrameworkManager;
+import com.iteaj.iot.PortType;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -105,9 +111,41 @@ public class GatewayController extends BaseController {
     @PostMapping("switch/{status}")
     @CheckPermission({"iot:gateway:switch"})
     public Result<Boolean> switchStatus(Long id,  @PathVariable GatewayStatus status) {
-        this.gatewayService.update(Wrappers.<Gateway>lambdaUpdate()
-                .set(Gateway::getStatus, status)
-                .eq(Gateway::getId, id));
+        this.gatewayService.detailById(id)
+            .ifNotPresentThrow("网关不存在")
+            .ifPresent(item -> {
+                Integer port = item.getPort();
+                FrameworkComponent component;
+                // 先通过端口获取对应的网络组件
+                if(item.getProtocolType() != TransportProtocol.UDP) {
+                    component = FrameworkManager.getInstance().getComponentFactory().get(PortType.Tcp, port);
+                } else {
+                    component = FrameworkManager.getInstance().getComponentFactory().get(PortType.Udp, port);
+                }
+
+                // 执行开启的操作
+                if(status == GatewayStatus.start) {
+                    // 如果网络组件已经注册
+                    if(component != null) {
+                        component.start(null);
+                    } else {
+                        DeviceProtocolSupplier supplier = ProtocolSupplierManager.getInstance().get(item.getProtocolCode());
+                        if(supplier != null) {
+                            component = supplier.createComponent(null);
+                            FrameworkManager.getInstance().register(component).start();
+                        } else {
+                            throw new ServiceException("未找到对应的协议["+item.getProtocolCode()+"]");
+                        }
+                    }
+                } else if(status == GatewayStatus.stop) { // 执行停止操作
+                    FrameworkManager.getInstance().stop(component.getMessageClass());
+                }
+
+                this.gatewayService.update(Wrappers.<Gateway>lambdaUpdate()
+                        .set(Gateway::getStatus, status)
+                        .eq(Gateway::getId, id));
+            });
+
         return success(true);
     }
 }

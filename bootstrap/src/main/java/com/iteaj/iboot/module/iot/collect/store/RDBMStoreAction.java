@@ -3,7 +3,7 @@ package com.iteaj.iboot.module.iot.collect.store;
 import com.iteaj.iboot.module.iot.consts.IotConsts;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.CollectDetail;
-import com.iteaj.iot.tools.db.rdbms.RdbmsSqlManager;
+import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class RDBMStoreAction extends StoreAction {
 
     @Autowired
-    private RdbmsSqlManager rdbmsSqlManager;
+    private DefaultRdbmsSqlManager rdbmsSqlManager;
 
     @Override
     public String getName() {
