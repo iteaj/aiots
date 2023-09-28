@@ -43,7 +43,11 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     private Map<String, ProtocolModelApiConfig> downConfig;
 
     public AbstractProtocolModelApi(String code, String name, ProtocolApiType type) {
-        this(code, name, type, new LinkedHashMap<>(), new LinkedHashMap<>());
+        this(code, name, type, new ProtocolLinkedMap<>(), new ProtocolLinkedMap<>());
+    }
+
+    public AbstractProtocolModelApi(String code, String name, String remark, ProtocolApiType type) {
+        this(code, name, remark, type, new ProtocolLinkedMap<>(), new ProtocolLinkedMap<>());
     }
 
     public AbstractProtocolModelApi(String code, String name, ProtocolApiType type, Map<String
@@ -51,6 +55,16 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
         this.code = code;
         this.name = name;
         this.type = type;
+        this.upConfig = upConfig;
+        this.downConfig = downConfig;
+    }
+
+    public AbstractProtocolModelApi(String code, String name, String remark, ProtocolApiType type
+            , Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
+        this.code = code;
+        this.name = name;
+        this.type = type;
+        this.remark = remark;
         this.upConfig = upConfig;
         this.downConfig = downConfig;
     }

@@ -13,12 +13,15 @@ import java.util.function.Consumer;
  */
 public class MqttSubscribeDebugProtocolModelApi extends AbstractProtocolModelApi {
 
+    private static String remark = "用于从指定的代理(Broker)订阅相应的topic消息";
+
     public MqttSubscribeDebugProtocolModelApi() {
-        super("", "", ProtocolApiType.event);
+        super("subscribe", "订阅", remark, ProtocolApiType.event);
     }
 
     public MqttSubscribeDebugProtocolModelApi(String code, String name, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
         super(code, name, ProtocolApiType.event, upConfig, downConfig);
+        this.setRemark(remark);
     }
 
     @Override

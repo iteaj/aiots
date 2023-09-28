@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URLClassLoader;
 import java.util.*;
 
 /**
@@ -63,11 +64,13 @@ public class ProtocolSupplierManager {
         } else {
             jarClassLoader = JarClassLoader.loadJar(jarFileOrDir);
         }
-        ServiceLoader<DeviceProtocolSupplier> loader = ServiceLoaderUtil.load(DeviceProtocolSupplier.class, jarClassLoader);
 
-        loader.forEach(item -> {
-            loads.add(item);
-            ProtocolSupplierManager.getInstance().register(item);
+        ServiceLoaderUtil.load(DeviceProtocolSupplier.class, jarClassLoader).forEach(item -> {
+            // 只加载上传的jar包, 即实现类型为Jar
+            if(item.getImplMode() == ProtocolImplMode.Jar) {
+                loads.add(item);
+                ProtocolSupplierManager.getInstance().register(item);
+            }
         });
 
         return loads;

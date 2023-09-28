@@ -7,18 +7,24 @@ import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
+import org.springframework.stereotype.Component;
 
 /**
  * 用于提供mqtt协议调试
  */
+@Component
 public class MqttDebugProtocolSupplier implements StaticProtocolSupplier<NetworkConfigImpl.MqttNetworkConfig> {
 
     private ProtocolModel mqttDebugProtocolModel = new DefaultProtocolModel("MQTT:CLIENT:DEBUG"
             , CtrlMode.COMMON, TransportProtocol.MQTT)
             .addModelApi(new MqttSubscribeDebugProtocolModelApi())
-            .addModelApi(new MqttPublishDebugProtocolModelApi());
+            .addModelApi(new MqttPublishDebugProtocolModelApi())
+            .addModelAttr(new ProtocolModelAttr("msg", "报文","string", "发送的内容"))
+            .addModelAttr(new ProtocolModelAttr("topic", "主题", "string", "发布/订阅的主题"))
+            ;
 
     @Override
     public String getDesc() {

@@ -37,6 +37,39 @@ public class ProtocolModelApiConfig {
      */
     private String protocolModelAttrField;
 
+    public ProtocolModelApiConfig(String remark, String protocolModelAttrField) {
+        this.remark = remark;
+        this.protocolModelAttrField = protocolModelAttrField;
+    }
+
+    public ProtocolModelApiConfig(String protocolModelAttrField, String remark, ApiConfigDirection direction) {
+        this.remark = remark;
+        this.direction = direction;
+        this.protocolModelAttrField = protocolModelAttrField;
+    }
+
+    public ProtocolModelApiConfig(int length, String remark, String protocolModelAttrField) {
+        this.length = length;
+        this.remark = remark;
+        this.protocolModelAttrField = protocolModelAttrField;
+    }
+
+    public ProtocolModelApiConfig(int sort, int length, String remark, String position, String protocolModelAttrField) {
+        this.sort = sort;
+        this.length = length;
+        this.remark = remark;
+        this.position = position;
+        this.protocolModelAttrField = protocolModelAttrField;
+    }
+
+    public static ProtocolModelApiConfig upBuild(String attrField, String remark) {
+        return new ProtocolModelApiConfig(attrField, remark, ApiConfigDirection.UP);
+    }
+
+    public static ProtocolModelApiConfig downBuild(String attrField, String remark) {
+        return new ProtocolModelApiConfig(attrField, remark, ApiConfigDirection.DOWN);
+    }
+
     public int getSort() {
         return sort;
     }
