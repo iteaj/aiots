@@ -42,7 +42,20 @@ public class ProtocolModelApiConfig {
         this.protocolModelAttrField = protocolModelAttrField;
     }
 
+    public ProtocolModelApiConfig(String remark, String protocolModelAttrField, int sort) {
+        this.sort = sort;
+        this.remark = remark;
+        this.protocolModelAttrField = protocolModelAttrField;
+    }
+
     public ProtocolModelApiConfig(String protocolModelAttrField, String remark, ApiConfigDirection direction) {
+        this.remark = remark;
+        this.direction = direction;
+        this.protocolModelAttrField = protocolModelAttrField;
+    }
+
+    public ProtocolModelApiConfig(String protocolModelAttrField, String remark, ApiConfigDirection direction, int sort) {
+        this.sort = sort;
         this.remark = remark;
         this.direction = direction;
         this.protocolModelAttrField = protocolModelAttrField;
@@ -63,11 +76,19 @@ public class ProtocolModelApiConfig {
     }
 
     public static ProtocolModelApiConfig upBuild(String attrField, String remark) {
-        return new ProtocolModelApiConfig(attrField, remark, ApiConfigDirection.UP);
+        return upBuild(attrField, remark, 0);
+    }
+
+    public static ProtocolModelApiConfig upBuild(String attrField, String remark, int sort) {
+        return new ProtocolModelApiConfig(attrField, remark, ApiConfigDirection.UP, sort);
     }
 
     public static ProtocolModelApiConfig downBuild(String attrField, String remark) {
-        return new ProtocolModelApiConfig(attrField, remark, ApiConfigDirection.DOWN);
+        return downBuild(attrField, remark, 0);
+    }
+
+    public static ProtocolModelApiConfig downBuild(String attrField, String remark, int sort) {
+        return new ProtocolModelApiConfig(attrField, remark, ApiConfigDirection.DOWN, sort);
     }
 
     public int getSort() {

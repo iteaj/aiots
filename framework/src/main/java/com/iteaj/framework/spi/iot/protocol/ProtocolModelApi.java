@@ -1,5 +1,6 @@
 package com.iteaj.framework.spi.iot.protocol;
 
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 
 import java.util.function.Consumer;
@@ -31,9 +32,15 @@ public interface ProtocolModelApi {
     ProtocolApiType getType();
 
     /**
+     * 所属协议模型
+     * @return
+     */
+    ProtocolModel getProtocolModel();
+
+    /**
      * 执行协议
      * @param arg
      * @param result
      */
-    void invoke(ProtocolModelApiInvokeParam arg, Consumer<Object> result);
+    void invoke(ProtocolModelApiInvokeParam arg, Consumer<Object> result) throws ProtocolInvokeException;
 }

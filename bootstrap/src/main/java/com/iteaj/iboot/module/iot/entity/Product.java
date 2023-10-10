@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.GatewayType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,6 +37,11 @@ public class Product extends BaseEntity {
      * 产品代码
      */
     private String code;
+
+    /**
+     * 设备类型
+     */
+    private DeviceType deviceType;
 
     /**
      * 产品类型
@@ -91,4 +97,12 @@ public class Product extends BaseEntity {
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 返回设备类型名称
+     * @return
+     */
+    public String getDeviceTypeName() {
+        return this.deviceType != null ? this.deviceType.getDesc() : null;
+    }
 }

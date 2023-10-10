@@ -43,6 +43,7 @@ public class DefaultProtocolModel implements ProtocolModel{
 
     public DefaultProtocolModel addModelApi(AbstractProtocolModelApi modelApi) {
         this.modelApis.put(modelApi.getCode(), modelApi);
+        modelApi.setProtocolModel(this);
         return this;
     }
 

@@ -12,6 +12,7 @@ import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.file.UploadResult;
 import com.iteaj.framework.spi.file.UploadService;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
@@ -132,60 +133,57 @@ public class ProtocolController extends BaseController {
                             .stream().forEach(api -> {
                                 // 协议接口
                                 ProtocolApi protocolApi = new ProtocolApi()
-                                        .setProtocolCode(protocol.getCode())
-                                        .setCode(api.getCode())
-                                        .setName(api.getName())
-                                        .setType(api.getType())
-                                        .setRemark(api.getRemark());
+                                    .setProtocolCode(protocol.getCode())
+                                    .setCode(api.getCode())
+                                    .setName(api.getName())
+                                    .setType(api.getType())
+                                    .setRemark(api.getRemark());
 
                                 // 协议接口上行配置
                                 List<ProtocolApiConfig> upConfig = api.getUpConfig()
-                                        .values().stream().map(config -> {
-                                    ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
-                                    return new ProtocolApiConfig()
-                                            .setSort(config.getSort())
-                                            .setLength(config.getLength())
-                                            .setRemark(config.getRemark())
-                                            .setPosition(config.getPosition())
-                                            .setProtocolApiCode(protocolApi.getCode())
-                                            .setAttrName(attr != null ? attr.getName() : null)
-                                            .setAttrType(attr != null ? attr.getType() : null)
-                                            .setAttrRemark(attr != null ? attr.getRemark() : null)
-                                            .setProtocolAttrField(config.getProtocolModelAttrField());
-                                }).collect(Collectors.toList());
+                                    .values().stream().map(config -> {
+                                        ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
+                                        // 将协议模型的api配置转换成协议api配置
+                                        return convertProtocolApiConfig(protocolApi, config, attr);
+                                    }).collect(Collectors.toList());
 
                                 // 协议接口下行配置
                                 List<ProtocolApiConfig> downConfig = api.getDownConfig()
-                                        .values().stream().map(config -> {
-                                    ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
-                                    return new ProtocolApiConfig()
-                                            .setSort(config.getSort())
-                                            .setLength(config.getLength())
-                                            .setRemark(config.getRemark())
-                                            .setPosition(config.getPosition())
-                                            .setProtocolApiCode(protocolApi.getCode())
-                                            .setAttrName(attr != null ? attr.getName() : null)
-                                            .setAttrType(attr != null ? attr.getType() : null)
-                                            .setAttrRemark(attr != null ? attr.getRemark() : null)
-                                            .setProtocolAttrField(config.getProtocolModelAttrField());
-                                }).collect(Collectors.toList());
+                                    .values().stream().map(config -> {
+                                        ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
+                                        // 将协议模型的api配置转换成协议api配置
+                                        return convertProtocolApiConfig(protocolApi, config, attr);
+                                    }).collect(Collectors.toList());
 
                                 item.addApis(protocolApi.setUpConfigs(upConfig).setDownConfigs(downConfig));
                             });
 
                     // 协议属性
                     List<ProtocolAttr> attrs = protocol.getAttrs().values().stream()
-                            .map(attr -> new ProtocolAttr()
-                            .setProtocolCode(protocol.getCode())
-                            .setName(attr.getName())
-                            .setField(attr.getField())
-                            .setRemark(attr.getRemark())
-                            .setType(attr.getType()))
-                            .collect(Collectors.toList());
+                        .map(attr -> new ProtocolAttr()
+                        .setProtocolCode(protocol.getCode())
+                        .setName(attr.getName())
+                        .setField(attr.getField())
+                        .setRemark(attr.getRemark())
+                        .setType(attr.getType()))
+                        .collect(Collectors.toList());
                     item.setAttrs(attrs);
                 }
             }
         });
+    }
+
+    private ProtocolApiConfig convertProtocolApiConfig(ProtocolApi protocolApi, ProtocolModelApiConfig config, ProtocolModelAttr attr) {
+        return new ProtocolApiConfig()
+                .setSort(config.getSort())
+                .setLength(config.getLength())
+                .setRemark(config.getRemark())
+                .setPosition(config.getPosition())
+                .setProtocolApiCode(protocolApi.getCode())
+                .setAttrName(attr != null ? attr.getName() : null)
+                .setAttrType(attr != null ? attr.getType() : null)
+                .setAttrRemark(attr != null ? attr.getRemark() : null)
+                .setProtocolAttrField(config.getProtocolModelAttrField());
     }
 
     /**

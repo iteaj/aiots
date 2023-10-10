@@ -1,6 +1,5 @@
 package com.iteaj.framework.spi.iot.protocol;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -27,6 +26,11 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
      * 接口类型
      */
     private ProtocolApiType type;
+
+    /**
+     * 所属协议模型
+     */
+    private ProtocolModel protocolModel;
 
     /**
      * 上行接口配置
@@ -101,6 +105,31 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
         return type;
     }
 
+    @Override
+    public ProtocolModel getProtocolModel() {
+        return this.protocolModel;
+    }
+
+    /**
+     * 新增上行接口配置
+     * @param apiConfig
+     * @return
+     */
+    public AbstractProtocolModelApi addUpConfig(ProtocolModelApiConfig apiConfig) {
+        this.getUpConfig().put(apiConfig.getProtocolModelAttrField(), apiConfig);
+        return this;
+    }
+
+    /**
+     * 新增下行接口配置
+     * @param apiConfig
+     * @return
+     */
+    public AbstractProtocolModelApi addDownConfig(ProtocolModelApiConfig apiConfig) {
+        this.getDownConfig().put(apiConfig.getProtocolModelAttrField(), apiConfig);
+        return this;
+    }
+
     public void setType(ProtocolApiType type) {
         this.type = type;
     }
@@ -119,5 +148,9 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
 
     public void setDownConfig(Map<String, ProtocolModelApiConfig> downConfig) {
         this.downConfig = downConfig;
+    }
+
+    protected void setProtocolModel(ProtocolModel protocolModel) {
+        this.protocolModel = protocolModel;
     }
 }
