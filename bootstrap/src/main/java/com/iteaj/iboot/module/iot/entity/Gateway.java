@@ -4,6 +4,7 @@ import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 
+import com.iteaj.iboot.module.iot.consts.GatewayConnectType;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
@@ -68,11 +69,6 @@ public class Gateway extends BaseEntity {
     private Long protocolId;
 
     /**
-     * 传输协议
-     */
-    private TransportProtocol protocolType;
-
-    /**
      * 网关状态
      */
     private GatewayStatus status;
@@ -117,5 +113,14 @@ public class Gateway extends BaseEntity {
      */
     private Date updateTime;
 
+    /**
+     * 网关连接类型
+     */
+    private GatewayConnectType connectType;
+
+    /**
+     * 传输协议
+     */
+    private TransportProtocol protocolType;
 
 }
