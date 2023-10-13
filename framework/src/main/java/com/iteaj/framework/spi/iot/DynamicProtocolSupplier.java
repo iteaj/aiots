@@ -1,8 +1,15 @@
 package com.iteaj.framework.spi.iot;
 
+import java.util.Objects;
+
 /**
  * 动态协议实现
  */
-public interface DynamicProtocolSupplier extends DeviceProtocolSupplier {
+public abstract class DynamicProtocolSupplier<C extends NetworkConfigImpl> implements DeviceProtocolSupplier<C> {
 
+    @Override
+    public boolean equals(Object obj) {
+        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) obj;
+        return Objects.equals(supplier.getProtocol().getCode(), this.getProtocol().getCode());
+    }
 }

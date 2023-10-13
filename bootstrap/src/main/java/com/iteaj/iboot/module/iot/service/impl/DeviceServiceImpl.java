@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.DetailResult;
-import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.result.Result;
+import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -78,5 +75,10 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     public DetailResult<DeviceDto> detailById(Long id) {
         return new DetailResult<>(this.getBaseMapper().detailById(id));
+    }
+
+    @Override
+    public ListResult<Device> listOfGateway() {
+        return new ListResult<>(this.getBaseMapper().listOfGateway());
     }
 }

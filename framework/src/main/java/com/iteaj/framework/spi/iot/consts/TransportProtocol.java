@@ -14,7 +14,8 @@ public enum TransportProtocol {
     TCP("TCP协议"),
     UDP("UDP协议"),
     MQTT("MQTT协议"),
-    SERIAL("SERIAL串口协议"),
+    HTTP("HTTP协议"),
+    SERIAL("SERIAL协议"),
     WEBSOCKET("WEBSOCKET协议"),
     ;
 

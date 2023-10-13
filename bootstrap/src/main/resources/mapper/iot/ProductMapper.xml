@@ -7,7 +7,6 @@
         <result column="id" property="id" />
         <result column="name" property="name" />
         <result column="remark" property="remark" />
-        <result column="product_type_id" property="productTypeId" />
         <result column="type_name" property="typeName" />
         <result column="gateway_id" property="gatewayId" />
         <result column="gateway_name" property="gatewayName" />
@@ -15,15 +14,18 @@
         <result column="protocol_id" property="protocolId" />
         <result column="protocol_name" property="protocolName" />
         <result column="create_time" property="createTime" />
+        <result column="product_type_id" property="productTypeId" />
     </resultMap>
 
     <resultMap id="BaseResultDtoMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultMap">
+        <result property="ctrlMode" column="ctrl_mode" />
         <result property="deviceCount" column="device_count" />
+        <result property="transportProtocol" column="transport_protocol" />
     </resultMap>
 
     <select id="pageOfDetail" resultMap="BaseResultDtoMap">
         select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type
-             , ip.name protocol_name, count(distinct id.id) device_count
+             , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, count(distinct id.id) device_count
         from iot_product a
             left join iot_product_type idt on a.product_type_id=idt.id
             left join iot_gateway ig on a.gateway_id=ig.id

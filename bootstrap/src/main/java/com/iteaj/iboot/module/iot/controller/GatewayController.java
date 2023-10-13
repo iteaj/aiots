@@ -15,6 +15,7 @@ import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.PortType;
+import com.iteaj.iot.serial.SerialComponent;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -117,9 +118,11 @@ public class GatewayController extends BaseController {
                 Integer port = item.getPort();
                 FrameworkComponent component;
                 // 先通过端口获取对应的网络组件
-                if(item.getProtocolType() != TransportProtocol.UDP) {
+                if(item.getProtocolType() == TransportProtocol.SERIAL) { // 串口协议
+                    component = SerialComponent.instance();
+                } else if(item.getProtocolType() != TransportProtocol.UDP) { // tcp等其它协议
                     component = FrameworkManager.getInstance().getComponentFactory().get(PortType.Tcp, port);
-                } else {
+                } else {// udp协议
                     component = FrameworkManager.getInstance().getComponentFactory().get(PortType.Udp, port);
                 }
 
@@ -129,7 +132,7 @@ public class GatewayController extends BaseController {
                     if(component != null) {
                         component.start(null);
                     } else {
-                        DeviceProtocolSupplier supplier = ProtocolSupplierManager.getInstance().get(item.getProtocolCode());
+                        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
                         if(supplier != null) {
                             component = supplier.createComponent(null);
                             FrameworkManager.getInstance().register(component).start();

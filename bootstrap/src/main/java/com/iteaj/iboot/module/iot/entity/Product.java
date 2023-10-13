@@ -86,7 +86,7 @@ public class Product extends BaseEntity {
      * 协议名称
      */
     @TableField(exist = false)
-    private Long protocolName;
+    private String protocolName;
 
     /**
      * 产品说明
@@ -99,10 +99,18 @@ public class Product extends BaseEntity {
     private Date createTime;
 
     /**
-     * 返回设备类型名称
+     * 设备类型名称
      * @return
      */
     public String getDeviceTypeName() {
         return this.deviceType != null ? this.deviceType.getDesc() : null;
+    }
+
+    /**
+     * 网关类型名称
+     * @return
+     */
+    public String getGatewayTypeName() {
+        return this.gatewayType != null ? this.gatewayType.getDesc() : null;
     }
 }

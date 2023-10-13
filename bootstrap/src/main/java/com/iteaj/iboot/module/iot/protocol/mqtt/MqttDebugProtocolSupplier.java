@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * 用于提供mqtt协议调试
  */
 @Component
-public class MqttDebugProtocolSupplier implements StaticProtocolSupplier<NetworkConfigImpl.MqttNetworkConfig> {
+public class MqttDebugProtocolSupplier extends StaticProtocolSupplier<NetworkConfigImpl.MqttNetworkConfig> {
 
     private ProtocolModel mqttDebugProtocolModel = new DefaultProtocolModel("MQTT:CLIENT:DEBUG"
             , CtrlMode.COMMON, TransportProtocol.MQTT)

@@ -3,12 +3,15 @@ package com.iteaj.iboot.module.iot.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.framework.IBaseService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -54,4 +57,10 @@ public interface IDeviceService extends IBaseService<Device> {
      * @return
      */
     DetailResult<DeviceDto> detailById(Long id);
+
+    /**
+     * 获取网关设备
+     * @return
+     */
+    ListResult<Device> listOfGateway();
 }

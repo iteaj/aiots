@@ -3,6 +3,8 @@ package com.iteaj.iboot.module.iot.entity;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -46,17 +48,21 @@ public class ModelApiConfig extends BaseEntity {
     /**
      * 报文开始位置
      */
-    private Integer startIndex;
+    private Integer position;
 
     /**
      * 报文结束位置
      */
-    private Integer endIndex;
+    private Integer length;
 
     /**
      * 创建时间
      */
     private Date createTime;
 
+    /**
+     * 接口方向
+     */
+    private ApiConfigDirection direction;
 
 }

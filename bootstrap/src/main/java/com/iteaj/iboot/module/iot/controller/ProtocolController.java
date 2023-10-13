@@ -112,7 +112,7 @@ public class ProtocolController extends BaseController {
     public Result<String> loadProtocol(MultipartFile file) throws IOException {
         UploadResult protocol = uploadService.upload(file.getInputStream()
                 , file.getOriginalFilename(), file.getOriginalFilename(), "protocol");
-        ProtocolSupplierManager.getInstance().load(protocol.getFile());
+        ProtocolSupplierManager.load(protocol.getFile());
         return success(protocol.getUrl(), "加载成功");
     }
 
@@ -125,7 +125,7 @@ public class ProtocolController extends BaseController {
     public Result<ProtocolDto> detail(Long id) {
         return this.protocolService.getByDetail(id).ifPresent(item -> {
             if(item.getImplMode() != ProtocolImplMode.Custom) {
-                DeviceProtocolSupplier supplier = ProtocolSupplierManager.getInstance().get(item.getCode());
+                DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getCode());
                 if(supplier != null) {
                     ProtocolModel protocol = supplier.getProtocol();
                     // 协议接口

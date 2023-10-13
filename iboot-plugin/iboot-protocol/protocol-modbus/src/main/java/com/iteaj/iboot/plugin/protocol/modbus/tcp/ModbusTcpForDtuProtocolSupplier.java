@@ -12,12 +12,12 @@ import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
 
-public class ModbusTcpForDtuProtocolSupplier implements StaticProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig> {
+public class ModbusTcpForDtuProtocolSupplier extends StaticProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig> {
 
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("MODBUS:TCP:DTU", CtrlMode.POINT, TransportProtocol.TCP)
             .addModelAttr(new ProtocolModelAttr("childSn", "从机设备编号", "string", "从机设备编号"))
             .addModelAttr(new ProtocolModelAttr("position", "点位地址", "string", "寄存器地址"))
-            .addModelAttr(new ProtocolModelAttr("value", "值", "object", "读/写寄存器里面的值(跟随数据类型转换)"))
+            .addModelAttr(new ProtocolModelAttr("value", "点位值", "object", "读/写寄存器的值(跟随数据类型转换)"))
             .addModelAttr(new ProtocolModelAttr("type", "数据类型", "string", "要读取或者写入的值的数据类型"))
             .addModelApi(new ModbusRtuForDtuProtocolModelApi(ModbusCode.Read01.name(), "读线圈", ProtocolApiType.func, "按位读取寄存器值")
                     .addDownConfig(ProtocolModelApiConfig.downBuild("childSn", "从机设备编号"))

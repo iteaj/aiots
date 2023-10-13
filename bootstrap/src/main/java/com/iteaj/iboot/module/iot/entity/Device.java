@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.validate.AllValidate;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,9 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
- * <p>
- * 设备表
- * </p>
+ * 设备管理
  *
  * @author iteaj
  * @since 2022-05-15
@@ -33,6 +32,13 @@ public class Device extends BaseEntity {
     private String ip;
 
     /**
+     * 父网关设备
+     * @see com.iteaj.iboot.module.iot.consts.DeviceType#Child
+     * @see com.iteaj.iboot.module.iot.consts.DeviceType#Gateway
+     */
+    private Long pid;
+
+    /**
      * 设备uid
      */
     private Long uid;
@@ -40,18 +46,13 @@ public class Device extends BaseEntity {
     /**
      * 设备名称
      */
-    @NotBlank(message = "设备名称必填")
+    @NotBlank(message = "设备名称必填", groups = AllValidate.class)
     private String name;
 
     /**
      * 设备端口
      */
     private Integer port;
-
-    /**
-     * 所属用户
-     */
-    private Long userId;
 
     /**
      * 拓展字段
@@ -61,12 +62,13 @@ public class Device extends BaseEntity {
     /**
      * 所属产品
      */
+    @NotNull(message = "所属产品必填", groups = AllValidate.class)
     private Long productId;
 
     /**
      * 设备类型
      */
-    @NotNull(message = "产品类型必填")
+    @NotNull(message = "产品类型必填", groups = AllValidate.class)
     private Long productTypeId;
 
     /**
@@ -102,7 +104,7 @@ public class Device extends BaseEntity {
     /**
      * 设备编号
      */
-    @NotBlank(message = "设备编号必填")
+    @NotBlank(message = "设备编号必填", groups = AllValidate.class)
     private String deviceSn;
 
     /**
@@ -110,6 +112,9 @@ public class Device extends BaseEntity {
      */
     private Date switchTime;
 
+    /**
+     * 新增时间
+     */
     private Date createTime;
 
     /**

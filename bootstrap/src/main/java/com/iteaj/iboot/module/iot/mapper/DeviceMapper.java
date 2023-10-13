@@ -7,6 +7,8 @@ import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 设备表 Mapper 接口
@@ -32,4 +34,11 @@ public interface DeviceMapper extends BaseMapper<Device> {
     CurrentDeviceDto countCurrentDevice();
 
     DeviceDto detailById(Long id);
+
+    /**
+     * 获取网关设备
+     * @see com.iteaj.iboot.module.iot.consts.DeviceType#Gateway
+     * @return
+     */
+    List<Device> listOfGateway();
 }

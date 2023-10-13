@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IProductService;
@@ -50,7 +52,7 @@ public class ProductController extends BaseController {
     public Result<List<Product>> listByType(Long typeId) {
         return this.productService.list(Wrappers
                 .<Product>lambdaQuery()
-                .eq(typeId != -1, Product::getProductTypeId, typeId));
+                .eq(typeId == null || typeId != -1, Product::getProductTypeId, typeId));
     }
 
     /**
@@ -81,6 +83,15 @@ public class ProductController extends BaseController {
     @CheckPermission({"iot:product:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.productService.removeByIds(idList);
+    }
+
+    /**
+     * 设备类型列表
+     * @return
+     */
+    @GetMapping("deviceTypes")
+    public Result<List<IVOption>> deviceTypes() {
+        return success(DeviceType.options());
     }
 }
 

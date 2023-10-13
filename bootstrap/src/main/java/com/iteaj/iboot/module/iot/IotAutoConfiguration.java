@@ -55,19 +55,18 @@ public class IotAutoConfiguration {
      */
     @Bean
     public ProtocolSupplierManager protocolSupplierManager(@Autowired(required = false) List<DeviceProtocolSupplier> suppliers) {
-        ProtocolSupplierManager instance = ProtocolSupplierManager.getInstance();
         // 加载spi协议
         ServiceLoaderUtil.load(DeviceProtocolSupplier.class).forEach(item -> {
-            instance.register(item); // 注册协议提供
+            ProtocolSupplierManager.register(item); // 注册协议提供
         });
 
         if(CollectionUtil.isNotEmpty(suppliers)) {
             suppliers.forEach(item -> {
-                instance.register(item);
+                ProtocolSupplierManager.register(item);
             });
         }
 
-        return instance;
+        return ProtocolSupplierManager.getInstance();
     }
 
     /**

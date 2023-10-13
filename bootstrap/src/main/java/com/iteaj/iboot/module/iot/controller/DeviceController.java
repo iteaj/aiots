@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.controller;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtflys.forest.annotation.Get;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import org.springframework.web.bind.annotation.*;
@@ -88,6 +89,15 @@ public class DeviceController extends BaseController {
     @GetMapping("listByModel")
     public Result<List<Device>> listByModel(Long modelId) {
         return this.deviceService.list(Wrappers.<Device>lambdaQuery().eq(Device::getProductId, modelId));
+    }
+
+    /**
+     * 获取网关设备
+     * @return
+     */
+    @GetMapping("listOfGateway")
+    public Result<List<Device>> listOfGateway() {
+        return this.deviceService.listOfGateway();
     }
 }
 
