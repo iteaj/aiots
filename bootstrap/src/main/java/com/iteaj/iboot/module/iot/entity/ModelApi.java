@@ -39,7 +39,7 @@ public class ModelApi extends BaseEntity {
     /**
      * 所属产品
      */
-    private String productSn;
+    private Long productId;
 
     /**
      * 接口名称

@@ -41,6 +41,11 @@ public class ModelApiConfig extends BaseEntity {
     private Long attrId;
 
     /**
+     * 所属产品
+     */
+    private Long productId;
+
+    /**
      * 备注
      */
     private String remark;

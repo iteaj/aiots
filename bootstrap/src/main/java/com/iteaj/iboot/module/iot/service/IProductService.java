@@ -18,4 +18,13 @@ import com.iteaj.iboot.module.iot.entity.Product;
 public interface IProductService extends IBaseService<Product> {
 
     PageResult<IPage<ProductDto>> pageOfDetail(Page page, Product entity);
+
+    /**
+     * 移除物模型相关的所有配置
+     * @see com.iteaj.iboot.module.iot.entity.ModelApi
+     * @see com.iteaj.iboot.module.iot.entity.ModelAttr
+     * @see com.iteaj.iboot.module.iot.entity.ModelApiConfig
+     * @param productId
+     */
+    void removeModel(Long productId);
 }

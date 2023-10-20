@@ -51,4 +51,10 @@
         group by a.id
     </select>
 
+    <delete id="removeModel">
+        delete from iot_model_api where product_id=#{productId};
+        delete from iot_model_attr where product_id=#{productId};
+        delete from iot_model_api_config where product_id=#{productId};
+    </delete>
+
 </mapper>

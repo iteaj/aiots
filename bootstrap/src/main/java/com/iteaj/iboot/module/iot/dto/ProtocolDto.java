@@ -37,7 +37,6 @@ public class ProtocolDto extends Protocol {
      */
     private List<ProtocolApi> funcApis = new ArrayList<>(16);
 
-
     /**
      * 协议事件接口列表
      */

@@ -25,7 +25,7 @@ public class ModelAttr extends BaseEntity {
     /**
      * 所属产品
      */
-    private String productSn;
+    private Long productId;
 
     /**
      * 属性代码
@@ -50,7 +50,7 @@ public class ModelAttr extends BaseEntity {
     /**
      * 精度
      */
-    private Integer precision;
+    private Integer accuracy;
 
     /**
      * 描述

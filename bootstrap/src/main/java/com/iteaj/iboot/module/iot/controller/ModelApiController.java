@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import java.util.List;
+
+import com.dtflys.forest.annotation.Get;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
@@ -37,6 +39,16 @@ public class ModelApiController extends BaseController {
     @CheckPermission({"iot:modelApi:view"})
     public Result<IPage<ModelApi>> list(Page<ModelApi> page, ModelApi entity) {
         return this.modelApiService.page(page, entity);
+    }
+
+    /**
+     * 获取接口列表
+     * @param entity
+     * @return
+     */
+    @GetMapping("list")
+    public Result<List<ModelApi>> list(ModelApi entity) {
+        return this.modelApiService.list(entity);
     }
 
     /**

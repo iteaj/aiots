@@ -203,5 +203,11 @@ public class ProtocolController extends BaseController {
     public Result<List<IVOption>> ctrlModes() {
         return success(CtrlMode.options());
     }
+
+    @GetMapping("")
+    public Result<List<ProtocolApi>> apis() {
+
+        return success(null);
+    }
 }
 

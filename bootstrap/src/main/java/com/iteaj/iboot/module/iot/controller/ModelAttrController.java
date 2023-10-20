@@ -34,7 +34,7 @@ public class ModelAttrController extends BaseController {
     */
     @GetMapping("/view")
     @Logger("浏览物模型属性功能")
-    @CheckPermission({"iot:modelAttr:view"})
+//    @CheckPermission({"iot:modelAttr:view"})
     public Result<IPage<ModelAttr>> list(Page<ModelAttr> page, ModelAttr entity) {
         return this.modelAttrService.page(page, entity);
     }

@@ -17,4 +17,6 @@ import com.iteaj.iboot.module.iot.entity.Product;
 public interface ProductMapper extends BaseMapper<Product> {
 
     IPage<ProductDto> pageOfDetail(Page<Product> page, Product entity);
+
+    void removeModel(Long productId);
 }
