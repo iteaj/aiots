@@ -2,9 +2,15 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.validate.AllGroup;
+import com.iteaj.iboot.module.iot.consts.AttrOrigin;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * <p>
@@ -25,21 +31,25 @@ public class ModelAttr extends BaseEntity {
     /**
      * 所属产品
      */
+    @NotNull(message = "所属产品必填")
     private Long productId;
 
     /**
      * 属性代码
      */
+    @NotBlank(message = "属性字段必填")
     private String field;
 
     /**
      * 属性名称
      */
+    @NotBlank(message = "属性名称必填")
     private String name;
 
     /**
      * 属性类型
      */
+    @NotBlank(message = "属性类型必填")
     private String type;
 
     /**
@@ -57,5 +67,14 @@ public class ModelAttr extends BaseEntity {
      */
     private String remark;
 
+    /**
+     * 属性来源
+     */
+    @NotNull(message = "属性来源必填")
+    private AttrOrigin origin;
 
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 }

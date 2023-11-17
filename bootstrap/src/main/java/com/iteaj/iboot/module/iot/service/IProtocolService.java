@@ -3,9 +3,13 @@ package com.iteaj.iboot.module.iot.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.*;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
+import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
 import com.iteaj.iboot.module.iot.entity.Protocol;
 import com.iteaj.framework.IBaseService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -17,7 +21,7 @@ import com.iteaj.framework.IBaseService;
  */
 public interface IProtocolService extends IBaseService<Protocol> {
 
-    PageResult<IPage<ProtocolDto>> pageDetail(Page<Protocol> page, ProtocolDto entity);
-
     DetailResult<ProtocolDto> getByDetail(Long id);
+
+    PageResult<IPage<ProtocolDto>> pageDetail(Page<Protocol> page, ProtocolDto entity);
 }

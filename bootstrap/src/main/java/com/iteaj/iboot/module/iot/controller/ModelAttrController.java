@@ -4,6 +4,7 @@ import java.util.List;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -56,7 +57,7 @@ public class ModelAttrController extends BaseController {
     @PostMapping("/saveOrUpdate")
     @Logger("新增或者更新物模型属性记录")
     @CheckPermission(value = {"iot:modelAttr:edit", "iot:modelAttr:add"}, logical = Logical.OR)
-    public Result<Boolean> saveOrUpdate(@RequestBody ModelAttr entity) {
+    public Result<Boolean> saveOrUpdate(@Validated @RequestBody ModelAttr entity) {
         return this.modelAttrService.saveOrUpdate(entity);
     }
 

@@ -2,7 +2,7 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.validate.AllValidate;
+import com.iteaj.framework.validate.AllGroup;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,7 +46,7 @@ public class Device extends BaseEntity {
     /**
      * 设备名称
      */
-    @NotBlank(message = "设备名称必填", groups = AllValidate.class)
+    @NotBlank(message = "设备名称必填", groups = AllGroup.class)
     private String name;
 
     /**
@@ -62,13 +62,13 @@ public class Device extends BaseEntity {
     /**
      * 所属产品
      */
-    @NotNull(message = "所属产品必填", groups = AllValidate.class)
+    @NotNull(message = "所属产品必填", groups = AllGroup.class)
     private Long productId;
 
     /**
      * 设备类型
      */
-    @NotNull(message = "产品类型必填", groups = AllValidate.class)
+    @NotNull(message = "产品类型必填", groups = AllGroup.class)
     private Long productTypeId;
 
     /**
@@ -104,7 +104,7 @@ public class Device extends BaseEntity {
     /**
      * 设备编号
      */
-    @NotBlank(message = "设备编号必填", groups = AllValidate.class)
+    @NotBlank(message = "设备编号必填", groups = AllGroup.class)
     private String deviceSn;
 
     /**

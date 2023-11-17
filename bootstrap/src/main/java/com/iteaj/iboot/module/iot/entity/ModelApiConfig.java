@@ -31,14 +31,14 @@ public class ModelApiConfig extends BaseEntity {
     private Integer sort;
 
     /**
-     * 所属api接口
+     * 接口码
      */
-    private Long apiId;
+    private String apiCode;
 
     /**
-     * 物模型属性id
+     * 物模型属性字段
      */
-    private Long attrId;
+    private String attrField;
 
     /**
      * 所属产品
@@ -53,7 +53,7 @@ public class ModelApiConfig extends BaseEntity {
     /**
      * 报文开始位置
      */
-    private Integer position;
+    private String position;
 
     /**
      * 报文结束位置

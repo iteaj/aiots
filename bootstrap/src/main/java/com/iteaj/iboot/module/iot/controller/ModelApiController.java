@@ -1,6 +1,10 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.dtflys.forest.annotation.Get;
 import com.iteaj.framework.logger.Logger;
@@ -49,6 +53,16 @@ public class ModelApiController extends BaseController {
     @GetMapping("list")
     public Result<List<ModelApi>> list(ModelApi entity) {
         return this.modelApiService.list(entity);
+    }
+
+    /**
+     * 获取指定产品下面的接口列表详情
+     * @param productId
+     * @return
+     */
+    @GetMapping("detailsOfProductId")
+    public Result<List<ModelApi>> detailsOfProductId(Long productId) {
+        return modelApiService.detailsOfProductId(productId);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.mapper.ModelApiMapper;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
@@ -17,4 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelApi> implements IModelApiService {
 
+    @Override
+    public ListResult<ModelApi> detailsOfProductId(Long productId) {
+        return null;
+    }
 }

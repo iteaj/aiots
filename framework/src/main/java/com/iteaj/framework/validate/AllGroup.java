@@ -3,6 +3,6 @@ package com.iteaj.framework.validate;
 /**
  * 都校验
  */
-public interface AllValidate {
+public interface AllGroup {
 
 }

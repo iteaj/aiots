@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.util.List;
 
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -29,7 +30,7 @@ public class ModelApi extends BaseEntity {
     /**
      * 接口类型
      */
-    private String type;
+    private ProtocolApiType type;
 
     /**
      * 功能代码

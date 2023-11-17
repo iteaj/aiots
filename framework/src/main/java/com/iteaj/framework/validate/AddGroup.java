@@ -3,8 +3,8 @@ package com.iteaj.framework.validate;
 import javax.validation.groups.Default;
 
 /**
- * 更新功能校验
+ * 新增功能校验
  */
-public interface UpdateValidate extends Default {
+public interface AddGroup extends Default {
 
 }

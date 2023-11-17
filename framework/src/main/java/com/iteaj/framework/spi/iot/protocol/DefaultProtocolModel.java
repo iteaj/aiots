@@ -12,8 +12,8 @@ public class DefaultProtocolModel implements ProtocolModel{
     private CtrlMode ctrlMode;
     private TransportProtocol type;
 
-    private Map<String, AbstractProtocolModelApi> modelApis;
     private Map<String, ProtocolModelAttr> modelAttrs;
+    private Map<String, AbstractProtocolModelApi> modelApis;
 
     public DefaultProtocolModel(String code, CtrlMode ctrlMode, TransportProtocol type) {
         this(code, ctrlMode, type, new LinkedHashMap<>(), new LinkedHashMap<>());

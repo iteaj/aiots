@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
 import com.iteaj.iboot.module.iot.entity.Product;
 
 /**
@@ -27,4 +28,12 @@ public interface IProductService extends IBaseService<Product> {
      * @param productId
      */
     void removeModel(Long productId);
+
+
+    /**
+     * 协议模型转产品模型
+     * @param protocolId 协议id
+     * @return
+     */
+    ProtocolToProductModel protocolToProductModel(Long protocolId);
 }
