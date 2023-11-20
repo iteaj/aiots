@@ -3,14 +3,16 @@ package com.iteaj.iboot.module.iot.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fazecast.jSerialComm.SerialPort;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.module.iot.consts.SerialStatus;
+import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Serial;
 import com.iteaj.iboot.module.iot.service.IDeviceModelService;
@@ -22,7 +24,6 @@ import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientComponent;
 import com.iteaj.iot.serial.SerialClient;
 import com.iteaj.iot.serial.SerialComponent;
 import com.iteaj.iot.serial.SerialConnectProperties;
-import com.iteaj.framework.security.CheckPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -143,15 +144,12 @@ public class DeviceModbusController extends BaseController {
                     if(client == null) {
                         SerialConnectProperties config = new SerialConnectProperties(serial.getCom(), serial.getBaudRate())
                                 .config(serial.getDataBits(), serial.getStopBits(), serial.getParity());
-                        client = this.serialComponent.createNewClient(config);
-                        client.init(null);
+                        client = this.serialComponent.createNewClientAndConnect(config);
                     }
 
                     if(!client.isOpen()) {
-                        if(!client.open()) {
+                        if(!client.connect(null, 3000)) {
                             return fail("连接失败");
-                        } else {
-                            this.serialComponent.addClient(client.getConnectProperties(), client);
                         }
                     }
 
@@ -162,7 +160,7 @@ public class DeviceModbusController extends BaseController {
                     return success("连接成功");
                 } else {
                     if(client != null) {
-                        if(client.disconnect(false)) {
+                        if(client.disconnect()) {
                             this.serialService.update(Wrappers.<Serial>lambdaUpdate()
                                     .set(Serial::getStatus, SerialStatus.close)
                                     .eq(Serial::getId, serial.getId()));
@@ -172,7 +170,11 @@ public class DeviceModbusController extends BaseController {
                             return success("断开失败");
                         }
                     } else {
-                        return fail("客户端不存在");
+                        this.serialService.update(Wrappers.<Serial>lambdaUpdate()
+                                .set(Serial::getStatus, SerialStatus.close)
+                                .eq(Serial::getId, serial.getId()));
+                        this.deviceService.update(device.getDeviceSn(), status);
+                        return success("断开成功");
                     }
                 }
 
@@ -186,7 +188,7 @@ public class DeviceModbusController extends BaseController {
                         client.reconnection();
                     }
                 } else {
-                    client.disconnect(false);
+                    client.disconnect();
                 }
 
                 return success(status == DeviceStatus.online ? "连接成功" : "断开成功");

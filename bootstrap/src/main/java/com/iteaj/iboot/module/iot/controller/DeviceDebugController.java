@@ -10,7 +10,9 @@ import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iot.CoreConst;
 import com.iteaj.iot.DeviceManager;
+import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
+import com.iteaj.iot.server.manager.TcpDeviceManager;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +45,7 @@ public class DeviceDebugController extends BaseController {
     @GetMapping("tcp")
     public Result<IPage<Device>> tcpList(Page page) {
         if(tcpDebugServerComponent != null) {
-            DeviceManager deviceManager = tcpDebugServerComponent.getDeviceManager();
+            TcpDeviceManager deviceManager = tcpDebugServerComponent.getDeviceManager();
             page.setTotal(deviceManager.size()).setRecords(new ArrayList<>());
 
             deviceManager.forEach(item -> {

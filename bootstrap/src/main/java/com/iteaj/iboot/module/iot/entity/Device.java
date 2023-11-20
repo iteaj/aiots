@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import lombok.Data;
@@ -35,6 +37,7 @@ public class Device extends BaseEntity {
     /**
      * 设备uid
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long uid;
 
     /**

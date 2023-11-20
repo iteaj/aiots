@@ -48,7 +48,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     }
 
     @Bean
-    public TaskScheduler taskScheduler() {
+    public ThreadPoolTaskScheduler taskScheduler() {
         return new ThreadPoolTaskScheduler();
     }
 

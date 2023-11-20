@@ -17,7 +17,7 @@ import com.iteaj.iot.plc.omron.OmronComponent;
 import com.iteaj.iot.plc.siemens.SiemensS7Component;
 import com.iteaj.iot.serial.SerialComponent;
 import com.iteaj.iot.server.dtu.impl.CommonDtuServerComponent;
-import com.iteaj.iot.tools.db.rdbms.RdbmsSqlManager;
+import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -25,7 +25,6 @@ import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 @Profile("iot")
 @ComponentScan({"com.iteaj.iboot.module.iot"})
@@ -150,18 +149,12 @@ public class IotAutoConfiguration {
         return CollectActionFactory.getInstance();
     }
 
-    @Bean
-    @ConditionalOnBean(JdbcTemplate.class)
-    public RdbmsSqlManager rdbmsSqlManager(JdbcTemplate jdbcTemplate) {
-        return new RdbmsSqlManager(jdbcTemplate);
-    }
-
     /**
      * 关系型数据库采集存储
      * @return
      */
     @Bean
-    @ConditionalOnBean(RdbmsSqlManager.class)
+    @ConditionalOnBean(DefaultRdbmsSqlManager.class)
     public RDBMStoreAction rdbmStoreAction() {
         return new RDBMStoreAction();
     }

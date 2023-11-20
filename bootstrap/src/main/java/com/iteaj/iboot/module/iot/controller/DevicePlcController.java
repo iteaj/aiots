@@ -142,7 +142,7 @@ public class DevicePlcController extends BaseController {
                         client.reconnection();
                     }
                 } else {
-                    client.disconnect(false);
+                    client.disconnect();
                 }
             } else if(device.getDeviceTypeId() == 3) { // 欧姆龙设备
                 OmronConnectProperties properties = new OmronConnectProperties(device.getIp(), device.getPort());
@@ -155,7 +155,7 @@ public class DevicePlcController extends BaseController {
                         client.connect(null, 3000);
                     }
                 } else {
-                    client.disconnect(false);
+                    client.disconnect();
                 }
             }
 

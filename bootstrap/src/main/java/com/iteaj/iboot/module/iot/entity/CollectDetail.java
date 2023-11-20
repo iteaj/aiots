@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -24,6 +26,7 @@ public class CollectDetail extends BaseEntity {
     /**
      * 设备uid
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long uid;
 
     /**
@@ -34,6 +37,7 @@ public class CollectDetail extends BaseEntity {
     /**
      * 存储设备uid
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long storeUid;
 
     /**

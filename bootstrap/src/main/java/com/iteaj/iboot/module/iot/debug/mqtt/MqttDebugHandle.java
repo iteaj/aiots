@@ -44,7 +44,7 @@ public class MqttDebugHandle implements DebugHandle<MqttDebugModel> {
 
             // 订阅
             if(model.getCmd().equals("subscription")) {
-                defaultMqttComponent.subscribe(model.getTopic(), MqttQoS.AT_LEAST_ONCE, model.getDeviceSn());
+                defaultMqttComponent.subscribe(model.getDeviceSn(), model.getTopic(), MqttQoS.AT_LEAST_ONCE);
             } else if(model.getCmd().equals("publish")) { // 发布
                 DefaultMqttPublishProtocol protocol = new DefaultMqttPublishProtocol(model
                         .getValue().getBytes(StandardCharsets.UTF_8), "iot/test/debug");

@@ -13,14 +13,14 @@ import com.iteaj.iot.server.websocket.WebSocketServerListener;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerComponent;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerProtocol;
 import com.iteaj.iot.websocket.HttpRequestWrapper;
-import com.iteaj.iot.websocket.WebSocketFilter;
+import com.iteaj.iot.websocket.WebSocketInterceptor;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.Optional;
 
-public class WebsocketDebugListener implements WebSocketServerListener, WebSocketFilter<DefaultWebSocketServerComponent> {
+public class WebsocketDebugListener implements WebSocketServerListener, WebSocketInterceptor<DefaultWebSocketServerComponent> {
 
     private final DebugHandleFactory handleFactory;
     private final ThreadPoolTaskScheduler iotTaskScheduler;

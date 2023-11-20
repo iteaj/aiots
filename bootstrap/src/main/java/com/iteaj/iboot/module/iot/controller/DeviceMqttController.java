@@ -135,7 +135,7 @@ public class DeviceMqttController extends BaseController {
             }
         } else {
             if(client != null) {
-                client.disconnect(false).syncUninterruptibly();
+                client.disconnect().syncUninterruptibly();
             }
         }
 

@@ -28,16 +28,16 @@ import java.util.concurrent.ScheduledFuture;
 public class CollectService implements InitializingBean {
 
     private final CollectActionFactory actionFactory;
-    private final ThreadPoolTaskScheduler scheduler;
+    private final ThreadPoolTaskScheduler taskScheduler;
     private final StoreActionFactory storeActionFactory;
     private final ICollectTaskService collectTaskService;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Long, ScheduledFuture> scheduledFutureMap = new ConcurrentHashMap<>();
 
-    public CollectService(CollectActionFactory actionFactory, ThreadPoolTaskScheduler scheduler
+    public CollectService(CollectActionFactory actionFactory, ThreadPoolTaskScheduler taskScheduler
             , StoreActionFactory storeActionFactory, ICollectTaskService collectTaskService) {
         this.actionFactory = actionFactory;
-        this.scheduler = scheduler;
+        this.taskScheduler = taskScheduler;
         this.storeActionFactory = storeActionFactory;
         this.collectTaskService = collectTaskService;
     }
@@ -122,7 +122,8 @@ public class CollectService implements InitializingBean {
                         item.getSignals().forEach(signal -> collectAction.validate(signal));
                     } catch (CollectException e) {
                         reason = e.getMessage();
-                        logger.error("校验采集动作失败 任务:{} - 动作: {} - 失败原因: {}", taskDto.getName(), collectAction.getName(), e.getMessage(), e);
+                        logger.error("校验采集动作失败 任务:{} - 动作: {} - 失败原因: {}"
+                                , taskDto.getName(), collectAction.getName(), e.getMessage(), e);
                     }
                 }
 
@@ -149,7 +150,7 @@ public class CollectService implements InitializingBean {
 
     private void createScheduledTask(CollectTaskDto taskDto) {
         scheduledFutureMap.put(taskDto.getId(),
-                scheduler.schedule(new CollectActionTask(taskDto)
+                taskScheduler.schedule(new CollectActionTask(taskDto)
                         , new CronTrigger(taskDto.getCron())));
     }
 }
