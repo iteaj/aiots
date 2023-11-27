@@ -2,9 +2,13 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import com.iteaj.iot.format.DataFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -34,12 +38,18 @@ public class DeviceChild extends BaseEntity {
     /**
      * 设备uid
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long uid;
 
     /**
      * 子设备编号
      */
     private String childSn;
+
+    /**
+     * 数据格式
+     */
+    private DataFormat dataFormat;
 
     /**
      * 协议类型

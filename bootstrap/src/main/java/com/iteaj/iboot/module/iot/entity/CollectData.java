@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.iot.tools.annotation.IotField;
 import com.iteaj.iot.tools.annotation.IotTable;
@@ -25,6 +27,7 @@ public class CollectData extends BaseEntity {
      * 设备uid
      */
     @IotField
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long uid;
 
     /**

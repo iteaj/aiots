@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
+import com.iteaj.iot.format.DataFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.util.StringUtils;
@@ -54,6 +55,11 @@ public class CollectDetail extends BaseEntity {
      * 子设备
      */
     private String childSn;
+
+    /**
+     * 数据格式
+     */
+    private DataFormat dataFormat;
 
     /**
      * 采集任务id
@@ -107,10 +113,16 @@ public class CollectDetail extends BaseEntity {
     private String deviceName;
 
     /**
-     * 设备编号
+     * 子设备编号
      */
     @TableField(exist = false)
     private String deviceSn;
+
+    /**
+     * 子设备数据格式
+     */
+    @TableField(exist = false)
+    private DataFormat format;
 
     /**
      * 采集设备

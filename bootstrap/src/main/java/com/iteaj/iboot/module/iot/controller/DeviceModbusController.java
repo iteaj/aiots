@@ -148,7 +148,7 @@ public class DeviceModbusController extends BaseController {
                     }
 
                     if(!client.isOpen()) {
-                        if(!client.connect(null, 3000)) {
+                        if(!client.connect(null)) {
                             return fail("连接失败");
                         }
                     }

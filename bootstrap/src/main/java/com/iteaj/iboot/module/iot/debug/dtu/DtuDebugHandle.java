@@ -7,6 +7,7 @@ import com.iteaj.iboot.module.iot.debug.DebugWebsocketWrite;
 import com.iteaj.iot.Message;
 import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.consts.ExecStatus;
+import com.iteaj.iot.format.DataFormatConvert;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.Payload;
 import com.iteaj.iot.modbus.ReadPayload;
@@ -300,6 +301,7 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
 
                     Payload payload = ((ModbusCommonProtocol) protocol).getPayload();
                     if(payload instanceof ReadPayload) {
+                        ((ReadPayload) payload).setConvert(DataFormatConvert.getInstance(model.getDataFormat()));
                         result.setValue(this.parseReadValue(model, payload).toString());
                     } else if(payload instanceof RealCoilPayload) {
                         result.setValue(payload.readStatus(0).getBit());
@@ -346,12 +348,13 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
         }
 
         try {
+            DataFormatConvert convert = DataFormatConvert.getInstance(model.getDataFormat());
             switch (type) {
-                case "int": return ByteUtil.getBytes(Integer.valueOf(model.getWriteValue()));
-                case "float": return ByteUtil.getBytes(Float.valueOf(model.getWriteValue()));
-                case "double": return ByteUtil.getBytes(Double.valueOf(model.getWriteValue()));
-                case "short": return ByteUtil.getBytesOfReverse(Short.valueOf(model.getWriteValue()));
-                case "long": return ByteUtil.getBytes(Long.valueOf(model.getWriteValue()));
+                case "int": return convert.getBytes(Integer.valueOf(model.getWriteValue()));
+                case "float": return convert.getBytes(Float.valueOf(model.getWriteValue()));
+                case "double": return convert.getBytes(Double.valueOf(model.getWriteValue()));
+                case "short": return convert.getBytes(Short.valueOf(model.getWriteValue()));
+                case "long": return convert.getBytes(Long.valueOf(model.getWriteValue()));
                 case "boolean":
                     return model.getWriteValue().equals("0") ? ModbusCoilStatus.OFF :
                             model.getWriteValue().equals("1") ? ModbusCoilStatus.ON : null;

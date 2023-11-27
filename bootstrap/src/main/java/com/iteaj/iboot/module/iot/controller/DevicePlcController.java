@@ -14,7 +14,9 @@ import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.DeviceModel;
 import com.iteaj.iboot.module.iot.service.IDeviceModelService;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
+import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.SocketClient;
+import com.iteaj.iot.client.component.SocketClientComponent;
 import com.iteaj.iot.plc.omron.OmronComponent;
 import com.iteaj.iot.plc.omron.OmronConnectProperties;
 import com.iteaj.iot.plc.siemens.SiemensConnectProperties;
@@ -23,6 +25,7 @@ import com.iteaj.iot.plc.siemens.SiemensS7Component;
 import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -134,35 +137,36 @@ public class DevicePlcController extends BaseController {
             if(device.getDeviceTypeId() == 2) {
                 SiemensModel model = SiemensModel.valueOf(data.getModel());
                 SiemensConnectProperties properties = new SiemensConnectProperties(device.getIp(), device.getPort(), model, entity.getDeviceSn());
-                SocketClient client = siemensS7Component.getClient(properties);
-                if(status == DeviceStatus.online) {
-                    if(client == null) {
-                        siemensS7Component.createNewClientAndConnect(properties);
-                    } else {
-                        client.reconnection();
-                    }
-                } else {
-                    client.disconnect();
-                }
+                updatePlcStatus(status, properties, siemensS7Component);
             } else if(device.getDeviceTypeId() == 3) { // 欧姆龙设备
                 OmronConnectProperties properties = new OmronConnectProperties(device.getIp(), device.getPort());
                 properties.setConnectKey(entity.getDeviceSn());
-                SocketClient client = omronComponent.getClient(properties);
-                if(status == DeviceStatus.online) {
-                    if(client == null) {
-                        omronComponent.createNewClientAndConnect(properties);
-                    } else {
-                        client.connect(null, 3000);
-                    }
-                } else {
-                    client.disconnect();
-                }
+                updatePlcStatus(status, properties, omronComponent);
             }
 
             return success(status == DeviceStatus.online ? "连接成功" : "断开成功");
         } catch (Exception e) {
             e.printStackTrace();
             return fail(e.getMessage());
+        }
+    }
+
+    private void updatePlcStatus(DeviceStatus status, ClientConnectProperties properties, SocketClientComponent component) {
+        SocketClient client = component.getClient(properties);
+        if(status == DeviceStatus.online) {
+            if(client == null) {
+                component.createNewClientAndConnect(properties);
+            } else {
+                client.connect(null);
+            }
+        } else {
+            if(client != null && client.getChannel().isActive()) {
+                client.disconnect();
+            } else {
+                deviceService.update(Wrappers.<Device>lambdaUpdate()
+                        .set(Device::getStatus, status)
+                        .set(Device::getSwitchTime, new Date()));
+            }
         }
     }
 }

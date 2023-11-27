@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.debug.modbus;
 
 import com.iteaj.iboot.module.iot.debug.DebugModel;
+import com.iteaj.iot.format.DataFormat;
 import lombok.Data;
 
 @Data
@@ -15,6 +16,11 @@ public class ModbusDebugModel extends DebugModel {
      * 值类型 int、short、long、float...
      */
     private String type;
+
+    /**
+     * 数据格式
+     */
+    private DataFormat dataFormat;
 
     /**
      * 写值 需要和值类型匹配

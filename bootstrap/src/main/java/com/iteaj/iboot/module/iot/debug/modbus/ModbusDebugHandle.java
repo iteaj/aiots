@@ -10,6 +10,8 @@ import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.ClientMessage;
 import com.iteaj.iot.client.protocol.ClientInitiativeProtocol;
 import com.iteaj.iot.consts.ExecStatus;
+import com.iteaj.iot.format.DataFormat;
+import com.iteaj.iot.format.DataFormatConvert;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.Payload;
 import com.iteaj.iot.modbus.ReadPayload;
@@ -22,6 +24,8 @@ import com.iteaj.iot.modbus.server.tcp.ModbusTcpBody;
 import com.iteaj.iot.modbus.server.tcp.ModbusTcpHeader;
 import com.iteaj.iot.serial.SerialConnectProperties;
 import com.iteaj.iot.utils.ByteUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -56,7 +60,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("调试异常[{}]", e);
             write.write(HttpResult.Fail(e.getMessage()));
         }
     }
@@ -138,7 +142,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
     }
 
     private void modbusRtuHandle(ModbusDebugModel model, DebugWebsocketWrite write) {
-        ModbusRtuClientProtocol protocol = null;
+        ModbusRtuClientProtocol protocol;
         if(StringUtils.hasText(model.getMessage())) {
             try {
                 try {
@@ -263,6 +267,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
 
                     Payload payload = ((ModbusCommonProtocol) protocol).getPayload();
                     if(payload instanceof ReadPayload) {
+                        ((ReadPayload) payload).setConvert(DataFormatConvert.getInstance(model.getDataFormat()));
                         result.setValue(this.parseReadValue(model, payload).toString());
                     } else if(payload instanceof RealCoilPayload) {
                         result.setValue(payload.readStatus(0).getBit());
@@ -367,13 +372,14 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
             throw new IllegalArgumentException("为指定要写的值");
         }
 
+        DataFormatConvert convert = DataFormatConvert.getInstance(model.getDataFormat());
         try {
             switch (type) {
-                case "int": return ByteUtil.getBytes(Integer.valueOf(model.getWriteValue()));
-                case "float": return ByteUtil.getBytes(Float.valueOf(model.getWriteValue()));
-                case "double": return ByteUtil.getBytes(Double.valueOf(model.getWriteValue()));
-                case "short": return ByteUtil.getBytesOfReverse(Short.valueOf(model.getWriteValue()));
-                case "long": return ByteUtil.getBytes(Long.valueOf(model.getWriteValue()));
+                case "int": return convert.getBytes(Integer.valueOf(model.getWriteValue()));
+                case "float": return convert.getBytes(Float.valueOf(model.getWriteValue()));
+                case "double": return convert.getBytes(Double.valueOf(model.getWriteValue()));
+                case "short": return convert.getBytes(Short.valueOf(model.getWriteValue()));
+                case "long": return convert.getBytes(Long.valueOf(model.getWriteValue()));
                 case "boolean":
                     return model.getWriteValue().equals("0") ? ModbusCoilStatus.OFF :
                             model.getWriteValue().equals("1") ? ModbusCoilStatus.ON : null;
