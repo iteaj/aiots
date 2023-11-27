@@ -157,7 +157,7 @@ public class DevicePlcController extends BaseController {
             if(client == null) {
                 component.createNewClientAndConnect(properties);
             } else {
-                client.connect(null);
+                client.connect();
             }
         } else {
             if(client != null && client.getChannel().isActive()) {

@@ -131,7 +131,7 @@ public class DeviceMqttController extends BaseController {
             if(client == null) {
                 this.defaultMqttComponent.createNewClientAndConnect(properties);
             } else {
-                client.connect(null).syncUninterruptibly();
+                client.connect().syncUninterruptibly();
             }
         } else {
             if(client != null) {
