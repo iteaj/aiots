@@ -26,6 +26,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 
+import javax.sql.DataSource;
+
 @Profile("iot")
 @ComponentScan({"com.iteaj.iboot.module.iot"})
 @MapperScan({"com.iteaj.iboot.module.iot.mapper"})
@@ -147,6 +149,11 @@ public class IotAutoConfiguration {
     @Bean
     public CollectActionFactory collectActionFactory() {
         return CollectActionFactory.getInstance();
+    }
+
+    @Bean
+    public DefaultRdbmsSqlManager defaultRdbmsSqlManager(DataSource dataSource) {
+        return new DefaultRdbmsSqlManager(dataSource);
     }
 
     /**
