@@ -119,12 +119,10 @@ public class SerialController extends BaseController {
             if(client == null) {
                 SerialConnectProperties config = new SerialConnectProperties(device.getCom(), device.getBaudRate())
                         .config(device.getDataBits(), device.getStopBits(), device.getParity());
-                client = SerialComponent.instance().createNewClient(config);
-                client.init(null);
-                SerialComponent.instance().addClient(device.getCom(), client);
+                client = SerialComponent.instance().createNewClientAndConnect(config);
             }
 
-            if(client.connect(null, 3000)) {
+            if(client.isOpen()) {
                 serialService.update(Wrappers.<Serial>lambdaUpdate()
                         .set(Serial::getStatus, status)
                         .eq(Serial::getId, device.getId()));

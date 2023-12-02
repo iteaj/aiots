@@ -152,7 +152,7 @@ public class DevicePlcController extends BaseController {
                     if(client == null) {
                         omronComponent.createNewClientAndConnect(properties);
                     } else {
-                        client.connect(null, 3000);
+                        client.connect();
                     }
                 } else {
                     client.disconnect();

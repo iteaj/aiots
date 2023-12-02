@@ -143,15 +143,12 @@ public class DeviceModbusController extends BaseController {
                     if(client == null) {
                         SerialConnectProperties config = new SerialConnectProperties(serial.getCom(), serial.getBaudRate())
                                 .config(serial.getDataBits(), serial.getStopBits(), serial.getParity());
-                        client = this.serialComponent.createNewClient(config);
-                        client.init(null);
+                        client = this.serialComponent.createNewClientAndConnect(config);
                     }
 
                     if(!client.isOpen()) {
-                        if(!client.connect(null, 3000)) {
+                        if(!client.connect()) {
                             return fail("连接失败");
-                        } else {
-                            this.serialComponent.addClient(client.getConfig(), client);
                         }
                     }
 

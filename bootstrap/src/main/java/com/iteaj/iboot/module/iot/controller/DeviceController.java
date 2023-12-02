@@ -1,18 +1,17 @@
 package com.iteaj.iboot.module.iot.controller;
 
-import java.util.List;
-
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.dtflys.forest.annotation.Get;
-import com.iteaj.framework.result.Result;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
-import org.springframework.web.bind.annotation.*;
-import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
-import com.iteaj.framework.BaseController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 设备管理
