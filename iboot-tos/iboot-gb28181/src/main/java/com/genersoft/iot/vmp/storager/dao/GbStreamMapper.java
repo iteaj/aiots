@@ -1,5 +1,7 @@
 package com.genersoft.iot.vmp.storager.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
@@ -13,42 +15,17 @@ import java.util.List;
 
 @Mapper
 @Repository
-public interface GbStreamMapper {
+public interface GbStreamMapper extends BaseMapper<GbStream> {
 
-    @Insert("INSERT INTO wvp_gb_stream (app, stream, gb_id, name, " +
-            "longitude, latitude, stream_type,media_server_id,create_time) VALUES" +
-            "(#{app}, #{stream}, #{gbId}, #{name}, " +
-            "#{longitude}, #{latitude}, #{streamType}, " +
-            "#{mediaServerId}, #{createTime})")
-    @Options(useGeneratedKeys = true, keyProperty = "gbStreamId", keyColumn = "gbStreamId")
-    int add(GbStream gbStream);
+    default int updateByAppAndStream(GbStream gbStream) {
+        return this.update(gbStream, Wrappers.<GbStream>lambdaUpdate()
+                .eq(GbStream::getApp, gbStream.getApp())
+                .eq(GbStream::getStream, gbStream.getStream()));
+    }
 
-    @Update("UPDATE wvp_gb_stream " +
-            "SET app=#{app}," +
-            "stream=#{stream}," +
-            "gb_id=#{gbId}," +
-            "name=#{name}," +
-            "stream_type=#{streamType}," +
-            "longitude=#{longitude}, " +
-            "latitude=#{latitude}," +
-            "media_server_id=#{mediaServerId}" +
-            "WHERE app=#{app} AND stream=#{stream}")
-    int updateByAppAndStream(GbStream gbStream);
-
-    @Update("UPDATE wvp_gb_stream " +
-            "SET app=#{app}," +
-            "stream=#{stream}," +
-            "gb_id=#{gbId}," +
-            "name=#{name}," +
-            "stream_type=#{streamType}," +
-            "longitude=#{longitude}, " +
-            "latitude=#{latitude}," +
-            "media_server_id=#{mediaServerId}" +
-            "WHERE gb_stream_id=#{gbStreamId}")
-    int update(GbStream gbStream);
-
-    @Delete("DELETE FROM wvp_gb_stream WHERE app=#{app} AND stream=#{stream}")
-    int del(@Param("app") String app, @Param("stream") String stream);
+    default int del(@Param("app") String app, @Param("stream") String stream) {
+        return this.delete(Wrappers.<GbStream>lambdaQuery().eq(GbStream::getApp, app).eq(GbStream::getStream, stream));
+    }
 
     @Select("<script> "+
             "SELECT gs.* FROM wvp_gb_stream gs " +
@@ -62,35 +39,19 @@ public interface GbStreamMapper {
             " <if test='mediaServerId != null' > AND gs.media_server_id=#{mediaServerId} </if>" +
             " order by gs.gb_stream_id asc " +
             "</script>")
-    List<GbStream> selectAll(@Param("platformId") String platformId, @Param("catalogId") String catalogId, @Param("query") String query, @Param("mediaServerId") String mediaServerId);
+    List<GbStream> selectAll(@Param("platformId") String platformId, @Param("catalogId") String catalogId
+            , @Param("query") String query, @Param("mediaServerId") String mediaServerId);
 
-    @Select("SELECT * FROM wvp_gb_stream WHERE app=#{app} AND stream=#{stream}")
-    GbStream selectOne(@Param("app") String app, @Param("stream") String stream);
+    default GbStream selectOne(@Param("app") String app, @Param("stream") String stream) {
+        return this.selectOne(Wrappers.<GbStream>lambdaQuery().eq(GbStream::getApp, app).eq(GbStream::getStream, stream));
+    }
 
-    @Select("SELECT * FROM wvp_gb_stream WHERE gb_id=#{gbId}")
-    List<GbStream> selectByGBId(String gbId);
+    default List<GbStream> selectByGBId(String gbId) {
+        return this.selectList(Wrappers.<GbStream>lambdaQuery().eq(GbStream::getGbId, gbId));
+    }
 
-    @Select("SELECT gs.*, pgs.platform_id as platform_id, pgs.catalog_id as catalog_id FROM wvp_gb_stream gs " +
-            "LEFT JOIN wvp_platform_gb_stream pgs ON gs.gb_stream_id = pgs.gb_stream_id " +
-            "WHERE gs.gb_id = #{gbId} AND pgs.platform_id = #{platformId}")
     GbStream queryStreamInPlatform(@Param("platformId") String platformId, @Param("gbId") String gbId);
 
-    @Select("<script> "+
-            "select gt.gb_id as channel_id, gt.name, 'wvp-pro' as manufacture,  st.status, gt.longitude, gt.latitude, pc.id as parent_id," +
-            "       '1' as register_way, pc.civil_code, 'live' as model, 'wvp-pro' as owner, '0' as parental,'0' as secrecy" +
-            " from wvp_gb_stream gt " +
-            " left join (" +
-            "    select " +
-            " <if test='usPushingAsStatus != true'> sp.status as status, </if>" +
-            " <if test='usPushingAsStatus == true'> sp.push_ing as status, </if>" +
-            "sp.app, sp.stream from wvp_stream_push sp" +
-            "    union all" +
-            "    select spxy.status, spxy.app, spxy.stream from wvp_stream_proxy spxy" +
-            " ) st on st.app = gt.app and st.stream = gt.stream" +
-            " left join wvp_platform_gb_stream pgs on gt.gb_stream_id = pgs.gb_stream_id" +
-            " left join wvp_platform_catalog pc on pgs.catalog_id = pc.id and pgs.platform_id = pc.platform_id" +
-            " where pgs.platform_id=#{platformId}" +
-            "</script>")
     List<DeviceChannel> queryGbStreamListInPlatform(String platformId, @Param("usPushingAsStatus") boolean usPushingAsStatus);
 
 

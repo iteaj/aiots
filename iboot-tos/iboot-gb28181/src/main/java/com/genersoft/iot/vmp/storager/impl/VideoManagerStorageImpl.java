@@ -499,8 +499,8 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 		if (parentPlatform.getCatalogId() == null) {
 			parentPlatform.setCatalogId(parentPlatform.getServerGBId());
 		}
-		int result = platformMapper.addParentPlatform(parentPlatform);
-		return result > 0;
+
+		return platformMapper.insert(parentPlatform) > 0;
 	}
 
 	@Override
@@ -517,7 +517,8 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 			if (parentPlatform.getCatalogId() == null) {
 				parentPlatform.setCatalogId(parentPlatform.getServerGBId());
 			}
-			result = platformMapper.addParentPlatform(parentPlatform);
+
+			result = platformMapper.insert(parentPlatform);
 			if (parentPlatformCatch == null) {
 				parentPlatformCatch = new ParentPlatformCatch();
 				parentPlatformCatch.setParentPlatform(parentPlatform);
@@ -525,14 +526,14 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 			}
 		}else {
 			if (parentPlatformCatch == null) { // serverGBId 已变化
-				ParentPlatform parentPlatById = platformMapper.getParentPlatById(parentPlatform.getId());
+				ParentPlatform parentPlatById = platformMapper.selectById(parentPlatform.getId());
 				// 使用旧的查出缓存ID
 				parentPlatformCatch = new ParentPlatformCatch();
 				parentPlatformCatch.setId(parentPlatform.getServerGBId());
 				redisCatchStorage.delPlatformCatchInfo(parentPlatById.getServerGBId());
 			}
 
-			result = platformMapper.updateParentPlatform(parentPlatform);
+			result = platformMapper.updateById(parentPlatform);
 		}
 		// 更新缓存
 		parentPlatformCatch.setParentPlatform(parentPlatform);
@@ -544,7 +545,9 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	@Transactional
 	@Override
 	public boolean deleteParentPlatform(ParentPlatform parentPlatform) {
-		int result = platformMapper.delParentPlatform(parentPlatform);
+		int result = platformMapper.delete(Wrappers.<ParentPlatform>lambdaQuery()
+				.eq(ParentPlatform::getServerGBId, parentPlatform.getServerGBId()));
+
 		// 删除关联的通道
 		platformChannelMapper.cleanChannelForGB(parentPlatform.getServerGBId());
 		return result > 0;
@@ -557,12 +560,14 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public List<ParentPlatform> queryEnableParentPlatformList(boolean enable) {
-		return platformMapper.getEnableParentPlatformList(enable);
+		return platformMapper.selectList(Wrappers.<ParentPlatform>lambdaQuery().eq(ParentPlatform::isEnable, enable));
 	}
 
 	@Override
 	public List<ParentPlatform> queryEnablePlatformListWithAsMessageChannel() {
-		return platformMapper.queryEnablePlatformListWithAsMessageChannel();
+		return platformMapper.selectList(Wrappers.<ParentPlatform>lambdaQuery()
+				.eq(ParentPlatform::isEnable, true)
+				.eq(ParentPlatform::isAsMessageChannel, true));
 	}
 
 	@Override
@@ -572,12 +577,12 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public void outlineForAllParentPlatform() {
-		platformMapper.outlineForAllParentPlatform();
+		platformMapper.update(null, Wrappers.<ParentPlatform>lambdaUpdate().eq(ParentPlatform::isStatus, false));
 	}
 
 
 	@Override
-	public PageInfo<ChannelReduce> queryAllChannelList(int page, int count, String query, Boolean online,
+	public Page<ChannelReduce> queryAllChannelList(int page, int count, String query, Boolean online,
 													   Boolean channelType, String platformId, String catalogId) {
 		PageHelper.startPage(page, count);
 		List<ChannelReduce> all = deviceChannelMapper.queryChannelListInAll(query, online, channelType, platformId, catalogId);
@@ -961,7 +966,10 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public int setDefaultCatalog(String platformId, String catalogId) {
-		return platformMapper.setDefaultCatalog(platformId, catalogId, DateUtil.getNow());
+		return platformMapper.update(null, Wrappers.<ParentPlatform>lambdaUpdate()
+				.set(ParentPlatform::getCatalogId, catalogId)
+				.set(ParentPlatform::getUpdateTime, DateUtil.getNow())
+				.eq(ParentPlatform::getServerGBId, platformId));
 	}
 
 	@Override

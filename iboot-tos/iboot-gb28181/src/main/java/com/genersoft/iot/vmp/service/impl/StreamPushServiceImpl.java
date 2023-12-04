@@ -153,7 +153,7 @@ public class StreamPushServiceImpl implements IStreamPushService {
         stream.setCreateTime(DateUtil.getNow());
         stream.setStreamType("push");
         stream.setMediaServerId(mediaConfig.getId());
-        int add = gbStreamMapper.add(stream);
+        int add = gbStreamMapper.insert(stream);
         return add > 0;
     }
 
@@ -518,7 +518,7 @@ public class StreamPushServiceImpl implements IStreamPushService {
             int addStreamResult = streamPushMapper.add(stream);
             if (!ObjectUtils.isEmpty(stream.getGbId())) {
                 stream.setStreamType("push");
-                gbStreamMapper.add(stream);
+                gbStreamMapper.insert(stream);
             }
             dataSourceTransactionManager.commit(transactionStatus);
             result = true;

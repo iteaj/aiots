@@ -2,8 +2,10 @@ package com.genersoft.iot.vmp.vmanager.gb28181.platform;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.common.VideoManagerConstants;
 import com.genersoft.iot.vmp.conf.DynamicTask;
+import com.genersoft.iot.vmp.conf.SipConfig;
 import com.genersoft.iot.vmp.conf.UserSetting;
 import com.genersoft.iot.vmp.conf.exception.ControllerException;
 import com.genersoft.iot.vmp.gb28181.bean.ParentPlatform;
@@ -11,14 +13,16 @@ import com.genersoft.iot.vmp.gb28181.bean.ParentPlatformCatch;
 import com.genersoft.iot.vmp.gb28181.bean.PlatformCatalog;
 import com.genersoft.iot.vmp.gb28181.bean.SubscribeHolder;
 import com.genersoft.iot.vmp.gb28181.transmit.cmd.ISIPCommanderForPlatform;
-import com.genersoft.iot.vmp.service.*;
+import com.genersoft.iot.vmp.service.IDeviceChannelService;
+import com.genersoft.iot.vmp.service.IGbStreamService;
+import com.genersoft.iot.vmp.service.IPlatformChannelService;
+import com.genersoft.iot.vmp.service.IPlatformService;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
 import com.genersoft.iot.vmp.utils.DateUtil;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.gb28181.platform.bean.ChannelReduce;
 import com.genersoft.iot.vmp.vmanager.gb28181.platform.bean.UpdateChannelParam;
-import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
-import com.genersoft.iot.vmp.conf.SipConfig;
 
 import javax.sip.InvalidArgumentException;
 import javax.sip.SipException;
@@ -105,7 +108,7 @@ public class PlatformController {
     public ParentPlatform getPlatform(@PathVariable String id) {
         ParentPlatform parentPlatform = platformService.queryPlatformByServerGBId(id);
         if (parentPlatform != null) {
-            return  parentPlatform;
+            return parentPlatform;
         } else {
             throw new ControllerException(ErrorCode.ERROR100.getCode(), "未查询到此平台");
         }
@@ -114,19 +117,19 @@ public class PlatformController {
     /**
      * 分页查询级联平台
      *
-     * @param page  当前页
-     * @param count 每页条数
+     * @param page  分页信息
+     * @param entity 参数
      * @return
      */
     @GetMapping("/query/{count}/{page}")
     @Operation(summary = "分页查询级联平台")
     @Parameter(name = "page", description = "当前页", required = true)
     @Parameter(name = "count", description = "每页条数", required = true)
-    public PageInfo<ParentPlatform> platforms(@PathVariable int page, @PathVariable int count) {
+    public Page<ParentPlatform> platforms(Page page, ParentPlatform entity) {
 
-        PageInfo<ParentPlatform> parentPlatformPageInfo = platformService.queryParentPlatformList(page, count);
-        if (parentPlatformPageInfo.getList().size() > 0) {
-            for (ParentPlatform platform : parentPlatformPageInfo.getList()) {
+        Page<ParentPlatform> parentPlatformPageInfo = platformService.parentPlatformByPage(page, entity);
+        if (parentPlatformPageInfo.getRecords().size() > 0) {
+            for (ParentPlatform platform : parentPlatformPageInfo.getRecords()) {
                 platform.setMobilePositionSubscribe(subscribeHolder.getMobilePositionSubscribe(platform.getServerGBId()) != null);
                 platform.setCatalogSubscribe(subscribeHolder.getCatalogSubscribe(platform.getServerGBId()) != null);
             }
@@ -304,7 +307,7 @@ public class PlatformController {
     @Parameter(name = "channelType", description = "通道类型")
     @GetMapping("/channel_list")
     @ResponseBody
-    public PageInfo<ChannelReduce> channelList(int page, int count,
+    public Page<ChannelReduce> channelList(int page, int count,
                                                @RequestParam(required = false) String platformId,
                                                @RequestParam(required = false) String catalogId,
                                                @RequestParam(required = false) String query,
@@ -320,7 +323,7 @@ public class PlatformController {
         if (ObjectUtils.isEmpty(platformId) || ObjectUtils.isEmpty(catalogId)) {
             catalogId = null;
         }
-        PageInfo<ChannelReduce> channelReduces = storager.queryAllChannelList(page, count, query, online, channelType, platformId, catalogId);
+        Page<ChannelReduce> channelReduces = storager.queryAllChannelList(page, count, query, online, channelType, platformId, catalogId);
 
         return channelReduces;
     }

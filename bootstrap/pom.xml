@@ -145,6 +145,13 @@
             <version>${project.version}</version>
             <artifactId>iboot-message</artifactId>
         </dependency>
+
+        <!-- gb28181模块 -->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>iboot-gb28181</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

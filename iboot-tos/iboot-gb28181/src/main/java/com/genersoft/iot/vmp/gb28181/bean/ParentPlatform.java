@@ -1,10 +1,13 @@
 package com.genersoft.iot.vmp.gb28181.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author lin
  */
+@TableName("wvp_platform")
 @Schema(description = "平台信息")
 public class ParentPlatform {
 
@@ -18,7 +21,7 @@ public class ParentPlatform {
      * 是否启用
      */
     @Schema(description = "是否启用")
-    private boolean enable;
+    private Boolean enable;
 
     /**
      * 名称
@@ -48,7 +51,7 @@ public class ParentPlatform {
      * SIP服务端口
      */
     @Schema(description = "SIP服务端口")
-    private int serverPort;
+    private Integer serverPort;
 
     /**
      * 设备国标编号
@@ -84,13 +87,13 @@ public class ParentPlatform {
      * 注册周期 (秒)
      */
     @Schema(description = "注册周期 (秒)")
-    private int expires;
+    private Integer expires;
 
     /**
      * 心跳周期(秒)
      */
     @Schema(description = "心跳周期(秒)")
-    private int keepTimeout;
+    private Integer keepTimeout;
 
     /**
      * 传输协议
@@ -109,25 +112,26 @@ public class ParentPlatform {
      * 允许云台控制
      */
     @Schema(description = "允许云台控制")
-    private boolean ptz;
+    private Boolean ptz;
 
     /**
      * RTCP流保活
      */
     @Schema(description = "RTCP流保活")
-    private boolean rtcp;
+    private Boolean rtcp;
 
     /**
      * 在线状态
      */
     @Schema(description = "在线状态")
-    private boolean status;
+    private Boolean status;
 
     /**
      * 在线状态
      */
-    @Schema(description = "在线状态")
-    private int channelCount;
+    @TableField(exist = false)
+    @Schema(description = "通道数量")
+    private Integer channelCount;
 
     /**
      * 默认目录Id,自动添加的通道多放在这个目录下
@@ -138,32 +142,35 @@ public class ParentPlatform {
     /**
      * 已被订阅目录信息
      */
+    @TableField(exist = false)
     @Schema(description = "已被订阅目录信息")
     private boolean catalogSubscribe;
 
     /**
      * 已被订阅报警信息
      */
+    @TableField(exist = false)
     @Schema(description = "已被订阅报警信息")
-    private boolean alarmSubscribe;
+    private Boolean alarmSubscribe;
 
     /**
      * 已被订阅移动位置信息
      */
+    @TableField(exist = false)
     @Schema(description = "已被订阅移动位置信息")
-    private boolean mobilePositionSubscribe;
+    private Boolean mobilePositionSubscribe;
 
     /**
      * 点播未推流的设备时是否使用redis通知拉起
      */
     @Schema(description = "点播未推流的设备时是否使用redis通知拉起")
-    private boolean startOfflinePush;
+    private Boolean startOfflinePush;
 
     /**
      * 目录分组-每次向上级发送通道信息时单个包携带的通道数量，取值1,2,4,8
      */
     @Schema(description = "目录分组-每次向上级发送通道信息时单个包携带的通道数量，取值1,2,4,8")
-    private int catalogGroup;
+    private Integer catalogGroup;
 
     /**
      * 行政区划
@@ -184,10 +191,10 @@ public class ParentPlatform {
     private String createTime;
 
     @Schema(description = "是否作为消息通道")
-    private boolean asMessageChannel;
+    private Boolean asMessageChannel;
 
     @Schema(description = "是否作为消息通道")
-    private boolean autoPushChannel;
+    private Boolean autoPushChannel;
 
     public Integer getId() {
         return id;

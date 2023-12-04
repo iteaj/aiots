@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.genersoft.iot.vmp.storager.dao.GbStreamMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BasicMap" type="com.genersoft.iot.vmp.gb28181.bean.GbStream">
+        <result column="name" property="name" />
+        <result column="app" property="app" />
+        <result column="gb_id" property="gbId" />
+        <result column="status" property="status" />
+        <result column="latitude" property="latitude" />
+        <result column="longitude" property="longitude" />
+        <result column="stream_type" property="streamType" />
+        <result column="catalog_id" property="catalogId" />
+        <result column="platform_id" property="platformId" />
+        <result column="gb_stream_id" property="gbStreamId" />
+        <result column="media_server_id" property="mediaServerId" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <select id="queryStreamInPlatform" resultMap="BasicMap">
+        SELECT gs.*, pgs.platform_id as platform_id, pgs.catalog_id as catalog_id FROM wvp_gb_stream gs
+            LEFT JOIN wvp_platform_gb_stream pgs ON gs.gb_stream_id = pgs.gb_stream_id
+        WHERE gs.gb_id = #{gbId} AND pgs.platform_id = #{platformId}
+    </select>
+
+    <select id="queryGbStreamListInPlatform" resultType="com.genersoft.iot.vmp.gb28181.bean.DeviceChannel">
+        select gt.gb_id as channel_id, gt.name, 'wvp-pro' as manufacture,  st.status, gt.longitude, gt.latitude, pc.id as parent_id,
+        '1' as register_way, pc.civil_code, 'live' as model, 'wvp-pro' as owner, '0' as parental,'0' as secrecy
+        from wvp_gb_stream gt
+        left join (
+            select
+                <if test='usPushingAsStatus != true'> sp.status as status, </if>
+                <if test='usPushingAsStatus == true'> sp.push_ing as status, </if>
+                sp.app, sp.stream from wvp_stream_push sp
+            union all select spxy.status, spxy.app, spxy.stream from wvp_stream_proxy spxy
+        ) st on st.app = gt.app and st.stream = gt.stream
+            left join wvp_platform_gb_stream pgs on gt.gb_stream_id = pgs.gb_stream_id
+            left join wvp_platform_catalog pc on pgs.catalog_id = pc.id and pgs.platform_id = pc.platform_id
+        where pgs.platform_id=#{platformId}
+    </select>
+
+
+</mapper>

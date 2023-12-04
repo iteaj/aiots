@@ -1,8 +1,8 @@
 package com.genersoft.iot.vmp.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.gb28181.bean.ParentPlatform;
 import com.genersoft.iot.vmp.gb28181.bean.SipTransactionInfo;
-import com.github.pagehelper.PageInfo;
 
 /**
  * 国标平台的业务类
@@ -15,10 +15,10 @@ public interface IPlatformService {
     /**
      * 分页获取上级平台
      * @param page
-     * @param count
+     * @param entity
      * @return
      */
-    PageInfo<ParentPlatform> queryParentPlatformList(int page, int count);
+    Page<ParentPlatform> parentPlatformByPage(Page page, ParentPlatform entity);
 
     /**
      * 添加级联平台

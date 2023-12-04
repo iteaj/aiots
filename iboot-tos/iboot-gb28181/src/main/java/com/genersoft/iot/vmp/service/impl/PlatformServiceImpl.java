@@ -1,12 +1,12 @@
 package com.genersoft.iot.vmp.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.conf.DynamicTask;
 import com.genersoft.iot.vmp.conf.UserSetting;
 import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.gb28181.event.SipSubscribe;
 import com.genersoft.iot.vmp.gb28181.session.SSRCFactory;
 import com.genersoft.iot.vmp.gb28181.transmit.cmd.impl.SIPCommanderFroPlatform;
-import com.genersoft.iot.vmp.gb28181.utils.SipUtils;
 import com.genersoft.iot.vmp.media.zlm.ZLMServerFactory;
 import com.genersoft.iot.vmp.media.zlm.dto.MediaServerItem;
 import com.genersoft.iot.vmp.service.IMediaServerService;
@@ -15,24 +15,18 @@ import com.genersoft.iot.vmp.service.bean.GPSMsgInfo;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.dao.*;
 import com.genersoft.iot.vmp.utils.DateUtil;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import gov.nist.javax.sip.message.SIPRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.sip.InvalidArgumentException;
-import javax.sip.PeerUnavailableException;
 import javax.sip.SipException;
-import javax.sip.SipFactory;
-import javax.sip.address.Address;
-import javax.sip.address.SipURI;
-import javax.sip.header.*;
-import javax.sip.message.Request;
 import java.text.ParseException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author lin
@@ -94,10 +88,8 @@ public class PlatformServiceImpl implements IPlatformService {
     }
 
     @Override
-    public PageInfo<ParentPlatform> queryParentPlatformList(int page, int count) {
-        PageHelper.startPage(page, count);
-        List<ParentPlatform> all = platformMapper.getParentPlatformList();
-        return new PageInfo<>(all);
+    public Page<ParentPlatform> parentPlatformByPage(Page page, ParentPlatform entity) {
+        return platformMapper.parentPlatformByPage(page, entity);
     }
 
     @Override
@@ -112,7 +104,7 @@ public class PlatformServiceImpl implements IPlatformService {
             parentPlatform.setAdministrativeDivision(parentPlatform.getServerGBId().substring(0,6));
         }
         parentPlatform.setCatalogId(parentPlatform.getDeviceGBId());
-        int result = platformMapper.addParentPlatform(parentPlatform);
+        int result = platformMapper.insert(parentPlatform);
         // 添加缓存
         ParentPlatformCatch parentPlatformCatch = new ParentPlatformCatch();
         parentPlatformCatch.setParentPlatform(parentPlatform);
@@ -137,7 +129,7 @@ public class PlatformServiceImpl implements IPlatformService {
     public boolean update(ParentPlatform parentPlatform) {
         logger.info("[国标级联]更新平台 {}", parentPlatform.getDeviceGBId());
         parentPlatform.setCharacterSet(parentPlatform.getCharacterSet().toUpperCase());
-        ParentPlatform parentPlatformOld = platformMapper.getParentPlatById(parentPlatform.getId());
+        ParentPlatform parentPlatformOld = platformMapper.selectById(parentPlatform.getId());
         ParentPlatformCatch parentPlatformCatchOld = redisCatchStorage.queryPlatformCatchInfo(parentPlatformOld.getServerGBId());
         parentPlatform.setUpdateTime(DateUtil.getNow());
 
@@ -167,7 +159,8 @@ public class PlatformServiceImpl implements IPlatformService {
             parentPlatform.setAdministrativeDivision(parentPlatform.getAdministrativeDivision());
         }
 
-        platformMapper.updateParentPlatform(parentPlatform);
+        platformMapper.updateById(parentPlatform);
+
         // 更新redis
         redisCatchStorage.delPlatformCatchInfo(parentPlatformOld.getServerGBId());
         ParentPlatformCatch parentPlatformCatch = new ParentPlatformCatch();
@@ -350,7 +343,7 @@ public class PlatformServiceImpl implements IPlatformService {
         if (!stopRegister) {
             // 设置为60秒自动尝试重新注册
             final String registerFailAgainTaskKey = REGISTER_FAIL_AGAIN_KEY_PREFIX + parentPlatform.getServerGBId();
-            ParentPlatform platform = platformMapper.getParentPlatById(parentPlatform.getId());
+            ParentPlatform platform = platformMapper.selectById(parentPlatform.getId());
             if (platform.isEnable()) {
                 dynamicTask.startCron(registerFailAgainTaskKey,
                         ()-> registerTask(platform, null),

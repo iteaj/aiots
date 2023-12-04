@@ -251,7 +251,7 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
         try {
             if (streamProxyMapper.add(streamProxyItem) > 0) {
                 if (!ObjectUtils.isEmpty(streamProxyItem.getGbId())) {
-                    if (gbStreamMapper.add(streamProxyItem) < 0) {
+                    if (gbStreamMapper.insert(streamProxyItem) < 0) {
                         //事务回滚
                         dataSourceTransactionManager.rollback(transactionStatus);
                         return false;
