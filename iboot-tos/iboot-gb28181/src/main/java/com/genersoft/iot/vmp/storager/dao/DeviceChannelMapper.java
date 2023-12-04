@@ -39,65 +39,23 @@ public interface DeviceChannelMapper extends BaseMapper<DeviceChannel> {
             "</foreach> </if>" +
             "ORDER BY dc.channel_id " +
             " </script>"})
-    Page<DeviceChannel> queryChannels(Page page, @Param("deviceId") String deviceId, @Param("parentChannelId") String parentChannelId, @Param("query") String query, @Param("hasSubChannel") Boolean hasSubChannel, @Param("online") Boolean online, @Param("channelIds") List<String> channelIds);
+    Page<DeviceChannel> queryChannels(Page page, @Param("deviceId") String deviceId, @Param("parentChannelId") String parentChannelId
+            , @Param("query") String query, @Param("hasSubChannel") Boolean hasSubChannel, @Param("online") Boolean online
+            , @Param("channelIds") List<String> channelIds);
 
-    @Select(value = {" <script>" +
-            "SELECT " +
-            "dc.*, " +
-            "de.name as device_name, " +
-            "de.on_line as device_online " +
-            "from " +
-            "wvp_device_channel dc " +
-            "LEFT JOIN wvp_device de ON dc.device_id = de.device_id " +
-            "WHERE 1=1" +
-            " <if test='deviceId != null'> AND dc.device_id = #{deviceId} </if> " +
-            " <if test='query != null'> AND (dc.channel_id LIKE '%${query}%' OR dc.name LIKE '%${query}%' OR dc.name LIKE '%${query}%')</if> " +
-            " <if test='parentChannelId != null'> AND dc.parent_id=#{parentChannelId} </if> " +
-            " <if test='online == true' > AND dc.status=true</if>" +
-            " <if test='online == false' > AND dc.status=false</if>" +
-            " <if test='hasSubChannel == true' >  AND dc.sub_count > 0 </if>" +
-            " <if test='hasSubChannel == false' >  AND dc.sub_count = 0 </if>" +
-            "<if test='channelIds != null'> AND dc.channel_id in <foreach item='item' index='index' collection='channelIds' open='(' separator=',' close=')'>" +
-            "#{item} " +
-            "</foreach> </if>" +
-            "ORDER BY dc.channel_id ASC" +
-            " </script>"})
-    List<DeviceChannelExtend> queryChannelsWithDeviceInfo(@Param("deviceId") String deviceId, @Param("parentChannelId") String parentChannelId, @Param("query") String query, @Param("hasSubChannel") Boolean hasSubChannel, @Param("online") Boolean online, @Param("channelIds") List<String> channelIds);
+    List<DeviceChannelExtend> queryChannelsWithDeviceInfo(@Param("deviceId") String deviceId, @Param("parentChannelId") String parentChannelId
+            , @Param("query") String query, @Param("hasSubChannel") Boolean hasSubChannel, @Param("online") Boolean online
+            , @Param("channelIds") List<String> channelIds);
 
+    List<DeviceChannelExtend> queryChannelsByDeviceIdWithStartAndLimit(@Param("deviceId") String deviceId, @Param("channelIds") List<String> channelIds
+            , @Param("parentChannelId") String parentChannelId, @Param("query") String query, @Param("hasSubChannel") Boolean hasSubChannel
+            , @Param("online") Boolean online, @Param("start") int start, @Param("limit") int limit);
 
-    @Select(value = {" <script>" +
-            "SELECT " +
-            "dc.*, " +
-            "de.name as device_name, " +
-            "de.on_line as device_online " +
-            "from " +
-            "wvp_device_channel dc " +
-            "LEFT JOIN wvp_device de ON dc.device_id = de.device_id " +
-            "WHERE 1=1" +
-            " <if test='deviceId != null'> AND dc.device_id = #{deviceId} </if> " +
-            " <if test='query != null'> AND (dc.channel_id LIKE '%${query}%' OR dc.name LIKE '%${query}%' OR dc.name LIKE '%${query}%')</if> " +
-            " <if test='parentChannelId != null'> AND dc.parent_id=#{parentChannelId} </if> " +
-            " <if test='online == true' > AND dc.status=true</if>" +
-            " <if test='online == false' > AND dc.status=false</if>" +
-            " <if test='hasSubChannel == true' >  AND dc.sub_count > 0 </if>" +
-            " <if test='hasSubChannel == false' >  AND dc.sub_count = 0 </if>" +
-            "<if test='channelIds != null'> AND dc.channel_id in <foreach item='item' index='index' collection='channelIds' open='(' separator=',' close=')'>" +
-            "#{item} " +
-            "</foreach> </if>" +
-            "ORDER BY dc.channel_id ASC " +
-            "Limit #{limit} OFFSET #{start}" +
-            " </script>"})
-    List<DeviceChannelExtend> queryChannelsByDeviceIdWithStartAndLimit(@Param("deviceId") String deviceId, @Param("channelIds") List<String> channelIds, @Param("parentChannelId") String parentChannelId, @Param("query") String query, @Param("hasSubChannel") Boolean hasSubChannel, @Param("online") Boolean online, @Param("start") int start, @Param("limit") int limit);
-
-    @Delete("DELETE FROM wvp_device_channel WHERE device_id=#{deviceId}")
     int cleanChannelsByDeviceId(@Param("deviceId") String deviceId);
 
-    @Update(value = {"UPDATE wvp_device_channel SET stream_id=null WHERE device_id=#{deviceId} AND channel_id=#{channelId}"})
     void stopPlay(@Param("deviceId") String deviceId, @Param("channelId") String channelId);
 
-    @Update(value = {"UPDATE wvp_device_channel SET stream_id=#{streamId} WHERE device_id=#{deviceId} AND channel_id=#{channelId}"})
     void startPlay(@Param("deviceId") String deviceId, @Param("channelId") String channelId, @Param("streamId") String streamId);
-
 
     @Select(value = {" <script>" +
             "SELECT " +

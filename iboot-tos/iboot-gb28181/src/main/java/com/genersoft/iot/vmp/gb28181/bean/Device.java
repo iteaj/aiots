@@ -1,14 +1,20 @@
 package com.genersoft.iot.vmp.gb28181.bean;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.Entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 国标设备/平台
  * @author lin
  */
+@TableName("wvp_device")
 @Schema(description = "国标设备/平台")
-public class Device {
+public class Device implements Entity<Integer> {
+
+	private Integer id;
 
 	/**
 	 * 设备国标编号
@@ -185,11 +191,23 @@ public class Device {
 	@Schema(description = "是否作为消息通道")
 	private boolean asMessageChannel;
 
+	@TableField(exist = false)
 	@Schema(description = "设备注册的事务信息")
 	private SipTransactionInfo sipTransactionInfo;
 
+	/*======================设备主子码流逻辑START=========================*/
+	@Schema(description = "开启主子码流切换的开关（false-不开启，true-开启）")
+	private boolean switchPrimarySubStream;
 
+	@Override
+	public Integer getId() {
+		return id;
+	}
 
+	@Override
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	public String getDeviceId() {
 		return deviceId;
@@ -452,10 +470,6 @@ public class Device {
 	public void setSipTransactionInfo(SipTransactionInfo sipTransactionInfo) {
 		this.sipTransactionInfo = sipTransactionInfo;
 	}
-
-	/*======================设备主子码流逻辑START=========================*/
-	@Schema(description = "开启主子码流切换的开关（false-不开启，true-开启）")
-	private boolean switchPrimarySubStream;
 
 	public boolean isSwitchPrimarySubStream() {
 		return switchPrimarySubStream;

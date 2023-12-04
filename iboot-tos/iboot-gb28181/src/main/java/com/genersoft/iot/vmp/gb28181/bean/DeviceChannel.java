@@ -1,8 +1,10 @@
 package com.genersoft.iot.vmp.gb28181.bean;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.Entity;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@TableName("wvp_device_channel")
 @Schema(description = "通道信息")
 public class DeviceChannel implements Entity<Integer> {
 

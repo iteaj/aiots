@@ -168,4 +168,17 @@ public interface IDeviceService {
      * 获取所有设备
      */
     List<Device> getAll();
+
+    /**
+     * 更新设备
+     * @param device
+     */
+    int updateByDeviceId(Device device);
+
+    /**
+     * 删除设备
+     * @param deviceId
+     * @return
+     */
+    int deleteByDeviceId(String deviceId);
 }

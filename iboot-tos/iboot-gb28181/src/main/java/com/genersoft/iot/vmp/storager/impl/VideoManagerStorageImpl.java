@@ -461,7 +461,6 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public List<Device> queryVideoDeviceList(Boolean online) {
-
 		List<Device> deviceList =  deviceMapper.getDevices(online);
 		return deviceList;
 	}
@@ -568,7 +567,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public List<Device> queryDeviceWithAsMessageChannel() {
-		return deviceMapper.queryDeviceWithAsMessageChannel();
+		return deviceMapper.selectList(Wrappers.<Device>lambdaQuery().eq(Device::isAsMessageChannel, true));
 	}
 
 	@Override

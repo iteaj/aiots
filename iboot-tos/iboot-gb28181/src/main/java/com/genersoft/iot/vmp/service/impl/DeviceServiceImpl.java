@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.genersoft.iot.vmp.common.VideoManagerConstants;
 import com.genersoft.iot.vmp.conf.DynamicTask;
 import com.genersoft.iot.vmp.conf.UserSetting;
@@ -127,7 +128,7 @@ public class DeviceServiceImpl implements IDeviceService {
             device.setCreateTime(now);
             device.setUpdateTime(now);
             logger.info("[设备上线,首次注册]: {}，查询设备信息以及通道信息", device.getDeviceId());
-            deviceMapper.add(device);
+            deviceMapper.insert(device);
             redisCatchStorage.updateDevice(device);
             try {
                 commander.deviceInfoQuery(device);
@@ -143,7 +144,7 @@ public class DeviceServiceImpl implements IDeviceService {
             if(!device.isOnLine()){
                 device.setOnLine(true);
                 device.setCreateTime(now);
-                deviceMapper.update(device);
+                this.updateByDeviceId(device);
                 redisCatchStorage.updateDevice(device);
                 if (userSetting.getSyncChannelOnDeviceOnline()) {
                     logger.info("[设备上线,离线状态下重新注册]: {}，查询设备信息以及通道信息", device.getDeviceId());
@@ -161,7 +162,7 @@ public class DeviceServiceImpl implements IDeviceService {
                     sync(device);
                 }
 
-                deviceMapper.update(device);
+                this.updateByDeviceId(device);
                 redisCatchStorage.updateDevice(device);
             }
 
@@ -208,7 +209,7 @@ public class DeviceServiceImpl implements IDeviceService {
         dynamicTask.stop(registerExpireTaskKey);
         device.setOnLine(false);
         redisCatchStorage.updateDevice(device);
-        deviceMapper.update(device);
+        this.updateByDeviceId(device);
         //进行通道离线
 //        deviceChannelMapper.offlineByDeviceId(deviceId);
         // 离线释放所有ssrc
@@ -340,7 +341,7 @@ public class DeviceServiceImpl implements IDeviceService {
 
     @Override
     public List<Device> getAllOnlineDevice() {
-        return deviceMapper.getOnlineDevices();
+        return deviceMapper.selectList(Wrappers.<Device>lambdaQuery().eq(Device::isOnLine, true));
     }
 
     @Override
@@ -365,7 +366,9 @@ public class DeviceServiceImpl implements IDeviceService {
 
     @Override
     public Device getDeviceByHostAndPort(String host, int port) {
-        return deviceMapper.getDeviceByHostAndPort(host, port);
+        return deviceMapper.selectOne(Wrappers.<Device>lambdaQuery()
+                .eq(Device::getIp, host)
+                .eq(Device::getPort, port));
     }
 
     @Override
@@ -375,7 +378,7 @@ public class DeviceServiceImpl implements IDeviceService {
         device.setUpdateTime(now);
         device.setCharset(device.getCharset().toUpperCase());
         device.setUpdateTime(DateUtil.getNow());
-        if (deviceMapper.update(device) > 0) {
+        if (this.updateByDeviceId(device) > 0) {
             redisCatchStorage.updateDevice(device);
         }
     }
@@ -470,7 +473,7 @@ public class DeviceServiceImpl implements IDeviceService {
         device.setOnLine(false);
         device.setCreateTime(DateUtil.getNow());
         device.setUpdateTime(DateUtil.getNow());
-        deviceMapper.addCustomDevice(device);
+        deviceMapper.insert(device);
     }
 
     @Override
@@ -570,7 +573,7 @@ public class DeviceServiceImpl implements IDeviceService {
         deviceInStore.setAsMessageChannel(device.isAsMessageChannel());
         
         // 更新redis
-        deviceMapper.updateCustom(deviceInStore);
+        this.updateByDeviceId(deviceInStore);
         redisCatchStorage.removeDevice(deviceInStore.getDeviceId());
     }
 
@@ -581,7 +584,7 @@ public class DeviceServiceImpl implements IDeviceService {
         try {
             platformChannelMapper.delChannelForDeviceId(deviceId);
             deviceChannelMapper.cleanChannelsByDeviceId(deviceId);
-            if ( deviceMapper.del(deviceId) < 0 ) {
+            if ( this.deleteByDeviceId(deviceId) < 0 ) {
                 //事务回滚
                 dataSourceTransactionManager.rollback(transactionStatus);
             }
@@ -598,15 +601,24 @@ public class DeviceServiceImpl implements IDeviceService {
 
     @Override
     public ResourceBaseInfo getOverview() {
-        List<Device> onlineDevices = deviceMapper.getOnlineDevices();
-        List<Device> all = deviceMapper.getAll();
+        List<Device> onlineDevices = this.getAllOnlineDevice();
+        List<Device> all = deviceMapper.selectList(Wrappers.emptyWrapper());
         return new ResourceBaseInfo(all.size(), onlineDevices.size());
     }
 
     @Override
     public List<Device> getAll() {
-        return deviceMapper.getAll();
+        return deviceMapper.selectList(Wrappers.emptyWrapper());
     }
 
+    @Override
+    public int updateByDeviceId(Device device) {
+        return deviceMapper.update(device, Wrappers.<Device>lambdaUpdate()
+                .eq(Device::getDeviceId, device.getDeviceId()));
+    }
 
+    public int deleteByDeviceId(String deviceId) {
+        return deviceMapper.delete(Wrappers.<Device>lambdaQuery()
+                .eq(Device::getDeviceId, deviceId));
+    }
 }

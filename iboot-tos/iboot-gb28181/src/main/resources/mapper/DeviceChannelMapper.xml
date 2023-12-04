@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.genersoft.iot.vmp.storager.dao.DeviceChannelMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BasicMap" type="com.genersoft.iot.vmp.gb28181.bean.DeviceChannel">
+        <result column="id" property="id" />
+        <result column="channel_id" property="channelId" />
+        <result column="channel_type" property="channelType" />
+        <result column="model" property="model" />
+        <result column="device_id" property="deviceId" />
+        <result column="name" property="name" />
+        <result column="port" property="port" />
+        <result column="owner" property="owner" />
+        <result column="status" property="status" />
+        <result column="block" property="block" />
+        <result column="stream_id" property="streamId" />
+        <result column="has_audio" property="hasAudio" />
+        <result column="ptz_type" property="PTZType" />
+        <result column="cert_num" property="certNum" />
+        <result column="sub_count" property="subCount" />
+        <result column="address" property="address" />
+        <result column="password" property="password" />
+        <result column="secrecy" property="secrecy" />
+        <result column="parental" property="parental" />
+        <result column="longitude" property="longitude" />
+        <result column="latitude" property="latitude" />
+        <result column="longitude_gcj02" property="longitudeGcj02" />
+        <result column="latitude_gcj02" property="latitudeGcj02" />
+        <result column="longitude_wgs84" property="longitudeWgs84" />
+        <result column="latitude_wgs84" property="latitudeWgs84" />
+        <result column="err_code" property="errCode" />
+        <result column="end_time" property="endTime" />
+        <result column="civil_code" property="civilCode" />
+        <result column="parent_id" property="parentId" />
+        <result column="ip_address" property="ipAddress" />
+        <result column="ptz_type_text" property="PTZTypeText" />
+        <result column="business_group_id" property="businessGroupId" />
+        <result column="safety_way" property="safetyWay" />
+        <result column="register_way" property="registerWay" />
+        <result column="manufacture" property="manufacture" />
+        <result column="certifiable" property="certifiable" />
+        <result column="gps_time" property="gpsTime" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <update id="stopPlay">
+        UPDATE wvp_device_channel SET stream_id=null WHERE device_id=#{deviceId} AND channel_id=#{channelId}
+    </update>
+    <update id="startPlay">
+        UPDATE wvp_device_channel SET stream_id=#{streamId} WHERE device_id=#{deviceId} AND channel_id=#{channelId}
+    </update>
+
+    <delete id="cleanChannelsByDeviceId">
+        DELETE FROM wvp_device_channel WHERE device_id=#{deviceId}
+    </delete>
+    <select id="queryChannelsByDeviceIdWithStartAndLimit"
+            resultType="com.genersoft.iot.vmp.web.gb28181.dto.DeviceChannelExtend">
+        SELECT  dc.*, de.name as device_name, de.on_line as device_online from wvp_device_channel
+            LEFT JOIN wvp_device de ON dc.device_id = de.device_id
+        <where>
+            <if test='deviceId != null'> AND dc.device_id = #{deviceId} </if>
+            <if test='query != null'> AND (dc.channel_id LIKE '%${query}%' OR dc.name LIKE '%${query}%' OR dc.name LIKE '%${query}%')</if>
+            <if test='parentChannelId != null'> AND dc.parent_id=#{parentChannelId} </if>
+            <if test='online == true' > AND dc.status=true</if>
+            <if test='online == false' > AND dc.status=false</if>
+            <if test='hasSubChannel == true' >  AND dc.sub_count > 0 </if>
+            <if test='hasSubChannel == false' >  AND dc.sub_count = 0 </if>
+            <if test='channelIds != null'> AND dc.channel_id in
+                 <foreach item='item' index='index' collection='channelIds' open='(' separator=',' close=')'>
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY dc.channel_id ASC Limit #{limit} OFFSET #{start}
+    </select>
+    <select id="queryChannelsWithDeviceInfo"
+            resultType="com.genersoft.iot.vmp.web.gb28181.dto.DeviceChannelExtend">
+        SELECT  dc.*, de.name as device_name, de.on_line as device_online from wvp_device_channel
+        LEFT JOIN wvp_device de ON dc.device_id = de.device_id
+        <where>
+            <if test='deviceId != null'> AND dc.device_id = #{deviceId} </if>
+            <if test='query != null'> AND (dc.channel_id LIKE '%${query}%' OR dc.name LIKE '%${query}%' OR dc.name LIKE '%${query}%')</if>
+            <if test='parentChannelId != null'> AND dc.parent_id=#{parentChannelId} </if>
+            <if test='online == true' > AND dc.status=true</if>
+            <if test='online == false' > AND dc.status=false</if>
+            <if test='hasSubChannel == true' >  AND dc.sub_count > 0 </if>
+            <if test='hasSubChannel == false' >  AND dc.sub_count = 0 </if>
+            <if test='channelIds != null'> AND dc.channel_id in
+                <foreach item='item' index='index' collection='channelIds' open='(' separator=',' close=')'>
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY dc.channel_id ASC
+    </select>
+
+
+</mapper>
