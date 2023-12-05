@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.genersoft.iot.vmp.conf.MediaConfig;
 import com.genersoft.iot.vmp.conf.UserSetting;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
@@ -39,7 +40,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class StreamPushServiceImpl implements IStreamPushService {
+public class StreamPushServiceImpl extends ServiceImpl<StreamPushMapper, StreamPushItem> implements IStreamPushService {
 
     private final static Logger logger = LoggerFactory.getLogger(StreamPushServiceImpl.class);
 
@@ -48,6 +49,9 @@ public class StreamPushServiceImpl implements IStreamPushService {
 
     @Autowired
     private StreamPushMapper streamPushMapper;
+
+    @Autowired
+    private IStreamPushService streamPushService;
 
     @Autowired
     private StreamProxyMapper streamProxyMapper;
@@ -340,19 +344,9 @@ public class StreamPushServiceImpl implements IStreamPushService {
             streamPushItem.setCreateTime(DateUtil.getNow());
             gbId ++;
         }
-        int  limitCount = 30;
 
-        if (streamPushItems.size() > limitCount) {
-            for (int i = 0; i < streamPushItems.size(); i += limitCount) {
-                int toIndex = i + limitCount;
-                if (i + limitCount > streamPushItems.size()) {
-                    toIndex = streamPushItems.size();
-                }
-                gbStreamMapper.batchAdd(streamPushItems.subList(i, toIndex));
-            }
-        }else {
-            gbStreamMapper.batchAdd(streamPushItems);
-        }
+        gbStreamMapper.batchAdd(streamPushItems);
+
         return true;
     }
 
@@ -361,7 +355,6 @@ public class StreamPushServiceImpl implements IStreamPushService {
         streamPushMapper.addAll(streamPushItems);
         gbStreamMapper.batchAdd(streamPushItems);
     }
-
 
     @Override
     public void batchAddForUpload(List<StreamPushItem> streamPushItems, Map<String, List<String[]>> streamPushItemsForAll ) {
@@ -515,7 +508,7 @@ public class StreamPushServiceImpl implements IStreamPushService {
         boolean result = false;
         TransactionStatus transactionStatus = dataSourceTransactionManager.getTransaction(transactionDefinition);
         try {
-            int addStreamResult = streamPushMapper.add(stream);
+            int addStreamResult = streamPushMapper.insert(stream);
             if (!ObjectUtils.isEmpty(stream.getGbId())) {
                 stream.setStreamType("push");
                 gbStreamMapper.insert(stream);

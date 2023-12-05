@@ -1,12 +1,18 @@
 package com.genersoft.iot.vmp.gb28181.bean;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.Entity;
+
 /**
  * @description: 移动位置bean
  * @author: lawrencehj
  * @date: 2021年1月23日
  */
+@TableName("wvp_device_mobile_position")
+public class MobilePosition implements Entity<Long> {
 
-public class MobilePosition {
+    private Long id;
+
     /**
      * 设备Id
      */
@@ -30,27 +36,27 @@ public class MobilePosition {
     /**
      * 经度
      */
-    private double longitude;
+    private Double longitude;
 
     /**
      * 纬度
      */
-    private double latitude;
+    private Double latitude;
 
     /**
      * 海拔高度
      */
-    private double altitude;
+    private Double altitude;
 
     /**
      * 速度
      */
-    private double speed;
+    private Double speed;
 
     /**
      * 方向
      */
-    private double direction;
+    private Double direction;
 
     /**
      * 位置信息上报来源（Mobile Position、GPS Alarm）
@@ -60,28 +66,27 @@ public class MobilePosition {
     /**
      * 国内坐标系：经度坐标
      */
-    private double longitudeGcj02;
+    private Double longitudeGcj02;
 
     /**
      * 国内坐标系：纬度坐标
      */
-    private double latitudeGcj02;
+    private Double latitudeGcj02;
 
     /**
      * 国内坐标系：经度坐标
      */
-    private double longitudeWgs84;
+    private Double longitudeWgs84;
 
     /**
      * 国内坐标系：纬度坐标
      */
-    private double latitudeWgs84;
+    private Double latitudeWgs84;
 
     /**
      * 创建时间
      */
     private String createTime;
-
 
     public String getDeviceId() {
         return deviceId;
@@ -89,6 +94,14 @@ public class MobilePosition {
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
     }
 
     public String getDeviceName() {
@@ -107,43 +120,43 @@ public class MobilePosition {
         this.time = time;
     }
 
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
-    
-    public double getLatitude() {
+
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public double getAltitude() {
+    public Double getAltitude() {
         return altitude;
     }
 
-    public void setAltitude(double altitude) {
+    public void setAltitude(Double altitude) {
         this.altitude = altitude;
     }
 
-    public double getSpeed() {
+    public Double getSpeed() {
         return speed;
     }
 
-    public void setSpeed(double speed) {
+    public void setSpeed(Double speed) {
         this.speed = speed;
     }
 
-    public double getDirection() {
+    public Double getDirection() {
         return direction;
     }
 
-    public void setDirection(double direction) {
+    public void setDirection(Double direction) {
         this.direction = direction;
     }
 
@@ -155,43 +168,35 @@ public class MobilePosition {
         this.reportSource = reportSource;
     }
 
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
-    }
-
-    public double getLongitudeGcj02() {
+    public Double getLongitudeGcj02() {
         return longitudeGcj02;
     }
 
-    public void setLongitudeGcj02(double longitudeGcj02) {
+    public void setLongitudeGcj02(Double longitudeGcj02) {
         this.longitudeGcj02 = longitudeGcj02;
     }
 
-    public double getLatitudeGcj02() {
+    public Double getLatitudeGcj02() {
         return latitudeGcj02;
     }
 
-    public void setLatitudeGcj02(double latitudeGcj02) {
+    public void setLatitudeGcj02(Double latitudeGcj02) {
         this.latitudeGcj02 = latitudeGcj02;
     }
 
-    public double getLongitudeWgs84() {
+    public Double getLongitudeWgs84() {
         return longitudeWgs84;
     }
 
-    public void setLongitudeWgs84(double longitudeWgs84) {
+    public void setLongitudeWgs84(Double longitudeWgs84) {
         this.longitudeWgs84 = longitudeWgs84;
     }
 
-    public double getLatitudeWgs84() {
+    public Double getLatitudeWgs84() {
         return latitudeWgs84;
     }
 
-    public void setLatitudeWgs84(double latitudeWgs84) {
+    public void setLatitudeWgs84(Double latitudeWgs84) {
         this.latitudeWgs84 = latitudeWgs84;
     }
 
@@ -201,5 +206,15 @@ public class MobilePosition {
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    @Override
+    public Long getId() {
+        return null;
+    }
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
     }
 }

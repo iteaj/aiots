@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.storager.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamPushItem;
@@ -14,39 +15,15 @@ import java.util.List;
 @Repository
 public interface StreamPushMapper extends BaseMapper<StreamPushItem> {
 
-    @Insert("INSERT INTO wvp_stream_push (app, stream, total_reader_count, origin_type, origin_type_str, " +
-            "push_time, alive_second, media_server_id, update_time, create_time, push_ing, self) VALUES" +
-            "(#{app}, #{stream}, #{totalReaderCount}, #{originType}, #{originTypeStr}, " +
-            "#{pushTime}, #{aliveSecond}, #{mediaServerId} , #{updateTime} , #{createTime}, " +
-            "#{pushIng}, #{self} )")
-    int add(StreamPushItem streamPushItem);
+    default int update(StreamPushItem streamPushItem) {
+        return this.update(streamPushItem, Wrappers.<StreamPushItem>lambdaUpdate()
+                .eq(StreamPushItem::getApp, streamPushItem.getApp())
+                .eq(StreamPushItem::getStream, streamPushItem.getStream()));
+    }
 
-
-    @Update(value = {" <script>" +
-            "UPDATE wvp_stream_push " +
-            "SET update_time=#{updateTime}" +
-            "<if test=\"mediaServerId != null\">, media_server_id=#{mediaServerId}</if>" +
-            "<if test=\"totalReaderCount != null\">, total_reader_count=#{totalReaderCount}</if>" +
-            "<if test=\"originType != null\">, origin_type=#{originType}</if>" +
-            "<if test=\"originTypeStr != null\">, origin_type_str=#{originTypeStr}</if>" +
-            "<if test=\"pushTime != null\">, push_time=#{pushTime}</if>" +
-            "<if test=\"aliveSecond != null\">, alive_second=#{aliveSecond}</if>" +
-            "<if test=\"pushIng != null\">, push_ing=#{pushIng}</if>" +
-            "<if test=\"self != null\">, self=#{self}</if>" +
-            "WHERE app=#{app} AND stream=#{stream}"+
-            " </script>"})
-    int update(StreamPushItem streamPushItem);
-
-    @Delete("DELETE FROM wvp_stream_push WHERE app=#{app} AND stream=#{stream}")
-    int del(String app, String stream);
-
-    @Delete("<script> "+
-            "DELETE sp FROM wvp_stream_push sp left join wvp_gb_stream gs on sp.app = gs.app AND sp.stream = gs.stream where " +
-            "<foreach collection='streamPushItems' item='item' separator='or'>" +
-            "(sp.app=#{item.app} and sp.stream=#{item.stream} and gs.gb_id is null) " +
-            "</foreach>" +
-            "</script>")
-    int delAllWithoutGBId(List<StreamPushItem> streamPushItems);
+    default int del(String app, String stream) {
+        return this.delete(Wrappers.<StreamPushItem>lambdaQuery().eq(StreamPushItem::getApp, app).eq(StreamPushItem::getStream, stream));
+    }
 
     @Delete("<script> "+
             "DELETE FROM wvp_stream_push where " +

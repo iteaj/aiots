@@ -480,7 +480,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public synchronized boolean insertMobilePosition(MobilePosition mobilePosition) {
-		return deviceMobilePositionMapper.insertNewPosition(mobilePosition) > 0;
+		return deviceMobilePositionMapper.insert(mobilePosition) > 0;
 	}
 
 	/**
@@ -491,7 +491,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public synchronized List<MobilePosition> queryMobilePositions(String deviceId, String channelId, String startTime, String endTime) {
-		return deviceMobilePositionMapper.queryPositionByDeviceIdAndTime(deviceId, channelId, startTime, endTime);
+		return deviceMobilePositionMapper.selectOne(deviceId, channelId, startTime, endTime);
 	}
 
 	@Override

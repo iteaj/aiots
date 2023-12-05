@@ -1,5 +1,7 @@
 package com.genersoft.iot.vmp.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.gb28181.event.EventPublisher;
 import com.genersoft.iot.vmp.gb28181.event.subscribe.catalog.CatalogEvent;
@@ -9,8 +11,6 @@ import com.genersoft.iot.vmp.storager.dao.GbStreamMapper;
 import com.genersoft.iot.vmp.storager.dao.ParentPlatformMapper;
 import com.genersoft.iot.vmp.storager.dao.PlatformCatalogMapper;
 import com.genersoft.iot.vmp.storager.dao.PlatformGbStreamMapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +18,13 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class GbStreamServiceImpl implements IGbStreamService {
+public class GbStreamServiceImpl extends ServiceImpl<GbStreamMapper, GbStream> implements IGbStreamService {
 
     private final static Logger logger = LoggerFactory.getLogger(GbStreamServiceImpl.class);
 
@@ -54,10 +53,8 @@ public class GbStreamServiceImpl implements IGbStreamService {
     private EventPublisher eventPublisher;
 
     @Override
-    public PageInfo<GbStream> getAll(Integer page, Integer count, String platFormId, String catalogId, String query, String mediaServerId) {
-        PageHelper.startPage(page, count);
-        List<GbStream> all = gbStreamMapper.selectAll(platFormId, catalogId, query, mediaServerId);
-        return new PageInfo<>(all);
+    public Page<GbStream> getAll(Page page, GbStream entity) {
+        return gbStreamMapper.selectAllByPage(page, entity);
     }
 
     @Override
@@ -236,8 +233,9 @@ public class GbStreamServiceImpl implements IGbStreamService {
 
     @Override
     public List<GbStream> getAllGBChannels(String platformId) {
-
-        return gbStreamMapper.selectAll(platformId, null, null, null);
+        GbStream gbStream = new GbStream();
+        gbStream.setPlatformId(platformId);
+        return gbStreamMapper.selectAll(gbStream);
 
     }
 

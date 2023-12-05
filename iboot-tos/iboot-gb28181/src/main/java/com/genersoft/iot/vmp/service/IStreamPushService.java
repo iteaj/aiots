@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.media.zlm.dto.hook.OnStreamChangedHookParam;
 import com.genersoft.iot.vmp.media.zlm.dto.MediaServerItem;
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * @author lin
  */
-public interface IStreamPushService {
+public interface IStreamPushService extends IService<StreamPushItem> {
 
     List<StreamPushItem> handleJSON(String json, MediaServerItem mediaServerItem);
 

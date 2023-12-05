@@ -1,26 +1,26 @@
 package com.genersoft.iot.vmp.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.gb28181.bean.ParentPlatform;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamPushItem;
-import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
 /**
  * 级联国标平台关联流业务接口
  */
-public interface IGbStreamService {
+public interface IGbStreamService extends IService<GbStream> {
 
     /**
      * 分页获取所有
      * @param page
-     * @param count
+     * @param entity
      * @return
      */
-    PageInfo<GbStream> getAll(Integer page, Integer count, String platFormId, String catalogId,String query,String mediaServerId);
-
+    Page<GbStream> getAll(Page page, GbStream entity);
 
     /**
      * 移除

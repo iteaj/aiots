@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.gb28181.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -40,6 +41,9 @@ public class GbStream extends PlatformGbStream{
 
     @Schema(description = "创建时间")
     public String createTime;
+
+    @TableField(exist = false)
+    private String query;
 
     public String getApp() {
         return app;

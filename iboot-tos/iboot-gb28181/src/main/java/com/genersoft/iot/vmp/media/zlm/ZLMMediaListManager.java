@@ -77,7 +77,7 @@ public class ZLMMediaListManager {
         transform.setSelf(userSetting.getServerId().equals(onStreamChangedHookParam.getSeverId()));
         if (pushInDb == null) {
             transform.setCreateTime(DateUtil.getNow());
-            streamPushMapper.add(transform);
+            streamPushMapper.insert(transform);
         }else {
             streamPushMapper.update(transform);
             gbStreamMapper.updateMediaServer(onStreamChangedHookParam.getApp(), onStreamChangedHookParam.getStream(), onStreamChangedHookParam.getMediaServerId());

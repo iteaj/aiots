@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.media.zlm.dto;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.media.zlm.dto.hook.OnStreamChangedHookParam;
 import com.genersoft.iot.vmp.utils.DateUtil;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+@TableName("wvp_stream_push")
 @Schema(description = "推流信息")
 public class StreamPushItem extends GbStream implements Comparable<StreamPushItem>{
 
