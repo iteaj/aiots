@@ -18,38 +18,13 @@ import java.util.List;
 @Repository
 public interface GbStreamMapper extends BaseMapper<GbStream> {
 
-    default int updateByAppAndStream(GbStream gbStream) {
-        return this.update(gbStream, Wrappers.<GbStream>lambdaUpdate()
-                .eq(GbStream::getApp, gbStream.getApp())
-                .eq(GbStream::getStream, gbStream.getStream()));
-    }
-
-    default int del(@Param("app") String app, @Param("stream") String stream) {
-        return this.delete(Wrappers.<GbStream>lambdaQuery().eq(GbStream::getApp, app).eq(GbStream::getStream, stream));
-    }
-
     List<GbStream> selectAll(GbStream entity);
 
     Page<GbStream> selectAllByPage(Page page, GbStream entity);
 
-    default GbStream selectOne(@Param("app") String app, @Param("stream") String stream) {
-        return this.selectOne(Wrappers.<GbStream>lambdaQuery().eq(GbStream::getApp, app).eq(GbStream::getStream, stream));
-    }
-
-    default List<GbStream> selectByGBId(String gbId) {
-        return this.selectList(Wrappers.<GbStream>lambdaQuery().eq(GbStream::getGbId, gbId));
-    }
-
     GbStream queryStreamInPlatform(@Param("platformId") String platformId, @Param("gbId") String gbId);
 
     List<DeviceChannel> queryGbStreamListInPlatform(String platformId, @Param("usPushingAsStatus") boolean usPushingAsStatus);
-
-    default void deleteWithoutGBId(@Param("type") String type, @Param("mediaServerId") String mediaServerId) {
-        this.delete(Wrappers.<GbStream>lambdaQuery()
-                .eq(GbStream::getStreamType, type)
-                .isNull(GbStream::getGbId)
-                .eq(GbStream::getMediaServerId, mediaServerId));
-    }
 
     void batchDel(List<StreamProxyItem> streamProxyItemList);
 

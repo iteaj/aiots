@@ -86,30 +86,19 @@ public interface IVideoManagerStorage {
 	/**
 	 * 获取多个设备
 	 * @param page 当前页数
-	 * @param count 每页数量
+	 * @param online 每页数量
 	 * @return List<Device> 设备对象数组
 	 */
-	Page<Device> queryVideoDeviceList(int page, int count,Boolean online);
-
-	/**
-	 * 获取多个设备
-	 *
-	 * @return List<Device> 设备对象数组
-	 */
-	List<Device> queryVideoDeviceList(Boolean online);
-
-
+	Page<Device> queryVideoDeviceList(Page page,Boolean online);
 
 	/**
 	 * 查询子设备
 	 *
 	 * @param deviceId
 	 * @param channelId
-	 * @param page
-	 * @param count
 	 * @return
 	 */
-	Page querySubChannels(String deviceId, String channelId, String query, Boolean hasSubChannel, Boolean online, int page, int count);
+	Page querySubChannels(Page page, String deviceId, String channelId, String query, Boolean hasSubChannel, Boolean online);
 
 
 	/**
@@ -159,7 +148,7 @@ public interface IVideoManagerStorage {
 	/**
 	 * 查询通道信息，不区分设备(已关联平台或全部)
 	 */
-	Page<ChannelReduce> queryAllChannelList(int page, int count, String query, Boolean online, Boolean channelType, String platformId, String catalogId);
+	Page<ChannelReduce> queryAllChannelList(Page page, String query, Boolean online, Boolean channelType, String platformId, String catalogId);
 
 	/**
 	 * 查询设备的通道信息
@@ -244,10 +233,9 @@ public interface IVideoManagerStorage {
 	/**
 	 * 获取代理流
 	 * @param page
-	 * @param count
 	 * @return
 	 */
-	Page<StreamProxyItem> queryStreamProxyList(Integer page, Integer count);
+	Page<StreamProxyItem> queryStreamProxyList(Page page, StreamProxyItem entity);
 
 	/**
 	 * 根据国标ID获取平台关联的直播流

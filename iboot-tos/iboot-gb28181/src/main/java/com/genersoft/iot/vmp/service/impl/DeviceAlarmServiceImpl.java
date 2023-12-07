@@ -1,11 +1,11 @@
 package com.genersoft.iot.vmp.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceAlarm;
-import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
 import com.genersoft.iot.vmp.service.IDeviceAlarmService;
 import com.genersoft.iot.vmp.storager.dao.DeviceAlarmMapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,15 +18,15 @@ public class DeviceAlarmServiceImpl implements IDeviceAlarmService {
     private DeviceAlarmMapper deviceAlarmMapper;
 
     @Override
-    public PageInfo<DeviceAlarm> getAllAlarm(int page, int count, String deviceId, String alarmPriority, String alarmMethod, String alarmType, String startTime, String endTime) {
-        PageHelper.startPage(page, count);
-        List<DeviceAlarm> all = deviceAlarmMapper.query(deviceId, alarmPriority, alarmMethod, alarmType, startTime, endTime);
-        return new PageInfo<>(all);
+    public Page<DeviceAlarm> listByPage(Page page, DeviceAlarm entity) {
+        return deviceAlarmMapper.selectPage(page, Wrappers.lambdaQuery(entity)
+                .ge(StrUtil.isNotBlank(entity.getStartTime()), DeviceAlarm::getStartTime, entity.getStartTime())
+                .le(StrUtil.isNotBlank(entity.getEndTime()), DeviceAlarm::getEndTime, entity.getEndTime()));
     }
 
     @Override
     public void add(DeviceAlarm deviceAlarm) {
-        deviceAlarmMapper.add(deviceAlarm);
+        deviceAlarmMapper.insert(deviceAlarm);
     }
 
     @Override

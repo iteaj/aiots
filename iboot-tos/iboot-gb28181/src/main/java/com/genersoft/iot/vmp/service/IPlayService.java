@@ -1,11 +1,11 @@
 package com.genersoft.iot.vmp.service;
 
 import com.genersoft.iot.vmp.common.StreamInfo;
-import com.genersoft.iot.vmp.conf.exception.ServiceException;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.media.zlm.dto.MediaServerItem;
 import com.genersoft.iot.vmp.service.bean.ErrorCallback;
 import com.genersoft.iot.vmp.service.bean.SSRCInfo;
+import com.iteaj.framework.exception.ServiceException;
 
 import javax.sip.InvalidArgumentException;
 import javax.sip.SipException;

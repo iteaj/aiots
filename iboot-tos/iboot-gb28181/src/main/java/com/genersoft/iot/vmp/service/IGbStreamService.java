@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.gb28181.bean.ParentPlatform;
+import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamPushItem;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public interface IGbStreamService extends IService<GbStream> {
      * @param app
      * @param stream
      */
-    void del(String app, String stream);
+    int del(String app, String stream);
 
     /**
      * 保存国标关联
@@ -45,6 +46,7 @@ public interface IGbStreamService extends IService<GbStream> {
     DeviceChannel getDeviceChannelListByStream(GbStream gbStream, String catalogId, ParentPlatform platform);
 
     void sendCatalogMsg(GbStream gbStream, String type);
+
     void sendCatalogMsgs(List<GbStream> gbStreams, String type);
 
     /**
@@ -71,4 +73,10 @@ public interface IGbStreamService extends IService<GbStream> {
     void delAllPlatformInfo(String platformId, String catalogId);
 
     List<GbStream> getGbChannelWithGbid(String gbId);
+
+    boolean updateByAppAndStream(GbStream gbStream);
+
+    GbStream selectByAppAndStream(String app, String stream);
+
+    void deleteWithoutGBId(String type, String mediaServerId);
 }

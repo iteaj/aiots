@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.vmanager.gb28181.alarm;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.conf.exception.ControllerException;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceAlarm;
@@ -10,7 +11,6 @@ import com.genersoft.iot.vmp.service.IDeviceAlarmService;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
 import com.genersoft.iot.vmp.utils.DateUtil;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
-import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -131,14 +131,8 @@ public class AlarmController {
     /**
      *  分页查询报警
      *
-     * @param deviceId 设备id
+     * @param entity 设备id
      * @param page 当前页
-     * @param count 每页查询数量
-     * @param alarmPriority  报警级别
-     * @param alarmMethod 报警方式
-     * @param alarmType  报警类型
-     * @param startTime  开始时间
-     * @param endTime 结束时间
      * @return
      */
     @Operation(summary = "分页查询报警")
@@ -151,39 +145,7 @@ public class AlarmController {
     @Parameter(name = "startTime",description = "开始时间")
     @Parameter(name = "endTime",description = "结束时间")
     @GetMapping("/all")
-    public PageInfo<DeviceAlarm> getAll(
-            @RequestParam int page,
-            @RequestParam int count,
-            @RequestParam(required = false)  String deviceId,
-            @RequestParam(required = false) String alarmPriority,
-            @RequestParam(required = false) String alarmMethod,
-            @RequestParam(required = false) String alarmType,
-            @RequestParam(required = false) String startTime,
-            @RequestParam(required = false) String endTime
-    ) {
-        if (ObjectUtils.isEmpty(alarmPriority)) {
-            alarmPriority = null;
-        }
-        if (ObjectUtils.isEmpty(alarmMethod)) {
-            alarmMethod = null;
-        }
-        if (ObjectUtils.isEmpty(alarmType)) {
-            alarmType = null;
-        }
-
-        if (ObjectUtils.isEmpty(startTime)) {
-            startTime = null;
-        }else if (!DateUtil.verification(startTime, DateUtil.formatter) ){
-            throw new ControllerException(ErrorCode.ERROR400.getCode(), "startTime格式为" + DateUtil.PATTERN);
-        }
-
-        if (ObjectUtils.isEmpty(endTime)) {
-            endTime = null;
-        }else if (!DateUtil.verification(endTime, DateUtil.formatter) ){
-            throw new ControllerException(ErrorCode.ERROR400.getCode(), "endTime格式为" + DateUtil.PATTERN);
-        }
-
-        return deviceAlarmService.getAllAlarm(page, count, deviceId, alarmPriority, alarmMethod,
-                alarmType, startTime, endTime);
+    public Page<DeviceAlarm> getAll(Page page, DeviceAlarm entity) {
+        return deviceAlarmService.listByPage(page, entity);
     }
 }

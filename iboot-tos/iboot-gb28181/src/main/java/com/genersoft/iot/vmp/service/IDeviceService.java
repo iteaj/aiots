@@ -4,6 +4,7 @@ import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.gb28181.bean.SipTransactionInfo;
 import com.genersoft.iot.vmp.gb28181.bean.SyncStatus;
+import com.genersoft.iot.vmp.storager.dao.DeviceMapper;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
 import com.genersoft.iot.vmp.vmanager.bean.ResourceBaseInfo;
 
@@ -181,4 +182,6 @@ public interface IDeviceService {
      * @return
      */
     int deleteByDeviceId(String deviceId);
+
+    DeviceMapper getDeviceMapper();
 }

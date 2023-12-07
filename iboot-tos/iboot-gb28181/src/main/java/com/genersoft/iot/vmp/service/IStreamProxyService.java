@@ -1,12 +1,12 @@
 package com.genersoft.iot.vmp.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.common.GeneralCallback;
 import com.genersoft.iot.vmp.common.StreamInfo;
 import com.genersoft.iot.vmp.media.zlm.dto.MediaServerItem;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
 import com.genersoft.iot.vmp.vmanager.bean.ResourceBaseInfo;
-import com.github.pagehelper.PageInfo;
 
 public interface IStreamProxyService {
 
@@ -33,10 +33,9 @@ public interface IStreamProxyService {
     /**
      * 分页查询
      * @param page
-     * @param count
      * @return
      */
-    PageInfo<StreamProxyItem> getAll(Integer page, Integer count);
+    Page<StreamProxyItem> getAll(Page page, StreamProxyItem entity);
 
     /**
      * 删除视频代理

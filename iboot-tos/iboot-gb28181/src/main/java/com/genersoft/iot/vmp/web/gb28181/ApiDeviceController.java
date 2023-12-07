@@ -53,15 +53,13 @@ public class ApiDeviceController {
 
     /**
      * 分页获取设备列表 现在直接返回，尚未实现分页
-     * @param start
-     * @param limit
+     * @param page
      * @param q
      * @param online
      * @return
      */
     @RequestMapping(value = "/list")
-    public JSONObject list( @RequestParam(required = false)Integer start,
-                            @RequestParam(required = false)Integer limit,
+    public JSONObject list(Page page,
                             @RequestParam(required = false)String q,
                             @RequestParam(required = false)Boolean online ){
 
@@ -69,15 +67,11 @@ public class ApiDeviceController {
 //            logger.debug("查询所有视频设备API调用");
 //        }
         JSONObject result = new JSONObject();
-        List<Device> devices;
-        if (start == null || limit ==null) {
-            devices = storager.queryVideoDeviceList(online);
-            result.put("DeviceCount", devices.size());
-        }else {
-            Page<Device> deviceList = storager.queryVideoDeviceList(start/limit, limit,online);
-            result.put("DeviceCount", deviceList.getTotal());
-            devices = deviceList.getRecords();
-        }
+
+        Page<Device> deviceList = storager.queryVideoDeviceList(page, online);
+        result.put("DeviceCount", deviceList.getTotal());
+        List<Device> devices = deviceList.getRecords();
+
 
         JSONArray deviceJSONList = new JSONArray();
         for (Device device : devices) {
@@ -122,12 +116,12 @@ public class ApiDeviceController {
             String[] split = code.trim().split(",");
             channelIds = Arrays.asList(split);
         }
-        List<DeviceChannelExtend> allDeviceChannelList = storager.queryChannelsByDeviceId(serial,channelIds,online);
+        List<DeviceChannelExtend> allDeviceChannelList = storager.queryChannelsByDeviceId(serial ,channelIds, online);
         if (start == null || limit ==null) {
             deviceChannels = allDeviceChannelList;
             result.put("ChannelCount", deviceChannels.size());
         }else {
-            deviceChannels = storager.queryChannelsByDeviceIdWithStartAndLimit(serial,channelIds, null, null, online,start, limit);
+            deviceChannels = storager.queryChannelsByDeviceIdWithStartAndLimit(serial, channelIds, null, null, online, start, limit);
             int total = allDeviceChannelList.size();
             result.put("ChannelCount", total);
         }

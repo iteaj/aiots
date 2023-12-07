@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.vmanager.gb28181.MobilePosition;
 
+import cn.hutool.core.util.StrUtil;
 import com.genersoft.iot.vmp.conf.exception.ControllerException;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.gb28181.bean.MobilePosition;
@@ -10,7 +11,6 @@ import com.genersoft.iot.vmp.service.IDeviceChannelService;
 import com.genersoft.iot.vmp.service.IDeviceService;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
-import com.github.pagehelper.util.StringUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,10 +39,10 @@ public class MobilePositionController {
 
     @Autowired
     private IVideoManagerStorage storager;
-    
+
 	@Autowired
 	private SIPCommander cmder;
-	
+
 	@Autowired
 	private DeferredResultHolder resultHolder;
 
@@ -65,15 +65,13 @@ public class MobilePositionController {
     @Parameter(name = "start", description = "开始时间")
     @Parameter(name = "end", description = "结束时间")
     @GetMapping("/history/{deviceId}")
-    public List<MobilePosition> positions(@PathVariable String deviceId,
-                                                                     @RequestParam(required = false) String channelId,
-                                                                     @RequestParam(required = false) String start,
-                                                                     @RequestParam(required = false) String end) {
+    public List<MobilePosition> positions(@PathVariable String deviceId, @RequestParam(required = false) String channelId
+            , @RequestParam(required = false) String start, @RequestParam(required = false) String end) {
 
-        if (StringUtil.isEmpty(start)) {
+        if (StrUtil.isEmpty(start)) {
             start = null;
         }
-        if (StringUtil.isEmpty(end)) {
+        if (StrUtil.isEmpty(end)) {
             end = null;
         }
         return storager.queryMobilePositions(deviceId, channelId, start, end);
@@ -144,10 +142,10 @@ public class MobilePositionController {
     public void positionSubscribe(@PathVariable String deviceId,
                                                     @RequestParam String expires,
                                                     @RequestParam String interval) {
-
-        if (StringUtil.isEmpty(interval)) {
+        if (StrUtil.isEmpty(interval)) {
             interval = "5";
         }
+
         Device device = storager.queryVideoDevice(deviceId);
         device.setSubscribeCycleForMobilePosition(Integer.parseInt(expires));
         device.setMobilePositionSubmissionInterval(Integer.parseInt(interval));

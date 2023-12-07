@@ -1,10 +1,13 @@
 package com.genersoft.iot.vmp.gb28181.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author lin
  */
+@TableName("wvp_device_alarm")
 @Schema(description = "报警信息")
 public class DeviceAlarm {
 
@@ -96,6 +99,12 @@ public class DeviceAlarm {
 	@Schema(description = "创建时间")
 	private String createTime;
 
+	@TableField(exist = false)
+	private String startTime;
+
+	@TableField(exist = false)
+	private String endTime;
+
 
 	public String getId() {
 		return id;
@@ -183,5 +192,21 @@ public class DeviceAlarm {
 
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
 	}
 }

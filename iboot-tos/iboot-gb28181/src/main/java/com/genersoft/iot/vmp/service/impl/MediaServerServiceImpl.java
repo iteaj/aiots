@@ -3,6 +3,7 @@ package com.genersoft.iot.vmp.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.genersoft.iot.vmp.common.CommonCallback;
 import com.genersoft.iot.vmp.common.VideoManagerConstants;
 import com.genersoft.iot.vmp.conf.DynamicTask;
@@ -226,9 +227,9 @@ public class MediaServerServiceImpl implements IMediaServerService {
 
     @Override
     public void update(MediaServerItem mediaSerItem) {
-        mediaServerMapper.update(mediaSerItem);
+        mediaServerMapper.updateById(mediaSerItem);
         MediaServerItem mediaServerItemInRedis = getOne(mediaSerItem.getId());
-        MediaServerItem mediaServerItemInDataBase = mediaServerMapper.queryOne(mediaSerItem.getId());
+        MediaServerItem mediaServerItemInDataBase = mediaServerMapper.selectById(mediaSerItem.getId());
         if (mediaServerItemInRedis == null || !ssrcFactory.hasMediaServerSSRC(mediaSerItem.getId())) {
             ssrcFactory.initMediaServerSSRC(mediaServerItemInDataBase.getId(),null);
         }
@@ -268,7 +269,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
 
     @Override
     public List<MediaServerItem> getAllFromDatabase() {
-        return mediaServerMapper.queryAll();
+        return mediaServerMapper.selectList(Wrappers.emptyWrapper());
     }
 
     @Override
@@ -304,8 +305,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
 
     @Override
     public MediaServerItem getDefaultMediaServer() {
-
-        return mediaServerMapper.queryDefault();
+        return mediaServerMapper.selectOne(Wrappers.<MediaServerItem>lambdaQuery().eq(MediaServerItem::isDefaultServer, true));
     }
 
     @Override
@@ -324,12 +324,12 @@ public class MediaServerServiceImpl implements IMediaServerService {
             JSONArray data = responseJSON.getJSONArray("data");
             if (data != null && data.size() > 0) {
                 ZLMServerConfig zlmServerConfig= JSON.parseObject(JSON.toJSONString(data.get(0)), ZLMServerConfig.class);
-                if (mediaServerMapper.queryOne(zlmServerConfig.getGeneralMediaServerId()) != null) {
+                if (mediaServerMapper.selectById(zlmServerConfig.getGeneralMediaServerId()) != null) {
                     throw new ControllerException(ErrorCode.ERROR100.getCode(),"保存失败，媒体服务ID [ " + zlmServerConfig.getGeneralMediaServerId() + " ] 已存在，请修改媒体服务器配置");
                 }
                 mediaServerItem.setId(zlmServerConfig.getGeneralMediaServerId());
                 zlmServerConfig.setIp(mediaServerItem.getIp());
-                mediaServerMapper.add(mediaServerItem);
+                mediaServerMapper.insert(mediaServerItem);
                 zlmServerOnline(zlmServerConfig);
             }else {
                 throw new ControllerException(ErrorCode.ERROR100.getCode(),"连接失败");
@@ -342,7 +342,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
 
     @Override
     public int addToDatabase(MediaServerItem mediaSerItem) {
-        return mediaServerMapper.add(mediaSerItem);
+        return mediaServerMapper.insert(mediaSerItem);
     }
 
     @Override
@@ -350,17 +350,18 @@ public class MediaServerServiceImpl implements IMediaServerService {
         int result = 0;
         if (mediaSerItem.isDefaultServer()) {
             TransactionStatus transactionStatus = dataSourceTransactionManager.getTransaction(transactionDefinition);
-            int delResult = mediaServerMapper.delDefault();
+            int delResult = mediaServerMapper.delete(Wrappers.<MediaServerItem>lambdaQuery()
+                    .eq(MediaServerItem::isDefaultServer, true));
             if (delResult == 0) {
                 logger.error("移除数据库默认zlm节点失败");
                 //事务回滚
                 dataSourceTransactionManager.rollback(transactionStatus);
                 return 0;
             }
-            result = mediaServerMapper.add(mediaSerItem);
+            result = mediaServerMapper.insert(mediaSerItem);
             dataSourceTransactionManager.commit(transactionStatus);     //手动提交
         }else {
-            result = mediaServerMapper.update(mediaSerItem);
+            result = mediaServerMapper.updateById(mediaSerItem);
         }
         return result;
     }
@@ -372,7 +373,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
     @Override
     public void zlmServerOnline(ZLMServerConfig zlmServerConfig) {
 
-        MediaServerItem serverItem = mediaServerMapper.queryOne(zlmServerConfig.getGeneralMediaServerId());
+        MediaServerItem serverItem = mediaServerMapper.selectById(zlmServerConfig.getGeneralMediaServerId());
         if (serverItem == null) {
             logger.warn("[未注册的zlm] 拒接接入：{}来自{}：{}", zlmServerConfig.getGeneralMediaServerId(), zlmServerConfig.getIp(),zlmServerConfig.getHttpPort() );
             logger.warn("请检查ZLM的<general.mediaServerId>配置是否与WVP的<media.id>一致");
@@ -409,7 +410,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
             logger.warn("[未注册的zlm] serverItem缺少ID， 无法接入：{}：{}", zlmServerConfig.getIp(),zlmServerConfig.getHttpPort() );
             return;
         }
-        mediaServerMapper.update(serverItem);
+        mediaServerMapper.updateById(serverItem);
         String key = VideoManagerConstants.MEDIA_SERVER_PREFIX + userSetting.getServerId() + "_" + zlmServerConfig.getGeneralMediaServerId();
         if (!ssrcFactory.hasMediaServerSSRC(serverItem.getId())) {
             ssrcFactory.initMediaServerSSRC(zlmServerConfig.getGeneralMediaServerId(), null);
@@ -636,7 +637,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
 
     @Override
     public MediaServerItem checkMediaServer(String ip, int port, String secret) {
-        if (mediaServerMapper.queryOneByHostAndPort(ip, port) != null) {
+        if (this.getByHostAndPort(ip, port) != null) {
             throw new ControllerException(ErrorCode.ERROR100.getCode(), "此连接已存在");
         }
         MediaServerItem mediaServerItem = new MediaServerItem();
@@ -652,7 +653,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
         if (zlmServerConfig == null) {
             throw new ControllerException(ErrorCode.ERROR100.getCode(), "读取配置失败");
         }
-        if (mediaServerMapper.queryOne(zlmServerConfig.getGeneralMediaServerId()) != null) {
+        if (mediaServerMapper.selectById(zlmServerConfig.getGeneralMediaServerId()) != null) {
             throw new ControllerException(ErrorCode.ERROR100.getCode(), "媒体服务ID [" + zlmServerConfig.getGeneralMediaServerId() + " ] 已存在，请修改媒体服务器配置");
         }
         mediaServerItem.setHttpSSlPort(zlmServerConfig.getHttpPort());
@@ -695,7 +696,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
     @Override
     public void deleteDb(String id){
         //同步删除数据库中的数据
-        mediaServerMapper.delOne(id);
+        mediaServerMapper.deleteById(id);
     }
 
     @Override
@@ -721,13 +722,13 @@ public class MediaServerServiceImpl implements IMediaServerService {
     }
 
     private MediaServerItem getOneFromDatabase(String mediaServerId) {
-        return mediaServerMapper.queryOne(mediaServerId);
+        return mediaServerMapper.selectById(mediaServerId);
     }
 
     @Override
     public void syncCatchFromDatabase() {
         List<MediaServerItem> allInCatch = getAll();
-        List<MediaServerItem> allInDatabase = mediaServerMapper.queryAll();
+        List<MediaServerItem> allInDatabase = mediaServerMapper.selectList(Wrappers.emptyWrapper());
         Map<String, MediaServerItem> mediaServerItemMap = new HashMap<>();
 
         for (MediaServerItem mediaServerItem : allInDatabase) {
@@ -845,5 +846,12 @@ public class MediaServerServiceImpl implements IMediaServerService {
             }
         }
         return CompletableFuture.completedFuture(new ArrayList<>());
+    }
+
+    @Override
+    public MediaServerItem getByHostAndPort(String ip, int port) {
+        return mediaServerMapper.selectOne(Wrappers.<MediaServerItem>lambdaQuery()
+                .eq(MediaServerItem::getIp, ip)
+                .eq(MediaServerItem::getHttpPort, port));
     }
 }

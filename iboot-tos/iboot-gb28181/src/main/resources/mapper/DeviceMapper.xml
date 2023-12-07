@@ -40,7 +40,7 @@
 
     <select id="getDevices" resultMap="BasicMap">
         select a.*, count(a.device_id) channel_count from wvp_device a
-            left join wvp_device_channel wdc on a.device_id=wdc_device_id
+            left join wvp_device_channel wdc on a.device_id=wdc.device_id
         <where>
             <if test="onLine != null">
                 a.on_line=${onLine}
@@ -51,7 +51,7 @@
 
     <select id="getDeviceByDeviceId" resultMap="BasicMap">
         select a.*, count(a.device_id) channel_count from wvp_device a
-            left join wvp_device_channel wdc on a.device_id=wdc_device_id
+            left join wvp_device_channel wdc on a.device_id=wdc.device_id
         WHERE a.device_id = #{deviceId} group by a.device_id
     </select>
 

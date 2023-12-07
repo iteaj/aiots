@@ -115,4 +115,6 @@ public interface IStreamPushService extends IService<StreamPushItem> {
      * @return
      */
     ResourceBaseInfo getOverview();
+
+    boolean deleteByAppAndStream(String app, String stream);
 }

@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.media.zlm.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.media.zlm.dto.hook.OnStreamChangedHookParam;
@@ -9,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@TableName("wvp_stream_push")
+@TableName(value = "wvp_stream_push", excludeProperty = {"gbId", "name", "longitude", "latitude", "streamType"})
 @Schema(description = "推流信息")
 public class StreamPushItem extends GbStream implements Comparable<StreamPushItem>{
 
@@ -20,18 +21,6 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
     private Integer id;
 
     /**
-     * 应用名
-     */
-    @Schema(description = "应用名")
-    private String app;
-
-    /**
-     * 流id
-     */
-    @Schema(description = "流id")
-    private String stream;
-
-    /**
      * 观看总人数，包括hls/rtsp/rtmp/http-flv/ws-flv
      */
     @Schema(description = "观看总人数")
@@ -40,6 +29,7 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
     /**
      * 协议 包括hls/rtsp/rtmp/http-flv/ws-flv
      */
+    @TableField(exist = false)
     @Schema(description = "协议 包括hls/rtsp/rtmp/http-flv/ws-flv")
     private List<MediaSchema> schemas;
 
@@ -55,11 +45,12 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
      * device_chn=7
      */
     @Schema(description = "产生源类型")
-    private int originType;
+    private Integer originType;
 
     /**
      * 客户端和服务器网络信息，可能为null类型
      */
+    @TableField(exist = false)
     @Schema(description = "客户端和服务器网络信息，可能为null类型")
     private OnStreamChangedHookParam.OriginSock originSock;
 
@@ -72,6 +63,7 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
     /**
      * 产生源的url
      */
+    @TableField(exist = false)
     @Schema(description = "产生源的url")
     private String originUrl;
 
@@ -84,24 +76,21 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
     /**
      * 音视频轨道
      */
+    @TableField(exist = false)
     @Schema(description = "音视频轨道")
     private List<OnStreamChangedHookParam.MediaTrack> tracks;
 
     /**
      * 音视频轨道
      */
+    @TableField(exist = false)
     @Schema(description = "音视频轨道")
     private String vhost;
 
     /**
-     * 使用的流媒体ID
-     */
-    @Schema(description = "使用的流媒体ID")
-    private String mediaServerId;
-
-    /**
      * 使用的服务ID
      */
+    @TableField(exist = false)
     @Schema(description = "使用的服务ID")
     private String serverId;
 
@@ -118,24 +107,16 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
     private String updateTime;
 
     /**
-     * 创建时间
-     */
-    @Schema(description = "创建时间")
-    private String createTime;
-
-    /**
      * 是否正在推流
      */
     @Schema(description = "是否正在推流")
-    private boolean pushIng;
+    private Boolean pushIng;
 
     /**
      * 是否自己平台的推流
      */
     @Schema(description = "是否自己平台的推流")
-    private boolean self;
-
-
+    private Boolean self;
 
     public String getVhost() {
         return vhost;
@@ -145,10 +126,9 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
         this.vhost = vhost;
     }
 
-
     @Override
     public int compareTo(@NotNull StreamPushItem streamPushItem) {
-        return Long.valueOf(DateUtil.yyyy_MM_dd_HH_mm_ssToTimestamp(super.createTime)
+        return Long.valueOf(DateUtil.yyyy_MM_dd_HH_mm_ssToTimestamp(this.getCreateTime())
                 - DateUtil.yyyy_MM_dd_HH_mm_ssToTimestamp(streamPushItem.getCreateTime())).intValue();
     }
 
@@ -179,26 +159,6 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    @Override
-    public String getApp() {
-        return app;
-    }
-
-    @Override
-    public void setApp(String app) {
-        this.app = app;
-    }
-
-    @Override
-    public String getStream() {
-        return stream;
-    }
-
-    @Override
-    public void setStream(String stream) {
-        this.stream = stream;
     }
 
     public String getTotalReaderCount() {
@@ -266,17 +226,6 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
         this.tracks = tracks;
     }
 
-
-    @Override
-    public String getMediaServerId() {
-        return mediaServerId;
-    }
-
-    @Override
-    public void setMediaServerId(String mediaServerId) {
-        this.mediaServerId = mediaServerId;
-    }
-
     public String getServerId() {
         return serverId;
     }
@@ -284,7 +233,6 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
     public void setServerId(String serverId) {
         this.serverId = serverId;
     }
-
 
     public String getPushTime() {
         return pushTime;
@@ -302,16 +250,6 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
         this.updateTime = updateTime;
     }
 
-    @Override
-    public String getCreateTime() {
-        return createTime;
-    }
-
-    @Override
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
-    }
-
     public boolean isPushIng() {
         return pushIng;
     }
@@ -327,65 +265,6 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
     public void setSelf(boolean self) {
         this.self = self;
     }
-
-//    @Override
-//    public Integer getGbStreamId() {
-//        return super.getGbStreamId();
-//    }
-//
-//    @Override
-//    public void setGbStreamId(Integer gbStreamId) {
-//        super.setGbStreamId(gbStreamId);
-//    }
-//
-//
-//    public String getGbId() {
-//        return super.getGbId();
-//    }
-//
-//    public void setGbId(String gbId) {
-//       super.setGbId(gbId);
-//    }
-//
-//    public String getName() {
-//        return super.getName();
-//    }
-//
-//    public void setName(String name) {
-//        super.setName(name);
-//    }
-//
-//    public double getLongitude() {
-//        return super.getLongitude();
-//    }
-//
-//    public void setLongitude(double longitude) {
-//        super.setLongitude(longitude);
-//    }
-//
-//    public double getLatitude() {
-//        return super.getLatitude();
-//    }
-//
-//    public void setLatitude(double latitude) {
-//        super.setLatitude(latitude);
-//    }
-//
-//    public String getStreamType() {
-//        return super.getStreamType();
-//    }
-//
-//    public void setStreamType(String streamType) {
-//        super.setStreamType(streamType);
-//    }
-//
-//    public boolean isStatus() {
-//        return super.isStatus();
-//    }
-//
-//    public void setStatus(boolean status) {
-//        super.setStatus(status);
-//    }
 
 }
 

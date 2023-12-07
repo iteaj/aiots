@@ -307,7 +307,7 @@ public class PlatformController {
     @Parameter(name = "channelType", description = "通道类型")
     @GetMapping("/channel_list")
     @ResponseBody
-    public Page<ChannelReduce> channelList(int page, int count,
+    public Page<ChannelReduce> channelList(Page page,
                                                @RequestParam(required = false) String platformId,
                                                @RequestParam(required = false) String catalogId,
                                                @RequestParam(required = false) String query,
@@ -323,7 +323,7 @@ public class PlatformController {
         if (ObjectUtils.isEmpty(platformId) || ObjectUtils.isEmpty(catalogId)) {
             catalogId = null;
         }
-        Page<ChannelReduce> channelReduces = storager.queryAllChannelList(page, count, query, online, channelType, platformId, catalogId);
+        Page<ChannelReduce> channelReduces = storager.queryAllChannelList(page, query, online, channelType, platformId, catalogId);
 
         return channelReduces;
     }

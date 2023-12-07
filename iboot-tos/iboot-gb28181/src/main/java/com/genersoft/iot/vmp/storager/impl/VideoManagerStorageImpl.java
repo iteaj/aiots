@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.storager.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.conf.SipConfig;
@@ -8,8 +9,11 @@ import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.gb28181.event.EventPublisher;
 import com.genersoft.iot.vmp.gb28181.event.subscribe.catalog.CatalogEvent;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
+import com.genersoft.iot.vmp.media.zlm.dto.StreamPushItem;
 import com.genersoft.iot.vmp.service.IDeviceChannelService;
+import com.genersoft.iot.vmp.service.IDeviceService;
 import com.genersoft.iot.vmp.service.IGbStreamService;
+import com.genersoft.iot.vmp.service.IStreamPushService;
 import com.genersoft.iot.vmp.service.bean.GPSMsgInfo;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
@@ -55,8 +59,11 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	@Autowired
 	DataSourceTransactionManager dataSourceTransactionManager;
 
+//	@Autowired
+//    private DeviceMapper deviceMapper;
+
 	@Autowired
-    private DeviceMapper deviceMapper;
+	private IDeviceService deviceService;
 
 	@Autowired
 	private DeviceChannelMapper deviceChannelMapper;
@@ -86,6 +93,9 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
     private StreamPushMapper streamPushMapper;
 
 	@Autowired
+	private IStreamPushService streamPushService;
+
+	@Autowired
     private GbStreamMapper gbStreamMapper;
 
 	@Autowired
@@ -111,7 +121,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public boolean exists(String deviceId) {
-		return deviceMapper.getDeviceByDeviceId(deviceId) != null;
+		return deviceService.getDeviceMapper().getDeviceByDeviceId(deviceId) != null;
 	}
 
 	@Override
@@ -119,7 +129,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 		if (CollectionUtils.isEmpty(deviceChannelList)) {
 			return false;
 		}
-		List<DeviceChannel> allChannels = deviceChannelMapper.queryAllChannels(deviceId);
+		List<DeviceChannel> allChannels = deviceChannelService.selectChannelsByDeviceId(deviceId);
 		Map<String,DeviceChannel> allChannelMap = new ConcurrentHashMap<>();
 		if (allChannels.size() > 0) {
 			for (DeviceChannel deviceChannel : allChannels) {
@@ -213,10 +223,10 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 						if (i + limitCount > deleteChannels.size()) {
 							toIndex = deleteChannels.size();
 						}
-						result = result || deviceChannelMapper.batchDel(deleteChannels.subList(i, toIndex)) < 0;
+						result = result || deviceChannelService.deleteChannels(deleteChannels.subList(i, toIndex)) < 0;
 					}
 				}else {
-					result = result || deviceChannelMapper.batchDel(deleteChannels) < 0;
+					result = result || deviceChannelService.deleteChannels(deleteChannels) < 0;
 				}
 			}
 
@@ -240,7 +250,8 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 		if (CollectionUtils.isEmpty(deviceChannelList)) {
 			return false;
 		}
-		List<DeviceChannel> allChannels = deviceChannelMapper.queryAllChannels(deviceId);
+
+		List<DeviceChannel> allChannels = deviceChannelService.selectChannelsByDeviceId(deviceId);
 		Map<String,DeviceChannel> allChannelMap = new ConcurrentHashMap<>();
 		if (allChannels.size() > 0) {
 			for (DeviceChannel deviceChannel : allChannels) {
@@ -384,22 +395,24 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public Device queryVideoDevice(String deviceId) {
-		return deviceMapper.getDeviceByDeviceId(deviceId);
+		return deviceService.getDeviceMapper().getDeviceByDeviceId(deviceId);
 	}
 
 	@Override
 	public Page queryChannelsByDeviceId(Page page, String deviceId, String query, Boolean hasSubChannel, Boolean online, Boolean catalogUnderDevice) {
 		// 获取到所有正在播放的流
-		List<DeviceChannel> all;
 		if (catalogUnderDevice != null && catalogUnderDevice) {
-			all = deviceChannelMapper.queryChannels(deviceId, deviceId, query, hasSubChannel, online,null);
+//			all = deviceChannelMapper.queryChannels(deviceId, deviceId, query, hasSubChannel, online,null);
+//			// 海康设备的parentId是SIP id
+//			List<DeviceChannel> deviceChannels = deviceChannelMapper.queryChannels(deviceId, sipConfig.getId(), query, hasSubChannel, online,null);
+//			all.addAll(deviceChannels);
 			// 海康设备的parentId是SIP id
-			List<DeviceChannel> deviceChannels = deviceChannelMapper.queryChannels(deviceId, sipConfig.getId(), query, hasSubChannel, online,null);
-			all.addAll(deviceChannels);
+			deviceChannelMapper.queryChannelsByPage(page, deviceId, sipConfig.getId(), query, hasSubChannel, online,null);
 		}else {
-			all = deviceChannelMapper.queryChannels(deviceId, null, query, hasSubChannel, online,null);
+			deviceChannelMapper.queryChannelsByPage(page, deviceId, null, query, hasSubChannel, online,null);
 		}
-		return new PageInfo<>(all);
+
+		return page;
 	}
 
 	@Override
@@ -419,10 +432,8 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	}
 
 	@Override
-	public PageInfo<DeviceChannel> querySubChannels(String deviceId, String parentChannelId, String query, Boolean hasSubChannel, Boolean online, int page, int count) {
-		PageHelper.startPage(page, count);
-		List<DeviceChannel> all = deviceChannelMapper.queryChannels(deviceId, parentChannelId, query, hasSubChannel, online,null);
-		return new PageInfo<>(all);
+	public Page<DeviceChannel> querySubChannels(Page page, String deviceId, String parentChannelId, String query, Boolean hasSubChannel, Boolean online) {
+		return deviceChannelMapper.queryChannelsByPage(page, deviceId, parentChannelId, query, hasSubChannel, online,null);
 	}
 
 	@Override
@@ -444,25 +455,12 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 * 获取多个设备
 	 *
 	 * @param page 当前页数
-	 * @param count 每页数量
-	 * @return PageInfo<Device> 分页设备对象数组
+	 * @param online 每页数量
+	 * @return Page<Device> 分页设备对象数组
 	 */
 	@Override
-	public PageInfo<Device> queryVideoDeviceList(int page, int count,Boolean online) {
-		PageHelper.startPage(page, count);
-		List<Device> all = deviceMapper.getDevices(online);
-		return new PageInfo<>(all);
-	}
-
-	/**
-	 * 获取多个设备
-	 *
-	 * @return List<Device> 设备对象数组
-	 */
-	@Override
-	public List<Device> queryVideoDeviceList(Boolean online) {
-		List<Device> deviceList =  deviceMapper.getDevices(online);
-		return deviceList;
+	public Page<Device> queryVideoDeviceList(Page page, Boolean online) {
+		return deviceService.getDeviceMapper().getDevices(page, online);
 	}
 
 	/**
@@ -491,7 +489,12 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public synchronized List<MobilePosition> queryMobilePositions(String deviceId, String channelId, String startTime, String endTime) {
-		return deviceMobilePositionMapper.selectOne(deviceId, channelId, startTime, endTime);
+		return deviceMobilePositionMapper.selectList(Wrappers.<MobilePosition>lambdaQuery()
+				.eq(MobilePosition::getDeviceId, deviceId)
+				.eq(StrUtil.isNotBlank(channelId), MobilePosition::getChannelId, channelId)
+				.ge(StrUtil.isNotBlank(startTime), MobilePosition::getTime, startTime)
+				.le(StrUtil.isNotBlank(endTime), MobilePosition::getTime, endTime)
+				.orderByAsc(MobilePosition::getTime));
 	}
 
 	@Override
@@ -572,7 +575,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public List<Device> queryDeviceWithAsMessageChannel() {
-		return deviceMapper.selectList(Wrappers.<Device>lambdaQuery().eq(Device::isAsMessageChannel, true));
+		return deviceService.getDeviceMapper().selectList(Wrappers.<Device>lambdaQuery().eq(Device::isAsMessageChannel, true));
 	}
 
 	@Override
@@ -582,11 +585,8 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 
 	@Override
-	public Page<ChannelReduce> queryAllChannelList(int page, int count, String query, Boolean online,
-													   Boolean channelType, String platformId, String catalogId) {
-		PageHelper.startPage(page, count);
-		List<ChannelReduce> all = deviceChannelMapper.queryChannelListInAll(query, online, channelType, platformId, catalogId);
-		return new PageInfo<>(all);
+	public Page<ChannelReduce> queryAllChannelList(Page page, String query, Boolean online, Boolean channelType, String platformId, String catalogId) {
+		return deviceChannelMapper.queryChannelListByPage(page, query, online, channelType, platformId, catalogId);
 	}
 
 	@Override
@@ -672,7 +672,9 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public MobilePosition queryLatestPosition(String deviceId) {
-		return deviceMobilePositionMapper.queryLatestPositionByDevice(deviceId);
+		return deviceMobilePositionMapper.selectOne(Wrappers.<MobilePosition>lambdaQuery()
+				.eq(MobilePosition::getDeviceId, deviceId)
+				.orderByDesc(MobilePosition::getTime).last("limit 1"));
 	}
 
 	/**
@@ -681,7 +683,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public int clearMobilePositionsByDeviceId(String deviceId) {
-		return deviceMobilePositionMapper.clearMobilePositionsByDeviceId(deviceId);
+		return deviceMobilePositionMapper.delete(Wrappers.<MobilePosition>lambdaQuery().eq(MobilePosition::getDeviceId, deviceId));
 	}
 
 
@@ -709,14 +711,11 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	/**
 	 * 分页查询代理流列表
 	 * @param page
-	 * @param count
 	 * @return
 	 */
 	@Override
-	public PageInfo<StreamProxyItem> queryStreamProxyList(Integer page, Integer count) {
-		PageHelper.startPage(page, count);
-		List<StreamProxyItem> all = streamProxyMapper.selectAll();
-		return new PageInfo<>(all);
+	public Page<StreamProxyItem> queryStreamProxyList(Page page, StreamProxyItem entity) {
+		return streamProxyMapper.listDetailByPage(page, entity);
 	}
 
 	/**
@@ -753,12 +752,14 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public int removeMedia(String app, String stream) {
-		return streamPushMapper.del(app, stream);
+		return streamPushService.getBaseMapper().delete(Wrappers.<StreamPushItem>lambdaQuery()
+				.eq(StreamPushItem::getApp, app)
+				.eq(StreamPushItem::getStream, stream));
 	}
 
 	@Override
 	public int mediaOffline(String app, String stream) {
-		GbStream gbStream = gbStreamMapper.selectOne(app, stream);
+		GbStream gbStream = gbStreamService.selectByAppAndStream(app, stream);
 		int result;
 		if ("proxy".equals(gbStream.getStreamType())) {
 			result = streamProxyMapper.updateStatus(app, stream, false);
@@ -770,7 +771,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public int mediaOnline(String app, String stream) {
-		GbStream gbStream = gbStreamMapper.selectOne(app, stream);
+		GbStream gbStream = gbStreamService.selectByAppAndStream(app, stream);
 		int result;
 		if ("proxy".equals(gbStream.getStreamType())) {
 			result = streamProxyMapper.updateStatus(app, stream, true);
@@ -794,9 +795,10 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	@Override
 	public Device queryVideoDeviceByChannelId( String channelId) {
 		Device result = null;
-		List<DeviceChannel> channelList = deviceChannelMapper.queryChannelByChannelId(channelId);
+		List<DeviceChannel> channelList = deviceChannelService.list(Wrappers.<DeviceChannel>lambdaQuery()
+				.eq(DeviceChannel::getChannelId, channelId)).getData();
 		if (channelList.size() == 1) {
-			result = deviceMapper.getDeviceByDeviceId(channelList.get(0).getDeviceId());
+			result = deviceService.getDeviceMapper().getDeviceByDeviceId(channelList.get(0).getDeviceId());
 		}
 		return result;
 	}
@@ -1025,11 +1027,6 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	}
 
 	@Override
-	public List<DeviceChannel> queryOnlineChannelsByDeviceId(String deviceId) {
-		return deviceChannelMapper.queryOnlineChannelsByDeviceId(deviceId);
-	}
-
-	@Override
 	public List<ParentPlatform> queryPlatFormListForGBWithGBId(String channelId, List<String> platforms) {
 		return platformChannelMapper.queryPlatFormListForGBWithGBId(channelId, platforms);
 	}
@@ -1044,7 +1041,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public GbStream getGbStream(String app, String streamId) {
-		return gbStreamMapper.selectOne(app, streamId);
+		return gbStreamService.selectByAppAndStream(app, streamId);
 	}
 
 	@Override
@@ -1077,7 +1074,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 			deviceChannel.setGpsTime(DateUtil.getNow());
 		}
 
-		deviceChannelMapper.updatePosition(deviceChannel);
+		deviceChannelService.updatePosition(deviceChannel);
 	}
 
 	@Override

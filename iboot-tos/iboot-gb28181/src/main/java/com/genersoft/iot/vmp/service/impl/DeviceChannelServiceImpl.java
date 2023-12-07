@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.genersoft.iot.vmp.common.InviteInfo;
 import com.genersoft.iot.vmp.common.InviteSessionType;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,13 +91,13 @@ public class DeviceChannelServiceImpl extends BaseServiceImpl<DeviceChannelMappe
         }
         String now = DateUtil.getNow();
         channel.setUpdateTime(now);
-        DeviceChannel deviceChannel = channelMapper.queryChannel(deviceId, channelId);
+        DeviceChannel deviceChannel = this.getOne(deviceId, channelId);
         channel = updateGps(channel, null);
         if (deviceChannel == null) {
             channel.setCreateTime(now);
-            channelMapper.add(channel);
+            channelMapper.insert(channel);
         }else {
-            channelMapper.update(channel);
+            channelMapper.updateById(channel);
         }
         channelMapper.updateChannelSubCount(deviceId,channel.getParentId());
     }
@@ -166,10 +168,8 @@ public class DeviceChannelServiceImpl extends BaseServiceImpl<DeviceChannelMappe
 
     @Override
     public ResourceBaseInfo getOverview() {
-
         int online = channelMapper.getOnlineCount();
-        int total = channelMapper.getAllChannelCount();
-
+        int total = channelMapper.selectCount(Wrappers.emptyWrapper());
         return new ResourceBaseInfo(total, online);
     }
 
@@ -209,18 +209,24 @@ public class DeviceChannelServiceImpl extends BaseServiceImpl<DeviceChannelMappe
 
     @Override
     public List<Device> getDeviceByChannelId(String channelId) {
-
         return channelMapper.getDeviceByChannelId(channelId);
     }
 
     @Override
     public int deleteChannels(List<DeviceChannel> deleteChannelList) {
-        this.re
+        if(CollectionUtils.isEmpty(deleteChannelList)) {
+            return 0;
+        }
+
        return channelMapper.batchDel(deleteChannelList);
     }
 
     @Override
     public int channelsOnline(List<DeviceChannel> channels) {
+        if(CollectionUtils.isEmpty(channels)) {
+            return 0;
+        }
+
         return channelMapper.batchOnline(channels);
     }
 
@@ -231,7 +237,9 @@ public class DeviceChannelServiceImpl extends BaseServiceImpl<DeviceChannelMappe
 
     @Override
     public DeviceChannel getOne(String deviceId, String channelId){
-        return channelMapper.queryChannel(deviceId, channelId);
+        return channelMapper.selectOne(Wrappers.<DeviceChannel>lambdaQuery()
+                .eq(DeviceChannel::getDeviceId, deviceId)
+                .eq(DeviceChannel::getChannelId, channelId));
     }
 
     @Override
@@ -254,5 +262,28 @@ public class DeviceChannelServiceImpl extends BaseServiceImpl<DeviceChannelMappe
         }
     }
 
+    @Override
+    public List<DeviceChannel> selectChannelsByDeviceId(String deviceId) {
+        return this.list(Wrappers.<DeviceChannel>lambdaQuery().eq(DeviceChannel::getDeviceId, deviceId)).getData();
+    }
 
+    @Override
+    public List<DeviceChannel> getAllChannelWithCoordinate(String deviceId) {
+        return this.list(Wrappers.<DeviceChannel>lambdaQuery()
+                .eq(DeviceChannel::getDeviceId, deviceId)
+                .apply("longitude*latitude > 0"))
+                .getData();
+    }
+
+    @Override
+    public void updatePosition(DeviceChannel deviceChannel) {
+        this.update(deviceChannel, Wrappers.<DeviceChannel>lambdaUpdate()
+                .eq(DeviceChannel::getDeviceId, deviceChannel.getDeviceId())
+                .eq(deviceChannel.getChannelId() != null, DeviceChannel::getChannelId, deviceChannel.getChannelId()));
+    }
+
+    @Override
+    public DeviceChannel getByDeviceIdAndChannelId(String deviceId, String channelId) {
+        return this.getOne(deviceId, channelId);
+    }
 }

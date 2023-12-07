@@ -3,6 +3,7 @@ package com.genersoft.iot.vmp.service.impl;
 import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.gb28181.event.EventPublisher;
 import com.genersoft.iot.vmp.gb28181.event.subscribe.catalog.CatalogEvent;
+import com.genersoft.iot.vmp.service.IDeviceChannelService;
 import com.genersoft.iot.vmp.service.IPlatformChannelService;
 import com.genersoft.iot.vmp.storager.dao.DeviceChannelMapper;
 import com.genersoft.iot.vmp.storager.dao.ParentPlatformMapper;
@@ -43,6 +44,8 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
     @Autowired
     private SubscribeHolder subscribeHolder;
 
+    @Autowired
+    private IDeviceChannelService deviceChannelService;
 
     @Autowired
     private DeviceChannelMapper deviceChannelMapper;
@@ -128,7 +131,7 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
             PlatformCatalog catalog = catalogManager.selectByPlatFormAndCatalogId(platform.getServerGBId(),catalogId);
             if (catalog == null && catalogId.equals(platform.getDeviceGBId())) {
                 for (ChannelReduce channelReduce : channelReduces) {
-                    DeviceChannel deviceChannel = deviceChannelMapper.queryChannel(channelReduce.getDeviceId(), channelReduce.getChannelId());
+                    DeviceChannel deviceChannel = deviceChannelService.getByDeviceIdAndChannelId(channelReduce.getDeviceId(), channelReduce.getChannelId());
                     deviceChannel.setParental(0);
                     deviceChannel.setCivilCode(platform.getServerGBDomain());
                     deviceChannelList.add(deviceChannel);
@@ -139,7 +142,7 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
                 return null;
             }
             for (ChannelReduce channelReduce : channelReduces) {
-                DeviceChannel deviceChannel = deviceChannelMapper.queryChannel(channelReduce.getDeviceId(), channelReduce.getChannelId());
+                DeviceChannel deviceChannel = deviceChannelService.getByDeviceIdAndChannelId(channelReduce.getDeviceId(), channelReduce.getChannelId());
                 deviceChannel.setParental(0);
                 deviceChannel.setCivilCode(catalog.getCivilCode());
                 deviceChannel.setParentId(catalog.getParentId());

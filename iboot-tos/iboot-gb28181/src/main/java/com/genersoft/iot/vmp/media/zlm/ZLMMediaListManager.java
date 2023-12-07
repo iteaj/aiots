@@ -1,9 +1,11 @@
 package com.genersoft.iot.vmp.media.zlm;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.genersoft.iot.vmp.conf.UserSetting;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.media.zlm.dto.*;
 import com.genersoft.iot.vmp.media.zlm.dto.hook.OnStreamChangedHookParam;
+import com.genersoft.iot.vmp.service.IGbStreamService;
 import com.genersoft.iot.vmp.service.IMediaServerService;
 import com.genersoft.iot.vmp.service.IStreamProxyService;
 import com.genersoft.iot.vmp.service.IStreamPushService;
@@ -43,6 +45,9 @@ public class ZLMMediaListManager {
     private GbStreamMapper gbStreamMapper;
 
     @Autowired
+    private IGbStreamService gbStreamService;
+
+    @Autowired
     private PlatformGbStreamMapper platformGbStreamMapper;
 
     @Autowired
@@ -79,7 +84,9 @@ public class ZLMMediaListManager {
             transform.setCreateTime(DateUtil.getNow());
             streamPushMapper.insert(transform);
         }else {
-            streamPushMapper.update(transform);
+            streamPushService.update(transform, Wrappers.<StreamPushItem>lambdaUpdate()
+                    .eq(StreamPushItem::getApp, transform.getApp())
+                    .eq(StreamPushItem::getStream, transform.getStream()));
             gbStreamMapper.updateMediaServer(onStreamChangedHookParam.getApp(), onStreamChangedHookParam.getStream(), onStreamChangedHookParam.getMediaServerId());
         }
         ChannelOnlineEvent channelOnlineEventLister = getChannelOnlineEventLister(transform.getApp(), transform.getStream());
@@ -113,7 +120,7 @@ public class ZLMMediaListManager {
 
     public int removeMedia(String app, String streamId) {
         // 查找是否关联了国标， 关联了不删除， 置为离线
-        GbStream gbStream = gbStreamMapper.selectOne(app, streamId);
+        GbStream gbStream = gbStreamService.selectByAppAndStream(app, streamId);
         int result;
         if (gbStream == null) {
             result = storager.removeMedia(app, streamId);

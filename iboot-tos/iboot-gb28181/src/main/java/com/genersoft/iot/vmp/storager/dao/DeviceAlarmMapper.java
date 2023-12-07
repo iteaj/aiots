@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.storager.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceAlarm;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -15,11 +16,7 @@ import java.util.List;
  */
 @Mapper
 @Repository
-public interface DeviceAlarmMapper {
-
-    @Insert("INSERT INTO wvp_device_alarm (device_id, channel_id, alarm_priority, alarm_method, alarm_time, alarm_description, longitude, latitude, alarm_type , create_time ) " +
-            "VALUES (#{deviceId}, #{channelId}, #{alarmPriority}, #{alarmMethod}, #{alarmTime}, #{alarmDescription}, #{longitude}, #{latitude}, #{alarmType}, #{createTime})")
-    int add(DeviceAlarm alarm);
+public interface DeviceAlarmMapper extends BaseMapper<DeviceAlarm> {
 
 
     @Select( value = {" <script>" +

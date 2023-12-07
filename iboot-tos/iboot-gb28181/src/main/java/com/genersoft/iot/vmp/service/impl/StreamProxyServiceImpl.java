@@ -2,6 +2,7 @@ package com.genersoft.iot.vmp.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.common.GeneralCallback;
 import com.genersoft.iot.vmp.common.StreamInfo;
 import com.genersoft.iot.vmp.conf.DynamicTask;
@@ -30,7 +31,6 @@ import com.genersoft.iot.vmp.storager.dao.StreamProxyMapper;
 import com.genersoft.iot.vmp.utils.DateUtil;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.bean.ResourceBaseInfo;
-import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -286,7 +286,7 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
         try {
             if (streamProxyMapper.update(streamProxyItem) > 0) {
                 if (!ObjectUtils.isEmpty(streamProxyItem.getGbId())) {
-                    if (gbStreamMapper.updateByAppAndStream(streamProxyItem) == 0) {
+                    if (!gbStreamService.updateByAppAndStream(streamProxyItem)) {
                         //事务回滚
                         dataSourceTransactionManager.rollback(transactionStatus);
                         return false;
@@ -366,8 +366,8 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
     }
 
     @Override
-    public PageInfo<StreamProxyItem> getAll(Integer page, Integer count) {
-        return videoManagerStorager.queryStreamProxyList(page, count);
+    public Page<StreamProxyItem> getAll(Page page, StreamProxyItem entity) {
+        return videoManagerStorager.queryStreamProxyList(page, entity);
     }
 
     @Override
@@ -378,7 +378,7 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
 
             // 如果关联了国标那么移除关联
             platformGbStreamMapper.delByAppAndStream(app, stream);
-            gbStreamMapper.del(app, stream);
+            gbStreamService.del(app, stream);
             videoManagerStorager.deleteStreamProxy(app, stream);
             redisCatchStorage.removeStream(streamProxyItem.getMediaServerId(), "PULL", app, stream);
             JSONObject jsonObject = removeStreamProxyFromZlm(streamProxyItem);

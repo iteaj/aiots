@@ -1,22 +1,18 @@
 package com.genersoft.iot.vmp.media.zlm.dto;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * @author lin
  */
+@TableName(value = "wvp_stream_proxy", excludeProperty = {"gbId", "longitude", "latitude", "streamType"})
 @Schema(description = "拉流代理的信息")
 public class StreamProxyItem extends GbStream {
 
     @Schema(description = "类型")
     private String type;
-    @Schema(description = "应用名")
-    private String app;
-    @Schema(description = "流ID")
-    private String stream;
-    @Schema(description = "流媒体服务ID")
-    private String mediaServerId;
     @Schema(description = "拉流地址")
     private String url;
     @Schema(description = "拉流地址")
@@ -30,19 +26,24 @@ public class StreamProxyItem extends GbStream {
     @Schema(description = "rtsp拉流时，拉流方式，0：tcp，1：udp，2：组播")
     private String rtpType;
     @Schema(description = "是否启用")
-    private boolean enable;
+    private Boolean enable;
     @Schema(description = "是否启用音频")
-    private boolean enableAudio;
+    private Boolean enableAudio;
     @Schema(description = "是否启用MP4")
-    private boolean enableMp4;
+    private Boolean enableMp4;
     @Schema(description = "是否 无人观看时删除")
-    private boolean enableRemoveNoneReader;
+    private Boolean enableRemoveNoneReader;
 
     @Schema(description = "是否 无人观看时自动停用")
-    private boolean enableDisableNoneReader;
+    private Boolean enableDisableNoneReader;
 
     @Schema(description = "拉流代理时zlm返回的key，用于停止拉流代理")
     private String streamKey;
+    /**
+     * 更新时间
+     */
+    @Schema(description = "更新时间")
+    private String updateTime;
 
     public String getType() {
         return type;
@@ -50,36 +51,6 @@ public class StreamProxyItem extends GbStream {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    @Override
-    public String getApp() {
-        return app;
-    }
-
-    @Override
-    public void setApp(String app) {
-        this.app = app;
-    }
-
-    @Override
-    public String getStream() {
-        return stream;
-    }
-
-    @Override
-    public void setStream(String stream) {
-        this.stream = stream;
-    }
-
-    @Override
-    public String getMediaServerId() {
-        return mediaServerId;
-    }
-
-    @Override
-    public void setMediaServerId(String mediaServerId) {
-        this.mediaServerId = mediaServerId;
     }
 
     public String getUrl() {

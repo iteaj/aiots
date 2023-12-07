@@ -1,10 +1,12 @@
 package com.genersoft.iot.vmp.media.zlm.dto;
 
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.genersoft.iot.vmp.media.zlm.ZLMServerConfig;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.util.ObjectUtils;
 
+@TableName("wvp_media_server")
 @Schema(description = "流媒体服务信息")
 public class MediaServerItem{
 

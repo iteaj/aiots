@@ -89,4 +89,17 @@ public interface IDeviceChannelService extends IBaseService<DeviceChannel> {
      * 直接批量添加
      */
     void batchAddChannel(List<DeviceChannel> deviceChannels);
+
+    /**
+     * 查询指定设备下面的通道
+     * @param deviceId
+     * @return
+     */
+    List<DeviceChannel> selectChannelsByDeviceId(String deviceId);
+
+    List<DeviceChannel> getAllChannelWithCoordinate(String deviceId);
+
+    void updatePosition(DeviceChannel deviceChannel);
+
+    DeviceChannel getByDeviceIdAndChannelId(String deviceId, String channelId);
 }

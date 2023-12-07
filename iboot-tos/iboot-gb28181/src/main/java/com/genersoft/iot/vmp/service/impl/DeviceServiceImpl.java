@@ -157,7 +157,7 @@ public class DeviceServiceImpl implements IDeviceService {
                     // TODO 如果设备下的通道级联到了其他平台，那么需要发送事件或者notify给上级平台
                 }
             }else {
-                if (deviceChannelMapper.queryAllChannels(device.getDeviceId()).size() == 0) {
+                if (deviceChannelMapper.isChannel(device.getDeviceId())) {
                     logger.info("[设备上线]: {}，通道数为0,查询通道信息", device.getDeviceId());
                     sync(device);
                 }
@@ -387,7 +387,7 @@ public class DeviceServiceImpl implements IDeviceService {
      * 更新通道坐标系
      */
     private void updateDeviceChannelGeoCoordSys(Device device) {
-       List<DeviceChannel> deviceChannels =  deviceChannelMapper.getAllChannelWithCoordinate(device.getDeviceId());
+       List<DeviceChannel> deviceChannels =  deviceChannelService.getAllChannelWithCoordinate(device.getDeviceId());
        if (deviceChannels.size() > 0) {
            List<DeviceChannel> deviceChannelsForStore = new ArrayList<>();
            for (DeviceChannel deviceChannel : deviceChannels) {
@@ -495,7 +495,10 @@ public class DeviceServiceImpl implements IDeviceService {
                     }
                 }
             }
-            deviceChannelMapper.clearPlay(device.getDeviceId());
+
+            deviceChannelMapper.update(null, Wrappers.<DeviceChannel>lambdaUpdate()
+                    .set(DeviceChannel::getStreamId, null)
+                    .eq(DeviceChannel::getDeviceId, device.getDeviceId()));
             inviteStreamService.clearInviteInfo(device.getDeviceId());
         }
 
@@ -571,7 +574,7 @@ public class DeviceServiceImpl implements IDeviceService {
         deviceInStore.setSsrcCheck(device.isSsrcCheck());
         //作为消息通道
         deviceInStore.setAsMessageChannel(device.isAsMessageChannel());
-        
+
         // 更新redis
         this.updateByDeviceId(deviceInStore);
         redisCatchStorage.removeDevice(deviceInStore.getDeviceId());
@@ -617,8 +620,14 @@ public class DeviceServiceImpl implements IDeviceService {
                 .eq(Device::getDeviceId, device.getDeviceId()));
     }
 
+    @Override
     public int deleteByDeviceId(String deviceId) {
         return deviceMapper.delete(Wrappers.<Device>lambdaQuery()
                 .eq(Device::getDeviceId, deviceId));
+    }
+
+    @Override
+    public DeviceMapper getDeviceMapper() {
+        return deviceMapper;
     }
 }

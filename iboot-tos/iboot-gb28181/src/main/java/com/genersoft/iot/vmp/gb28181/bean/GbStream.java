@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @TableName("wvp_gb_stream")
 @Schema(description = "直播流关联国标上级平台")
-public class GbStream extends PlatformGbStream{
+public class GbStream extends PlatformGbStream {
 
     @Schema(description = "应用名")
     private String app;
@@ -37,10 +37,10 @@ public class GbStream extends PlatformGbStream{
     private String streamType;
 
     @Schema(description = "状态")
-    private boolean status;
+    private Boolean status;
 
     @Schema(description = "创建时间")
-    public String createTime;
+    private String createTime;
 
     @TableField(exist = false)
     private String query;
@@ -123,5 +123,13 @@ public class GbStream extends PlatformGbStream{
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
     }
 }

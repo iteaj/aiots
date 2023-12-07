@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.vmanager.streamProxy;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.common.StreamInfo;
 import com.genersoft.iot.vmp.conf.UserSetting;
 import com.genersoft.iot.vmp.conf.exception.ControllerException;
@@ -13,7 +14,6 @@ import com.genersoft.iot.vmp.service.IStreamProxyService;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.bean.StreamContent;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
-import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,12 +59,8 @@ public class StreamProxyController {
     @Parameter(name = "online", description = "是否在线")
     @GetMapping(value = "/list")
     @ResponseBody
-    public PageInfo<StreamProxyItem> list(@RequestParam(required = false)Integer page,
-                                          @RequestParam(required = false)Integer count,
-                                          @RequestParam(required = false)String query,
-                                          @RequestParam(required = false)Boolean online ){
-
-        return streamProxyService.getAll(page, count);
+    public Page<StreamProxyItem> list(Page page, StreamProxyItem entity ){
+        return streamProxyService.getAll(page, entity);
     }
 
     @Operation(summary = "查询流代理")

@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.vmanager.gb28181.device;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.conf.DynamicTask;
 import com.genersoft.iot.vmp.conf.exception.ControllerException;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
@@ -20,12 +21,11 @@ import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
-import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.ibatis.annotations.Options;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +53,9 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/device/query")
 public class DeviceQuery {
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(DeviceQuery.class);
-	
+
 	@Autowired
 	private IVideoManagerStorage storager;
 
@@ -67,10 +67,10 @@ public class DeviceQuery {
 
 	@Autowired
 	private IInviteStreamService inviteStreamService;
-	
+
 	@Autowired
 	private SIPCommander cmder;
-	
+
 	@Autowired
 	private DeferredResultHolder resultHolder;
 
@@ -89,14 +89,13 @@ public class DeviceQuery {
 	@Parameter(name = "deviceId", description = "设备国标编号", required = true)
 	@GetMapping("/devices/{deviceId}")
 	public Device devices(@PathVariable String deviceId){
-		
+
 		return storager.queryVideoDevice(deviceId);
 	}
 
 	/**
 	 * 分页查询国标设备
 	 * @param page 当前页
-	 * @param count 每页查询数量
 	 * @return 分页国标列表
 	 */
 	@Operation(summary = "分页查询国标设备")
@@ -104,10 +103,8 @@ public class DeviceQuery {
 	@Parameter(name = "count", description = "每页查询数量", required = true)
 	@GetMapping("/devices")
 	@Options()
-	public PageInfo<Device> devices(int page, int count){
-//		if (page == null) page = 0;
-//		if (count == null) count = 20;
-		return storager.queryVideoDeviceList(page, count,null);
+	public Page<Device> devices(Page page){
+		return storager.queryVideoDeviceList(page,null);
 	}
 
 	/**
@@ -115,7 +112,6 @@ public class DeviceQuery {
 	 *
 	 * @param deviceId 设备id
 	 * @param page 当前页
-	 * @param count 每页条数
 	 * @param query 查询内容
 	 * @param online 是否在线  在线 true / 离线 false
 	 * @param channelType 设备 false/子目录 true
@@ -131,8 +127,7 @@ public class DeviceQuery {
 	@Parameter(name = "online", description = "是否在线")
 	@Parameter(name = "channelType", description = "设备/子目录-> false/true")
 	@Parameter(name = "catalogUnderDevice", description = "是否直属与设备的目录")
-	public PageInfo<DeviceChannel> channels(@PathVariable String deviceId,
-											   int page, int count,
+	public Page<DeviceChannel> channels(@PathVariable String deviceId, Page page,
 											   @RequestParam(required = false) String query,
 											   @RequestParam(required = false) Boolean online,
 											   @RequestParam(required = false) Boolean channelType,
@@ -141,7 +136,7 @@ public class DeviceQuery {
 			query = null;
 		}
 
-		return storager.queryChannelsByDeviceId(deviceId, query, channelType, online, catalogUnderDevice, page, count);
+		return storager.queryChannelsByDeviceId(page, deviceId, query, channelType, online, catalogUnderDevice);
 	}
 
 	/**
@@ -153,7 +148,7 @@ public class DeviceQuery {
 	@Parameter(name = "deviceId", description = "设备国标编号", required = true)
 	@GetMapping("/devices/{deviceId}/sync")
 	public WVPResult<SyncStatus> devicesSync(@PathVariable String deviceId){
-		
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("设备通道信息同步API调用，deviceId：" + deviceId);
 		}
@@ -181,7 +176,7 @@ public class DeviceQuery {
 	@Parameter(name = "deviceId", description = "设备国标编号", required = true)
 	@DeleteMapping("/devices/{deviceId}/delete")
 	public String delete(@PathVariable String deviceId){
-		
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("设备信息删除API调用，deviceId：" + deviceId);
 		}
@@ -216,7 +211,6 @@ public class DeviceQuery {
 	 * @param deviceId 通道id
 	 * @param channelId 通道id
 	 * @param page 当前页
-	 * @param count 每页条数
 	 * @param query 查询内容
 	 * @param online 是否在线
 	 * @param channelType 通道类型
@@ -231,21 +225,16 @@ public class DeviceQuery {
 	@Parameter(name = "online", description = "是否在线")
 	@Parameter(name = "channelType", description = "设备/子目录-> false/true")
 	@GetMapping("/sub_channels/{deviceId}/{channelId}/channels")
-	public PageInfo<DeviceChannel> subChannels(@PathVariable String deviceId,
-												  @PathVariable String channelId,
-												  int page,
-												  int count,
-												  @RequestParam(required = false) String query,
-												  @RequestParam(required = false) Boolean online,
-												  @RequestParam(required = false) Boolean channelType){
+	public Page<DeviceChannel> subChannels(Page page, @PathVariable String deviceId, @PathVariable String channelId
+			, @RequestParam(required = false) String query, @RequestParam(required = false) Boolean online
+			, @RequestParam(required = false) Boolean channelType){
 
 		DeviceChannel deviceChannel = storager.queryChannel(deviceId,channelId);
 		if (deviceChannel == null) {
-			PageInfo<DeviceChannel> deviceChannelPageResult = new PageInfo<>();
-			return deviceChannelPageResult;
+			return page;
 		}
 
-		return storager.querySubChannels(deviceId, channelId, query, channelType, online, page, count);
+		return storager.querySubChannels(page, deviceId, channelId, query, channelType, online);
 	}
 
 	/**
@@ -318,7 +307,7 @@ public class DeviceQuery {
 
 	/**
 	 * 设备状态查询请求API接口
-	 * 
+	 *
 	 * @param deviceId 设备id
 	 */
 	@Operation(summary = "设备状态查询")
@@ -382,8 +371,8 @@ public class DeviceQuery {
 	@Parameter(name = "endTime", description = "报警发生终止时间")
 	@GetMapping("/alarm/{deviceId}")
 	public DeferredResult<ResponseEntity<String>> alarmApi(@PathVariable String deviceId,
-														@RequestParam(required = false) String startPriority, 
-														@RequestParam(required = false) String endPriority, 
+														@RequestParam(required = false) String startPriority,
+														@RequestParam(required = false) String endPriority,
 														@RequestParam(required = false) String alarmMethod,
 														@RequestParam(required = false) String alarmType,
 														@RequestParam(required = false) String startTime,
@@ -486,8 +475,6 @@ public class DeviceQuery {
 	 * 查询国标树
 	 * @param deviceId 设备ID
 	 * @param parentId 父ID
-	 * @param page 当前页
-	 * @param count 每页条数
 	 * @return 国标设备
 	 */
 	@Operation(summary = "查询国标树")
@@ -497,80 +484,13 @@ public class DeviceQuery {
 	@Parameter(name = "page", description = "当前页", required = true)
 	@Parameter(name = "count", description = "每页条数", required = true)
 	@GetMapping("/tree/{deviceId}")
-	public ResponseEntity<PageInfo> getTree(@PathVariable String deviceId,
+	public ResponseEntity<List<BaseTree<DeviceChannel>>> getTree(@PathVariable String deviceId,
 											@RequestParam(required = false) String parentId,
-											@RequestParam(required = false) Boolean onlyCatalog,
-											int page, int count){
-
-
-		if (page <= 0) {
-			page = 1;
-		}
-		if (onlyCatalog == null) {
-			onlyCatalog = false;
-		}
+											@RequestParam(required = false) Boolean onlyCatalog){
 
 		List<BaseTree<DeviceChannel>> treeData = deviceService.queryVideoDeviceTree(deviceId, parentId, onlyCatalog);
-		if (treeData == null || (page - 1) * count > treeData.size()) {
-			PageInfo<BaseTree<DeviceChannel>> pageInfo = new PageInfo<>();
-			pageInfo.setPageNum(page);
-			pageInfo.setTotal(treeData == null? 0 : treeData.size());
-			pageInfo.setSize(0);
-			pageInfo.setList(new ArrayList<>());
-			return new ResponseEntity<>(pageInfo,HttpStatus.OK);
-		}
 
-		int toIndex = Math.min(page * count, treeData.size());
-		// 处理分页
-		List<BaseTree<DeviceChannel>> trees = treeData.subList((page - 1) * count, toIndex);
-		PageInfo<BaseTree<DeviceChannel>> pageInfo = new PageInfo<>();
-		pageInfo.setPageNum(page);
-		pageInfo.setTotal(treeData.size());
-		pageInfo.setSize(trees.size());
-		pageInfo.setList(trees);
-
-		return new ResponseEntity<>(pageInfo,HttpStatus.OK);
+		return new ResponseEntity<>(treeData, HttpStatus.OK);
 	}
 
-	/**
-	 * 查询国标树下的通道
-	 * @param deviceId 设备ID
-	 * @param parentId 父ID
-	 * @param page 当前页
-	 * @param count 每页条数
-	 * @return 国标设备
-	 */
-	@Operation(summary = "查询国标树下的通道")
-	@Parameter(name = "deviceId", description = "设备国标编号", required = true)
-	@Parameter(name = "parentId", description = "父级国标编号")
-	@Parameter(name = "page", description = "当前页", required = true)
-	@Parameter(name = "count", description = "每页条数", required = true)
-	@GetMapping("/tree/channel/{deviceId}")
-	public ResponseEntity<PageInfo> getChannelInTreeNode(@PathVariable String deviceId, @RequestParam(required = false) String parentId, int page, int count){
-
-		if (page <= 0) {
-			page = 1;
-		}
-
-		List<DeviceChannel> treeData = deviceService.queryVideoDeviceInTreeNode(deviceId, parentId);
-		if (treeData == null || (page - 1) * count > treeData.size()) {
-			PageInfo<BaseTree<DeviceChannel>> pageInfo = new PageInfo<>();
-			pageInfo.setPageNum(page);
-			pageInfo.setTotal(treeData == null? 0 : treeData.size());
-			pageInfo.setSize(0);
-			pageInfo.setList(new ArrayList<>());
-			return new ResponseEntity<>(pageInfo,HttpStatus.OK);
-		}
-
-		int toIndex = Math.min(page * count, treeData.size());
-		// 处理分页
-		List<DeviceChannel> trees = treeData.subList((page - 1) * count, toIndex);
-		PageInfo<DeviceChannel> pageInfo = new PageInfo<>();
-		pageInfo.setPageNum(page);
-		pageInfo.setTotal(treeData.size());
-		pageInfo.setSize(trees.size());
-		pageInfo.setList(trees);
-
-		return new ResponseEntity<>(pageInfo,HttpStatus.OK);
-	}
 }

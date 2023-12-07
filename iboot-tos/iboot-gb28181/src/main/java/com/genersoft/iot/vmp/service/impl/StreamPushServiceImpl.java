@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.genersoft.iot.vmp.conf.MediaConfig;
@@ -166,14 +167,14 @@ public class StreamPushServiceImpl extends ServiceImpl<StreamPushMapper, StreamP
         // 判断是否需要发送事件
         gbStreamService.sendCatalogMsg(stream, CatalogEvent.DEL);
         platformGbStreamMapper.delByAppAndStream(stream.getApp(), stream.getStream());
-        int del = gbStreamMapper.del(stream.getApp(), stream.getStream());
+        int del = gbStreamService.del(stream.getApp(), stream.getStream());
         MediaServerItem mediaInfo = mediaServerService.getOne(stream.getMediaServerId());
         JSONObject mediaList = zlmresTfulUtils.getMediaList(mediaInfo, stream.getApp(), stream.getStream());
         if (mediaList != null) {
             if (mediaList.getInteger("code") == 0) {
                 JSONArray data = mediaList.getJSONArray("data");
                 if (data == null) {
-                    streamPushMapper.del(stream.getApp(), stream.getStream());
+                    this.deleteByAppAndStream(stream.getApp(), stream.getStream());
                 }
             }
         }
@@ -195,9 +196,9 @@ public class StreamPushServiceImpl extends ServiceImpl<StreamPushMapper, StreamP
         }
 
         platformGbStreamMapper.delByAppAndStream(app, streamId);
-        gbStreamMapper.del(app, streamId);
-        int delStream = streamPushMapper.del(app, streamId);
-        if (delStream > 0) {
+        gbStreamService.del(app, streamId);
+
+        if (this.deleteByAppAndStream(app, streamId)) {
             MediaServerItem mediaServerItem = mediaServerService.getOne(streamPushItem.getMediaServerId());
             zlmresTfulUtils.closeStreams(mediaServerItem,app, streamId);
         }
@@ -305,7 +306,7 @@ public class StreamPushServiceImpl extends ServiceImpl<StreamPushMapper, StreamP
         List<StreamPushItem> streamPushItems = streamPushMapper.selectAllByMediaServerIdWithOutGbID(mediaServerId);
         // 移除没有GBId的推流
         streamPushMapper.deleteWithoutGBId(mediaServerId);
-        gbStreamMapper.deleteWithoutGBId("push", mediaServerId);
+        gbStreamService.deleteWithoutGBId("push", mediaServerId);
         // 其他的流设置未启用
         streamPushMapper.updateStatusByMediaServerId(mediaServerId, false);
         streamProxyMapper.updateStatusByMediaServerId(mediaServerId, false);
@@ -534,5 +535,12 @@ public class StreamPushServiceImpl extends ServiceImpl<StreamPushMapper, StreamP
         int online = streamPushMapper.getAllOnline(userSetting.isUsePushingAsStatus());
 
         return new ResourceBaseInfo(total, online);
+    }
+
+    @Override
+    public boolean deleteByAppAndStream(String app, String stream) {
+        return streamPushMapper.delete(Wrappers.<StreamPushItem>lambdaQuery()
+                .eq(StreamPushItem::getApp, app)
+                .eq(StreamPushItem::getStream, stream)) > 0;
     }
 }

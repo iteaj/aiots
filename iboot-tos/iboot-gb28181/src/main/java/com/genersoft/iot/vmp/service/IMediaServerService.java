@@ -104,4 +104,6 @@ public interface IMediaServerService {
      * 查找存在录像文件的时间
      */
     List<String> getRecordDates(String app, String stream, int year, int month, List<MediaServerItem> mediaServerItems);
+
+    MediaServerItem getByHostAndPort(String ip, int port);
 }

@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.genersoft.iot.vmp.gb28181.bean.*;
@@ -58,8 +59,8 @@ public class GbStreamServiceImpl extends ServiceImpl<GbStreamMapper, GbStream> i
     }
 
     @Override
-    public void del(String app, String stream) {
-        gbStreamMapper.del(app, stream);
+    public int del(String app, String stream) {
+        return gbStreamMapper.delete(Wrappers.<GbStream>lambdaQuery().eq(GbStream::getApp, app).eq(GbStream::getStream, stream));
     }
 
 
@@ -163,7 +164,7 @@ public class GbStreamServiceImpl extends ServiceImpl<GbStreamMapper, GbStream> i
         if (gbStream.getGbId() != null) {
             gbStreams.add(gbStream);
         }else {
-            GbStream gbStreamIndb  = gbStreamMapper.selectOne(gbStream.getApp(), gbStream.getStream());
+            GbStream gbStreamIndb  = this.selectByAppAndStream(gbStream.getApp(), gbStream.getStream());
             if (gbStreamIndb != null && gbStreamIndb.getGbId() != null){
                 gbStreams.add(gbStreamIndb);
             }
@@ -265,6 +266,26 @@ public class GbStreamServiceImpl extends ServiceImpl<GbStreamMapper, GbStream> i
 
     @Override
     public List<GbStream> getGbChannelWithGbid(String gbId) {
-        return gbStreamMapper.selectByGBId(gbId);
+        return gbStreamMapper.selectList(Wrappers.<GbStream>lambdaQuery().eq(GbStream::getGbId, gbId));
+    }
+
+    @Override
+    public boolean updateByAppAndStream(GbStream gbStream) {
+        return this.update(gbStream, Wrappers.<GbStream>lambdaUpdate()
+                .eq(GbStream::getApp, gbStream.getApp())
+                .eq(GbStream::getStream, gbStream.getStream()));
+    }
+
+    @Override
+    public GbStream selectByAppAndStream(String app, String stream) {
+        return gbStreamMapper.selectOne(Wrappers.<GbStream>lambdaQuery().eq(GbStream::getApp, app).eq(GbStream::getStream, stream));
+    }
+
+    @Override
+    public void deleteWithoutGBId(String type, String mediaServerId) {
+        gbStreamMapper.delete(Wrappers.<GbStream>lambdaQuery()
+                .eq(GbStream::getStreamType, type)
+                .isNull(GbStream::getGbId)
+                .eq(GbStream::getMediaServerId, mediaServerId));
     }
 }

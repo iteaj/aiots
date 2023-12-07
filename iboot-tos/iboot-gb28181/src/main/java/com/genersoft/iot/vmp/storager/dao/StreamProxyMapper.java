@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.storager.dao;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
 import com.genersoft.iot.vmp.vmanager.bean.ResourceBaseInfo;
 import org.apache.ibatis.annotations.*;
@@ -43,8 +44,7 @@ public interface StreamProxyMapper {
     @Delete("DELETE FROM wvp_stream_proxy WHERE app=#{app} AND stream=#{stream}")
     int del(String app, String stream);
 
-    @Select("SELECT st.*, pgs.gb_id, pgs.name, pgs.longitude, pgs.latitude FROM wvp_stream_proxy st LEFT join wvp_gb_stream pgs on st.app = pgs.app AND st.stream = pgs.stream order by st.create_time desc")
-    List<StreamProxyItem> selectAll();
+    Page<StreamProxyItem> listDetailByPage(Page page, StreamProxyItem entity);
 
     @Select("SELECT st.*, pgs.gb_id, pgs.name, pgs.longitude, pgs.latitude, 'proxy' as streamType FROM wvp_stream_proxy st LEFT join wvp_gb_stream pgs on st.app = pgs.app AND st.stream = pgs.stream WHERE st.enable=#{enable} order by st.create_time desc")
     List<StreamProxyItem> selectForEnable(boolean enable);
