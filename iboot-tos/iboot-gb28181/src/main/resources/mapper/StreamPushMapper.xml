@@ -5,10 +5,20 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BasicMap" type="com.genersoft.iot.vmp.media.zlm.dto.StreamPushItem">
         <result column="id" property="id" />
-        <result column="latitude" property="latitude" />
-        <result column="longitude" property="longitude" />
+        <result column="app" property="app" />
+        <result column="self" property="self" />
+        <result column="status" property="status" />
+        <result column="stream" property="stream" />
+        <result column="push_ing" property="pushIng" />
+        <result column="push_time" property="pushTime" />
+        <result column="origin_url" property="originUrl" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
+        <result column="origin_type" property="originType" />
+        <result column="alive_second" property="aliveSecond" />
+        <result column="origin_type_str" property="originTypeStr" />
+        <result column="media_server_id" property="mediaServerId" />
+        <result column="total_reader_count" property="totalReaderCount" />
     </resultMap>
     <insert id="addAll" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         Insert INTO wvp_stream_push (app, stream, total_reader_count, origin_type, origin_type_str, create_time, alive_second, media_server_id, status, push_ing)

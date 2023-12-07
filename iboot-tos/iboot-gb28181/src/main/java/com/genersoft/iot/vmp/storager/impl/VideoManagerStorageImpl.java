@@ -10,10 +10,7 @@ import com.genersoft.iot.vmp.gb28181.event.EventPublisher;
 import com.genersoft.iot.vmp.gb28181.event.subscribe.catalog.CatalogEvent;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamPushItem;
-import com.genersoft.iot.vmp.service.IDeviceChannelService;
-import com.genersoft.iot.vmp.service.IDeviceService;
-import com.genersoft.iot.vmp.service.IGbStreamService;
-import com.genersoft.iot.vmp.service.IStreamPushService;
+import com.genersoft.iot.vmp.service.*;
 import com.genersoft.iot.vmp.service.bean.GPSMsgInfo;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
@@ -88,6 +85,9 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Autowired
     private StreamProxyMapper streamProxyMapper;
+
+	@Autowired
+	private IStreamProxyService streamProxyService;
 
 	@Autowired
     private StreamPushMapper streamPushMapper;
@@ -695,7 +695,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public int deleteStreamProxy(String app, String stream) {
-		return streamProxyMapper.del(app, stream);
+		return streamProxyService.deleteByAppAndStream(app, stream);
 	}
 
 	/**

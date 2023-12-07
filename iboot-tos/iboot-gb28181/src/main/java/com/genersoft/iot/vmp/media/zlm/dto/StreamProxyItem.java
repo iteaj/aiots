@@ -7,7 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * @author lin
  */
-@TableName(value = "wvp_stream_proxy", excludeProperty = {"gbId", "longitude", "latitude", "streamType"})
+@TableName(value = "wvp_stream_proxy", excludeProperty = {"gbStreamId", "platformId"
+        , "catalogId", "gbId", "longitude", "latitude", "streamType"})
 @Schema(description = "拉流代理的信息")
 public class StreamProxyItem extends GbStream {
 
@@ -147,5 +148,53 @@ public class StreamProxyItem extends GbStream {
 
     public void setStreamKey(String streamKey) {
         this.streamKey = streamKey;
+    }
+
+    public Boolean getEnable() {
+        return enable;
+    }
+
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
+    }
+
+    public Boolean getEnableAudio() {
+        return enableAudio;
+    }
+
+    public void setEnableAudio(Boolean enableAudio) {
+        this.enableAudio = enableAudio;
+    }
+
+    public Boolean getEnableMp4() {
+        return enableMp4;
+    }
+
+    public void setEnableMp4(Boolean enableMp4) {
+        this.enableMp4 = enableMp4;
+    }
+
+    public Boolean getEnableRemoveNoneReader() {
+        return enableRemoveNoneReader;
+    }
+
+    public void setEnableRemoveNoneReader(Boolean enableRemoveNoneReader) {
+        this.enableRemoveNoneReader = enableRemoveNoneReader;
+    }
+
+    public Boolean getEnableDisableNoneReader() {
+        return enableDisableNoneReader;
+    }
+
+    public void setEnableDisableNoneReader(Boolean enableDisableNoneReader) {
+        this.enableDisableNoneReader = enableDisableNoneReader;
+    }
+
+    public String getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
     }
 }

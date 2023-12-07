@@ -10,7 +10,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@TableName(value = "wvp_stream_push", excludeProperty = {"gbId", "name", "longitude", "latitude", "streamType"})
+@TableName(value = "wvp_stream_push", excludeProperty = {"gbStreamId", "platformId"
+        , "catalogId", "gbId", "name", "longitude", "latitude", "streamType"})
 @Schema(description = "推流信息")
 public class StreamPushItem extends GbStream implements Comparable<StreamPushItem>{
 

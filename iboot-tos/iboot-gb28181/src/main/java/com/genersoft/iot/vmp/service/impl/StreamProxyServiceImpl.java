@@ -2,6 +2,7 @@ package com.genersoft.iot.vmp.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.common.GeneralCallback;
 import com.genersoft.iot.vmp.common.StreamInfo;
@@ -249,7 +250,7 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
         String now = DateUtil.getNow();
         streamProxyItem.setCreateTime(now);
         try {
-            if (streamProxyMapper.add(streamProxyItem) > 0) {
+            if (streamProxyMapper.insert(streamProxyItem) > 0) {
                 if (!ObjectUtils.isEmpty(streamProxyItem.getGbId())) {
                     if (gbStreamMapper.insert(streamProxyItem) < 0) {
                         //事务回滚
@@ -284,7 +285,7 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
         boolean result = false;
         streamProxyItem.setStreamType("proxy");
         try {
-            if (streamProxyMapper.update(streamProxyItem) > 0) {
+            if (this.updateByAppAndStream(streamProxyItem)) {
                 if (!ObjectUtils.isEmpty(streamProxyItem.getGbId())) {
                     if (!gbStreamService.updateByAppAndStream(streamProxyItem)) {
                         //事务回滚
@@ -345,7 +346,7 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
                 return result;
             }
             param.setStreamKey(key);
-            streamProxyMapper.update(param);
+            this.updateByAppAndStream(param);
         }
         return result;
     }
@@ -602,5 +603,19 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
 
             updateStreamProxy(streamProxyItem);
         }
+    }
+
+    @Override
+    public boolean updateByAppAndStream(StreamProxyItem streamProxyItem) {
+        return this.streamProxyMapper.update(streamProxyItem, Wrappers.<StreamProxyItem>lambdaUpdate()
+                .eq(StreamProxyItem::getApp, streamProxyItem.getApp())
+                .eq(StreamProxyItem::getStream, streamProxyItem.getStream())) > 0;
+    }
+
+    @Override
+    public int deleteByAppAndStream(String app, String stream) {
+        return this.streamProxyMapper.delete(Wrappers.<StreamProxyItem>lambdaQuery()
+                .eq(StreamProxyItem::getApp, app)
+                .eq(StreamProxyItem::getStream, stream));
     }
 }

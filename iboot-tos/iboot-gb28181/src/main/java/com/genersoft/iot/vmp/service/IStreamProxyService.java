@@ -110,4 +110,7 @@ public interface IStreamProxyService {
      */
     ResourceBaseInfo getOverview();
 
+    boolean updateByAppAndStream(StreamProxyItem streamProxyItem);
+
+    int deleteByAppAndStream(String app, String stream);
 }
