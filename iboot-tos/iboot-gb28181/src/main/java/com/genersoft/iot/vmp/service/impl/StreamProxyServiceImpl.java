@@ -559,11 +559,7 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
 
     @Override
     public ResourceBaseInfo getOverview() {
-
-        int total = streamProxyMapper.getAllCount();
-        int online = streamProxyMapper.getOnline();
-
-        return new ResourceBaseInfo(total, online);
+        return streamProxyMapper.getOverview();
     }
 
 

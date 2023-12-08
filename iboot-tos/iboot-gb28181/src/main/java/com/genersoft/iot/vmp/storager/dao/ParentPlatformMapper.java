@@ -5,9 +5,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.gb28181.bean.ParentPlatform;
 import com.genersoft.iot.vmp.storager.dao.dto.ChannelSourceInfo;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -15,7 +14,6 @@ import java.util.List;
  * 用于存储上级平台
  */
 @Mapper
-@Repository
 public interface ParentPlatformMapper extends BaseMapper<ParentPlatform> {
 
     List<ParentPlatform> getParentPlatformList();

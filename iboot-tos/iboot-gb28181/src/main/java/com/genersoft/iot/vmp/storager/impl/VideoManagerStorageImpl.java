@@ -747,7 +747,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 	 */
 	@Override
 	public StreamProxyItem queryStreamProxy(String app, String stream){
-		return streamProxyMapper.selectOne(app, stream);
+		return streamProxyMapper.getByAppAndStream(app, stream);
 	}
 
 	@Override
@@ -805,7 +805,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public StreamProxyItem getStreamProxyByAppAndStream(String app, String streamId) {
-		return streamProxyMapper.selectOne(app, streamId);
+		return streamProxyMapper.getByAppAndStream(app, streamId);
 	}
 
 	@Override
@@ -862,7 +862,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 				}
 			}
 		}
-		int result = catalogMapper.add(platformCatalog);
+		int result = catalogMapper.insert(platformCatalog);
 		if (result > 0) {
 			DeviceChannel deviceChannel = getDeviceChannelByCatalog(platformCatalog);
 			eventPublisher.catalogEventPublish(platformCatalog.getPlatformId(), deviceChannel, CatalogEvent.ADD);
@@ -958,7 +958,10 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public int updateCatalog(PlatformCatalog platformCatalog) {
-		int result = catalogMapper.update(platformCatalog);
+		int result = catalogMapper.update(platformCatalog, Wrappers.<PlatformCatalog>lambdaUpdate()
+				.eq(PlatformCatalog::getId, platformCatalog.getId())
+				.eq(PlatformCatalog::getPlatformId, platformCatalog.getPlatformId()));
+
 		if (result > 0) {
 			DeviceChannel deviceChannel = getDeviceChannelByCatalog(platformCatalog);
 			eventPublisher.catalogEventPublish(platformCatalog.getPlatformId(), deviceChannel, CatalogEvent.UPDATE);

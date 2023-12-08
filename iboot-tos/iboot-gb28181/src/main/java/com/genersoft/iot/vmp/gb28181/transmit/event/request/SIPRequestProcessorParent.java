@@ -30,10 +30,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**    
+/**
  * @description:处理接收IPCamera发来的SIP协议请求消息
  * @author: songww
- * @date:   2020年5月3日 下午4:42:22     
+ * @date:   2020年5月3日 下午4:42:22
  */
 public abstract class SIPRequestProcessorParent {
 
@@ -134,7 +134,7 @@ public abstract class SIPRequestProcessorParent {
 		// 兼容国标中的使用编码@域名作为RequestURI的情况
 		SipURI sipURI = (SipURI)request.getRequestURI();
 		if (sipURI.getPort() == -1) {
-			sipURI = SipFactory.getInstance().createAddressFactory().createSipURI(platform.getServerGBId(),  platform.getServerIP()+":"+platform.getServerPort());
+			sipURI = SipFactory.getInstance().createAddressFactory().createSipURI(platform.getServerGBId(),  platform.getServerIp()+":"+platform.getServerPort());
 		}
 		ResponseAckExtraParam responseAckExtraParam = new ResponseAckExtraParam();
 		responseAckExtraParam.contentTypeHeader = contentTypeHeader;
@@ -152,7 +152,7 @@ public abstract class SIPRequestProcessorParent {
 
 		SipURI sipURI = (SipURI)request.getRequestURI();
 		if (sipURI.getPort() == -1) {
-			sipURI = SipFactory.getInstance().createAddressFactory().createSipURI(platform.getServerGBId(),  platform.getServerIP()+":"+platform.getServerPort());
+			sipURI = SipFactory.getInstance().createAddressFactory().createSipURI(platform.getServerGBId(),  platform.getServerIp()+":"+platform.getServerPort());
 		}
 		ResponseAckExtraParam responseAckExtraParam = new ResponseAckExtraParam();
 		responseAckExtraParam.contentTypeHeader = contentTypeHeader;

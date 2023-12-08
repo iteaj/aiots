@@ -1,93 +1,147 @@
 package com.genersoft.iot.vmp.media.zlm.dto;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.genersoft.iot.vmp.media.zlm.ZLMServerConfig;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.util.ObjectUtils;
 
+/**
+ * 流媒体服务信息
+ */
 @TableName("wvp_media_server")
-@Schema(description = "流媒体服务信息")
 public class MediaServerItem{
 
-    @Schema(description = "ID")
     private String id;
 
-    @Schema(description = "IP")
+    /**
+     * IP
+     */
     private String ip;
 
-    @Schema(description = "hook使用的IP（zlm访问WVP使用的IP）")
+    /**
+     * hook使用的IP（zlm访问WVP使用的IP）
+     */
     private String hookIp;
 
-    @Schema(description = "SDP IP")
+    /**
+     * SDP IP
+     */
     private String sdpIp;
 
-    @Schema(description = "流IP")
+    /**
+     * 流IP
+     */
     private String streamIp;
 
-    @Schema(description = "HTTP端口")
+    /**
+     * HTTP端口
+     */
     private int httpPort;
 
-    @Schema(description = "HTTPS端口")
+    /**
+     * HTTPS端口
+     */
+    @TableField("http_ssl_port")
     private int httpSSlPort;
 
-    @Schema(description = "RTMP端口")
+    /**
+     * RTMP端口
+     */
     private int rtmpPort;
 
-    @Schema(description = "RTMPS端口")
+    /**
+     * RTMPS端口
+     */
+    @TableField("rtmp_ssl_port")
     private int rtmpSSlPort;
 
-    @Schema(description = "RTP收流端口（单端口模式有用）")
+    /**
+     * RTP收流端口（单端口模式有用）
+     */
     private int rtpProxyPort;
 
-    @Schema(description = "RTSP端口")
+    /**
+     * RTSP端口
+     */
     private int rtspPort;
 
-    @Schema(description = "RTSPS端口")
+    /**
+     * RTSPS端口
+     */
+    @TableField("rtsp_ssl_port")
     private int rtspSSLPort;
 
-    @Schema(description = "是否开启自动配置ZLM")
+    /**
+     * 是否开启自动配置ZLM
+     */
     private boolean autoConfig;
 
-    @Schema(description = "ZLM鉴权参数")
+    /**
+     * ZLM鉴权参数
+     */
     private String secret;
 
-    @Schema(description = "keepalive hook触发间隔,单位秒")
+    /**
+     * keepalive hook触发间隔,单位秒
+     */
     private Float hookAliveInterval;
 
-    @Schema(description = "是否使用多端口模式")
+    /**
+     * 是否使用多端口模式
+     */
     private boolean rtpEnable;
 
-    @Schema(description = "状态")
+    /**
+     * 状态
+     */
+    @TableField(exist = false)
     private boolean status;
 
-    @Schema(description = "多端口RTP收流端口范围")
+    /**
+     * 多端口RTP收流端口范围
+     */
     private String rtpPortRange;
 
-    @Schema(description = "RTP发流端口范围")
+    /**
+     * RTP发流端口范围
+     */
     private String sendRtpPortRange;
 
-    @Schema(description = "assist服务端口")
+    /**
+     * assist服务端口
+     */
     private int recordAssistPort;
 
-    @Schema(description = "创建时间")
+    /**
+     * 创建时间
+     */
     private String createTime;
 
-    @Schema(description = "更新时间")
+    /**
+     * 更新时间
+     */
     private String updateTime;
 
-    @Schema(description = "上次心跳时间")
+    /**
+     * 上次心跳时间
+     */
+    @TableField(exist = false)
     private String lastKeepaliveTime;
 
-    @Schema(description = "是否是默认ZLM")
+    /**
+     * 是否是默认ZLM
+     */
     private boolean defaultServer;
 
-    @Schema(description = "当前使用到的端口")
+    /**
+     * 当前使用到的端口
+     */
+    @TableField(exist = false)
     private int currentPort;
 
-
-    public MediaServerItem() {
-    }
+    public MediaServerItem() { }
 
     public MediaServerItem(ZLMServerConfig zlmServerConfig, String sipIp) {
         id = zlmServerConfig.getGeneralMediaServerId();

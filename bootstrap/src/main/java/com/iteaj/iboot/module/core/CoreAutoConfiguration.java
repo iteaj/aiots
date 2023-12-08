@@ -31,7 +31,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author iteaj
  * @since 1.0
  */
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 @ImportAutoConfiguration({
         CaptchaAutoConfiguration.class, // 校验码配置
         FrameworkWebConfiguration.class // 框架Web容器配置

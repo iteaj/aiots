@@ -82,7 +82,7 @@ public class GbStreamServiceImpl extends ServiceImpl<GbStreamMapper, GbStream> i
                 gbStream.setCatalogId(catalogId);
                 gbStream.setPlatformId(platformId);
                 // TODO 修改为批量提交
-                platformGbStreamMapper.add(gbStream);
+                platformGbStreamMapper.insert(gbStream);
                 logger.info("[关联通道]直播流通道 平台：{}, 共需关联通道数:{}, 已关联：{}", platformId, gbStreams.size(), i + 1);
                 DeviceChannel deviceChannelListByStream = getDeviceChannelListByStreamWithStatus(gbStream, catalogId, parentPlatform);
                 deviceChannelList.add(deviceChannelListByStream);

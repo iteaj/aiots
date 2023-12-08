@@ -1,11 +1,14 @@
 package com.genersoft.iot.vmp.vmanager.gb28181.platform.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 精简的channel信息展示，主要是选择通道的时候展示列表使用
  */
+@TableName("wvp_platform_gb_channel")
 @Schema(description = "精简的channel信息展示")
 public class ChannelReduce {
 
@@ -18,36 +21,42 @@ public class ChannelReduce {
     /**
      * 通道id
      */
+    @TableField(exist = false)
     @Schema(description = "通道国标编号")
     private String channelId;
 
     /**
      * 设备id
      */
+    @TableField(exist = false)
     @Schema(description = "设备国标编号")
     private String deviceId;
 
     /**
      * 通道名
      */
+    @TableField(exist = false)
     @Schema(description = "通道名")
     private String name;
 
     /**
      * 生产厂商
      */
+    @TableField(exist = false)
     @Schema(description = "生产厂商")
     private String manufacturer;
 
     /**
      * wan地址
      */
+    @TableField(exist = false)
     @Schema(description = "wan地址")
     private String  hostAddress;
 
     /**
      * 子节点数
      */
+    @TableField(exist = false)
     @Schema(description = "子节点数")
     private int  subCount;
 

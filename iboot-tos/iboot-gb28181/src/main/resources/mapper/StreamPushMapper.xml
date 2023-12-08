@@ -94,7 +94,7 @@
         order by st.create_time desc
     </select>
 
-    <select id="selectOne" resultMap="BasicMap">
+    <select id="getByAppAndStream" resultMap="BasicMap">
         SELECT st.*, gs.gb_id, gs.name, gs.longitude, gs.latitude FROM wvp_stream_push st
             LEFT join wvp_gb_stream gs on st.app = gs.app AND st.stream = gs.stream
         WHERE st.app=#{app} AND st.stream=#{stream}

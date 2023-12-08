@@ -1,13 +1,17 @@
 package com.genersoft.iot.vmp.gb28181.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 国标级联-目录
  * @author lin
  */
+@TableName("wvp_platform_catalog")
 @Schema(description = "目录信息")
 public class PlatformCatalog {
+
     @Schema(description = "ID")
     private String id;
 
@@ -29,12 +33,14 @@ public class PlatformCatalog {
     /**
      * 子节点数
      */
+    @TableField(exist = false)
     @Schema(description = "子节点数")
     private int childrenCount;
 
     /**
      * 0 目录, 1 国标通道, 2 直播流
      */
+    @TableField(exist = false)
     @Schema(description = "类型：0 目录, 1 国标通道, 2 直播流")
     private int type;
 

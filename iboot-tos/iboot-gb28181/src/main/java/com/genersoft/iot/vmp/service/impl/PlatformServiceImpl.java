@@ -278,7 +278,7 @@ public class PlatformServiceImpl implements IPlatformService {
         subscribeInfo.setEventType("Catalog");
         int random = (int) Math.floor(Math.random() * 10000);
         subscribeInfo.setEventId(random + "");
-        subscribeInfo.setSimulatedCallId(UUID.randomUUID().toString().replace("-", "") + "@" + parentPlatform.getServerIP());
+        subscribeInfo.setSimulatedCallId(UUID.randomUUID().toString().replace("-", "") + "@" + parentPlatform.getServerIp());
         subscribeInfo.setSimulatedFromTag(UUID.randomUUID().toString().replace("-", ""));
         subscribeInfo.setSimulatedToTag(UUID.randomUUID().toString().replace("-", ""));
         subscribeHolder.putCatalogSubscribe(parentPlatform.getServerGBId(), subscribeInfo);

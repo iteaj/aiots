@@ -19,6 +19,11 @@ public class FrameworkProperties {
     private boolean cluster;
 
     /**
+     * 版本
+     */
+    private String version;
+
+    /**
      * web环境配置
      */
     private Web web = new Web();

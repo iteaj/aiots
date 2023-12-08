@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 设备业务（目录订阅）
  */
-@Service
+@Service("WvpDeviceServiceImpl")
 public class DeviceServiceImpl implements IDeviceService {
 
     private final static Logger logger = LoggerFactory.getLogger(DeviceServiceImpl.class);
@@ -110,7 +110,7 @@ public class DeviceServiceImpl implements IDeviceService {
         }
         device.setUpdateTime(now);
         device.setKeepaliveTime(now);
-        if (device.getKeepaliveIntervalTime() == 0) {
+        if (device.getKeepaliveIntervalTime() == null) {
             // 默认心跳间隔60
             device.setKeepaliveIntervalTime(60);
         }
@@ -157,7 +157,7 @@ public class DeviceServiceImpl implements IDeviceService {
                     // TODO 如果设备下的通道级联到了其他平台，那么需要发送事件或者notify给上级平台
                 }
             }else {
-                if (deviceChannelMapper.isChannel(device.getDeviceId())) {
+                if (!deviceChannelMapper.isChannel(device.getDeviceId())) {
                     logger.info("[设备上线]: {}，通道数为0,查询通道信息", device.getDeviceId());
                     sync(device);
                 }

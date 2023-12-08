@@ -1,18 +1,16 @@
 package com.genersoft.iot.vmp.storager.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamPushItem;
 import com.genersoft.iot.vmp.service.bean.StreamPushItemFromRedis;
-import org.apache.ibatis.annotations.*;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 @Mapper
-@Repository
 public interface StreamPushMapper extends BaseMapper<StreamPushItem> {
 
     int delAll(List<StreamPushItem> streamPushItems);
@@ -23,7 +21,7 @@ public interface StreamPushMapper extends BaseMapper<StreamPushItem> {
 
     List<StreamPushItem> selectAll();
 
-    StreamPushItem selectOne(@Param("app") String app, @Param("stream") String stream);
+    StreamPushItem getByAppAndStream(@Param("app") String app, @Param("stream") String stream);
 
     int addAll(List<StreamPushItem> streamPushItems);
 

@@ -26,6 +26,17 @@
         <result column="create_time" property="createTime" />
     </resultMap>
 
+    <update id="updateStatusByMediaServerId">
+        UPDATE wvp_stream_proxy SET status=#{status} WHERE media_server_id=#{mediaServerId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE wvp_stream_proxy SET status=#{status} WHERE app=#{app} AND stream=#{stream}
+    </update>
+    <delete id="deleteAutoRemoveItemByMediaServerId">
+        DELETE FROM wvp_stream_proxy WHERE enable_remove_none_reader=true AND media_server_id=#{mediaServerId}
+    </delete>
+
     <select id="listDetailByPage" resultType="com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem">
         SELECT st.*, pgs.gb_id, pgs.name, pgs.longitude, pgs.latitude FROM wvp_stream_proxy st
             LEFT join wvp_gb_stream pgs on st.app = pgs.app AND st.stream = pgs.stream
@@ -38,7 +49,7 @@
         WHERE st.enable=#{enable} order by st.create_time desc
     </select>
 
-    <select id="selectOne" resultType="com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem">
+    <select id="getByAppAndStream" resultType="com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem">
         SELECT st.*, pgs.gb_id, pgs.name, pgs.longitude, pgs.latitude FROM wvp_stream_proxy st
             LEFT join wvp_gb_stream pgs on st.app = pgs.app AND st.stream = pgs.stream
         WHERE st.app=#{app} AND st.stream=#{stream} order by st.create_time desc
@@ -48,6 +59,23 @@
         SELECT st.*, pgs.gb_id, pgs.name, pgs.longitude, pgs.latitude FROM wvp_stream_proxy st
             LEFT join wvp_gb_stream pgs on st.app = pgs.app AND st.stream = pgs.stream
         WHERE st.enable=#{enable} and st.media_server_id= #{id} order by st.create_time desc
+    </select>
+
+    <select id="selectInMediaServer" resultType="com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem">
+        SELECT st.*, pgs.gb_id, pgs.name, pgs.longitude, pgs.latitude FROM wvp_stream_proxy st
+            LEFT join wvp_gb_stream pgs on st.app = pgs.app AND st.stream = pgs.stream
+            WHERE st.media_server_id= #{id} order by st.create_time desc
+    </select>
+
+    <select id="selectAutoRemoveItemByMediaServerId"
+            resultType="com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem">
+        SELECT st.*, pgs.gb_id, pgs.name, pgs.longitude, pgs.latitude FROM wvp_stream_proxy st
+            LEFT join wvp_gb_stream pgs on st.app = pgs.app AND st.stream = pgs.stream
+        WHERE st.enable_remove_none_reader=true AND st.media_server_id=#{mediaServerId} order by st.create_time desc
+    </select>
+
+    <select id="getOverview" resultType="com.genersoft.iot.vmp.vmanager.bean.ResourceBaseInfo">
+        select count(1) as total, sum(status) as online from wvp_stream_proxy
     </select>
 
 </mapper>

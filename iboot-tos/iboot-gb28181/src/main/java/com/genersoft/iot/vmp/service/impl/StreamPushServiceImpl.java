@@ -184,13 +184,13 @@ public class StreamPushServiceImpl extends ServiceImpl<StreamPushMapper, StreamP
 
     @Override
     public StreamPushItem getPush(String app, String streamId) {
-        return streamPushMapper.selectOne(app, streamId);
+        return streamPushMapper.getByAppAndStream(app, streamId);
     }
 
     @Override
     public boolean stop(String app, String streamId) {
         logger.info("[推流 ] 停止流： {}/{}", app, streamId);
-        StreamPushItem streamPushItem = streamPushMapper.selectOne(app, streamId);
+        StreamPushItem streamPushItem = streamPushMapper.getByAppAndStream(app, streamId);
         if (streamPushItem != null) {
             gbStreamService.sendCatalogMsg(streamPushItem, CatalogEvent.DEL);
         }

@@ -33,19 +33,21 @@ public class ParentPlatform {
      * SIP服务国标编码
      */
     @Schema(description = "SIP服务国标编码")
+    @TableField("server_gb_id")
     private String serverGBId;
 
     /**
      * SIP服务国标域
      */
     @Schema(description = "SIP服务国标域")
+    @TableField("server_gb_domain")
     private String serverGBDomain;
 
     /**
      * SIP服务IP
      */
     @Schema(description = "SIP服务IP")
-    private String serverIP;
+    private String serverIp;
 
     /**
      * SIP服务端口
@@ -57,6 +59,7 @@ public class ParentPlatform {
      * 设备国标编号
      */
     @Schema(description = "设备国标编号")
+    @TableField("device_gb_id")
     private String deviceGBId;
 
     /**
@@ -144,7 +147,7 @@ public class ParentPlatform {
      */
     @TableField(exist = false)
     @Schema(description = "已被订阅目录信息")
-    private boolean catalogSubscribe;
+    private Boolean catalogSubscribe;
 
     /**
      * 已被订阅报警信息
@@ -204,11 +207,11 @@ public class ParentPlatform {
         this.id = id;
     }
 
-    public boolean isEnable() {
+    public Boolean isEnable() {
         return enable;
     }
 
-    public void setEnable(boolean enable) {
+    public void setEnable(Boolean enable) {
         this.enable = enable;
     }
 
@@ -236,13 +239,7 @@ public class ParentPlatform {
         this.serverGBDomain = serverGBDomain;
     }
 
-    public String getServerIP() {
-        return serverIP;
-    }
 
-    public void setServerIP(String serverIP) {
-        this.serverIP = serverIP;
-    }
 
     public int getServerPort() {
         return serverPort;
@@ -324,27 +321,27 @@ public class ParentPlatform {
         this.characterSet = characterSet;
     }
 
-    public boolean isPtz() {
+    public Boolean isPtz() {
         return ptz;
     }
 
-    public void setPtz(boolean ptz) {
+    public void setPtz(Boolean ptz) {
         this.ptz = ptz;
     }
 
-    public boolean isRtcp() {
+    public Boolean isRtcp() {
         return rtcp;
     }
 
-    public void setRtcp(boolean rtcp) {
+    public void setRtcp(Boolean rtcp) {
         this.rtcp = rtcp;
     }
 
-    public boolean isStatus() {
+    public Boolean isStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 
@@ -364,35 +361,35 @@ public class ParentPlatform {
         this.catalogId = catalogId;
     }
 
-    public boolean isCatalogSubscribe() {
+    public Boolean isCatalogSubscribe() {
         return catalogSubscribe;
     }
 
-    public void setCatalogSubscribe(boolean catalogSubscribe) {
+    public void setCatalogSubscribe(Boolean catalogSubscribe) {
         this.catalogSubscribe = catalogSubscribe;
     }
 
-    public boolean isAlarmSubscribe() {
+    public Boolean isAlarmSubscribe() {
         return alarmSubscribe;
     }
 
-    public void setAlarmSubscribe(boolean alarmSubscribe) {
+    public void setAlarmSubscribe(Boolean alarmSubscribe) {
         this.alarmSubscribe = alarmSubscribe;
     }
 
-    public boolean isMobilePositionSubscribe() {
+    public Boolean isMobilePositionSubscribe() {
         return mobilePositionSubscribe;
     }
 
-    public void setMobilePositionSubscribe(boolean mobilePositionSubscribe) {
+    public void setMobilePositionSubscribe(Boolean mobilePositionSubscribe) {
         this.mobilePositionSubscribe = mobilePositionSubscribe;
     }
 
-    public boolean isStartOfflinePush() {
+    public Boolean isStartOfflinePush() {
         return startOfflinePush;
     }
 
-    public void setStartOfflinePush(boolean startOfflinePush) {
+    public void setStartOfflinePush(Boolean startOfflinePush) {
         this.startOfflinePush = startOfflinePush;
     }
 
@@ -428,19 +425,28 @@ public class ParentPlatform {
         this.createTime = createTime;
     }
 
-    public boolean isAsMessageChannel() {
+    public Boolean isAsMessageChannel() {
         return asMessageChannel;
     }
 
-    public void setAsMessageChannel(boolean asMessageChannel) {
+    public void setAsMessageChannel(Boolean asMessageChannel) {
         this.asMessageChannel = asMessageChannel;
     }
 
-    public boolean isAutoPushChannel() {
+    public Boolean isAutoPushChannel() {
         return autoPushChannel;
     }
 
-    public void setAutoPushChannel(boolean autoPushChannel) {
+    public void setAutoPushChannel(Boolean autoPushChannel) {
         this.autoPushChannel = autoPushChannel;
     }
+
+    public String getServerIp() {
+        return serverIp;
+    }
+
+    public void setServerIp(String serverIp) {
+        this.serverIp = serverIp;
+    }
+
 }
