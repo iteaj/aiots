@@ -1,6 +1,8 @@
 package com.genersoft.iot.vmp.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.common.VideoManagerConstants;
 import com.genersoft.iot.vmp.conf.DynamicTask;
 import com.genersoft.iot.vmp.conf.UserSetting;
@@ -24,6 +26,7 @@ import com.genersoft.iot.vmp.storager.dao.PlatformChannelMapper;
 import com.genersoft.iot.vmp.utils.DateUtil;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
 import com.genersoft.iot.vmp.vmanager.bean.ResourceBaseInfo;
+import com.iteaj.framework.exception.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -473,6 +476,15 @@ public class DeviceServiceImpl implements IDeviceService {
         device.setOnLine(false);
         device.setCreateTime(DateUtil.getNow());
         device.setUpdateTime(DateUtil.getNow());
+        if(StrUtil.isBlank(device.getDeviceId())) {
+            throw new ServiceException("设备国标编号必填");
+        }
+
+        Device byDeviceId = deviceMapper.getDeviceByDeviceId(device.getDeviceId());
+        if(byDeviceId != null) {
+            throw new ServiceException("设备已存在["+device.getDeviceId()+"]");
+        }
+
         deviceMapper.insert(device);
     }
 
@@ -483,7 +495,7 @@ public class DeviceServiceImpl implements IDeviceService {
             logger.warn("更新设备时未找到设备信息");
             return;
         }
-        if(deviceInStore.isSwitchPrimarySubStream() != device.isSwitchPrimarySubStream()){
+        if(!deviceInStore.isSwitchPrimarySubStream().equals(device.isSwitchPrimarySubStream())){
             //当修改设备的主子码流开关时，需要校验是否存在流，如果存在流则直接关闭
             List<SsrcTransaction> ssrcTransactionForAll = streamSession.getSsrcTransactionForAll(device.getDeviceId(), null, null, null);
             if(ssrcTransactionForAll != null){
@@ -629,5 +641,10 @@ public class DeviceServiceImpl implements IDeviceService {
     @Override
     public DeviceMapper getDeviceMapper() {
         return deviceMapper;
+    }
+
+    @Override
+    public Page<Device> detailByPage(Page page, Device device) {
+        return getDeviceMapper().detailByPage(page, device);
     }
 }

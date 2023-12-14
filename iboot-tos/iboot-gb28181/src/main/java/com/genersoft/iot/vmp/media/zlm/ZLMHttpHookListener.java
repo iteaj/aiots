@@ -57,7 +57,7 @@ import java.util.UUID;
  * @date: 2020年5月8日 上午10:46:48
  */
 @RestController
-@RequestMapping("/index/hook")
+@RequestMapping("/gbs/zlm/hook")
 public class ZLMHttpHookListener {
 
     private final static Logger logger = LoggerFactory.getLogger(ZLMHttpHookListener.class);

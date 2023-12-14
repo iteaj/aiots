@@ -21,6 +21,8 @@ import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -47,23 +50,20 @@ import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.*;
 
-@Tag(name  = "国标设备查询", description = "国标设备查询")
-@SuppressWarnings("rawtypes")
-
+/**
+ * 国标(GB28181)设备管理
+ */
 @RestController
-@RequestMapping("/api/device/query")
-public class DeviceQuery {
+@RequestMapping("/gbs/device")
+public class GbsDeviceManagerController extends BaseController {
 
-	private final static Logger logger = LoggerFactory.getLogger(DeviceQuery.class);
+	private final static Logger logger = LoggerFactory.getLogger(GbsDeviceManagerController.class);
 
 	@Autowired
 	private IVideoManagerStorage storager;
 
 	@Autowired
 	private IDeviceChannelService deviceChannelService;
-
-	@Autowired
-	private IRedisCatchStorage redisCatchStorage;
 
 	@Autowired
 	private IInviteStreamService inviteStreamService;
@@ -85,26 +85,22 @@ public class DeviceQuery {
 	 * @param deviceId 国标ID
 	 * @return 国标设备
 	 */
-	@Operation(summary = "查询国标设备")
-	@Parameter(name = "deviceId", description = "设备国标编号", required = true)
-	@GetMapping("/devices/{deviceId}")
-	public Device devices(@PathVariable String deviceId){
-
-		return storager.queryVideoDevice(deviceId);
+	@GetMapping("/edit")
+	public Result<Device> edit(String deviceId){
+		Device device = deviceService.getDevice(deviceId);
+		return success(device);
 	}
 
 	/**
 	 * 分页查询国标设备
 	 * @param page 当前页
+	 * @param device 设备参数
 	 * @return 分页国标列表
 	 */
-	@Operation(summary = "分页查询国标设备")
-	@Parameter(name = "page", description = "当前页", required = true)
-	@Parameter(name = "count", description = "每页查询数量", required = true)
-	@GetMapping("/devices")
-	@Options()
-	public Page<Device> devices(Page page){
-		return storager.queryVideoDeviceList(page,null);
+	@GetMapping("/view")
+	public Result<Page<Device>> view(Page page, Device device){
+		deviceService.detailByPage(page, device);
+		return success(page);
 	}
 
 	/**
@@ -113,30 +109,19 @@ public class DeviceQuery {
 	 * @param deviceId 设备id
 	 * @param page 当前页
 	 * @param query 查询内容
-	 * @param online 是否在线  在线 true / 离线 false
+	 * @param status 是否在线  在线 true / 离线 false
 	 * @param channelType 设备 false/子目录 true
 	 * @param catalogUnderDevice 是否直属与设备的目录
 	 * @return 通道列表
 	 */
-	@GetMapping("/devices/{deviceId}/channels")
-	@Operation(summary = "分页查询通道")
-	@Parameter(name = "deviceId", description = "设备国标编号", required = true)
-	@Parameter(name = "page", description = "当前页", required = true)
-	@Parameter(name = "count", description = "每页查询数量", required = true)
-	@Parameter(name = "query", description = "查询内容")
-	@Parameter(name = "online", description = "是否在线")
-	@Parameter(name = "channelType", description = "设备/子目录-> false/true")
-	@Parameter(name = "catalogUnderDevice", description = "是否直属与设备的目录")
-	public Page<DeviceChannel> channels(@PathVariable String deviceId, Page page,
-											   @RequestParam(required = false) String query,
-											   @RequestParam(required = false) Boolean online,
-											   @RequestParam(required = false) Boolean channelType,
-											   @RequestParam(required = false) Boolean catalogUnderDevice) {
+	@GetMapping("/channels")
+	public Result<Page<DeviceChannel>> channels(Page page, String deviceId, String query, Boolean status, Boolean channelType, Boolean catalogUnderDevice) {
 		if (ObjectUtils.isEmpty(query)) {
 			query = null;
 		}
 
-		return storager.queryChannelsByDeviceId(page, deviceId, query, channelType, online, catalogUnderDevice);
+		Page<DeviceChannel> channelPage = storager.queryChannelsByDeviceId(page, deviceId, query, channelType, status, catalogUnderDevice);
+		return success(channelPage);
 	}
 
 	/**
@@ -144,10 +129,8 @@ public class DeviceQuery {
 	 * @param deviceId 设备id
 	 * @return
 	 */
-	@Operation(summary = "同步设备通道")
-	@Parameter(name = "deviceId", description = "设备国标编号", required = true)
-	@GetMapping("/devices/{deviceId}/sync")
-	public WVPResult<SyncStatus> devicesSync(@PathVariable String deviceId){
+	@GetMapping("/sync")
+	public WVPResult<SyncStatus> devicesSync(String deviceId){
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("设备通道信息同步API调用，deviceId：" + deviceId);
@@ -291,18 +274,19 @@ public class DeviceQuery {
 	}
 
 	/**
-	 * 更新设备信息
+	 * 新增或更新设备信息
 	 * @param device 设备信息
 	 * @return
 	 */
-	@Operation(summary = "更新设备信息")
-	@Parameter(name = "device", description = "设备", required = true)
-	@PostMapping("/device/update/")
-	public void updateDevice(Device device){
-
-		if (device != null && device.getDeviceId() != null) {
-			deviceService.updateCustomDevice(device);
+	@PostMapping("/saveOrUpdate")
+	public Result<Boolean> saveOrUpdate(@Validated @RequestBody Device device){
+		if(device.getId() == null) {
+			deviceService.addDevice(device);
+		} else {
+			deviceService.updateDevice(device);
 		}
+
+		return success();
 	}
 
 	/**

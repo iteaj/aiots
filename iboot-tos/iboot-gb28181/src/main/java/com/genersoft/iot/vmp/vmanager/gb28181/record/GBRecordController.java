@@ -38,7 +38,7 @@ import java.util.UUID;
 @Tag(name  = "国标录像")
 
 @RestController
-@RequestMapping("/api/gb_record")
+@RequestMapping("/gbs/gb_record")
 public class GBRecordController {
 
 	private final static Logger logger = LoggerFactory.getLogger(GBRecordController.class);

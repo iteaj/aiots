@@ -29,7 +29,7 @@ import java.util.List;
 @Tag(name = "报警信息管理")
 
 @RestController
-@RequestMapping("/api/alarm")
+@RequestMapping("/gbs/alarm")
 public class AlarmController {
 
     private final static Logger logger = LoggerFactory.getLogger(AlarmController.class);

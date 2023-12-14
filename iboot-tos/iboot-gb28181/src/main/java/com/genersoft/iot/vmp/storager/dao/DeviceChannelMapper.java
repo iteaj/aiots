@@ -23,8 +23,7 @@ public interface DeviceChannelMapper extends BaseMapper<DeviceChannel> {
             , @Param("channelIds") List<String> channelIds);
 
     Page<DeviceChannel> queryChannelsByPage(Page page, @Param("deviceId") String deviceId, @Param("parentChannelId") String parentChannelId
-            , @Param("query") String query, @Param("hasSubChannel") Boolean hasSubChannel, @Param("online") Boolean online
-            , @Param("channelIds") List<String> channelIds);
+            , @Param("query") String query, @Param("hasSubChannel") Boolean hasSubChannel, @Param("online") Boolean online);
 
     List<DeviceChannelExtend> queryChannelsWithDeviceInfo(@Param("deviceId") String deviceId, @Param("parentChannelId") String parentChannelId
             , @Param("query") String query, @Param("hasSubChannel") Boolean hasSubChannel, @Param("online") Boolean online

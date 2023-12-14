@@ -6,6 +6,10 @@ public class SSRCInfo {
     private String ssrc;
     private String Stream;
 
+    public SSRCInfo() {
+
+    }
+
     public SSRCInfo(int port, String ssrc, String stream) {
         this.port = port;
         this.ssrc = ssrc;

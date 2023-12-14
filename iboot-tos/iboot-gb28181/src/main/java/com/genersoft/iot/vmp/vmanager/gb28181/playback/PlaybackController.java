@@ -45,7 +45,7 @@ import java.util.UUID;
 @Tag(name = "视频回放")
 
 @RestController
-@RequestMapping("/api/playback")
+@RequestMapping("/gbs/playback")
 public class PlaybackController {
 
 	private final static Logger logger = LoggerFactory.getLogger(PlaybackController.class);

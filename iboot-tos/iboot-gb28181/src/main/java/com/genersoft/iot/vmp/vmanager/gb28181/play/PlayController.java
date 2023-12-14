@@ -28,6 +28,9 @@ import com.genersoft.iot.vmp.utils.DateUtil;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.bean.StreamContent;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.HttpResult;
+import com.iteaj.framework.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,8 +52,8 @@ import java.util.UUID;
 @Tag(name  = "国标设备点播")
 
 @RestController
-@RequestMapping("/api/play")
-public class PlayController {
+@RequestMapping("/gbs/play")
+public class PlayController extends BaseController {
 
 	private final static Logger logger = LoggerFactory.getLogger(PlayController.class);
 
@@ -87,12 +90,15 @@ public class PlayController {
 	@Autowired
 	private UserSetting userSetting;
 
-	@Operation(summary = "开始点播")
-	@Parameter(name = "deviceId", description = "设备国标编号", required = true)
-	@Parameter(name = "channelId", description = "通道国标编号", required = true)
-	@GetMapping("/start/{deviceId}/{channelId}")
-	public DeferredResult<WVPResult<StreamContent>> play(HttpServletRequest request, @PathVariable String deviceId,
-														 @PathVariable String channelId) {
+	/**
+	 * 开始点播
+	 * @param request
+	 * @param deviceId
+	 * @param channelId
+	 * @return
+	 */
+	@GetMapping("/start")
+	public DeferredResult<Result<StreamContent>> play(HttpServletRequest request, String deviceId, String channelId) {
 
 		logger.info("[开始点播] deviceId：{}, channelId：{}, ", deviceId, channelId);
 		// 获取可用的zlm
@@ -104,14 +110,14 @@ public class PlayController {
 		requestMessage.setKey(key);
 		String uuid = UUID.randomUUID().toString();
 		requestMessage.setId(uuid);
-		DeferredResult<WVPResult<StreamContent>> result = new DeferredResult<>(userSetting.getPlayTimeout().longValue());
+		DeferredResult<Result<StreamContent>> result = new DeferredResult<>(userSetting.getPlayTimeout().longValue());
 
 		result.onTimeout(()->{
 			logger.info("[点播等待超时] deviceId：{}, channelId：{}, ", deviceId, channelId);
 			// 释放rtpserver
-			WVPResult<StreamInfo> wvpResult = new WVPResult<>();
+			HttpResult<StreamInfo> wvpResult = HttpResult.Success();
 			wvpResult.setCode(ErrorCode.ERROR100.getCode());
-			wvpResult.setMsg("点播超时");
+			wvpResult.setMessage("点播超时");
 			requestMessage.setData(wvpResult);
 			resultHolder.invokeAllResult(requestMessage);
 			inviteStreamService.removeInviteInfoByDeviceAndChannel(InviteSessionType.PLAY, deviceId, channelId);
@@ -122,11 +128,8 @@ public class PlayController {
 		resultHolder.put(key, uuid, result);
 
 		playService.play(newMediaServerItem, deviceId, channelId, null, (code, msg, data) -> {
-			WVPResult<StreamContent> wvpResult = new WVPResult<>();
+			HttpResult<StreamContent> wvpResult = HttpResult.Success();
 			if (code == InviteErrorCode.SUCCESS.getCode()) {
-				wvpResult.setCode(ErrorCode.SUCCESS.getCode());
-				wvpResult.setMsg(ErrorCode.SUCCESS.getMsg());
-
 				if (data != null) {
 					StreamInfo streamInfo = (StreamInfo)data;
 					if (userSetting.getUseSourceIpAsStreamIp()) {
@@ -144,11 +147,12 @@ public class PlayController {
 				}
 			}else {
 				wvpResult.setCode(code);
-				wvpResult.setMsg(msg);
+				wvpResult.setMessage(msg);
 			}
 			requestMessage.setData(wvpResult);
 			resultHolder.invokeResult(requestMessage);
 		});
+
 		return result;
 	}
 

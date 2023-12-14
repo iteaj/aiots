@@ -1,11 +1,16 @@
 package com.genersoft.iot.vmp;
 
+import com.genersoft.iot.vmp.conf.MediaConfig;
+import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.framework.spi.admin.Module;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,23 +21,24 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @ServletComponentScan("com.genersoft.iot.vmp.conf")
 @MapperScan("com.genersoft.iot.vmp.storager.dao")
 @PropertySource("classpath:application-wvp.yml")
+@EnableConfigurationProperties(MediaConfig.class)
 public class GbSipAutoConfiguration {
 
-//    @Bean
-//    public RedisTemplate<Object, Object> wvpRedisTemplate(RedisConnectionFactory connectionFactory) {
-//
-//        RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
-//        // 使用fastJson序列化
-//        Jackson2JsonRedisSerializer jsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
-//        // value值的序列化采用fastJsonRedisSerializer
-//        redisTemplate.setValueSerializer(jsonRedisSerializer);
-//        redisTemplate.setHashValueSerializer(jsonRedisSerializer);
-//
-//        // key的序列化采用StringRedisSerializer
-//        redisTemplate.setKeySerializer(new StringRedisSerializer());
-//        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-//        redisTemplate.setConnectionFactory(connectionFactory);
-//        return redisTemplate;
-//    }
+    /**
+     * 视频监控模块
+     * @return
+     */
+    @Bean
+    public Module wvpModule() {
+        return Module.module("gbs", "视频监控", 55555);
+    }
 
+    /**
+     * @return
+     */
+    @Bean
+    @Order(value = 18)
+    public OrderFilterChainDefinition gbsFilterChainDefinition() {
+        return new OrderFilterChainDefinition().addAnon("/gbs/zlm/hook/**");
+    }
 }

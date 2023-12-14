@@ -43,7 +43,7 @@
             left join wvp_device_channel wdc on a.device_id=wdc.device_id
         <where>
             <if test="onLine != null">
-                a.on_line=${onLine}
+                a.on_line=#{onLine}
             </if>
         </where>
         group by a.device_id order by a.create_time desc
@@ -53,6 +53,23 @@
         select a.*, count(a.device_id) channel_count from wvp_device a
             left join wvp_device_channel wdc on a.device_id=wdc.device_id
         WHERE a.device_id = #{deviceId} group by a.device_id
+    </select>
+
+    <select id="detailByPage" resultMap="BasicMap">
+        select a.*, count(a.device_id) channel_count from wvp_device a
+            left join wvp_device_channel wdc on a.device_id=wdc.device_id
+        <where>
+            <if test="entity.onLine != null">
+                and a.on_line=#{entity.onLine}
+            </if>
+            <if test="entity.name != null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+            <if test="entity.deviceId != null and entity.deviceId != ''">
+                and a.device_id like '%${entity.deviceId}%'
+            </if>
+        </where>
+        group by a.device_id order by a.create_time desc
     </select>
 
 </mapper>

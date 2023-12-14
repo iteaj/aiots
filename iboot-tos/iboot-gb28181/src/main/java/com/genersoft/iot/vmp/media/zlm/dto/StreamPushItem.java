@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.media.zlm.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.media.zlm.dto.hook.OnStreamChangedHookParam;
@@ -18,8 +19,9 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
     /**
      * id
      */
+    @TableId
     @Schema(description = "id")
-    private Integer id;
+    private Long id;
 
     /**
      * 观看总人数，包括hls/rtsp/rtmp/http-flv/ws-flv
@@ -154,11 +156,11 @@ public class StreamPushItem extends GbStream implements Comparable<StreamPushIte
         }
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

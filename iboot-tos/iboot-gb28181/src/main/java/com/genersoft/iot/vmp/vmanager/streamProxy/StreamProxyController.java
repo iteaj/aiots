@@ -34,7 +34,7 @@ import java.util.UUID;
 @Tag(name = "拉流代理", description = "")
 @Controller
 
-@RequestMapping(value = "/api/proxy")
+@RequestMapping(value = "/gbs/proxy")
 public class StreamProxyController {
 
     private final static Logger logger = LoggerFactory.getLogger(StreamProxyController.class);

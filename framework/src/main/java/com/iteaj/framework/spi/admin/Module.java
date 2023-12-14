@@ -41,7 +41,7 @@ public class Module implements Ordered {
     private String packageName;
 
     protected Module(String msn, String name, int order) {
-        this(msn, name, order, msn + "_", false);
+        this(msn, name, order, msn, false);
     }
 
     protected Module(String msn, String name, int order, String packageName, boolean plugin) {

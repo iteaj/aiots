@@ -1,6 +1,6 @@
 /**
  * 设备控制命令API接口
- * 
+ *
  * @author lawrencehj
  * @date 2021年2月1日
  */
@@ -34,10 +34,10 @@ import java.util.UUID;
 @Tag(name  = "国标设备控制")
 
 @RestController
-@RequestMapping("/api/device/control")
+@RequestMapping("/gbs/device/control")
 public class DeviceControl {
 
-    private final static Logger logger = LoggerFactory.getLogger(DeviceQuery.class);
+    private final static Logger logger = LoggerFactory.getLogger(GbsDeviceManagerController.class);
 
     @Autowired
     private IVideoManagerStorage storager;
@@ -50,7 +50,7 @@ public class DeviceControl {
 
     /**
      * 远程启动控制命令API接口
-     * 
+     *
      * @param deviceId 设备ID
      */
 	@Operation(summary = "远程启动控制命令")
@@ -71,7 +71,7 @@ public class DeviceControl {
 
     /**
      * 录像控制命令API接口
-     * 
+     *
      * @param deviceId 设备ID
      * @param recordCmdStr  Record：手动录像，StopRecord：停止手动录像
      * @param channelId     通道编码（可选）
@@ -121,7 +121,7 @@ public class DeviceControl {
 
 	/**
 	 * 报警布防/撤防命令API接口
-	 * 
+	 *
 	 * @param	deviceId 设备ID
 	 * @param	guardCmdStr SetGuard：布防，ResetGuard：撤防
 	 */
@@ -165,7 +165,7 @@ public class DeviceControl {
 
 	/**
 	 * 报警复位API接口
-	 * 
+	 *
 	 * @param	deviceId 设备ID
 	 * @param	alarmMethod 报警方式（可选）
 	 * @param	alarmType   报警类型（可选）
@@ -213,7 +213,7 @@ public class DeviceControl {
 
 	/**
 	 * 强制关键帧API接口
-	 * 
+	 *
 	 * @param	deviceId 设备ID
 	 * @param	channelId  通道ID
 	 */
@@ -242,7 +242,7 @@ public class DeviceControl {
 
 	/**
 	 * 看守位控制命令API接口
-	 * 
+	 *
 	 * @param deviceId 设备ID
 	 * @param enabled       看守位使能1:开启,0:关闭
 	 * @param resetTime     自动归位时间间隔（可选）

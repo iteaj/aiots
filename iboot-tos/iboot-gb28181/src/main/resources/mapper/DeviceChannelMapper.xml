@@ -16,7 +16,7 @@
         <result column="block" property="block" />
         <result column="stream_id" property="streamId" />
         <result column="has_audio" property="hasAudio" />
-        <result column="ptz_type" property="PTZType" />
+        <result column="ptz_type" property="ptzType" />
         <result column="cert_num" property="certNum" />
         <result column="sub_count" property="subCount" />
         <result column="address" property="address" />
@@ -34,7 +34,7 @@
         <result column="civil_code" property="civilCode" />
         <result column="parent_id" property="parentId" />
         <result column="ip_address" property="ipAddress" />
-        <result column="ptz_type_text" property="PTZTypeText" />
+        <result column="ptz_type_text" property="ptzTypeText" />
         <result column="business_group_id" property="businessGroupId" />
         <result column="safety_way" property="safetyWay" />
         <result column="register_way" property="registerWay" />
@@ -240,12 +240,7 @@
         <if test='online == false' > AND dc.status= false</if>
         <if test='hasSubChannel == true' >  AND dc.sub_count > 0 </if>
         <if test='hasSubChannel == false' >  AND dc.sub_count = 0 </if>
-        <if test='channelIds != null'> AND dc.channel_id in
-            <foreach item='item' index='index' collection='channelIds' open='(' separator=',' close=')'>
-                #{item}
-            </foreach>
-        </if>
-        ORDER BY dc.channel_id
+        ORDER BY dc.status desc, dc.channel_id
     </select>
     <select id="batchUpdate" resultType="java.lang.Integer">
         <foreach collection='updateChannels' item='item' separator=';'>

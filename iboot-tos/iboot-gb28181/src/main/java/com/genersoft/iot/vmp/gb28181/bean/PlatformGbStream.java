@@ -1,11 +1,14 @@
 package com.genersoft.iot.vmp.gb28181.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @TableName("wvp_platform_gb_stream")
 public class PlatformGbStream {
 
+    @TableId(type = IdType.AUTO)
     @Schema(description = "ID")
     private Integer gbStreamId;
 

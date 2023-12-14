@@ -20,7 +20,7 @@ import java.util.List;
 @Tag(name  = "视频流关联到级联平台")
 
 @RestController
-@RequestMapping("/api/gbStream")
+@RequestMapping("/gbs/gbStream")
 public class GbStreamController {
 
     private final static Logger logger = LoggerFactory.getLogger(GbStreamController.class);

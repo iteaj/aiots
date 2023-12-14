@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 @Tag(name = "第三方服务对接")
 
 @RestController
-@RequestMapping("/api/rtp")
+@RequestMapping("/gbs/rtp")
 public class RtpController {
 
     @Autowired

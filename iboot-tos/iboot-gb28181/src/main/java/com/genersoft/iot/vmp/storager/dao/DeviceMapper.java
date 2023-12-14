@@ -16,4 +16,6 @@ public interface DeviceMapper extends BaseMapper<Device> {
     Device getDeviceByDeviceId(String deviceId);
 
     Page<Device> getDevices(Page page, Boolean onLine);
+
+    Page<Device> detailByPage(Page page, Device entity);
 }

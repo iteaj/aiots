@@ -407,9 +407,9 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 //			List<DeviceChannel> deviceChannels = deviceChannelMapper.queryChannels(deviceId, sipConfig.getId(), query, hasSubChannel, online,null);
 //			all.addAll(deviceChannels);
 			// 海康设备的parentId是SIP id
-			deviceChannelMapper.queryChannelsByPage(page, deviceId, sipConfig.getId(), query, hasSubChannel, online,null);
+			deviceChannelMapper.queryChannelsByPage(page, deviceId, sipConfig.getId(), query, hasSubChannel, online);
 		}else {
-			deviceChannelMapper.queryChannelsByPage(page, deviceId, null, query, hasSubChannel, online,null);
+			deviceChannelMapper.queryChannelsByPage(page, deviceId, null, query, hasSubChannel, online);
 		}
 
 		return page;
@@ -433,7 +433,7 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Override
 	public Page<DeviceChannel> querySubChannels(Page page, String deviceId, String parentChannelId, String query, Boolean hasSubChannel, Boolean online) {
-		return deviceChannelMapper.queryChannelsByPage(page, deviceId, parentChannelId, query, hasSubChannel, online,null);
+		return deviceChannelMapper.queryChannelsByPage(page, deviceId, parentChannelId, query, hasSubChannel, online);
 	}
 
 	@Override

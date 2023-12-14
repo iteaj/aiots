@@ -11,7 +11,7 @@ import java.util.Base64;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/api/RTVS")
+@RequestMapping(value = "/gbs/RTVS")
 public class RTVSGatewayController {
 
     @Autowired

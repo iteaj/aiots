@@ -1,6 +1,6 @@
 /**
  * 设备设置命令API接口
- * 
+ *
  * @author lawrencehj
  * @date 2021年2月2日
  */
@@ -32,10 +32,10 @@ import java.util.UUID;
 
 @Tag(name = "国标设备配置")
 @RestController
-@RequestMapping("/api/device/config")
+@RequestMapping("/gbs/device/config")
 public class DeviceConfig {
 
-    private final static Logger logger = LoggerFactory.getLogger(DeviceQuery.class);
+    private final static Logger logger = LoggerFactory.getLogger(GbsDeviceManagerController.class);
 
     @Autowired
     private IVideoManagerStorage storager;

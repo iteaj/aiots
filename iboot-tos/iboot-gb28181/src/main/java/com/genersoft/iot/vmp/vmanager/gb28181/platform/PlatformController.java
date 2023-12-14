@@ -43,7 +43,7 @@ import java.util.List;
 @Tag(name  = "级联平台管理")
 
 @RestController
-@RequestMapping("/api/platform")
+@RequestMapping("/gbs/platform")
 public class PlatformController {
 
     private final static Logger logger = LoggerFactory.getLogger(PlatformController.class);

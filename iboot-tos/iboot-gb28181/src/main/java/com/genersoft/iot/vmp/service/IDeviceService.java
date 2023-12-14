@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.gb28181.bean.SipTransactionInfo;
@@ -184,4 +185,6 @@ public interface IDeviceService {
     int deleteByDeviceId(String deviceId);
 
     DeviceMapper getDeviceMapper();
+
+    Page<Device> detailByPage(Page page, Device device);
 }

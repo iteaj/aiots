@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
  * 一个优秀的颓废程序猿（CSDN）
  */
 @Component
-@PropertySource(value = {"classpath:git.properties" }, ignoreResourceNotFound = true)
 public class GitUtil {
 
     @Value("${git.branch:}")

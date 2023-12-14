@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.genersoft.iot.vmp.common.CommonCallback;
 import com.genersoft.iot.vmp.common.VideoManagerConstants;
 import com.genersoft.iot.vmp.conf.DynamicTask;
+import com.genersoft.iot.vmp.conf.MediaConfig;
 import com.genersoft.iot.vmp.conf.SipConfig;
 import com.genersoft.iot.vmp.conf.UserSetting;
 import com.genersoft.iot.vmp.conf.exception.ControllerException;
@@ -62,6 +63,9 @@ public class MediaServerServiceImpl implements IMediaServerService {
 
     @Autowired
     private SipConfig sipConfig;
+
+    @Autowired
+    private MediaConfig mediaConfig;
 
     @Autowired
     private SSRCFactory ssrcFactory;
@@ -565,7 +569,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
         logger.info("[ZLM] 正在设置 ：{} -> {}:{}",
                 mediaServerItem.getId(), mediaServerItem.getIp(), mediaServerItem.getHttpPort());
         String protocol = sslEnabled ? "https" : "http";
-        String hookPrex = String.format("%s://%s:%s/index/hook", protocol, mediaServerItem.getHookIp(), serverPort);
+        String hookPrex = String.format("%s://%s:%s/%s", protocol, mediaServerItem.getHookIp(), serverPort, mediaConfig.getHookPrefix());
 
         Map<String, Object> param = new HashMap<>();
         param.put("api.secret",mediaServerItem.getSecret()); // -profile:v Baseline
@@ -589,7 +593,7 @@ public class MediaServerServiceImpl implements IMediaServerService {
         param.put("hook.on_send_rtp_stopped",String.format("%s/on_send_rtp_stopped", hookPrex));
         param.put("hook.on_rtp_server_timeout",String.format("%s/on_rtp_server_timeout", hookPrex));
         if (mediaServerItem.getRecordAssistPort() > 0) {
-            param.put("hook.on_record_mp4",String.format("http://127.0.0.1:%s/api/record/on_record_mp4", mediaServerItem.getRecordAssistPort()));
+            param.put("hook.on_record_mp4",String.format("http://127.0.0.1:%s/gbs/record/on_record_mp4", mediaServerItem.getRecordAssistPort()));
         }else {
             param.put("hook.on_record_mp4","");
         }

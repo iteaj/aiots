@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.media.zlm.dto;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "拉流代理的信息")
 public class StreamProxyItem extends GbStream {
 
+    @TableId
+    private Long id;
     @Schema(description = "类型")
     private String type;
     @Schema(description = "拉流地址")

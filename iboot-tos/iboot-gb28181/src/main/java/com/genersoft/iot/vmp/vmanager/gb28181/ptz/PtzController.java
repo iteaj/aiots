@@ -26,7 +26,7 @@ import java.util.UUID;
 @Tag(name  = "云台控制")
 
 @RestController
-@RequestMapping("/api/ptz")
+@RequestMapping("/gbs/ptz")
 public class PtzController {
 
 	private final static Logger logger = LoggerFactory.getLogger(PtzController.class);

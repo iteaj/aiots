@@ -37,7 +37,7 @@ import java.util.UUID;
 @Tag(name  = "推流信息管理")
 @Controller
 
-@RequestMapping(value = "/api/push")
+@RequestMapping(value = "/gbs/push")
 public class StreamPushController {
 
     private final static Logger logger = LoggerFactory.getLogger(StreamPushController.class);

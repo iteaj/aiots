@@ -29,7 +29,7 @@ import java.util.List;
 @Tag(name = "云端录像接口")
 
 @RestController
-@RequestMapping("/api/cloud/record")
+@RequestMapping("/gbs/cloud/record")
 public class CloudRecordController {
 
     @Autowired

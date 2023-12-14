@@ -562,45 +562,6 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
         return streamProxyMapper.getOverview();
     }
 
-
-    @Scheduled(cron = "* 0/10 * * * ?")
-    public void asyncCheckStreamProxyStatus() {
-
-        List<MediaServerItem> all = mediaServerService.getAllOnline();
-
-        if (CollectionUtils.isEmpty(all)){
-            return;
-        }
-
-        Map<String, MediaServerItem> serverItemMap = all.stream().collect(Collectors.toMap(MediaServerItem::getId, Function.identity(), (m1, m2) -> m1));
-
-        List<StreamProxyItem> list = videoManagerStorager.getStreamProxyListForEnable(true);
-
-        if (CollectionUtils.isEmpty(list)){
-            return;
-        }
-
-        for (StreamProxyItem streamProxyItem : list) {
-
-            MediaServerItem mediaServerItem = serverItemMap.get(streamProxyItem.getMediaServerId());
-
-            // TODO 支持其他 schema
-            JSONObject mediaInfo = zlmresTfulUtils.isMediaOnline(mediaServerItem, streamProxyItem.getApp(), streamProxyItem.getStream(), "rtsp");
-
-            if (mediaInfo == null){
-                streamProxyItem.setStatus(false);
-            } else {
-                if (mediaInfo.getInteger("code") == 0 && mediaInfo.getBoolean("online")) {
-                    streamProxyItem.setStatus(true);
-                } else {
-                    streamProxyItem.setStatus(false);
-                }
-            }
-
-            updateStreamProxy(streamProxyItem);
-        }
-    }
-
     @Override
     public boolean updateByAppAndStream(StreamProxyItem streamProxyItem) {
         return this.streamProxyMapper.update(streamProxyItem, Wrappers.<StreamProxyItem>lambdaUpdate()

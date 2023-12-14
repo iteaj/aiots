@@ -33,7 +33,7 @@ import java.util.List;
 @Tag(name = "服务控制")
 
 @RestController
-@RequestMapping("/api/server")
+@RequestMapping("/gbs/server")
 public class ServerController {
 
     @Autowired
