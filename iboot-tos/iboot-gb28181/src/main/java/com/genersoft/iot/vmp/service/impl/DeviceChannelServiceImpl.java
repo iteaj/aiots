@@ -244,6 +244,11 @@ public class DeviceChannelServiceImpl extends BaseServiceImpl<DeviceChannelMappe
 
     @Override
     public void batchUpdateChannel(List<DeviceChannel> channels) {
+        String now = DateUtil.getNow();
+        for (DeviceChannel channel : channels) {
+            channel.setUpdateTime(now);
+        }
+
         this.saveOrUpdateBatch(channels);
         for (DeviceChannel channel : channels) {
             if (channel.getParentId() != null) {
