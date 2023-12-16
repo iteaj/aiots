@@ -221,7 +221,7 @@ public class DeviceServiceImpl implements IDeviceService {
             for (SsrcTransaction ssrcTransaction : ssrcTransactions) {
                 mediaServerService.releaseSsrc(ssrcTransaction.getMediaServerId(), ssrcTransaction.getSsrc());
                 mediaServerService.closeRTPServer(ssrcTransaction.getMediaServerId(), ssrcTransaction.getStream());
-                streamSession.remove(deviceId, ssrcTransaction.getChannelId(), ssrcTransaction.getStream());
+                streamSession.removeByCallId(deviceId, ssrcTransaction.getChannelId(), ssrcTransaction.getCallId());
             }
         }
         // 移除订阅
@@ -324,7 +324,7 @@ public class DeviceServiceImpl implements IDeviceService {
                 catalogResponseMessageHandler.setChannelSyncEnd(device.getDeviceId(), errorMsg);
             });
         } catch (SipException | InvalidArgumentException | ParseException e) {
-            logger.error("[同步通道], 信令发送失败：{}", e.getMessage() );
+            logger.error("[同步通道], 信令发送失败：{}", e.getMessage(), e);
             String errorMsg = String.format("同步通道失败，信令发送失败： %s", e.getMessage());
             catalogResponseMessageHandler.setChannelSyncEnd(device.getDeviceId(), errorMsg);
         }
