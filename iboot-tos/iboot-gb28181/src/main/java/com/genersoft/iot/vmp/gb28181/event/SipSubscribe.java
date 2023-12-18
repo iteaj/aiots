@@ -36,7 +36,7 @@ public class SipSubscribe {
 
     //    @Scheduled(cron="*/5 * * * * ?")   //每五秒执行一次
     //    @Scheduled(fixedRate= 100 * 60 * 60 )
-    @Scheduled(cron="0 0/5 * * * ?")   //每5分钟执行一次
+    @Scheduled(cron="0 0/1 * * * ?")   //每5分钟执行一次
     public void execute(){
         logger.info("[定时任务] 清理过期的SIP订阅信息");
 

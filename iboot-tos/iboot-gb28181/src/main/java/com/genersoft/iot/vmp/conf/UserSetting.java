@@ -43,7 +43,7 @@ public class UserSetting {
 
     private Boolean pushAuthority = Boolean.TRUE;
 
-    private Boolean syncChannelOnDeviceOnline = Boolean.FALSE;
+    private Boolean syncChannelOnDeviceOnline = Boolean.TRUE;
 
     private Boolean sipLog = Boolean.FALSE;
     private Boolean sqlLog = Boolean.FALSE;

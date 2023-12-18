@@ -233,6 +233,15 @@ public class PlayServiceImpl implements IPlayService {
                     HookSubscribeForStreamChange hookSubscribe = HookSubscribeFactory.on_stream_changed("rtp", ssrcInfo.getStream(), true, "rtsp", mediaServerItem.getId());
                     subscribe.removeSubscribe(hookSubscribe);
                 }
+            } else {
+                logger.info("[点播超时] 收流超时 deviceId: {}, channelId: {},码流类型：{}，端口：{}, SSRC: {}",
+                        device.getDeviceId(), channelId, device.isSwitchPrimarySubStream() ? "辅码流" : "主码流",
+                        ssrcInfo.getPort(), ssrcInfo.getSsrc());
+
+                mediaServerService.releaseSsrc(mediaServerItem.getId(), ssrcInfo.getSsrc());
+
+                mediaServerService.closeRTPServer(mediaServerItem.getId(), ssrcInfo.getStream());
+                streamSession.remove(device.getDeviceId(), channelId, ssrcInfo.getStream());
             }
         }, userSetting.getPlayTimeout());
 
@@ -304,7 +313,14 @@ public class PlayServiceImpl implements IPlayService {
         if (!device.getStreamMode().equalsIgnoreCase("TCP-ACTIVE")) {
             return;
         }
-        String substring = contentString.substring(0, contentString.indexOf("y="));
+
+        String substring;
+        if (contentString.indexOf("y=") > 0) {
+            substring = contentString.substring(0, contentString.indexOf("y="));
+        }else {
+            substring = contentString;
+        }
+
         try {
             SessionDescription sdp = SdpFactory.getInstance().createSessionDescription(substring);
             int port = -1;
@@ -558,6 +574,10 @@ public class PlayServiceImpl implements IPlayService {
         ResponseEvent responseEvent = (ResponseEvent) eventResult.event;
         String contentString = new String(responseEvent.getResponse().getRawContent());
         String ssrcInResponse = SipUtils.getSsrcFromSdp(contentString);
+        // 兼容回复的消息中缺少ssrc(y字段)的情况
+        if (ssrcInResponse == null) {
+            ssrcInResponse = ssrcInfo.getSsrc();
+        }
         if (ssrcInfo.getSsrc().equals(ssrcInResponse)) {
             // ssrc 一致
             if (mediaServerItem.isRtpEnable()) {

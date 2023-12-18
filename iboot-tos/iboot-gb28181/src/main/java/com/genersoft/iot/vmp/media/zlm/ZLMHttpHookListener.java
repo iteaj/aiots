@@ -241,6 +241,7 @@ public class ZLMHttpHookListener {
 
 
         HookResultForOnPublish result = HookResultForOnPublish.SUCCESS();
+        result.setEnable_audio(true);
         taskExecutor.execute(() -> {
             ZlmHttpHookSubscribe.Event subscribe = this.subscribe.sendNotify(HookType.on_publish, json);
             if (subscribe != null) {
@@ -530,11 +531,15 @@ public class ZLMHttpHookListener {
                         if (info != null) {
                             cmder.streamByeCmd(device, inviteInfo.getChannelId(),
                                     inviteInfo.getStream(), null);
+                        }else {
+                            logger.info("[无人观看] 未找到设备的点播信息： {}， 流：{}", inviteInfo.getDeviceId(), param.getStream());
                         }
                     } catch (InvalidArgumentException | ParseException | SipException |
                              SsrcTransactionNotFoundException e) {
                         logger.error("[无人观看]点播， 发送BYE失败 {}", e.getMessage());
                     }
+                }else {
+                    logger.info("[无人观看] 未找到设备： {}，流：{}", inviteInfo.getDeviceId(), param.getStream());
                 }
 
                 inviteStreamService.removeInviteInfo(inviteInfo.getType(), inviteInfo.getDeviceId(),

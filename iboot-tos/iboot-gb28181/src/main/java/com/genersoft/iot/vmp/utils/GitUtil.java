@@ -19,7 +19,7 @@ public class GitUtil {
     @Value("${git.build.time:}")
     private String buildDate;
 
-    @Value("${git.build.version:}")
+    @Value("${git.build.version:${framework.version}}")
     private String buildVersion;
 
     @Value("${git.commit.id.abbrev:}")
