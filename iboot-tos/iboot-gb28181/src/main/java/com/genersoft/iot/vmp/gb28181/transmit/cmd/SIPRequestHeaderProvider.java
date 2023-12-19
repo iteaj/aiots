@@ -56,8 +56,9 @@ public class SIPRequestHeaderProvider {
 		ViaHeader viaHeader = SipFactory.getInstance().createHeaderFactory().createViaHeader(sipLayer.getLocalIp(device.getLocalIp()), sipConfig.getPort(), device.getTransport(), viaTag);
 		viaHeader.setRPort();
 		viaHeaders.add(viaHeader);
-		// from
-		SipURI fromSipURI = SipFactory.getInstance().createAddressFactory().createSipURI(sipConfig.getId(), sipConfig.getDomain());
+		// from(IBoot)
+//		SipURI fromSipURI = SipFactory.getInstance().createAddressFactory().createSipURI(sipConfig.getId(), sipConfig.getDomain()); // 不支持海康威视
+		SipURI fromSipURI = SipFactory.getInstance().createAddressFactory().createSipURI(sipConfig.getId(), sipConfig.getIp() + ":" + sipConfig.getPort()); // 支持海康威视
 		Address fromAddress = SipFactory.getInstance().createAddressFactory().createAddress(fromSipURI);
 		FromHeader fromHeader = SipFactory.getInstance().createHeaderFactory().createFromHeader(fromAddress, fromTag);
 		// to
@@ -70,13 +71,21 @@ public class SIPRequestHeaderProvider {
 		// ceq
 		CSeqHeader cSeqHeader = SipFactory.getInstance().createHeaderFactory().createCSeqHeader(redisCatchStorage.getCSEQ(), Request.MESSAGE);
 
+		// Contact(IBoot)
+		SipURI sipConcatURI = SipFactory.getInstance().createAddressFactory().createSipURI(null, sipLayer.getLocalIp(device.getLocalIp()) + ":" + sipConfig.getPort());
+		Address concatAddress = SipFactory.getInstance().createAddressFactory().createAddress(sipConcatURI);
+		ContactHeader contactHeader = SipFactory.getInstance().createHeaderFactory().createContactHeader(concatAddress);
+
 		request = SipFactory.getInstance().createMessageFactory().createRequest(requestURI, Request.MESSAGE, callIdHeader, cSeqHeader, fromHeader,
 				toHeader, viaHeaders, maxForwards);
 
+		request.addHeader(contactHeader);
 		request.addHeader(SipUtils.createUserAgentHeader(gitUtil));
 
 		ContentTypeHeader contentTypeHeader = SipFactory.getInstance().createHeaderFactory().createContentTypeHeader("Application", "MANSCDP+xml");
 		request.setContent(content, contentTypeHeader);
+
+		System.out.println(request);
 		return request;
 	}
 
@@ -86,7 +95,6 @@ public class SIPRequestHeaderProvider {
 		SipURI requestLine = SipFactory.getInstance().createAddressFactory().createSipURI(channelId, device.getHostAddress());
 		//via
 		ArrayList<ViaHeader> viaHeaders = new ArrayList<ViaHeader>();
-		HeaderFactory headerFactory = SipFactory.getInstance().createHeaderFactory();
 		ViaHeader viaHeader = SipFactory.getInstance().createHeaderFactory().createViaHeader(sipLayer.getLocalIp(device.getLocalIp()), sipConfig.getPort(), device.getTransport(), viaTag);
 		viaHeader.setRPort();
 		viaHeaders.add(viaHeader);

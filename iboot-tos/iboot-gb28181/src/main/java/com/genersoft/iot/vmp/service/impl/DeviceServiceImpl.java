@@ -319,12 +319,9 @@ public class DeviceServiceImpl implements IDeviceService {
         int sn = (int)((Math.random()*9+1)*100000);
         catalogResponseMessageHandler.setChannelSyncReady(device, sn);
         try {
-//            sipCommander.catalogQuery(device, sn, event -> {
-//                String errorMsg = String.format("同步通道失败，错误码： %s, %s", event.statusCode, event.msg);
-//                catalogResponseMessageHandler.setChannelSyncEnd(device.getDeviceId(), errorMsg);
-//            });
-            sipCommander.deviceStatusQuery(device, eventResult -> {
-                System.out.println(eventResult);
+            sipCommander.catalogQuery(device, sn, event -> {
+                String errorMsg = String.format("同步通道失败，错误码： %s, %s", event.statusCode, event.msg);
+                catalogResponseMessageHandler.setChannelSyncEnd(device.getDeviceId(), errorMsg);
             });
         } catch (SipException | InvalidArgumentException | ParseException e) {
             logger.error("[同步通道], 信令发送失败：{}", e.getMessage(), e);

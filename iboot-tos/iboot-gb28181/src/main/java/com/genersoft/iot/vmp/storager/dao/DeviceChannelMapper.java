@@ -49,7 +49,7 @@ public interface DeviceChannelMapper extends BaseMapper<DeviceChannel> {
 
     int batchAdd(@Param("addChannels") List<DeviceChannel> addChannels);
 
-    int batchUpdate(@Param("addChannels") List<DeviceChannel> updateChannels);
+    int batchUpdate(@Param("updateChannels") List<DeviceChannel> updateChannels);
 
     int updateChannelSubCount(@Param("deviceId") String deviceId, @Param("channelId") String channelId);
 

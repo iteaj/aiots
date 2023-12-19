@@ -15,7 +15,7 @@ import java.util.Map;
 public class RTVSGatewayController {
 
     @Autowired
-    private IPlayService playService;
+    private SIPCommander sipCommander;
 
     @RequestMapping("/**")
     public String test(HttpServletRequest request) {
@@ -25,6 +25,7 @@ public class RTVSGatewayController {
         String s = new String(decode);
         System.out.println(s);
         System.out.println(request);
+//        sipCommander.playStreamCmd();
 //        playService.play()
         return "-1";
     }

@@ -72,11 +72,11 @@ public class SipUtils {
         if (gitUtil != null ) {
             if (!ObjectUtils.isEmpty(gitUtil.getBuildVersion())) {
                 agentParam.add("v");
-                agentParam.add(gitUtil.getBuildVersion() + ".");
+                agentParam.add(gitUtil.getBuildVersion());
             }
-            if (!ObjectUtils.isEmpty(gitUtil.getCommitTime())) {
-                agentParam.add(gitUtil.getCommitTime());
-            }
+//            if (!ObjectUtils.isEmpty(gitUtil.getCommitTime())) {
+//                agentParam.add(gitUtil.getCommitTime());
+//            }
         }
         return SipFactory.getInstance().createHeaderFactory().createUserAgentHeader(agentParam);
     }
