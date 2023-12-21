@@ -10,6 +10,8 @@ import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.utils.GitUtil;
 import gov.nist.javax.sip.message.SIPRequest;
 import gov.nist.javax.sip.message.SIPResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +48,8 @@ public class SIPRequestHeaderProvider {
 
 	@Autowired
 	private VideoStreamSessionManager streamSession;
+
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public Request createMessageRequest(Device device, String content, String viaTag, String fromTag, String toTag, CallIdHeader callIdHeader) throws ParseException, InvalidArgumentException, PeerUnavailableException {
 		Request request = null;
@@ -85,7 +89,9 @@ public class SIPRequestHeaderProvider {
 		ContentTypeHeader contentTypeHeader = SipFactory.getInstance().createHeaderFactory().createContentTypeHeader("Application", "MANSCDP+xml");
 		request.setContent(content, contentTypeHeader);
 
-		System.out.println(request);
+		if(logger.isDebugEnabled()) {
+			logger.debug("SIP[MESSAGE]请求: {}", request);
+		}
 		return request;
 	}
 
@@ -125,6 +131,10 @@ public class SIPRequestHeaderProvider {
 		request.addHeader(subjectHeader);
 		ContentTypeHeader contentTypeHeader = SipFactory.getInstance().createHeaderFactory().createContentTypeHeader("APPLICATION", "SDP");
 		request.setContent(content, contentTypeHeader);
+
+		if(logger.isDebugEnabled()) {
+			logger.debug("SIP[INVITE]请求: {}", request);
+		}
 		return request;
 	}
 
@@ -165,6 +175,9 @@ public class SIPRequestHeaderProvider {
 
 		ContentTypeHeader contentTypeHeader = SipFactory.getInstance().createHeaderFactory().createContentTypeHeader("APPLICATION", "SDP");
 		request.setContent(content, contentTypeHeader);
+		if(logger.isDebugEnabled()) {
+			logger.debug("SIP[Playback Invite]请求: {}", request);
+		}
 		return request;
 	}
 
@@ -201,7 +214,9 @@ public class SIPRequestHeaderProvider {
 		request.addHeader(SipFactory.getInstance().createHeaderFactory().createContactHeader(concatAddress));
 
 		request.addHeader(SipUtils.createUserAgentHeader(gitUtil));
-
+		if(logger.isDebugEnabled()) {
+			logger.debug("SIP[BYE]请求: {}", request);
+		}
 		return request;
 	}
 
@@ -252,7 +267,9 @@ public class SIPRequestHeaderProvider {
 		request.setContent(content, contentTypeHeader);
 
 		request.addHeader(SipUtils.createUserAgentHeader(gitUtil));
-
+		if(logger.isDebugEnabled()) {
+			logger.debug("SIP[SUBSCRIBE]请求: {}", request);
+		}
 		return request;
 	}
 
@@ -297,6 +314,10 @@ public class SIPRequestHeaderProvider {
 					"MANSRTSP");
 			request.setContent(content, contentTypeHeader);
 		}
+
+		if(logger.isDebugEnabled()) {
+			logger.debug("SIP[INFO]请求: {}", request);
+		}
 		return request;
 	}
 
@@ -322,7 +343,9 @@ public class SIPRequestHeaderProvider {
 		request.addHeader(SipFactory.getInstance().createHeaderFactory().createContactHeader(concatAddress));
 
 		request.addHeader(SipUtils.createUserAgentHeader(gitUtil));
-
+		if(logger.isDebugEnabled()) {
+			logger.debug("SIP[ACK]请求: {}", request);
+		}
 		return request;
 	}
 }
