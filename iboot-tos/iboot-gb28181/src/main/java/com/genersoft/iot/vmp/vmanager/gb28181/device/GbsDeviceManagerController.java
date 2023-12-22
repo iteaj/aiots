@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.vmanager.gb28181.device;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.conf.DynamicTask;
@@ -20,6 +21,7 @@ import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
+import com.genersoft.iot.vmp.vmanager.bean.RealtimeTree;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +52,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 国标(GB28181)设备管理
@@ -101,6 +105,34 @@ public class GbsDeviceManagerController extends BaseController {
 	public Result<Page<Device>> view(Page page, Device device){
 		deviceService.detailByPage(page, device);
 		return success(page);
+	}
+
+	/**
+	 * 树形结构的设备-通道列表
+	 * @param deviceId 设备id 用于获取下面的通道列表
+	 * @return
+	 */
+	@GetMapping("/trees")
+	public Result<List<RealtimeTree>> trees(String deviceId) {
+		if(StrUtil.isBlank(deviceId)) {
+			List<Device> devices = deviceService.getAll();
+			if(!CollectionUtils.isEmpty(devices)) {
+				List<RealtimeTree> realtimeTrees = devices.stream()
+						.map(item -> RealtimeTree.buildDevice(item.getDeviceId(), item.getName(), item.isOnLine()))
+						.collect(Collectors.toList());
+				return success(realtimeTrees);
+			}
+		} else {
+			List<DeviceChannel> deviceChannels = deviceService.queryVideoDeviceInTreeNode(deviceId, null);
+			if(!CollectionUtils.isEmpty(deviceChannels)) {
+				List<RealtimeTree> realtimeTrees = deviceChannels.stream()
+						.map(item -> RealtimeTree.buildChannel(item.getDeviceId(), item.getChannelId(), item.getName(), item.isStatus()))
+						.collect(Collectors.toList());
+				return success(realtimeTrees);
+			}
+		}
+
+		return success();
 	}
 
 	/**
