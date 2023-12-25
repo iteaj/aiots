@@ -1,6 +1,6 @@
 package com.genersoft.iot.vmp.vmanager.bean;
 
-public class RealtimeTree {
+public class GbsRealtimeTree {
 
     /**
      * 设备编号
@@ -28,20 +28,26 @@ public class RealtimeTree {
      */
     private String type;
 
-    public RealtimeTree(String deviceId, String channelId, String name, String type, Boolean status) {
+    /**
+     * 子设备数
+     */
+    private Integer childrenNum;
+
+    public GbsRealtimeTree(String deviceId, String channelId, String name, String type, Boolean status, Integer childrenNum) {
         this.deviceId = deviceId;
         this.channelId = channelId;
         this.name = name;
         this.type = type;
         this.status = status;
+        this.childrenNum = childrenNum;
     }
 
-    public static RealtimeTree buildDevice(String deviceId, String name, Boolean status) {
-        return new RealtimeTree(deviceId, null, name, "device", status);
+    public static GbsRealtimeTree buildDevice(String deviceId, String name, Boolean status, Integer childrenNum) {
+        return new GbsRealtimeTree(deviceId, null, name, "device", status, childrenNum);
     }
 
-    public static RealtimeTree buildChannel(String deviceId, String channelId, String name, Boolean status) {
-        return new RealtimeTree(deviceId, channelId, name, "channel", status);
+    public static GbsRealtimeTree buildChannel(String deviceId, String channelId, String name, Boolean status) {
+        return new GbsRealtimeTree(deviceId, channelId, name, "channel", status, 0);
     }
 
 
@@ -83,5 +89,13 @@ public class RealtimeTree {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public int getChildrenNum() {
+        return childrenNum;
+    }
+
+    public void setChildrenNum(int childrenNum) {
+        this.childrenNum = childrenNum;
     }
 }

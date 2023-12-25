@@ -4,6 +4,10 @@ import com.iteaj.framework.captcha.CaptchaType;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+
 @Data
 @ConfigurationProperties(prefix = "framework")
 public class FrameworkProperties {
@@ -27,6 +31,14 @@ public class FrameworkProperties {
      * web环境配置
      */
     private Web web = new Web();
+
+    /**
+     * 启用的模块
+     * 配置格式如下：<hr>
+     *     framework.profiles.core=true
+     *     framework.profiles.framework=true
+     */
+    private Map<String, Boolean> profiles;
 
     /**
      * 校验码配置

@@ -17,18 +17,15 @@ import com.genersoft.iot.vmp.gb28181.transmit.cmd.impl.SIPCommander;
 import com.genersoft.iot.vmp.service.IDeviceChannelService;
 import com.genersoft.iot.vmp.service.IDeviceService;
 import com.genersoft.iot.vmp.service.IInviteStreamService;
-import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
-import com.genersoft.iot.vmp.vmanager.bean.RealtimeTree;
+import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.ibatis.annotations.Options;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,20 +110,20 @@ public class GbsDeviceManagerController extends BaseController {
 	 * @return
 	 */
 	@GetMapping("/trees")
-	public Result<List<RealtimeTree>> trees(String deviceId) {
+	public Result<List<GbsRealtimeTree>> trees(String deviceId) {
 		if(StrUtil.isBlank(deviceId)) {
 			List<Device> devices = deviceService.getAll();
 			if(!CollectionUtils.isEmpty(devices)) {
-				List<RealtimeTree> realtimeTrees = devices.stream()
-						.map(item -> RealtimeTree.buildDevice(item.getDeviceId(), item.getName(), item.isOnLine()))
+				List<GbsRealtimeTree> realtimeTrees = devices.stream()
+						.map(item -> GbsRealtimeTree.buildDevice(item.getDeviceId(), item.getName(), item.isOnLine(), item.getChannelCount()))
 						.collect(Collectors.toList());
 				return success(realtimeTrees);
 			}
 		} else {
 			List<DeviceChannel> deviceChannels = deviceService.queryVideoDeviceInTreeNode(deviceId, null);
 			if(!CollectionUtils.isEmpty(deviceChannels)) {
-				List<RealtimeTree> realtimeTrees = deviceChannels.stream()
-						.map(item -> RealtimeTree.buildChannel(item.getDeviceId(), item.getChannelId(), item.getName(), item.isStatus()))
+				List<GbsRealtimeTree> realtimeTrees = deviceChannels.stream()
+						.map(item -> GbsRealtimeTree.buildChannel(item.getDeviceId(), item.getChannelId(), item.getName(), item.isStatus()))
 						.collect(Collectors.toList());
 				return success(realtimeTrees);
 			}
