@@ -87,14 +87,14 @@ public class UploadController extends BaseController implements InitializingBean
 
     /**
      * 上传用户头像
-     * @param avatar
+     * @param file
      * @return
      */
     @PostMapping("avatar")
-    public Result avatar(MultipartFile avatar) {
+    public Result avatar(MultipartFile file) {
         try {
             Admin admin = SecurityUtil.getLoginUser().map(item -> (Admin) item).get();
-            String fileUrl = this.createFile(avatar, "avatar_"+admin.getId(), "/avatar");
+            String fileUrl = this.createFile(file, "avatar_"+admin.getId(), "/avatar");
             return success(fileUrl, "上传成功");
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
