@@ -1,5 +1,7 @@
 package com.genersoft.iot.vmp.vmanager.bean;
 
+import java.util.List;
+
 public class GbsRealtimeTree {
 
     /**
@@ -33,6 +35,11 @@ public class GbsRealtimeTree {
      */
     private Integer childrenNum;
 
+    /**
+     * 子记录
+     */
+    private List<GbsRealtimeTree> children;
+
     public GbsRealtimeTree(String deviceId, String channelId, String name, String type, Boolean status, Integer childrenNum) {
         this.deviceId = deviceId;
         this.channelId = channelId;
@@ -43,7 +50,7 @@ public class GbsRealtimeTree {
     }
 
     public static GbsRealtimeTree buildDevice(String deviceId, String name, Boolean status, Integer childrenNum) {
-        return new GbsRealtimeTree(deviceId, null, name, "device", status, childrenNum);
+        return new GbsRealtimeTree(deviceId, deviceId, name, "device", status, childrenNum);
     }
 
     public static GbsRealtimeTree buildChannel(String deviceId, String channelId, String name, Boolean status) {
@@ -91,11 +98,19 @@ public class GbsRealtimeTree {
         this.status = status;
     }
 
-    public int getChildrenNum() {
+    public Integer getChildrenNum() {
         return childrenNum;
     }
 
-    public void setChildrenNum(int childrenNum) {
+    public void setChildrenNum(Integer childrenNum) {
         this.childrenNum = childrenNum;
+    }
+
+    public List<GbsRealtimeTree> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<GbsRealtimeTree> children) {
+        this.children = children;
     }
 }
