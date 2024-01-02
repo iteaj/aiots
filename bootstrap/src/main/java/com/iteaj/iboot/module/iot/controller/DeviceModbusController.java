@@ -182,13 +182,17 @@ public class DeviceModbusController extends BaseController {
                 ClientConnectProperties properties = new ClientConnectProperties(entity.getIp(), entity.getPort(), entity.getDeviceSn());
                 SocketClient client = tcpClientComponent.getClient(properties);
                 if(status == DeviceStatus.online) {
-                    if(client == null) {
+                    if(client == null) { // 客户端不存在则创建
                         tcpClientComponent.createNewClientAndConnect(properties);
-                    } else {
+                    } else { // 客户端口存在直接重连
                         client.reconnection();
                     }
                 } else {
-                    client.disconnect();
+                    if(client != null) { // 客户端存在直接断开连接
+                        client.disconnect();
+                    } else { // 客户端不存在更新设备状态到离线
+                        this.deviceService.update(device.getDeviceSn(), status);
+                    }
                 }
 
                 return success(status == DeviceStatus.online ? "连接成功" : "断开成功");
