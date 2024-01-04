@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
@@ -155,7 +156,10 @@ public class DevicePlcController extends BaseController {
         SocketClient client = component.getClient(properties);
         if(status == DeviceStatus.online) {
             if(client == null) {
-                component.createNewClientAndConnect(properties);
+                client = component.createNewClientAndConnect(properties);
+                if(!client.isConnect()) {
+                    throw new ServiceException("连接失败");
+                }
             } else {
                 client.connect();
             }

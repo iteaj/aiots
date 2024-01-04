@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fazecast.jSerialComm.SerialPort;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
@@ -183,7 +184,10 @@ public class DeviceModbusController extends BaseController {
                 SocketClient client = tcpClientComponent.getClient(properties);
                 if(status == DeviceStatus.online) {
                     if(client == null) { // 客户端不存在则创建
-                        tcpClientComponent.createNewClientAndConnect(properties);
+                        client = tcpClientComponent.createNewClientAndConnect(properties);
+                        if(!client.isConnect()) {
+                            throw new ServiceException("连接失败");
+                        }
                     } else { // 客户端口存在直接重连
                         client.reconnection();
                     }
