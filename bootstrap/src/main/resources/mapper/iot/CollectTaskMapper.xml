@@ -22,8 +22,10 @@
         <result property="extend" column="extend"/>
         <result property="childSn" column="child_sn" />
         <result property="storeUid" column="store_uid" />
+        <result property="dataFormat" column="data_format" />
         <result property="storeAction" column="store_action" />
         <result property="collectAction" column="collect_action" />
+        <result property="childDeviceId" column="child_device_id" />
         <result property="collectTaskId" column="collect_task_id" />
         <result property="pointGroupId" column="point_group_id" />
         <association property="store" javaType="com.iteaj.iboot.module.iot.entity.Device"
@@ -54,9 +56,10 @@
     </select>
 
     <select id="collectDetailById" resultMap="collectDetailDtoMap">
-        select a.*, d.id did, d.uid, d.child_sn, d.point_group_id, d.extend
+        select a.*, d.id did, d.uid, d.child_sn, d.point_group_id, d.extend, c.data_format
              , d.collect_task_id, d.collect_action, d.store_action, d.store_uid from iot_collect_task a
             left join iot_collect_detail d on a.id=d.collect_task_id
+            left join iot_device_child c on d.child_device_id=c.id
         where a.id=#{id}
     </select>
 

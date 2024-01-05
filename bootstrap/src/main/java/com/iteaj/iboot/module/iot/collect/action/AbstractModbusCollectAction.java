@@ -14,6 +14,7 @@ import com.iteaj.iot.server.protocol.ServerInitiativeSyncProtocol;
 import com.iteaj.iot.utils.ByteUtil;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.function.Consumer;
 
 public abstract class AbstractModbusCollectAction extends CollectAction {
@@ -49,7 +50,7 @@ public abstract class AbstractModbusCollectAction extends CollectAction {
         }
 
         if(syncProtocol.getExecStatus() == ExecStatus.success) {
-            value = resolveValue(signal.getNum(), type, address, commonProtocol.getPayload());
+            value = resolveValue(signal, type, address, commonProtocol.getPayload(detail.getDataFormat()));
             call.accept(value.toString());
         } else {
             throw new CollectException(syncProtocol.getExecStatus().desc);
@@ -58,13 +59,13 @@ public abstract class AbstractModbusCollectAction extends CollectAction {
 
     /**
      *
-     * @param num 读取的字符串数量
+     * @param signal 点位
      * @param type 字段类型
      * @param address 寄存器地址
      * @param payload 读取到的负载
      * @return
      */
-    protected Object resolveValue(Integer num, Integer type, Integer address, Payload payload) {
+    protected Object resolveValue(Signal signal, Integer type, Integer address, Payload payload) {
         Object value;
         switch (type) {
             case IotConsts.FIELD_TYPE_BOOLEAN:
@@ -74,13 +75,25 @@ public abstract class AbstractModbusCollectAction extends CollectAction {
             case IotConsts.FIELD_TYPE_INT:
                 value = payload.readInt(address); break;
             case IotConsts.FIELD_TYPE_FLOAT:
-                value = payload.readFloat(address); break;
+                float readFloat = payload.readFloat(address);
+                if(signal.getAccuracy() != null) {
+                    value = BigDecimal.valueOf(readFloat).setScale(signal.getAccuracy(), BigDecimal.ROUND_DOWN);
+                } else {
+                    value = readFloat;
+                }
+                break;
             case IotConsts.FIELD_TYPE_DOUBLE:
-                value = payload.readDouble(address); break;
+                double readDouble = payload.readDouble(address);
+                if(signal.getAccuracy() != null) {
+                    value = BigDecimal.valueOf(readDouble).setScale(signal.getAccuracy(), BigDecimal.ROUND_DOWN);
+                } else {
+                    value = readDouble;
+                }
+                break;
             case IotConsts.FIELD_TYPE_LONG:
                 value = payload.readLong(address); break;
             case IotConsts.FIELD_TYPE_STRING:
-                value = payload.readString(address, num); break;
+                value = payload.readString(address, signal.getNum()); break;
             default:
                 value = ByteUtil.bytesToHex(payload.getPayload()); break;
         }

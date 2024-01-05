@@ -26,14 +26,6 @@ public class ModbusTcpClientCollectAction extends AbstractModbusCollectAction{
         Integer childSn = Integer.valueOf(detail.getChildSn());
         Integer address = Integer.valueOf(signal.getAddress());
 
-        if(address > 40001) {
-            address = address - 40001;
-        }
-
-        if(type == IotConsts.FIELD_TYPE_BOOLEAN) {
-            address = address - 1;
-        }
-
         ModbusTcpClientCommonProtocol syncProtocol = (ModbusTcpClientCommonProtocol)getModbusCommonProtocol(type, device.getDeviceSn(), childSn, address, signal.getNum());
 
         Object value;
@@ -46,25 +38,8 @@ public class ModbusTcpClientCollectAction extends AbstractModbusCollectAction{
         if(syncProtocol.getExecStatus() == ExecStatus.success) {
             ModbusTcpBody body = syncProtocol.responseMessage().getBody();
             if(body.isSuccess()) {
-                Payload payload = syncProtocol.getPayload();
-                switch (type) {
-                    case IotConsts.FIELD_TYPE_BOOLEAN:
-                        value = payload.readBoolean(address); break;
-                    case IotConsts.FIELD_TYPE_SHORT:
-                        value = payload.readShort(address); break;
-                    case IotConsts.FIELD_TYPE_INT:
-                        value = payload.readInt(address); break;
-                    case IotConsts.FIELD_TYPE_FLOAT:
-                        value = payload.readFloat(address); break;
-                    case IotConsts.FIELD_TYPE_DOUBLE:
-                        value = payload.readDouble(address); break;
-                    case IotConsts.FIELD_TYPE_LONG:
-                        value = payload.readLong(address); break;
-                    case IotConsts.FIELD_TYPE_STRING:
-                        value = payload.readString(address, signal.getNum()); break;
-                    default:
-                        value = ByteUtil.bytesToHex(payload.getPayload()); break;
-                }
+                Payload payload = syncProtocol.getPayload(detail.getDataFormat());
+                value = resolveValue(signal, type, address, payload);
 
                 call.accept(value.toString());
             } else {

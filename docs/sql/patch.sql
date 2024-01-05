@@ -11,3 +11,11 @@ alter table iot_device_child
 
 alter table iot_collect_detail
     add data_format enum('ABCD', 'BADC', 'DCBA', 'CDAB') null after collect_task_id;
+
+-- 2024/1/4 采集点位新增精度字段
+alter table iot_signal
+    add accuracy int null comment '精度' after field_type;
+
+-- 2024/1/5 采集详情新增子设备id
+alter table iot_collect_detail
+    add child_device_id bigint null comment '子设备id' after collect_action;

@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
@@ -72,8 +74,18 @@ public class Signal extends BaseEntity {
     private String fieldName;
 
     /**
-     * 字段类型(字典 iot_field_type)
+     * 浮点数精度
      */
+    private Integer accuracy;
+
+    /**
+     * 字段类型(字典 iot_field_type)
+     * @see com.iteaj.iboot.module.iot.consts.IotConsts#FIELD_TYPE_INT
+     * @see com.iteaj.iboot.module.iot.consts.IotConsts#FIELD_TYPE_BYTE
+     * @see com.iteaj.iboot.module.iot.consts.IotConsts#FIELD_TYPE_BOOLEAN
+     * ...
+     */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Integer fieldType;
 
     private Date createTime;

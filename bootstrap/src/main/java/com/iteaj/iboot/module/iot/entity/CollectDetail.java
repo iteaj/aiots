@@ -52,13 +52,19 @@ public class CollectDetail extends BaseEntity {
     private String storeAction;
 
     /**
-     * 子设备
+     * 子设备编号
      */
     private String childSn;
 
     /**
+     * 子设备id
+     */
+    private Long childDeviceId;
+
+    /**
      * 数据格式
      */
+    @TableField(exist = false)
     private DataFormat dataFormat;
 
     /**
@@ -117,12 +123,6 @@ public class CollectDetail extends BaseEntity {
      */
     @TableField(exist = false)
     private String deviceSn;
-
-    /**
-     * 子设备数据格式
-     */
-    @TableField(exist = false)
-    private DataFormat format;
 
     /**
      * 采集设备

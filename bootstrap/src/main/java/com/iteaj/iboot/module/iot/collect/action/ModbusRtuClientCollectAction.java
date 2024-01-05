@@ -47,14 +47,6 @@ public class ModbusRtuClientCollectAction extends AbstractModbusCollectAction{
         Integer childSn = Integer.valueOf(detail.getChildSn());
         Integer address = Integer.valueOf(signal.getAddress());
 
-        if(address > 40001) {
-            address = address - 40001;
-        }
-
-        if(type == IotConsts.FIELD_TYPE_BOOLEAN) {
-            address = address - 1;
-        }
-
         ModbusRtuClientProtocol syncProtocol = getModbusCommonProtocol(type, device.getDeviceSn(), childSn, address, signal.getNum());
 
         try {
@@ -69,8 +61,8 @@ public class ModbusRtuClientCollectAction extends AbstractModbusCollectAction{
         if(syncProtocol.getExecStatus() == ExecStatus.success) {
             ModbusRtuBody body = syncProtocol.responseMessage().getBody();
             if(body.isSuccess()) {
-                Payload payload = syncProtocol.getPayload();
-                Object resolveValue = resolveValue(signal.getNum(), type, address, payload);
+                Payload payload = syncProtocol.getPayload(detail.getDataFormat());
+                Object resolveValue = resolveValue(signal, type, address, payload);
                 call.accept(resolveValue.toString());
             } else {
                 throw new CollectException(body.getErrCode().getDesc());

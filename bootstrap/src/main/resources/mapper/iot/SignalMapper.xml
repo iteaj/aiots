@@ -14,12 +14,13 @@
         <result column="model_id" property="modelId" />
         <result column="field_name" property="fieldName" />
         <result column="field_type" property="fieldType" />
+        <result column="accuracy" property="accuracy" />
         <result column="create_time" property="createTime" />
     </resultMap>
 
     <select id="detailByPage" resultMap="BaseResultMap">
         select a.id, a.name, a.address, a.model_id, a.field_name, a.field_type, a.create_time
-             , a.message, a.encode, a.type, idm.type_id from iot_signal a
+             , a.message, a.encode, a.type, a.accuracy, idm.type_id from iot_signal a
             left join iot_device_model idm on a.model_id = idm.id
             left join iot_device_type idt on idm.type_id=idt.id
         <where>
