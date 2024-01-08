@@ -6,6 +6,8 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.iboot.module.iot.entity.Signal;
 
+import java.util.List;
+
 /**
  * <p>
  * 寄存器点位 服务类
@@ -17,4 +19,6 @@ import com.iteaj.iboot.module.iot.entity.Signal;
 public interface ISignalService extends IBaseService<Signal> {
 
     Result<IPage<Signal>> detailByPage(Page<Signal> page, Signal entity);
+
+    void batchImport(List<Signal> signals);
 }

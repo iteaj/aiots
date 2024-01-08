@@ -1,15 +1,16 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.iteaj.framework.BaseEntity;
-import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.Date;
 
 /**
  * <p>
@@ -30,11 +31,13 @@ public class Signal extends BaseEntity {
     /**
      * 点位名称
      */
+    @Excel(name = "点位名称", isImportField = "true")
     private String name;
 
     /**
      * 点位地址
      */
+    @Excel(name = "点位地址", isImportField = "true")
     private String address;
 
     /**
@@ -66,16 +69,19 @@ public class Signal extends BaseEntity {
     /**
      * 型号id
      */
+    @Excel(name = "所属型号", isImportField = "true")
     private Integer modelId;
 
     /**
      * 点位字段名称
      */
+    @Excel(name = "字段名称", isImportField = "true")
     private String fieldName;
 
     /**
      * 浮点数精度
      */
+    @Excel(name = "精度", isImportField = "true", replace = {"1位_1", "2位_2", "3位_3", "4位_4", "5位_5", "6位_6"})
     private Integer accuracy;
 
     /**
@@ -85,6 +91,7 @@ public class Signal extends BaseEntity {
      * @see com.iteaj.iboot.module.iot.consts.IotConsts#FIELD_TYPE_BOOLEAN
      * ...
      */
+    @Excel(name = "字段类型", isImportField = "true", dict = "iot_field_type")
     @JsonSerialize(using = ToStringSerializer.class)
     private Integer fieldType;
 
@@ -95,4 +102,5 @@ public class Signal extends BaseEntity {
     public Signal(Integer modelId) {
         this.modelId = modelId;
     }
+
 }
