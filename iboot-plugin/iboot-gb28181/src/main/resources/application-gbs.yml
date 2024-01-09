@@ -1,0 +1,4 @@
+spring:
+  config:
+    activate:
+      on-profile: dev #\u5F00\u53D1\u73AF\u5883

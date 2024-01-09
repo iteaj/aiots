@@ -12,7 +12,7 @@
 
     <modules>
         <!--gb28181基于开源项目[wvp-GB28181-pro]修改而来-->
-        <module>iboot-gb28181</module>
+        <module>wvp-GB28181-pro</module>
     </modules>
 
     <name>iboot:tos</name>

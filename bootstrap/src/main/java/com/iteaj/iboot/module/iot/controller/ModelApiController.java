@@ -1,22 +1,17 @@
 package com.iteaj.iboot.module.iot.controller;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.dtflys.forest.annotation.Get;
-import com.iteaj.framework.logger.Logger;
-import com.iteaj.framework.result.Result;
-import com.iteaj.framework.security.Logical;
-import org.springframework.web.bind.annotation.*;
-import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
-import com.iteaj.framework.BaseController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 物模型接口管理
