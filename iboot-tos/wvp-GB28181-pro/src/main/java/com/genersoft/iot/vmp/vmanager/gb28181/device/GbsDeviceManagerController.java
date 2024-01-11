@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  * 国标(GB28181)设备管理
  */
 @RestController
-@RequestMapping("/gbs/device")
+//@RequestMapping("/gbs/device")
 public class GbsDeviceManagerController extends BaseController {
 
 	private final static Logger logger = LoggerFactory.getLogger(GbsDeviceManagerController.class);

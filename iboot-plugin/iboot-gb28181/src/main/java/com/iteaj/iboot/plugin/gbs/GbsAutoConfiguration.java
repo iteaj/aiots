@@ -2,9 +2,16 @@ package com.iteaj.iboot.plugin.gbs;
 
 import com.genersoft.iot.vmp.GbsWvpAutoConfiguration;
 import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.iboot.plugin.gbs.rtvs.RtvsDeviceServiceImpl;
+import com.iteaj.iboot.plugin.gbs.rtvs.RtvsProperties;
+import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
+import com.iteaj.iboot.plugin.gbs.wvp.WvpDeviceServiceImpl;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
 
+@ComponentScan({"com.iteaj.iboot.plugin.gbs"})
+@MapperScan({"com.iteaj.iboot.plugin.gbs.mapper", "com.iteaj.iboot.plugin.gbs.rtvs"})
 public class GbsAutoConfiguration {
 
     /**
@@ -23,6 +30,10 @@ public class GbsAutoConfiguration {
     @Configuration(proxyBeanMethods = false)
     public static class WvpAutoConfiguration extends GbsWvpAutoConfiguration {
 
+        @Bean
+        public GbsDeviceService gbsDeviceService() {
+            return new WvpDeviceServiceImpl();
+        }
     }
 
     /**
@@ -30,9 +41,12 @@ public class GbsAutoConfiguration {
      */
     @Profile("rtvs")
     @Configuration(proxyBeanMethods = false)
-    @ComponentScan({"com.iteaj.iboot.plugin.gbs"})
-    @MapperScan("com.iteaj.iboot.plugin.gbs.mapper")
+    @EnableConfigurationProperties(RtvsProperties.class)
     public static class RtvsAutoConfiguration {
 
+        @Bean
+        public GbsDeviceService gbsDeviceService() {
+            return new RtvsDeviceServiceImpl();
+        }
     }
 }
