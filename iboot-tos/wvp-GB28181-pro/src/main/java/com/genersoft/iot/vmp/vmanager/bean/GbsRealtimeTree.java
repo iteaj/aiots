@@ -1,5 +1,7 @@
 package com.genersoft.iot.vmp.vmanager.bean;
 
+import cn.hutool.core.util.StrUtil;
+
 import java.util.List;
 
 public class GbsRealtimeTree {
@@ -57,6 +59,9 @@ public class GbsRealtimeTree {
         return new GbsRealtimeTree(deviceId, channelId, name, "channel", status, 0);
     }
 
+    public String getId() {
+        return (StrUtil.isBlank(this.getDeviceId()) ? "" : this.getDeviceId()) + "_" + (StrUtil.isBlank(this.getChannelId()) ? "" : this.getChannelId());
+    }
 
     public String getDeviceId() {
         return deviceId;

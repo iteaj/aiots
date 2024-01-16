@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.gbs.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
@@ -8,6 +9,8 @@ import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 国标设备管理
@@ -35,7 +38,18 @@ public class GbsDeviceController extends BaseController {
     }
 
     /**
-     *
+     * 树形结构的设备-通道列表
+     * @param deviceId 设备id 用于获取下面的通道列表
+     * @return
+     */
+    @GetMapping("/trees")
+    public Result<List<GbsRealtimeTree>> trees(String deviceId) {
+        List<GbsRealtimeTree> trees = deviceService.trees(deviceId);
+        return success(trees);
+    }
+
+    /**
+     *  更新指定设备
      * @param device
      * @return
      */

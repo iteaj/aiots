@@ -1,8 +1,11 @@
 package com.iteaj.iboot.plugin.gbs.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
+
+import java.util.List;
 
 public interface GbsDeviceService {
 
@@ -19,6 +22,13 @@ public interface GbsDeviceService {
      * @return
      */
     boolean deleteByDeviceId(String deviceId);
+
+    /**
+     * 获取指定设备下面的通道列表
+     * @param deviceId
+     * @return
+     */
+    List<GbsRealtimeTree> trees(String deviceId);
 
     /**
      * 分页获取设备列表

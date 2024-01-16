@@ -1,11 +1,13 @@
 package com.iteaj.iboot.plugin.gbs.rtvs;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,6 +50,29 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
     @Override
     public boolean deleteByDeviceId(String deviceId) {
         return deviceMapper.delete(Wrappers.<RtvsDevice>lambdaQuery().eq(RtvsDevice::getDeviceId, deviceId)) > 0;
+    }
+
+    @Override
+    public List<GbsRealtimeTree> trees(String deviceId) {
+        if(StrUtil.isNotBlank(deviceId)) {
+            List<RtvsChannel> deviceChannels = channelMapper.selectList(Wrappers.<RtvsChannel>lambdaQuery().eq(RtvsChannel::getDeviceId, deviceId));
+            if(!CollectionUtils.isEmpty(deviceChannels)) {
+                List<GbsRealtimeTree> realtimeTrees = deviceChannels.stream()
+                        .map(item -> GbsRealtimeTree.buildChannel(item.getDeviceId(), item.getChannelId(), item.getName(), item.getStatus()))
+                        .collect(Collectors.toList());
+                return realtimeTrees;
+            }
+        } else {
+            List<RtvsDevice> devices = deviceMapper.selectList(Wrappers.emptyWrapper());
+            if(!CollectionUtils.isEmpty(devices)) {
+                List<GbsRealtimeTree> realtimeTrees = devices.stream()
+                        .map(item -> GbsRealtimeTree.buildDevice(item.getDeviceId(), item.getName(), item.getOnline(), item.getChannelCount()))
+                        .collect(Collectors.toList());
+
+                return realtimeTrees;
+            }
+        }
+        return Collections.emptyList();
     }
 
     @Override

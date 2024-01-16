@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.service.IDeviceService;
+import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
@@ -26,6 +27,11 @@ public class WvpDeviceServiceImpl implements GbsDeviceService {
     @Override
     public boolean deleteByDeviceId(String deviceId) {
         return false;
+    }
+
+    @Override
+    public List<GbsRealtimeTree> trees(String deviceId) {
+        return null;
     }
 
     @Override
