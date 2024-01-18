@@ -12,6 +12,16 @@ public class RtvsProperties {
      */
     private GbSip sip;
 
+    /**
+     * 流媒体地址
+     */
+    private String host;
+
+    /**
+     * 流媒体端口
+     */
+    private Integer port;
+
     @Data
     public static class GbSip {
         /**

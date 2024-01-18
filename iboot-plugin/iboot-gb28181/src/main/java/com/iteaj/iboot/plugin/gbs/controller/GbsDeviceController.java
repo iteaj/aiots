@@ -106,4 +106,28 @@ public class GbsDeviceController extends BaseController {
         page = deviceService.channels(page, entity);
         return success(page);
     }
+
+    /**
+     * 获取通道对象
+     * @param deviceId 国标ID
+     * @param channelId 通道ID
+     * @return 国标通道
+     */
+    @GetMapping("/getChannel")
+    public Result<GbsChannel> getChannel(String deviceId, String channelId) {
+        GbsChannel channel = deviceService.getByDeviceIdAndChannelId(deviceId, channelId);
+        return success(channel);
+    }
+
+    /**
+     *  更新指定通道
+     * @param device
+     * @return
+     */
+    @PostMapping("updateChannel")
+    @CheckPermission({"gbs:device:updateChannel"})
+    public Result<Boolean> updateChannel(@RequestBody GbsChannel device) {
+        deviceService.update(device);
+        return success();
+    }
 }

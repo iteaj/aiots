@@ -2,12 +2,15 @@ package com.iteaj.iboot.plugin.gbs.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
+import com.iteaj.iboot.plugin.gbs.MediaInfo;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 
 import java.util.List;
 
 public interface GbsDeviceService {
+
+    MediaInfo getMediaInfo();
 
     /**
      * 获取国标设备通过deviceId
@@ -52,6 +55,13 @@ public interface GbsDeviceService {
     boolean update(GbsDevice device);
 
     /**
+     * 更新通道
+     * @param channel
+     * @return
+     */
+    boolean update(GbsChannel channel);
+
+    /**
      * 获取通道列表
      * @param page
      * @param entity
@@ -69,4 +79,12 @@ public interface GbsDeviceService {
      * @return
      */
     void ptzCtrl(String deviceId, String channelId, String command, int horizonSpeed, int verticalSpeed, int zoomSpeed);
+
+    /**
+     * 获取通道记录
+     * @param deviceId 国标id
+     * @param channelId 通道id
+     * @return
+     */
+    GbsChannel getByDeviceIdAndChannelId(String deviceId, String channelId);
 }

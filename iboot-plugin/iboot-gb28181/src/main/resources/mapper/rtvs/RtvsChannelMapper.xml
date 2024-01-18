@@ -26,6 +26,7 @@
         <result column="IPAddress" property="ipAddress" />
         <result column="BusinessGroupID" property="businessGroupId" />
         <result column="SafetyWay" property="safetyWay" />
+        <result column="NickName" property="nickName" />
         <result column="RegisterWay" property="registerWay" />
         <result column="Manufacturer" property="manufacture" />
         <result column="Certifiable" property="certifiable" />

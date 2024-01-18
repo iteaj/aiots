@@ -28,6 +28,12 @@ public class RtvsChannel {
     private String name;
 
     /**
+     * 别名
+     */
+    @TableField("NickName")
+    private String nickName;
+
+    /**
      * 生产厂商
      */
     @TableField("Manufacturer")
@@ -112,10 +118,10 @@ public class RtvsChannel {
     private String endTime;
 
     /**
-     * 保密属性 缺省为0; 0:不涉密, 1:涉密
+     * 保密属性 缺省为false; false:不涉密, true:涉密
      */
     @TableField("Secrecy")
-    private String secrecy;
+    private Boolean secrecy;
 
     /**
      * IP地址

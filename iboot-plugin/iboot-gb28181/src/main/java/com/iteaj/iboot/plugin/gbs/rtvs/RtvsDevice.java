@@ -3,6 +3,7 @@ package com.iteaj.iboot.plugin.gbs.rtvs;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import lombok.Data;
@@ -15,7 +16,7 @@ public class RtvsDevice {
     /**
      * 设备国标编号
      */
-    @TableField("DeviceId")
+    @TableId("DeviceId")
     private String deviceId;
 
     /**

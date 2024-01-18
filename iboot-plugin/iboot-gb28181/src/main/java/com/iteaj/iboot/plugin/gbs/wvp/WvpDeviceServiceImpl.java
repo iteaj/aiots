@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.service.IDeviceService;
 import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
+import com.iteaj.iboot.plugin.gbs.MediaInfo;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
@@ -18,6 +19,11 @@ public class WvpDeviceServiceImpl implements GbsDeviceService {
 
     @Autowired
     private IDeviceService deviceService;
+
+    @Override
+    public MediaInfo getMediaInfo() {
+        return null;
+    }
 
     @Override
     public GbsDevice getByDeviceId(String deviceId) {
@@ -62,6 +68,11 @@ public class WvpDeviceServiceImpl implements GbsDeviceService {
     }
 
     @Override
+    public boolean update(GbsChannel channel) {
+        return false;
+    }
+
+    @Override
     public Page<GbsChannel> channels(Page page, GbsChannel entity) {
         return null;
     }
@@ -69,5 +80,10 @@ public class WvpDeviceServiceImpl implements GbsDeviceService {
     @Override
     public void ptzCtrl(String deviceId, String channelId, String command, int horizonSpeed, int verticalSpeed, int zoomSpeed) {
 
+    }
+
+    @Override
+    public GbsChannel getByDeviceIdAndChannelId(String deviceId, String channelId) {
+        return null;
     }
 }

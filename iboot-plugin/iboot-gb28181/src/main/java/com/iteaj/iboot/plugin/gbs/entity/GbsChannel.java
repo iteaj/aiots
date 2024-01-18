@@ -22,6 +22,11 @@ public class GbsChannel {
     private String name;
 
     /**
+     * 通道别名
+     */
+    private String nickName;
+
+    /**
      * 生产厂商
      */
     private String manufacture;
@@ -92,9 +97,10 @@ public class GbsChannel {
     private String endTime;
 
     /**
-     * 保密属性 缺省为0; 0:不涉密, 1:涉密
+     * 保密属性 缺省为false
+     * false:不涉密, true:涉密
      */
-    private String secrecy;
+    private Boolean secrecy;
 
     /**
      * IP地址

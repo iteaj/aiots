@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.iboot.plugin.gbs.MediaInfo;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
@@ -36,6 +37,11 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
+    public MediaInfo getMediaInfo() {
+        return MediaInfo.buildRtvs(properties.getHost(), properties.getPort());
+    }
+
+    @Override
     public GbsDevice getByDeviceId(String deviceId) {
         RtvsDevice rtvsDevice = deviceMapper.selectOne(Wrappers.<RtvsDevice>lambdaQuery().eq(RtvsDevice::getDeviceId, deviceId));
         if(rtvsDevice != null) {
@@ -58,7 +64,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
             List<RtvsChannel> deviceChannels = channelMapper.selectList(Wrappers.<RtvsChannel>lambdaQuery().eq(RtvsChannel::getDeviceId, deviceId));
             if(!CollectionUtils.isEmpty(deviceChannels)) {
                 List<GbsRealtimeTree> realtimeTrees = deviceChannels.stream()
-                        .map(item -> GbsRealtimeTree.buildChannel(item.getDeviceId(), item.getChannelId(), item.getName(), item.getStatus()))
+                        .map(item -> GbsRealtimeTree.buildChannel(item.getDeviceId(), item.getChannelId(), StrUtil.isNotBlank(item.getNickName()) ? item.getNickName() : item.getName(), item.getStatus()))
                         .collect(Collectors.toList());
                 return realtimeTrees;
             }
@@ -66,7 +72,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
             List<RtvsDevice> devices = deviceMapper.selectList(Wrappers.emptyWrapper());
             if(!CollectionUtils.isEmpty(devices)) {
                 List<GbsRealtimeTree> realtimeTrees = devices.stream()
-                        .map(item -> GbsRealtimeTree.buildDevice(item.getDeviceId(), item.getName(), item.getOnline(), item.getChannelCount()))
+                        .map(item -> GbsRealtimeTree.buildDevice(item.getDeviceId(), StrUtil.isNotBlank(item.getNickName()) ? item.getNickName() : item.getName(), item.getOnline(), item.getChannelCount()))
                         .collect(Collectors.toList());
 
                 return realtimeTrees;
@@ -116,6 +122,13 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
     }
 
     @Override
+    public boolean update(GbsChannel channel) {
+        return channelMapper.update(channel.toRtvsChannel(), Wrappers.<RtvsChannel>lambdaUpdate()
+                .eq(RtvsChannel::getDeviceId, channel.getDeviceId())
+                .eq(RtvsChannel::getChannelId, channel.getChannelId())) > 0;
+    }
+
+    @Override
     public Page<GbsChannel> channels(Page page, GbsChannel entity) {
         Page<RtvsChannel> selectPage = channelMapper.selectPage(page, Wrappers.query(entity.toRtvsChannel()));
         if(!CollectionUtils.isEmpty(selectPage.getRecords())) {
@@ -145,6 +158,14 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
         }
     }
 
+    @Override
+    public GbsChannel getByDeviceIdAndChannelId(String deviceId, String channelId) {
+        RtvsChannel channel = channelMapper.selectOne(Wrappers.<RtvsChannel>lambdaQuery()
+                .eq(RtvsChannel::getDeviceId, deviceId)
+                .eq(RtvsChannel::getChannelId, channelId));
+        return channel == null ? null : channel.convert();
+    }
+
     /**
      * 每10分钟获取一次记录, 保证token不失效
      */
@@ -169,6 +190,10 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.authorization();
+        try {
+            this.authorization();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
