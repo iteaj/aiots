@@ -1,9 +1,10 @@
 package com.iteaj.framework.spi.iot;
 
+import com.iteaj.framework.ParamMeta;
 import lombok.Data;
 
 @Data
-public class NetworkConfigImpl implements NetworkConfig {
+public abstract class NetworkConfigImpl implements NetworkConfig {
 
     /**
      * 主机地址
@@ -75,11 +76,33 @@ public class NetworkConfigImpl implements NetworkConfig {
          * @return
          */
         private long writeIdle;
+
+        public static ParamMeta[] tcpMetas = new ParamMeta[]{
+            ParamMeta.buildNumber("allIdle", "读写空闲(秒)", 0, "必须是大于0的整数"),
+            ParamMeta.buildNumber("readIdle", "读空闲(秒)", 0, "必须是大于0的整数"),
+            ParamMeta.buildNumber("writeIdle", "写空闲(秒)", 0, "必须是大于0的整数"),
+        };
     }
 
+    /**
+     * UDP协议配置
+     */
+    @Data
+    public static class UdpNetworkConfig extends NetworkConfigImpl {
+        public static ParamMeta[] udpMetas = new ParamMeta[]{
+
+        };
+    }
+
+    /**
+     * http协议配置
+     */
     @Data
     public static class HttpNetworkConfig extends NetworkConfigImpl {
 
+        public static ParamMeta[] httpMetas = new ParamMeta[]{
+
+        };
     }
 
     /**
@@ -95,6 +118,20 @@ public class NetworkConfigImpl implements NetworkConfig {
         public String getCom() {
             return this.getHost();
         }
+
+        public static ParamMeta[] serialMetas = new ParamMeta[]{
+
+        };
+    }
+
+    /**
+     * websocket配置
+     */
+    @Data
+    public static class WebSocketConfig extends NetworkConfigImpl {
+        public static ParamMeta[] websocketMetas = new ParamMeta[]{
+
+        };
     }
 
     /**
@@ -104,7 +141,7 @@ public class NetworkConfigImpl implements NetworkConfig {
     public static class MqttNetworkConfig extends TcpNetworkConfig {
 
         /**
-         * 客户端口id
+         * 客户端id
          */
         private String clientId;
 
@@ -122,5 +159,12 @@ public class NetworkConfigImpl implements NetworkConfig {
          * 保活时间
          */
         private long keepalive;
+
+        public static ParamMeta[] mqttMetas = new ParamMeta[]{
+            ParamMeta.buildRequired("clientId", "客户端id"),
+            ParamMeta.buildRequired("username", "用户名"),
+            ParamMeta.buildRequired("password", "密码"),
+            ParamMeta.buildNumber("keepalive", "保活时间(秒)", 600, "必须是大于0的整数"),
+        };
     }
 }

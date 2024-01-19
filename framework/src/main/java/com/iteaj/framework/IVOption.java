@@ -45,19 +45,21 @@ public class IVOption {
     private Object extra;
 
     public IVOption(String label, Object value) {
-        this.label = label;
-        this.value = value;
+        this(label, value, null);
     }
 
     public IVOption(String label, Object value, Object extra) {
-        this.label = label;
-        this.value = value;
-        this.extra = extra;
+        this(label, value, false, extra);
     }
 
     public IVOption(String label, Object value, boolean disabled) {
+        this(label, value, disabled, null);
+    }
+
+    public IVOption(String label, Object value, boolean disabled, Object extra) {
         this.label = label;
         this.value = value;
+        this.extra = extra;
         this.disabled = disabled;
     }
 

@@ -21,6 +21,11 @@ public class ParamMeta {
     private String extra;
 
     /**
+     * 值类型(string, number)
+     */
+    private String type;
+
+    /**
      * 是否必填
      */
     private boolean required;
@@ -31,23 +36,23 @@ public class ParamMeta {
     private Object defaultValue;
 
     public ParamMeta(String field, String label) {
-        this.field = field;
-        this.label = label;
+        this(field, label, false);
     }
 
     public ParamMeta(String field, String label, Boolean required) {
-        this.field = field;
-        this.label = label;
-        this.required = required;
+        this(field, label, null, required, null);
     }
 
     public ParamMeta(String field, String label, String extra) {
-        this.field = field;
-        this.label = label;
-        this.extra = extra;
+        this(field, label, extra, false, null);
     }
 
     public ParamMeta(String field, String label, String extra, Boolean required, Object defaultValue) {
+        this(field, label, extra, required, defaultValue, "string");
+    }
+
+    public ParamMeta(String field, String label, String extra, Boolean required, Object defaultValue, String type) {
+        this.type = type;
         this.field = field;
         this.label = label;
         this.extra = extra;
@@ -81,5 +86,17 @@ public class ParamMeta {
 
     public static ParamMeta buildRequired(String field, String label, String extra, String defaultValue) {
         return new ParamMeta(field, label, extra, true, defaultValue);
+    }
+
+    public static ParamMeta buildNumber(String field, String label, Object defaultValue) {
+        return buildNumber(field, label, defaultValue, null);
+    }
+
+    public static ParamMeta buildNumber(String field, String label, Object defaultValue, String extra) {
+        return new ParamMeta(field, label, extra, false, defaultValue, "number");
+    }
+
+    public static ParamMeta buildRequiredNumber(String field, String label, Object defaultValue, String extra) {
+        return new ParamMeta(field, label, extra, true, defaultValue, "number");
     }
 }

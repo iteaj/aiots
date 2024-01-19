@@ -121,9 +121,9 @@ public class GatewayController extends BaseController {
                 if(item.getProtocolType() == TransportProtocol.SERIAL) { // 串口协议
                     component = SerialComponent.instance();
                 } else if(item.getProtocolType() != TransportProtocol.UDP) { // tcp等其它协议
-                    component = FrameworkManager.getInstance().getComponentFactory().get(PortType.Tcp, port);
+                    component = FrameworkManager.getComponentFactory().get(PortType.Tcp, port);
                 } else {// udp协议
-                    component = FrameworkManager.getInstance().getComponentFactory().get(PortType.Udp, port);
+                    component = FrameworkManager.getComponentFactory().get(PortType.Udp, port);
                 }
 
                 // 执行开启的操作
@@ -135,13 +135,13 @@ public class GatewayController extends BaseController {
                         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
                         if(supplier != null) {
                             component = supplier.createComponent(null);
-                            FrameworkManager.getInstance().register(component).start();
+                            FrameworkManager.register(component).start();
                         } else {
                             throw new ServiceException("未找到对应的协议["+item.getProtocolCode()+"]");
                         }
                     }
                 } else if(status == GatewayStatus.stop) { // 执行停止操作
-                    FrameworkManager.getInstance().stop(component.getMessageClass());
+                    FrameworkManager.stop(component.getMessageClass());
                 }
 
                 this.gatewayService.update(Wrappers.<Gateway>lambdaUpdate()
