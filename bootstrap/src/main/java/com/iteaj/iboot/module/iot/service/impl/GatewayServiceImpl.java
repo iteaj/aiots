@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
@@ -10,7 +11,6 @@ import com.iteaj.iboot.module.iot.dto.GatewayDto;
 import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.iteaj.iboot.module.iot.mapper.GatewayMapper;
 import com.iteaj.iboot.module.iot.service.IGatewayService;
-import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
@@ -29,11 +29,18 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
 
     @Override
     public BooleanResult save(Gateway entity) {
+        Long protocolId = entity.getProtocolId();
+        this.getByProtocolId(protocolId).ifPresentThrow("应用协议已被绑定");
         return super.save(entity);
     }
 
     @Override
     public BooleanResult updateById(Gateway entity) {
+        Long protocolId = entity.getProtocolId();
+        this.getOne(Wrappers.<Gateway>lambdaQuery()
+                .ne(Gateway::getId, entity.getId())
+                .eq(Gateway::getProtocolId, protocolId))
+                .ifPresentThrow("应用协议已被绑定");
         return super.updateById(entity);
     }
 
@@ -66,5 +73,10 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
     @Override
     public DetailResult<GatewayDto> detailById(Long id) {
         return new DetailResult<>(this.getBaseMapper().detailById(id));
+    }
+
+    @Override
+    public DetailResult<GatewayDto> getByProtocolId(Long protocolId) {
+        return new DetailResult<>(this.getBaseMapper().getByProtocolId(protocolId));
     }
 }

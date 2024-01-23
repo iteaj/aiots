@@ -35,7 +35,7 @@ public class ProtocolApiConfig extends BaseEntity {
     private String protocolApiCode;
 
     /**
-     * 物模型属性
+     * 协议属性
      */
     private String protocolAttrField;
 

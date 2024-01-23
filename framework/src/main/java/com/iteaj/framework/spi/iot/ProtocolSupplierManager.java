@@ -10,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 协议提供管理
@@ -60,6 +57,10 @@ public class ProtocolSupplierManager {
      */
     public static List<DeviceProtocolSupplier> load(File jarFileOrDir) {
         List<DeviceProtocolSupplier> loads = new ArrayList<>();
+        if(!jarFileOrDir.exists()) { // 文件不存在
+            return Collections.emptyList();
+        }
+
         try {
             JarClassLoader jarClassLoader;
             if(jarFileOrDir.isDirectory()) {

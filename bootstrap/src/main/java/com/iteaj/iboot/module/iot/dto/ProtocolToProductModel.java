@@ -23,7 +23,7 @@ public class ProtocolToProductModel {
     /**
      * 协议指令接口
      */
-    private List<ModelApi> protocolApis = new ArrayList<>();
+    private List<ModelApi> funcApis = new ArrayList<>();
 
     /**
      * 模型事件接口

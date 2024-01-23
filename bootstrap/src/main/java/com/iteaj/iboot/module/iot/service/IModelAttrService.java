@@ -1,7 +1,13 @@
 package com.iteaj.iboot.module.iot.service;
 
-import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.module.iot.entity.ModelAttr;
+import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +19,16 @@ import com.iteaj.framework.IBaseService;
  */
 public interface IModelAttrService extends IBaseService<ModelAttr> {
 
+    /**
+     * 获取物模型属性详情(包含属性字典)
+     * @param id
+     * @return
+     */
+    DetailResult<ModelAttr> detailById(Long id);
+
+    Result<Boolean> saveOrUpdateModelAttrDict(ModelAttrDict entity);
+
+    Result<Boolean> removeModelAttrDictByIds(List<Long> idList);
+
+    ListResult<ModelAttrDict> listModelAttrDicts(ModelAttrDict entity);
 }

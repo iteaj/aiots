@@ -13,6 +13,8 @@ iot:
   mqtt:
     default:
       host: broker-cn.emqx.io
+  protocol:
+    jarDir: D:\IdeaProjects\gitee\iboot\iboot-plugin\iboot-protocol\protocol-modbus\target
 ---
 spring:
   config:

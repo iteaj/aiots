@@ -16,6 +16,7 @@ import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.PortType;
 import com.iteaj.iot.serial.SerialComponent;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -78,7 +79,7 @@ public class GatewayController extends BaseController {
     @PostMapping("/saveOrUpdate")
     @Logger("新增或者更新协议网关记录")
     @CheckPermission(value = {"iot:gateway:edit", "iot:gateway:add"}, logical = Logical.OR)
-    public Result<Boolean> saveOrUpdate(@RequestBody Gateway entity) {
+    public Result<Boolean> saveOrUpdate(@Validated @RequestBody Gateway entity) {
         return this.gatewayService.saveOrUpdate(entity);
     }
 

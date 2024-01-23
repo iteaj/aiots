@@ -18,8 +18,8 @@ public class LocalUploadService implements UploadService, InitializingBean {
 
     private File rootDir; // 上传的跟目录
     private String uploadRootUri;
-    private String commonSubPath = "/file/"; // 默认的子路径
     private final FrameworkProperties properties;
+    private String commonSubPath = File.separator + "file" + File.separator; // 默认的子路径
 
     public LocalUploadService(FrameworkProperties properties) {
         this.properties = properties;
@@ -63,8 +63,8 @@ public class LocalUploadService implements UploadService, InitializingBean {
         fileName = fileName.contains(fileType) ? fileName : fileName + fileType;
 
         // 生成文件路径
-        if(!subPath.endsWith("/")) {
-            subPath = subPath + "/";
+        if(!subPath.endsWith(File.separator)) {
+            subPath = subPath + File.separator;
         }
 
         return subPath + fileName;
@@ -79,7 +79,7 @@ public class LocalUploadService implements UploadService, InitializingBean {
                     uploadRootDir.split("file:")[1]
                     : uploadRootDir.split("classpath:")[1];
 
-            if(uploadRootDir.endsWith("/")) {
+            if(uploadRootDir.endsWith(File.separator)) {
                 uploadRootDir = uploadRootDir.substring(0, uploadRootDir.length()-1);
             }
 
@@ -98,7 +98,7 @@ public class LocalUploadService implements UploadService, InitializingBean {
                 uploadRootUri = uploadRootUri.replaceAll("\\*", "");
             }
 
-            if(uploadRootUri.endsWith("/")) {
+            if(uploadRootUri.endsWith(File.separator)) {
                 this.uploadRootUri = uploadRootUri.substring(0, uploadRootUri.length()-1);
             }
 

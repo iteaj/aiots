@@ -16,6 +16,12 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig> {
     String getDesc();
 
     /**
+     * 协议版本
+     * @return
+     */
+    String getVersion();
+
+    /**
      * 返回协议配置
      * @return
      */

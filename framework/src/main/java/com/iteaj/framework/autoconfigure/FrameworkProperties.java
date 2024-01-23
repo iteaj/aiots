@@ -4,6 +4,7 @@ import com.iteaj.framework.captcha.CaptchaType;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.io.File;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,12 +74,16 @@ public class FrameworkProperties {
         /**
          * 文件访问pattern如 /file/**
          */
-        private String pattern = "/file/**";
+        private String pattern = String.format("%sfile%s**", File.separator, File.separator);
 
         /**
-         * 文件存放路径以file: 或 classpath: 开头
+         * 文件存放路径必须以file: 或 classpath: 开头
          */
-        private String location = "file:D:/upload/";
+        private String location = String.format("file:D:%supload%s", File.separator, File.separator);
+
+        public String getLocationPath() {
+            return location.contains("file:") ? location.split("file:")[1] : location.split("classpath:")[1];
+        }
     }
 
     @Data

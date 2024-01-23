@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -36,16 +38,19 @@ public class Product extends BaseEntity {
     /**
      * 产品代码
      */
+    @NotBlank(message = "产品代码必填")
     private String code;
 
     /**
      * 设备类型
      */
+    @NotNull(message = "设备类型必填")
     private DeviceType deviceType;
 
     /**
      * 产品类型
      */
+    @NotNull(message = "产品类型必填")
     private Integer productTypeId;
 
     /**
@@ -58,11 +63,13 @@ public class Product extends BaseEntity {
      * 产品名称
      */
     @TableField(condition = SqlCondition.LIKE)
+    @NotBlank(message = "产品名称必填")
     private String name;
 
     /**
      * 绑定的网关
      */
+    @NotNull(message = "接入网关必填")
     private Long gatewayId;
 
     /**
@@ -80,6 +87,7 @@ public class Product extends BaseEntity {
     /**
      * 绑定的协议
      */
+    @NotNull(message = "所属协议必填")
     private Long protocolId;
 
     /**
@@ -87,6 +95,12 @@ public class Product extends BaseEntity {
      */
     @TableField(exist = false)
     private String protocolName;
+
+    /**
+     * 协议代码
+     */
+    @TableField(exist = false)
+    private String protocolCode;
 
     /**
      * 产品说明

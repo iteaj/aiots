@@ -13,20 +13,25 @@ import java.util.stream.Collectors;
  */
 public enum TransportProtocol {
 
-    TCP("TCP协议", NetworkConfigImpl.TcpNetworkConfig.tcpMetas),
-    UDP("UDP协议", NetworkConfigImpl.UdpNetworkConfig.udpMetas),
-    MQTT("MQTT协议", NetworkConfigImpl.MqttNetworkConfig.mqttMetas),
-    HTTP("HTTP协议", NetworkConfigImpl.HttpNetworkConfig.httpMetas),
-    SERIAL("SERIAL协议", NetworkConfigImpl.SerialConfig.serialMetas),
-    WEBSOCKET("WEBSOCKET协议", NetworkConfigImpl.WebSocketConfig.websocketMetas),
+    TCP("TCP协议", NetworkConfigImpl.TcpNetworkConfig.tcpMetas, false),
+    UDP("UDP协议", NetworkConfigImpl.UdpNetworkConfig.udpMetas, true),
+    MQTT("MQTT协议", NetworkConfigImpl.MqttNetworkConfig.mqttMetas, true),
+    HTTP("HTTP协议", NetworkConfigImpl.HttpNetworkConfig.httpMetas, true),
+    SERIAL("SERIAL协议", NetworkConfigImpl.SerialConfig.serialMetas, true),
+    WEBSOCKET("WEBSOCKET协议", NetworkConfigImpl.WebSocketConfig.websocketMetas, true),
     ;
 
     private String desc;
+    /**
+     * 是否开放
+     */
+    private boolean disabled;
     private ParamMeta[] metas;
 
-    TransportProtocol(String desc, ParamMeta[] metas) {
+    TransportProtocol(String desc, ParamMeta[] metas, boolean disabled) {
         this.desc = desc;
         this.metas = metas;
+        this.disabled = disabled;
     }
 
     public String getDesc() {
@@ -37,9 +42,14 @@ public enum TransportProtocol {
         return metas;
     }
 
+    public boolean isDisabled() {
+        return disabled;
+    }
+
     public static List<IVOption> options() {
         return Arrays.stream(TransportProtocol.values())
-                .map(item -> new IVOption(item.getDesc(), item.name(), item.getMetas()))
+                .filter(item -> !item.disabled)
+                .map(item -> new IVOption(item.getDesc(), item.name(), item.isDisabled(), item.getMetas()))
                 .collect(Collectors.toList());
     }
 }

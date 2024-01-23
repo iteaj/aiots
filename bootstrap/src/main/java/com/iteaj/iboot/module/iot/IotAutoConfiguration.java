@@ -1,10 +1,6 @@
 package com.iteaj.iboot.module.iot;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.ServiceLoaderUtil;
 import com.iteaj.framework.spi.admin.Module;
-import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.iboot.module.iot.collect.CollectActionFactory;
 import com.iteaj.iboot.module.iot.collect.action.*;
 import com.iteaj.iboot.module.iot.collect.store.MqttStoreAction;
@@ -23,8 +19,8 @@ import com.iteaj.iot.serial.SerialComponent;
 import com.iteaj.iot.server.dtu.impl.CommonDtuServerComponent;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -32,12 +28,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 @Profile("iot")
 @ComponentScan({"com.iteaj.iboot.module.iot"})
 @MapperScan({"com.iteaj.iboot.module.iot.mapper"})
 @AutoConfigureAfter(JdbcTemplateAutoConfiguration.class)
+@ImportAutoConfiguration(IotProtocolSupplierAutoConfiguration.class)
 public class IotAutoConfiguration {
 
     /**
@@ -47,26 +43,6 @@ public class IotAutoConfiguration {
     @Bean
     public Module iotModule() {
         return Module.module("iot", "物联网模块", 55555);
-    }
-
-    /**
-     * 协议提供管理
-     * @return
-     */
-    @Bean
-    public ProtocolSupplierManager protocolSupplierManager(@Autowired(required = false) List<DeviceProtocolSupplier> suppliers) {
-        // 加载spi协议
-        ServiceLoaderUtil.load(DeviceProtocolSupplier.class).forEach(item -> {
-            ProtocolSupplierManager.register(item); // 注册协议提供
-        });
-
-        if(CollectionUtil.isNotEmpty(suppliers)) {
-            suppliers.forEach(item -> {
-                ProtocolSupplierManager.register(item);
-            });
-        }
-
-        return ProtocolSupplierManager.getInstance();
     }
 
     /**

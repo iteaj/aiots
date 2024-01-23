@@ -38,6 +38,11 @@ public class Protocol extends BaseEntity {
     private String code;
 
     /**
+     * 协议版本
+     */
+    private String version;
+
+    /**
      * 协议类型
      */
     private TransportProtocol type;

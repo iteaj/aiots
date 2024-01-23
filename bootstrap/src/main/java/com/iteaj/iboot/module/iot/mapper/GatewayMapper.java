@@ -17,4 +17,6 @@ public interface GatewayMapper extends BaseMapper<Gateway> {
     Boolean isBindProduct(Long gatewayId);
 
     GatewayDto detailById(Long id);
+
+    GatewayDto getByProtocolId(Long protocolId);
 }

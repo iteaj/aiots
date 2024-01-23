@@ -4,7 +4,6 @@ public enum ProtocolApiType {
 
     func("功能"),
     event("事件"),
-    protocol("指令"),
     ;
 
     private String desc;

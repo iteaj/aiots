@@ -48,6 +48,10 @@ public interface IotConsts {
      */
     String STORE_ACTION_RDBMS = "STORE:RDBMS";
 
+    /**
+     * 协议的jar子目录
+     */
+    String PROTOCOL_JAR_DIR = "protocol";
 
     int FIELD_TYPE_BYTE = 1;
 

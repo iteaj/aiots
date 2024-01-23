@@ -10,12 +10,10 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
-import org.springframework.stereotype.Component;
 
 /**
  * 用于提供mqtt协议调试
  */
-@Component
 public class MqttDebugProtocolSupplier extends StaticProtocolSupplier<NetworkConfigImpl.MqttNetworkConfig> {
 
     private ProtocolModel mqttDebugProtocolModel = new DefaultProtocolModel("MQTT:CLIENT:DEBUG"
@@ -29,6 +27,11 @@ public class MqttDebugProtocolSupplier extends StaticProtocolSupplier<NetworkCon
     @Override
     public String getDesc() {
         return "用于做Mqtt协议调试";
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0.0";
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service;
 
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -23,4 +24,12 @@ public interface IModelApiService extends IBaseService<ModelApi> {
      * @return
      */
     ListResult<ModelApi> detailsOfProductId(Long productId);
+
+    /**
+     * 通过指定产品和接口代码获取记录
+     * @param productId
+     * @param code
+     * @return
+     */
+    DetailResult<ModelApi> getByProductIdAndCode(Long productId, String code);
 }

@@ -12,6 +12,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -71,7 +72,7 @@ public class ProductController extends BaseController {
     */
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:product:edit", "iot:product:add"}, logical = Logical.OR)
-    public Result<Boolean> save(@RequestBody Product entity) {
+    public Result<Boolean> save(@Validated @RequestBody Product entity) {
         return this.productService.saveOrUpdate(entity);
     }
 

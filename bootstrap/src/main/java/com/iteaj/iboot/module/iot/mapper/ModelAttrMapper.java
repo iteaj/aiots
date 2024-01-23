@@ -1,7 +1,7 @@
 package com.iteaj.iboot.module.iot.mapper;
 
-import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.iteaj.iboot.module.iot.entity.ModelAttr;
 
 /**
  * <p>
@@ -13,4 +13,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ModelAttrMapper extends BaseMapper<ModelAttr> {
 
+    /**
+     * 获取物模型属性详情(包含属性字典)
+     * @param id
+     * @return
+     */
+    ModelAttr detailById(Long id);
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
@@ -64,9 +65,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 .eq(Product::getName, entity.getName()))
                 .ifPresent(one -> {throw new ServiceException("此产品已经存在["+entity.getName()+"]");});
 
+        this.getByCode(entity.getCode()).ifPresentThrow("此产品代码已经存在["+entity.getCode()+"]");
+
         BooleanResult save = super.save(entity);
         // 保存协议对应的指令到物模型
-        saveProtocolToModel(entity);
+//        saveProtocolToModel(entity);
 
         return save;
     }
@@ -80,6 +83,12 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 .eq(Product::getName, entity.getName()))
                 .ofNullable().ifPresent(one -> {throw new ServiceException("此产品已经存在["+entity.getName()+"]");});
 
+        this.getByCode(entity.getCode()).ifPresent(item -> {
+            if(!item.getId().equals(entity.getId())) {
+                throw new ServiceException("此产品代码已经存在["+entity.getCode()+"]");
+            }
+        });
+
         // 如果修改了协议需要删除所有物模型数据
         this.getById(entity.getId()).ifPresent(product -> {
             if(!product.getProtocolId().equals(entity.getProtocolId())) {
@@ -87,7 +96,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 this.removeModel(entity.getId());
 
                 // 保存协议对应的指令到物模型
-                saveProtocolToModel(entity);
+//                saveProtocolToModel(entity);
             }
         });
 
@@ -109,9 +118,9 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             apis.addAll(productModel.getEventApis());
         }
 
-        if(!CollectionUtils.isEmpty(productModel.getProtocolApis())) {
-            productModel.getProtocolApis().forEach(item -> item.setProductId(entity.getId()));
-            apis.addAll(productModel.getProtocolApis());
+        if(!CollectionUtils.isEmpty(productModel.getFuncApis())) {
+            productModel.getFuncApis().forEach(item -> item.setProductId(entity.getId()));
+            apis.addAll(productModel.getFuncApis());
         }
 
         if(!CollectionUtils.isEmpty(apis)) {
@@ -138,15 +147,18 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     @Override
+    @Transactional
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
         if(CollectionUtils.isEmpty(idList)) {
             return new BooleanResult(false);
         }
+
         if(idList.size() > 1) {
             return new BooleanResult(false).fail("不支持批量删除");
         }
 
-        return super.removeByIds(idList);
+        return super.removeByIds(idList)
+                .ifPresent(item -> idList.forEach(id -> this.removeModel((Long) id)));
     }
 
     @Override
@@ -190,11 +202,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                                     return convertProtocolApiConfig(modelApi, config, attr);
                                 }).collect(Collectors.toList());
 
+                        modelApi.setProtocol(true); //协议指令为null
                         if(api.getType() == ProtocolApiType.event) {
                             model.getEventApis().add(modelApi.setUpConfig(upConfig).setDownConfig(downConfig));
                         } else if(api.getType() == ProtocolApiType.func) {
-                            modelApi.setType(ProtocolApiType.protocol); //协议的功能将作为物模型的 协议指令
-                            model.getProtocolApis().add(modelApi.setUpConfig(upConfig).setDownConfig(downConfig));
+                            model.getFuncApis().add(modelApi.setUpConfig(upConfig).setDownConfig(downConfig));
                         }
                     });
 
@@ -223,11 +235,16 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                         .map(api -> convertProtocolApiToModelApi(api))
                         .collect(Collectors.toList());
 
-                model.setProtocolApis(funcApis).setEventApis(eventApis).setAttrs(attrList);
+                model.setFuncApis(funcApis).setEventApis(eventApis).setAttrs(attrList);
             }
         });
 
         return model;
+    }
+
+    @Override
+    public DetailResult<Product> getByCode(String code) {
+        return this.getOne(Wrappers.<Product>lambdaQuery().eq(Product::getCode, code));
     }
 
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {
@@ -235,9 +252,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         BeanUtils.copyProperties(api, modelApi);
 
         // 协议的功能转成协议指令
-        if(api.getType() == ProtocolApiType.func) {
-            modelApi.setType(ProtocolApiType.protocol);
-        }
+        modelApi.setProtocol(true);
 
         List<ModelApiConfig> upConfigs = api.getUpConfigs().stream().map(config -> {
             ModelApiConfig apiConfig = new ModelApiConfig();

@@ -12,9 +12,8 @@
         <result column="ssl" property="useSsl" />
         <result column="username" property="username" />
         <result column="password" property="password" />
-        <result column="all_idle" property="allIdle" />
-        <result column="read_idle" property="readIdle" />
-        <result column="write_idle" property="writeIdle" />
+        <result column="config" property="config"
+                typeHandler="com.iteaj.framework.mybatis.handler.JacksonTypeHandler" />
         <result column="remark" property="remark" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
@@ -34,6 +33,12 @@
     <select id="detailById" resultMap="DetailResultMap">
         select a.*, p.name protocol_name, p.code protocol_code, p.ctrl_mode from iot_gateway a
             left join iot_protocol p on a.protocol_id=p.id
+        where a.id=#{id}
+    </select>
+    <select id="getByProtocolId" resultType="com.iteaj.iboot.module.iot.dto.GatewayDto">
+        select a.*, p.name protocol_name, p.code protocol_code, p.ctrl_mode from iot_gateway a
+            left join iot_protocol p on a.protocol_id=p.id
+        where p.id=#{protocolId}
     </select>
 
 </mapper>

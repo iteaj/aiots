@@ -8,7 +8,10 @@ import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
 import com.iteaj.iboot.module.iot.entity.Protocol;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.iboot.module.iot.entity.ProtocolApi;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,4 +27,25 @@ public interface IProtocolService extends IBaseService<Protocol> {
     DetailResult<ProtocolDto> getByDetail(Long id);
 
     PageResult<IPage<ProtocolDto>> pageDetail(Page<Protocol> page, ProtocolDto entity);
+
+    /**
+     * 加载协议api
+     * @param code 协议代码
+     * @return
+     */
+    ProtocolDto loadProtocol(String code);
+
+    /**
+     * 是否有绑定网关
+     * @param idList
+     * @return
+     */
+    Boolean isBindGateway(Collection<? extends Serializable> idList);
+
+    /**
+     * 通过协议代码获取协议
+     * @param code
+     * @return
+     */
+    DetailResult<Protocol> getByCode(String code);
 }

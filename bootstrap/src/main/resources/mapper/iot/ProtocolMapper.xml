@@ -52,4 +52,11 @@
         select * from iot_protocol where id=#{id}
     </select>
 
+    <select id="isBindGateway" resultType="java.lang.Boolean">
+        select count(id) > 0 from iot_gateway where protocol_id in (
+        <foreach collection="list" item="id" separator=",">
+            #{id}
+        </foreach>)
+    </select>
+
 </mapper>

@@ -13,6 +13,7 @@
         <result column="gateway_type" property="gatewayType" />
         <result column="protocol_id" property="protocolId" />
         <result column="protocol_name" property="protocolName" />
+        <result column="protocol_code" property="protocolCode" />
         <result column="create_time" property="createTime" />
         <result column="product_type_id" property="productTypeId" />
     </resultMap>
@@ -24,7 +25,7 @@
     </resultMap>
 
     <select id="pageOfDetail" resultMap="BaseResultDtoMap">
-        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type
+        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code
              , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, count(distinct id.id) device_count
         from iot_product a
             left join iot_product_type idt on a.product_type_id=idt.id
@@ -53,6 +54,7 @@
 
     <delete id="removeModel">
         delete from iot_model_api where product_id=#{productId};
+        delete from iot_model_attr_dict where model_attr_id in (select id from iot_model_attr where product_id=#{productId});
         delete from iot_model_attr where product_id=#{productId};
         delete from iot_model_api_config where product_id=#{productId};
     </delete>

@@ -14,4 +14,19 @@
         <result column="remark" property="remark" />
     </resultMap>
 
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.ModelAttr" extends="BaseResultMap">
+        <collection property="dicts" ofType="com.iteaj.iboot.module.iot.entity.ModelAttrDict" foreignColumn="model_attr_id">
+            <id column="dict_id" property="id" />
+            <result column="dict_name" property="dictName" />
+            <result column="dict_value" property="dictValue" />
+            <result column="model_attr_id" property="modelAttrId" />
+        </collection>
+    </resultMap>
+
+    <select id="detailById" resultMap="DetailResultMap">
+        select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id from iot_model_attr a
+            left join iot_model_attr_dict d on a.id = d.model_attr_id
+        where a.id=#{id}
+    </select>
+
 </mapper>

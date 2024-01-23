@@ -1,9 +1,12 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 
+import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.iboot.module.iot.consts.GatewayConnectType;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayType;
@@ -11,6 +14,9 @@ import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * <p>
@@ -31,6 +37,7 @@ public class Gateway extends BaseEntity {
     /**
      * 网关名称
      */
+    @NotBlank(message = "网关名称必填")
     private String name;
 
     /**
@@ -66,6 +73,7 @@ public class Gateway extends BaseEntity {
     /**
      * 绑定协议
      */
+    @NotNull(message = "协议必填")
     private Long protocolId;
 
     /**
@@ -74,29 +82,10 @@ public class Gateway extends BaseEntity {
     private GatewayStatus status;
 
     /**
-     * 读写空闲(秒)
+     * 网关配置
      */
-    private Long allIdle;
-
-    /**
-     * 读空闲(秒)
-     */
-    private Long readIdle;
-
-    /**
-     * 写空闲(秒)
-     */
-    private Long writeIdle;
-
-    /**
-     * clientId
-     */
-    private String clientId;
-
-    /**
-     * 最大报文长度
-     */
-    private Integer maxBytes;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ObjectNode config;
 
     /**
      * 备注
@@ -121,6 +110,7 @@ public class Gateway extends BaseEntity {
     /**
      * 传输协议
      */
+    @NotNull(message = "传输协议必填")
     private TransportProtocol protocolType;
 
 }

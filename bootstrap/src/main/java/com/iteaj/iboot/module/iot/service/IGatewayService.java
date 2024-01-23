@@ -18,4 +18,11 @@ public interface IGatewayService extends IBaseService<Gateway> {
     boolean isBindProduct(Long gatewayId);
 
     DetailResult<GatewayDto> detailById(Long id);
+
+    /**
+     * 通过协议获取网关
+     * @param protocolId
+     * @return
+     */
+    DetailResult<GatewayDto> getByProtocolId(Long protocolId);
 }
