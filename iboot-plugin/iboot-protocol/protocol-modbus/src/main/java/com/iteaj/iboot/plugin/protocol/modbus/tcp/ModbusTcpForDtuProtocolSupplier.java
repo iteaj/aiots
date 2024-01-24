@@ -9,8 +9,10 @@ import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.plugin.protocol.modbus.ModbusProtocolConsts;
 import com.iteaj.iboot.plugin.protocol.modbus.rtu.ModbusRtuForDtuProtocolModelApi;
 import com.iteaj.iot.FrameworkComponent;
+import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.consts.ModbusCode;
+import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuMessage;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
 
 public class ModbusTcpForDtuProtocolSupplier extends StaticProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig> {
@@ -83,6 +85,21 @@ public class ModbusTcpForDtuProtocolSupplier extends StaticProtocolSupplier<Netw
 
     @Override
     public FrameworkComponent createComponent(NetworkConfigImpl.TcpNetworkConfig config) {
-        return new ModbusTcpForDtuServerComponent(new ConnectProperties(config.getHost(), config.getPort()));
+        ConnectProperties connectProperties = new ConnectProperties(config.getHost(), config.getPort());
+        if(config.getAllIdle() != null) {
+            connectProperties.setAllIdleTime(config.getAllIdle());
+        } else if(config.getReadIdle() != null) {
+            connectProperties.setReaderIdleTime(config.getReadIdle());
+        } else if(config.getWriteIdle() != null) {
+            connectProperties.setWriterIdleTime(config.getWriteIdle());
+        }
+
+        FrameworkComponent component = FrameworkManager.getComponent(ModbusTcpForDtuMessage.class);
+        if(component == null) {
+            component = new ModbusTcpForDtuServerComponent(connectProperties);
+            FrameworkManager.register(component);
+        }
+
+        return component;
     }
 }

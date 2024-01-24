@@ -2,6 +2,9 @@ package com.iteaj.framework.spi.iot;
 
 import com.alibaba.fastjson.JSONObject;
 
+/**
+ * 接口调用参数
+ */
 public class ProtocolModelApiInvokeParam {
 
     /**
@@ -10,7 +13,12 @@ public class ProtocolModelApiInvokeParam {
     private String deviceSn;
 
     /**
-     * 参数
+     * 超时时间
+     */
+    private Long timeout;
+
+    /**
+     * 执行参数
      */
     private JSONObject param;
 
@@ -51,4 +59,19 @@ public class ProtocolModelApiInvokeParam {
         this.deviceSn = deviceSn;
     }
 
+    public Long getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
+    }
+
+    public JSONObject getParam() {
+        return param;
+    }
+
+    public void setParam(JSONObject param) {
+        this.param = param;
+    }
 }

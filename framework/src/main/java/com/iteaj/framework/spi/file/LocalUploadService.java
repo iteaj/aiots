@@ -63,8 +63,8 @@ public class LocalUploadService implements UploadService, InitializingBean {
         fileName = fileName.contains(fileType) ? fileName : fileName + fileType;
 
         // 生成文件路径
-        if(!subPath.endsWith(File.separator)) {
-            subPath = subPath + File.separator;
+        if(!subPath.endsWith("/")) {
+            subPath = subPath + "/";
         }
 
         return subPath + fileName;

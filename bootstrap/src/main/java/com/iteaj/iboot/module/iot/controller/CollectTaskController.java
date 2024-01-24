@@ -14,6 +14,7 @@ import com.iteaj.iboot.module.iot.collect.CollectService;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.entity.CollectTask;
 import com.iteaj.iboot.module.iot.service.ICollectTaskService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class CollectTaskController extends BaseController {
     private final ICollectTaskService collectTaskService;
     private final StoreActionFactory storeActionFactory;
     private final CollectActionFactory collectActionFactory;
-    public CollectTaskController(CollectService collectService, ICollectTaskService collectTaskService
+    public CollectTaskController(@Autowired(required = false) CollectService collectService, ICollectTaskService collectTaskService
             , StoreActionFactory storeActionFactory, CollectActionFactory collectActionFactory) {
         this.collectService = collectService;
         this.collectTaskService = collectTaskService;

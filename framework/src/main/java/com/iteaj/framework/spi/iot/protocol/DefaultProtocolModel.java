@@ -22,8 +22,8 @@ public class DefaultProtocolModel implements ProtocolModel{
     public DefaultProtocolModel(String code, CtrlMode ctrlMode, TransportProtocol type
             , Map<String, AbstractProtocolModelApi> modelApis, Map<String, ProtocolModelAttr> modelAttrs) {
         this.code = code;
-        this.ctrlMode = ctrlMode;
         this.type = type;
+        this.ctrlMode = ctrlMode;
         this.modelApis = modelApis;
         this.modelAttrs = modelAttrs;
     }
@@ -80,6 +80,11 @@ public class DefaultProtocolModel implements ProtocolModel{
     }
 
     @Override
+    public ProtocolModelAttr getAttr(String filed) {
+        return this.getAttrs().get(filed);
+    }
+
+    @Override
     public Map<String, AbstractProtocolModelApi> getApis() {
         return this.modelApis;
     }
@@ -87,5 +92,10 @@ public class DefaultProtocolModel implements ProtocolModel{
     @Override
     public Map<String, ProtocolModelAttr> getAttrs() {
         return this.modelAttrs;
+    }
+
+    @Override
+    public AbstractProtocolModelApi getApi(String code) {
+        return getApis().get(code);
     }
 }

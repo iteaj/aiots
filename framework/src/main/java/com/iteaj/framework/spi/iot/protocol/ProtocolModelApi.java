@@ -42,5 +42,5 @@ public interface ProtocolModelApi {
      * @param arg
      * @param result
      */
-    void invoke(ProtocolModelApiInvokeParam arg, Consumer<Object> result) throws ProtocolInvokeException;
+    void invoke(ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) throws ProtocolInvokeException;
 }

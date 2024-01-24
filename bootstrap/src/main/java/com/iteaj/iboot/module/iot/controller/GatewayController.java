@@ -1,29 +1,21 @@
 package com.iteaj.iboot.module.iot.controller;
 
-import java.util.List;
-
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.iteaj.framework.IVOption;
-import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.logger.Logger;
-import com.iteaj.framework.result.Result;
-import com.iteaj.framework.security.Logical;
-import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.iboot.module.iot.consts.GatewayStatus;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
-import com.iteaj.iot.FrameworkComponent;
-import com.iteaj.iot.FrameworkManager;
-import com.iteaj.iot.PortType;
-import com.iteaj.iot.serial.SerialComponent;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.IVOption;
+import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.iteaj.iboot.module.iot.service.IGatewayService;
-import com.iteaj.framework.BaseController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 协议网关管理
@@ -60,6 +52,16 @@ public class GatewayController extends BaseController {
     @GetMapping("list")
     public Result<List<Gateway>> list(Gateway entity) {
         return this.gatewayService.list(entity);
+    }
+
+    /**
+     * 协议列表
+     * @param type 协议类型
+     * @return
+     */
+    @GetMapping("protocols")
+    public Result<List<IVOption>> protocols(TransportProtocol type) {
+        return gatewayService.protocols(type);
     }
 
     /**
@@ -110,46 +112,10 @@ public class GatewayController extends BaseController {
      * @return
      */
     @Logger("切换网关状态")
-    @PostMapping("switch/{status}")
+    @PostMapping("switch/{id}/{status}")
     @CheckPermission({"iot:gateway:switch"})
-    public Result<Boolean> switchStatus(Long id,  @PathVariable GatewayStatus status) {
-        this.gatewayService.detailById(id)
-            .ifNotPresentThrow("网关不存在")
-            .ifPresent(item -> {
-                Integer port = item.getPort();
-                FrameworkComponent component;
-                // 先通过端口获取对应的网络组件
-                if(item.getProtocolType() == TransportProtocol.SERIAL) { // 串口协议
-                    component = SerialComponent.instance();
-                } else if(item.getProtocolType() != TransportProtocol.UDP) { // tcp等其它协议
-                    component = FrameworkManager.getComponentFactory().get(PortType.Tcp, port);
-                } else {// udp协议
-                    component = FrameworkManager.getComponentFactory().get(PortType.Udp, port);
-                }
-
-                // 执行开启的操作
-                if(status == GatewayStatus.start) {
-                    // 如果网络组件已经注册
-                    if(component != null) {
-                        component.start(null);
-                    } else {
-                        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
-                        if(supplier != null) {
-                            component = supplier.createComponent(null);
-                            FrameworkManager.register(component).start();
-                        } else {
-                            throw new ServiceException("未找到对应的协议["+item.getProtocolCode()+"]");
-                        }
-                    }
-                } else if(status == GatewayStatus.stop) { // 执行停止操作
-                    FrameworkManager.stop(component.getMessageClass());
-                }
-
-                this.gatewayService.update(Wrappers.<Gateway>lambdaUpdate()
-                        .set(Gateway::getStatus, status)
-                        .eq(Gateway::getId, id));
-            });
-
+    public Result<Boolean> switchStatus(@PathVariable Long id,  @PathVariable GatewayStatus status) {
+        this.gatewayService.switchStatus(id, status);
         return success(true);
     }
 }

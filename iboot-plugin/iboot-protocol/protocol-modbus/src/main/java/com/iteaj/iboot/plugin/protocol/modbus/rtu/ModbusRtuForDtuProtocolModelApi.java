@@ -2,6 +2,7 @@ package com.iteaj.iboot.plugin.protocol.modbus.rtu;
 
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.iboot.plugin.protocol.modbus.AbstractModbusProtocolModelApi;
@@ -20,7 +21,7 @@ public class ModbusRtuForDtuProtocolModelApi extends AbstractModbusProtocolModel
     }
 
     @Override
-    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<Object> result) {
+    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
 
     }
 }

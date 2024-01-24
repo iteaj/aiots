@@ -1,5 +1,6 @@
 package com.iteaj.framework.spi.iot;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.ParamMeta;
 import lombok.Data;
 
@@ -19,7 +20,7 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
     /**
      * 是否启用ssl
      */
-    private boolean useSsl;
+    private Boolean useSsl;
 
     public NetworkConfigImpl() { }
 
@@ -49,7 +50,7 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
     }
 
     @Override
-    public boolean isUseSsl() {
+    public Boolean isUseSsl() {
         return this.useSsl;
     }
 
@@ -63,24 +64,28 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
          * 读写空闲
          * @return
          */
-        private long allIdle;
+        private Long allIdle;
 
         /**
          * 读空闲
          * @return
          */
-        private long readIdle;
+        private Long readIdle;
 
         /**
          * 写空闲
          * @return
          */
-        private long writeIdle;
+        private Long writeIdle;
 
+        @JsonIgnore
         public static ParamMeta[] tcpMetas = new ParamMeta[]{
+            ParamMeta.buildRequired("host", "主机", "客户端填服务器网卡地址", "0.0.0.0"),
+            ParamMeta.buildRequiredNumber("port", "端口", 8080, "必须是[1-65535]的整数"),
             ParamMeta.buildNumber("allIdle", "读写空闲(秒)", 0, "必须是大于0的整数"),
             ParamMeta.buildNumber("readIdle", "读空闲(秒)", 0, "必须是大于0的整数"),
             ParamMeta.buildNumber("writeIdle", "写空闲(秒)", 0, "必须是大于0的整数"),
+//            ParamMeta.buildHidden("@type", "TCP"),
         };
     }
 
@@ -161,10 +166,13 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
         private long keepalive;
 
         public static ParamMeta[] mqttMetas = new ParamMeta[]{
+            ParamMeta.buildRequired("host", "主机", "mqtt服务器地址", "0.0.0.0"),
+            ParamMeta.buildRequiredNumber("port", "端口", 1883, "mqtt服务器端口"),
             ParamMeta.buildRequired("clientId", "客户端id"),
             ParamMeta.buildRequired("username", "用户名"),
             ParamMeta.buildRequired("password", "密码"),
             ParamMeta.buildNumber("keepalive", "保活时间(秒)", 600, "必须是大于0的整数"),
+//            ParamMeta.buildHidden("@type", "MQTT"),
         };
     }
 }

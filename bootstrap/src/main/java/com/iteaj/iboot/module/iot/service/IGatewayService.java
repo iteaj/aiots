@@ -1,7 +1,11 @@
 package com.iteaj.iboot.module.iot.service;
 
 import com.iteaj.framework.IBaseService;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.dto.GatewayDto;
 import com.iteaj.iboot.module.iot.entity.Gateway;
 
@@ -25,4 +29,13 @@ public interface IGatewayService extends IBaseService<Gateway> {
      * @return
      */
     DetailResult<GatewayDto> getByProtocolId(Long protocolId);
+
+    ListResult<IVOption> protocols(TransportProtocol protocol);
+
+    /**
+     * 切换网关状态
+     * @param id 网关id
+     * @param status 状态
+     */
+    void switchStatus(Long id, GatewayStatus status);
 }

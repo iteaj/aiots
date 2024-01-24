@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.protocol.mqtt;
 
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 
@@ -25,7 +26,7 @@ public class MqttSubscribeDebugProtocolModelApi extends AbstractProtocolModelApi
     }
 
     @Override
-    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<Object> result) {
+    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
 
     }
 }

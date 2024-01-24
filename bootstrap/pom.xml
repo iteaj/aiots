@@ -76,7 +76,12 @@
             <version>${project.version}</version>
             <artifactId>protocol-modbus</artifactId>
         </dependency>
-
+        <!--plc协议提供-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>protocol-plc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.boot</groupId>-->
 <!--            <artifactId>spring-boot-starter-data-redis</artifactId>-->

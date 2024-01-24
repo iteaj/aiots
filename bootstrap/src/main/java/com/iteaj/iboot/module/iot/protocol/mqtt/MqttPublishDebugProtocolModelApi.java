@@ -1,10 +1,7 @@
 package com.iteaj.iboot.module.iot.protocol.mqtt;
 
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
-import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
-import com.iteaj.framework.spi.iot.protocol.ProtocolLinkedMap;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
+import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.module.iot.entity.ProtocolApiConfig;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttPublishProtocol;
 
@@ -26,7 +23,7 @@ public class MqttPublishDebugProtocolModelApi extends AbstractProtocolModelApi {
     }
 
     @Override
-    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<Object> result) {
+    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
         new DefaultMqttPublishProtocol(null, null).request();
     }
 }

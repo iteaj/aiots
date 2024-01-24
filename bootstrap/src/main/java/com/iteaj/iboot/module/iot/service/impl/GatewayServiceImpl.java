@@ -3,18 +3,27 @@ package com.iteaj.iboot.module.iot.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.NetworkConfig;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.dto.GatewayDto;
 import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.iteaj.iboot.module.iot.mapper.GatewayMapper;
 import com.iteaj.iboot.module.iot.service.IGatewayService;
+import com.iteaj.iot.FrameworkComponent;
+import com.iteaj.iot.FrameworkManager;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
@@ -79,4 +88,43 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
     public DetailResult<GatewayDto> getByProtocolId(Long protocolId) {
         return new DetailResult<>(this.getBaseMapper().getByProtocolId(protocolId));
     }
+
+    @Override
+    public ListResult<IVOption> protocols(TransportProtocol protocol) {
+        List<IVOption> optionList = getBaseMapper().protocols(protocol);
+        return new ListResult<>(optionList);
+    }
+
+    @Override
+    public synchronized void switchStatus(Long id, GatewayStatus status) {
+        if(status == null) {
+            throw new ServiceException("未指定切换状态");
+        }
+
+        this.detailById(id).ifNotPresentThrow("网关不存在").ifPresent(item -> {
+            this.doSwitchStatus(item, status);
+            this.update(Wrappers.<Gateway>lambdaUpdate()
+                    .set(Gateway::getStatus, status)
+                    .set(Gateway::getReason, "")
+                    .eq(Gateway::getId, id));
+        });
+    }
+
+    private void doSwitchStatus(GatewayDto gateway, GatewayStatus status) {
+        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(gateway.getProtocolCode());
+        if(supplier == null) {
+            throw new ServiceException("未找到对应的协议["+gateway.getProtocolCode()+"]");
+        }
+
+        NetworkConfig config = NetworkConfig.resolve(gateway.getProtocolType(), gateway.getConfig());
+        FrameworkComponent component = supplier.createComponent(config);
+
+        // 执行开启的操作
+        if(status == GatewayStatus.start) {
+            component.start(null);
+        } else if(status == GatewayStatus.stop) { // 执行停止操作
+            FrameworkManager.stop(component.getMessageClass());
+        }
+    }
+
 }

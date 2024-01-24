@@ -44,6 +44,8 @@ public class IVOption {
      */
     private Object extra;
 
+    public IVOption() {}
+
     public IVOption(String label, Object value) {
         this(label, value, null);
     }

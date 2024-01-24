@@ -25,7 +25,7 @@ import java.util.concurrent.ScheduledFuture;
 /**
  * 数据采集服务
  */
-@Service
+//@Service
 public class CollectService implements InitializingBean {
 
     private final TaskScheduler scheduler;

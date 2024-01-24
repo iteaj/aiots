@@ -71,6 +71,11 @@ public class Gateway extends BaseEntity {
     private String password;
 
     /**
+     * 失败原因
+     */
+    private String reason;
+
+    /**
      * 绑定协议
      */
     @NotNull(message = "协议必填")

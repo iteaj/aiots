@@ -32,12 +32,26 @@ public interface ProtocolModel {
     TransportProtocol getType();
 
     /**
+     * 获取指定属性
+     * @param filed
+     * @return
+     */
+    ProtocolModelAttr getAttr(String filed);
+
+    /**
      * 协议模型属性
      * @see java.util.LinkedHashMap<String, ProtocolModelAttr>
      * @see ProtocolModelAttr#getField() key
      * @return
      */
     Map<String, ProtocolModelAttr> getAttrs();
+
+    /**
+     * 根据接口代码获取接口
+     * @param code
+     * @return
+     */
+    AbstractProtocolModelApi getApi(String code);
 
     /**
      * 协议模型接口

@@ -10,6 +10,7 @@
         <result column="host" property="host" />
         <result column="port" property="port" />
         <result column="ssl" property="useSsl" />
+        <result column="reason" property="reason" />
         <result column="username" property="username" />
         <result column="password" property="password" />
         <result column="config" property="config"
@@ -39,6 +40,12 @@
         select a.*, p.name protocol_name, p.code protocol_code, p.ctrl_mode from iot_gateway a
             left join iot_protocol p on a.protocol_id=p.id
         where p.id=#{protocolId}
+    </select>
+
+    <select id="protocols" resultType="com.iteaj.framework.IVOption">
+        select a.id value, a.name label, if(g.id, '已绑定', ' ') extra from iot_protocol a
+            left join iot_gateway g on a.id=g.protocol_id
+        where a.type = #{protocol}
     </select>
 
 </mapper>

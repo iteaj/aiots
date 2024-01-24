@@ -1,8 +1,12 @@
 package com.iteaj.iboot.module.iot.mapper;
 
+import com.iteaj.framework.IVOption;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.dto.GatewayDto;
 import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -19,4 +23,6 @@ public interface GatewayMapper extends BaseMapper<Gateway> {
     GatewayDto detailById(Long id);
 
     GatewayDto getByProtocolId(Long protocolId);
+
+    List<IVOption> protocols(TransportProtocol protocol);
 }

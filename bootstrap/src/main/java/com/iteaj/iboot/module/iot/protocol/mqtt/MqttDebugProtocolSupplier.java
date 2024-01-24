@@ -9,7 +9,9 @@ import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iot.FrameworkComponent;
+import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
+import com.iteaj.iot.client.mqtt.impl.DefaultMqttMessage;
 
 /**
  * 用于提供mqtt协议调试
@@ -46,6 +48,11 @@ public class MqttDebugProtocolSupplier extends StaticProtocolSupplier<NetworkCon
 
     @Override
     public FrameworkComponent createComponent(NetworkConfigImpl.MqttNetworkConfig config) {
-        return new DefaultMqttComponent();
+        FrameworkComponent component = FrameworkManager.getComponent(DefaultMqttMessage.class);
+        if(component == null) {
+            FrameworkManager.register(new DefaultMqttComponent()).start();
+        }
+
+        return component;
     }
 }

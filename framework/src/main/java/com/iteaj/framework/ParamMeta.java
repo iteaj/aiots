@@ -21,7 +21,7 @@ public class ParamMeta {
     private String extra;
 
     /**
-     * 值类型(string, number)
+     * 值类型(string, number, hidden)
      */
     private String type;
 
@@ -98,5 +98,9 @@ public class ParamMeta {
 
     public static ParamMeta buildRequiredNumber(String field, String label, Object defaultValue, String extra) {
         return new ParamMeta(field, label, extra, true, defaultValue, "number");
+    }
+
+    public static ParamMeta buildHidden(String field, Object defaultValue) {
+        return new ParamMeta(field, null, null, true, defaultValue, "hidden");
     }
 }

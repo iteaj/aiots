@@ -21,6 +21,7 @@ import com.iteaj.iot.plc.siemens.SiemensConnectProperties;
 import com.iteaj.iot.plc.siemens.SiemensModel;
 import com.iteaj.iot.plc.siemens.SiemensS7Component;
 import com.iteaj.framework.security.CheckPermission;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,8 +41,8 @@ public class DevicePlcController extends BaseController {
     private final IProductService deviceModelService;
     private final SiemensS7Component siemensS7Component;
     public DevicePlcController(IDeviceService deviceService
-            , OmronComponent omronComponent, IProductService deviceModelService
-            , SiemensS7Component siemensS7Component) {
+            , @Autowired(required = false) OmronComponent omronComponent, IProductService deviceModelService
+            , @Autowired(required = false) SiemensS7Component siemensS7Component) {
         this.deviceService = deviceService;
         this.omronComponent = omronComponent;
         this.deviceModelService = deviceModelService;
