@@ -92,11 +92,12 @@ public class DeviceController extends BaseController {
 
     /**
      * 获取网关设备
+     * @param gatewayId 网关id
      * @return
      */
     @GetMapping("listOfGateway")
-    public Result<List<Device>> listOfGateway() {
-        return this.deviceService.listOfGateway();
+    public Result<List<Device>> listOfGateway(Long gatewayId) {
+        return this.deviceService.listOfGateway(gatewayId);
     }
 }
 

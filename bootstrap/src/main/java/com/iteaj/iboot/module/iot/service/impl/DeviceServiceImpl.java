@@ -78,7 +78,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     }
 
     @Override
-    public ListResult<Device> listOfGateway() {
-        return new ListResult<>(this.getBaseMapper().listOfGateway());
+    public ListResult<Device> listOfGateway(Long gatewayId) {
+        return new ListResult<>(this.getBaseMapper().listOfGateway(gatewayId));
     }
 }

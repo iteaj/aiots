@@ -32,4 +32,8 @@ public interface IModelApiService extends IBaseService<ModelApi> {
      * @return
      */
     DetailResult<ModelApi> getByProductIdAndCode(Long productId, String code);
+
+    DetailResult<ModelApi> getByCode(String code);
+
+    Result<ModelApi> detailById(Long id);
 }

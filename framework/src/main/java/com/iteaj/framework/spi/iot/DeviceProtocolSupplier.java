@@ -7,7 +7,7 @@ import com.iteaj.iot.FrameworkComponent;
 /**
  * 协议提供
  */
-public interface DeviceProtocolSupplier<C extends NetworkConfig> {
+public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends FrameworkComponent> {
 
     /**
      * 协议描述
@@ -36,7 +36,7 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig> {
     /**
      * 创建组件
      * @param config
-     * @return
+     * @return 如果已经存在直接返回, 不存在则创建
      */
-    FrameworkComponent createComponent(C config);
+    T createComponent(C config);
 }

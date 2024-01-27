@@ -8,9 +8,11 @@
         <result column="name" property="name" />
         <result column="remark" property="remark" />
         <result column="type_name" property="typeName" />
+        <result column="parent_id" property="parentId" />
         <result column="gateway_id" property="gatewayId" />
         <result column="gateway_name" property="gatewayName" />
         <result column="gateway_type" property="gatewayType" />
+        <result column="connect_type" property="connectType" />
         <result column="protocol_id" property="protocolId" />
         <result column="protocol_name" property="protocolName" />
         <result column="protocol_code" property="protocolCode" />
@@ -23,15 +25,28 @@
         <result property="deviceCount" column="device_count" />
         <result property="transportProtocol" column="transport_protocol" />
     </resultMap>
+    <resultMap id="DebugMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
+        <collection property="funcApis" column="{productId=id}" ofType="ModelApi"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listFuncByProductId" />
+        <collection property="eventApis" column="{productId=id}" ofType="ModelApi"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listEventByProductId" />
+    </resultMap>
+    <resultMap id="JoinDetailMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
+        <collection property="funcApis" column="{productId=id}" ofType="ModelApi"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listFuncByProductId" />
+        <collection property="eventApis" column="{productId=id}" ofType="ModelApi"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listEventByProductId" />
+<!--        <collection property="attrs" column="{productId=id}" ofType="ModelAttr"-->
+<!--                    select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listByProtocolCode" />-->
+    </resultMap>
 
     <select id="pageOfDetail" resultMap="BaseResultDtoMap">
         select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code
-             , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, count(distinct id.id) device_count
+             , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, ig.connect_type
         from iot_product a
             left join iot_product_type idt on a.product_type_id=idt.id
             left join iot_gateway ig on a.gateway_id=ig.id
             left join iot_protocol ip on ip.id = a.protocol_id
-            left join iot_device id on id.product_id=a.id
         <where>
             <if test="entity.gatewayId != null">
                 and a.gateway_id=#{entity.gatewayId}
@@ -50,6 +65,55 @@
             </if>
         </where>
         group by a.id
+    </select>
+    <select id="detailById" resultMap="BaseResultDtoMap">
+        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code
+             , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol
+        from iot_product a
+                 left join iot_product_type idt on a.product_type_id=idt.id
+                 left join iot_gateway ig on a.gateway_id=ig.id
+                 left join iot_protocol ip on ip.id = a.protocol_id
+        where a.id=#{id}
+    </select>
+
+    <select id="hasBind" resultType="java.lang.Boolean">
+        select count(id) > 0 from iot_device where product_id in (
+        <foreach collection="list" item="productId" separator=",">
+            #{productId}
+        </foreach>)
+    </select>
+
+    <select id="listOfDetail" resultMap="BaseResultDtoMap">
+        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code
+        , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, ig.connect_type
+        from iot_product a
+        left join iot_product_type idt on a.product_type_id=idt.id
+        left join iot_gateway ig on a.gateway_id=ig.id
+        left join iot_protocol ip on ip.id = a.protocol_id
+        <where>
+            <if test="gatewayId != null">
+                and a.gateway_id=#{gatewayId}
+            </if>
+            <if test="protocolId != null">
+                and a.protocol_id=#{protocolId}
+            </if>
+            <if test="productTypeId != null">
+                and a.product_type_id=#{productTypeId}
+            </if>
+            <if test="name != null and name != ''">
+                and a.name like '%${name}%'
+            </if>
+            <if test="code != null and code != ''">
+                and a.code like '%${code}%'
+            </if>
+        </where>
+    </select>
+    <select id="joinDetailById" resultMap="JoinDetailMap">
+        select a.* from iot_product a where id=#{productId}
+    </select>
+
+    <select id="debugById" resultMap="DebugMap">
+        select a.* from iot_product a where id=#{productId}
     </select>
 
     <delete id="removeModel">

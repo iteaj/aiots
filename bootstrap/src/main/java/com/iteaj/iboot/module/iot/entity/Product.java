@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.consts.GatewayConnectType;
 import com.iteaj.iboot.module.iot.consts.GatewayType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -51,7 +52,7 @@ public class Product extends BaseEntity {
      * 产品类型
      */
     @NotNull(message = "产品类型必填")
-    private Integer productTypeId;
+    private Long productTypeId;
 
     /**
      * 类型名称
@@ -67,10 +68,31 @@ public class Product extends BaseEntity {
     private String name;
 
     /**
+     * 父产品id
+     */
+    private Long parentId;
+
+    /**
      * 绑定的网关
      */
     @NotNull(message = "接入网关必填")
     private Long gatewayId;
+
+    /**
+     * 绑定的协议
+     */
+    @NotNull(message = "所属协议必填")
+    private Long protocolId;
+
+    /**
+     * 产品说明
+     */
+    private String remark;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 
     /**
      * 网关类型
@@ -85,12 +107,6 @@ public class Product extends BaseEntity {
     private String gatewayName;
 
     /**
-     * 绑定的协议
-     */
-    @NotNull(message = "所属协议必填")
-    private Long protocolId;
-
-    /**
      * 协议名称
      */
     @TableField(exist = false)
@@ -103,14 +119,18 @@ public class Product extends BaseEntity {
     private String protocolCode;
 
     /**
-     * 产品说明
+     * 网关连接类型
      */
-    private String remark;
+    @TableField(exist = false)
+    private GatewayConnectType connectType;
 
     /**
-     * 创建时间
+     * 网关连接类型
+     * @return
      */
-    private Date createTime;
+    public String getConnectTypeName() {
+        return this.connectType != null ? this.connectType.getDesc() : null;
+    }
 
     /**
      * 设备类型名称

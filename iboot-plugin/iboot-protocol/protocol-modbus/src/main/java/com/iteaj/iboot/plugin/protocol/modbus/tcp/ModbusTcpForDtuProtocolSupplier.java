@@ -15,7 +15,7 @@ import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuMessage;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
 
-public class ModbusTcpForDtuProtocolSupplier extends StaticProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig> {
+public class ModbusTcpForDtuProtocolSupplier extends StaticProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, ModbusTcpForDtuServerComponent> {
 
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("MODBUS:TCP:DTU", CtrlMode.POINT, TransportProtocol.TCP)
             .addModelAttr(new ProtocolModelAttr("childSn", "从机地址", "string", "从机地址"))
@@ -84,22 +84,22 @@ public class ModbusTcpForDtuProtocolSupplier extends StaticProtocolSupplier<Netw
     }
 
     @Override
-    public FrameworkComponent createComponent(NetworkConfigImpl.TcpNetworkConfig config) {
-        ConnectProperties connectProperties = new ConnectProperties(config.getHost(), config.getPort());
-        if(config.getAllIdle() != null) {
-            connectProperties.setAllIdleTime(config.getAllIdle());
-        } else if(config.getReadIdle() != null) {
-            connectProperties.setReaderIdleTime(config.getReadIdle());
-        } else if(config.getWriteIdle() != null) {
-            connectProperties.setWriterIdleTime(config.getWriteIdle());
-        }
-
+    public synchronized ModbusTcpForDtuServerComponent createComponent(NetworkConfigImpl.TcpNetworkConfig config) {
         FrameworkComponent component = FrameworkManager.getComponent(ModbusTcpForDtuMessage.class);
         if(component == null) {
+            ConnectProperties connectProperties = new ConnectProperties(config.getHost(), config.getPort());
+            if(config.getAllIdle() != null) {
+                connectProperties.setAllIdleTime(config.getAllIdle());
+            } else if(config.getReadIdle() != null) {
+                connectProperties.setReaderIdleTime(config.getReadIdle());
+            } else if(config.getWriteIdle() != null) {
+                connectProperties.setWriterIdleTime(config.getWriteIdle());
+            }
+
             component = new ModbusTcpForDtuServerComponent(connectProperties);
             FrameworkManager.register(component);
         }
 
-        return component;
+        return (ModbusTcpForDtuServerComponent) component;
     }
 }

@@ -39,6 +39,7 @@ public interface DeviceMapper extends BaseMapper<Device> {
      * 获取网关设备
      * @see com.iteaj.iboot.module.iot.consts.DeviceType#Gateway
      * @return
+     * @param gatewayId
      */
-    List<Device> listOfGateway();
+    List<Device> listOfGateway(Long gatewayId);
 }

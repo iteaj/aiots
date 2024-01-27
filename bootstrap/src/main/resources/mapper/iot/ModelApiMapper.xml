@@ -7,11 +7,29 @@
         <result column="id" property="id" />
         <result column="type" property="type" />
         <result column="code" property="code" />
-        <result column="product_sn" property="productSn" />
         <result column="name" property="name" />
+        <result column="debug" property="debug" />
         <result column="status" property="status" />
         <result column="remark" property="remark" />
         <result column="create_time" property="createTime" />
     </resultMap>
 
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.ModelApi">
+        <collection property="upConfig" column="{apiCode=code}" ofType="ModelApiConfig"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelApiConfigMapper.listUpByApiCode" />
+        <collection property="downConfig" column="{apiCode=code}" ofType="ModelApiConfig"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelApiConfigMapper.listDownByApiCode" />
+    </resultMap>
+
+    <select id="listFuncByProductId" resultMap="DetailResultMap">
+        select * from iot_model_api where product_id = #{productId} and type='func'
+    </select>
+
+    <select id="listEventByProductId" resultMap="DetailResultMap">
+        select * from iot_model_api where product_id = #{productId} and type='event'
+    </select>
+
+    <select id="detailById" resultMap="DetailResultMap">
+        select * from iot_model_api where id=#{id}
+    </select>
 </mapper>

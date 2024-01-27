@@ -1,19 +1,19 @@
 package com.iteaj.iboot.module.iot.consts;
 
 /**
- * 网关类型
+ * 网关连接类型
  */
 public enum GatewayType {
 
     /**
-     * 将应用作为网关
+     * 设备直连
      */
-    App("应用网关"),
+    Direct("设备直连"),
 
     /**
-     * 边缘设备作为网关
+     * 连接网关
      */
-    Edge("边缘网关")
+    Gateway("边缘网关")
     ;
 
     private String desc;

@@ -11,8 +11,6 @@ import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.framework.IBaseService;
 
-import java.util.List;
-
 /**
  * <p>
  * 设备表 服务类
@@ -61,6 +59,7 @@ public interface IDeviceService extends IBaseService<Device> {
     /**
      * 获取网关设备
      * @return
+     * @param gatewayId
      */
-    ListResult<Device> listOfGateway();
+    ListResult<Device> listOfGateway(Long gatewayId);
 }

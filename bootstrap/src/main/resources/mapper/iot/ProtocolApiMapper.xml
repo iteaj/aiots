@@ -16,9 +16,9 @@
 
     <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.ProtocolApi">
         <collection property="upConfigs" column="{protocolApiCode=code}" ofType="ProtocolApiConfig"
-                    select="com.iteaj.iboot.module.iot.entity.ProtocolApiConfig.listUpByApiCode" />
+                    select="com.iteaj.iboot.module.iot.mapper.ProtocolApiConfigMapper.listUpByApiCode" />
         <collection property="downConfigs" column="{protocolApiCode=code}" ofType="ProtocolApiConfig"
-                    select="com.iteaj.iboot.module.iot.entity.ProtocolApiConfig.listDownByApiCode" />
+                    select="com.iteaj.iboot.module.iot.mapper.ProtocolApiConfigMapper.listDownByApiCode" />
     </resultMap>
 
     <select id="listByProtocolCode" resultMap="DetailResultMap">

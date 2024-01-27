@@ -8,7 +8,10 @@ import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
-import com.iteaj.iboot.module.iot.service.IProtocolService;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.service.IModelApiService;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -22,35 +25,43 @@ import java.time.Duration;
 @RequestMapping("/iot/instruct")
 public class DeviceCtrlController extends BaseController {
 
-    private final IProtocolService protocolService;
+    private final IProductService productService;
+    private final IModelApiService modelApiService;
 
-    public DeviceCtrlController(IProtocolService protocolService) {
-        this.protocolService = protocolService;
+    public DeviceCtrlController(IProductService productService, IModelApiService modelApiService) {
+        this.productService = productService;
+        this.modelApiService = modelApiService;
     }
 
     /**
      * 设备控制
-     * @param api 协议接口代码
-     * @param protocol 协议代码
+     * @param modelApiCode 物模型接口代码
      * @param param 调用参数
      * @return
      */
-    @PostMapping("/ctrl/{protocol}/{api}")
-    public Mono<Result> ctrl(@PathVariable String protocol, @PathVariable String api, @RequestBody ProtocolModelApiInvokeParam param) {
-        //查找对应的协议
-        DeviceProtocolSupplier protocolSupplier = protocolService.getByCode(protocol)
-                .ifNotPresentThrow("没有找到协议[protocol=" + protocol + "]")
-                .of().map(item -> ProtocolSupplierManager.get(item.getCode()))
-                .orElseThrow(() -> new ServiceException("没有找到协议[protocol=" + protocol + "]"));
+    @PostMapping("/ctrl/{modelApiCode}")
+    public Mono<Result> ctrl(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
+        //查找对应的物模型api
+        ModelApi modelApi = modelApiService.getByCode(modelApiCode)
+                .ifNotPresentThrow("接口代码不存在[modelApiCode=" + modelApiCode + "]")
+                .getData();
+
+        ProductDto product = this.productService.detailById(modelApi.getProductId())
+                .ifNotPresentThrow("未找到物模型所属产品").getData();
+
+        DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
+        if(protocolSupplier == null) {
+            return Mono.just(fail("没有找到协议[protocol=" + product.getProtocolCode() + "]"));
+        }
 
         // 查找对应的协议接口
-        AbstractProtocolModelApi modelApi = protocolSupplier.getProtocol().getApi(api);
+        AbstractProtocolModelApi protocolModelApi = protocolSupplier.getProtocol().getApi(modelApiCode);
         if(modelApi == null) {
-            throw new ServiceException("没有找到接口[api="+api+"]");
+            throw new ServiceException("没有找到接口[apiCode="+modelApiCode+"]");
         }
 
         return Mono.<InvokeResult>create(item -> {
-            modelApi.invoke(param, result -> {
+            protocolModelApi.invoke(param, result -> {
                 item.success(result);
             });
         }).timeout(Duration.ofSeconds(20)).map(item -> {

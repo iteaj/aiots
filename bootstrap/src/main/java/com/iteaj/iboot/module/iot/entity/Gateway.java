@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.GatewayConnectType;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayType;
@@ -41,9 +42,9 @@ public class Gateway extends BaseEntity {
     private String name;
 
     /**
-     * 网关类型(客户端、服务端)
+     * 连接类型(客户端、服务端)
      */
-    private GatewayType type;
+    private DeviceType type;
 
     /**
      * 主机地址

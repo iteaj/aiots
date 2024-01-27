@@ -16,7 +16,7 @@ import com.iteaj.iot.client.mqtt.impl.DefaultMqttMessage;
 /**
  * 用于提供mqtt协议调试
  */
-public class MqttDebugProtocolSupplier extends StaticProtocolSupplier<NetworkConfigImpl.MqttNetworkConfig> {
+public class MqttDebugProtocolSupplier extends StaticProtocolSupplier<NetworkConfigImpl.MqttNetworkConfig, DefaultMqttComponent> {
 
     private ProtocolModel mqttDebugProtocolModel = new DefaultProtocolModel("MQTT:CLIENT:DEBUG"
             , CtrlMode.COMMON, TransportProtocol.MQTT)
@@ -47,12 +47,12 @@ public class MqttDebugProtocolSupplier extends StaticProtocolSupplier<NetworkCon
     }
 
     @Override
-    public FrameworkComponent createComponent(NetworkConfigImpl.MqttNetworkConfig config) {
+    public synchronized DefaultMqttComponent createComponent(NetworkConfigImpl.MqttNetworkConfig config) {
         FrameworkComponent component = FrameworkManager.getComponent(DefaultMqttMessage.class);
         if(component == null) {
-            FrameworkManager.register(new DefaultMqttComponent()).start();
+            FrameworkManager.register(new DefaultMqttComponent());
         }
 
-        return component;
+        return (DefaultMqttComponent) component;
     }
 }

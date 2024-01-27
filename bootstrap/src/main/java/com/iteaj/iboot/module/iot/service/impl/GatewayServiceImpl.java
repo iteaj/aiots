@@ -96,7 +96,7 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
     }
 
     @Override
-    public synchronized void switchStatus(Long id, GatewayStatus status) {
+    public void switchStatus(Long id, GatewayStatus status) {
         if(status == null) {
             throw new ServiceException("未指定切换状态");
         }

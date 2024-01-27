@@ -7,6 +7,7 @@ import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
@@ -157,6 +158,9 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             return new BooleanResult(false).fail("不支持批量删除");
         }
 
+        // 是否已经有绑定设备
+        this.hasBind(idList).ifPresentAndTrueThrow("此产品已被绑定");
+
         return super.removeByIds(idList)
                 .ifPresent(item -> idList.forEach(id -> this.removeModel((Long) id)));
     }
@@ -247,6 +251,48 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         return this.getOne(Wrappers.<Product>lambdaQuery().eq(Product::getCode, code));
     }
 
+    @Override
+    public DetailResult<ProductDto> detailById(Long id) {
+        return new DetailResult<>(getBaseMapper().detailById(id));
+    }
+
+    @Override
+    public BooleanResult hasBind(Collection<? extends Serializable> idList) {
+        return new BooleanResult(this.getBaseMapper().hasBind(idList));
+    }
+
+    @Override
+    public ListResult<ProductDto> listOfDetail(Product entity) {
+        return new ListResult<>(this.getBaseMapper().listOfDetail(entity));
+    }
+
+    @Override
+    public DetailResult<ProductDto> joinDetailById(Long productId) {
+        ProductDto productDto = getBaseMapper().joinDetailById(productId);
+        return new DetailResult<>(productDto);
+    }
+
+    @Override
+    public DetailResult<ProductDto> debugById(Long productId) {
+        ProductDto productDto = getBaseMapper().debugById(productId);
+        if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+            List<ModelApi> funcApis = productDto.getFuncApis().stream()
+                    .filter(item -> Boolean.TRUE.equals(item.getDebug()))
+                    .collect(Collectors.toList());
+            productDto.setFuncApis(funcApis);
+        }
+
+        if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+            List<ModelApi> eventApis = productDto.getEventApis().stream()
+                    .filter(item -> Boolean.TRUE.equals(item.getDebug()))
+                    .collect(Collectors.toList());
+            productDto.setFuncApis(eventApis);
+        }
+
+        return new DetailResult<>(productDto);
+    }
+
+
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {
         ModelApi modelApi = new ModelApi();
         BeanUtils.copyProperties(api, modelApi);
@@ -272,11 +318,9 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     private ModelApiConfig convertProtocolApiConfig(ModelApi protocolApi, ProtocolModelApiConfig config, ProtocolModelAttr attr) {
         return new ModelApiConfig()
                 .setSort(config.getSort())
-                .setLength(config.getLength())
                 .setRemark(config.getRemark())
                 .setAttrField(attr.getField())
                 .setApiCode(protocolApi.getCode())
-                .setPosition(config.getPosition())
                 .setDirection(config.getDirection());
     }
 }

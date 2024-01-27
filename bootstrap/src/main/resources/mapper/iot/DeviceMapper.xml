@@ -70,6 +70,6 @@
     <select id="listOfGateway" resultType="com.iteaj.iboot.module.iot.entity.Device">
         select a.* from iot_device a
             left join iot_product ip on a.product_id=ip.id
-        where ip.device_type='Gateway'
+        where ip.device_type='Gateway' and ip.gateway_id=#{gatewayId}
     </select>
 </mapper>

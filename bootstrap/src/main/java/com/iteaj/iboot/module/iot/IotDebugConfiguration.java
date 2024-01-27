@@ -20,10 +20,10 @@ import java.util.List;
 @Configuration
 public class IotDebugConfiguration {
 
-    @Bean
-    public TcpDebugServerComponent debugServerComponent() {
-        return new TcpDebugServerComponent(new ConnectProperties(6158));
-    }
+//    @Bean
+//    public TcpDebugServerComponent debugServerComponent() {
+//        return new TcpDebugServerComponent(new ConnectProperties(6158));
+//    }
 
     /**
      * 各种调试用的处理器

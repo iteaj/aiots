@@ -80,8 +80,8 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
 
         @JsonIgnore
         public static ParamMeta[] tcpMetas = new ParamMeta[]{
-            ParamMeta.buildRequired("host", "主机", "客户端填服务器网卡地址", "0.0.0.0"),
-            ParamMeta.buildRequiredNumber("port", "端口", 8080, "必须是[1-65535]的整数"),
+            ParamMeta.buildRequired("host", "主机", "客户端不校验(跟随设备)", "0.0.0.0"),
+            ParamMeta.buildRequiredNumber("port", "端口", 8168, "必须是[1-65535]的整数"),
             ParamMeta.buildNumber("allIdle", "读写空闲(秒)", 0, "必须是大于0的整数"),
             ParamMeta.buildNumber("readIdle", "读空闲(秒)", 0, "必须是大于0的整数"),
             ParamMeta.buildNumber("writeIdle", "写空闲(秒)", 0, "必须是大于0的整数"),

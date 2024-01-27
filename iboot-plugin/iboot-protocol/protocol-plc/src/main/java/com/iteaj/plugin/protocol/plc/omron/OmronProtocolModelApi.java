@@ -14,7 +14,7 @@ public class OmronProtocolModelApi extends AbstractPlcProtocolModelApi {
         super(code, name, type);
     }
 
-    public OmronProtocolModelApi(String code, String name, String remark, ProtocolApiType type) {
+    public OmronProtocolModelApi(String code, String name, ProtocolApiType type, String remark) {
         super(code, name, remark, type);
     }
 

@@ -6,12 +6,25 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.ModelApiConfig">
         <result column="id" property="id" />
         <result column="sort" property="sort" />
-        <result column="api_id" property="apiId" />
-        <result column="attr_id" property="attrId" />
+        <result column="api_code" property="apiCode" />
+        <result column="attr_field" property="attrField" />
+        <result column="product_id" property="productId" />
         <result column="remark" property="remark" />
-        <result column="start_index" property="startIndex" />
-        <result column="end_index" property="endIndex" />
+        <result column="protocol_attr_name" property="protocolAttrName" />
+        <result column="protocol_attr_field" property="protocolAttrField" />
+        <result column="direction" property="direction" />
         <result column="create_time" property="createTime" />
     </resultMap>
 
+    <select id="listUpByApiCode" resultMap="BaseResultMap">
+        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark from iot_model_api_config a
+            left join iot_protocol_attr pa on a.attr_field=pa.field and a.api_code=#{apiCode}
+        where api_code=#{apiCode} and a.direction='UP' order by sort
+    </select>
+
+    <select id="listDownByApiCode" resultMap="BaseResultMap">
+        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark from iot_model_api_config a
+            left join iot_protocol_attr pa on a.attr_field=pa.field and a.api_code=#{apiCode}
+        where api_code=#{apiCode} and a.direction='DOWN' order by sort
+    </select>
 </mapper>

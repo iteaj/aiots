@@ -53,6 +53,11 @@ public class ModelApi extends BaseEntity {
     private String code;
 
     /**
+     * 是否调试
+     */
+    private Boolean debug;
+
+    /**
      * 是否为协议接口
      */
     private Boolean protocol;

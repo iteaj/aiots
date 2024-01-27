@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, ProductType> implements IProductTypeService {
 
     @Autowired
-    private IProductService deviceModelService;
+    private IProductService productService;
 
     @Override
     public PageResult<IPage<ProductType>> pageOfDetail(Page page, ProductType entity) {
@@ -53,17 +53,22 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, P
     public ListResult<ProductType> tree(ProductType entity) {
         List<ProductType> types = this.listOfDetail(entity)
                 .ofNullable()
-                .map(value -> TreeUtils.toTrees(value)
-                        .stream().collect(Collectors.toList())).get();
+                .map(value -> TreeUtils.toTrees(value).stream().collect(Collectors.toList()))
+                .get();
         return new ListResult<>(types);
     }
 
     @Override
+    @Transactional
     public BooleanResult save(ProductType entity) {
+        this.getOne(Wrappers.<ProductType>lambdaQuery().eq(ProductType::getName, entity.getName()))
+                .ifPresentThrow("产品类型名称已存在["+entity.getName()+"]");
+
         super.save(entity);
         if(entity.getPid() != null && entity.getPid() != 0) {
             ProductType parent = this.getById(entity.getPid())
-                    .ofNullable().orElseThrow(() -> new ServiceException("父类型不存在"));
+                    .ifNotPresentThrow("父类型不存在")
+                    .getData();
             entity.setPath(parent.getPath()+","+entity.getId());
         } else {
             entity.setPath(entity.getId().toString());
@@ -75,10 +80,16 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, P
     }
 
     @Override
+    @Transactional
     public BooleanResult updateById(ProductType entity) {
+        this.getOne(Wrappers.<ProductType>lambdaQuery()
+                .eq(ProductType::getName, entity.getName())
+                .ne(ProductType::getId, entity.getId()))
+                .ifPresentThrow("产品类型名称已存在["+entity.getName()+"]");
         if(entity.getPid() != null && entity.getPid() != 0) {
             ProductType parent = this.getById(entity.getPid())
-                    .ofNullable().orElseThrow(() -> new ServiceException("父类型不存在"));
+                    .ifNotPresentThrow("父类型不存在")
+                    .getData();
 
             entity.setPath(parent.getPath()+","+entity.getId());
         } else {
@@ -98,7 +109,7 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, P
             throw new ServiceException("请先删除对应的子类型");
         });
 
-        NumberResult<Integer> count = deviceModelService.count(Wrappers
+        NumberResult<Integer> count = productService.count(Wrappers
                 .<Product>lambdaQuery().in(Product::getProductTypeId, idList));
         Integer integer = count.ofNullable().orElse(0);
         if(integer > 0) {

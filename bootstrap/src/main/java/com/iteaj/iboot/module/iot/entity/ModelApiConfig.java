@@ -51,14 +51,19 @@ public class ModelApiConfig extends BaseEntity {
     private String remark;
 
     /**
-     * 报文开始位置
+     * 配置值
      */
-    private String position;
+    private String value;
 
     /**
-     * 报文结束位置
+     * 协议属性字段
      */
-    private Integer length;
+    private String protocolAttrField;
+
+    /**
+     * 协议属性名称
+     */
+    private String protocolAttrName;
 
     /**
      * 创建时间

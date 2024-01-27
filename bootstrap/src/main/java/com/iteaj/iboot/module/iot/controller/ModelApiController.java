@@ -67,7 +67,7 @@ public class ModelApiController extends BaseController {
     @GetMapping("/edit")
     @CheckPermission({"iot:modelApi:edit"})
     public Result<ModelApi> getById(Long id) {
-        return this.modelApiService.getById(id);
+        return this.modelApiService.detailById(id);
     }
 
     /**

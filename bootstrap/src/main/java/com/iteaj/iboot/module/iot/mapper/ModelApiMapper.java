@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ModelApiMapper extends BaseMapper<ModelApi> {
 
+    ModelApi detailById(Long id);
 }

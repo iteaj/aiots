@@ -3,8 +3,10 @@ package com.iteaj.iboot.module.iot.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dtflys.forest.annotation.Get;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
@@ -46,15 +48,26 @@ public class ProductController extends BaseController {
 
     /**
      * 获取指定类型下面的列表
-     * @param typeId -1将获取所有
+     * @param productTypeId -1将获取所有
      * @return
      */
     @GetMapping("/listByType")
-    public Result<List<Product>> listByType(Long typeId) {
-        return this.productService.list(Wrappers
-                .<Product>lambdaQuery()
-                .eq(typeId == null || typeId != -1, Product::getProductTypeId, typeId));
+    public Result<List<ProductDto>> listByType(Long productTypeId) {
+        Product product = new Product();
+        product.setProductTypeId(productTypeId);
+        return this.productService.listOfDetail(product);
     }
+
+    /**
+     * 父产品列表
+     * @return
+     */
+    @GetMapping("parent")
+    public Result<List<Product>> parent() {
+        return this.productService.list(Wrappers.<Product>lambdaQuery()
+                .eq(Product::getDeviceType, DeviceType.Gateway));
+    }
+
 
     /**
     * 获取编辑记录
