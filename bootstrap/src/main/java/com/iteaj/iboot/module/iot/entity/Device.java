@@ -66,6 +66,11 @@ public class Device extends BaseEntity {
     private Long productId;
 
     /**
+     * 所属组
+     */
+    private Long deviceGroupId;
+
+    /**
      * 设备类型
      */
     @NotNull(message = "产品类型必填", groups = AllGroup.class)

@@ -10,6 +10,7 @@ import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.protocol.AbstractEventProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
@@ -97,6 +98,11 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                         .setName(api.getName())
                         .setType(api.getType())
                         .setRemark(api.getRemark());
+
+                // 事件协议
+                if(api instanceof AbstractEventProtocolModelApi) {
+                    protocolApi.setEventType(((AbstractEventProtocolModelApi) api).getEventType());
+                }
 
                 // 协议接口上行配置
                 List<ProtocolApiConfig> upConfig = api.getUpConfig()

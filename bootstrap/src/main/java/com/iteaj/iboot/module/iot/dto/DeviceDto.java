@@ -24,6 +24,11 @@ public class DeviceDto extends Device {
     private String productTypeName;
 
     /**
+     * 所属分组
+     */
+    private String deviceGroupName;
+
+    /**
      * 设备别名
      */
     private DeviceTypeAlias alias;
