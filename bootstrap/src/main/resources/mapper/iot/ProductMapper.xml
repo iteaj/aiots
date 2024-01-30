@@ -30,6 +30,8 @@
                     select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listFuncByProductId" />
         <collection property="eventApis" column="{productId=id}" ofType="ModelApi"
                     select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listEventByProductId" />
+        <collection property="attrs" column="{productId=id}" ofType="ModelAttr"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listByProductId" />
     </resultMap>
     <resultMap id="JoinDetailMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
         <collection property="funcApis" column="{productId=id}" ofType="ModelApi"

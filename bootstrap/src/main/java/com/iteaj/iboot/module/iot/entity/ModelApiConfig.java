@@ -1,13 +1,15 @@
 package com.iteaj.iboot.module.iot.entity;
 
-import com.iteaj.framework.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
-
+import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -56,6 +58,11 @@ public class ModelApiConfig extends BaseEntity {
     private String value;
 
     /**
+     * 模型属性id
+     */
+    private Long modelAttrId;
+
+    /**
      * 协议属性字段
      */
     private String protocolAttrField;
@@ -74,5 +81,11 @@ public class ModelApiConfig extends BaseEntity {
      * 接口方向
      */
     private ApiConfigDirection direction;
+
+    /**
+     * 属性字典列表
+     */
+    @TableField(exist = false)
+    private List<ModelAttrDict> dicts;
 
 }

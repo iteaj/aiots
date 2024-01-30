@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
@@ -279,6 +280,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             List<ModelApi> funcApis = productDto.getFuncApis().stream()
                     .filter(item -> Boolean.TRUE.equals(item.getDebug()))
                     .collect(Collectors.toList());
+
             productDto.setFuncApis(funcApis);
         }
 
@@ -286,7 +288,8 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             List<ModelApi> eventApis = productDto.getEventApis().stream()
                     .filter(item -> Boolean.TRUE.equals(item.getDebug()))
                     .collect(Collectors.toList());
-            productDto.setFuncApis(eventApis);
+
+            productDto.setEventApis(eventApis);
         }
 
         return new DetailResult<>(productDto);

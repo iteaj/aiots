@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.dto.DebugDto;
@@ -14,6 +15,7 @@ import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.service.IProductTypeService;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -97,11 +99,17 @@ public class DeviceDebugController extends BaseController {
     public Result<DebugDto> detail(Long deviceId) {
         DebugDto debugDto = new DebugDto();
         deviceService.detailById(deviceId)
-                .ifNotPresentThrow("设备不存在").of().ifPresent(item -> {
-                    debugDto.setDevice(item);
-                productService.debugById(item.getProductId())
-                        .ifNotPresentThrow("此设备数据不完整["+item.getName()+"]")
-                        .ifPresent(productDto -> debugDto.setProduct(productDto));
+            .ifNotPresentThrow("设备不存在").of().ifPresent(item -> {
+                debugDto.setDevice(item);
+            productService.debugById(item.getProductId())
+                .ifNotPresentThrow("此设备数据不完整["+item.getName()+"]")
+                .ifPresent(productDto -> {
+                    debugDto.setProduct(productDto);
+                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                        productDto.getFuncApis().forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.getDownApiConfig(productDto.getAttrs())));
+                    }
+                    productDto.setAttrs(null);
+                });
         });
 
         return success(debugDto);

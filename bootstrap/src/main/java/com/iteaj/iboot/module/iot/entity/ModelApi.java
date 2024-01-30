@@ -3,17 +3,21 @@ package com.iteaj.iboot.module.iot.entity;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
-import java.util.List;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -106,4 +110,77 @@ public class ModelApi extends BaseEntity {
      */
     @TableField(exist = false)
     private List<ModelApiConfig> downConfig;
+
+    /**
+     * 获取接口字典配置
+     * @return
+     */
+    @JsonIgnore
+    public List<IVOption> getDownApiConfig(List<ModelAttr> attrs) {
+        if(!CollectionUtils.isEmpty(downConfig)) {
+            List<ModelApiConfig> configs = downConfig.stream()
+                    .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
+                    .collect(Collectors.toList());
+
+            if(!CollectionUtils.isEmpty(configs)) {
+                if(configs.size() == 1) {
+                    return configs.get(0).getDicts().stream()
+                            .map(item -> new IVOption(item.getDictName(), item.getDictValue()))
+                            .collect(Collectors.toList());
+                } else {
+                    Map<Long, ModelAttr> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttr::getId, item -> item));
+
+                    List<List<ModelAttrDict>> collect = configs.stream()
+                            .map(item -> item.getDicts())
+                            .collect(Collectors.toList());
+
+                    // 计算笛卡尔积
+                    List<IVOption> options = cartesianProduct(collect, attrMap).stream().map(item -> {
+                        StringBuilder sb = new StringBuilder();
+                        StringBuilder valueSb = new StringBuilder("[");
+                        item.forEach(dict -> {
+                            ModelAttr modelAttr = attrMap.get(dict.getModelAttrId());
+                            if(modelAttr != null) {
+                                sb.append(modelAttr.getName()).append("->").append(dict.getDictName()).append(", ");
+                                valueSb.append(modelAttr.getField()).append("#").append(dict.getDictValue()).append(",");
+                            }
+                        });
+
+                        sb.deleteCharAt(sb.length() - 2);
+                        valueSb.deleteCharAt(valueSb.length() - 1).append("]");
+
+                        return new IVOption(sb.toString(), valueSb.toString());
+                    }).collect(Collectors.toList());
+
+                    return options;
+                }
+            }
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    private List<List<ModelAttrDict>> cartesianProduct(List<List<ModelAttrDict>> lists, Map<Long, ModelAttr> attrMap) {
+        List<List<ModelAttrDict>> result = new ArrayList<>();
+        cartesianProductHelper(lists, 0, new ArrayList<>(), result, attrMap);
+        return result;
+    }
+
+    private void cartesianProductHelper(List<List<ModelAttrDict>> lists, int index, List<ModelAttrDict> current, List<List<ModelAttrDict>> result, Map<Long, ModelAttr> attrMap) {
+        if (index == lists.size()) {
+            result.add(new ArrayList<>(current));
+            return;
+        }
+
+        List<ModelAttrDict> list = lists.get(index);
+        for (ModelAttrDict value : list) {
+            ModelAttr modelAttr = attrMap.get(value.getModelAttrId());
+            if(modelAttr != null) {
+                current.add(value);
+            }
+
+            cartesianProductHelper(lists, index + 1, current, result, attrMap);
+            current.remove(current.size() - 1);
+        }
+    }
 }

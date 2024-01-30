@@ -32,7 +32,7 @@ public class ProductDto extends Product {
     /**
      * 物模型属性
      */
-    private Map<String, ModelAttr> attrs;
+    private List<ModelAttr> attrs;
 
     /**
      * 物模型功能接口

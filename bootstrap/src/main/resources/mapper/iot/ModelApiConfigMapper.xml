@@ -6,25 +6,49 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.ModelApiConfig">
         <result column="id" property="id" />
         <result column="sort" property="sort" />
+        <result column="value" property="value" />
+        <result column="remark" property="remark" />
         <result column="api_code" property="apiCode" />
         <result column="attr_field" property="attrField" />
         <result column="product_id" property="productId" />
-        <result column="remark" property="remark" />
+        <result column="model_attr_id" property="modelAttrId" />
         <result column="protocol_attr_name" property="protocolAttrName" />
         <result column="protocol_attr_field" property="protocolAttrField" />
         <result column="direction" property="direction" />
         <result column="create_time" property="createTime" />
     </resultMap>
 
-    <select id="listUpByApiCode" resultMap="BaseResultMap">
-        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark from iot_model_api_config a
-            left join iot_protocol_attr pa on a.attr_field=pa.field and a.api_code=#{apiCode}
+    <resultMap id="JoinModelAttrDictMap" type="com.iteaj.iboot.module.iot.entity.ModelApiConfig" extends="BaseResultMap">
+        <collection property="dicts" foreignColumn="{dict_model_attr_id=model_attr_id}" ofType="com.iteaj.iboot.module.iot.entity.ModelAttrDict">
+            <result property="dictName" column="dict_name" />
+            <result property="dictValue" column="dict_value" />
+            <result property="modelAttrId" column="dict_model_attr_id" />
+        </collection>
+    </resultMap>
+
+    <select id="listUpByApiCode" resultMap="JoinModelAttrDictMap">
+        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark, ad.model_attr_id dict_model_attr_id, ad.dict_name, ad.dict_value from iot_model_api_config a
+            left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
+            left join iot_protocol_attr pa on a.protocol_attr_field=pa.field and a.api_code=#{apiCode}
         where api_code=#{apiCode} and a.direction='UP' order by sort
     </select>
 
-    <select id="listDownByApiCode" resultMap="BaseResultMap">
-        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark from iot_model_api_config a
-            left join iot_protocol_attr pa on a.attr_field=pa.field and a.api_code=#{apiCode}
+    <select id="listDownByApiCode" resultMap="JoinModelAttrDictMap">
+        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark, ad.model_attr_id dict_model_attr_id, ad.dict_name, ad.dict_value from iot_model_api_config a
+            left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
+            left join iot_protocol_attr pa on a.protocol_attr_field=pa.field and a.api_code=#{apiCode}
+        where api_code=#{apiCode} and a.direction='DOWN' order by sort
+    </select>
+
+    <select id="joinDictListUpByApiCode" resultMap="JoinModelAttrDictMap">
+        select a.* from iot_model_api_config a
+          left join iot_model_attr_dict ad on a.id=ad.model_attr_id
+        where api_code=#{apiCode} and a.direction='UP' order by sort
+    </select>
+
+    <select id="joinDictListDownByApiCode" resultMap="JoinModelAttrDictMap">
+        select a.* from iot_model_api_config a
+          left join iot_model_attr_dict ad on a.id=ad.model_attr_id
         where api_code=#{apiCode} and a.direction='DOWN' order by sort
     </select>
 </mapper>
