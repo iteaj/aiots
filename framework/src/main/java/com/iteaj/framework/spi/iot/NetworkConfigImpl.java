@@ -22,6 +22,11 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
      */
     private Boolean useSsl;
 
+    /**
+     * 设备编号
+     */
+    private String deviceSn;
+
     public NetworkConfigImpl() { }
 
     public NetworkConfigImpl(Integer port) {

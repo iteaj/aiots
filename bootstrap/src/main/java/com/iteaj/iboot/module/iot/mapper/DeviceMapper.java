@@ -42,4 +42,6 @@ public interface DeviceMapper extends BaseMapper<Device> {
      * @param gatewayId
      */
     List<Device> listOfGateway(Long gatewayId);
+
+    List<DeviceDto> listByProductId(Long productId);
 }

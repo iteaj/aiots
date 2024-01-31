@@ -22,6 +22,6 @@ public class ModbusRtuForDtuProtocolModelApi extends AbstractModbusProtocolModel
 
     @Override
     public void invoke(ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
-
+        result.accept(null);
     }
 }

@@ -31,6 +31,10 @@ public class ProtocolModelApiInvokeParam {
         this.deviceSn = deviceSn;
     }
 
+    public Boolean getBoolean(String key) {
+        return param.getBoolean(key);
+    }
+
     public Short getShort(String key) {
         return param.getShort(key);
     }

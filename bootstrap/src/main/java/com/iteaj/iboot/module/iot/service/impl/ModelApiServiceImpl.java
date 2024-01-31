@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
@@ -19,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -44,16 +46,29 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
                 .ifPresentThrow("接口代码已存在["+entity.getCode()+"]");
 
         if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
-            entity.getDownConfig().forEach(item -> item.setApiCode(entity.getCode()));
+            entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));
             this.modelApiConfigService.saveBatch(entity.getDownConfig());
         }
 
         if(!CollectionUtils.isEmpty(entity.getUpConfig())) {
-            entity.getUpConfig().forEach(item -> item.setApiCode(entity.getCode()));
+            entity.getUpConfig().forEach(item -> resolverModelApiConfig(entity, item));
             this.modelApiConfigService.saveBatch(entity.getUpConfig());
         }
 
         return super.save(entity);
+    }
+
+    private void resolverModelApiConfig(ModelApi entity, ModelApiConfig config) {
+        config.setApiCode(entity.getCode());
+        if(StrUtil.isNotBlank(config.getValue())) {
+            if(config.getValue().startsWith("@")) {
+                if(StrUtil.isBlank(config.getAttrField())) {
+                    config.setAttrField(config.getValue().substring(1));
+                }
+            } else {
+                config.setAttrField(null).setModelAttrId(null);
+            }
+        }
     }
 
     @Override
@@ -66,12 +81,12 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
 
         return super.updateById(entity).ifPresentAndTrue(status -> {
             if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
-                entity.getDownConfig().forEach(item -> item.setApiCode(entity.getCode()));
+                entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));
                 this.modelApiConfigService.saveOrUpdateBatch(entity.getDownConfig());
             }
 
             if(!CollectionUtils.isEmpty(entity.getUpConfig())) {
-                entity.getUpConfig().forEach(item -> item.setApiCode(entity.getCode()));
+                entity.getUpConfig().forEach(item -> resolverModelApiConfig(entity, item));
                 this.modelApiConfigService.saveOrUpdateBatch(entity.getUpConfig());
             }
         });

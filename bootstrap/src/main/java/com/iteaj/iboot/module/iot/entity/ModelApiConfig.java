@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
@@ -40,6 +41,7 @@ public class ModelApiConfig extends BaseEntity {
     /**
      * 物模型属性字段
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String attrField;
 
     /**
@@ -60,6 +62,7 @@ public class ModelApiConfig extends BaseEntity {
     /**
      * 模型属性id
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long modelAttrId;
 
     /**

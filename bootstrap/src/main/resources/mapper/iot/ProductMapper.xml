@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.Product">
         <result column="id" property="id" />
         <result column="name" property="name" />
+        <result column="status" property="status" />
         <result column="remark" property="remark" />
         <result column="type_name" property="typeName" />
         <result column="parent_id" property="parentId" />
@@ -52,6 +53,9 @@
         <where>
             <if test="entity.gatewayId != null">
                 and a.gateway_id=#{entity.gatewayId}
+            </if>
+            <if test="entity.status != null">
+                and a.status=#{entity.status}
             </if>
             <if test="entity.protocolId != null">
                 and a.protocol_id=#{entity.protocolId}

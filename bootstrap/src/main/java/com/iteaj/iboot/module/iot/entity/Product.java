@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayConnectType;
 import com.iteaj.iboot.module.iot.consts.GatewayType;
 import lombok.Data;
@@ -35,6 +36,11 @@ public class Product extends BaseEntity {
      * 图标
      */
     private String logo;
+
+    /**
+     * 产品状态
+     */
+    private FuncStatus status;
 
     /**
      * 产品代码

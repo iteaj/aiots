@@ -3,16 +3,22 @@ package com.iteaj.iboot.module.iot.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtflys.forest.annotation.Get;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
-import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Product;
+import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +35,11 @@ import java.util.List;
 @RequestMapping("/iot/product")
 public class ProductController extends BaseController {
 
+    private final IDeviceService deviceService;
     private final IProductService productService;
 
-    public ProductController(IProductService productService) {
+    public ProductController(IDeviceService deviceService, IProductService productService) {
+        this.deviceService = deviceService;
         this.productService = productService;
     }
 
@@ -106,6 +114,62 @@ public class ProductController extends BaseController {
     @GetMapping("deviceTypes")
     public Result<List<IVOption>> deviceTypes() {
         return success(DeviceType.options());
+    }
+
+    /**
+     * 切换产品状态
+     * @param id 产品id
+     * @param status 状态
+     * @return
+     */
+    @Logger("切换产品状态")
+    @PostMapping("switch/{id}/{status}")
+    @CheckPermission({"iot:gateway:switch"})
+    public Result<Boolean> switchStatus(@PathVariable Long id,  @PathVariable FuncStatus status) {
+        this.productService.detailById(id)
+            .ifNotPresentThrow("查找不到此产品")
+            .ifPresent(item -> {
+                if(item.getDeviceType() == DeviceType.Child) {
+                    this.productService.getById(item.getParentId())
+                        .ifNotPresentThrow("查找不到父产品["+item.getGatewayTypeName()+"]")
+                        .ifPresent(parent -> {
+                            if(parent.getStatus() == FuncStatus.disabled) {
+                                throw new ServiceException("请先启用父产品["+parent.getName()+"]");
+                            }
+                    });
+                } else if(item.getDeviceType() == DeviceType.Gateway) { // 启用边缘网关下面所有的设备
+                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
+                    if(supplier == null) {
+                        throw new ServiceException("查找不到对应的协议提供[code="+item.getProtocolCode()+"]");
+                    }
+
+                    if(supplier instanceof ClientProtocolSupplier) {
+                        this.deviceService.listByProductId(item.getId()).forEach(device -> {
+                            NetworkConfig networkConfig = createClientConfig(supplier, device);
+                            if(status == FuncStatus.enabled) {
+                                ((ClientProtocolSupplier) supplier).createClient(networkConfig);
+                            } else if(status == FuncStatus.disabled) {
+
+                            } else {
+
+                            }
+                        });
+                    }
+                }
+            });
+        return success(true);
+    }
+
+    private NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, DeviceDto device) {
+        TransportProtocol type = supplier.getProtocol().getType();
+        if(type == TransportProtocol.TCP) {
+            NetworkConfigImpl.TcpNetworkConfig config = new NetworkConfigImpl.TcpNetworkConfig();
+            config.setHost(device.getIp());
+            config.setPort(device.getPort());
+            config.setDeviceSn(device.getDeviceSn());
+            return config;
+        }
+        return null;
     }
 }
 

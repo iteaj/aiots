@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
@@ -112,48 +113,44 @@ public class ModelApi extends BaseEntity {
     private List<ModelApiConfig> downConfig;
 
     /**
-     * 获取接口字典配置
+     * 解析接口字典配置
      * @return
      */
-    @JsonIgnore
-    public List<IVOption> getDownApiConfig(List<ModelAttr> attrs) {
+    public List<IVOption> resolveDownApiConfig(List<ModelAttr> attrs) {
         if(!CollectionUtils.isEmpty(downConfig)) {
             List<ModelApiConfig> configs = downConfig.stream()
                     .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
                     .collect(Collectors.toList());
 
             if(!CollectionUtils.isEmpty(configs)) {
-                if(configs.size() == 1) {
-                    return configs.get(0).getDicts().stream()
-                            .map(item -> new IVOption(item.getDictName(), item.getDictValue()))
-                            .collect(Collectors.toList());
-                } else {
-                    Map<Long, ModelAttr> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttr::getId, item -> item));
-
-                    List<List<ModelAttrDict>> collect = configs.stream()
-                            .map(item -> item.getDicts())
-                            .collect(Collectors.toList());
-
-                    // 计算笛卡尔积
-                    List<IVOption> options = cartesianProduct(collect, attrMap).stream().map(item -> {
-                        StringBuilder sb = new StringBuilder();
-                        StringBuilder valueSb = new StringBuilder("[");
-                        item.forEach(dict -> {
-                            ModelAttr modelAttr = attrMap.get(dict.getModelAttrId());
-                            if(modelAttr != null) {
-                                sb.append(modelAttr.getName()).append("->").append(dict.getDictName()).append(", ");
-                                valueSb.append(modelAttr.getField()).append("#").append(dict.getDictValue()).append(",");
-                            }
-                        });
-
-                        sb.deleteCharAt(sb.length() - 2);
-                        valueSb.deleteCharAt(valueSb.length() - 1).append("]");
-
-                        return new IVOption(sb.toString(), valueSb.toString());
-                    }).collect(Collectors.toList());
-
-                    return options;
+                if(CollectionUtils.isEmpty(attrs)) {
+                    throw new ServiceException("参数错误[物模型属性为空]");
                 }
+
+                Map<Long, ModelAttr> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttr::getId, item -> item));
+                List<List<ModelAttrDict>> collect = configs.stream()
+                        .map(item -> item.getDicts())
+                        .collect(Collectors.toList());
+
+                // 计算笛卡尔积
+                List<IVOption> options = cartesianProduct(collect, attrMap).stream().map(item -> {
+                    StringBuilder sb = new StringBuilder();
+                    StringBuilder valueSb = new StringBuilder();
+                    item.forEach(dict -> {
+                        ModelAttr modelAttr = attrMap.get(dict.getModelAttrId());
+                        if(modelAttr != null) {
+                            sb.append(modelAttr.getName()).append("->").append(dict.getDictName()).append(", ");
+                            valueSb.append(modelAttr.getField()).append("::").append(dict.getDictValue()).append(",");
+                        }
+                    });
+
+                    sb.deleteCharAt(sb.length() - 2);
+                    valueSb.deleteCharAt(valueSb.length() - 1);
+
+                    return new IVOption(sb.toString(), valueSb.toString());
+                }).collect(Collectors.toList());
+
+                return options;
             }
         }
 

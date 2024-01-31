@@ -1,5 +1,6 @@
 package com.iteaj.framework.spi.iot.protocol;
 
+import com.iteaj.iot.Protocol;
 import com.iteaj.iot.consts.ExecStatus;
 
 /**
@@ -22,7 +23,25 @@ public class InvokeResult {
      */
     private ExecStatus status;
 
+    /**
+     * 执行协议
+     */
+    private Protocol protocol;
+
     public InvokeResult() { }
+
+    public InvokeResult(String reason) {
+       this(reason, ExecStatus.fail);
+    }
+
+    public InvokeResult(String reason, ExecStatus status) {
+        this.reason = reason;
+        this.status = status;
+    }
+
+    public InvokeResult(Object value) {
+        this(value, "采集成功", ExecStatus.success);
+    }
 
     public InvokeResult(Object value, String reason, ExecStatus status) {
         this.value = value;
@@ -52,5 +71,13 @@ public class InvokeResult {
 
     public void setStatus(ExecStatus status) {
         this.status = status;
+    }
+
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+    public InvokeResult setProtocol(Protocol protocol) {
+        this.protocol = protocol; return this;
     }
 }

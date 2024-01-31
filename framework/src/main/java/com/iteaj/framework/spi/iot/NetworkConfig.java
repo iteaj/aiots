@@ -27,6 +27,12 @@ public interface NetworkConfig {
      */
     Boolean isUseSsl();
 
+    /**
+     * 返回设备编号
+     * @return
+     */
+    String getDeviceSn();
+
     static NetworkConfig resolve(TransportProtocol protocol, ObjectNode config) {
         try {
             if(protocol == TransportProtocol.TCP) {

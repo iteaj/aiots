@@ -2,15 +2,10 @@ package com.iteaj.iboot.module.iot.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.IVOption;
-import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.dto.DebugDto;
 import com.iteaj.iboot.module.iot.dto.DebugTree;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
-import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Device;
-import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
@@ -106,7 +101,7 @@ public class DeviceDebugController extends BaseController {
                 .ifPresent(productDto -> {
                     debugDto.setProduct(productDto);
                     if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
-                        productDto.getFuncApis().forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.getDownApiConfig(productDto.getAttrs())));
+                        productDto.getFuncApis().forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
                     }
                     productDto.setAttrs(null);
                 });

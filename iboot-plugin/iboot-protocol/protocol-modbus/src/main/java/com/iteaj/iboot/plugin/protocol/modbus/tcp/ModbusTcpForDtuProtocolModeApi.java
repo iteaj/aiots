@@ -64,5 +64,6 @@ public class ModbusTcpForDtuProtocolModeApi extends AbstractModbusProtocolModelA
         }
 
         protocol.request();
+        result.accept(null);
     }
 }

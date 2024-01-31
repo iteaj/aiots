@@ -62,4 +62,11 @@ public interface IDeviceService extends IBaseService<Device> {
      * @param gatewayId
      */
     ListResult<Device> listOfGateway(Long gatewayId);
+
+    /**
+     * 获取指定产品下面的所有设备
+     * @param productId
+     * @return
+     */
+    ListResult<DeviceDto> listByProductId(Long productId);
 }

@@ -1,5 +1,6 @@
 package com.iteaj.plugin.protocol.plc.omron;
 
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
@@ -54,7 +55,14 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     @Override
     public synchronized OmronTcpClient createClient(NetworkConfigImpl.TcpNetworkConfig config) {
         OmronComponent component = createComponent(config);
+        if(!component.isStart()) {
+            FrameworkManager.start(component);
+        }
+
         OmronConnectProperties connectProperties = new OmronConnectProperties(config.getHost(), config.getPort());
+        if(StrUtil.isNotBlank(config.getDeviceSn())) {
+            connectProperties.setConnectKey(config.getDeviceSn());
+        }
 
         SocketClient client = component.getClient(connectProperties);
         if(client == null) {
