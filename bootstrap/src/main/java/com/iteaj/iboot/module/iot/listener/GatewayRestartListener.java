@@ -8,11 +8,12 @@ import com.iteaj.iboot.module.iot.service.IGatewayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.Ordered;
 
 /**
  * 网关重启监听
  */
-public class GatewayRestartListener implements ApplicationReadyListener {
+public class GatewayRestartListener implements ApplicationReadyListener, Ordered {
 
     private final IGatewayService gatewayService;
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -34,5 +35,14 @@ public class GatewayRestartListener implements ApplicationReadyListener {
                         .set(Gateway::getReason, e.getMessage()));
             }
         });
+    }
+
+    /**
+     * 网关必须比产品提前执行
+     * @return
+     */
+    @Override
+    public int getOrder() {
+        return 17168;
     }
 }

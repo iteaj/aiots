@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
@@ -76,6 +77,7 @@ public class Product extends BaseEntity {
     /**
      * 父产品id
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long parentId;
 
     /**

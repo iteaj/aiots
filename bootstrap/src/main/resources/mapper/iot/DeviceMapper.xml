@@ -42,6 +42,12 @@
             <if test="entity.productName!=null">
                 and idm.name like '%${entity.productName}%'
             </if>
+            <if test="entity.productId!=null">
+                and a.product_id = #{entity.productId}
+            </if>
+            <if test="entity.deviceGroupId!=null">
+                and a.device_group_id = #{entity.deviceGroupId}
+            </if>
             <if test="entity.productTypeId!=null">
                 and a.product_type_id = #{entity.productTypeId}
             </if>

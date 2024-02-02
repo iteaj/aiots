@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.dto;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.iteaj.iboot.module.iot.entity.Product;
@@ -23,6 +24,11 @@ public class ProductDto extends Product {
      * 操作类型
      */
     private CtrlMode ctrlMode;
+
+    /**
+     * 网关状态
+     */
+    private GatewayStatus gatewayStatus;
 
     /**
      * 传输协议

@@ -18,6 +18,7 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iboot.module.iot.consts.AttrOrigin;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
 import com.iteaj.iboot.module.iot.entity.*;
@@ -102,6 +103,12 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             }
         });
 
+        // 网关子设备的产品需要绑定父网关产品
+        if(entity.getDeviceType() != DeviceType.Child) {
+            entity.setParentId(null);
+        } else if(entity.getParentId() == null){
+            throw new ServiceException("网关子设备产品需绑定父产品");
+        }
 
         return super.updateById(entity);
     }

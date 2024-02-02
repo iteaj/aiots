@@ -4,7 +4,10 @@ import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.iboot.module.iot.collect.CollectActionFactory;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.listener.GatewayRestartListener;
+import com.iteaj.iboot.module.iot.listener.ProductRestartListener;
+import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IGatewayService;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -36,6 +39,17 @@ public class IotAutoConfiguration {
     @Bean
     public GatewayRestartListener gatewayRestartListener(IGatewayService gatewayService) {
         return new GatewayRestartListener(gatewayService);
+    }
+
+    /**
+     * 产品重启监听
+     * @param productService
+     * @param deviceService
+     * @return
+     */
+    @Bean
+    public ProductRestartListener productRestartListener(IProductService productService, IDeviceService deviceService) {
+        return new ProductRestartListener(deviceService, productService);
     }
 
     @Bean

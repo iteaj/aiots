@@ -27,6 +27,7 @@ import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import com.iteaj.iboot.module.iot.entity.ProtocolApi;
 import com.iteaj.iboot.module.iot.entity.ProtocolApiConfig;
 import com.iteaj.iboot.module.iot.entity.ProtocolAttr;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -163,7 +164,15 @@ public class ProtocolController extends BaseController {
             } else if (type == ProtocolApiType.event) {
                 return item.getEventApis();
             } else {
-                throw new ServiceException("错误的接口类型参数[type=" + type + "]");
+                ArrayList<ProtocolApi> list = new ArrayList<>();
+                if(!CollectionUtils.isEmpty(item.getFuncApis())) {
+                    list.addAll(item.getFuncApis());
+                }
+
+                if(!CollectionUtils.isEmpty(item.getEventApis())) {
+                    list.addAll(item.getEventApis());
+                }
+                return list;
             }
         }).orElseGet(ArrayList::new);
         return success(protocolApis);

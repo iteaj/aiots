@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
@@ -41,7 +42,7 @@ public class GatewayController extends BaseController {
     @Logger("浏览协议网关功能")
     @CheckPermission({"iot:gateway:view"})
     public Result<IPage<Gateway>> list(Page<Gateway> page, Gateway entity) {
-        return this.gatewayService.page(page, entity);
+        return this.gatewayService.page(page.addOrder(OrderItem.desc("create_time")), entity);
     }
 
     /**

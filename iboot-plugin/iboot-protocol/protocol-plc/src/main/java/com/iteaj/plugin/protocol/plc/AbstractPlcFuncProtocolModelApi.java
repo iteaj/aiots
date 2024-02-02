@@ -58,9 +58,9 @@ public abstract class AbstractPlcFuncProtocolModelApi extends AbstractFuncProtoc
                     break;
             }
 
-            result.accept(new InvokeResult().setProtocol(protocol));
+            result.accept(InvokeResult.status(protocol.getExecStatus(), protocol));
         } catch (Exception e) {
-            result.accept(new InvokeResult(e.getMessage()).setProtocol(protocol));
+            result.accept(InvokeResult.fail(e.getMessage(), protocol));
         }
     }
 

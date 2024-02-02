@@ -67,18 +67,25 @@ public class DeviceCtrlController extends BaseController {
      */
     @PostMapping("/debug/{modelApiCode}")
     public Mono<Result<DebugRespDto>> debug(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
-
+        // 获取协议模型接口
         AbstractProtocolModelApi protocolModelApi = this.getProtocolModelApi(modelApiCode, param);
 
+        DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
         return Mono.<InvokeResult>create(item -> {
+            // 调用接口
             protocolModelApi.invoke(param, result -> {
                 item.success(result);
+                debugRespDto.setRespTime(System.currentTimeMillis());
             });
         }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
+            debugRespDto.setStatus(item.getStatus());
+            debugRespDto.setReqMsg(item.getRequestMessage().toString());
+            debugRespDto.setRespMsg(item.getResponseMessage().toString());
             if(item.getStatus() == ExecStatus.success) {
-                return success(new DebugRespDto());
+                debugRespDto.setValue(item.getValue());
+                return success(debugRespDto.setValue(item.getValue()));
             } else {
-                return fail(item.getReason());
+                return fail(debugRespDto.setReason(item.getReason()));
             }
         });
     }
@@ -95,14 +102,14 @@ public class DeviceCtrlController extends BaseController {
         // 网关子设备需要取网关设备
         if(product.getDeviceType() == DeviceType.Child) {
             deviceService.getByDeviceSn(param.getDeviceSn())
-                .ifPresentThrow("查找不到设备[deviceSn="+param.getDeviceSn()+"]")
+                .ifNotPresentThrow("查找不到设备[deviceSn="+param.getDeviceSn()+"]")
                 .ifPresent(item -> {
                     if(item.getPid() == null) {
                         throw new ServiceException("此网关子设备没有关联对应的网关设备");
                     }
                     deviceService.getById(item.getPid())
                         .ifNotPresentThrow("查找不到绑定的网关设备")
-                        // 设备编号改成父设备的编号
+                        // 设备编号改成父网关设备的编号
                         .ifPresent(parent -> param.setDeviceSn(parent.getDeviceSn()));
             });
         }
