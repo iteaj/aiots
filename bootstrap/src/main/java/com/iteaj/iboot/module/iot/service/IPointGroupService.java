@@ -41,4 +41,11 @@ public interface IPointGroupService extends IBaseService<PointGroup> {
      * @return
      */
     Boolean isBindSignals(Collection<? extends Serializable> list);
+
+    /**
+     * 是否被采集任务绑定
+     * @param idList
+     * @return
+     */
+    boolean isBindCollectTask(Collection<? extends Serializable> idList);
 }

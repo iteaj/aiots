@@ -2,16 +2,18 @@ package com.iteaj.iboot.module.iot.collect;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.iboot.module.iot.collect.action.CollectAction;
+import com.iteaj.framework.spi.event.ApplicationReadyListener;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
-import com.iteaj.iboot.module.iot.service.ICollectTaskService;
 import com.iteaj.iboot.module.iot.entity.CollectTask;
+import com.iteaj.iboot.module.iot.service.ICollectTaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -25,36 +27,35 @@ import java.util.concurrent.ScheduledFuture;
 /**
  * 数据采集服务
  */
-//@Service
-public class CollectService implements InitializingBean {
+@Service
+public class CollectTaskListenerService implements ApplicationReadyListener {
 
     private final TaskScheduler scheduler;
-    private final CollectActionFactory actionFactory;
     private final StoreActionFactory storeActionFactory;
     private final ICollectTaskService collectTaskService;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Long, ScheduledFuture> scheduledFutureMap = new ConcurrentHashMap<>();
 
-    public CollectService(CollectActionFactory actionFactory, TaskScheduler scheduler
-            , StoreActionFactory storeActionFactory, ICollectTaskService collectTaskService) {
-        this.actionFactory = actionFactory;
+    public CollectTaskListenerService(TaskScheduler scheduler, StoreActionFactory storeActionFactory
+            , ICollectTaskService collectTaskService) {
         this.scheduler = scheduler;
         this.storeActionFactory = storeActionFactory;
         this.collectTaskService = collectTaskService;
     }
 
     public void statusSwitch(Long id, String status) throws CollectException{
-        CollectTaskDto taskDto = collectTaskService.collectDetailById(id);
-
-        if(taskDto == null) {
-            throw new ServiceException("采集任务不存在");
-        }
-
-        if(taskDto.getStatus().equals(status)) {
-            throw new ServiceException("状态切换异常");
-        }
 
         if(status.equals("run")) {
+            CollectTaskDto taskDto = collectTaskService.collectDetailById(id);
+
+            if(taskDto == null) {
+                throw new ServiceException("任务不存在");
+            }
+
+            if(taskDto.getStatus().equals(status)) {
+                throw new ServiceException("状态切换异常");
+            }
+
             ScheduledFuture future = scheduledFutureMap.get(id);
             Object result = validateTask(taskDto);// 校验采集任务
             if(result instanceof String) { // 任务校验失败
@@ -83,18 +84,12 @@ public class CollectService implements InitializingBean {
                 .eq(CollectTask::getId, id));
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        collectTaskService.list(Wrappers.<CollectTask>lambdaQuery().eq(CollectTask::getStatus, "run"))
-                .stream().map(item -> collectTaskService.collectDetailById(item.getId()))
-                    .filter(item -> item != null && !CollectionUtils.isEmpty(item.getDetails()))
-                    .map(item -> validateTask(item))
-                    .filter(item -> item instanceof CollectTaskDto) // 校验之后重新过滤
-                    .forEach(item -> createScheduledTask((CollectTaskDto) item));
-    }
-
     private Object validateTask(CollectTaskDto taskDto) {
         try {
+            if(CollectionUtils.isEmpty(taskDto.getDetails())) {
+                return "未找到任务配置记录";
+            }
+
             if(!StringUtils.hasText(taskDto.getCron())) {
                 collectTaskService.update(Wrappers.<CollectTask>lambdaUpdate()
                         .set(CollectTask::getStatus, "fail")
@@ -106,24 +101,9 @@ public class CollectService implements InitializingBean {
 
             taskDto.getDetails().forEach(item -> {
                 String reason = null;
-                if(item.getDevice() == null) {
-                    reason = "没有配置采集设备";
-                }
 
-                if(CollectionUtils.isEmpty(item.getSignals())) {
-                    reason = "没有配置采集点位";
-                }
-
-                CollectAction collectAction = actionFactory.get(item.getCollectAction());
-                if(collectAction == null) {
-                    reason = "没有可用的采集动作[action="+item.getCollectAction()+"]";
-                } else {
-                    try {
-                        collectAction.validate(item);
-                        item.getSignals().forEach(signal -> collectAction.validate(signal));
-                    } catch (CollectException e) {
-                        reason = e.getMessage();
-                    }
+                if(CollectionUtils.isEmpty(item.getDevices())) {
+                    reason = "任务详情["+item.getPointGroupName()+"]没有绑定任何设备";
                 }
 
                 if(reason != null) {
@@ -137,10 +117,10 @@ public class CollectService implements InitializingBean {
                 }
             });
         } catch (CollectException e) {
-            logger.error("校验任务失败 任务:{} - 失败原因: {}", taskDto.getName(), e.getMessage());
+            logger.error("校验任务失败 {} - 任务:{}", e.getMessage(), taskDto.getName());
             return e.getMessage();
         } catch (Exception e) {
-            logger.error("校验任务失败 任务:{} - 失败原因: {}", taskDto.getName(), e.getMessage(), e);
+            logger.error("校验任务失败 {} - 任务:{}", e.getMessage(), taskDto.getName(), e);
             return e.getMessage();
         }
 
@@ -151,5 +131,14 @@ public class CollectService implements InitializingBean {
         scheduledFutureMap.put(taskDto.getId(),
                 scheduler.schedule(new CollectActionTask(taskDto)
                         , new CronTrigger(taskDto.getCron())));
+    }
+
+    @Override
+    public void started(ApplicationContext context) {
+        collectTaskService.runningCollectTaskDetail()
+                .stream().filter(item -> item != null && !CollectionUtils.isEmpty(item.getDetails()))
+                .map(item -> validateTask(item))
+                .filter(item -> item instanceof CollectTaskDto) // 校验之后重新过滤
+                .forEach(item -> createScheduledTask((CollectTaskDto) item));
     }
 }

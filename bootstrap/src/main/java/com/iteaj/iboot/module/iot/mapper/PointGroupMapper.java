@@ -47,4 +47,11 @@ public interface PointGroupMapper extends BaseMapper<PointGroup> {
      * @return
      */
     Boolean isBindSignals(Collection<? extends Serializable> list);
+
+    /**
+     * 是否被采集任务绑定
+     * @param idList 点位组id列表
+     * @return
+     */
+    boolean isBindCollectTask(Collection<? extends Serializable> idList);
 }

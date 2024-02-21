@@ -2,7 +2,7 @@ package com.iteaj.plugin.protocol.plc.omron;
 
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.consts.ApiEventType;
+import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.client.IotClient;
@@ -21,7 +21,7 @@ public class OmronEventProtocolModelApi extends AbstractPlcEventProtocolModelApi
     }
 
     public OmronEventProtocolModelApi(String code, String name, String remark) {
-        super(code, name, remark, ApiEventType.PASSIVE);
+        super(code, name, remark, EventTriggerMode.passive);
     }
 
     public OmronEventProtocolModelApi(String code, String name, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
@@ -29,14 +29,14 @@ public class OmronEventProtocolModelApi extends AbstractPlcEventProtocolModelApi
     }
 
     public OmronEventProtocolModelApi(String code, String name, String remark, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
-        super(code, name, remark, ApiEventType.PASSIVE, upConfig, downConfig);
+        super(code, name, remark, EventTriggerMode.passive, upConfig, downConfig);
     }
 
     @Override
     protected PlcClientProtocol createPlcProtocol(ProtocolModelApiInvokeParam arg) {
         IotClient client = FrameworkManager.getClient(arg.getDeviceSn(), OmronMessage.class);
         if(client == null) {
-            throw new ServiceException("获取不到欧姆龙客户端[deviceSn="+arg.getDeviceSn()+"]");
+            throw new ServiceException("获取不到欧姆龙客户端["+arg.getDeviceSn()+"]");
         }
 
         return new OmronTcpProtocol((OmronConnectProperties) client.getConfig());

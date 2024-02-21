@@ -80,7 +80,7 @@ public class InvokeResult {
 
     @Transient
     public Message getRequestMessage() {
-        return protocol != null ? protocol.requestMessage() : EMPTY_MESSAGE;
+        return protocol != null ? (protocol.requestMessage() != null ? protocol.requestMessage() : EMPTY_MESSAGE) : EMPTY_MESSAGE;
     }
 
     @Transient

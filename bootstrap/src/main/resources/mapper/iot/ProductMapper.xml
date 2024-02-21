@@ -128,6 +128,10 @@
         where a.id=#{productId}
     </select>
 
+    <select id="listByPoint" resultMap="BaseResultMap">
+        select a.* from iot_product a left join iot_protocol p on a.protocol_id=p.id where p.ctrl_mode='POINT'
+    </select>
+
     <delete id="removeModel">
         delete from iot_model_api where product_id=#{productId};
         delete from iot_model_attr_dict where model_attr_id in (select id from iot_model_attr where product_id=#{productId});

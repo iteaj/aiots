@@ -302,6 +302,12 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         return new DetailResult<>(productDto);
     }
 
+    @Override
+    public ListResult<Product> listByPoint() {
+        List<Product> list = this.getBaseMapper().listByPoint();
+        return new ListResult<>(list);
+    }
+
 
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {
         ModelApi modelApi = new ModelApi();

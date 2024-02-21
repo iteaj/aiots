@@ -158,12 +158,17 @@ public class ProductController extends BaseController {
                             }
                         }
 
+                        // 获取此网关产品下面的所有网关设备
                         this.deviceService.listByProductId(item.getId()).forEach(device -> {
                             try {
+                                IotClient client = null;
                                 NetworkConfig networkConfig = createClientConfig(supplier, device);
-                                IotClient client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
-                                // 处理网关产品设备的状态
-                                resolveGatewayProductClientStatus(client, device, status);
+                                try {
+                                    client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
+                                } finally {
+                                    // 处理网关产品设备的状态
+                                    resolveGatewayProductClientStatus(client, device, status);
+                                }
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -178,6 +183,15 @@ public class ProductController extends BaseController {
         return success(true);
     }
 
+    /**
+     * 获取点位协议的产品列表
+     * @return
+     */
+    @GetMapping("listByPoint")
+    public Result<List<Product>> listByPoint() {
+        return this.productService.listByPoint();
+    }
+
     private void resolveGatewayProductClientStatus(IotClient client, DeviceDto device, FuncStatus status) {
         if(status == FuncStatus.enabled) {
             if(client instanceof TcpSocketClient) {
@@ -190,12 +204,12 @@ public class ProductController extends BaseController {
                 if(((TcpSocketClient) client).isConnect()) {
                     client.disconnect();
                 }
-
-                // 更新此网关设备下面所有子设备的状态
-                deviceService.update(Wrappers.<Device>lambdaUpdate()
-                        .set(Device::getStatus, DeviceStatus.offline)
-                        .eq(Device::getPid, device.getId()));
             }
+
+            // 更新此网关设备下面所有子设备的状态
+            deviceService.update(Wrappers.<Device>lambdaUpdate()
+                    .set(Device::getStatus, DeviceStatus.offline)
+                    .eq(Device::getPid, device.getId()));
         } else {
             throw new ServiceException("错误的状态[status="+status+"]");
         }

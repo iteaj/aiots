@@ -1,14 +1,17 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.util.List;
 
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.iteaj.framework.TreeEntity;
+import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
+import com.iteaj.framework.mybatis.handler.ListOfLongJsonTypeHandler;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
@@ -56,6 +59,12 @@ public class DeviceGroup extends TreeEntity {
      * 分组地址
      */
     private String address;
+
+    /**
+     * 产品id列表
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ArrayNode productIds;
 
     /**
      * 创建时间

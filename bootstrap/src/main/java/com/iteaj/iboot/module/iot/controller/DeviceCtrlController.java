@@ -9,6 +9,7 @@ import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.DebugRespDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -85,7 +86,7 @@ public class DeviceCtrlController extends BaseController {
                 debugRespDto.setValue(item.getValue());
                 return success(debugRespDto.setValue(item.getValue()));
             } else {
-                return fail(debugRespDto.setReason(item.getReason()));
+                return success(debugRespDto.setReason(item.getReason()));
             }
         });
     }
@@ -97,7 +98,11 @@ public class DeviceCtrlController extends BaseController {
                 .getData();
 
         ProductDto product = this.productService.detailById(modelApi.getProductId())
-                .ifNotPresentThrow("未找到物模型所属产品").getData();
+                .ifNotPresentThrow("未找到所属产品").getData();
+
+        if(product.getStatus() == FuncStatus.disabled) {
+            throw new ServiceException("请先启用产品["+product.getName()+"]");
+        }
 
         // 网关子设备需要取网关设备
         if(product.getDeviceType() == DeviceType.Child) {

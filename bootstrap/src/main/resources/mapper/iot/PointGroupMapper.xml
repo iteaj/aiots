@@ -6,15 +6,14 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.PointGroup">
         <result column="id" property="id" />
         <result column="name" property="name" />
-        <result column="type_id" property="typeId" />
-        <result column="type_name" property="typeName" />
-        <result column="model_id" property="modelId" />
-        <result column="model_name" property="modelName" />
+        <result column="product_ids" property="productIds"
+                typeHandler="com.iteaj.framework.mybatis.handler.JacksonTypeHandler"/>
+        <result column="product_names" property="productNames" />
         <result column="create_time" property="createTime" />
     </resultMap>
 
     <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.PointGroup" extends="BaseResultMap">
-        <collection property="signalIds" ofType="java.lang.String">
+        <collection property="signalIds" ofType="java.lang.String" foreignColumn="signal_id">
             <constructor>
                 <arg column="signal_id" />
             </constructor>
@@ -22,32 +21,31 @@
     </resultMap>
 
     <select id="detailOfPage" resultMap="BaseResultMap">
-        select a.id, a.name, dm.model model_name, dm.id model_id, dy.id type_id, dy.name type_name
-        from iot_point_group a
-            left join product_id dm on a.model_id=dm.id
-            left join iot_product_type dy on dm.type_id=dy.id
+        select a.*, group_concat(distinct p.name) product_names from iot_point_group a
+            left join iot_product p on json_contains(a.product_ids, concat('', p.id))
+            left join iot_group_point gp on gp.group_id=a.id
         <where>
-            <if test="entity.typeId != null">
-                and find_in_set(#{entity.typeId}, dy.path)
+            <if test="entity.signalId != null">
+                and gp.signal_id=#{entity.signalId}
             </if>
-            <if test="entity.modelId != null">
-                and dm.id=#{entity.modelId}
+            <if test="entity.productId != null">
+                and json_contains(a.product_ids, '${entity.productId}')
             </if>
-            <if test="entity.name != null">
+            <if test="entity.productTypeId != null">
+                and p.product_type_id=#{entity.productTypeId}
+            </if>
+            <if test="entity.name != null and entity.name != ''">
                 and a.name like '%${entity.name}%'
             </if>
-            order by a.create_time desc
         </where>
-
-
+        group by a.id order by a.create_time desc
     </select>
 
     <select id="detailById" resultMap="DetailResultMap">
-        select a.id, a.name, dm.model model_name, dm.id model_id, dy.id type_id, dy.name type_name, igp.signal_id
-        from iot_point_group a
-            left join product_id dm on a.model_id=dm.id
-            left join iot_product_type dy on dm.type_id=dy.id
+        select a.id, a.name, a.product_ids, igp.signal_id from iot_point_group a
+#             left join iot_product dm on a.model_id=dm.id
             left join iot_group_point igp on igp.group_id=a.id
+            left join iot_signal s on s.id = igp.signal_id
         where a.id=#{id}
     </select>
 
@@ -59,6 +57,13 @@
             </foreach>
         )
         limit 1
+    </select>
+
+    <select id="isBindCollectTask" resultType="java.lang.Boolean">
+        select count(id) > 0 from iot_collect_detail where point_group_id in (
+            <foreach collection="list" item="id" separator=",">
+                #{id}
+            </foreach>)
     </select>
 
     <insert id="batchSaveGroupPoint">

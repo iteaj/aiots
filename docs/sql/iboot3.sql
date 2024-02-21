@@ -1379,7 +1379,7 @@ UNLOCK TABLES;
 -- Table structure for table `t_catalog`
 --
 
-DROP TABLE IF EXISTS `t_catalog`;
+DROP TABLE IF EXISTS T_Catalog;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_catalog` (
@@ -1421,17 +1421,17 @@ CREATE TABLE `t_catalog` (
 -- Dumping data for table `t_catalog`
 --
 
-LOCK TABLES `t_catalog` WRITE;
-/*!40000 ALTER TABLE `t_catalog` DISABLE KEYS */;
-INSERT INTO `t_catalog` VALUES ('34020000001320000001','35060000492000000003','35060000492000000003','摄像机 01','UNIVIEW','IPC3A3L-IR3-APF28-H-DT','UNIVIEW','3506','','193\0168\0100\02',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.2',5060,'','ON',NULL,0,0,'',_binary '','2000-01-01 00:00:00',NULL),('34020000001320000002','34020000001320000001','34020000001320000001','Camera 02','Hikvision','IP Camera','Owner','3402000000','','Address',_binary '\0','',0,1,'',_binary '\0',0,NULL,_binary '\0','',0,'','ON',NULL,0,0,'',_binary '','2000-01-01 00:00:00',NULL),('34020000001320000002','35060000492000000003','35060000492000000003','摄像机 02','NONE','NONE','NONE','3506','','193\0168\0100\0102',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.102',5060,'','OFF','测试通道',0,0,'',_binary '\0','2000-01-01 00:00:00',NULL),('35060000492202312131','35060000492020231213','35060000492020231213','摄像机 01','UNIVIEW','IPC3A3L-IR3-APF28-H-DT','UNIVIEW','3506','','193\0168\0100\02',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.2',5060,'','ON',NULL,0,0,'',_binary '','2000-01-01 00:00:00',NULL),('35060000492202312132','35060000492020231213','35060000492020231213','摄像机 02','NONE','NONE','NONE','3506','','193\0168\0100\03',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.3',5060,'','OFF',NULL,0,0,'',_binary '\0','2000-01-01 00:00:00',NULL),('35060000492202312133','35060000492020231213','35060000492020231213','摄像机 03','NONE','NONE','NONE','3506','','193\0168\0100\0104',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.104',5060,'','OFF',NULL,0,0,'',_binary '\0','2000-01-01 00:00:00',NULL);
-/*!40000 ALTER TABLE `t_catalog` ENABLE KEYS */;
+LOCK TABLES T_Catalog WRITE;
+/*!40000 ALTER TABLE T_Catalog DISABLE KEYS */;
+INSERT INTO T_Catalog VALUES ('34020000001320000001','35060000492000000003','35060000492000000003','摄像机 01','UNIVIEW','IPC3A3L-IR3-APF28-H-DT','UNIVIEW','3506','','193\0168\0100\02',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.2',5060,'','ON',NULL,0,0,'',_binary '','2000-01-01 00:00:00',NULL),('34020000001320000002','34020000001320000001','34020000001320000001','Camera 02','Hikvision','IP Camera','Owner','3402000000','','Address',_binary '\0','',0,1,'',_binary '\0',0,NULL,_binary '\0','',0,'','ON',NULL,0,0,'',_binary '','2000-01-01 00:00:00',NULL),('34020000001320000002','35060000492000000003','35060000492000000003','摄像机 02','NONE','NONE','NONE','3506','','193\0168\0100\0102',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.102',5060,'','OFF','测试通道',0,0,'',_binary '\0','2000-01-01 00:00:00',NULL),('35060000492202312131','35060000492020231213','35060000492020231213','摄像机 01','UNIVIEW','IPC3A3L-IR3-APF28-H-DT','UNIVIEW','3506','','193\0168\0100\02',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.2',5060,'','ON',NULL,0,0,'',_binary '','2000-01-01 00:00:00',NULL),('35060000492202312132','35060000492020231213','35060000492020231213','摄像机 02','NONE','NONE','NONE','3506','','193\0168\0100\03',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.3',5060,'','OFF',NULL,0,0,'',_binary '\0','2000-01-01 00:00:00',NULL),('35060000492202312133','35060000492020231213','35060000492020231213','摄像机 03','NONE','NONE','NONE','3506','','193\0168\0100\0104',_binary '\0','',0,1,'1',_binary '\0',400,'2039-12-12 22:28:57',_binary '\0','193.168.100.104',5060,'','OFF',NULL,0,0,'',_binary '\0','2000-01-01 00:00:00',NULL);
+/*!40000 ALTER TABLE T_Catalog ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
 -- Table structure for table `t_deviceinfo`
 --
 
-DROP TABLE IF EXISTS `t_deviceinfo`;
+DROP TABLE IF EXISTS T_DeviceInfo;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_deviceinfo` (
@@ -1469,17 +1469,17 @@ CREATE TABLE `t_deviceinfo` (
 -- Dumping data for table `t_deviceinfo`
 --
 
-LOCK TABLES `t_deviceinfo` WRITE;
-/*!40000 ALTER TABLE `t_deviceinfo` DISABLE KEYS */;
-INSERT INTO `t_deviceinfo` VALUES ('34020000001320000001','IP CAMERA','Hikvision','DS-IPC-B12-I','V5.5.94',1,_binary '',1,'2024-01-15 04:34:35',_binary '\0','2024-01-16 07:28:11','2024-01-17 03:08:40','2024-01-17 03:11:41','tcp:192.168.20.112:33941','ONLINE','OK',NULL,'ON','OFF','2024-01-16T15:28:11','2024-01-16 07:28:12',_binary '\0','2024-01-15 04:34:35','2024-01-17 03:11:41','公司测试(海康)',0),('35060000492000000003','NVR301-04S3-P4-DT','NONE',NULL,'NVR-B3610.31.11.230411',0,_binary '',2,'2024-01-10 09:46:31',_binary '\0','2024-01-17 07:41:01','2024-01-22 08:58:48','2024-01-22 09:01:48','udp:192.168.20.125:7100','ONLINE','OK',NULL,NULL,'ON','2024-01-17T15:41:02','2024-01-17 07:41:01',_binary '\0','2024-01-09 08:19:31','2024-01-22 09:01:48','',0),('35060000492020231213','NVR301-04S3-P4-DT','NONE',NULL,'NVR-B3610.31.11.230411',0,_binary '',3,'2024-01-17 07:20:07',_binary '\0','2024-01-17 07:36:23','2024-01-17 07:40:58','2024-01-17 07:43:58','udp:192.168.20.129:7100','ONLINE','OK',NULL,NULL,'ON','2024-01-17T15:36:25','2024-01-17 07:36:23',_binary '\0','2024-01-17 07:20:06','2024-01-17 07:43:58','',0);
-/*!40000 ALTER TABLE `t_deviceinfo` ENABLE KEYS */;
+LOCK TABLES T_DeviceInfo WRITE;
+/*!40000 ALTER TABLE T_DeviceInfo DISABLE KEYS */;
+INSERT INTO T_DeviceInfo VALUES ('34020000001320000001','IP CAMERA','Hikvision','DS-IPC-B12-I','V5.5.94',1,_binary '',1,'2024-01-15 04:34:35',_binary '\0','2024-01-16 07:28:11','2024-01-17 03:08:40','2024-01-17 03:11:41','tcp:192.168.20.112:33941','ONLINE','OK',NULL,'ON','OFF','2024-01-16T15:28:11','2024-01-16 07:28:12',_binary '\0','2024-01-15 04:34:35','2024-01-17 03:11:41','公司测试(海康)',0),('35060000492000000003','NVR301-04S3-P4-DT','NONE',NULL,'NVR-B3610.31.11.230411',0,_binary '',2,'2024-01-10 09:46:31',_binary '\0','2024-01-17 07:41:01','2024-01-22 08:58:48','2024-01-22 09:01:48','udp:192.168.20.125:7100','ONLINE','OK',NULL,NULL,'ON','2024-01-17T15:41:02','2024-01-17 07:41:01',_binary '\0','2024-01-09 08:19:31','2024-01-22 09:01:48','',0),('35060000492020231213','NVR301-04S3-P4-DT','NONE',NULL,'NVR-B3610.31.11.230411',0,_binary '',3,'2024-01-17 07:20:07',_binary '\0','2024-01-17 07:36:23','2024-01-17 07:40:58','2024-01-17 07:43:58','udp:192.168.20.129:7100','ONLINE','OK',NULL,NULL,'ON','2024-01-17T15:36:25','2024-01-17 07:36:23',_binary '\0','2024-01-17 07:20:06','2024-01-17 07:43:58','',0);
+/*!40000 ALTER TABLE T_DeviceInfo ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
 -- Table structure for table `t_event`
 --
 
-DROP TABLE IF EXISTS `t_event`;
+DROP TABLE IF EXISTS T_Event;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_event` (
@@ -1496,16 +1496,16 @@ CREATE TABLE `t_event` (
 -- Dumping data for table `t_event`
 --
 
-LOCK TABLES `t_event` WRITE;
-/*!40000 ALTER TABLE `t_event` DISABLE KEYS */;
-/*!40000 ALTER TABLE `t_event` ENABLE KEYS */;
+LOCK TABLES T_Event WRITE;
+/*!40000 ALTER TABLE T_Event DISABLE KEYS */;
+/*!40000 ALTER TABLE T_Event ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
 -- Table structure for table `t_superiorchannel`
 --
 
-DROP TABLE IF EXISTS `t_superiorchannel`;
+DROP TABLE IF EXISTS T_SuperiorChannel;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_superiorchannel` (
@@ -1522,16 +1522,16 @@ CREATE TABLE `t_superiorchannel` (
 -- Dumping data for table `t_superiorchannel`
 --
 
-LOCK TABLES `t_superiorchannel` WRITE;
-/*!40000 ALTER TABLE `t_superiorchannel` DISABLE KEYS */;
-/*!40000 ALTER TABLE `t_superiorchannel` ENABLE KEYS */;
+LOCK TABLES T_SuperiorChannel WRITE;
+/*!40000 ALTER TABLE T_SuperiorChannel DISABLE KEYS */;
+/*!40000 ALTER TABLE T_SuperiorChannel ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
 -- Table structure for table `t_superiorinfo`
 --
 
-DROP TABLE IF EXISTS `t_superiorinfo`;
+DROP TABLE IF EXISTS T_SuperiorInfo;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_superiorinfo` (
@@ -1560,9 +1560,9 @@ CREATE TABLE `t_superiorinfo` (
 -- Dumping data for table `t_superiorinfo`
 --
 
-LOCK TABLES `t_superiorinfo` WRITE;
-/*!40000 ALTER TABLE `t_superiorinfo` DISABLE KEYS */;
-/*!40000 ALTER TABLE `t_superiorinfo` ENABLE KEYS */;
+LOCK TABLES T_SuperiorInfo WRITE;
+/*!40000 ALTER TABLE T_SuperiorInfo DISABLE KEYS */;
+/*!40000 ALTER TABLE T_SuperiorInfo ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

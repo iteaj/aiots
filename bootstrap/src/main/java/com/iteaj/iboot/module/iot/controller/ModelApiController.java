@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.logger.Logger;
@@ -37,7 +38,7 @@ public class ModelApiController extends BaseController {
     @Logger("浏览物模型接口功能")
     @CheckPermission({"iot:modelApi:view"})
     public Result<IPage<ModelApi>> list(Page<ModelApi> page, ModelApi entity) {
-        return this.modelApiService.page(page, entity);
+        return this.modelApiService.page(page.addOrder(OrderItem.desc("as_status"), OrderItem.desc("create_time")), entity);
     }
 
     /**
@@ -90,6 +91,17 @@ public class ModelApiController extends BaseController {
     @CheckPermission({"iot:modelApi:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.modelApiService.removeByIds(idList);
+    }
+
+    /**
+     * 修改默认状态位
+     * @param productId 产品id
+     * @param code 接口代码
+     * @return
+     */
+    @PostMapping("asStatus")
+    public Result<Boolean> asStatus(Long productId, String code) {
+        return this.modelApiService.updateAsStatus(productId, code);
     }
 }
 

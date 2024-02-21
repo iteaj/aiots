@@ -24,7 +24,8 @@
     <select id="detailOfPage" resultMap="DtoResultMap">
         select a.id, a.cid, a.uid, a.signal_id, a.field_type, a.collect_task_id, a.address, a.value
              , a.status, a.reason, a.collect_time, a.create_time, d.name device_name, d.device_sn
-        from iot_collect_data a left join iot_device d on a.uid=d.uid
+        from iot_collect_data a
+            left join iot_device d on a.uid=d.uid
         <where>
             <if test="entity.uid != null">
                 and a.uid=#{entity.uid}

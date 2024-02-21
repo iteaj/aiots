@@ -40,6 +40,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     }
 
     @Override
+    @Transactional
     public BooleanResult save(ModelApi entity) {
         entity.setCreateTime(new Date());
         this.getByProductIdAndCode(entity.getProductId(), entity.getCode())
@@ -72,6 +73,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     }
 
     @Override
+    @Transactional
     public BooleanResult updateById(ModelApi entity) {
         this.getByProductIdAndCode(entity.getProductId(), entity.getCode()).ifPresent(item -> {
            if(!item.getId().equals(entity.getId())) {
@@ -82,7 +84,16 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         return super.updateById(entity).ifPresentAndTrue(status -> {
             if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
                 entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));
-                this.modelApiConfigService.saveOrUpdateBatch(entity.getDownConfig());
+                ModelApiConfig modelApiConfig = entity.getDownConfig().get(0);
+                if(modelApiConfig.getId() == null) {
+                    // 删除此接口的所有配置
+                    this.modelApiConfigService.remove(Wrappers.<ModelApiConfig>lambdaQuery().eq(ModelApiConfig::getApiCode, entity.getCode()));
+                    // 重新添加配置
+                    this.modelApiConfigService.saveBatch(entity.getDownConfig());
+                } else {
+                    // 更新配置
+                    this.modelApiConfigService.updateBatchById(entity.getDownConfig());
+                }
             }
 
             if(!CollectionUtils.isEmpty(entity.getUpConfig())) {
@@ -123,5 +134,14 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Override
     public Result<ModelApi> detailById(Long id) {
         return new DetailResult<>(this.getBaseMapper().detailById(id));
+    }
+
+    @Override
+    public BooleanResult updateAsStatus(Long productId, String code) {
+        if(productId == null || StrUtil.isBlank(code)) {
+            return BooleanResult.buildFalse("参数错误[productId="+productId+", code="+code+"]");
+        }
+
+        return new BooleanResult(this.getBaseMapper().updateAsStatus(productId, code) > 0);
     }
 }

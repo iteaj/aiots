@@ -17,4 +17,11 @@ public interface CollectDetailMapper extends BaseMapper<CollectDetail> {
     Page<CollectDetail> detailPage(Page page, CollectDetail entity);
 
     CollectDetail detailById(Long id);
+
+    /**
+     * 采集任务是否在运行
+     * @param collectTaskId
+     * @return
+     */
+    boolean hasTaskRunning(Long collectTaskId);
 }

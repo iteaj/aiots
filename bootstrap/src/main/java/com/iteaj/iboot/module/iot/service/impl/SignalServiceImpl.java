@@ -1,9 +1,12 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.entity.Signal;
@@ -17,6 +20,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>
@@ -33,8 +38,36 @@ public class SignalServiceImpl extends BaseServiceImpl<SignalMapper, Signal> imp
     private IPointGroupService pointGroupService;
 
     @Override
+    public BooleanResult save(Signal entity) {
+        this.getOne(Wrappers.<Signal>lambdaQuery()
+                .eq(Signal::getProductId, entity.getProductId())
+                .eq(Signal::getFieldName, entity.getFieldName()))
+                .ifPresentThrow("当前产品已经包含字段标识["+entity.getFieldName()+"]");
+        return super.save(entity);
+    }
+
+    @Override
+    public BooleanResult updateById(Signal entity) {
+        this.getOne(Wrappers.<Signal>lambdaQuery()
+                .ne(Signal::getId, entity.getId())
+                .eq(Signal::getProductId, entity.getProductId())
+                .eq(Signal::getFieldName, entity.getFieldName()))
+                .ifPresentThrow("当前产品已经包含字段标识["+entity.getFieldName()+"]");
+        return super.updateById(entity);
+    }
+
+    @Override
     public Result<IPage<Signal>> detailByPage(Page<Signal> page, Signal entity) {
         return new PageResult<>(getBaseMapper().detailByPage(page, entity));
+    }
+
+    @Override
+    public ListResult<Signal> listByProductIds(List<Long> productIds, String name) {
+        if(CollectionUtils.isEmpty(productIds) && StrUtil.isBlank(name)) {
+            return new ListResult<>(Collections.EMPTY_LIST);
+        }
+
+        return new ListResult<>(this.getBaseMapper().listByProductIds(productIds, name));
     }
 
     @Override
@@ -44,7 +77,7 @@ public class SignalServiceImpl extends BaseServiceImpl<SignalMapper, Signal> imp
         }
 
         if(pointGroupService.isBindSignals(idList)) {
-            throw new ServiceException("此点位已被点位组使用");
+            throw new ServiceException("此点位已被点位组绑定");
         }
 
         return super.removeByIds(idList);

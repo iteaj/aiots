@@ -11,6 +11,11 @@
         <result column="debug" property="debug" />
         <result column="status" property="status" />
         <result column="remark" property="remark" />
+        <result column="direct" property="direct" />
+        <result column="as_status" property="asStatus" />
+        <result column="protocol" property="protocol" />
+        <result column="product_id" property="productId" />
+        <result column="trigger_mode" property="triggerMode" />
         <result column="create_time" property="createTime" />
     </resultMap>
 
@@ -20,13 +25,17 @@
         <collection property="downConfig" column="{apiCode=code}" ofType="ModelApiConfig"
                     select="com.iteaj.iboot.module.iot.mapper.ModelApiConfigMapper.listDownByApiCode" />
     </resultMap>
+    <update id="updateAsStatus">
+        update iot_model_api set as_status = false where type = 'event' and product_id=#{productId};
+        update iot_model_api set as_status=true where type = 'event' and product_id=#{productId} and code=#{code}
+    </update>
 
     <select id="listFuncByProductId" resultMap="DetailResultMap">
-        select * from iot_model_api where product_id = #{productId} and type='func'
+        select * from iot_model_api where product_id = #{productId} and type='func' order by create_time desc
     </select>
 
     <select id="listEventByProductId" resultMap="DetailResultMap">
-        select * from iot_model_api where product_id = #{productId} and type='event'
+        select * from iot_model_api where product_id = #{productId} and type='event' order by as_status desc, create_time desc
     </select>
 
     <select id="detailById" resultMap="DetailResultMap">

@@ -1,5 +1,7 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.validate.AllGroup;
@@ -36,6 +38,7 @@ public class Device extends BaseEntity {
      * @see com.iteaj.iboot.module.iot.consts.DeviceType#Child
      * @see com.iteaj.iboot.module.iot.consts.DeviceType#Gateway
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long pid;
 
     /**

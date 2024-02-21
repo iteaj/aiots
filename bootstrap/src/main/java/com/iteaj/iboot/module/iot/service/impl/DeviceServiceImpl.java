@@ -51,6 +51,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
         if(device != null) {
             return new BooleanResult(false).fail("设备编号已经存在["+entity.getDeviceSn()+"]");
         }
+//        if(device.getPid())
         return super.updateById(entity);
     }
 

@@ -55,11 +55,17 @@ public class PointGroupServiceImpl extends BaseServiceImpl<PointGroupMapper, Poi
     }
 
     @Override
+    public boolean isBindCollectTask(Collection<? extends Serializable> idList) {
+        return getBaseMapper().isBindCollectTask(idList);
+    }
+
+    @Override
     @Transactional
     public BooleanResult save(PointGroup entity) {
         if(CollectionUtils.isEmpty(entity.getSignalIds())) {
             return new BooleanResult(false).fail("未选择信号点位");
         } else {
+            entity.setSignalNum(entity.getSignalIds().size());
             BooleanResult save = super.save(entity);
             List<GroupPoint> groupPoints = entity.getSignalIds().stream()
                     .map(item -> new GroupPoint(Long.valueOf(item), entity.getId()))
@@ -84,9 +90,23 @@ public class PointGroupServiceImpl extends BaseServiceImpl<PointGroupMapper, Poi
                     .map(item -> new GroupPoint(Long.valueOf(item), entity.getId()))
                     .collect(Collectors.toList());
 
+            entity.setSignalNum(entity.getSignalIds().size());
             this.groupPointMapper.batchSaveGroupPoint(groupPoints);
         }
 
         return super.updateById(entity);
+    }
+
+    @Override
+    public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
+        // 已经绑定了采集任务
+        if(this.isBindCollectTask(idList)) {
+            return BooleanResult.buildFalse("请先删除对应的采集任务");
+        }
+
+        return super.removeByIds(idList).ifPresentAndTrue(status -> {
+            // 移除对应的组点位信息
+            this.groupPointMapper.delete(Wrappers.<GroupPoint>lambdaQuery().in(GroupPoint::getGroupId, idList));
+        });
     }
 }

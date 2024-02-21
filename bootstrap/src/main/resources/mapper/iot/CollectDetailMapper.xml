@@ -5,16 +5,9 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.CollectDetail">
         <result column="id" property="id" />
-        <result property="uid" column="uid" />
         <result property="extend" column="extend"/>
-        <result property="childSn" column="child_sn" />
-        <result property="deviceSn" column="device_sn" />
-        <result property="modelId" column="model_id" />
-        <result property="childName" column="child_name" />
-        <result property="deviceName" column="device_name" />
+        <result property="signalNum" column="signal_num" />
         <result property="storeAction" column="store_action" />
-        <result property="deviceTypeId" column="device_type_id" />
-        <result property="collectAction" column="collect_action" />
         <result property="collectTaskId" column="collect_task_id" />
         <result property="collectTaskName" column="collect_task_name" />
         <result property="pointGroupId" column="point_group_id" />
@@ -23,27 +16,25 @@
     </resultMap>
 
     <select id="detailPage" resultMap="BaseResultMap">
-        select a.*, d.name device_name, pg.name collect_task_name, dc.name child_name, pg.name point_group_name, d.device_sn from iot_collect_detail a
+        select a.*, pg.name collect_task_name, pg.name point_group_name, pg.signal_num from iot_collect_detail a
             left join iot_collect_task ct on a.collect_task_id=ct.id
-            left join iot_device d on d.uid = a.uid
-            left join iot_device_child dc on dc.uid=a.uid and dc.child_sn=a.child_sn
             left join iot_point_group pg on a.point_group_id=pg.id
         <where>
-            <if test="entity.id!=null">
+            <if test="entity.id != null">
                 a.collect_task_id=#{entity.id}
-            </if>
-            <if test="entity.deviceSn!=null and entity.deviceSn!=''">
-                and d.device_sn like '%${entity.deviceSn}%'
-            </if>
-            <if test="entity.deviceName!=null and entity.deviceName!=''">
-                and d.name like '%${entity.deviceName}%'
             </if>
         </where>
     </select>
+
     <select id="detailById" resultMap="BaseResultMap">
-        select a.*, d.product_type_id, d.device_sn, d.product_id model_id from iot_collect_detail a
-            left join iot_device d on a.uid=d.uid
+        select a.*, pg.name collect_task_name, pg.name point_group_name, pg.signal_num  from iot_collect_detail a
+           left join iot_collect_task ct on a.collect_task_id=ct.id
+           left join iot_point_group pg on a.point_group_id=pg.id
         where a.id=#{id}
+    </select>
+
+    <select id="hasTaskRunning" resultType="java.lang.Boolean">
+        select count(if(status='run', 1, null)) > 0 from iot_collect_task where id=#{collectTaskId}
     </select>
 
 </mapper>

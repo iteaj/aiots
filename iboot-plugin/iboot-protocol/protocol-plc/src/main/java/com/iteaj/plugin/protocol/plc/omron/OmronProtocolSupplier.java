@@ -57,7 +57,7 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     public synchronized OmronTcpClient createClient(NetworkConfigImpl.TcpNetworkConfig config) {
         OmronComponent component = FrameworkManager.getComponent(OmronMessage.class);
         if(component == null || !component.isStart()) {
-            throw new ServiceException("未启动网络网关");
+            throw new ServiceException("未启动网络组件");
         }
 
         OmronConnectProperties connectProperties = new OmronConnectProperties(config.getHost(), config.getPort());

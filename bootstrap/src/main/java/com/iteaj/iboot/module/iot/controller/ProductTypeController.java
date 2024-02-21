@@ -1,13 +1,20 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.module.iot.consts.TypeAliasOptions;
+import com.iteaj.iboot.module.iot.dto.DebugTree;
+import com.iteaj.iboot.module.iot.dto.ProductTree;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.iboot.module.iot.entity.ProductType;
@@ -24,9 +31,11 @@ import com.iteaj.framework.BaseController;
 @RequestMapping("/iot/productType")
 public class ProductTypeController extends BaseController {
 
+    private final IProductService productService;
     private final IProductTypeService productTypeService;
 
-    public ProductTypeController(IProductTypeService productTypeService) {
+    public ProductTypeController(IProductService productService, IProductTypeService productTypeService) {
+        this.productService = productService;
         this.productTypeService = productTypeService;
     }
 
@@ -47,6 +56,52 @@ public class ProductTypeController extends BaseController {
     @GetMapping("/tree")
     public Result<List<ProductType>> tree(ProductType entity) {
         return this.productTypeService.tree(entity);
+    }
+
+    /**
+     * 产品类型-产品树
+     * @param select 可选类型(productType,product) null都可选择
+     * @return
+     */
+    @GetMapping("productTree")
+    public Result<List<ProductTree>> productTree(String select) {
+        // 获取所有产品类型
+        Map<String, ProductTree> productTreeMap = productTypeService.list().stream()
+                .map(item -> ProductTree.buildProductType(item.getId(), item.getPid(), item.getName()))
+                .collect(Collectors.toMap(ProductTree::getKey, item -> item));
+
+        // 构建产品类型树
+        productTreeMap.values().forEach(item -> {
+            ProductTree parent = productTreeMap.get(item.getPkey());
+            if(parent != null) {
+                parent.addChildren(item);
+            }
+
+            // 只有产品可以选中
+            if(Objects.equals(select, "product")) {
+                item.setDisabled(true);
+            }
+        });
+
+        // 将产品放入对应的产品类型
+        productService.list().forEach(item -> {
+            if(item.getProductTypeId() != null) {
+                ProductTree parent = productTreeMap.get("productType:" + item.getProductTypeId());
+                if(parent != null) {
+                    ProductTree product = ProductTree.buildProduct(item.getId(), parent.getId(), item.getName());
+                    parent.addChildren(product);
+
+                    // 只有产品类型可以选中
+                    if(Objects.equals(select, "productType")) {
+                        product.setDisabled(true);
+                    }
+                }
+            }
+        });
+
+        return success(productTreeMap.values().stream()
+                .filter(item -> Objects.equals(item.getPkey(), "productType:0"))
+                .collect(Collectors.toList()));
     }
 
     /**

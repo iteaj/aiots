@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
+import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,7 +47,7 @@ public class ModelApi extends BaseEntity {
     private ProtocolApiType type;
 
     /**
-     * 是否为指令
+     * 协议指令
      */
     private String direct;
 
@@ -58,7 +59,7 @@ public class ModelApi extends BaseEntity {
     private String code;
 
     /**
-     * 是否调试
+     * 显示到调试
      */
     private Boolean debug;
 
@@ -90,9 +91,19 @@ public class ModelApi extends BaseEntity {
     private String remark;
 
     /**
+     * 作为状态位(用于点位控制协议)
+     */
+    private Boolean asStatus;
+
+    /**
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 事件触发方式
+     */
+    private EventTriggerMode triggerMode;
 
     /**
      * 指令参数

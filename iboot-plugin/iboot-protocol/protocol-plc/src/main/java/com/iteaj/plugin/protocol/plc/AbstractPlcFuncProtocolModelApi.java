@@ -2,6 +2,7 @@ package com.iteaj.plugin.protocol.plc;
 
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iot.plc.PlcClientProtocol;
 
@@ -33,7 +34,7 @@ public abstract class AbstractPlcFuncProtocolModelApi extends AbstractFuncProtoc
         PlcClientProtocol protocol = createPlcProtocol(arg);
         try {
             String value = arg.getString(PlcProtocolConsts.PLC_VALUE);
-            String address = arg.getString(PlcProtocolConsts.PLC_ADDRESS);
+            String address = arg.getString(PointProtocolConfig.POINT_ADDRESS);
             switch (this.getCode()) {
                 case PlcProtocolConsts.PLC_WRITE_BOOL:
                     protocol.write(address, Boolean.valueOf(value));
