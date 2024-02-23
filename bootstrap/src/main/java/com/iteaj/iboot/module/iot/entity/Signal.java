@@ -61,7 +61,7 @@ public class Signal extends BaseEntity {
     private Long productId;
 
     /**
-     * 点位字段名称
+     * 点位字段名称(同一个产品下的字段唯一)
      */
     private String fieldName;
 

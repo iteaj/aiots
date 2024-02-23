@@ -3,15 +3,13 @@ package com.iteaj.iboot.module.iot.collect;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
-import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.iboot.module.iot.collect.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.module.iot.entity.CollectTask;
 import com.iteaj.iboot.module.iot.service.ICollectTaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
@@ -33,14 +31,16 @@ public class CollectTaskListenerService implements ApplicationReadyListener {
     private final TaskScheduler scheduler;
     private final StoreActionFactory storeActionFactory;
     private final ICollectTaskService collectTaskService;
+    private final RealtimeDataService realtimeDataService;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Long, ScheduledFuture> scheduledFutureMap = new ConcurrentHashMap<>();
 
     public CollectTaskListenerService(TaskScheduler scheduler, StoreActionFactory storeActionFactory
-            , ICollectTaskService collectTaskService) {
+            , ICollectTaskService collectTaskService, RealtimeDataService realtimeDataService) {
         this.scheduler = scheduler;
         this.storeActionFactory = storeActionFactory;
         this.collectTaskService = collectTaskService;
+        this.realtimeDataService = realtimeDataService;
     }
 
     public void statusSwitch(Long id, String status) throws CollectException{
@@ -128,9 +128,7 @@ public class CollectTaskListenerService implements ApplicationReadyListener {
     }
 
     private void createScheduledTask(CollectTaskDto taskDto) {
-        scheduledFutureMap.put(taskDto.getId(),
-                scheduler.schedule(new CollectActionTask(taskDto)
-                        , new CronTrigger(taskDto.getCron())));
+        scheduledFutureMap.put(taskDto.getId(), scheduler.schedule(new CollectActionTask(taskDto, realtimeDataService), new CronTrigger(taskDto.getCron())));
     }
 
     @Override

@@ -21,6 +21,11 @@ public class CollectSignal {
     private String address;
 
     /**
+     * 字段名称
+     */
+    private String fieldName;
+
+    /**
      * 寄存器数量
      */
     private Integer num;

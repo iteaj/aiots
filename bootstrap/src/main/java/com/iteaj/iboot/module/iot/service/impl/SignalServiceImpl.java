@@ -42,7 +42,7 @@ public class SignalServiceImpl extends BaseServiceImpl<SignalMapper, Signal> imp
         this.getOne(Wrappers.<Signal>lambdaQuery()
                 .eq(Signal::getProductId, entity.getProductId())
                 .eq(Signal::getFieldName, entity.getFieldName()))
-                .ifPresentThrow("当前产品已经包含字段标识["+entity.getFieldName()+"]");
+                .ifPresentThrow("当前产品已经包含字段["+entity.getFieldName()+"]");
         return super.save(entity);
     }
 
@@ -52,7 +52,7 @@ public class SignalServiceImpl extends BaseServiceImpl<SignalMapper, Signal> imp
                 .ne(Signal::getId, entity.getId())
                 .eq(Signal::getProductId, entity.getProductId())
                 .eq(Signal::getFieldName, entity.getFieldName()))
-                .ifPresentThrow("当前产品已经包含字段标识["+entity.getFieldName()+"]");
+                .ifPresentThrow("当前产品已经包含字段["+entity.getFieldName()+"]");
         return super.updateById(entity);
     }
 

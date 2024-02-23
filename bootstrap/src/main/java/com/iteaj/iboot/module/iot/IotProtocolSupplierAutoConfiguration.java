@@ -29,15 +29,20 @@ public class IotProtocolSupplierAutoConfiguration {
      */
     @Bean
     public ProtocolSupplierManager protocolSupplierManager(@Autowired(required = false) List<DeviceProtocolSupplier> suppliers) {
-        // 加载spi协议
-        String location = properties.getWeb().getUpload().getLocationPath();
-        ProtocolSupplierManager.load(location + File.separator + IotConsts.PROTOCOL_JAR_DIR);
+        ProtocolSupplierManager supplierManager = ProtocolSupplierManager.build(properties);
 
+        // 注册jar spi协议
+        List<DeviceProtocolSupplier> jarSupplier = ProtocolSupplierManager.loadFromProtocol();
+        if(CollectionUtil.isNotEmpty(jarSupplier)) {
+            jarSupplier.forEach(item -> ProtocolSupplierManager.register(item));
+        }
+
+        // 注册内置协议
         if(CollectionUtil.isNotEmpty(suppliers)) {
             suppliers.forEach(item -> ProtocolSupplierManager.register(item));
         }
 
-        return ProtocolSupplierManager.getInstance();
+        return supplierManager;
     }
 
     /**

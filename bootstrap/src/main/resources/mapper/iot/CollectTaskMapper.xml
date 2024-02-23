@@ -22,7 +22,7 @@
         <result property="storeAction" column="store_action" />
         <result property="collectTaskId" column="collect_task_id" />
         <result property="pointGroupId" column="point_group_id" />
-        <collection property="devices" ofType="com.iteaj.iboot.module.iot.collect.CollectDevice"/>
+<!--        <collection property="devices" ofType="com.iteaj.iboot.module.iot.collect.CollectDevice"/>-->
     </resultMap>
 
     <resultMap id="collectDetailDtoMap" type="com.iteaj.iboot.module.iot.dto.CollectTaskDto" extends="CollectTaskDtoMap">
@@ -78,15 +78,11 @@
     <select id="listRunningCollectTaskDetail" resultMap="collectDetailDtoMap">
         select a.*, d.id did, d.point_group_id, d.extend, d.collect_task_id, d.store_action from iot_collect_task a
             left join iot_collect_detail d on a.id=d.collect_task_id
-#             left join iot_point_group pg on d.point_group_id = pg.id
-#             left join iot_device id on json_contains(pg.product_ids, concat('', id.product_id))
-#             left join iot_product ip on id.product_id = ip.id
-#             left join iot_protocol ipl on ipl.id = ip.protocol_id
         where a.status = 'run'
     </select>
 
     <select id="listCollectDeviceByGroupIds" resultType="com.iteaj.iboot.module.iot.collect.CollectDevice">
-        select pg.id point_group_id, id.uid, id.product_id, id.device_sn, pid.device_sn parent_device_sn
+        select pg.id point_group_id, id.uid, id.product_id, id.device_sn, pid.device_sn parent_device_sn, ip.code product_code
              , id.uid, ip.name product_name, ipl.code protocol_code, ipl.name protocol_name from iot_point_group pg
             left join iot_device id on json_contains(pg.product_ids, concat('', id.product_id))
             left join iot_device pid on id.pid = pid.id

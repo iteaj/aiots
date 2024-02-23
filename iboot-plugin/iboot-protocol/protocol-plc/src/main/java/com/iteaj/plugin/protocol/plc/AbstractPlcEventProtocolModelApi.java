@@ -73,5 +73,5 @@ public abstract class AbstractPlcEventProtocolModelApi extends AbstractEventProt
         }
     }
 
-    protected abstract PlcClientProtocol createPlcProtocol(ProtocolModelApiInvokeParam arg);
+    protected abstract PlcClientProtocol createPlcProtocol(ProtocolModelApiInvokeParam arg) throws NotIotClientException;
 }

@@ -7,8 +7,10 @@ import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
+import com.iteaj.framework.spi.iot.protocol.NotIotClientException;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
+import com.iteaj.iboot.module.iot.collect.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.store.StoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
@@ -31,10 +33,12 @@ import java.util.Map;
 public class CollectActionTask implements Runnable {
 
     private CollectTaskDto taskDto;
+    private RealtimeDataService realtimeDataService;
     private Logger logger = LoggerFactory.getLogger("IOT:DATA:COLLECT");
 
-    public CollectActionTask(CollectTaskDto taskDto) {
+    public CollectActionTask(CollectTaskDto taskDto, RealtimeDataService realtimeDataService) {
         this.taskDto = taskDto;
+        this.realtimeDataService = realtimeDataService;
     }
 
     @Override
@@ -53,14 +57,14 @@ public class CollectActionTask implements Runnable {
                             collectDevice.getSignals().forEach(signal -> {
                                 CollectData data = new CollectData()
                                         .setCid(cid).setReason("")
+                                        .setFieldName(signal.getFieldName())
+                                        .setAddress(signal.getAddress())
                                         .setStatus(false).setCreateTime(date)
                                         .setUid(collectDevice.getUid())
                                         .setSignalId(signal.getId())
                                         .setCollectTaskId(taskDto.getId());
 
                                 try {
-                                    data.setAddress(signal.getAddress());
-//                            data.setFieldType(signal.getFieldType());
                                     AbstractProtocolModelApi modelApi = protocol.getApi(signal.getDirect());
                                     JSONObject param = new JSONObject();
                                     param.put(PointProtocolConfig.POINT_NUMBER, signal.getNum());
@@ -81,6 +85,11 @@ public class CollectActionTask implements Runnable {
                                     logger.error("采集任务失败 {} - 任务: {} - 周期: {} - 设备: {} - 点位: {}({})"
                                             , message, taskDto.getName(), taskDto.getCron()
                                             , collectDevice.getDeviceSn(), signal.getName(), signal.getAddress(), e);
+                                } catch (NotIotClientException e) {
+                                    data.setStatus(false).setCollectTime(new Date()).setReason("获取不到客户端");
+                                    logger.error("采集任务失败 {} - 任务: {} - 周期: {} - 设备: {} - 点位: {}({})"
+                                            , e.getMessage(), taskDto.getName(), taskDto.getCron()
+                                            , collectDevice.getDeviceSn(), signal.getName(), signal.getAddress(), e);
                                 } catch (Exception e) {
                                     data.setStatus(false).setCollectTime(new Date()).setReason("未知错误");
                                     logger.error("采集任务失败 {} - 任务: {} - 周期: {} - 设备: {} - 点位: {}({})"
@@ -98,6 +107,14 @@ public class CollectActionTask implements Runnable {
                             if(storeAction != null) {
                                 storeAction.store(item, values);
                             }
+
+                            // 存储实时数据
+                            values.forEach(data -> {
+                                if(data.getStatus()) {
+                                    realtimeDataService.put(collectDevice.getProductCode()
+                                            , collectDevice.getDeviceSn(), data.getFieldName(), data);
+                                }
+                            });
                         }
                     });
                 }

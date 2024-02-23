@@ -12,6 +12,8 @@ import com.iteaj.framework.captcha.CaptchaService;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.*;
+import com.iteaj.framework.spring.condition.ConditionalOnCluster;
+import com.iteaj.framework.spring.condition.ConditionalOnRedis;
 import com.iteaj.iboot.plugin.satoken.impl.SaTokenSecurityService;
 import com.iteaj.iboot.plugin.satoken.impl.StpInterfaceImpl;
 import com.iteaj.iboot.plugin.satoken.listener.SaTokenOnlineListener;
@@ -67,8 +69,9 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
     }
 
     @Bean
-    @ConditionalOnProperty(value = "framework.cluster", havingValue = "true")
-    @ConditionalOnClass(name = "org.springframework.data.redis.connection.RedisConnectionFactory")
+    @ConditionalOnRedis
+    @ConditionalOnCluster
+//    @ConditionalOnClass(name = "org.springframework.data.redis.connection.RedisConnectionFactory")
     public SaTokenDao saTokenDao() {
         return new SaTokenDaoRedisJackson();
     }

@@ -20,7 +20,7 @@ import com.genersoft.iot.vmp.service.IInviteStreamService;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
-import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
+import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;

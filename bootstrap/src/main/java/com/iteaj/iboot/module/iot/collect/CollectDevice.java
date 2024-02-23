@@ -37,6 +37,11 @@ public class CollectDevice {
     private String productId;
 
     /**
+     * 产品代码
+     */
+    private String productCode;
+
+    /**
      * 设备绑定的产品名称
      */
     private String productName;

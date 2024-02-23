@@ -1,8 +1,14 @@
 package com.iteaj.iboot.module.iot;
 
 import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.framework.spring.condition.ConditionalOnCluster;
+import com.iteaj.framework.spring.condition.ConditionalOnRedis;
+import com.iteaj.iboot.module.iot.collect.data.HashMapRealtimeDataService;
+import com.iteaj.iboot.module.iot.collect.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.collect.data.RedisRealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
+import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
 import com.iteaj.iboot.module.iot.listener.GatewayRestartListener;
 import com.iteaj.iboot.module.iot.listener.ProductRestartListener;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -13,9 +19,12 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
@@ -69,5 +78,36 @@ public class IotAutoConfiguration {
     @Bean
     public StoreActionFactory storeActionFactory() {
         return StoreActionFactory.getInstance();
+    }
+
+    /**
+     * 本地实时数据
+     * @return
+     */
+    @Bean("realtimeDataService")
+    @ConditionalOnMissingBean({RealtimeDataService.class})
+    public RealtimeDataService localRealtimeDataService() {
+        return new HashMapRealtimeDataService();
+    }
+
+    /**
+     * redis实时数据
+     * @return
+     */
+    @Bean
+    @Primary
+    @ConditionalOnRedis
+    @ConditionalOnCluster
+    public RealtimeDataService redisRealtimeDataService() {
+        return new RedisRealtimeDataService();
+    }
+
+    /**
+     * websocket监听实时采集的数据
+     * @return
+     */
+    @Bean
+    public CollectDataRealtimeListener collectDataRealtimeListener() {
+        return new CollectDataRealtimeListener();
     }
 }
