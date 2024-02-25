@@ -14,6 +14,14 @@
 
     <dependencies>
         <dependency>
+            <!--如果使用wvp需要自己引入此依赖-->
+            <optional>true</optional>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>wvp-GB28181-pro</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-http</artifactId>
             <version>${hutool.version}</version>
