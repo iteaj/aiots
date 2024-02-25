@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.iteaj</groupId>
+        <version>${reversion}</version>
+        <artifactId>iboot-plugin</artifactId>
+    </parent>
+
+    <name>iboot:plugin:gb28181</name>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>iboot-gb28181</artifactId>
+
+    <dependencies>
+        <dependency>
+            <!--如果使用wvp需要自己引入此依赖-->
+            <optional>true</optional>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>wvp-GB28181-pro</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+        <dependency>
+            <optional>true</optional>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
+    </dependencies>
+</project>

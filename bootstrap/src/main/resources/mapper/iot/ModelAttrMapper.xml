@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.ModelAttr">
+        <result column="id" property="id" />
+        <result column="product_id" property="productId" />
+        <result column="field" property="field" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="unit" property="unit" />
+        <result column="accuracy" property="accuracy" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.ModelAttr" extends="BaseResultMap">
+        <collection property="dicts" ofType="com.iteaj.iboot.module.iot.entity.ModelAttrDict" foreignColumn="model_attr_id">
+            <id column="dict_id" property="id" />
+            <result column="dict_name" property="dictName" />
+            <result column="dict_value" property="dictValue" />
+            <result column="model_attr_id" property="modelAttrId" />
+        </collection>
+    </resultMap>
+
+    <select id="detailById" resultMap="DetailResultMap">
+        select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id from iot_model_attr a
+            left join iot_model_attr_dict d on a.id = d.model_attr_id
+        where a.id=#{id}
+    </select>
+
+    <select id="listByProductId" resultMap="BaseResultMap">
+        select * from iot_model_attr where product_id=#{productId}
+    </select>
+</mapper>

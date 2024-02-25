@@ -1,0 +1,60 @@
+package com.iteaj.iboot.module.iot.listener;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
+import com.iteaj.framework.spi.event.ApplicationReadyListener;
+import com.iteaj.iboot.module.iot.consts.DeviceStatus;
+import com.iteaj.iboot.module.iot.entity.Device;
+import com.iteaj.iboot.module.iot.service.IDeviceService;
+import com.iteaj.iot.FrameworkComponent;
+import com.iteaj.iot.event.CombinedEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+
+/**
+ * 设备上下线状态事件监听
+ */
+@Component
+public class DeviceStatusListener implements CombinedEventListener, ApplicationReadyListener {
+
+    private final IDeviceService deviceService;
+    private final FrameworkProperties properties;
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
+    public DeviceStatusListener(IDeviceService deviceService, FrameworkProperties properties) {
+        this.deviceService = deviceService;
+        this.properties = properties;
+    }
+
+    @Override
+    public void online(String source, FrameworkComponent component) {
+        // 设备上线事件
+        deviceService.update(source, DeviceStatus.online);
+    }
+
+    @Override
+    public void offline(String source, FrameworkComponent component) {
+        // 设备掉线事件
+        deviceService.update(source, DeviceStatus.offline);
+    }
+
+    @Override
+    public void started(ApplicationContext context) {
+        if(!properties.isCluster()) {
+            // 系统重启时 更新所有的设备状态到离线
+            deviceService.update(Wrappers.<Device>lambdaUpdate()
+                    .set(Device::getStatus, DeviceStatus.offline)
+                    .set(Device::getSwitchTime, new Date()));
+        }
+    }
+
+    @Override
+    public int getOrder() {
+        return Integer.MIN_VALUE + 1000;
+    }
+}
