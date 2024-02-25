@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarFile;
 
@@ -58,6 +60,8 @@ public class ProtocolSupplierManager {
             throw new FrameworkException("协议已存在["+protocol.getCode()+"]");
         }
 
+        logger.info("<<<注册协议提供成功 {} - 版本: {} - 实现: {} - 说明: {}", protocol.getCode()
+                , supplier.getVersion(), supplier.getImplMode().getDesc(), supplier.getDesc());
         supplierMap.put(protocol.getCode(), supplier);
         return instance;
     }
@@ -151,11 +155,6 @@ public class ProtocolSupplierManager {
     public static List<DeviceProtocolSupplier> loadFromTempProtocol(String fileName) {
         String location = properties.getWeb().getUpload().getLocationPath();
         File file = new File(location + File.separator + PROTOCOL_JAR_TEMP_DIR + File.separator + fileName);
-        try {
-            JarFile jarFile = new JarFile(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return load(file, true);
     }
 
@@ -177,7 +176,7 @@ public class ProtocolSupplierManager {
         return supplierMap.containsKey(code);
     }
 
-    public static DeviceProtocolSupplier moveTempToProtocol(String fileName) {
+    public static DeviceProtocolSupplier copyTempToProtocol(String fileName) {
         String location = properties.getWeb().getUpload().getLocationPath();
         File target = new File(location + File.separator + PROTOCOL_JAR_DIR + File.separator + fileName);
         File temp = new File(location + File.separator + PROTOCOL_JAR_TEMP_DIR + File.separator + fileName);
@@ -185,7 +184,7 @@ public class ProtocolSupplierManager {
             throw new ProtocolSupplierException("Jar文件不存在["+fileName+"]");
         }
 
-        FileUtil.move(temp, target, true);
+        FileUtil.copy(temp, target, true);
         return load(target).get(0);
     }
 
@@ -199,9 +198,9 @@ public class ProtocolSupplierManager {
         if(supplier != null) {
             // 系统内置不允许删除
             if(supplier.getImplMode() == ProtocolImplMode.Internal) {
-                logger.warn("系统内置协议[{}]不允许删除", code);
-                return null;
+                throw new ProtocolSupplierException("内置协议["+code+"]不允许删除");
             }
+
             ClassLoader classLoader = supplier.getClass().getClassLoader();
             if(classLoader instanceof JarClassLoader) {
                 try {

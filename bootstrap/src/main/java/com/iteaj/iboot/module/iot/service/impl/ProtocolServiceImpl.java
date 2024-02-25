@@ -15,7 +15,6 @@ import com.iteaj.framework.spi.iot.protocol.AbstractEventProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
-import com.iteaj.iboot.module.iot.consts.IotConsts;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import com.iteaj.iboot.module.iot.entity.Protocol;
 import com.iteaj.iboot.module.iot.entity.ProtocolApi;
@@ -47,6 +46,8 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
     @Override
     @Transactional
     public BooleanResult save(Protocol entity) {
+        this.getByCode(entity.getCode()).ifPresentThrow("协议代码已存在["+entity.getCode()+"]");
+
         if(entity.getImplMode() != ProtocolImplMode.Jar) {
             ProtocolDto protocolDto = loadProtocol(entity.getCode());
 
@@ -55,11 +56,9 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
             }
         }
 
-
-        this.getByCode(entity.getCode()).ifPresentThrow("协议代码已存在["+entity.getCode()+"]");
         return super.save(entity).ifPresentAndTrue(item -> {
             if(entity.getImplMode() == ProtocolImplMode.Jar) {
-                DeviceProtocolSupplier supplier = ProtocolSupplierManager.moveTempToProtocol(entity.getJarPath());
+                DeviceProtocolSupplier supplier = ProtocolSupplierManager.copyTempToProtocol(entity.getJarPath());
                 ProtocolSupplierManager.register(supplier);
             }
         });
@@ -68,18 +67,8 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
     @Override
     @Transactional
     public BooleanResult updateById(Protocol entity) {
-        ProtocolDto protocolDto;
-        List<DeviceProtocolSupplier> suppliers = new ArrayList<>();
-        if(entity.getImplMode() == ProtocolImplMode.Jar) {
-            suppliers.addAll(ProtocolSupplierManager.load(new File(entity.getJarPath())));
-            protocolDto = loadProtocol(suppliers.get(0));
-        } else {
-            protocolDto = loadProtocol(entity.getCode());
-        }
-
-        if(protocolDto == null) {
-            throw new ServiceException("没有找到对应的协议["+entity.getCode()+"]");
-        }
+        // 获取原协议对象
+        Protocol protocol = this.getById(entity.getId()).ifNotPresentThrow("协议不存在").getData();
 
         this.getByCode(entity.getCode()).ifPresent(item -> {
             if(!item.getId().equals(entity.getId())) {
@@ -87,15 +76,24 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
             }
         });
 
-        entity.setVersion(protocolDto.getVersion());
+        if(entity.getImplMode() != ProtocolImplMode.Jar) {
+            ProtocolDto protocolDto = loadProtocol(entity.getCode());
+
+            if(protocolDto == null) {
+                throw new ServiceException("没有找到对应的协议["+entity.getCode()+"]");
+            }
+        }
+
         return super.updateById(entity).ifPresentAndTrue(item -> {
-            DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(entity.getCode());
-            // 版本不一致
-            if(!supplier.getVersion().equals(suppliers.get(0).getVersion())) {
-                // 移除原来的协议提供
-                ProtocolSupplierManager.remove(entity.getCode());
-                // 注册新的协议提供
-                ProtocolSupplierManager.register(suppliers.get(0));
+            if(entity.getImplMode() == ProtocolImplMode.Jar) {
+                // 两个协议码不相同或者版本不一致
+                if(!protocol.getCode().equals(entity.getCode()) || !protocol.getVersion().equals(entity.getVersion())) {
+                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.copyTempToProtocol(entity.getJarPath());
+                    // 移除原来的协议提供
+                    ProtocolSupplierManager.remove(protocol.getCode());
+                    // 注册新的协议提供
+                    ProtocolSupplierManager.register(supplier);
+                }
             }
         });
     }

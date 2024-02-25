@@ -2,20 +2,20 @@ package com.iteaj.iboot.plugin.gbs.rtvs;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpException;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
 import com.iteaj.iboot.plugin.gbs.MediaInfo;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.CollectionUtils;
@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean {
+public class RtvsDeviceServiceImpl implements GbsDeviceService {
 
     private String authorization;
     @Autowired
@@ -101,8 +101,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
     public void sync(String deviceId) {
         RtvsProperties.GbSip sip = properties.getSip();
         String url = String.format("%s%s?deviceId=%s", sip.getApiUri(), "/api/DeviceInfo/SendRefreshChannel", deviceId);
-        HttpResponse response = HttpUtil.createPost(url)
-                .header("authorization", this.authorization).execute();
+        HttpResponse response = invokeRequest(url);
         if(response.isOk()) {
             JSONObject jsonObject = JSONObject.parseObject(response.body());
             if(jsonObject.getInteger("code") != 200) {
@@ -144,8 +143,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
     public void ptzCtrl(String deviceId, String channelId, String command, int horizonSpeed, int verticalSpeed, int zoomSpeed) {
         RtvsProperties.GbSip sip = properties.getSip();
         String url = String.format("%s%s?deviceId=%s&channel=%s&", sip.getApiUri(), "/api/DeviceControl/PTZCtrl", deviceId);
-        HttpResponse response = HttpUtil.createPost(url)
-                .header("authorization", this.authorization).execute();
+        HttpResponse response = invokeRequest(url);
         if(response.isOk()) {
             JSONObject jsonObject = JSONObject.parseObject(response.body());
             if(jsonObject.getInteger("code") != 200) {
@@ -166,6 +164,12 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
         return channel == null ? null : channel.convert();
     }
 
+    private HttpResponse invokeRequest(String url) {
+        authorization();
+        return HttpUtil.createPost(url)
+                .header("authorization", this.authorization).execute();
+    }
+
     /**
      * 每10分钟获取一次记录, 保证token不失效
      */
@@ -174,26 +178,19 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService, InitializingBean
         RtvsProperties.GbSip sip = properties.getSip();
         if(authorization == null) {
             String url = String.format("%s%s?UserName=%s&Password=%s", sip.getApiUri(), "/api/Admin/Login", sip.getUserName(), sip.getPassword());
-            HttpResponse response = HttpUtil.createPost(url).execute();
-            if(response.isOk()) {
-                JSONObject jsonObject = JSONObject.parseObject(response.body());
-                if(jsonObject.getInteger("code") == 200) {
-                    this.authorization = jsonObject.getJSONObject("data").getString("Token");
-                } else {
-                    logger.error("<<< 登录RTVS系统失败 {}", jsonObject.getString("message"));
+            try {
+                HttpResponse response = HttpUtil.createPost(url).execute();
+                if(response.isOk()) {
+                    JSONObject jsonObject = JSONObject.parseObject(response.body());
+                    if(jsonObject.getInteger("code") == 200) {
+                        this.authorization = jsonObject.getJSONObject("data").getString("Token");
+                    } else {
+                        logger.error("<<< 登录RTVS系统失败 {}", jsonObject.getString("message"));
+                    }
                 }
+            } catch (HttpException e) {
+                throw new ServiceException("连接SIP服务器失败[" + sip.getApiUri() + "]");
             }
-        } else {
-
-        }
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        try {
-            this.authorization();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

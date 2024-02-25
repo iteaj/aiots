@@ -9,17 +9,10 @@ import com.iteaj.iboot.module.iot.collect.data.RedisRealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
-import com.iteaj.iboot.module.iot.listener.GatewayRestartListener;
-import com.iteaj.iboot.module.iot.listener.ProductRestartListener;
-import com.iteaj.iboot.module.iot.service.IDeviceService;
-import com.iteaj.iboot.module.iot.service.IGatewayService;
-import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -43,26 +36,6 @@ public class IotAutoConfiguration {
     @Bean
     public Module iotModule() {
         return Module.module("iot", "物联网模块", 55555);
-    }
-
-    /**
-     * 网关重启监听
-     * @return
-     */
-    @Bean
-    public GatewayRestartListener gatewayRestartListener(IGatewayService gatewayService) {
-        return new GatewayRestartListener(gatewayService);
-    }
-
-    /**
-     * 产品重启监听
-     * @param productService
-     * @param deviceService
-     * @return
-     */
-    @Bean
-    public ProductRestartListener productRestartListener(IProductService productService, IDeviceService deviceService) {
-        return new ProductRestartListener(deviceService, productService);
     }
 
     @Bean
