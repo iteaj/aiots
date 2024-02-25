@@ -1,14 +1,15 @@
 package com.iteaj.iboot.plugin.gbs;
 
-import com.genersoft.iot.vmp.GbsWvpAutoConfiguration;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.iboot.plugin.gbs.rtvs.RtvsDeviceServiceImpl;
 import com.iteaj.iboot.plugin.gbs.rtvs.RtvsProperties;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
-import com.iteaj.iboot.plugin.gbs.wvp.WvpDeviceServiceImpl;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @ComponentScan({"com.iteaj.iboot.plugin.gbs"})
 @MapperScan({"com.iteaj.iboot.plugin.gbs.mapper", "com.iteaj.iboot.plugin.gbs.rtvs"})
@@ -21,19 +22,6 @@ public class GbsAutoConfiguration {
     @Bean
     public Module gbsModule() {
         return Module.module("gbs", "视频监控", 55555);
-    }
-
-    /**
-     * 流媒体ZLMedia + gbsip(wvp)实现
-     */
-    @Profile("wvp")
-    @Configuration(proxyBeanMethods = false)
-    public static class WvpAutoConfiguration extends GbsWvpAutoConfiguration {
-
-        @Bean
-        public GbsDeviceService gbsDeviceService() {
-            return new WvpDeviceServiceImpl();
-        }
     }
 
     /**
