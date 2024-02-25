@@ -20,8 +20,6 @@
         <module>bootstrap</module>
         <!--iboot插件模块-->
         <module>iboot-plugin</module>
-        <!--依赖的第三方开源项目-->
-        <module>iboot-tos</module>
     </modules>
     <properties>
         <reversion>2.1.0</reversion>
