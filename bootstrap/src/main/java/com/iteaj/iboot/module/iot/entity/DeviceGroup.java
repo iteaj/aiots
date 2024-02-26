@@ -72,6 +72,11 @@ public class DeviceGroup extends TreeEntity {
     private Date createTime;
 
     /**
+     * 组产品id
+     */
+    private Long groupProductId;
+
+    /**
      * 产品id
      */
     @TableField(exist = false)

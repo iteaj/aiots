@@ -37,9 +37,10 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
         this.getOne(Wrappers.<DeviceGroup>lambdaQuery().eq(DeviceGroup::getName, entity.getName()))
                 .ifPresentThrow("分组名称已存在["+entity.getName()+"]");
 
+        DetailResult<DeviceGroup> detailResult = this.getById(entity.getPid());
         super.save(entity.setCreateTime(new Date()));
         if(entity.getPid() != null && entity.getPid() != 0) {
-            DeviceGroup parent = this.getById(entity.getPid())
+            DeviceGroup parent = detailResult
                     .ifNotPresentThrow("父类型不存在")
                     .getData();
             entity.setPath(parent.getPath()+","+entity.getId());
@@ -47,8 +48,17 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
             entity.setPath(entity.getId().toString());
         }
 
+        // 没有设置产品则继承父级的产品
+        if(entity.getProductIds() == null || entity.getProductIds().isEmpty()) {
+            detailResult.ifPresent(item -> entity.setGroupProductId(item.getId()))
+                    .ifNotPresent(item -> entity.setGroupProductId(entity.getId()));
+        } else {
+            entity.setGroupProductId(entity.getId());
+        }
+
         return this.update(Wrappers.<DeviceGroup>lambdaUpdate()
                 .set(DeviceGroup::getPath, entity.getPath())
+                .set(DeviceGroup::getGroupProductId, entity.getGroupProductId())
                 .eq(DeviceGroup::getId, entity.getId()));
     }
 
@@ -59,14 +69,23 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
                 .ne(DeviceGroup::getId, entity.getId()))
                 .ifPresentThrow("分组名称已存在["+entity.getName()+"]");
 
+        DetailResult<DeviceGroup> detailResult = this.getById(entity.getPid());
         if(entity.getPid() != null && entity.getPid() != 0) {
-            DeviceGroup parent = this.getById(entity.getPid())
+            DeviceGroup parent = detailResult
                     .ifNotPresentThrow("父分组不存在")
                     .getData();
 
             entity.setPath(parent.getPath()+","+entity.getId());
         } else {
             entity.setPath(entity.getId().toString());
+        }
+
+        // 没有设置产品则继承父级的产品
+        if(entity.getProductIds() == null || entity.getProductIds().isEmpty()) {
+            detailResult.ifPresent(item -> entity.setGroupProductId(item.getId()))
+                    .ifNotPresent(item -> entity.setGroupProductId(entity.getId()));
+        } else {
+            entity.setGroupProductId(entity.getId());
         }
 
         return super.updateById(entity);
