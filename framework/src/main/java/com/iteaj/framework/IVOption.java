@@ -3,9 +3,7 @@ package com.iteaj.framework;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 前端框架ivzone使用的option数据格式
@@ -43,6 +41,11 @@ public class IVOption {
      * 额外扩展信息
      */
     private Object extra;
+
+    /**
+     * 配置项
+     */
+    private Map<String, Object> config;
 
     public IVOption() {}
 
@@ -104,6 +107,21 @@ public class IVOption {
         }
 
         children.add(new IVOption(label, value, disabled));
+        return this;
+    }
+
+    /**
+     * 增加配置项
+     * @param key
+     * @param value
+     * @return
+     */
+    public IVOption addConfig(String key, Object value) {
+        if(getConfig() == null) {
+            this.config = new HashMap<>();
+        }
+
+        this.config.put(key, value);
         return this;
     }
 

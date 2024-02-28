@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.EventSourceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.EventSource">
+        <result column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="cron" property="cron" />
+        <result column="name" property="name" />
+        <result column="has_passive" property="hasPassive" />
+        <result column="create_time" property="createTime" />
+        <result column="device_group_id" property="deviceGroupId" />
+    </resultMap>
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.EventSource" extends="BaseResultMap">
+        <collection property="modelApiIds" ofType="String">
+            <result column="model_api_id" />
+        </collection>
+    </resultMap>
+    <select id="detailPage" resultMap="BaseResultMap">
+        select a.* from iot_event_source a
+        <where>
+            <if test="entity.type != null">
+                and a.type = #{entity.type}
+            </if>
+            <if test="entity.deviceGroupId != null">
+                and a.device_group_id = #{entity.deviceGroupId}
+            </if>
+            <if test="entity.name != null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+        </where>
+    </select>
+
+    <select id="detailById" resultMap="DetailResultMap">
+        select a.*, esd.model_api_id from iot_event_source a
+            left join iot_event_source_detail esd on a.id = esd.event_source_id
+        where a.id=#{id}
+    </select>
+
+</mapper>
