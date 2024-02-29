@@ -1,0 +1,57 @@
+package com.iteaj.iboot.module.iot.entity;
+
+import com.iteaj.framework.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.Date;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+/**
+ * <p>
+ * 告警配置
+ * </p>
+ *
+ * @author iteaj
+ * @since 2024-02-29
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("iot_warn_config")
+public class WarnConfig extends BaseEntity {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 配置名称
+     */
+    private String name;
+
+    /**
+     * 告警等级
+     */
+    private Integer grade;
+
+    /**
+     * 告警说明
+     */
+    private String remark;
+
+    /**
+     * 告警模板
+     */
+    private String template;
+
+    /**
+     * 所属产品
+     */
+    private Long productId;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+
+}
