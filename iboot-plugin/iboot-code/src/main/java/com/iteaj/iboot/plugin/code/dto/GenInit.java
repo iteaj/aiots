@@ -19,4 +19,9 @@ public class GenInit {
      * 当前项目路径
      */
     private String projectPath;
+
+    /**
+     * 前端项目路径
+     */
+    private String webProjectPath;
 }

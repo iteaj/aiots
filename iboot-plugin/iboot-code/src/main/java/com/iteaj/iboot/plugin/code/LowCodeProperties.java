@@ -45,6 +45,11 @@ public class LowCodeProperties implements InitializingBean {
      */
     private String projectPath;
 
+    /**
+     * 前端项目根路径
+     */
+    private String webProjectPath;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         if(this.getLpc() == null) {
