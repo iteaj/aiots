@@ -9,8 +9,12 @@
         <result column="name" property="name" />
         <result column="path" property="path" />
         <result column="remark" property="remark" />
+        <result column="group_product_id" property="groupProductId" />
         <result column="create_time" property="createTime" />
     </resultMap>
+    <update id="updateGroupProductId">
+        update iot_device_group set group_product_id=#{groupProductId} where find_in_set(#{id}, path) and group_product_id=#{oldGroupProductId}
+    </update>
 
     <select id="hasBindDevice" resultType="java.lang.Boolean">
         select count(id) > 0 from iot_device where device_group_id in (
@@ -22,6 +26,19 @@
 
     <select id="detailById" resultMap="BaseResultMap">
         select * from iot_device_group where id=#{id}
+    </select>
+
+    <select id="getGroupProductById" resultType="com.iteaj.iboot.module.iot.entity.DeviceGroup">
+        select b.* from iot_device_group a
+            left join iot_device_group b on a.group_product_id=b.id
+        where a.id=#{id}
+    </select>
+    <select id="hasBindEventSource" resultType="java.lang.Boolean">
+        select count(id) > 0 from iot_event_source where device_group_id in (
+            <foreach collection="list" item="id" separator=",">
+                #{id}
+            </foreach>
+        )
     </select>
 
 
