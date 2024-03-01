@@ -7,6 +7,21 @@ import java.util.Map;
 public class RedisRealtimeDataService implements RealtimeDataService{
 
     @Override
+    public void remove(String productCode) {
+
+    }
+
+    @Override
+    public Map<String, RealtimeData> remove(String productCode, String deviceSn) {
+        return null;
+    }
+
+    @Override
+    public Map<String, RealtimeData> remove(String productCode, String deviceSn, String eventOrSignalField) {
+        return null;
+    }
+
+    @Override
     public void put(String productCode, String deviceSn, String eventOrSignalField, Object value) {
         Object o = RedisUtils.getOpsForHash().get(productCode + ":" + deviceSn, eventOrSignalField);
         if(o instanceof RealtimeData) {

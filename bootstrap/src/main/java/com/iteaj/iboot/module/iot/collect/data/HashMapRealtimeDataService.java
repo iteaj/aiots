@@ -9,6 +9,21 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     private Map<String, Map<String, Map<String, RealtimeData>>> realtimeMap = new ConcurrentHashMap();
 
     @Override
+    public void remove(String productCode) {
+
+    }
+
+    @Override
+    public Map<String, RealtimeData> remove(String productCode, String deviceSn) {
+        return null;
+    }
+
+    @Override
+    public Map<String, RealtimeData> remove(String productCode, String deviceSn, String eventOrSignalField) {
+        return null;
+    }
+
+    @Override
     public void put(String productCode, String deviceSn, String eventOrSignalField, Object value) {
         Map<String, Map<String, RealtimeData>> productMap = realtimeMap.get(productCode);
         if(productMap == null) {
