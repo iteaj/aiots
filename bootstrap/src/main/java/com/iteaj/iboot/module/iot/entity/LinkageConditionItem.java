@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.iboot.module.iot.consts.LinkageLogical;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -30,7 +31,7 @@ public class LinkageConditionItem extends BaseEntity {
     /**
      * 逻辑
      */
-    private String logical;
+    private LinkageLogical logical;
 
     /**
      * 指令
@@ -61,6 +62,5 @@ public class LinkageConditionItem extends BaseEntity {
      * 事件源详情
      */
     private Long eventSourceDetailId;
-
 
 }

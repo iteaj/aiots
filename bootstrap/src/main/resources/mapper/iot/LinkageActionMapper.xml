@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageAction">
         <result column="id" property="id" />
         <result column="linkage_id" property="linkageId" />
+        <result column="linkage_item_id" property="linkageItemId" />
         <result column="model_api_id" property="modelApiId" />
         <result column="model_api_code" property="modelApiCode" />
         <result column="model_api_config" property="modelApiConfig" />

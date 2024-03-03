@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.mapper;
 
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.iteaj.iboot.module.iot.dto.LinkageDto;
 
 /**
  * <p>
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface LinkageMapper extends BaseMapper<Linkage> {
 
+    LinkageDto detailById(Long id);
 }

@@ -1,8 +1,11 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -35,5 +38,15 @@ public class Linkage extends BaseEntity {
      */
     private Long eventSourceId;
 
+    /**
+     * 事件源名称
+     */
+    @TableField(exist = false)
+    private String eventSourceName;
 
+    /**
+     * 场景联动项
+     */
+    @TableField(exist = false)
+    private List<LinkageItem> items;
 }

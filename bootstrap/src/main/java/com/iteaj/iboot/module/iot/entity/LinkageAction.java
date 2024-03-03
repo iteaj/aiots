@@ -33,6 +33,11 @@ public class LinkageAction extends BaseEntity {
     private Long modelApiId;
 
     /**
+     * 所属联动项
+     */
+    private Long linkageItemId;
+
+    /**
      * 物模型接口码
      */
     private String modelApiCode;

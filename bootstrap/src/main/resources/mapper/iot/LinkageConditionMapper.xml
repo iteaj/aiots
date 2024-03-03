@@ -5,8 +5,9 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageCondition">
         <result column="id" property="id" />
-        <result column="linkage_id" property="linkageId" />
         <result column="logical" property="logical" />
+        <result column="linkage_id" property="linkageId" />
+        <result column="linkage_item_id" property="linkageItemId" />
         <result column="linkage_action_id" property="linkageActionId" />
     </resultMap>
 

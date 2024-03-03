@@ -8,6 +8,26 @@
         <result column="name" property="name" />
         <result column="create_time" property="createTime" />
         <result column="event_source_id" property="eventSourceId" />
+        <result column="event_source_name" property="eventSourceName" />
     </resultMap>
+
+    <resultMap id="DtoResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="BaseResultMap">
+        <result column="device_group_name" property="deviceGroupName" />
+        <collection property="productIds" ofType="Long">
+            <result column="p_id" />
+        </collection>
+        <collection property="productNames" ofType="String">
+            <result column="p_name" />
+        </collection>
+    </resultMap>
+
+    <select id="detailById" resultMap="DtoResultMap">
+        select a.*, p.id p_id, p.name p_name,dg.name device_group_name, es.name event_source_name from iot_linkage a
+            left join iot_event_source es on a.event_source_id = es.id
+            left join iot_device_group dg on es.device_group_id = dg.id
+            left join iot_device_group dgp on dg.group_product_id = dgp.id
+            left join iot_product p on json_contains(dgp.product_ids, concat('', p.id))
+        where a.id=#{id}
+    </select>
 
 </mapper>

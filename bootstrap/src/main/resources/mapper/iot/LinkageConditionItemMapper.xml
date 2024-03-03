@@ -5,13 +5,13 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageConditionItem">
         <result column="id" property="id" />
-        <result column="linkage_condition_id" property="linkageConditionId" />
         <result column="logical" property="logical" />
         <result column="direct" property="direct" />
         <result column="value" property="value" />
         <result column="operator" property="operator" />
         <result column="model_api_id" property="modelApiId" />
         <result column="model_api_config" property="modelApiConfig" />
+        <result column="linkage_condition_id" property="linkageConditionId" />
         <result column="event_source_detail_id" property="eventSourceDetailId" />
     </resultMap>
 

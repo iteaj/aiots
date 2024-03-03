@@ -2,7 +2,9 @@ package com.iteaj.iboot.module.iot.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.module.iot.entity.Linkage;
+import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.mapper.LinkageMapper;
 import com.iteaj.iboot.module.iot.service.ILinkageService;
 import com.iteaj.framework.BaseServiceImpl;
@@ -33,5 +35,11 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
                 .eq(Linkage::getName, entity.getName()))
                 .ifPresentThrow("名称已存在["+entity.getName()+"]");
         return super.updateById(entity);
+    }
+
+    @Override
+    public DetailResult<LinkageDto> detailById(Long id) {
+        LinkageDto dto = this.getBaseMapper().detailById(id);
+        return new DetailResult<>(dto);
     }
 }

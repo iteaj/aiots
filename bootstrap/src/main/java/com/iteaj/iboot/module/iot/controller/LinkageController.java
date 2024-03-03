@@ -4,6 +4,7 @@ import java.util.List;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -37,6 +38,16 @@ public class LinkageController extends BaseController {
     @CheckPermission({"iot:linkage:view"})
     public Result<IPage<Linkage>> list(Page<Linkage> page, Linkage entity) {
         return this.linkageService.page(page, entity);
+    }
+
+    /**
+     * 规则详情
+     * @param id
+     * @return
+     */
+    @GetMapping("/detail")
+    public Result<LinkageDto> detail(Long id) {
+        return this.linkageService.detailById(id);
     }
 
     /**

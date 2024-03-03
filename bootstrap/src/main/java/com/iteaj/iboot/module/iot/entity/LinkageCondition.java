@@ -1,10 +1,14 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.iboot.module.iot.consts.LinkageLogical;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * <p>
@@ -30,12 +34,21 @@ public class LinkageCondition extends BaseEntity {
     /**
      * 逻辑
      */
-    private String logical;
+    private LinkageLogical logical;
 
     /**
-     * 动作id(说明属于动作条件)
+     * 所属联动项
+     */
+    private Long linkageItemId;
+
+    /**
+     * 动作id(属于动作条件)
      */
     private Long linkageActionId;
 
-
+    /**
+     * 场景条件项
+     */
+    @TableField(exist = false)
+    private List<LinkageConditionItem> items;
 }

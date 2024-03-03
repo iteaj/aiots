@@ -43,6 +43,16 @@ public class EventSourceController extends BaseController {
     }
 
     /**
+     * 事件源列表
+     * @param entity
+     * @return
+     */
+    @GetMapping("/list")
+    public Result<List<EventSource>> list(EventSource entity) {
+        return this.eventSourceService.list(entity);
+    }
+
+    /**
     * 获取编辑记录
     * @param id 记录id
     */
