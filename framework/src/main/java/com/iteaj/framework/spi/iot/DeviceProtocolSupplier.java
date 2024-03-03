@@ -34,6 +34,12 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends Frame
     ProtocolImplMode getImplMode();
 
     /**
+     * 返回组件
+     * @return
+     */
+    T getComponent();
+
+    /**
      * 创建组件
      * @param config
      * @return 如果已经存在直接返回, 不存在则创建

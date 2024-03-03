@@ -7,7 +7,6 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.iboot.module.iot.entity.Protocol;
-import com.iteaj.iboot.module.iot.protocol.mqtt.MqttDebugProtocolSupplier;
 import com.iteaj.iboot.module.iot.service.IProtocolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -48,12 +47,4 @@ public class IotProtocolSupplierAutoConfiguration {
         return supplierManager;
     }
 
-    /**
-     * mqtt协议提供
-     * @return
-     */
-    @Bean
-    public MqttDebugProtocolSupplier mqttDebugProtocolSupplier() {
-        return new MqttDebugProtocolSupplier();
-    }
 }

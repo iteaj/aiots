@@ -59,6 +59,7 @@
                 and a.name like '%${entity.name}%'
             </if>
         </where>
+        order by a.create_time desc
     </select>
 
     <select id="countCurrentDevice" resultType="com.iteaj.iboot.module.iot.dto.CurrentDeviceDto">
@@ -82,5 +83,23 @@
     </select>
     <select id="listByProductId" resultType="com.iteaj.iboot.module.iot.dto.DeviceDto">
         select a.* from iot_device a where a.product_id=#{productId}
+    </select>
+
+    <select id="getByDeviceSn" resultMap="BasicMap">
+        <choose>
+            <when test="gatewayDeviceSn != null and gatewayDeviceSn != ''">
+                select a.* from iot_device a
+                    left join iot_device pd on a.pid = pd.id
+                    left join iot_product p on a.product_id = p.id
+                    left join iot_protocol pl on p.protocol_id = pl.id
+                where a.device_sn=#{deviceSn} and pd.device_sn=#{gatewayDeviceSn} and pl.code=#{protocolCode}
+            </when>
+            <otherwise>
+                select a.* from iot_device a
+                    left join iot_product p on a.product_id = p.id
+                    left join iot_protocol pl on p.protocol_id = pl.id
+                where a.device_sn=#{deviceSn} and pl.code=#{protocolCode}
+            </otherwise>
+        </choose>
     </select>
 </mapper>

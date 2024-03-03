@@ -18,8 +18,14 @@ public class RealtimeData<T> {
      */
     private T realtime;
 
-    public RealtimeData(T realtime) {
+    /**
+     * 事件码或者信号字段
+     */
+    private String eventOrSignalField;
+
+    public RealtimeData(String eventOrSignalField, T realtime) {
         this.realtime = realtime;
+        this.eventOrSignalField = eventOrSignalField;
     }
 
     public void setRealtime(T realtime) {
