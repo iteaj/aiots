@@ -43,11 +43,10 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     }
 
     @Override
-    public synchronized OmronComponent createComponent(NetworkConfigImpl.TcpNetworkConfig config) {
+    public OmronComponent doCreateComponent(NetworkConfigImpl.TcpNetworkConfig config) {
         FrameworkComponent component = FrameworkManager.getComponent(OmronMessage.class);
         if(component == null) {
             component = new OmronComponent();
-            FrameworkManager.register(component);
         }
 
         return (OmronComponent) component;

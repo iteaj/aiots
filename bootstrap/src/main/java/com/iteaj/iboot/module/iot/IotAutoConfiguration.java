@@ -6,6 +6,9 @@ import com.iteaj.framework.spring.condition.ConditionalOnRedis;
 import com.iteaj.iboot.module.iot.collect.data.HashMapRealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.data.RedisRealtimeDataService;
+import com.iteaj.iboot.module.iot.collect.status.MapRealtimeStatusService;
+import com.iteaj.iboot.module.iot.collect.status.RealtimeStatusService;
+import com.iteaj.iboot.module.iot.collect.status.RedisRealtimeStatusService;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
@@ -73,6 +76,27 @@ public class IotAutoConfiguration {
     @ConditionalOnCluster
     public RealtimeDataService redisRealtimeDataService() {
         return new RedisRealtimeDataService();
+    }
+
+    /**
+     * 本地实时状态
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean({RealtimeStatusService.class})
+    public RealtimeStatusService mapRealtimeStatusService() {
+        return new MapRealtimeStatusService();
+    }
+
+    /**
+     * redis实时数据
+     * @return
+     */
+    @Bean
+    @ConditionalOnRedis
+    @ConditionalOnCluster
+    public RealtimeStatusService redisRealtimeStatusService() {
+        return new RedisRealtimeStatusService();
     }
 
     /**

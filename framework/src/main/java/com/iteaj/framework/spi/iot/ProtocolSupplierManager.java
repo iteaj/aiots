@@ -9,6 +9,8 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolSupplierException;
+import com.iteaj.iot.FrameworkComponent;
+import com.iteaj.iot.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ public class ProtocolSupplierManager {
     public static final String PROTOCOL_JAR_TEMP_DIR = "protocol_temp";
     private static ProtocolSupplierManager instance = new ProtocolSupplierManager();
     private static Logger logger = LoggerFactory.getLogger(ProtocolSupplierManager.class);
+    private static Map<Class, DeviceProtocolSupplier> messageMap = new HashMap<>(8);
     private static Map<String, DeviceProtocolSupplier> supplierMap = new HashMap<>(8);
 
     private ProtocolSupplierManager() { }
@@ -63,6 +66,28 @@ public class ProtocolSupplierManager {
         logger.info("<<<注册协议提供成功 {} - 版本: {} - 实现: {} - 说明: {}", protocol.getCode()
                 , supplier.getVersion(), supplier.getImplMode().getDesc(), supplier.getDesc());
         supplierMap.put(protocol.getCode(), supplier);
+        return instance;
+    }
+
+    /**
+     * 注册一个协议
+     * @param supplier
+     * @param messageClass 报文类
+     * @return
+     */
+    public static ProtocolSupplierManager register(Class<? extends Message> messageClass, DeviceProtocolSupplier supplier) {
+        ProtocolModel protocol = supplier.getProtocol();
+        DeviceProtocolSupplier protocolSupplier = messageMap.get(messageClass);
+
+        if(protocolSupplier != null) {
+            throw new FrameworkException("协议已存在["+messageClass.getSimpleName()+"]");
+        }
+
+        if(supplier == null || protocol == null) {
+            throw new FrameworkException("参数错误");
+        }
+
+        messageMap.put(messageClass, supplier);
         return instance;
     }
 
@@ -159,12 +184,21 @@ public class ProtocolSupplierManager {
     }
 
     /**
-     * 获取指定协议
+     * 获取指定协议提供
      * @param code
      * @return
      */
     public static DeviceProtocolSupplier get(String code) {
         return supplierMap.get(code);
+    }
+
+    /**
+     * 获取指定协议提供
+     * @param messageClass
+     * @return
+     */
+    public static DeviceProtocolSupplier get(Class<? extends Message> messageClass) {
+        return messageMap.get(messageClass);
     }
 
     /**
@@ -209,6 +243,12 @@ public class ProtocolSupplierManager {
                     e.printStackTrace();
                 }
             }
+
+            FrameworkComponent component = supplier.getComponent();
+            if(component != null) {
+                messageMap.remove(component.getMessageClass());
+            }
+
             return supplierMap.remove(code);
         }
 

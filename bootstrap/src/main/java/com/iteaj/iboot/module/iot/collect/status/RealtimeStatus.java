@@ -12,14 +12,14 @@ import java.util.Date;
 public class RealtimeStatus {
 
     /**
-     * 设备名称
+     * 设备编号
      */
     private String deviceSn;
 
     /**
-     * 所属产品
+     * 所属协议
      */
-    private String productCode;
+    private String protocolCode;
 
     /**
      * 更新时间

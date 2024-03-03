@@ -69,4 +69,13 @@ public interface IDeviceService extends IBaseService<Device> {
      * @return
      */
     ListResult<DeviceDto> listByProductId(Long productId);
+
+    /**
+     * 是否已经存在设备编号
+     * @param deviceSn 要校验的设备编号
+     * @param protocolCode 协议码
+     * @param gatewayDeviceSn 边缘网关的设备编号
+     * @return
+     */
+    DetailResult<Device> getByDeviceSn(String deviceSn, String protocolCode, String gatewayDeviceSn);
 }
