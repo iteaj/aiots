@@ -39,7 +39,7 @@
     </select>
 
     <select id="detailByPage" resultMap="BasicMap">
-        select a.* from t_deviceinfo a
+        select a.* from T_DeviceInfo a
         <where>
             <if test="entity.online != null">
                 and a.Online=#{entity.online}

@@ -38,4 +38,11 @@ public interface IGatewayService extends IBaseService<Gateway> {
      * @param status 状态
      */
     void switchStatus(Long id, GatewayStatus status);
+
+    /**
+     * 切换网关状态
+     * @param gatewayDto
+     * @param status
+     */
+    void switchStatus(GatewayDto gatewayDto,  GatewayStatus status);
 }

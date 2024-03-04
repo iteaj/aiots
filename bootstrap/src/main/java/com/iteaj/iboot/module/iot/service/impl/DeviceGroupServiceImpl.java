@@ -37,9 +37,10 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
         this.getOne(Wrappers.<DeviceGroup>lambdaQuery().eq(DeviceGroup::getName, entity.getName()))
                 .ifPresentThrow("分组名称已存在["+entity.getName()+"]");
 
+        DetailResult<DeviceGroup> detailResult = this.getById(entity.getPid());
         super.save(entity.setCreateTime(new Date()));
         if(entity.getPid() != null && entity.getPid() != 0) {
-            DeviceGroup parent = this.getById(entity.getPid())
+            DeviceGroup parent = detailResult
                     .ifNotPresentThrow("父类型不存在")
                     .getData();
             entity.setPath(parent.getPath()+","+entity.getId());
@@ -47,8 +48,17 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
             entity.setPath(entity.getId().toString());
         }
 
+        // 没有设置产品则继承父级的产品
+        if(entity.getProductIds() == null || entity.getProductIds().isEmpty()) {
+            detailResult.ifPresent(item -> entity.setGroupProductId(item.getGroupProductId()))
+                    .ifNotPresent(item -> entity.setGroupProductId(entity.getId()));
+        } else {
+            entity.setGroupProductId(entity.getId());
+        }
+
         return this.update(Wrappers.<DeviceGroup>lambdaUpdate()
                 .set(DeviceGroup::getPath, entity.getPath())
+                .set(DeviceGroup::getGroupProductId, entity.getGroupProductId())
                 .eq(DeviceGroup::getId, entity.getId()));
     }
 
@@ -59,8 +69,9 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
                 .ne(DeviceGroup::getId, entity.getId()))
                 .ifPresentThrow("分组名称已存在["+entity.getName()+"]");
 
+        DetailResult<DeviceGroup> detailResult = this.getById(entity.getPid());
         if(entity.getPid() != null && entity.getPid() != 0) {
-            DeviceGroup parent = this.getById(entity.getPid())
+            DeviceGroup parent = detailResult
                     .ifNotPresentThrow("父分组不存在")
                     .getData();
 
@@ -69,7 +80,19 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
             entity.setPath(entity.getId().toString());
         }
 
-        return super.updateById(entity);
+        BooleanResult booleanResult = super.updateById(entity);
+
+        // 没有设置产品则继承父级的产品
+        Long oldGroupProductId = entity.getGroupProductId();
+        if(entity.getProductIds() == null || entity.getProductIds().isEmpty()) {
+            detailResult.ifPresent(item -> entity.setGroupProductId(item.getGroupProductId()))
+                    .ifNotPresent(item -> entity.setGroupProductId(entity.getId()));
+        } else {
+            entity.setGroupProductId(entity.getId());
+        }
+
+        getBaseMapper().updateGroupProductId(entity.getId(), entity.getGroupProductId(), oldGroupProductId);
+        return booleanResult;
     }
 
     @Override
@@ -92,6 +115,16 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
     }
 
     @Override
+    public DetailResult<DeviceGroup> getGroupProductById(Long id) {
+        return new DetailResult<>(getBaseMapper().getGroupProductById(id));
+    }
+
+    @Override
+    public boolean hasBindEventSource(Collection<? extends Serializable> idList) {
+        return this.getBaseMapper().hasBindEventSource(idList);
+    }
+
+    @Override
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
         this.count(Wrappers.<DeviceGroup>lambdaQuery().in(DeviceGroup::getPid, idList))
                 .ifPresent(count -> {
@@ -103,6 +136,11 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
         // 校验是否已绑定设备
         if(this.hasBindDevice(idList)) {
             throw new ServiceException("请先解绑此分组下的设备");
+        }
+
+        // 校验是否已被事件源绑定
+        if(this.hasBindEventSource(idList)) {
+            throw new ServiceException("请先解绑此分组下的事件源");
         }
 
         return super.removeByIds(idList);

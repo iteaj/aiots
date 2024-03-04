@@ -10,6 +10,11 @@ import java.util.List;
 public class CollectTaskDto extends CollectTask {
 
     /**
+     * 点位组
+     */
+    private Long pointGroupId;
+
+    /**
      * 点位列表
      */
     private List<CollectDetail> details;

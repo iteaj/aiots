@@ -1,4 +1,4 @@
-package com.genersoft.iot.vmp.vmanager.bean;
+package com.iteaj.framework.spi.gbs;
 
 import cn.hutool.core.util.StrUtil;
 

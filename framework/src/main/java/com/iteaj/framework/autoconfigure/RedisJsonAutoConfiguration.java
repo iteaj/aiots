@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.iteaj.framework.utils.RedisUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -69,5 +70,10 @@ public class RedisJsonAutoConfiguration {
         redisTemplate.setHashValueSerializer(valueSerializer);
 
         return redisTemplate;
+    }
+
+    @Bean
+    public RedisUtils redisUtils(RedisTemplate template) {
+        return new RedisUtils(template);
     }
 }

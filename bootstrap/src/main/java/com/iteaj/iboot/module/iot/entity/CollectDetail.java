@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.iboot.module.iot.collect.CollectDevice;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -22,11 +23,6 @@ import java.util.Map;
 public class CollectDetail extends BaseEntity {
 
     /**
-     * 设备uid
-     */
-    private Long uid;
-
-    /**
      * 扩展字段
      */
     private String extend;
@@ -37,19 +33,9 @@ public class CollectDetail extends BaseEntity {
     private Long storeUid;
 
     /**
-     * 采集动作
-     */
-    private String collectAction;
-
-    /**
      * 存储动作
      */
     private String storeAction;
-
-    /**
-     * 子设备
-     */
-    private String childSn;
 
     /**
      * 采集任务id
@@ -67,10 +53,10 @@ public class CollectDetail extends BaseEntity {
     private Date createTime;
 
     /**
-     * 子设备名称
+     * 点位组点位数量
      */
     @TableField(exist = false)
-    private String childName;
+    private Integer signalNum;
 
     /**
      * 点位组名称
@@ -85,50 +71,10 @@ public class CollectDetail extends BaseEntity {
     private String collectTaskName;
 
     /**
-     * 设备类型
+     * 采集的设备列表
      */
     @TableField(exist = false)
-    private Long deviceTypeId;
-
-    /**
-     * 型号
-     */
-    @TableField(exist = false)
-    private Long modelId;
-
-    /**
-     * 设备名称
-     */
-    @TableField(exist = false)
-    private String deviceName;
-
-    /**
-     * 设备编号
-     */
-    @TableField(exist = false)
-    private String deviceSn;
-
-    /**
-     * 采集设备
-     */
-    @TableField(exist = false)
-    private DeviceDto device;
-
-    /**
-     * 存储设备
-     */
-    @TableField(exist = false)
-    private DeviceDto store;
-
-    /**
-     * 组点位列表
-     */
-    @TableField(exist = false)
-    private List<Signal> signals;
-
-    @JsonIgnore
-    @TableField(exist = false)
-    private Map<String, Object> params;
+    private List<CollectDevice> devices;
 
     public Map<String, Object> resolveConfig() {
         if(StringUtils.hasText(this.getExtend())) {

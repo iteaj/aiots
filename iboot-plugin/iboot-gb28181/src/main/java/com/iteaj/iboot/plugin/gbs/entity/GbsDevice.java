@@ -2,7 +2,7 @@ package com.iteaj.iboot.plugin.gbs.entity;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.genersoft.iot.vmp.gb28181.bean.Device;
+//import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.iteaj.framework.Entity;
 import com.iteaj.iboot.plugin.gbs.rtvs.RtvsDevice;
 import lombok.Data;
@@ -140,10 +140,10 @@ public class GbsDevice implements Entity<Long> {
 	 * 转到Wvp设备对象
 	 * @return
 	 */
-	public Device toWvpDevice() {
-		this.media = MEDIA_WVP;
-		Device device = new Device();
-		BeanUtil.copyProperties(this, device);
-		return device;
-	}
+//	public Device toWvpDevice() {
+//		this.media = MEDIA_WVP;
+//		Device device = new Device();
+//		BeanUtil.copyProperties(this, device);
+//		return device;
+//	}
 }

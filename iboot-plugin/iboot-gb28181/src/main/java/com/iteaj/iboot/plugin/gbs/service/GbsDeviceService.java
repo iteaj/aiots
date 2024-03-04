@@ -1,7 +1,7 @@
 package com.iteaj.iboot.plugin.gbs.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
+import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
 import com.iteaj.iboot.plugin.gbs.MediaInfo;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;

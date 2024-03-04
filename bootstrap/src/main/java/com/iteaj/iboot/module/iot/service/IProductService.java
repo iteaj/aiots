@@ -61,4 +61,10 @@ public interface IProductService extends IBaseService<Product> {
     DetailResult<ProductDto> joinDetailById(Long productId);
 
     DetailResult<ProductDto> debugById(Long productId);
+
+    /**
+     * 获取点位协议的产品列表
+     * @return
+     */
+    ListResult<Product> listByPoint();
 }

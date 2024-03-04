@@ -46,4 +46,9 @@ public class GenConfigDto {
      * 文件存在是否覆盖
      */
     private boolean fileOverride;
+
+    /**
+     * web端代码输出目录
+     */
+    private String webOutDir;
 }

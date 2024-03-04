@@ -71,13 +71,12 @@ public class PointGroupController extends BaseController {
     }
 
     /**
-     * 获取指定型号下的点位组列表
-     * @param modelId
+     * 获取点位组列表
      * @return
      */
-    @GetMapping("listByModelId")
-    public Result<List<PointGroup>> listByModelId(Long modelId) {
-        return this.pointGroupService.list(Wrappers.<PointGroup>lambdaQuery().eq(PointGroup::getModelId, modelId));
+    @GetMapping("list")
+    public Result<List<PointGroup>> list() {
+        return this.pointGroupService.list(Wrappers.emptyWrapper());
     }
 }
 

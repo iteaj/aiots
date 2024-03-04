@@ -1,6 +1,7 @@
 package com.iteaj.plugin.protocol.plc.omron;
 
 import cn.hutool.core.util.StrUtil;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
@@ -42,11 +43,10 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     }
 
     @Override
-    public synchronized OmronComponent createComponent(NetworkConfigImpl.TcpNetworkConfig config) {
+    public OmronComponent doCreateComponent(NetworkConfigImpl.TcpNetworkConfig config) {
         FrameworkComponent component = FrameworkManager.getComponent(OmronMessage.class);
         if(component == null) {
             component = new OmronComponent();
-            FrameworkManager.register(component);
         }
 
         return (OmronComponent) component;
@@ -54,9 +54,9 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
 
     @Override
     public synchronized OmronTcpClient createClient(NetworkConfigImpl.TcpNetworkConfig config) {
-        OmronComponent component = createComponent(config);
-        if(!component.isStart()) {
-            FrameworkManager.start(component);
+        OmronComponent component = FrameworkManager.getComponent(OmronMessage.class);
+        if(component == null || !component.isStart()) {
+            throw new ServiceException("未启动网络组件");
         }
 
         OmronConnectProperties connectProperties = new OmronConnectProperties(config.getHost(), config.getPort());
@@ -75,7 +75,11 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
             }
 
             client = component.createNewClient(connectProperties);
+            client.init(null);
             component.getClientManager().addClient(connectProperties, client);
+        } else { // 修改最新的主机和端口配置
+            client.getConfig().setHost(config.getHost());
+            client.getConfig().setPort(config.getPort());
         }
 
         return (OmronTcpClient) client;

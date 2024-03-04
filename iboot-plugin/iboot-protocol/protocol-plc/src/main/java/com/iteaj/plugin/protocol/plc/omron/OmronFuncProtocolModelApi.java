@@ -35,7 +35,7 @@ public class OmronFuncProtocolModelApi extends AbstractPlcFuncProtocolModelApi {
     protected PlcClientProtocol createPlcProtocol(ProtocolModelApiInvokeParam arg) {
         IotClient client = FrameworkManager.getClient(arg.getDeviceSn(), OmronMessage.class);
         if(client == null) {
-            throw new ServiceException("获取不到欧姆龙客户端[deviceSn="+arg.getDeviceSn()+"]");
+            throw new ServiceException("欧姆龙客户端[deviceSn="+arg.getDeviceSn()+"]不在线");
         }
 
         return new OmronTcpProtocol((OmronConnectProperties) client.getConfig());

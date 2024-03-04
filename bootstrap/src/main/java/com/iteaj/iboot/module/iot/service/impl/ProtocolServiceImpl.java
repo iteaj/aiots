@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
@@ -15,14 +16,18 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
-import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
-import com.iteaj.iboot.module.iot.entity.*;
+import com.iteaj.iboot.module.iot.entity.Protocol;
+import com.iteaj.iboot.module.iot.entity.ProtocolApi;
+import com.iteaj.iboot.module.iot.entity.ProtocolApiConfig;
+import com.iteaj.iboot.module.iot.entity.ProtocolAttr;
 import com.iteaj.iboot.module.iot.mapper.ProtocolMapper;
 import com.iteaj.iboot.module.iot.service.IProtocolService;
-import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,24 +44,31 @@ import java.util.stream.Collectors;
 public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protocol> implements IProtocolService {
 
     @Override
+    @Transactional
     public BooleanResult save(Protocol entity) {
-        ProtocolDto protocolDto = loadProtocol(entity.getCode());
-        if(protocolDto == null) {
-            throw new ServiceException("没有找到对应的协议["+entity.getCode()+"]");
-        }
-
         this.getByCode(entity.getCode()).ifPresentThrow("协议代码已存在["+entity.getCode()+"]");
 
-        entity.setVersion(protocolDto.getVersion());
-        return super.save(entity);
+        if(entity.getImplMode() != ProtocolImplMode.Jar) {
+            ProtocolDto protocolDto = loadProtocol(entity.getCode());
+
+            if(protocolDto == null) {
+                throw new ServiceException("没有找到对应的协议["+entity.getCode()+"]");
+            }
+        }
+
+        return super.save(entity).ifPresentAndTrue(item -> {
+            if(entity.getImplMode() == ProtocolImplMode.Jar) {
+                DeviceProtocolSupplier supplier = ProtocolSupplierManager.copyTempToProtocol(entity.getJarPath());
+                ProtocolSupplierManager.register(supplier);
+            }
+        });
     }
 
     @Override
+    @Transactional
     public BooleanResult updateById(Protocol entity) {
-        ProtocolDto protocolDto = loadProtocol(entity.getCode());
-        if(protocolDto == null) {
-            throw new ServiceException("没有找到对应的协议["+entity.getCode()+"]");
-        }
+        // 获取原协议对象
+        Protocol protocol = this.getById(entity.getId()).ifNotPresentThrow("协议不存在").getData();
 
         this.getByCode(entity.getCode()).ifPresent(item -> {
             if(!item.getId().equals(entity.getId())) {
@@ -64,14 +76,42 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
             }
         });
 
-        entity.setVersion(protocolDto.getVersion());
-        return super.updateById(entity);
+        if(entity.getImplMode() != ProtocolImplMode.Jar) {
+            ProtocolDto protocolDto = loadProtocol(entity.getCode());
+
+            if(protocolDto == null) {
+                throw new ServiceException("没有找到对应的协议["+entity.getCode()+"]");
+            }
+        }
+
+        return super.updateById(entity).ifPresentAndTrue(item -> {
+            if(entity.getImplMode() == ProtocolImplMode.Jar) {
+                // 两个协议码不相同或者版本不一致
+                if(!protocol.getCode().equals(entity.getCode()) || !protocol.getVersion().equals(entity.getVersion())) {
+                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.copyTempToProtocol(entity.getJarPath());
+                    // 移除原来的协议提供
+                    ProtocolSupplierManager.remove(protocol.getCode());
+                    // 注册新的协议提供
+                    ProtocolSupplierManager.register(supplier);
+                }
+            }
+        });
     }
 
     @Override
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
         if(!this.isBindGateway(idList)) {
-            return super.removeByIds(idList);
+            List<Protocol> protocols = this.listByIds(idList).ifNotPresentThrow("没有找到协议").getData();
+            long count = protocols.stream().filter(item -> item.getImplMode() == ProtocolImplMode.Internal).count();
+            if(count > 0) {
+                return BooleanResult.buildFalse("系统内置协议不允许删除");
+            }
+
+            return super.removeByIds(idList).ifPresent(item -> {
+                protocols.stream()
+                        .filter(protocol -> protocol.getImplMode() == ProtocolImplMode.Jar)
+                        .forEach(protocol -> ProtocolSupplierManager.remove(protocol.getCode()));
+            });
         } else {
             return new BooleanResult(false, "此协议已被网关绑定");
         }
@@ -85,10 +125,18 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
     @Override
     public ProtocolDto loadProtocol(String code) {
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(code);
+        return loadProtocol(supplier);
+    }
+
+    @Override
+    public ProtocolDto loadProtocol(DeviceProtocolSupplier supplier) {
         if(supplier != null) {
             ProtocolDto protocolDto = new ProtocolDto();
             protocolDto.setVersion(supplier.getVersion());
             ProtocolModel protocol = supplier.getProtocol();
+            protocolDto.setCode(protocol.getCode()).setRemark(protocol.getRemark())
+                    .setImplMode(supplier.getImplMode()).setCtrlMode(protocol.getCtrlMode())
+                    .setType(protocol.getType());
             // 协议接口
             protocol.getApis().values().stream().forEach(api -> {
                 // 协议接口
@@ -101,7 +149,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
 
                 // 事件协议
                 if(api instanceof AbstractEventProtocolModelApi) {
-                    protocolApi.setEventType(((AbstractEventProtocolModelApi) api).getEventType());
+                    protocolApi.setTriggerMode(((AbstractEventProtocolModelApi) api).getTriggerMode());
                 }
 
                 // 协议接口上行配置

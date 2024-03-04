@@ -1,13 +1,13 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
-
+import com.iteaj.framework.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.Date;
 
 /**
  * <p>
@@ -36,18 +36,12 @@ public class Signal extends BaseEntity {
     private String address;
 
     /**
-     * 设备类型
-     */
-    @TableField(exist = false)
-    private Long typeId;
-
-    /**
      * 信号类型(1. 点位 2. 自定义报文)
      */
     private Integer type;
 
     /**
-     * 读取的寄存器(点位)数量
+     * 读取的寄存器数量
      */
     private Integer num;
 
@@ -62,25 +56,39 @@ public class Signal extends BaseEntity {
     private String encode;
 
     /**
-     * 型号id
+     * 所属产品
      */
-    private Integer modelId;
+    private Long productId;
 
     /**
-     * 点位字段名称
+     * 点位字段名称(同一个产品下的字段唯一)
      */
     private String fieldName;
 
     /**
-     * 字段类型(字典 iot_field_type)
+     * 协议指令
      */
-    private Integer fieldType;
+    private String direct;
 
     private Date createTime;
 
-    public Signal() { }
+    /**
+     * 指令名称
+     */
+    @TableField(exist = false)
+    private String directName;
 
-    public Signal(Integer modelId) {
-        this.modelId = modelId;
-    }
+    /**
+     * 产品明此
+     */
+    @TableField(exist = false)
+    private String productName;
+
+    /**
+     * 产品类型id
+     */
+    @TableField(exist = false)
+    private Long productTypeId;
+
+    public Signal() { }
 }

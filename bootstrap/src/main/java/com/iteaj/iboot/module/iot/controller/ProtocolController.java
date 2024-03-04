@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +28,8 @@ import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import com.iteaj.iboot.module.iot.entity.ProtocolApi;
 import com.iteaj.iboot.module.iot.entity.ProtocolApiConfig;
 import com.iteaj.iboot.module.iot.entity.ProtocolAttr;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -114,11 +117,34 @@ public class ProtocolController extends BaseController {
      */
     @Logger("导入Jar协议")
     @PostMapping("loadProtocol")
-    public Result<String> loadProtocol(MultipartFile file) throws IOException {
+    public Result<Protocol> loadProtocol(MultipartFile file) throws IOException {
+        // 先上传到临时文件
         UploadResult protocol = uploadService.upload(file.getInputStream()
-                , file.getOriginalFilename(), file.getOriginalFilename(), IotConsts.PROTOCOL_JAR_DIR);
-        ProtocolSupplierManager.load(protocol.getFile());
-        return success(protocol.getUrl(), "加载成功");
+                , file.getOriginalFilename(), file.getOriginalFilename(), ProtocolSupplierManager.PROTOCOL_JAR_TEMP_DIR);
+
+        List<DeviceProtocolSupplier> load = ProtocolSupplierManager.loadFromTempProtocol(protocol.getFileName());
+        if(load.size() > 1) {
+            protocol.getFile().delete();
+            return fail("jar文件只支持一个协议提供");
+        } else if(load.size() == 0) {
+            // jar包里面没有任何协议
+            protocol.getFile().delete();
+            return fail("未包含任务协议");
+        }
+        DeviceProtocolSupplier protocolSupplier = load.get(0);
+        ProtocolModel protocolModel = protocolSupplier.getProtocol();
+        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolModel.getCode());
+        if(supplier != null) {
+            if(supplier.getVersion().equals(protocolSupplier.getVersion())) {
+                return fail("已存在相同版本的协议");
+            }
+        }
+
+        ProtocolDto loadProtocol = this.protocolService.loadProtocol(protocolSupplier);
+        loadProtocol.setJarPath(protocol.getFileName());
+        Protocol result = new Protocol();
+        BeanUtils.copyProperties(loadProtocol, result);
+        return success(result, "加载成功");
     }
 
     /**
@@ -163,7 +189,15 @@ public class ProtocolController extends BaseController {
             } else if (type == ProtocolApiType.event) {
                 return item.getEventApis();
             } else {
-                throw new ServiceException("错误的接口类型参数[type=" + type + "]");
+                ArrayList<ProtocolApi> list = new ArrayList<>();
+                if(!CollectionUtils.isEmpty(item.getFuncApis())) {
+                    list.addAll(item.getFuncApis());
+                }
+
+                if(!CollectionUtils.isEmpty(item.getEventApis())) {
+                    list.addAll(item.getEventApis());
+                }
+                return list;
             }
         }).orElseGet(ArrayList::new);
         return success(protocolApis);

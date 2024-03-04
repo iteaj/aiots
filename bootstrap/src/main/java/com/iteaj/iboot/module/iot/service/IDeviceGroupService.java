@@ -24,4 +24,13 @@ public interface IDeviceGroupService extends IBaseService<DeviceGroup> {
     boolean hasBindDevice(Collection<?> idList);
 
     DetailResult<DeviceGroup> detailById(Long id);
+
+    /**
+     * 通过设备组id获取此记录对应组产品id的设备组
+     * @param id 设备组id
+     * @return
+     */
+    DetailResult<DeviceGroup> getGroupProductById(Long id);
+
+    boolean hasBindEventSource(Collection<? extends Serializable> idList);
 }

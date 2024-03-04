@@ -1,11 +1,15 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.iboot.module.iot.dto.SignalOfModelDto;
+import com.iteaj.iboot.module.iot.dto.SignalOfProductDto;
 import com.iteaj.iboot.module.iot.entity.Signal;
 import com.iteaj.iboot.module.iot.service.ISignalService;
 import org.springframework.web.bind.annotation.*;
@@ -42,14 +46,16 @@ public class SignalController extends BaseController {
     }
 
     /**
-     * 获取指定型号下面的点位列表
-     * @param modelId 型号id
+     * 获取指定产品下面的点位列表
+     * @param name 点位名
+     * @param productIds 产品列表
      */
-    @GetMapping("/listByModel")
-    public Result<List<SignalOfModelDto>> listByModel(Integer modelId) {
-        List<SignalOfModelDto> modelDtos = this.signalService.list(new Signal(modelId))
-                .stream().map(item -> new SignalOfModelDto().setId(item.getId().toString())
-                .setName(item.getName()).setAddress(item.getAddress())
+    @GetMapping("/listByProductIds")
+    public Result<List<SignalOfProductDto>> listByProducts(Long[] productIds, String name) {
+        List<Long> ids = productIds == null ? null : Arrays.asList(productIds);
+        List<SignalOfProductDto> modelDtos = this.signalService.listByProductIds(ids, name)
+                .stream().map(item -> new SignalOfProductDto().setId(item.getId().toString())
+                .setName(item.getName()).setAddress(item.getAddress()).setProductName(item.getProductName())
                 .setFieldName(item.getFieldName())).collect(Collectors.toList());
         return success(modelDtos);
     }

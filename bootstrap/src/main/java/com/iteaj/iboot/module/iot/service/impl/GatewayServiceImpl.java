@@ -102,12 +102,17 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
         }
 
         this.detailById(id).ifNotPresentThrow("网关不存在").ifPresent(item -> {
-            this.doSwitchStatus(item, status);
-            this.update(Wrappers.<Gateway>lambdaUpdate()
-                    .set(Gateway::getStatus, status)
-                    .set(Gateway::getReason, "")
-                    .eq(Gateway::getId, id));
+            this.switchStatus(item, status);
         });
+    }
+
+    @Override
+    public void switchStatus(GatewayDto gatewayDto, GatewayStatus status) {
+        this.doSwitchStatus(gatewayDto, status);
+        this.update(Wrappers.<Gateway>lambdaUpdate()
+                .set(Gateway::getStatus, status)
+                .set(Gateway::getReason, "")
+                .eq(Gateway::getId, gatewayDto.getId()));
     }
 
     private void doSwitchStatus(GatewayDto gateway, GatewayStatus status) {
@@ -121,9 +126,9 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
 
         // 执行开启的操作
         if(status == GatewayStatus.start) {
-            component.start(null);
+            FrameworkManager.start(component);
         } else if(status == GatewayStatus.stop) { // 执行停止操作
-            FrameworkManager.stop(component.getMessageClass());
+            FrameworkManager.stop(component);
         }
     }
 

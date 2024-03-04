@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service;
 
+import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
@@ -36,4 +37,6 @@ public interface IModelApiService extends IBaseService<ModelApi> {
     DetailResult<ModelApi> getByCode(String code);
 
     Result<ModelApi> detailById(Long id);
+
+    BooleanResult updateAsStatus(Long productId, String code);
 }

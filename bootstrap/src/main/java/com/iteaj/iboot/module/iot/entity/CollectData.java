@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.iot.tools.annotation.IotField;
@@ -38,6 +39,9 @@ public class CollectData extends BaseEntity {
      */
     @IotField("field_type")
     private Integer fieldType;
+
+    @TableField(exist = false)
+    private String fieldName;
 
     /**
      * 采集任务标识

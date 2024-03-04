@@ -83,22 +83,16 @@ public class ModbusRtuForDtuProtocolSupplier extends StaticProtocolSupplier<Netw
     }
 
     @Override
-    public synchronized ModbusRtuForDtuServerComponent createComponent(NetworkConfigImpl.TcpNetworkConfig config) {
-        FrameworkComponent component = FrameworkManager.getComponent(ModbusRtuForDtuMessage.class);
-        if(component == null) {
-            ConnectProperties connectProperties = new ConnectProperties(config.getHost(), config.getPort());
-            if(config.getAllIdle() != null) {
-                connectProperties.setAllIdleTime(config.getAllIdle());
-            } else if(config.getReadIdle() != null) {
-                connectProperties.setReaderIdleTime(config.getReadIdle());
-            } else if(config.getWriteIdle() != null) {
-                connectProperties.setWriterIdleTime(config.getWriteIdle());
-            }
-
-            component = new ModbusRtuForDtuServerComponent(connectProperties);
-            FrameworkManager.register(component);
+    public ModbusRtuForDtuServerComponent doCreateComponent(NetworkConfigImpl.TcpNetworkConfig config) {
+        ConnectProperties connectProperties = new ConnectProperties(config.getHost(), config.getPort());
+        if(config.getAllIdle() != null) {
+            connectProperties.setAllIdleTime(config.getAllIdle());
+        } else if(config.getReadIdle() != null) {
+            connectProperties.setReaderIdleTime(config.getReadIdle());
+        } else if(config.getWriteIdle() != null) {
+            connectProperties.setWriterIdleTime(config.getWriteIdle());
         }
 
-        return (ModbusRtuForDtuServerComponent) component;
+        return new ModbusRtuForDtuServerComponent(connectProperties);
     }
 }

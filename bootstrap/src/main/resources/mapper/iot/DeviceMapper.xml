@@ -25,6 +25,7 @@
     <resultMap id="DeviceDtoMap" type="com.iteaj.iboot.module.iot.dto.DeviceDto" extends="BasicMap">
         <result property="deviceType" column="device_type" />
         <result property="productName" column="product_name" />
+        <result property="productCode" column="product_code" />
         <result property="productTypeName" column="product_type_name" />
     </resultMap>
     <select id="pageOfDetail" resultMap="DeviceDtoMap">
@@ -42,6 +43,12 @@
             <if test="entity.productName!=null">
                 and idm.name like '%${entity.productName}%'
             </if>
+            <if test="entity.productId!=null">
+                and a.product_id = #{entity.productId}
+            </if>
+            <if test="entity.deviceGroupId!=null">
+                and a.device_group_id = #{entity.deviceGroupId}
+            </if>
             <if test="entity.productTypeId!=null">
                 and a.product_type_id = #{entity.productTypeId}
             </if>
@@ -52,6 +59,7 @@
                 and a.name like '%${entity.name}%'
             </if>
         </where>
+        order by a.create_time desc
     </select>
 
     <select id="countCurrentDevice" resultType="com.iteaj.iboot.module.iot.dto.CurrentDeviceDto">
@@ -62,7 +70,7 @@
         select * from iot_device where uid=#{uid}
     </select>
     <select id="detailById" resultMap="DeviceDtoMap">
-        select a.*, idm.name product_name, idt.name product_type_name from iot_device a
+        select a.*, idm.name product_name, idt.name product_type_name, idm.code product_code from iot_device a
              left join iot_product_type idt on a.product_type_id=idt.id
              left join iot_product idm on a.product_id=idm.id
         where a.id=#{id}
@@ -75,5 +83,23 @@
     </select>
     <select id="listByProductId" resultType="com.iteaj.iboot.module.iot.dto.DeviceDto">
         select a.* from iot_device a where a.product_id=#{productId}
+    </select>
+
+    <select id="getByDeviceSn" resultMap="BasicMap">
+        <choose>
+            <when test="gatewayDeviceSn != null and gatewayDeviceSn != ''">
+                select a.* from iot_device a
+                    left join iot_device pd on a.pid = pd.id
+                    left join iot_product p on a.product_id = p.id
+                    left join iot_protocol pl on p.protocol_id = pl.id
+                where a.device_sn=#{deviceSn} and pd.device_sn=#{gatewayDeviceSn} and pl.code=#{protocolCode}
+            </when>
+            <otherwise>
+                select a.* from iot_device a
+                    left join iot_product p on a.product_id = p.id
+                    left join iot_protocol pl on p.protocol_id = pl.id
+                where a.device_sn=#{deviceSn} and pl.code=#{protocolCode}
+            </otherwise>
+        </choose>
     </select>
 </mapper>

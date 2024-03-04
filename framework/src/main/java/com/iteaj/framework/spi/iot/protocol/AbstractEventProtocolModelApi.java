@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.iot.protocol;
 
-import com.iteaj.framework.spi.iot.consts.ApiEventType;
+import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
 
 import java.util.Map;
 
@@ -9,31 +9,31 @@ import java.util.Map;
  */
 public abstract class AbstractEventProtocolModelApi extends AbstractProtocolModelApi {
 
-    private ApiEventType eventType;
+    private EventTriggerMode triggerMode;
 
-    public AbstractEventProtocolModelApi(String code, String name, ApiEventType eventType) {
-        this(code, name, null, eventType);
+    public AbstractEventProtocolModelApi(String code, String name, EventTriggerMode triggerMode) {
+        this(code, name, null, triggerMode);
     }
 
-    public AbstractEventProtocolModelApi(String code, String name, String remark, ApiEventType eventType) {
+    public AbstractEventProtocolModelApi(String code, String name, String remark, EventTriggerMode triggerMode) {
         super(code, name, remark, ProtocolApiType.event);
-        this.eventType = eventType;
+        this.triggerMode = triggerMode;
     }
 
-    public AbstractEventProtocolModelApi(String code, String name, ApiEventType eventType, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
-        this(code, name, null, eventType, upConfig, downConfig);
+    public AbstractEventProtocolModelApi(String code, String name, EventTriggerMode triggerMode, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
+        this(code, name, null, triggerMode, upConfig, downConfig);
     }
 
-    public AbstractEventProtocolModelApi(String code, String name, String remark, ApiEventType eventType, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
+    public AbstractEventProtocolModelApi(String code, String name, String remark, EventTriggerMode triggerMode, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
         super(code, name, remark, ProtocolApiType.event, upConfig, downConfig);
-        this.eventType = eventType;
+        this.triggerMode = triggerMode;
     }
 
-    public ApiEventType getEventType() {
-        return eventType;
+    public EventTriggerMode getTriggerMode() {
+        return triggerMode;
     }
 
-    public void setEventType(ApiEventType eventType) {
-        this.eventType = eventType;
+    public void setTriggerMode(EventTriggerMode triggerMode) {
+        this.triggerMode = triggerMode;
     }
 }

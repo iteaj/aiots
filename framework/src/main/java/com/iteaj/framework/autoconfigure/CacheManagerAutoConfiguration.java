@@ -2,6 +2,7 @@ package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.cache.CacheEntry;
 import com.iteaj.framework.cache.SerializerType;
+import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.ResourcePools;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -62,7 +63,7 @@ public class CacheManagerAutoConfiguration {
     /**
      * Redis缓存配置
      */
-    @ConditionalOnProperty(value = "framework.cluster", havingValue = "true")
+    @ConditionalOnCluster
     @ConditionalOnClass(name = {"org.springframework.data.redis.connection.RedisConnectionFactory"})
     public static class RedisConfiguration {
 

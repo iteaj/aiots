@@ -5,7 +5,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class SignalOfModelDto {
+public class SignalOfProductDto {
 
     private String id;
 
@@ -23,4 +23,9 @@ public class SignalOfModelDto {
      * 点位字段名称
      */
     private String fieldName;
+
+    /**
+     * 产品名称
+     */
+    private String productName;
 }

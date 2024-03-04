@@ -71,23 +71,24 @@
         </dependency>
 
         <!--modbus协议提供-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>protocol-modbus</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <artifactId>protocol-modbus</artifactId>-->
+<!--        </dependency>-->
         <!--plc协议提供-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>protocol-plc</artifactId>
             <version>${project.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-data-redis</artifactId>-->
-<!--        </dependency>-->
-        <!-- 非开发环境可注释掉 start -->
+        <dependency>
+            <scope>provided</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
 
+        <!-- 非开发环境可注释掉 start -->
         <dependency>
             <groupId>p6spy</groupId>
             <artifactId>p6spy</artifactId>
@@ -145,22 +146,17 @@
         </dependency>
 
         <!-- 消息源插件(短信, email, 钉钉...) -->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>iboot-message</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <artifactId>iboot-message</artifactId>-->
+<!--        </dependency>-->
 
         <!-- gb28181模块 -->
 <!--        <dependency>-->
 <!--            <groupId>com.iteaj</groupId>-->
 <!--            <version>${project.version}</version>-->
 <!--            <artifactId>iboot-gb28181</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <version>${project.version}</version>-->
-<!--            <artifactId>wvp-GB28181-pro</artifactId>-->
 <!--        </dependency>-->
     </dependencies>
 

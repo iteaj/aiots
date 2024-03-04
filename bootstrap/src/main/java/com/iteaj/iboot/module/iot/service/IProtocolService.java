@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.*;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
@@ -34,6 +35,8 @@ public interface IProtocolService extends IBaseService<Protocol> {
      * @return
      */
     ProtocolDto loadProtocol(String code);
+
+    ProtocolDto loadProtocol(DeviceProtocolSupplier supplier);
 
     /**
      * 是否有绑定网关

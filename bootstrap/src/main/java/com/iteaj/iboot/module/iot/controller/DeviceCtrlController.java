@@ -9,6 +9,7 @@ import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.DebugRespDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -67,18 +68,25 @@ public class DeviceCtrlController extends BaseController {
      */
     @PostMapping("/debug/{modelApiCode}")
     public Mono<Result<DebugRespDto>> debug(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
-
+        // 获取协议模型接口
         AbstractProtocolModelApi protocolModelApi = this.getProtocolModelApi(modelApiCode, param);
 
+        DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
         return Mono.<InvokeResult>create(item -> {
+            // 调用接口
             protocolModelApi.invoke(param, result -> {
                 item.success(result);
+                debugRespDto.setRespTime(System.currentTimeMillis());
             });
         }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
+            debugRespDto.setStatus(item.getStatus());
+            debugRespDto.setReqMsg(item.getRequestMessage().toString());
+            debugRespDto.setRespMsg(item.getResponseMessage().toString());
             if(item.getStatus() == ExecStatus.success) {
-                return success(new DebugRespDto());
+                debugRespDto.setValue(item.getValue());
+                return success(debugRespDto.setValue(item.getValue()));
             } else {
-                return fail(item.getReason());
+                return success(debugRespDto.setReason(item.getReason()));
             }
         });
     }
@@ -90,19 +98,23 @@ public class DeviceCtrlController extends BaseController {
                 .getData();
 
         ProductDto product = this.productService.detailById(modelApi.getProductId())
-                .ifNotPresentThrow("未找到物模型所属产品").getData();
+                .ifNotPresentThrow("未找到所属产品").getData();
+
+        if(product.getStatus() == FuncStatus.disabled) {
+            throw new ServiceException("请先启用产品["+product.getName()+"]");
+        }
 
         // 网关子设备需要取网关设备
         if(product.getDeviceType() == DeviceType.Child) {
             deviceService.getByDeviceSn(param.getDeviceSn())
-                .ifPresentThrow("查找不到设备[deviceSn="+param.getDeviceSn()+"]")
+                .ifNotPresentThrow("查找不到设备[deviceSn="+param.getDeviceSn()+"]")
                 .ifPresent(item -> {
                     if(item.getPid() == null) {
                         throw new ServiceException("此网关子设备没有关联对应的网关设备");
                     }
                     deviceService.getById(item.getPid())
                         .ifNotPresentThrow("查找不到绑定的网关设备")
-                        // 设备编号改成父设备的编号
+                        // 设备编号改成父网关设备的编号
                         .ifPresent(parent -> param.setDeviceSn(parent.getDeviceSn()));
             });
         }

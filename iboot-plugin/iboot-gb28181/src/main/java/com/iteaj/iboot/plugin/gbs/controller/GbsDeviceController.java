@@ -1,7 +1,7 @@
 package com.iteaj.iboot.plugin.gbs.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.genersoft.iot.vmp.vmanager.bean.GbsRealtimeTree;
+import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
