@@ -12,4 +12,7 @@
         <result column="model_api_config" property="modelApiConfig" />
     </resultMap>
 
+    <select id="listByLinkageItemId" resultMap="BaseResultMap">
+        select * from iot_linkage_action where linkage_item_id=#{linkageItemId}
+    </select>
 </mapper>

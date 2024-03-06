@@ -1,10 +1,15 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import java.util.Collections;
 import java.util.List;
+
+import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
+import com.iteaj.iboot.module.iot.entity.Product;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -23,9 +28,11 @@ import com.iteaj.framework.BaseController;
 public class LinkageController extends BaseController {
 
     private final ILinkageService linkageService;
+    private final IProductService productService;
 
-    public LinkageController(ILinkageService linkageService) {
+    public LinkageController(ILinkageService linkageService, IProductService productService) {
         this.linkageService = linkageService;
+        this.productService = productService;
     }
 
     /**
@@ -80,6 +87,22 @@ public class LinkageController extends BaseController {
     @CheckPermission({"iot:linkage:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.linkageService.removeByIds(idList);
+    }
+
+    /**
+     * 获取此场景下的产品列表
+     * @param id
+     * @return
+     */
+    @GetMapping("listProductByLinkageId")
+    public Result<List<Product>> listProductByLinkageId(Long id) {
+        LinkageDto linkageDto = this.linkageService.joinDeviceGroupAndProductById(id)
+                .ifNotPresentThrow("场景不存在").getData();
+        if(CollectionUtil.isNotEmpty(linkageDto.getProductIds())) {
+            return productService.listByIds(linkageDto.getProductIds());
+        } else {
+            return success(Collections.EMPTY_LIST);
+        }
     }
 }
 

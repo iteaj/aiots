@@ -15,4 +15,6 @@ import com.iteaj.iboot.module.iot.dto.LinkageDto;
 public interface LinkageMapper extends BaseMapper<Linkage> {
 
     LinkageDto detailById(Long id);
+
+    LinkageDto joinDeviceGroupAndProductById(Long id);
 }

@@ -42,4 +42,9 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
         LinkageDto dto = this.getBaseMapper().detailById(id);
         return new DetailResult<>(dto);
     }
+
+    @Override
+    public DetailResult<LinkageDto> joinDeviceGroupAndProductById(Long id) {
+        return new DetailResult<>(this.getBaseMapper().joinDeviceGroupAndProductById(id));
+    }
 }

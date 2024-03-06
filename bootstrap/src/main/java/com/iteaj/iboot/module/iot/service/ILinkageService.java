@@ -16,4 +16,6 @@ import com.iteaj.iboot.module.iot.dto.LinkageDto;
 public interface ILinkageService extends IBaseService<Linkage> {
 
     DetailResult<LinkageDto> detailById(Long id);
+
+    DetailResult<LinkageDto> joinDeviceGroupAndProductById(Long id);
 }

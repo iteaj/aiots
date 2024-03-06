@@ -21,12 +21,36 @@
         </collection>
     </resultMap>
 
-    <select id="detailById" resultMap="DtoResultMap">
+    <resultMap id="ItemResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageItem">
+        <id property="id" column="id" />
+        <result property="linkageId" column="linkage_id" />
+        <collection property="actions" select="com.iteaj.iboot.module.iot.mapper.LinkageActionMapper.listByLinkageItemId" column="{linkageItemId=id}" />
+        <collection property="conditions" select="com.iteaj.iboot.module.iot.mapper.LinkageConditionMapper.listByLinkageItemId" column="{linkageItemId=id}"/>
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="DtoResultMap">
+        <collection property="items" select="com.iteaj.iboot.module.iot.mapper.LinkageMapper.listItemById" column="{linkageId=id}" />
+    </resultMap>
+
+    <select id="listItemById" resultMap="ItemResultMap">
+        select * from iot_linkage_item where linkage_id=#{linkageId}
+    </select>
+
+    <select id="detailById" resultMap="DetailResultMap">
         select a.*, p.id p_id, p.name p_name,dg.name device_group_name, es.name event_source_name from iot_linkage a
             left join iot_event_source es on a.event_source_id = es.id
             left join iot_device_group dg on es.device_group_id = dg.id
             left join iot_device_group dgp on dg.group_product_id = dgp.id
             left join iot_product p on json_contains(dgp.product_ids, concat('', p.id))
+        where a.id=#{id}
+    </select>
+
+    <select id="joinDeviceGroupAndProductById" resultMap="DtoResultMap">
+        select a.*, p.id p_id, p.name p_name,dg.name device_group_name, es.name event_source_name from iot_linkage a
+           left join iot_event_source es on a.event_source_id = es.id
+           left join iot_device_group dg on es.device_group_id = dg.id
+           left join iot_device_group dgp on dg.group_product_id = dgp.id
+           left join iot_product p on json_contains(dgp.product_ids, concat('', p.id))
         where a.id=#{id}
     </select>
 
