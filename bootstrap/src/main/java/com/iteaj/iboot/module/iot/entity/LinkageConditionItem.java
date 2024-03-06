@@ -34,6 +34,11 @@ public class LinkageConditionItem extends BaseEntity {
     private LinkageLogical logical;
 
     /**
+     * 操作设备(-1表示所有设备)
+     */
+    private String uid;
+
+    /**
      * 指令
      */
     private String direct;
@@ -47,6 +52,11 @@ public class LinkageConditionItem extends BaseEntity {
      * 运算符
      */
     private String operator;
+
+    /**
+     * 所属产品
+     */
+    private Long productId;
 
     /**
      * 物模型接口
