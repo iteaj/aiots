@@ -1,15 +1,18 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -96,6 +99,10 @@ public class LinkageController extends BaseController {
      */
     @GetMapping("listProductByLinkageId")
     public Result<List<Product>> listProductByLinkageId(Long id) {
+        if(id == null) {
+            return fail("未指定场景id");
+        }
+
         LinkageDto linkageDto = this.linkageService.joinDeviceGroupAndProductById(id)
                 .ifNotPresentThrow("场景不存在").getData();
         if(CollectionUtil.isNotEmpty(linkageDto.getProductIds())) {
@@ -103,6 +110,27 @@ public class LinkageController extends BaseController {
         } else {
             return success(Collections.EMPTY_LIST);
         }
+    }
+
+    /**
+     * 获取事件列表
+     * @param productId
+     * @return
+     */
+    @GetMapping("listEventByProductId")
+    public Result<List<IVOption>> listEventByProductId(Long productId) {
+        List<IVOption> result = new ArrayList<>();
+        this.productService.debugById(productId)
+                .ifNotPresentThrow("产品不存在")
+                .ifPresent(productDto -> {
+                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                        productDto.getEventApis().forEach(item -> {
+                            List<IVOption> options = item.resolveDownApiConfig(productDto.getAttrs());
+                            result.add(new IVOption(item.getName(), item.getId(), item.getCode()).setChildren(options));
+                        });
+                    }
+                });
+        return success(result);
     }
 }
 
