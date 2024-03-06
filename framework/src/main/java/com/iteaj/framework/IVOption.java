@@ -43,6 +43,16 @@ public class IVOption {
     private Object extra;
 
     /**
+     * 可选中
+     */
+    private Boolean selectable;
+
+    /**
+     * 复选框是否能被选中
+     */
+    private Boolean checkable;
+
+    /**
      * 配置项
      */
     private Map<String, Object> config;
