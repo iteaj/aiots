@@ -41,4 +41,8 @@
     <select id="detailById" resultMap="DetailResultMap">
         select * from iot_model_api where id=#{id}
     </select>
+
+    <select id="detailsOfProductId" resultMap="DetailResultMap">
+        select * from iot_model_api where product_id=#{productId}
+    </select>
 </mapper>

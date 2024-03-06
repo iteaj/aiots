@@ -116,7 +116,8 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
 
     @Override
     public ListResult<ModelApi> detailsOfProductId(Long productId) {
-        return null;
+        List<ModelApi> list = this.getBaseMapper().detailsOfProductId(productId);
+        return new ListResult<>(list);
     }
 
     @Override
