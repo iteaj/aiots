@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,6 +12,7 @@ import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -98,6 +100,20 @@ public class DeviceController extends BaseController {
     @GetMapping("listOfGateway")
     public Result<List<Device>> listOfGateway(Long gatewayId) {
         return this.deviceService.listOfGateway(gatewayId);
+    }
+
+    /**
+     * 获取指定产品列表下的所有设备
+     * @param productIds
+     * @return
+     */
+    @GetMapping("listOfProducts")
+    public Result<List<Device>> listOfProducts(List<Long> productIds) {
+        if(CollectionUtil.isEmpty(productIds)) {
+            return success(Collections.EMPTY_LIST);
+        }
+
+        return this.deviceService.list(Wrappers.<Device>lambdaQuery().in(Device::getProductId, productIds));
     }
 }
 
