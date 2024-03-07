@@ -10,6 +10,8 @@
         <result column="name" property="name" />
         <result column="type" property="type" />
         <result column="unit" property="unit" />
+        <result column="enumerate" property="enumerate" />
+        <result column="real_type" property="realType" />
         <result column="accuracy" property="accuracy" />
         <result column="remark" property="remark" />
     </resultMap>

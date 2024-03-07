@@ -25,7 +25,7 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T
         // 协议模型属性
         this.modelAttrs.put(PointProtocolConfig.POINT_ADDRESS, new ProtocolModelAttr(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_NAME, "string", PlcProtocolConsts.PLC_ADDRESS_REMARK));
         this.modelAttrs.put(PointProtocolConfig.POINT_NUMBER, new ProtocolModelAttr(PointProtocolConfig.POINT_NUMBER, PlcProtocolConsts.PLC_NUMBER_NAME, "short", PlcProtocolConsts.PLC_NUMBER_REMARK));
-        this.modelAttrs.put(PlcProtocolConsts.PLC_VALUE, new ProtocolModelAttr(PlcProtocolConsts.PLC_VALUE, PlcProtocolConsts.PLC_VALUE_NAME, "object", PlcProtocolConsts.PLC_VALUE_REMARK));
+        this.modelAttrs.put(PlcProtocolConsts.PLC_VALUE, new ProtocolModelAttr(PlcProtocolConsts.PLC_VALUE, PlcProtocolConsts.PLC_VALUE_NAME, "any", PlcProtocolConsts.PLC_VALUE_REMARK));
 
         // 协议模型事件接口
         this.modelApis.put("readBool", new OmronEventProtocolModelApi(PlcProtocolConsts.PLC_READ_BOOL, "读取布尔值", "读取布尔值")
