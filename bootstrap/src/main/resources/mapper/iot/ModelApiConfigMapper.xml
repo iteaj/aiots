@@ -10,8 +10,11 @@
         <result column="remark" property="remark" />
         <result column="api_code" property="apiCode" />
         <result column="attr_field" property="attrField" />
+        <result column="attr_type" property="attrType" />
+        <result column="attr_name" property="attrName" />
         <result column="product_id" property="productId" />
         <result column="model_attr_id" property="modelAttrId" />
+        <result column="protocol_attr_type" property="protocolAttrType" />
         <result column="protocol_attr_name" property="protocolAttrName" />
         <result column="protocol_attr_field" property="protocolAttrField" />
         <result column="direction" property="direction" />
@@ -27,14 +30,14 @@
     </resultMap>
 
     <select id="listUpByApiCode" resultMap="JoinModelAttrDictMap">
-        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark, ad.model_attr_id dict_model_attr_id, ad.dict_name, ad.dict_value from iot_model_api_config a
+        select a.*, pa.remark attrRemark, ad.model_attr_id dict_model_attr_id, ad.dict_name, ad.dict_value from iot_model_api_config a
             left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
             left join iot_protocol_attr pa on a.protocol_attr_field=pa.field and a.api_code=#{apiCode}
         where api_code=#{apiCode} and a.direction='UP' order by sort
     </select>
 
     <select id="listDownByApiCode" resultMap="JoinModelAttrDictMap">
-        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark, ad.model_attr_id dict_model_attr_id, ad.dict_name, ad.dict_value from iot_model_api_config a
+        select a.*, pa.remark attrRemark, ad.model_attr_id dict_model_attr_id, ad.dict_name, ad.dict_value from iot_model_api_config a
             left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
             left join iot_protocol_attr pa on a.protocol_attr_field=pa.field and a.api_code=#{apiCode}
         where api_code=#{apiCode} and a.direction='DOWN' order by sort
