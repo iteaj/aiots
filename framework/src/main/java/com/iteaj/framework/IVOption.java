@@ -78,6 +78,14 @@ public class IVOption {
         this.disabled = disabled;
     }
 
+    public IVOption addChildren(IVOption child) {
+        if(children == null) {
+            children = new ArrayList<>();
+        }
+
+        children.add(child); return this;
+    }
+
     /**
      * 增加子项
      * @param label
@@ -96,12 +104,7 @@ public class IVOption {
      * @return
      */
     public IVOption addChildren(String label, Object value, Object extra) {
-        if(children == null) {
-            children = new ArrayList<>();
-        }
-
-        children.add(new IVOption(label, value, extra));
-        return this;
+        return addChildren(new IVOption(label, value, extra));
     }
 
     /**
@@ -112,12 +115,7 @@ public class IVOption {
      * @return
      */
     public IVOption addChildren(String label, Object value, boolean disabled) {
-        if(children == null) {
-            children = new ArrayList<>();
-        }
-
-        children.add(new IVOption(label, value, disabled));
-        return this;
+        return addChildren(new IVOption(label, value, disabled));
     }
 
     /**
