@@ -9,6 +9,8 @@ import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.consts.ConditionType;
+import com.iteaj.iboot.module.iot.consts.OperatorType;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IProductService;
@@ -93,6 +95,15 @@ public class LinkageController extends BaseController {
     }
 
     /**
+     * 操作类型列表
+     * @return
+     */
+    @GetMapping("/operators")
+    public Result<List<IVOption>> operators() {
+        return success(OperatorType.options());
+    }
+
+    /**
      * 获取此场景下的产品列表
      * @param id
      * @return
@@ -123,12 +134,17 @@ public class LinkageController extends BaseController {
         this.productService.debugById(productId)
                 .ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
-                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
-                        productDto.getEventApis().forEach(item -> {
+                    IVOption eventApi = new IVOption("事件接口", ConditionType.ModelApi).setSelectable(false);
+                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                        productDto.getFuncApis().forEach(item -> {
+                            IVOption children = eventApi.addChildren(item.getName(), item.getId(), item.getCode());
                             List<IVOption> options = item.resolveDownApiConfig(productDto.getAttrs());
-                            result.add(new IVOption(item.getName(), item.getId(), item.getCode()).setChildren(options));
+                            if(CollectionUtil.isNotEmpty(options)) {
+                                children.setSelectable(false).setChildren(options);
+                            }
                         });
                     }
+                    result.add(eventApi);
                 });
         return success(result);
     }

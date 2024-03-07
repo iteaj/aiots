@@ -9,6 +9,7 @@
         <result column="logical" property="logical" />
         <result column="direct" property="direct" />
         <result column="value" property="value" />
+        <result column="type" property="type" />
         <result column="operator" property="operator" />
         <result column="product_id" property="productId" />
         <result column="model_api_id" property="modelApiId" />

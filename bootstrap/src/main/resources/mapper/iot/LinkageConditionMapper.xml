@@ -20,7 +20,8 @@
     <select id="listByLinkageItemId" resultMap="DetailResultMap">
         select a.*, lci.id lci_id, lci.logical lci_logical, lci.direct lci_direct, lci.value lci_value, lci.operator lci_operator
              , lci.model_api_id lci_model_api_id, lci.model_api_config lci_model_api_config, lci.linkage_condition_id lci_linkage_condition_id
-             , lci.event_source_detail_id lci_event_source_detail_id, lci.product_id lci_product_id, lci.uid lci_uid from iot_linkage_condition a
+             , lci.event_source_detail_id lci_event_source_detail_id, lci.product_id lci_product_id, lci.uid lci_uid, lci.type lci_type
+        from iot_linkage_condition a
             left join iot_linkage_condition_item lci on a.id=lci.linkage_condition_id
         where a.linkage_item_id=#{linkageItemId} and a.linkage_action_id is null order by lci.sort
     </select>

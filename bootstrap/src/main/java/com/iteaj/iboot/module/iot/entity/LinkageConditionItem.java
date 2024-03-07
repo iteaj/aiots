@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.iboot.module.iot.consts.ConditionType;
 import com.iteaj.iboot.module.iot.consts.LinkageLogical;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,6 +38,11 @@ public class LinkageConditionItem extends BaseEntity {
      * 操作设备(-1表示所有设备)
      */
     private String uid;
+
+    /**
+     * 条件类型
+     */
+    private ConditionType type;
 
     /**
      * 指令
