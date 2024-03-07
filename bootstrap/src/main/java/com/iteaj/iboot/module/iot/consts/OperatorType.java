@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 public enum OperatorType {
     gt("大于"), // >
     gte("大于等于"), // >=
+    eq("等于"), // =
     lt("小于"), // <
     lte("小于等于"), // <=
     contain("包含"), // 包含

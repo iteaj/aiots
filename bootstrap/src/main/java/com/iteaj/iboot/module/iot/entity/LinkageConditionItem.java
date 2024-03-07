@@ -45,6 +45,11 @@ public class LinkageConditionItem extends BaseEntity {
     private ConditionType type;
 
     /**
+     * 类型值(事件接口码, 设备上下线状态)
+     */
+    private String typeValue;
+
+    /**
      * 指令
      */
     private String direct;

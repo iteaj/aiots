@@ -12,6 +12,7 @@ import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.consts.ConditionType;
 import com.iteaj.iboot.module.iot.consts.OperatorType;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
+import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.util.CollectionUtils;
@@ -131,17 +132,22 @@ public class LinkageController extends BaseController {
     @GetMapping("listEventByProductId")
     public Result<List<IVOption>> listEventByProductId(Long productId) {
         List<IVOption> result = new ArrayList<>();
-        this.productService.debugById(productId)
+        this.productService.joinDetailById(productId)
                 .ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
                     IVOption eventApi = new IVOption("事件接口", ConditionType.ModelApi).setSelectable(false);
-                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
-                        productDto.getFuncApis().forEach(item -> {
-                            IVOption children = eventApi.addChildren(item.getName(), item.getId(), item.getCode());
-                            List<IVOption> options = item.resolveDownApiConfig(productDto.getAttrs());
-                            if(CollectionUtil.isNotEmpty(options)) {
-                                children.setSelectable(false).setChildren(options);
+                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                        productDto.getEventApis().forEach(item -> {
+                            IVOption children = new IVOption(item.getName(), item.getId(), item.getCode());
+                            List<ModelApiConfig> upConfig = item.getUpConfig();
+                            if(CollectionUtil.isNotEmpty(upConfig)) {
+                                upConfig.forEach(config -> {
+                                    children.addChildren(new IVOption(config.getProtocolAttrName(), config.getProtocolAttrField()));
+                                });
+                                children.setSelectable(false);
                             }
+
+                            eventApi.addChildren(children);
                         });
                     }
                     result.add(eventApi);
