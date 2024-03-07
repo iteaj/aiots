@@ -4,6 +4,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
@@ -74,10 +75,14 @@ public class DeviceCtrlController extends BaseController {
         DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
         return Mono.<InvokeResult>create(item -> {
             // 调用接口
-            protocolModelApi.invoke(param, result -> {
-                item.success(result);
-                debugRespDto.setRespTime(System.currentTimeMillis());
-            });
+            try {
+                protocolModelApi.invoke(param, result -> {
+                    item.success(result);
+                    debugRespDto.setRespTime(System.currentTimeMillis());
+                });
+            } catch (ProtocolInvokeException e) {
+                item.success(InvokeResult.fail(e.getMessage(), null));
+            }
         }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
             debugRespDto.setStatus(item.getStatus());
             debugRespDto.setReqMsg(item.getRequestMessage().toString());

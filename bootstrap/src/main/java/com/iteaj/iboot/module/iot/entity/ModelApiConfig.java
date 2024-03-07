@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -45,8 +47,20 @@ public class ModelApiConfig extends BaseEntity {
     private String attrField;
 
     /**
+     * 属性名称
+     */
+    private String attrName;
+
+    /**
+     * 属性类型
+     */
+    @NotBlank(message = "属性类型必填")
+    private String attrType;
+
+    /**
      * 所属产品
      */
+    @NotNull(message = "所属产品必填")
     private Long productId;
 
     /**
@@ -66,8 +80,15 @@ public class ModelApiConfig extends BaseEntity {
     private Long modelAttrId;
 
     /**
+     * 协议属性类型
+     */
+    @NotBlank(message = "协议属性类型必填")
+    private String protocolAttrType;
+
+    /**
      * 协议属性字段
      */
+    @NotBlank(message = "协议属性必填")
     private String protocolAttrField;
 
     /**
