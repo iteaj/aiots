@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
@@ -43,6 +44,7 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
                 .eq(ModelAttr::getProductId, entity.getProductId()))
                 .ifPresentThrow("属性字段已存在["+entity.getField()+"]");
         entity.setCreateTime(new Date());
+        resolveField(entity);
         BooleanResult booleanResult = super.save(entity).ifPresent(item -> {
             if(!CollectionUtils.isEmpty(entity.getDicts())) {
                 entity.getDicts().forEach(dict -> {
@@ -62,7 +64,20 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
                 .eq(ModelAttr::getField, entity.getField())
                 .eq(ModelAttr::getProductId, entity.getProductId()))
                 .ifPresentThrow("属性字段已存在["+entity.getField()+"]");
+        resolveField(entity);
         return super.updateById(entity);
+    }
+
+    private void resolveField(ModelAttr entity) {
+        if(entity.getType() == null) {
+            throw new ServiceException("类型必填");
+        }
+        entity.setRealType(entity.getType());
+        if(entity.getType().startsWith("[")) {
+            entity.setEnumerate(true); // 属于枚举类型
+            String realType = entity.getType().substring(1, entity.getType().length() - 1); // 真实类型
+            entity.setRealType(realType);
+        }
     }
 
     @Override

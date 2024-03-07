@@ -58,6 +58,16 @@ public class ModelAttr extends BaseEntity {
     private String type;
 
     /**
+     * 实际类型
+     */
+    private String realType;
+
+    /**
+     * 是否枚举
+     */
+    private Boolean enumerate;
+
+    /**
      * 单位
      */
     private String unit;
