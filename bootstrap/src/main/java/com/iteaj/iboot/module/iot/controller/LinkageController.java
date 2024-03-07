@@ -142,7 +142,7 @@ public class LinkageController extends BaseController {
                             List<ModelApiConfig> upConfig = item.getUpConfig();
                             if(CollectionUtil.isNotEmpty(upConfig)) {
                                 upConfig.forEach(config -> {
-                                    children.addChildren(new IVOption(config.getProtocolAttrName(), config.getProtocolAttrField()));
+                                    children.addChildren(new IVOption(config.getAttrName(), config.getValue()));
                                 });
                                 children.setSelectable(false);
                             }

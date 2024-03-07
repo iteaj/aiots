@@ -1,9 +1,11 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.iboot.module.iot.consts.ConditionType;
 import com.iteaj.iboot.module.iot.consts.LinkageLogical;
+import com.iteaj.iboot.module.iot.consts.OperatorType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -40,6 +42,12 @@ public class LinkageConditionItem extends BaseEntity {
     private String uid;
 
     /**
+     * 操作设备名称
+     */
+    @TableField(exist = false)
+    private String deviceName;
+
+    /**
      * 条件类型
      */
     private ConditionType type;
@@ -62,7 +70,7 @@ public class LinkageConditionItem extends BaseEntity {
     /**
      * 运算符
      */
-    private String operator;
+    private OperatorType operator;
 
     /**
      * 所属产品
@@ -70,9 +78,21 @@ public class LinkageConditionItem extends BaseEntity {
     private Long productId;
 
     /**
+     * 产品名称
+     */
+    @TableField(exist = false)
+    private String productName;
+
+    /**
      * 物模型接口
      */
     private Long modelApiId;
+
+    /**
+     * 物模型接口名称
+     */
+    @TableField(exist = false)
+    private String modelApiName;
 
     /**
      * 协议指令配置
@@ -84,4 +104,11 @@ public class LinkageConditionItem extends BaseEntity {
      */
     private Long eventSourceDetailId;
 
+    public String getLogicalName() {
+        return logical != null ? logical.getDesc() : "";
+    }
+
+    public String getOperatorName() {
+        return operator != null ? operator.getDesc() : "";
+    }
 }

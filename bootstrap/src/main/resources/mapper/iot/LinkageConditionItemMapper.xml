@@ -12,7 +12,10 @@
         <result column="type" property="type" />
         <result column="operator" property="operator" />
         <result column="product_id" property="productId" />
+        <result column="product_name" property="productName" />
+        <result column="device_name" property="deviceName" />
         <result column="model_api_id" property="modelApiId" />
+        <result column="model_api_name" property="modelApiName" />
         <result column="model_api_config" property="modelApiConfig" />
         <result column="linkage_condition_id" property="linkageConditionId" />
         <result column="event_source_detail_id" property="eventSourceDetailId" />

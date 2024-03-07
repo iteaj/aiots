@@ -22,6 +22,10 @@ public enum OperatorType {
         this.desc = desc;
     }
 
+    public String getDesc() {
+        return desc;
+    }
+
     public static List<IVOption> options() {
         return Arrays.stream(OperatorType.values())
                 .map(item -> new IVOption(item.desc, item.name()))
