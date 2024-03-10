@@ -2,17 +2,19 @@ package com.iteaj.iboot.module.iot.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 import com.iteaj.iboot.module.iot.mapper.ModelApiMapper;
 import com.iteaj.iboot.module.iot.service.IModelApiConfigService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
-import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -69,6 +71,15 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
             throw new ServiceException("协议属性[protocolAttrField]不能为空");
         }
 
+        // 如果是点位协议, 同一款产品下面上/下行的点位地址必须唯一
+        if(config.getProtocolAttrField().equals(PointProtocolConfig.POINT_ADDRESS)) {
+            CtrlMode ctrlMode = this.getProtocolCtrlModelByProductId(entity.getProductId());
+            if (ctrlMode == CtrlMode.POINT) {
+                if(this.getBaseMapper().hasSameAddress(entity.getProductId(), entity.getType(), PointProtocolConfig.POINT_ADDRESS, config.getValue())) {
+                    throw new ServiceException("同一个产品不允许有相同的点位地址,"+config.getDirection().getDesc()+"点位地址["+config.getValue()+"]已经存在");
+                }
+            }
+        }
         if(StrUtil.isNotBlank(config.getValue())) {
             if(config.getValue().startsWith("@")) {
                 if(StrUtil.isBlank(config.getAttrField())) {
@@ -89,32 +100,26 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
            }
         });
 
-        return super.updateById(entity).ifPresentAndTrue(status -> {
-            if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
-                entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));
-                ModelApiConfig modelApiConfig = entity.getDownConfig().get(0);
-                if(modelApiConfig.getId() == null) {
-                    // 删除此接口的所有配置
-                    this.modelApiConfigService.remove(Wrappers.<ModelApiConfig>lambdaQuery().eq(ModelApiConfig::getApiCode, entity.getCode()));
-                    // 重新添加配置
-                    this.modelApiConfigService.saveBatch(entity.getDownConfig());
-                } else {
-                    // 更新配置
-                    this.modelApiConfigService.updateBatchById(entity.getDownConfig());
-                }
-            }
+        // 删除此接口的所有配置
+        this.modelApiConfigService.remove(Wrappers.<ModelApiConfig>lambdaQuery().eq(ModelApiConfig::getApiCode, entity.getCode()));
+        if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
+            entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));
+            // 重新添加配置
+            this.modelApiConfigService.saveBatch(entity.getDownConfig());
+        }
 
-            if(!CollectionUtils.isEmpty(entity.getUpConfig())) {
-                entity.getUpConfig().forEach(item -> resolverModelApiConfig(entity, item));
-                this.modelApiConfigService.saveOrUpdateBatch(entity.getUpConfig());
-            }
-        });
+        if(!CollectionUtils.isEmpty(entity.getUpConfig())) {
+            entity.getUpConfig().forEach(item -> resolverModelApiConfig(entity, item));
+            this.modelApiConfigService.saveOrUpdateBatch(entity.getUpConfig());
+        }
+
+        return super.updateById(entity);
     }
 
     @Override
     @Transactional
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
-        listByIds(idList).forEach(item -> {
+        listByIds(idList).stream().filter(item -> item != null).forEach(item -> {
             modelApiConfigService.remove(Wrappers.<ModelApiConfig>lambdaQuery()
                     .eq(ModelApiConfig::getApiCode, item.getCode())
                     .eq(ModelApiConfig::getProductId, item.getProductId()));
@@ -152,5 +157,10 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         }
 
         return new BooleanResult(this.getBaseMapper().updateAsStatus(productId, code) > 0);
+    }
+
+    @Override
+    public CtrlMode getProtocolCtrlModelByProductId(Long productId) {
+        return this.getBaseMapper().getProtocolCtrlModelByProductId(productId);
     }
 }
