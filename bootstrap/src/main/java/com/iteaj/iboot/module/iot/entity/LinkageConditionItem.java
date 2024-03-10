@@ -44,6 +44,11 @@ public class LinkageConditionItem extends BaseEntity {
     private String uid;
 
     /**
+     * 序号
+     */
+    private Integer sort;
+
+    /**
      * 操作设备名称
      */
     @TableField(exist = false)

@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.iboot.module.iot.entity.LinkageCondition;
+import com.iteaj.iboot.module.iot.entity.LinkageConditionItem;
 import com.iteaj.iboot.module.iot.mapper.LinkageConditionMapper;
 import com.iteaj.iboot.module.iot.service.ILinkageConditionItemService;
 import com.iteaj.iboot.module.iot.service.ILinkageConditionService;
@@ -32,7 +33,14 @@ public class LinkageConditionServiceImpl extends BaseServiceImpl<LinkageConditio
     public BooleanResult save(LinkageCondition entity) {
         return super.save(entity).ifPresentAndTrue(value -> {
             if(CollectionUtil.isNotEmpty(entity.getItems())) {
-                entity.getItems().forEach(item -> item.setLinkageConditionId(entity.getId()));
+                for (int i = 0; i < entity.getItems().size(); i++) {
+                    LinkageConditionItem linkageConditionItem = entity.getItems().get(i);
+                    linkageConditionItem.setLinkageConditionId(entity.getId());
+                    if(linkageConditionItem.getSort() == null) {
+                        linkageConditionItem.setSort(i * 3 + 3);
+                    }
+                }
+
                 linkageConditionItemService.saveBatch(entity.getItems());
             }
         });
