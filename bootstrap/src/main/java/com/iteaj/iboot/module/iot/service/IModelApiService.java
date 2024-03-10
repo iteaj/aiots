@@ -1,9 +1,7 @@
 package com.iteaj.iboot.module.iot.service;
 
-import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.DetailResult;
-import com.iteaj.framework.result.ListResult;
-import com.iteaj.framework.result.Result;
+import com.iteaj.framework.result.*;
+import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.framework.IBaseService;
 
@@ -39,4 +37,6 @@ public interface IModelApiService extends IBaseService<ModelApi> {
     Result<ModelApi> detailById(Long id);
 
     BooleanResult updateAsStatus(Long productId, String code);
+
+    CtrlMode getProtocolCtrlModelByProductId(Long productId);
 }

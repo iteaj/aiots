@@ -45,4 +45,14 @@
     <select id="detailsOfProductId" resultMap="DetailResultMap">
         select * from iot_model_api where product_id=#{productId}
     </select>
+
+    <select id="getProtocolCtrlModelByProductId" resultType="com.iteaj.framework.spi.iot.consts.CtrlMode">
+        select p.ctrl_mode from iot_product pt left join iot_protocol p on pt.protocol_id=p.id where pt.id=#{productId}
+    </select>
+
+    <select id="hasSameAddress" resultType="java.lang.Boolean">
+        select count(*) > 0 from iot_model_api a
+            left join iot_model_api_config b on a.code=b.api_code and b.product_id=#{productId}
+        where a.product_id=#{productId} and b.protocol_attr_field=#{pointAddress} and a.type=#{type} and b.value=#{value}
+    </select>
 </mapper>
