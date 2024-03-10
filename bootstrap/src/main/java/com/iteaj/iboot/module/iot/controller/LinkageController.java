@@ -1,26 +1,30 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ArrayUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
+import com.iteaj.iboot.module.iot.consts.ActionType;
 import com.iteaj.iboot.module.iot.consts.ConditionType;
 import com.iteaj.iboot.module.iot.consts.OperatorType;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
-import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
-import com.iteaj.iboot.module.iot.entity.Product;
+import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.service.IWarnConfigService;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.iteaj.iboot.module.iot.service.ILinkageService;
 import com.iteaj.framework.BaseController;
 
@@ -35,10 +39,13 @@ public class LinkageController extends BaseController {
 
     private final ILinkageService linkageService;
     private final IProductService productService;
+    private final IWarnConfigService warnConfigService;
 
-    public LinkageController(ILinkageService linkageService, IProductService productService) {
+    public LinkageController(ILinkageService linkageService, IProductService productService
+            , IWarnConfigService warnConfigService) {
         this.linkageService = linkageService;
         this.productService = productService;
+        this.warnConfigService = warnConfigService;
     }
 
     /**
@@ -96,6 +103,31 @@ public class LinkageController extends BaseController {
     }
 
     /**
+     * 删除联动项
+     * @param itemIds
+     * @return
+     */
+    @PostMapping("/delItem")
+    @Logger("删除场景联动项")
+    @CheckPermission({"iot:linkage:del"})
+    public Result<Boolean> remoteItem(@RequestBody List<Long> itemIds) {
+        return this.linkageService.removeByItemIds(itemIds);
+    }
+
+    /**
+     * 新增或更新联动项
+     * @param item
+     * @return
+     */
+    @PostMapping("/saveOrUpdateItem")
+    @Logger("删除场景联动项")
+    @CheckPermission({"iot:linkage:del"})
+    public Result<Long> saveOrUpdateItem(@RequestBody LinkageItem item) {
+        this.linkageService.saveOrUpdateItem(item);
+        return success(item.getId());
+    }
+
+    /**
      * 操作类型列表
      * @return
      */
@@ -135,14 +167,19 @@ public class LinkageController extends BaseController {
         this.productService.joinDetailById(productId)
                 .ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
-                    IVOption eventApi = new IVOption("事件接口", ConditionType.ModelApi).setSelectable(false);
+                    IVOption eventApi = new IVOption("事件接口", ConditionType.ModelApi, "物模型").setSelectable(false);
                     if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
                         productDto.getEventApis().forEach(item -> {
-                            IVOption children = new IVOption(item.getName(), item.getId(), item.getCode());
+                            IVOption children = new IVOption(item.getName(), item.getId(), ProtocolApiType.event.getDesc());
                             List<ModelApiConfig> upConfig = item.getUpConfig();
                             if(CollectionUtil.isNotEmpty(upConfig)) {
                                 upConfig.forEach(config -> {
-                                    children.addChildren(new IVOption(config.getAttrName(), config.getValue()));
+                                    children.addChildren(new IVOption(config.getAttrName(), config.getValue(), "属性")
+                                            .addConfig("type", ConditionType.ModelApi)
+                                            .addConfig("code", item.getCode())
+                                            .addConfig("attrType", config.getAttrType())
+                                            .addConfig("linkedName", item.getName())
+                                            .addConfig("linkedId", item.getId()));
                                 });
                                 children.setSelectable(false);
                             }
@@ -152,6 +189,62 @@ public class LinkageController extends BaseController {
                     }
                     result.add(eventApi);
                 });
+        return success(result);
+    }
+
+    @GetMapping("listActionByProductId")
+    public Result<List<IVOption>> listActionsByProductIds(Long productId) {
+        if(productId == null) {
+            return fail("请指定产品参数");
+        }
+
+        List<IVOption> result = new ArrayList<>();
+        IVOption func = new IVOption("模型接口", ActionType.model, "物模型").setSelectable(false);
+        this.productService.joinDetailById(productId).ifPresent(productDto -> {
+            if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                productDto.getFuncApis().forEach(item -> {
+                    IVOption children = new IVOption(item.getName(), item.getId(), ProtocolApiType.func.getDesc());
+                    List<ModelApiConfig> downConfig = item.getDownConfig();
+                    if (CollectionUtil.isNotEmpty(downConfig)) {
+                        List<IVOption> ivOptions = item.resolveDownApiConfig(productDto.getAttrs());
+                        if(CollectionUtil.isNotEmpty(ivOptions)) { // 有可选的配置参数
+                            ivOptions.forEach(option -> option.setExtra("参数")
+                                    .addConfig("type", ActionType.model)
+                                    .addConfig("linkedId", item.getId())
+                                    .addConfig("code", item.getCode())
+                                    .addConfig("linkedName", item.getName()));
+                            children.setChildren(ivOptions).setSelectable(false);
+                        }
+                    }
+
+                    func.addChildren(children);
+                });
+            }
+
+            if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                productDto.getEventApis().forEach(item -> {
+                    func.addChildren(new IVOption(item.getName(), item.getId(), ProtocolApiType.event.getDesc())
+                            .addConfig("type", ActionType.model)
+                            .addConfig("linkedId", item.getId())
+                            .addConfig("linkedName", item.getName())
+                            .addConfig("code", item.getCode()));
+                });
+            }
+        });
+
+        IVOption warn = new IVOption("事件告警", ActionType.warn, "告警配置").setSelectable(false);
+        warnConfigService.list(Wrappers.<WarnConfig>lambdaQuery().eq(WarnConfig::getProductId, productId))
+                .ifPresent(warnConfigs -> {
+            warnConfigs.forEach(warnConfig -> {
+                warn.addChildren(new IVOption(warnConfig.getName(), warnConfig.getId())
+                        .addConfig("type", ActionType.warn)
+                        .addConfig("linkedName", warnConfig.getName())
+                        .addConfig("linkedId", warnConfig.getId()));
+            });
+        });
+
+        result.add(func);
+        result.add(warn);
         return success(result);
     }
 }

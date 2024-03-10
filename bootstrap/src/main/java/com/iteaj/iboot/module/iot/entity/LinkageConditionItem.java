@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.Objects;
+
 /**
  * <p>
  * 场景条件项
@@ -60,6 +62,7 @@ public class LinkageConditionItem extends BaseEntity {
     /**
      * 指令
      */
+    @TableField(exist = false)
     private String direct;
 
     /**
@@ -86,18 +89,18 @@ public class LinkageConditionItem extends BaseEntity {
     /**
      * 物模型接口
      */
-    private Long modelApiId;
+    private Long linkedId;
 
     /**
      * 物模型接口名称
      */
     @TableField(exist = false)
-    private String modelApiName;
+    private String linkedName;
 
     /**
-     * 协议指令配置
+     * 类型名称
      */
-    private String modelApiConfig;
+    private String typeName;
 
     /**
      * 事件源详情
@@ -110,5 +113,19 @@ public class LinkageConditionItem extends BaseEntity {
 
     public String getOperatorName() {
         return operator != null ? operator.getDesc() : "";
+    }
+
+    public String[] getMergeValue() {
+        return typeValue != null ? new String[] {typeValue} : new String[]{};
+    }
+
+    public String getDeviceName() {
+        if(this.deviceName == null) {
+            if(Objects.equals(this.uid, "-1")) {
+                return "组全部设备";
+            }
+        }
+
+        return this.deviceName;
     }
 }

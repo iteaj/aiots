@@ -32,6 +32,27 @@
         <collection property="items" select="com.iteaj.iboot.module.iot.mapper.LinkageMapper.listItemById" column="{linkageId=id}" />
     </resultMap>
 
+    <delete id="removeByItemIds">
+        delete a.* from iot_linkage_condition_item a
+            left join iot_linkage_condition c on a.linkage_condition_id=c.id
+        where c.id is not null and c.linkage_item_id in (
+        <foreach collection="list" item="itemId" separator=",">
+            #{itemId}
+        </foreach>);
+        delete from iot_linkage_condition where linkage_item_id in (
+        <foreach collection="list" item="itemId" separator=",">
+            #{itemId}
+        </foreach>);
+        delete from iot_linkage_action where linkage_item_id in (
+        <foreach collection="list" item="itemId" separator=",">
+            #{itemId}
+        </foreach>);
+        delete from iot_linkage_item where id in (
+        <foreach collection="list" item="itemId" separator=",">
+            #{itemId}
+        </foreach>);
+    </delete>
+
     <select id="listItemById" resultMap="ItemResultMap">
         select * from iot_linkage_item where linkage_id=#{linkageId}
     </select>

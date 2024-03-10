@@ -43,4 +43,6 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return
      */
     List<Product> listByPoint();
+
+    List<ProductDto> listJoinDetailByIds(List<Long> productIds);
 }
