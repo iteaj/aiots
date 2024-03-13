@@ -1,9 +1,13 @@
 package com.iteaj.framework;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.tree.TreeUtil;
+import com.iteaj.framework.utils.TreeUtils;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * 前端框架ivzone使用的option数据格式
@@ -131,6 +135,29 @@ public class IVOption {
 
         this.config.put(key, value);
         return this;
+    }
+
+    public static <E extends TreeEntity> List<IVOption> convert(Collection<E> entities, Function<E, IVOption> resolver) {
+        List<IVOption> result = new ArrayList<>();
+        Collection<E> toTrees = TreeUtils.toTrees(entities);
+        toTrees.forEach(item -> {
+            IVOption parent = resolver.apply(item);
+            result.add(parent);
+            doConvert(parent, item.getChildren(), resolver);
+        });
+        return null;
+    }
+
+    private static <E extends TreeEntity> void doConvert(IVOption parent, Collection<E> children, Function<E, IVOption> resolver) {
+        if(CollectionUtil.isNotEmpty(children)) {
+            children.forEach(child -> {
+                IVOption apply = resolver.apply(child);
+                parent.addChildren(apply);
+                if(CollectionUtil.isNotEmpty(child.getChildren())) {
+                    doConvert(apply, child.getChildren(), resolver);
+                }
+            });
+        }
     }
 
     @Override
