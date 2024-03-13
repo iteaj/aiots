@@ -44,17 +44,7 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
                 .eq(EventSource::getName, entity.getName()))
                 .ifPresentThrow("名称已存在["+entity.getName()+"]");
         entity.setCreateTime(new Date());
-        BooleanResult save = super.save(entity);
-        if(CollectionUtil.isNotEmpty(entity.getModelApiIds())) {
-            List<EventSourceDetail> sourceDetails = entity.getModelApiIds().stream()
-                    .map(item -> new EventSourceDetail().setEventSourceId(entity.getId()).setModelApiId(Long.valueOf(item)))
-                    .collect(Collectors.toList());
-            eventSourceDetailService.saveBatch(sourceDetails);
-        } else {
-            return BooleanResult.buildFalse("未配置物模型接口");
-        }
-
-        return save;
+        return super.save(entity);
     }
 
     @Override
@@ -64,17 +54,6 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
                 .ne(EventSource::getId, entity.getId())
                 .eq(EventSource::getName, entity.getName()))
                 .ifPresentThrow("名称已存在["+entity.getName()+"]");
-        if(CollectionUtil.isNotEmpty(entity.getModelApiIds())) {
-            eventSourceDetailService.remove(Wrappers.<EventSourceDetail>lambdaQuery()
-                    .eq(EventSourceDetail::getEventSourceId, entity.getId()));
-
-            List<EventSourceDetail> sourceDetails = entity.getModelApiIds().stream()
-                    .map(item -> new EventSourceDetail().setEventSourceId(entity.getId()).setModelApiId(Long.valueOf(item)))
-                    .collect(Collectors.toList());
-            eventSourceDetailService.saveBatch(sourceDetails);
-        } else {
-            return BooleanResult.buildFalse("未配置物模型接口");
-        }
 
         return super.updateById(entity);
     }
@@ -88,5 +67,24 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
     @Override
     public DetailResult<EventSource> detailById(Long id) {
         return new DetailResult<>(this.getBaseMapper().detailById(id));
+    }
+
+    @Override
+    @Transactional
+    public BooleanResult updateConfig(EventSource entity) {
+        if(CollectionUtil.isNotEmpty(entity.getModelApiIds())) {
+            eventSourceDetailService.remove(Wrappers.<EventSourceDetail>lambdaQuery()
+                    .eq(EventSourceDetail::getEventSourceId, entity.getId()));
+
+            List<EventSourceDetail> sourceDetails = entity.getModelApiIds().stream()
+                    .map(item -> new EventSourceDetail().setEventSourceId(entity.getId()).setModelApiId(Long.valueOf(item)))
+                    .collect(Collectors.toList());
+
+            eventSourceDetailService.saveBatch(sourceDetails);
+        } else {
+            return BooleanResult.buildFalse("未配置物模型接口");
+        }
+
+        return this.updateById(entity);
     }
 }

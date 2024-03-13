@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.util.List;
 
+import com.iteaj.iboot.module.core.enums.Status;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -30,6 +32,11 @@ public class Linkage extends BaseEntity {
      * 场景名称
      */
     private String name;
+
+    /**
+     * 场景状态
+     */
+    private FuncStatus status;
 
     private Date createTime;
 

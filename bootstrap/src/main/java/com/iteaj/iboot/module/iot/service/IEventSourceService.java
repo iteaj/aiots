@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
@@ -21,4 +22,6 @@ public interface IEventSourceService extends IBaseService<EventSource> {
     PageResult<IPage<EventSource>> detailPage(Page<EventSource> page, EventSource entity);
 
     DetailResult<EventSource> detailById(Long id);
+
+    BooleanResult updateConfig(EventSource entity);
 }

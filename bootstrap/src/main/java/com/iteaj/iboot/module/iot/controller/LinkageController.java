@@ -1,12 +1,10 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.ArrayUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
@@ -15,9 +13,11 @@ import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.consts.ActionType;
 import com.iteaj.iboot.module.iot.consts.ConditionType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.OperatorType;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.entity.*;
+import com.iteaj.iboot.module.iot.service.IEventSourceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.service.IWarnConfigService;
 import org.springframework.util.CollectionUtils;
@@ -40,12 +40,14 @@ public class LinkageController extends BaseController {
     private final ILinkageService linkageService;
     private final IProductService productService;
     private final IWarnConfigService warnConfigService;
+    private final IEventSourceService eventSourceService;
 
     public LinkageController(ILinkageService linkageService, IProductService productService
-            , IWarnConfigService warnConfigService) {
+            , IWarnConfigService warnConfigService, IEventSourceService eventSourceService) {
         this.linkageService = linkageService;
         this.productService = productService;
         this.warnConfigService = warnConfigService;
+        this.eventSourceService = eventSourceService;
     }
 
     /**
@@ -128,6 +130,19 @@ public class LinkageController extends BaseController {
     }
 
     /**
+     * 更新场景联动状态
+     * @param status
+     * @param entity
+     * @return
+     */
+    @PostMapping("/switch/{status}")
+    @Logger("删除场景联动项")
+    @CheckPermission({"iot:linkage:switch"})
+    public Result<Boolean> switchStatus(@PathVariable FuncStatus status, @RequestBody Linkage entity) {
+        return success();
+    }
+
+    /**
      * 操作类型列表
      * @return
      */
@@ -158,18 +173,28 @@ public class LinkageController extends BaseController {
 
     /**
      * 获取事件列表
-     * @param productId
+     * @param linkageId 联动id
+     * @param productId 产品id
      * @return
      */
     @GetMapping("listEventByProductId")
-    public Result<List<IVOption>> listEventByProductId(Long productId) {
+    public Result<List<IVOption>> listEventByProductId(Long linkageId, Long productId) {
+        if(linkageId == null || productId == null) {
+            return fail("参数校验失败");
+        }
+
         List<IVOption> result = new ArrayList<>();
-        this.productService.joinDetailById(productId)
-                .ifNotPresentThrow("产品不存在")
+        Linkage linkage = this.linkageService.getById(linkageId)
+                .ifNotPresentThrow("联动记录不存在").getData();
+        EventSource source = eventSourceService.detailById(linkage.getEventSourceId())
+                .ifNotPresentThrow("未绑定事件源").getData();
+        this.productService.joinDetailById(productId).ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
                     IVOption eventApi = new IVOption("事件接口", ConditionType.ModelApi, "物模型").setSelectable(false);
                     if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
-                        productDto.getEventApis().forEach(item -> {
+                        productDto.getEventApis().stream()
+                                .filter(api -> source.getModelApiIds().contains(api.getId().toString()))
+                                .forEach(item -> {
                             IVOption children = new IVOption(item.getName(), item.getId(), ProtocolApiType.event.getDesc());
                             List<ModelApiConfig> upConfig = item.getUpConfig();
                             if(CollectionUtil.isNotEmpty(upConfig)) {

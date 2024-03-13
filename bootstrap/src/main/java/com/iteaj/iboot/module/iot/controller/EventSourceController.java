@@ -74,6 +74,19 @@ public class EventSourceController extends BaseController {
     }
 
     /**
+     * 配置物模型接口
+     * @param entity
+     * @return
+     */
+    @PostMapping("/config")
+    @Logger("事件源配置")
+    @CheckPermission(value = {"iot:eventSource:config"})
+    public Result<Boolean> config(@RequestBody EventSource entity) {
+        this.eventSourceService.updateConfig(entity);
+        return success();
+    }
+
+    /**
     * 删除指定记录
     * @param idList
     */
