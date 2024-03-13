@@ -7,6 +7,7 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.consts.EventSourceType;
+import com.iteaj.iboot.module.iot.service.IDeviceGroupService;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -24,9 +25,11 @@ import com.iteaj.framework.BaseController;
 @RequestMapping("/iot/eventSource")
 public class EventSourceController extends BaseController {
 
+    private final IDeviceGroupService deviceGroupService;
     private final IEventSourceService eventSourceService;
 
-    public EventSourceController(IEventSourceService eventSourceService) {
+    public EventSourceController(IDeviceGroupService deviceGroupService, IEventSourceService eventSourceService) {
+        this.deviceGroupService = deviceGroupService;
         this.eventSourceService = eventSourceService;
     }
 
@@ -104,6 +107,19 @@ public class EventSourceController extends BaseController {
     @GetMapping("types")
     public Result<List<IVOption>> types() {
         return success(EventSourceType.options());
+    }
+
+    /**
+     * 获取设备组列表
+     * @return
+     */
+    @GetMapping("deviceGroups")
+    public Result<List<IVOption>> deviceGroups() {
+        deviceGroupService.list().ifPresent(item -> {
+
+        });
+
+        return success();
     }
 }
 
