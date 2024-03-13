@@ -145,7 +145,8 @@ public class IVOption {
             result.add(parent);
             doConvert(parent, item.getChildren(), resolver);
         });
-        return null;
+
+        return result;
     }
 
     private static <E extends TreeEntity> void doConvert(IVOption parent, Collection<E> children, Function<E, IVOption> resolver) {
