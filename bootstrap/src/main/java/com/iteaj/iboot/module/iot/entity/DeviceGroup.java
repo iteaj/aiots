@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.iteaj.framework.TreeEntity;
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.framework.mybatis.handler.ListOfLongJsonTypeHandler;
+import com.iteaj.iboot.module.iot.consts.GroupType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -46,6 +47,11 @@ public class DeviceGroup extends TreeEntity {
     private String name;
 
     /**
+     * 组类型
+     */
+    private GroupType type;
+
+    /**
      * 路径
      */
     private String path;
@@ -70,11 +76,6 @@ public class DeviceGroup extends TreeEntity {
      * 创建时间
      */
     private Date createTime;
-
-    /**
-     * 组产品id
-     */
-    private Long groupProductId;
 
     /**
      * 产品id
