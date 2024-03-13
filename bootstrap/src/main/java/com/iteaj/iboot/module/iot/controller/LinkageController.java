@@ -8,6 +8,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
@@ -101,7 +102,7 @@ public class LinkageController extends BaseController {
     @Logger("删除场景联动记录")
     @CheckPermission({"iot:linkage:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.linkageService.removeByIds(idList);
+        return this.linkageService.removeAllByIds(idList);
     }
 
     /**
@@ -152,6 +153,15 @@ public class LinkageController extends BaseController {
     }
 
     /**
+     * 可用事件源列表
+     * @return
+     */
+    @GetMapping("/sources")
+    public Result<List<IVOption>> sources(Long id) {
+        return this.eventSourceService.availableSources(id);
+    }
+
+    /**
      * 获取此场景下的产品列表
      * @param id
      * @return
@@ -173,28 +183,21 @@ public class LinkageController extends BaseController {
 
     /**
      * 获取事件列表
-     * @param linkageId 联动id
      * @param productId 产品id
      * @return
      */
     @GetMapping("listEventByProductId")
-    public Result<List<IVOption>> listEventByProductId(Long linkageId, Long productId) {
-        if(linkageId == null || productId == null) {
+    public Result<List<IVOption>> listEventByProductId(Long productId) {
+        if(productId == null) {
             return fail("参数校验失败");
         }
 
         List<IVOption> result = new ArrayList<>();
-        Linkage linkage = this.linkageService.getById(linkageId)
-                .ifNotPresentThrow("联动记录不存在").getData();
-        EventSource source = eventSourceService.detailById(linkage.getEventSourceId())
-                .ifNotPresentThrow("未绑定事件源").getData();
         this.productService.joinDetailById(productId).ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
                     IVOption eventApi = new IVOption("事件接口", ConditionType.ModelApi, "物模型").setSelectable(false);
                     if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
-                        productDto.getEventApis().stream()
-                                .filter(api -> source.getModelApiIds().contains(api.getId().toString()))
-                                .forEach(item -> {
+                        productDto.getEventApis().stream().forEach(item -> {
                             IVOption children = new IVOption(item.getName(), item.getId(), ProtocolApiType.event.getDesc());
                             List<ModelApiConfig> upConfig = item.getUpConfig();
                             if(CollectionUtil.isNotEmpty(upConfig)) {

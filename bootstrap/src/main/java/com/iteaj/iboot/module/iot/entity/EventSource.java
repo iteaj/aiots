@@ -28,7 +28,7 @@ public class EventSource extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 事件类型(主动,被动,周期)
+     * 事件类型
      */
     private EventSourceType type;
 

@@ -21,4 +21,6 @@ public interface LinkageMapper extends BaseMapper<Linkage> {
     LinkageDto joinDeviceGroupAndProductById(Long id);
 
     Boolean removeByItemIds(List<Long> itemIds);
+
+    int removeAllByIds(List<Long> idList);
 }

@@ -2,12 +2,12 @@ package com.iteaj.iboot.module.iot.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.DetailResult;
-import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.result.Result;
+import com.iteaj.framework.IVOption;
+import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.framework.IBaseService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -24,4 +24,13 @@ public interface IEventSourceService extends IBaseService<EventSource> {
     DetailResult<EventSource> detailById(Long id);
 
     BooleanResult updateConfig(EventSource entity);
+
+    ListResult<IVOption> availableSources(Long id);
+
+    /**
+     * 移除所有相关联的数据
+     * @param idList
+     * @return
+     */
+    BooleanResult removeAllByIds(List<Long> idList);
 }

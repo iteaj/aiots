@@ -7,6 +7,8 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.consts.EventSourceType;
+import com.iteaj.iboot.module.iot.consts.GroupType;
+import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.service.IDeviceGroupService;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
@@ -97,7 +99,7 @@ public class EventSourceController extends BaseController {
     @Logger("删除事件源记录")
     @CheckPermission({"iot:eventSource:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.eventSourceService.removeByIds(idList);
+        return this.eventSourceService.removeAllByIds(idList);
     }
 
     /**
@@ -115,11 +117,16 @@ public class EventSourceController extends BaseController {
      */
     @GetMapping("deviceGroups")
     public Result<List<IVOption>> deviceGroups() {
-        deviceGroupService.list().ifPresent(item -> {
+        List<DeviceGroup> data = deviceGroupService.list().getData();
+        List<IVOption> options = IVOption.convert(data, deviceGroup -> {
+            IVOption ivOption = new IVOption(deviceGroup.getName(), deviceGroup.getId(), deviceGroup.getType().getDesc());
+            if(deviceGroup.getType() == GroupType.archive) {
+                ivOption.setSelectable(false).setDisabled(true);
+            }
 
+            return ivOption;
         });
-
-        return success();
+        return success(options);
     }
 }
 

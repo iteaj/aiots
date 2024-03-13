@@ -17,6 +17,18 @@
             <result column="model_api_id" />
         </collection>
     </resultMap>
+    <delete id="removeAllByIds">
+        delete f,b,c,d,e from iot_event_source f
+            inner join iot_linkage a on f.id=a.event_source_id
+            inner join iot_linkage_condition b on a.id=b.linkage_id
+            inner join iot_linkage_action c on a.id=c.linkage_id
+            inner join iot_linkage_item d on a.id=d.linkage_id
+            inner join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where f.id in (
+        <foreach collection="list" item="eventSourceId" separator=",">
+            #{eventSourceId}
+        </foreach>);
+    </delete>
     <select id="detailPage" resultMap="BaseResultMap">
         select a.* from iot_event_source a
         <where>
@@ -36,6 +48,11 @@
         select a.*, esd.model_api_id from iot_event_source a
             left join iot_event_source_detail esd on a.id = esd.event_source_id
         where a.id=#{id}
+    </select>
+
+    <select id="availableSources" resultType="com.iteaj.framework.IVOption">
+        select a.name label, a.id value, l.id is not null disabled from iot_event_source a
+            left join iot_linkage l on a.id=l.event_source_id
     </select>
 
 </mapper>

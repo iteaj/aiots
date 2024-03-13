@@ -2,8 +2,11 @@ package com.iteaj.iboot.module.iot.mapper;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.IVOption;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -18,4 +21,8 @@ public interface EventSourceMapper extends BaseMapper<EventSource> {
     IPage<EventSource> detailPage(Page<EventSource> page, EventSource entity);
 
     EventSource detailById(Long id);
+
+    List<IVOption> availableSources(Long id);
+
+    int removeAllByIds(List<Long> idList);
 }

@@ -4,8 +4,10 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.EventSourceDetail;
@@ -86,5 +88,17 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
         }
 
         return this.updateById(entity);
+    }
+
+    @Override
+    public ListResult<IVOption> availableSources(Long id) {
+        List<IVOption> result = this.getBaseMapper().availableSources(id);
+        return new ListResult<>(result);
+    }
+
+    @Override
+    public BooleanResult removeAllByIds(List<Long> idList) {
+        int result = this.getBaseMapper().removeAllByIds(idList);
+        return new BooleanResult(result > 0);
     }
 }

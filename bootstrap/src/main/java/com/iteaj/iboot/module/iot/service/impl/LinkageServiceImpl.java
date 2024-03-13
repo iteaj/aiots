@@ -17,7 +17,9 @@ import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -46,6 +48,8 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
     public BooleanResult save(Linkage entity) {
         this.getOne(Wrappers.<Linkage>lambdaQuery().eq(Linkage::getName, entity.getName()))
                 .ifPresentThrow("名称已存在["+entity.getName()+"]");
+        this.getOne(Wrappers.<Linkage>lambdaQuery().eq(Linkage::getEventSourceId, entity.getEventSourceId()))
+                .ifPresentThrow("事件源已被绑定");
         return super.save(entity);
     }
 
@@ -55,6 +59,10 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
                 .ne(Linkage::getId, entity.getId())
                 .eq(Linkage::getName, entity.getName()))
                 .ifPresentThrow("名称已存在["+entity.getName()+"]");
+        this.getOne(Wrappers.<Linkage>lambdaQuery()
+                .ne(Linkage::getId, entity.getId())
+                .eq(Linkage::getEventSourceId, entity.getEventSourceId()))
+                .ifPresentThrow("事件源已被绑定");
         return super.updateById(entity);
     }
 
@@ -116,5 +124,12 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
         });
 
         return new BooleanResult(insert > 0);
+    }
+
+    @Override
+    @Transactional
+    public BooleanResult removeAllByIds(List<Long> idList) {
+        int i = this.getBaseMapper().removeAllByIds(idList);
+        return new BooleanResult(i > 0);
     }
 }
