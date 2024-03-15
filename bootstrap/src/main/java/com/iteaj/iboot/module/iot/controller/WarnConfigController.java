@@ -1,9 +1,12 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import java.util.List;
+
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -36,7 +39,7 @@ public class WarnConfigController extends BaseController {
     @Logger("浏览告警配置功能")
     @CheckPermission({"iot:warnConfig:view"})
     public Result<IPage<WarnConfig>> list(Page<WarnConfig> page, WarnConfig entity) {
-        return this.warnConfigService.page(page, entity);
+        return this.warnConfigService.pageDetail(page, entity);
     }
 
     /**
@@ -69,6 +72,15 @@ public class WarnConfigController extends BaseController {
     @CheckPermission({"iot:warnConfig:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.warnConfigService.removeByIds(idList);
+    }
+
+    /**
+     * 获取告警等级列表
+     * @return
+     */
+    @GetMapping("grades")
+    public Result<List<IVOption>> grades() {
+        return success(WarnGrade.options());
     }
 }
 

@@ -8,6 +8,8 @@
         <result column="type" property="type" />
         <result column="cron" property="cron" />
         <result column="name" property="name" />
+        <result column="linkage_id" property="linkageId" />
+        <result column="linkage_name" property="linkageName" />
         <result column="has_passive" property="hasPassive" />
         <result column="create_time" property="createTime" />
         <result column="device_group_id" property="deviceGroupId" />
@@ -30,7 +32,8 @@
         </foreach>);
     </delete>
     <select id="detailPage" resultMap="BaseResultMap">
-        select a.* from iot_event_source a
+        select a.*, l.id linkage_id, l.name linkage_name from iot_event_source a
+            left join iot_linkage l on a.id=l.event_source_id
         <where>
             <if test="entity.type != null">
                 and a.type = #{entity.type}
@@ -51,7 +54,7 @@
     </select>
 
     <select id="availableSources" resultType="com.iteaj.framework.IVOption">
-        select a.name label, a.id value, l.id is not null disabled from iot_event_source a
+        select a.name label, a.id value, if(l.id, '已绑定', '') extra from iot_event_source a
             left join iot_linkage l on a.id=l.event_source_id
     </select>
 

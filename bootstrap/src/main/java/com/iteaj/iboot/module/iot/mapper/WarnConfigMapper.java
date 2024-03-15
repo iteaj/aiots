@@ -1,5 +1,7 @@
 package com.iteaj.iboot.module.iot.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.module.iot.entity.WarnConfig;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface WarnConfigMapper extends BaseMapper<WarnConfig> {
 
+    IPage<WarnConfig> pageDetail(Page<WarnConfig> page, WarnConfig entity);
 }

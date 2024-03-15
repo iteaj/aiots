@@ -264,7 +264,7 @@ public class LinkageController extends BaseController {
         warnConfigService.list(Wrappers.<WarnConfig>lambdaQuery().eq(WarnConfig::getProductId, productId))
                 .ifPresent(warnConfigs -> {
             warnConfigs.forEach(warnConfig -> {
-                warn.addChildren(new IVOption(warnConfig.getName(), warnConfig.getId())
+                warn.addChildren(new IVOption(warnConfig.getName(), warnConfig.getId(), "告警")
                         .addConfig("type", ActionType.warn)
                         .addConfig("linkedName", warnConfig.getName())
                         .addConfig("linkedId", warnConfig.getId()));

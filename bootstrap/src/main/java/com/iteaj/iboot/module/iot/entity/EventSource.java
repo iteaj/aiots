@@ -58,6 +58,18 @@ public class EventSource extends BaseEntity {
     private Long deviceGroupId;
 
     /**
+     * 绑定场景id
+     */
+    @TableField(exist = false)
+    private Long linkageId;
+
+    /**
+     * 绑定的场景名称
+     */
+    @TableField(exist = false)
+    private String linkageName;
+
+    /**
      * 模型接口列表
      */
     @TableField(exist = false)

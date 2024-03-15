@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.entity.LinkageCondition;
@@ -129,6 +130,14 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
     @Override
     @Transactional
     public BooleanResult removeAllByIds(List<Long> idList) {
+        if(CollectionUtil.isEmpty(idList)) {
+            return BooleanResult.buildFalse("未指定删除记录");
+        }
+
+        if(count(Wrappers.<Linkage>lambdaQuery().in(Linkage::getId,  idList).eq(Linkage::getStatus, FuncStatus.enabled)).getData() > 0) {
+            return BooleanResult.buildFalse("请先关闭处于运行状态中的场景");
+        }
+
         int i = this.getBaseMapper().removeAllByIds(idList);
         return new BooleanResult(i > 0);
     }

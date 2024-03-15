@@ -1,7 +1,10 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.entity.WarnConfig;
 import com.iteaj.iboot.module.iot.mapper.WarnConfigMapper;
 import com.iteaj.iboot.module.iot.service.IWarnConfigService;
@@ -36,5 +39,11 @@ public class WarnConfigServiceImpl extends BaseServiceImpl<WarnConfigMapper, War
                 .eq(WarnConfig::getName, entity.getName()))
                 .ifPresentThrow("此产品已经包含告警["+entity.getName()+"]");
         return super.updateById(entity);
+    }
+
+    @Override
+    public PageResult<IPage<WarnConfig>> pageDetail(Page<WarnConfig> page, WarnConfig entity) {
+        this.getBaseMapper().pageDetail(page, entity);
+        return new PageResult<>(page);
     }
 }
