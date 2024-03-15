@@ -9,8 +9,7 @@ import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.NotIotClientException;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
-import com.iteaj.iboot.module.iot.collect.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.store.StoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
@@ -27,7 +26,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Data
 public class CollectActionTask implements Runnable {

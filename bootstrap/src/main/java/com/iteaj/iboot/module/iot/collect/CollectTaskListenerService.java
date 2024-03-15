@@ -3,7 +3,7 @@ package com.iteaj.iboot.module.iot.collect;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
-import com.iteaj.iboot.module.iot.collect.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.module.iot.entity.CollectTask;

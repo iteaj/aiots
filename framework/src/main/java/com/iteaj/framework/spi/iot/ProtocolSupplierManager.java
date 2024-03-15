@@ -202,6 +202,16 @@ public class ProtocolSupplierManager {
     }
 
     /**
+     * 获取指定协议码
+     * @param messageClass
+     * @return
+     */
+    public static String getCode(Class<? extends Message> messageClass) {
+        DeviceProtocolSupplier supplier = messageMap.get(messageClass);
+        return supplier == null ? null : supplier.getProtocol().getCode();
+    }
+
+    /**
      * 是否包含某个协议
      * @param code
      * @return

@@ -3,12 +3,11 @@ package com.iteaj.iboot.module.iot;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.framework.spring.condition.ConditionalOnRedis;
-import com.iteaj.iboot.module.iot.collect.data.HashMapRealtimeDataService;
-import com.iteaj.iboot.module.iot.collect.data.RealtimeDataService;
-import com.iteaj.iboot.module.iot.collect.data.RedisRealtimeDataService;
-import com.iteaj.iboot.module.iot.collect.status.MapRealtimeStatusService;
-import com.iteaj.iboot.module.iot.collect.status.RealtimeStatusService;
-import com.iteaj.iboot.module.iot.collect.status.RedisRealtimeStatusService;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.IotLocalCacheManager;
+import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.RedisRealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
@@ -20,7 +19,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
@@ -56,14 +54,9 @@ public class IotAutoConfiguration {
         return StoreActionFactory.getInstance();
     }
 
-    /**
-     * 本地实时数据
-     * @return
-     */
-    @Bean("realtimeDataService")
-    @ConditionalOnMissingBean({RealtimeDataService.class})
-    public RealtimeDataService localRealtimeDataService() {
-        return new HashMapRealtimeDataService();
+    @Bean
+    public IotCacheManager iotLocalCacheManager() {
+        return new IotLocalCacheManager();
     }
 
     /**
@@ -71,7 +64,6 @@ public class IotAutoConfiguration {
      * @return
      */
     @Bean
-    @Primary
     @ConditionalOnRedis
     @ConditionalOnCluster
     public RealtimeDataService redisRealtimeDataService() {
@@ -79,24 +71,13 @@ public class IotAutoConfiguration {
     }
 
     /**
-     * 本地实时状态
+     * 本地实时数据
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean({RealtimeStatusService.class})
-    public RealtimeStatusService mapRealtimeStatusService() {
-        return new MapRealtimeStatusService();
-    }
-
-    /**
-     * redis实时数据
-     * @return
-     */
-    @Bean
-    @ConditionalOnRedis
-    @ConditionalOnCluster
-    public RealtimeStatusService redisRealtimeStatusService() {
-        return new RedisRealtimeStatusService();
+    @ConditionalOnMissingBean({RealtimeDataService.class})
+    public RealtimeDataService localRealtimeDataService() {
+        return new HashMapRealtimeDataService();
     }
 
     /**

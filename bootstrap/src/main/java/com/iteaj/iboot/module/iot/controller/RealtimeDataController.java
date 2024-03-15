@@ -2,8 +2,8 @@ package com.iteaj.iboot.module.iot.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
-import com.iteaj.iboot.module.iot.collect.data.RealtimeData;
-import com.iteaj.iboot.module.iot.collect.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import org.springframework.web.bind.annotation.GetMapping;
