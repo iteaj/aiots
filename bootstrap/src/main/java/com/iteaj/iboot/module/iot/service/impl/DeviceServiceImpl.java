@@ -1,11 +1,14 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.*;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -16,8 +19,10 @@ import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * <p>
@@ -31,9 +36,68 @@ import java.util.Date;
 public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> implements IDeviceService {
 
     private final IProductService productService;
+    private final IotCacheManager iotCacheManager;
 
-    public DeviceServiceImpl(IProductService productService) {
+    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager) {
         this.productService = productService;
+        this.iotCacheManager = iotCacheManager;
+    }
+
+
+    @Override
+    public RealtimeStatus getDeviceStatusFromCache(String protocolCode, String deviceSn) {
+        RealtimeStatus realtimeStatus = iotCacheManager.get(protocolCode, deviceSn);
+        if(realtimeStatus == null) {
+            realtimeStatus = this.getDeviceStatus(protocolCode, deviceSn, null);
+            if(realtimeStatus != null) {
+                iotCacheManager.cache(realtimeStatus);
+            }
+        }
+
+        return realtimeStatus;
+    }
+
+    @Override
+    public RealtimeStatus getDeviceStatusFromCache(String protocolCode, String deviceSn, String parentDeviceSn) {
+        RealtimeStatus realtimeStatus = iotCacheManager.get(protocolCode, deviceSn, parentDeviceSn);
+        if(realtimeStatus == null) {
+            realtimeStatus = this.getDeviceStatus(protocolCode, deviceSn, parentDeviceSn);
+            if(realtimeStatus != null) {
+                iotCacheManager.cache(realtimeStatus);
+            }
+        }
+
+        return realtimeStatus;
+    }
+
+    @Override
+    public Map<String, RealtimeStatus> listDeviceStatusFromCache(String protocolCode, String... deviceSn) {
+        Map<String, RealtimeStatus> statusMap = iotCacheManager.list(protocolCode, deviceSn);
+        if(CollectionUtil.isEmpty(statusMap)) {
+            List<RealtimeStatus> statuses = this.getBaseMapper().listDeviceStatus(protocolCode, Arrays.asList(deviceSn), null);
+            if(CollectionUtil.isNotEmpty(statuses)) {
+                statuses.forEach(status -> {
+                    iotCacheManager.cache(status);
+                    statusMap.put(status.getDeviceSn(), status);
+                });
+            }
+        }
+        return statusMap;
+    }
+
+    @Override
+    public Map<String, RealtimeStatus> listChildDeviceStatusFromCache(String protocolCode, String parentDeviceSn, String... deviceSn) {
+        Map<String, RealtimeStatus> statusMap = iotCacheManager.listForParent(protocolCode, parentDeviceSn, deviceSn);
+        if(CollectionUtil.isEmpty(statusMap)) {
+            List<RealtimeStatus> statuses = this.getBaseMapper().listDeviceStatus(protocolCode, Arrays.asList(deviceSn), parentDeviceSn);
+            if(CollectionUtil.isNotEmpty(statuses)) {
+                statuses.forEach(status -> {
+                    iotCacheManager.cache(status);
+                    statusMap.put(status.getDeviceSn(), status);
+                });
+            }
+        }
+        return statusMap;
     }
 
     @Override
@@ -42,10 +106,14 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     }
 
     @Override
+    @Transactional
     public BooleanResult save(Device entity) {
         validate(entity);
         entity.setUid(IdWorker.getId());
-        return super.save(entity);
+        return super.save(entity).ifPresentAndTrue(item -> {
+            RealtimeStatus status = this.getDeviceStatusFromCache(entity.getId());
+            iotCacheManager.cache(status);
+        });
     }
 
     private void validate(Device entity) {
@@ -77,9 +145,14 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     }
 
     @Override
+    @Transactional
     public BooleanResult updateById(Device entity) {
         validate(entity);
-        return super.updateById(entity);
+        RealtimeStatus oldCache = this.getDeviceStatusFromCache(entity.getId());
+        return super.updateById(entity).ifPresentAndTrue(item -> {
+            RealtimeStatus newCache = this.getDeviceStatusFromCache(entity.getId());
+            iotCacheManager.update(oldCache, newCache);
+        });
     }
 
     @Override
@@ -118,5 +191,46 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     public DetailResult<Device> getByDeviceSn(String deviceSn, String protocolCode, String gatewayDeviceSn) {
         return new DetailResult<>(getBaseMapper().getByDeviceSn(deviceSn, protocolCode, gatewayDeviceSn));
+    }
+
+    @Override
+    public RealtimeStatus getDeviceStatusFromCache(Long deviceId) {
+        return this.getBaseMapper().getDeviceCacheById(deviceId);
+    }
+
+    @Override
+    public List<RealtimeStatus> listDeviceStatusById(Collection<?> idList) {
+        if(CollectionUtil.isEmpty(idList)) {
+            return Collections.EMPTY_LIST;
+        }
+
+        return this.getBaseMapper().listDeviceStatusById(idList);
+    }
+
+    @Override
+    public ListResult<RealtimeStatus> listDeviceStatus() {
+        return new ListResult<>(this.getBaseMapper().listDeviceCache());
+    }
+
+    @Override
+    public RealtimeStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn) {
+        return this.getBaseMapper().getDeviceStatus(protocolCode, deviceSn, parentDeviceSn);
+    }
+
+    @Override
+    @Transactional
+    public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
+        if(CollectionUtil.isEmpty(idList)) {
+            return BooleanResult.buildFalse("未指定要移除的记录");
+        }
+
+        List<RealtimeStatus> statusList = this.listDeviceStatusById(idList);
+        return super.removeByIds(idList).ifPresentAndTrue(item -> {
+            statusList.forEach(status -> {
+                if(status.getType() == DeviceType.Child) {
+                    iotCacheManager.removeByKey(status.getProtocolCode(), status.getDeviceSn(), status.getParentDeviceSn());
+                }
+            });
+        });
     }
 }

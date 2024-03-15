@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
@@ -29,22 +30,35 @@ public class IotRestartListener implements ApplicationReadyListener {
     private final IGatewayService gatewayService;
     private final IDeviceService deviceService;
     private final IProductService productService;
+    private final IotCacheManager iotCacheManager;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public IotRestartListener(IGatewayService gatewayService, IDeviceService deviceService, IProductService productService) {
+    public IotRestartListener(IGatewayService gatewayService
+            , IDeviceService deviceService, IProductService productService
+            , IotCacheManager iotCacheManager) {
         this.gatewayService = gatewayService;
         this.deviceService = deviceService;
         this.productService = productService;
+        this.iotCacheManager = iotCacheManager;
     }
 
     @Override
     public void started(ApplicationContext context) {
+        // 缓存设备信息
+        cacheDevice();
+
         // 初始化网关信息
         initGateway();
 
         // 初始化产品信息
         initProduct();
+    }
+
+    private void cacheDevice() {
+        this.deviceService.listDeviceStatus().forEach(item -> {
+            iotCacheManager.cache(item);
+        });
     }
 
     private void initGateway() {

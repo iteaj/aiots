@@ -5,11 +5,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.framework.IBaseService;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -20,6 +25,40 @@ import com.iteaj.framework.IBaseService;
  * @since 2022-05-15
  */
 public interface IDeviceService extends IBaseService<Device> {
+
+    /**
+     * 获取指定的网关或者直连设备信息
+     * @param protocolCode
+     * @param deviceSn
+     * @return
+     */
+    RealtimeStatus getDeviceStatusFromCache(String protocolCode, String deviceSn);
+
+    /**
+     *  获取指定的网关子设备信息
+     * @param protocolCode
+     * @param deviceSn 设备编号
+     * @param parentDeviceSn 父设备编号(网关设备编号)
+     * @return
+     */
+    RealtimeStatus getDeviceStatusFromCache(String protocolCode, String deviceSn, String parentDeviceSn);
+
+    /**
+     * 获取网关或者直连设备信息
+     * @param protocolCode
+     * @param deviceSn
+     * @return
+     */
+    Map<String, RealtimeStatus> listDeviceStatusFromCache(String protocolCode, String... deviceSn);
+
+    /**
+     * 获取指定网关设备下的所有子设备
+     * @param protocolCode
+     * @param parentDeviceSn 网关设备编号
+     * @param deviceSn 子设备编号
+     * @return
+     */
+    Map<String, RealtimeStatus> listChildDeviceStatusFromCache(String protocolCode, String parentDeviceSn, String... deviceSn);
 
     /**
      * 获取设备详情分页列表
@@ -78,4 +117,25 @@ public interface IDeviceService extends IBaseService<Device> {
      * @return
      */
     DetailResult<Device> getByDeviceSn(String deviceSn, String protocolCode, String gatewayDeviceSn);
+
+    /**
+     * 获取设备的缓存信息
+     * @param deviceId
+     * @return
+     */
+    RealtimeStatus getDeviceStatusFromCache(Long deviceId);
+
+    /**
+     * @param idList 设备id列表
+     * @return
+     */
+    List<RealtimeStatus> listDeviceStatusById(Collection<?> idList);
+
+    /**
+     * 获取所有设备的缓存信息
+     * @return
+     */
+    ListResult<RealtimeStatus> listDeviceStatus();
+
+    RealtimeStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn);
 }

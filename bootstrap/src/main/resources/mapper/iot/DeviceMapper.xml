@@ -102,4 +102,65 @@
             </otherwise>
         </choose>
     </select>
+
+    <select id="getDeviceCacheById" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+             , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+        from iot_device a
+            inner join iot_device pd on a.pid = pd.id
+            inner join iot_product p on a.product_id = p.id
+            inner join iot_protocol pl on p.protocol_id = pl.id
+        where a.id=#{id}
+    </select>
+    <select id="listDeviceStatusById" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+             , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+        from iot_device a
+             inner join iot_device pd on a.pid = pd.id
+             inner join iot_product p on a.product_id = p.id
+             inner join iot_protocol pl on p.protocol_id = pl.id
+        <where>
+            a.id in (<foreach collection="list" item="id" separator=",">
+                #{id}
+        </foreach> )
+        </where>
+    </select>
+
+    <select id="listDeviceCache" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+             , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+        from iot_device a
+             inner join iot_device pd on a.pid = pd.id
+             inner join iot_product p on a.product_id = p.id
+             inner join iot_protocol pl on p.protocol_id = pl.id
+    </select>
+
+    <select id="getDeviceStatus" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+             , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+        from iot_device a
+             inner join iot_device pd on a.pid = pd.id
+             inner join iot_product p on a.product_id = p.id
+             inner join iot_protocol pl on p.protocol_id = pl.id
+        where pl.code=#{protocolCode} and a.device_sn=#{deviceSn}
+        <if test="parentDeviceSn != null and parentDeviceSn != ''">
+            and pd.device_sn = #{parentDeviceSn}
+        </if>
+    </select>
+    <select id="listDeviceStatus" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+            , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+        from iot_device a
+            inner join iot_device pd on a.pid = pd.id
+            inner join iot_product p on a.product_id = p.id
+            inner join iot_protocol pl on p.protocol_id = pl.id
+        where pl.code=#{protocolCode}
+        <if test="parentDeviceSn != null and parentDeviceSn != ''">
+            and pd.device_sn = #{parentDeviceSn}
+        </if>
+        and a.device_sn in (
+        <foreach collection="list" separator="," item="deviceSn">
+            #{deviceSn}
+        </foreach>)
+    </select>
 </mapper>

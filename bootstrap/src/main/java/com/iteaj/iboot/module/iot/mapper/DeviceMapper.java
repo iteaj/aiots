@@ -2,11 +2,13 @@ package com.iteaj.iboot.module.iot.mapper;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -53,4 +55,19 @@ public interface DeviceMapper extends BaseMapper<Device> {
      * @return
      */
     Device getByDeviceSn(String deviceSn, String protocolCode, String gatewayDeviceSn);
+
+    /**
+     * 获取设备的缓存信息
+     * @param deviceId
+     * @return
+     */
+    RealtimeStatus getDeviceCacheById(Long deviceId);
+
+    List<RealtimeStatus> listDeviceStatusById(Collection<?> list);
+
+    List<RealtimeStatus> listDeviceCache();
+
+    RealtimeStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn);
+
+    List<RealtimeStatus> listDeviceStatus(String protocolCode, List<String> deviceSns, String parentDeviceSn);
 }

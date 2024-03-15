@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.collect.data;
+package com.iteaj.iboot.module.iot.cache.data;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.utils.RedisUtils;
