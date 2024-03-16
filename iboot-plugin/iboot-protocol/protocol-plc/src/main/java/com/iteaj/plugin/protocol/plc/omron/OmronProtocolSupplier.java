@@ -19,7 +19,7 @@ import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
 
 public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, OmronComponent, OmronTcpClient> {
 
-    private DefaultProtocolModel protocolModel = new DefaultProtocolModel("PLC:OMRON:TCP"
+    private DefaultProtocolModel protocolModel = new DefaultProtocolModel("PLC_OMRON_TCP"
             , CtrlMode.POINT, TransportProtocol.TCP, getModelApis(), getModelAttrs());
 
     @Override

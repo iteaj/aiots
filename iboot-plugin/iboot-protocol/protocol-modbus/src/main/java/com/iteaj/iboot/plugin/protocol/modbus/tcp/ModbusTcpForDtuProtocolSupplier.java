@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.modbus.tcp;
 
+import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
@@ -81,6 +82,21 @@ public class ModbusTcpForDtuProtocolSupplier extends StaticProtocolSupplier<Netw
     @Override
     public ProtocolImplMode getImplMode() {
         return ProtocolImplMode.Internal;
+    }
+
+    @Override
+    public ParamMeta[] getProductConfig() {
+        return new ParamMeta[] {
+                ParamMeta.buildRequired("dataFormat", "数据格式", "可选[ABCD、BADC、CDAB、DCBA]", "ABCD")
+        };
+    }
+
+    @Override
+    public ParamMeta[] getGatewayConfig() {
+        return new ParamMeta[]{
+                ParamMeta.buildRequired("host", "主机", "", "0.0.0.0"),
+                ParamMeta.buildRequired("port", "端口", null, "502")
+        };
     }
 
     @Override

@@ -42,10 +42,23 @@
         where p.id=#{protocolId}
     </select>
 
-    <select id="protocols" resultType="com.iteaj.framework.IVOption">
-        select a.id value, a.name label, if(g.id, '已绑定', ' ') extra from iot_protocol a
+    <resultMap id="ProtocolsMap" type="com.iteaj.framework.IVOption">
+        <result column="id" property="value" />
+        <result column="name" property="label" />
+        <result column="extra" property="extra" />
+        <association property="config" javaType="Map">
+            <result column="bind" property="bind" />
+        </association>
+    </resultMap>
+
+    <select id="protocols" resultMap="ProtocolsMap">
+        select a.id, a.name, a.code extra, if(g.id, '已绑定', ' ') bind from iot_protocol a
             left join iot_gateway g on a.id=g.protocol_id
-        where a.type = #{protocol}
+        <where>
+            <if test="type != null">
+                and a.type = #{protocol}
+            </if>
+        </where>
     </select>
 
 </mapper>

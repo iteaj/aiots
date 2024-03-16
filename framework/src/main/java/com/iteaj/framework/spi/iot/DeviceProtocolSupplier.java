@@ -1,5 +1,6 @@
 package com.iteaj.framework.spi.iot;
 
+import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.iot.FrameworkComponent;
@@ -32,6 +33,30 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends Frame
      * @return
      */
     ProtocolImplMode getImplMode();
+
+    /**
+     * 产品额外配置
+     * @return
+     */
+    default ParamMeta[] getProductConfig() {
+        return new ParamMeta[]{};
+    }
+
+    /**
+     * 设备额外配置
+     * @return
+     */
+    default ParamMeta[] getDeviceConfig() {
+        return new ParamMeta[]{};
+    }
+
+    /**
+     * 网关额外配置
+     * @return
+     */
+    default ParamMeta[] getGatewayConfig() {
+        return new ParamMeta[]{};
+    }
 
     /**
      * 返回组件

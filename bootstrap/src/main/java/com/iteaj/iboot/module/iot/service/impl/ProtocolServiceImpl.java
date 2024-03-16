@@ -132,6 +132,9 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
     public ProtocolDto loadProtocol(DeviceProtocolSupplier supplier) {
         if(supplier != null) {
             ProtocolDto protocolDto = new ProtocolDto();
+            protocolDto.setDeviceConfig(supplier.getDeviceConfig());
+            protocolDto.setProductConfig(supplier.getProductConfig());
+            protocolDto.setGatewayConfig(supplier.getGatewayConfig());
             protocolDto.setVersion(supplier.getVersion());
             ProtocolModel protocol = supplier.getProtocol();
             protocolDto.setCode(protocol.getCode()).setRemark(protocol.getRemark())

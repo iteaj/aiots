@@ -92,8 +92,8 @@ public class ListResult<E> extends OptionalResult<List<E>, ListResult<E>> {
         return getData() == null ? true : getData().isEmpty();
     }
 
-    public void forEach(Consumer<E> consumer) {
-        this.stream().forEach(consumer);
+    public ListResult<E> forEach(Consumer<E> consumer) {
+        this.stream().forEach(consumer); return this;
     }
 
     public Stream<E> stream() {

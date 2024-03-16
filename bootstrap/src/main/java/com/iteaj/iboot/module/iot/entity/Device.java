@@ -3,7 +3,9 @@ package com.iteaj.iboot.module.iot.entity;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.framework.validate.AllGroup;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import lombok.Data;
@@ -114,6 +116,12 @@ public class Device extends BaseEntity {
      */
     @NotBlank(message = "设备编号必填", groups = AllGroup.class)
     private String deviceSn;
+
+    /**
+     * 设备配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ObjectNode config;
 
     /**
      * 状态切换时间
