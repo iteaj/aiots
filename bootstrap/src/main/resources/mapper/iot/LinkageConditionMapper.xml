@@ -19,7 +19,7 @@
     </resultMap>
 
     <select id="listByLinkageItemId" resultMap="DetailResultMap">
-        select a.*, p.name lci_product_name, p.code lci_product_code, ma.name lci_linked_name, d.name lci_device_name, lci.id lci_id, lci.logical lci_logical
+        select a.*, p.name lci_product_name, p.code lci_product_code, ma.name lci_linked_name, d.name lci_device_name, lci.id lci_id, lci.logical lci_logical, p.protocol_code lci_protocol_code
              , ma.direct lci_direct, lci.value lci_value, lci.operator lci_operator, lci.linked_id lci_linked_id, lci.type_name lci_type_name, lci.linkage_condition_id lci_linkage_condition_id
              , lci.event_source_detail_id lci_event_source_detail_id, lci.product_id lci_product_id, lci.uid lci_uid, lci.type lci_type, lci.type_value lci_type_value
         from iot_linkage_condition a
