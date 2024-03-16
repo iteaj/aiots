@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.dto;
 
+import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.entity.Protocol;
 import com.iteaj.iboot.module.iot.entity.ProtocolApi;
@@ -26,6 +27,21 @@ public class ProtocolDto extends Protocol {
      * 产品代码
      */
     private String productCode;
+
+    /**
+     * 设备配置
+     */
+    private ParamMeta[] deviceConfig;
+
+    /**
+     * 产品配置
+     */
+    private ParamMeta[] productConfig;
+
+    /**
+     * 网关配置
+     */
+    private ParamMeta[] gatewayConfig;
 
     /**
      * 协议属性列表

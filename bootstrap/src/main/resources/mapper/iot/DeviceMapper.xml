@@ -18,6 +18,8 @@
         <result column="account" property="account" />
         <result column="password" property="password" />
         <result column="device_sn" property="deviceSn" />
+        <result column="config" property="config"
+                typeHandler="com.iteaj.framework.mybatis.handler.JacksonTypeHandler" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
         <result column="product_type_id" property="productTypeId" />
@@ -91,13 +93,13 @@
                 select a.* from iot_device a
                     left join iot_device pd on a.pid = pd.id
                     left join iot_product p on a.product_id = p.id
-                    left join iot_protocol pl on p.protocol_id = pl.id
+                    left join iot_protocol pl on p.protocol_code = pl.code
                 where a.device_sn=#{deviceSn} and pd.device_sn=#{gatewayDeviceSn} and pl.code=#{protocolCode}
             </when>
             <otherwise>
                 select a.* from iot_device a
                     left join iot_product p on a.product_id = p.id
-                    left join iot_protocol pl on p.protocol_id = pl.id
+                    left join iot_protocol pl on p.protocol_code = pl.code
                 where a.device_sn=#{deviceSn} and pl.code=#{protocolCode}
             </otherwise>
         </choose>
@@ -109,7 +111,7 @@
         from iot_device a
             inner join iot_device pd on a.pid = pd.id
             inner join iot_product p on a.product_id = p.id
-            inner join iot_protocol pl on p.protocol_id = pl.id
+            inner join iot_protocol pl on p.protocol_code = pl.code
         where a.id=#{id}
     </select>
     <select id="listDeviceStatusById" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
@@ -118,7 +120,7 @@
         from iot_device a
              inner join iot_device pd on a.pid = pd.id
              inner join iot_product p on a.product_id = p.id
-             inner join iot_protocol pl on p.protocol_id = pl.id
+             inner join iot_protocol pl on p.protocol_code = pl.code
         <where>
             a.id in (<foreach collection="list" item="id" separator=",">
                 #{id}
@@ -132,7 +134,7 @@
         from iot_device a
              inner join iot_device pd on a.pid = pd.id
              inner join iot_product p on a.product_id = p.id
-             inner join iot_protocol pl on p.protocol_id = pl.id
+             inner join iot_protocol pl on p.protocol_code = pl.code
     </select>
 
     <select id="getDeviceStatus" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
@@ -141,7 +143,7 @@
         from iot_device a
              inner join iot_device pd on a.pid = pd.id
              inner join iot_product p on a.product_id = p.id
-             inner join iot_protocol pl on p.protocol_id = pl.id
+             inner join iot_protocol pl on p.protocol_code = pl.code
         where pl.code=#{protocolCode} and a.device_sn=#{deviceSn}
         <if test="parentDeviceSn != null and parentDeviceSn != ''">
             and pd.device_sn = #{parentDeviceSn}
@@ -153,7 +155,7 @@
         from iot_device a
             inner join iot_device pd on a.pid = pd.id
             inner join iot_product p on a.product_id = p.id
-            inner join iot_protocol pl on p.protocol_id = pl.id
+            inner join iot_protocol pl on p.protocol_code = pl.code
         where pl.code=#{protocolCode}
         <if test="parentDeviceSn != null and parentDeviceSn != ''">
             and pd.device_sn = #{parentDeviceSn}

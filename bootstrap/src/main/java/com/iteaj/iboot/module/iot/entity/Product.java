@@ -3,8 +3,10 @@ package com.iteaj.iboot.module.iot.entity;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayConnectType;
@@ -93,6 +95,12 @@ public class Product extends BaseEntity {
     private Long protocolId;
 
     /**
+     * 产品配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ObjectNode config;
+
+    /**
      * 产品说明
      */
     private String remark;
@@ -123,7 +131,6 @@ public class Product extends BaseEntity {
     /**
      * 协议代码
      */
-    @TableField(exist = false)
     private String protocolCode;
 
     /**

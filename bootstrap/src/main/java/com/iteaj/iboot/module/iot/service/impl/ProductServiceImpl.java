@@ -70,6 +70,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
         this.getByCode(entity.getCode()).ifPresentThrow("此产品代码已经存在["+entity.getCode()+"]");
 
+        this.protocolService.getById(entity.getProtocolId())
+                .ifNotPresentThrow("协议不存在")
+                .ifPresent(item -> entity.setProtocolCode(item.getCode()));
+
         BooleanResult save = super.save(entity);
         // 保存协议对应的指令到物模型
 //        saveProtocolToModel(entity);
@@ -91,6 +95,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 throw new ServiceException("此产品代码已经存在["+entity.getCode()+"]");
             }
         });
+
+        this.protocolService.getById(entity.getProtocolId())
+                .ifNotPresentThrow("协议不存在")
+                .ifPresent(item -> entity.setProtocolCode(item.getCode()));
 
         // 如果修改了协议需要删除所有物模型数据
         this.getById(entity.getId()).ifPresent(product -> {
