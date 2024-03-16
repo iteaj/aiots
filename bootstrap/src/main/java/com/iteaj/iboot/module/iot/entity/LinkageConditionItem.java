@@ -86,6 +86,12 @@ public class LinkageConditionItem extends BaseEntity {
     private Long productId;
 
     /**
+     * 产品代码
+     */
+    @TableField(exist = false)
+    private String productCode;
+
+    /**
      * 产品名称
      */
     @TableField(exist = false)
@@ -95,6 +101,12 @@ public class LinkageConditionItem extends BaseEntity {
      * 物模型接口
      */
     private Long linkedId;
+
+    /**
+     * 协议代码
+     */
+    @TableField(exist = false)
+    private String protocolCode;
 
     /**
      * 物模型接口名称

@@ -62,18 +62,22 @@
     <select id="detailById" resultMap="DetailResultMap">
         select a.*, p.id p_id, p.name p_name,dg.name device_group_name, es.name event_source_name from iot_linkage a
             left join iot_event_source es on a.event_source_id = es.id
-            left join iot_device_group dg on es.device_group_id = dg.id
-            left join iot_device_group dgp on dg.group_product_id = dgp.id
-            left join iot_product p on json_contains(dgp.product_ids, concat('', p.id))
+            left join (
+                select ca.name, ca.id, if(ca.type='device', cp.product_ids, ca.product_ids) product_ids from iot_device_group ca
+                    left join iot_device_group cp on ca.pid=cp.id
+                ) as dg on es.device_group_id = dg.id
+            left join iot_product p on json_contains(dg.product_ids, concat('', p.id))
         where a.id=#{id}
     </select>
 
     <select id="joinDeviceGroupAndProductById" resultMap="DtoResultMap">
         select a.*, p.id p_id, p.name p_name,dg.name device_group_name, es.name event_source_name from iot_linkage a
            left join iot_event_source es on a.event_source_id = es.id
-           left join iot_device_group dg on es.device_group_id = dg.id
-           left join iot_device_group dgp on dg.group_product_id = dgp.id
-           left join iot_product p on json_contains(dgp.product_ids, concat('', p.id))
+           left join (
+                select ca.name, ca.id, if(ca.type='device', cp.product_ids, ca.product_ids) product_ids from iot_device_group ca
+                    left join iot_device_group cp on ca.pid=cp.id
+                ) as dg on es.device_group_id = dg.id
+           left join iot_product p on json_contains(dg.product_ids, concat('', p.id))
         where a.id=#{id}
     </select>
 

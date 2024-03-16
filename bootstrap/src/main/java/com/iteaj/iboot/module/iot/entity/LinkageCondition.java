@@ -27,6 +27,11 @@ public class LinkageCondition extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 序号
+     */
+    private Integer sort;
+
+    /**
      * 所属场景
      */
     private Long linkageId;

@@ -119,10 +119,11 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
         item.getActions().forEach(action -> action.setLinkageId(item.getLinkageId()).setLinkageItemId(item.getId()));
 
         linkageActionService.saveBatch(item.getActions());
-        item.getConditions().forEach(condition -> {
-            condition.setLinkageId(item.getLinkageId()).setLinkageItemId(item.getId());
+        for (int i = 0; i < item.getConditions().size(); i++) {
+            LinkageCondition condition = item.getConditions().get(i);
+            condition.setSort(i * 3 + 3).setLinkageId(item.getLinkageId()).setLinkageItemId(item.getId());
             linkageConditionService.save(condition);
-        });
+        }
 
         return new BooleanResult(insert > 0);
     }
