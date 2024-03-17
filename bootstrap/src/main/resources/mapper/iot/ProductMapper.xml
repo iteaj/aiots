@@ -120,7 +120,9 @@
         </where>
     </select>
     <select id="joinDetailById" resultMap="JoinDetailMap">
-        select a.* from iot_product a where id=#{productId}
+        select a.*, ip.ctrl_mode from iot_product a
+            left join iot_protocol ip on ip.id = a.protocol_id
+        where a.id=#{productId}
     </select>
 
     <select id="debugById" resultMap="DebugMap">
