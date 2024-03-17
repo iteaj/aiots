@@ -105,7 +105,7 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
     }
 
     /**
-     * http协议配置
+     * http客户端协议配置
      */
     @Data
     public static class HttpNetworkConfig extends NetworkConfigImpl {
@@ -145,7 +145,7 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
     }
 
     /**
-     * mqtt网络配置
+     * mqtt客户端网络配置
      */
     @Data
     public static class MqttNetworkConfig extends TcpNetworkConfig {

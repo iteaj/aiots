@@ -11,6 +11,7 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfig;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.dto.GatewayDto;
@@ -121,8 +122,13 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
             throw new ServiceException("未找到对应的协议["+gateway.getProtocolCode()+"]");
         }
 
-        NetworkConfig config = NetworkConfig.resolve(gateway.getProtocolType(), gateway.getConfig());
-        FrameworkComponent component = supplier.createComponent(config);
+        FrameworkComponent component;
+        if(supplier.getConnectionType() == ConnectionType.Server) {
+            NetworkConfig config = NetworkConfig.resolve(gateway.getProtocolType(), gateway.getConfig());
+            component = supplier.createComponent(config);
+        } else {
+            component = supplier.createComponent(null);
+        }
 
         // 执行开启的操作
         if(status == GatewayStatus.start) {

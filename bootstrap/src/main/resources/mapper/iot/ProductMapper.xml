@@ -12,7 +12,7 @@
         <result column="parent_id" property="parentId" />
         <result column="gateway_id" property="gatewayId" />
         <result column="config" property="config"
-                typeHandler="com.iteaj.framework.mybatis.handler.JacksonTypeHandler" />
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="gateway_name" property="gatewayName" />
         <result column="gateway_type" property="gatewayType" />
         <result column="connect_type" property="connectType" />

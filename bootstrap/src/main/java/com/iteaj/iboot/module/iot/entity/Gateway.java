@@ -1,23 +1,21 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
-
-import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
-import com.iteaj.iboot.module.iot.consts.DeviceType;
-import com.iteaj.iboot.module.iot.consts.GatewayConnectType;
-import com.iteaj.iboot.module.iot.consts.GatewayStatus;
-import com.iteaj.iboot.module.iot.consts.GatewayType;
+import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * <p>
@@ -90,8 +88,8 @@ public class Gateway extends BaseEntity {
     /**
      * 网关配置
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private ObjectNode config;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
 
     /**
      * 备注
@@ -111,7 +109,7 @@ public class Gateway extends BaseEntity {
     /**
      * 网关连接类型
      */
-    private GatewayConnectType connectType;
+    private ConnectionType connectType;
 
     /**
      * 传输协议

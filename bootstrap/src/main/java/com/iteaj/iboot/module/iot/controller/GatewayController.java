@@ -68,6 +68,8 @@ public class GatewayController extends BaseController {
             DeviceProtocolSupplier supplier = ProtocolSupplierManager.get((String) item.getExtra());
             if(supplier != null) {
                 item.addConfig("config", supplier.getGatewayConfig());
+            } else {
+                item.addConfig("bind", "不可用");
             }
         });
     }

@@ -19,7 +19,7 @@
         <result column="password" property="password" />
         <result column="device_sn" property="deviceSn" />
         <result column="config" property="config"
-                typeHandler="com.iteaj.framework.mybatis.handler.JacksonTypeHandler" />
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
         <result column="product_type_id" property="productTypeId" />

@@ -1,13 +1,12 @@
 package com.iteaj.plugin.protocol.plc;
 
-import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
-import com.iteaj.framework.spi.iot.StaticProtocolSupplier;
+import com.iteaj.framework.spi.iot.StaticClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
-import com.iteaj.iot.FrameworkComponent;
+import com.iteaj.iot.client.ClientComponent;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.plugin.protocol.plc.omron.OmronEventProtocolModelApi;
 import com.iteaj.plugin.protocol.plc.omron.OmronFuncProtocolModelApi;
@@ -15,8 +14,8 @@ import com.iteaj.plugin.protocol.plc.omron.OmronFuncProtocolModelApi;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T extends FrameworkComponent, K extends IotClient>
-        extends StaticProtocolSupplier<C, T> implements ClientProtocolSupplier<C, T, K> {
+public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T extends ClientComponent, K extends IotClient>
+        extends StaticClientProtocolSupplier<C, T, K> {
 
     private Map<String, ProtocolModelAttr> modelAttrs = new LinkedHashMap<>();
     private Map<String, AbstractProtocolModelApi> modelApis = new LinkedHashMap<>();
