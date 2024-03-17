@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
@@ -18,9 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>
@@ -64,6 +63,15 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
                 .eq(ModelAttr::getField, entity.getField())
                 .eq(ModelAttr::getProductId, entity.getProductId()))
                 .ifPresentThrow("属性字段已存在["+entity.getField()+"]");
+
+        // 字段被使用则不允许修改字段名
+        this.getById(entity.getId()).ifNotPresentThrow("属性不存在").ifPresent(item -> {
+           if(!Objects.equals(item.getField(), entity.getField())) {
+                if(hasBinded(Arrays.asList(item.getId()))) {
+                    throw new ServiceException("属性已被绑定字段名不允许修改");
+                }
+           }
+        });
         resolveField(entity);
         return super.updateById(entity);
     }
@@ -83,6 +91,14 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
     @Override
     @Transactional
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
+        if(CollectionUtil.isEmpty(idList)) {
+            return BooleanResult.buildFalse("未指定要删除的记录");
+        }
+
+        if(this.hasBinded(idList)) {
+            return BooleanResult.buildFalse("此属性已被绑定");
+        }
+
         return super.removeByIds(idList).ifPresent(item -> {
             if(Boolean.TRUE.equals(item)) {
                 modelAttrDictMapper.delete(Wrappers.<ModelAttrDict>lambdaQuery()
@@ -119,5 +135,10 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
     public ListResult<ModelAttrDict> listModelAttrDicts(ModelAttrDict entity) {
         List<ModelAttrDict> modelAttrDicts = modelAttrDictMapper.selectList(Wrappers.lambdaQuery(entity));
         return new ListResult<>(modelAttrDicts);
+    }
+
+    @Override
+    public boolean hasBinded(Collection<? extends Serializable> idList) {
+        return this.getBaseMapper().hasBinded(idList);
     }
 }

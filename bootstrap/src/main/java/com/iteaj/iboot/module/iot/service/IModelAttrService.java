@@ -7,6 +7,8 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -31,4 +33,6 @@ public interface IModelAttrService extends IBaseService<ModelAttr> {
     Result<Boolean> removeModelAttrDictByIds(List<Long> idList);
 
     ListResult<ModelAttrDict> listModelAttrDicts(ModelAttrDict entity);
+
+    boolean hasBinded(Collection<? extends Serializable> idList);
 }
