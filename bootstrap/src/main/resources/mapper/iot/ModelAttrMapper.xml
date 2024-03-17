@@ -34,4 +34,11 @@
     <select id="listByProductId" resultMap="BaseResultMap">
         select * from iot_model_attr where product_id=#{productId}
     </select>
+    <select id="hasBinded" resultType="java.lang.Boolean">
+        select count(1) > 0 from iot_model_api_config where model_attr_id in (
+            <foreach collection="list" item="modelAttrId" separator=",">
+                #{modelAttrId}
+            </foreach>
+            )
+    </select>
 </mapper>
