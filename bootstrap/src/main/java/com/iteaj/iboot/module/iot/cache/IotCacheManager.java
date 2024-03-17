@@ -113,4 +113,18 @@ public interface IotCacheManager {
      */
     Collection<RealtimeStatus> listByGroupId(Long id);
 
+    /**
+     * 获取指定产品下面的所有设备
+     * @param productCode
+     * @return
+     */
+    Collection<RealtimeStatus> listByProductCode(String productCode);
+
+    /**
+     * 获取指定组下面的指定产品的所有设备
+     * @param groupId
+     * @param productCode
+     * @return
+     */
+    Collection<RealtimeStatus> listGroupAndProduct(Long groupId, String productCode);
 }
