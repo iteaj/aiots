@@ -11,6 +11,7 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.consts.ActionType;
 import com.iteaj.iboot.module.iot.consts.ConditionType;
@@ -202,12 +203,22 @@ public class LinkageController extends BaseController {
                             List<ModelApiConfig> upConfig = item.getUpConfig();
                             if(CollectionUtil.isNotEmpty(upConfig)) {
                                 upConfig.forEach(config -> {
-                                    children.addChildren(new IVOption(config.getAttrName(), config.getValue(), "属性")
-                                            .addConfig("type", ConditionType.ModelApi)
-                                            .addConfig("code", item.getCode())
-                                            .addConfig("attrType", config.getAttrType())
-                                            .addConfig("linkedName", item.getName())
-                                            .addConfig("linkedId", item.getId()));
+                                    // 点位控制协议使用接口码
+                                    if(productDto.getCtrlMode() == CtrlMode.POINT) {
+                                        children.addChildren(new IVOption(config.getAttrName(), item.getCode(), "属性")
+                                                .addConfig("type", ConditionType.ModelApi)
+                                                .addConfig("code", item.getCode())
+                                                .addConfig("attrType", config.getAttrType())
+                                                .addConfig("linkedName", item.getName())
+                                                .addConfig("linkedId", item.getId()));
+                                    } else {
+                                        children.addChildren(new IVOption(config.getAttrName(), config.getAttrField(), "属性")
+                                                .addConfig("type", ConditionType.ModelApi)
+                                                .addConfig("code", item.getCode())
+                                                .addConfig("attrType", config.getAttrType())
+                                                .addConfig("linkedName", item.getName())
+                                                .addConfig("linkedId", item.getId()));
+                                    }
                                 });
                                 children.setSelectable(false);
                             }
