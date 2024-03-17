@@ -1,15 +1,15 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
+import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
+import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
-import com.iteaj.iboot.module.iot.consts.GatewayConnectType;
 import com.iteaj.iboot.module.iot.consts.GatewayType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -97,8 +97,8 @@ public class Product extends BaseEntity {
     /**
      * 产品配置
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private ObjectNode config;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
 
     /**
      * 产品说明
@@ -137,7 +137,7 @@ public class Product extends BaseEntity {
      * 网关连接类型
      */
     @TableField(exist = false)
-    private GatewayConnectType connectType;
+    private ConnectionType connectType;
 
     /**
      * 网关连接类型

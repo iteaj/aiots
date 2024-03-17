@@ -1,16 +1,16 @@
-package com.iteaj.iboot.module.iot.consts;
+package com.iteaj.framework.spi.iot.consts;
 
 /**
- * 网关连接类型
+ * 连接类型
  */
-public enum GatewayConnectType {
+public enum ConnectionType {
     Client("客户端"), // 客户端
     Server("服务端"), // 服务端
     ;
 
     private String desc;
 
-    GatewayConnectType(String desc) {
+    ConnectionType(String desc) {
         this.desc = desc;
     }
 

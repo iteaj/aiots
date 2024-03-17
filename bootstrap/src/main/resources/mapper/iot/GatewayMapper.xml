@@ -14,7 +14,7 @@
         <result column="username" property="username" />
         <result column="password" property="password" />
         <result column="config" property="config"
-                typeHandler="com.iteaj.framework.mybatis.handler.JacksonTypeHandler" />
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="remark" property="remark" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />

@@ -2,6 +2,9 @@ package com.iteaj.framework.spi.iot;
 
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 接口调用参数
  */
@@ -21,6 +24,11 @@ public class ProtocolModelApiInvokeParam {
      * 执行参数
      */
     private JSONObject param;
+
+    /**
+     * 执行配置
+     */
+    private Map config;
 
     public ProtocolModelApiInvokeParam(String deviceSn) {
         this(deviceSn, new JSONObject());
@@ -77,5 +85,30 @@ public class ProtocolModelApiInvokeParam {
 
     public void setParam(JSONObject param) {
         this.param = param;
+    }
+
+    public ProtocolModelApiInvokeParam addParam(String key, Object value) {
+        param.put(key, value); return this;
+    }
+
+    public Map getConfig() {
+        return config;
+    }
+
+    public <T> T getConfig(String key) {
+        return config != null ? (T) config.get(key) : null;
+    }
+
+    public ProtocolModelApiInvokeParam addConfig(String key, Object value) {
+        if(this.config == null) {
+            this.config = new HashMap();
+        }
+
+        this.config.put(key, value);
+        return this;
+    }
+
+    public void setConfig(Map config) {
+        this.config = config;
     }
 }

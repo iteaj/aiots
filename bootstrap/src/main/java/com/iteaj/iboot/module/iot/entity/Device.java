@@ -1,11 +1,11 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
-import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.validate.AllGroup;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import lombok.Data;
@@ -120,8 +120,8 @@ public class Device extends BaseEntity {
     /**
      * 设备配置
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private ObjectNode config;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
 
     /**
      * 状态切换时间

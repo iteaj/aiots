@@ -2,6 +2,8 @@ package com.iteaj.iboot.plugin.protocol.modbus.rtu;
 
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticProtocolSupplier;
+import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
+import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
@@ -14,7 +16,7 @@ import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuMessage;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
 
-public class ModbusRtuForDtuProtocolSupplier extends StaticProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, ModbusRtuForDtuServerComponent> {
+public class ModbusRtuForDtuProtocolSupplier extends StaticServerProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, ModbusRtuForDtuServerComponent> {
 
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("MODBUS:RTU:DTU", CtrlMode.POINT, TransportProtocol.TCP)
             .addModelAttr(new ProtocolModelAttr("childSn", "从机地址", "string", "从机地址(1-255的值)"))

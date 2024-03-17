@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.iot;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.json.JacksonUtils;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
@@ -33,25 +33,21 @@ public interface NetworkConfig {
      */
     String getDeviceSn();
 
-    static NetworkConfig resolve(TransportProtocol protocol, ObjectNode config) {
-        try {
-            if(protocol == TransportProtocol.TCP) {
-                return JacksonUtils.getMapper().readValue(config.traverse(), NetworkConfigImpl.TcpNetworkConfig.class);
-            } else if(protocol == TransportProtocol.MQTT) {
-                return JacksonUtils.getMapper().readValue(config.traverse(), NetworkConfigImpl.MqttNetworkConfig.class);
-            } else if(protocol == TransportProtocol.UDP) {
-                return JacksonUtils.getMapper().readValue(config.traverse(), NetworkConfigImpl.UdpNetworkConfig.class);
-            } else if(protocol == TransportProtocol.HTTP) {
-                return JacksonUtils.getMapper().readValue(config.traverse(), NetworkConfigImpl.HttpNetworkConfig.class);
-            } else if(protocol == TransportProtocol.WEBSOCKET) {
-                return JacksonUtils.getMapper().readValue(config.traverse(), NetworkConfigImpl.WebSocketConfig.class);
-            } else if(protocol == TransportProtocol.SERIAL) {
-                return JacksonUtils.getMapper().readValue(config.traverse(), NetworkConfigImpl.SerialConfig.class);
-            } else {
-                throw new ServiceException("错误的协议类型["+protocol+"]");
-            }
-        } catch (IOException e) {
-            throw new ServiceException("解析配置失败", e);
+    static NetworkConfig resolve(TransportProtocol protocol, JSONObject config) {
+        if(protocol == TransportProtocol.TCP) {
+            return config.toJavaObject(NetworkConfigImpl.TcpNetworkConfig.class);
+        } else if(protocol == TransportProtocol.MQTT) {
+            return config.toJavaObject(NetworkConfigImpl.MqttNetworkConfig.class);
+        } else if(protocol == TransportProtocol.UDP) {
+            return config.toJavaObject(NetworkConfigImpl.UdpNetworkConfig.class);
+        } else if(protocol == TransportProtocol.HTTP) {
+            return config.toJavaObject(NetworkConfigImpl.HttpNetworkConfig.class);
+        } else if(protocol == TransportProtocol.WEBSOCKET) {
+            return config.toJavaObject(NetworkConfigImpl.WebSocketConfig.class);
+        } else if(protocol == TransportProtocol.SERIAL) {
+            return config.toJavaObject(NetworkConfigImpl.SerialConfig.class);
+        } else {
+            throw new ServiceException("错误的协议类型["+protocol+"]");
         }
     }
 }
