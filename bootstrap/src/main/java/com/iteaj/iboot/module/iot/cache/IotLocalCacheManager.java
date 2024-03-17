@@ -7,9 +7,11 @@ import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class IotLocalCacheManager implements IotCacheManager {
 
+    private Map<String, Set<RealtimeStatus>> productMaps = new ConcurrentHashMap<>(50);
     private Map<Long, Set<RealtimeStatus>> groupMaps = new ConcurrentHashMap<>(50);
     private Map<String, Map<String, RealtimeStatus>> realtimeMap = new ConcurrentHashMap(500);
 
@@ -23,18 +25,36 @@ public class IotLocalCacheManager implements IotCacheManager {
                 if(deviceMaps == null) {
                     realtimeMap.put(device.getProtocolCode(), deviceMaps = new ConcurrentHashMap<>());
                     deviceMaps.put(device.buildDeviceKey(), device);
+                    Set<RealtimeStatus> productSets = productMaps.get(device.getProductCode());
+                    if(productSets == null) {
+                        productMaps.put(device.getProductCode(), productSets = new HashSet<>());
+                    }
+
+                    productSets.add(device);
                     if(device.getGroupId() != null) {
                         Set<RealtimeStatus> statuses = groupMaps.get(device.getGroupId());
                         if(statuses == null) {
                             groupMaps.put(device.getGroupId(), statuses = new HashSet<>());
-                            statuses.add(device);
                         }
+
+                        statuses.add(device);
                     }
                 }
             }
         } else {
             String deviceKey = device.buildDeviceKey();
             deviceMaps.put(deviceKey, device);
+            Set<RealtimeStatus> productSet = productMaps.get(device.getProductCode());
+            if(productSet == null) {
+                synchronized (this) {
+                    productSet = productMaps.get(device.getProductCode());
+                    if(productSet == null) {
+                        productMaps.put(device.getProductCode(), productSet = new HashSet<>());
+                    }
+                }
+            }
+            productSet.add(device);
+
             if(device.getGroupId() != null) {
                 Set<RealtimeStatus> statuses = groupMaps.get(device.getGroupId());
                 if(statuses == null) {
@@ -42,10 +62,11 @@ public class IotLocalCacheManager implements IotCacheManager {
                         statuses = groupMaps.get(device.getGroupId());
                         if(statuses == null) {
                             groupMaps.put(device.getGroupId(), statuses = new HashSet<>());
-                            statuses.add(device);
                         }
                     }
                 }
+
+                statuses.add(device);
             }
         }
 
@@ -112,15 +133,7 @@ public class IotLocalCacheManager implements IotCacheManager {
     public RealtimeStatus removeByKey(String protocolCode, String deviceSn) {
         Map<String, RealtimeStatus> statusMap = realtimeMap.get(protocolCode);
         if(statusMap != null) {
-            RealtimeStatus remove = statusMap.remove(deviceSn);
-            if(remove != null && remove.getGroupId() != null) {
-                Set<RealtimeStatus> statuses = groupMaps.get(remove.getGroupId());
-                if(statuses != null) {
-                    statuses.remove(remove);
-                }
-            }
-
-            return remove;
+            return removeRealtimeStatus(statusMap.remove(deviceSn));
         }
 
         return null;
@@ -130,18 +143,27 @@ public class IotLocalCacheManager implements IotCacheManager {
     public RealtimeStatus removeByKey(String protocolCode, String deviceSn, String parentDeviceSn) {
         Map<String, RealtimeStatus> statusMap = realtimeMap.get(protocolCode);
         if(statusMap != null) {
-            RealtimeStatus remove = statusMap.remove(RealtimeStatus.buildDeviceKey(deviceSn, parentDeviceSn));
-            if(remove != null && remove.getGroupId() != null) {
+            return removeRealtimeStatus(statusMap.remove(RealtimeStatus.buildDeviceKey(deviceSn, parentDeviceSn)));
+        }
+
+        return null;
+    }
+
+    private RealtimeStatus removeRealtimeStatus(RealtimeStatus remove) {
+        if(remove != null) {
+            // 从组里面移除
+            if(remove.getGroupId() != null) {
                 Set<RealtimeStatus> statuses = groupMaps.get(remove.getGroupId());
                 if(statuses != null) {
                     statuses.remove(remove);
                 }
             }
 
-            return remove;
+            // 从产品里面移除
+            productMaps.remove(remove);
         }
 
-        return null;
+        return remove;
     }
 
     @Override
@@ -256,13 +278,42 @@ public class IotLocalCacheManager implements IotCacheManager {
     }
 
     @Override
-    public Set<RealtimeStatus> listByGroupId(Long id) {
-        if(id == null) {
-            return Collections.emptySet();
+    public Set<RealtimeStatus> listByGroupId(Long groupId) {
+        if(groupId == null) {
+            throw new IllegalArgumentException("未指定参数[groupId]");
         }
 
-        Set<RealtimeStatus> statusSet = groupMaps.get(id);
+        Set<RealtimeStatus> statusSet = groupMaps.get(groupId);
         return statusSet != null ? statusSet : Collections.emptySet();
+    }
+
+    @Override
+    public Collection<RealtimeStatus> listByProductCode(String productCode) {
+        if(StrUtil.isBlank(productCode)) {
+            throw new IllegalArgumentException("未指定参数[productCode]");
+        }
+
+        Set<RealtimeStatus> statusSet = productMaps.get(productCode);
+        return statusSet != null ? statusSet : Collections.emptySet();
+    }
+
+    @Override
+    public Collection<RealtimeStatus> listGroupAndProduct(Long groupId, String productCode) {
+        if(groupId == null) {
+            throw new IllegalArgumentException("未指定参数[groupId]");
+        }
+        if(StrUtil.isBlank(productCode)) {
+            throw new IllegalArgumentException("未指定参数[productCode]");
+        }
+
+        Set<RealtimeStatus> realtimeStatuses = groupMaps.get(groupId);
+        if(realtimeStatuses != null) {
+            return realtimeStatuses.stream()
+                    .filter(item -> Objects.equals(productCode, item.getProductCode()))
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptySet();
     }
 
 }
