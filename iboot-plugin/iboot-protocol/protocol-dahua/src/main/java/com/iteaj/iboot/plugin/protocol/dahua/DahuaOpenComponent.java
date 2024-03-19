@@ -8,6 +8,10 @@ import com.iteaj.iot.client.http.okhttp.OkHttpClient;
 
 public class DahuaOpenComponent extends HttpClientComponent<DahuaHttpMessage> {
 
+    public static DahuaOpenComponent instance = new DahuaOpenComponent();
+
+    protected DahuaOpenComponent() { }
+
     @Override
     public HttpClient getClient() {
         return null;

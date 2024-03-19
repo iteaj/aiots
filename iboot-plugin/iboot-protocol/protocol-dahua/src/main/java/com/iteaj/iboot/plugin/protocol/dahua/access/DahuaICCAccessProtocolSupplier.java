@@ -45,8 +45,7 @@ public class DahuaICCAccessProtocolSupplier extends StaticClientProtocolSupplier
 
     @Override
     public DahuaOpenComponent doCreateComponent(NetworkConfigImpl.TcpNetworkConfig config) {
-        ConnectProperties connectProperties = new ConnectProperties(config.getHost(), config.getPort());
-        return new DahuaOpenComponent();
+        return DahuaOpenComponent.instance;
     }
 
     @Override
