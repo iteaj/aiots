@@ -24,7 +24,7 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
 
     @Override
     public String getDesc() {
-        return "欧姆龙PLC协议提供";
+        return "欧姆龙PLC协议";
     }
 
     @Override

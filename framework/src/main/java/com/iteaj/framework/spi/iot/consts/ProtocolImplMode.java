@@ -27,7 +27,7 @@ public enum ProtocolImplMode {
     public static List<IVOption> options() {
         return Arrays.stream(ProtocolImplMode.values())
             .map(item -> {
-                if(item == Custom) {
+                if(item != Custom) {
                     return new IVOption(item.getDesc(), item.name());
                 } else {
                     return new IVOption(item.getDesc(), item.name(), true);

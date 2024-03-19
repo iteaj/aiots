@@ -2,12 +2,10 @@ package com.iteaj.iboot.module.iot.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
@@ -201,6 +199,34 @@ public class ProtocolController extends BaseController {
             }
         }).orElseGet(ArrayList::new);
         return success(protocolApis);
+    }
+
+    /**
+     * 系统内置协议列表
+     * @return
+     */
+    @GetMapping("internals")
+    public Result<List<IVOption>> internals() {
+        List<IVOption> list = new ArrayList<>();
+        Collection<DeviceProtocolSupplier> internals = ProtocolSupplierManager.internals();
+        List<String> codes = internals.stream()
+                .map(item -> item.getProtocol().getCode())
+                .collect(Collectors.toList());
+
+        Map<String, Protocol> protocolMap = protocolService.list(Wrappers.<Protocol>lambdaQuery().in(Protocol::getCode, codes))
+                .stream().collect(Collectors.toMap(Protocol::getCode, item -> item));
+
+        internals.forEach(item -> {
+            Protocol protocol = protocolMap.get(item.getProtocol().getCode());
+            if (protocol == null) {
+                ProtocolDto protocolDto = protocolService.loadProtocol(item);
+                protocol = new Protocol();
+                BeanUtils.copyProperties(protocolDto, protocol);
+            }
+
+            list.add(new IVOption(item.getDesc(), item.getProtocol().getCode(), protocol));
+        });
+        return success(list);
     }
 }
 
