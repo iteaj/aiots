@@ -224,7 +224,7 @@ public class ProtocolController extends BaseController {
                 BeanUtils.copyProperties(protocolDto, protocol);
             }
 
-            list.add(new IVOption(item.getDesc(), item.getProtocol().getCode(), protocol));
+            list.add(new IVOption(item.getDesc(), item.getProtocol().getCode(), protocol).setDisabled(protocol.getId() != null));
         });
         return success(list);
     }
