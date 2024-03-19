@@ -16,7 +16,7 @@ public enum TransportProtocol {
     TCP("TCP协议", NetworkConfigImpl.TcpNetworkConfig.tcpMetas, false),
     UDP("UDP协议", NetworkConfigImpl.UdpNetworkConfig.udpMetas, true),
     MQTT("MQTT协议", NetworkConfigImpl.MqttNetworkConfig.mqttMetas, true),
-    HTTP("HTTP协议", NetworkConfigImpl.HttpNetworkConfig.httpMetas, true),
+    HTTP("HTTP协议", NetworkConfigImpl.HttpNetworkConfig.httpMetas, false),
     SERIAL("SERIAL协议", NetworkConfigImpl.SerialConfig.serialMetas, true),
     WEBSOCKET("WEBSOCKET协议", NetworkConfigImpl.WebSocketConfig.websocketMetas, true),
     ;

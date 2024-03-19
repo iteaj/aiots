@@ -70,12 +70,12 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
-        <!--modbus协议提供-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <version>${project.version}</version>-->
-<!--            <artifactId>protocol-modbus</artifactId>-->
-<!--        </dependency>-->
+        <!--大华协议提供-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>protocol-dahua</artifactId>
+        </dependency>
         <!--plc协议提供-->
         <dependency>
             <groupId>com.iteaj</groupId>
@@ -151,13 +151,6 @@
 <!--            <version>${project.version}</version>-->
 <!--            <artifactId>iboot-message</artifactId>-->
 <!--        </dependency>-->
-
-        <!-- gb28181模块 -->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>iboot-gb28181</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

@@ -1,0 +1,27 @@
+############################################# \u5927\u534EICC\u5F00\u653E\u5E73\u53F0\u914D\u7F6E #####################################
+spring:
+  config:
+    activate:
+      on-profile: dev # \u5F00\u53D1\u73AF\u5883\u914D\u7F6E
+icc:
+  sdk:
+    host: 10.35.121.62
+    pwdClientId: xxx
+    pwdClientSecret: xxx
+    username: icc\u5E73\u53F0\u767B\u5F55\u7528\u6237\u540D
+    password: icc\u5E73\u53F0\u767B\u5F55\u5BC6\u7801
+    # \u4F7F\u7528\u6388\u6743\u7C7B\u578Bpassword
+    grantType: password
+---
+spring:
+  config:
+    activate:
+      on-profile: prod # \u6B63\u5F0F\u73AF\u5883\u914D\u7F6E
+sdk:
+  host: 10.35.121.62
+  pwdClientId: xxx
+  pwdClientSecret: xxx
+  username: icc\u5E73\u53F0\u767B\u5F55\u7528\u6237\u540D
+  password: icc\u5E73\u53F0\u767B\u5F55\u5BC6\u7801
+  # \u4F7F\u7528\u6388\u6743\u7C7B\u578Bpassword
+  grantType: password
