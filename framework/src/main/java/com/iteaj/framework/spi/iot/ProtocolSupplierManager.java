@@ -20,6 +20,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 /**
  * 协议提供管理
@@ -199,6 +200,25 @@ public class ProtocolSupplierManager {
      */
     public static DeviceProtocolSupplier get(Class<? extends Message> messageClass) {
         return messageMap.get(messageClass);
+    }
+
+    /**
+     * 协议提供列表
+     * @return
+     */
+    public static Collection<DeviceProtocolSupplier> suppliers() {
+        return Collections.unmodifiableCollection(supplierMap.values());
+    }
+
+    /**
+     * 内置的协议提供列表
+     * @return
+     */
+    public static Collection<DeviceProtocolSupplier> internals() {
+        List<DeviceProtocolSupplier> suppliers = supplierMap.values().stream()
+                .filter(item -> item.getImplMode() == ProtocolImplMode.Internal)
+                .collect(Collectors.toList());
+        return Collections.unmodifiableCollection(suppliers);
     }
 
     /**

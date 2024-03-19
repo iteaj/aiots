@@ -18,7 +18,7 @@ import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
 
 public class ModbusRtuForDtuProtocolSupplier extends StaticServerProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, ModbusRtuForDtuServerComponent> {
 
-    private DefaultProtocolModel protocolModel = new DefaultProtocolModel("MODBUS:RTU:DTU", CtrlMode.POINT, TransportProtocol.TCP)
+    private DefaultProtocolModel protocolModel = new DefaultProtocolModel("MODBUS:RTU:DTU", CtrlMode.POINT, TransportProtocol.TCP, "用于提供边缘网关设备Dtu+Modbus Rtu协议的支持")
             .addModelAttr(new ProtocolModelAttr("childSn", "从机地址", "string", "从机地址(1-255的值)"))
             .addModelAttr(new ProtocolModelAttr("position", "寄存器地址", "string", "寄存器地址"))
             .addModelAttr(new ProtocolModelAttr("value", "点位值", "object", "读/写寄存器的值(跟随数据类型转换)"))
@@ -66,7 +66,7 @@ public class ModbusRtuForDtuProtocolSupplier extends StaticServerProtocolSupplie
 
     @Override
     public String getDesc() {
-        return "用于提供边缘网关设备Dtu+Modbus Rtu协议的支持";
+        return "DTU_ModbusRtu";
     }
 
     @Override

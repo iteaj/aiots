@@ -9,6 +9,7 @@ import java.util.Map;
 public class DefaultProtocolModel implements ProtocolModel{
 
     private String code;
+    private String remark;
     private CtrlMode ctrlMode;
     private TransportProtocol type;
 
@@ -19,8 +20,17 @@ public class DefaultProtocolModel implements ProtocolModel{
         this(code, ctrlMode, type, new LinkedHashMap<>(), new LinkedHashMap<>());
     }
 
+    public DefaultProtocolModel(String code, CtrlMode ctrlMode, TransportProtocol type, String remark) {
+        this(code, ctrlMode, type, new LinkedHashMap<>(), new LinkedHashMap<>(), remark);
+    }
+
     public DefaultProtocolModel(String code, CtrlMode ctrlMode, TransportProtocol type
             , Map<String, AbstractProtocolModelApi> modelApis, Map<String, ProtocolModelAttr> modelAttrs) {
+        this(code, ctrlMode, type, modelApis, modelAttrs, null);
+    }
+
+    public DefaultProtocolModel(String code, CtrlMode ctrlMode, TransportProtocol type
+            , Map<String, AbstractProtocolModelApi> modelApis, Map<String, ProtocolModelAttr> modelAttrs, String remark) {
         this.code = code;
         this.type = type;
         this.ctrlMode = ctrlMode;
