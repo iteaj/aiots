@@ -1,6 +1,7 @@
 package com.iteaj.plugin.protocol.plc.omron;
 
 import cn.hutool.core.util.StrUtil;
+import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
@@ -22,6 +23,11 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("PLC_OMRON_TCP"
             , CtrlMode.POINT, TransportProtocol.TCP, getModelApis(), getModelAttrs());
 
+    private ParamMeta[] gatewayConfig = new ParamMeta[]{
+            ParamMeta.buildRequired("host", "主机", "", "127.0.0.1"),
+            ParamMeta.buildRequiredNumber("port", "端口", 9600, ""),
+    };
+
     @Override
     public String getDesc() {
         return "欧姆龙PLC协议";
@@ -40,6 +46,11 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     @Override
     public ProtocolImplMode getImplMode() {
         return ProtocolImplMode.Internal;
+    }
+
+    @Override
+    public ParamMeta[] getGatewayConfig() {
+        return gatewayConfig;
     }
 
     @Override

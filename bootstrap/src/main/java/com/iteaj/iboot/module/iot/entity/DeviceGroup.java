@@ -47,11 +47,6 @@ public class DeviceGroup extends TreeEntity {
     private String name;
 
     /**
-     * 组类型
-     */
-    private GroupType type;
-
-    /**
      * 路径
      */
     private String path;
@@ -69,13 +64,18 @@ public class DeviceGroup extends TreeEntity {
     /**
      * 产品id列表
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private ArrayNode productIds;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray productIds;
 
     /**
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 组产品id
+     */
+    private Long groupProductId;
 
     /**
      * 产品id

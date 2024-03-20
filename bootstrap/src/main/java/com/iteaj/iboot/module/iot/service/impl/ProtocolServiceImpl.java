@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -135,7 +134,9 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
             ProtocolDto protocolDto = new ProtocolDto();
             protocolDto.setDeviceConfig(supplier.getDeviceConfig());
             protocolDto.setProductConfig(supplier.getProductConfig());
-            protocolDto.setGatewayConfig(supplier.getGatewayConfig());
+            protocolDto.setGatewayConfig(supplier.getNetworkConfig());
+            protocolDto.setGatewayType(supplier.getGatewayType());
+            protocolDto.setConnectionType(supplier.getConnectionType());
             protocolDto.setVersion(supplier.getVersion());
             ProtocolModel protocol = supplier.getProtocol();
             protocolDto.setCode(protocol.getCode()).setRemark(protocol.getRemark())
@@ -224,8 +225,6 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                 detail.setAttrs(protocolDto.getAttrs());
                 detail.setFuncApis(protocolDto.getFuncApis());
                 detail.setEventApis(protocolDto.getEventApis());
-            } else {
-                throw new ServiceException("获取协议提供["+detail.getCode()+"]失败");
             }
         }
 

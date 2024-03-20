@@ -11,7 +11,7 @@ public class FastjsonTypeHandler extends AbstractJsonTypeHandler<JSON> {
 
     @Override
     protected JSON parse(String json) {
-        return JSON.parseObject(json);
+        return (JSON) JSON.parse(json);
     }
 
     @Override

@@ -1,13 +1,13 @@
 package com.iteaj.iboot.module.iot.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
-import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
@@ -15,17 +15,14 @@ import com.iteaj.framework.spi.file.UploadResult;
 import com.iteaj.framework.spi.file.UploadService;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
-import com.iteaj.iboot.module.iot.consts.IotConsts;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.entity.ProtocolApi;
-import com.iteaj.iboot.module.iot.entity.ProtocolApiConfig;
-import com.iteaj.iboot.module.iot.entity.ProtocolAttr;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -47,10 +44,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProtocolController extends BaseController {
 
     private final UploadService uploadService;
+    private final IProductService productService;
     private final IProtocolService protocolService;
 
-    public ProtocolController(UploadService uploadService, IProtocolService protocolService) {
+    public ProtocolController(UploadService uploadService, IProductService productService, IProtocolService protocolService) {
         this.uploadService = uploadService;
+        this.productService = productService;
         this.protocolService = protocolService;
     }
 
@@ -227,6 +226,52 @@ public class ProtocolController extends BaseController {
             list.add(new IVOption(item.getDesc(), item.getProtocol().getCode(), protocol).setDisabled(protocol.getId() != null));
         });
         return success(list);
+    }
+
+    /**
+     * 获取产品对应协议的额外配置列表
+     * @param productId 产品id
+     * @param type 可选值(gateway、network)
+     * @return
+     */
+    @GetMapping("listProtocolConfigByProductId")
+    public Result<ParamMeta[]> listProtocolConfigMetas(Long productId, String type) {
+        if(productId == null) {
+            return fail("未指定参数[productId]");
+        }
+
+        Product product = this.productService.getById(productId)
+                .ifNotPresentThrow("产品不存在").getData();
+        return listProtocolConfigMetas(product.getProtocolCode(), type);
+    }
+
+    /**
+     * 获取协议额外配置列表
+     * @param protocolCode 协议代码
+     * @param type 可选值(gateway、network)
+     * @return
+     */
+    @GetMapping("listProtocolConfig")
+    public Result<ParamMeta[]> listProtocolConfigMetas(String protocolCode, String type) {
+        if(StrUtil.isBlank(type)) {
+            return fail("未指定参数[type]");
+        }
+        if(StrUtil.isBlank(protocolCode)) {
+            return fail("未指定参数[protocolCode]");
+        }
+
+        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
+        if(supplier == null) {
+            return fail("找不到协议[protocolCode="+protocolCode+"]");
+        }
+
+        if(type.equals("network")) {
+            return success(supplier.getNetworkConfig());
+        } else if(type.equals("gateway")) {
+            return success(supplier.getGatewayConfig());
+        } else {
+            return fail("不支持的类型[type="+type+"]");
+        }
     }
 }
 

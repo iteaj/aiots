@@ -2,6 +2,7 @@ package com.iteaj.plugin.protocol.plc;
 
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticClientProtocolSupplier;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
@@ -86,6 +87,11 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T
         this.modelApis.put("writeString", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_STRING, "写string值", "写string值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
                 .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的string值", 2)));
+    }
+
+    @Override
+    public GatewayType getGatewayType() {
+        return GatewayType.Gateway;
     }
 
     public Map<String, ProtocolModelAttr> getModelAttrs() {

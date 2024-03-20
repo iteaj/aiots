@@ -78,7 +78,7 @@ public class Device extends BaseEntity {
     /**
      * 设备类型
      */
-    @NotNull(message = "产品类型必填", groups = AllGroup.class)
+    @TableField(exist = false)
     private Long productTypeId;
 
     /**

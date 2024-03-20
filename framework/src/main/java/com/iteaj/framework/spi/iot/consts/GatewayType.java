@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.consts;
+package com.iteaj.framework.spi.iot.consts;
 
 /**
  * 网关连接类型

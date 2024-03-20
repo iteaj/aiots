@@ -6,6 +6,7 @@ import com.iteaj.framework.spi.iot.ServerProtocolSupplier;
 import com.iteaj.framework.spi.iot.StaticProtocolSupplier;
 import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.*;
@@ -82,6 +83,11 @@ public class ModbusTcpForDtuProtocolSupplier extends StaticServerProtocolSupplie
     }
 
     @Override
+    public GatewayType getGatewayType() {
+        return GatewayType.Gateway;
+    }
+
+    @Override
     public ProtocolImplMode getImplMode() {
         return ProtocolImplMode.Internal;
     }
@@ -94,7 +100,7 @@ public class ModbusTcpForDtuProtocolSupplier extends StaticServerProtocolSupplie
     }
 
     @Override
-    public ParamMeta[] getGatewayConfig() {
+    public ParamMeta[] getNetworkConfig() {
         return new ParamMeta[]{
                 ParamMeta.buildRequired("host", "主机", "", "0.0.0.0"),
                 ParamMeta.buildRequired("port", "端口", null, "502")

@@ -131,35 +131,6 @@ public class DevicePlcController extends BaseController {
         }
 
         try {
-            // 西门子设备
-            if(device.getProductTypeId() == 2) {
-                SiemensModel model = SiemensModel.valueOf(data.getName());
-                SiemensConnectProperties properties = new SiemensConnectProperties(device.getIp(), device.getPort(), model, entity.getDeviceSn());
-                SocketClient client = siemensS7Component.getClient(properties);
-                if(status == DeviceStatus.online) {
-                    if(client == null) {
-                        siemensS7Component.createNewClientAndConnect(properties);
-                    } else {
-                        client.reconnection();
-                    }
-                } else {
-                    client.disconnect();
-                }
-            } else if(device.getProductTypeId() == 3) { // 欧姆龙设备
-                OmronConnectProperties properties = new OmronConnectProperties(device.getIp(), device.getPort());
-                properties.setConnectKey(entity.getDeviceSn());
-                SocketClient client = omronComponent.getClient(properties);
-                if(status == DeviceStatus.online) {
-                    if(client == null) {
-                        omronComponent.createNewClientAndConnect(properties);
-                    } else {
-                        client.connect();
-                    }
-                } else {
-                    client.disconnect();
-                }
-            }
-
             return success(status == DeviceStatus.online ? "连接成功" : "断开成功");
         } catch (Exception e) {
             e.printStackTrace();

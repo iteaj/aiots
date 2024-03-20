@@ -4,9 +4,7 @@ import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 
-import com.iteaj.framework.spi.iot.consts.CtrlMode;
-import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.consts.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -46,6 +44,16 @@ public class Protocol extends BaseEntity {
      * 协议类型
      */
     private TransportProtocol type;
+
+    /**
+     * 网关类型
+     */
+    private GatewayType gatewayType;
+
+    /**
+     * 连接类型
+     */
+    private ConnectionType connectionType;
 
     /**
      * 操控方式

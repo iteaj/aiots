@@ -11,6 +11,8 @@ import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.entity.Gateway;
@@ -63,11 +65,11 @@ public class GatewayController extends BaseController {
      * @return
      */
     @GetMapping("protocols")
-    public Result<List<IVOption>> protocols(TransportProtocol type) {
-        return gatewayService.protocols(type).forEach(item -> {
+    public Result<List<IVOption>> protocols(GatewayType type, TransportProtocol protocolType, ConnectionType connectionType) {
+        return gatewayService.protocols(type, protocolType, connectionType).forEach(item -> {
             DeviceProtocolSupplier supplier = ProtocolSupplierManager.get((String) item.getExtra());
             if(supplier != null) {
-                item.addConfig("config", supplier.getGatewayConfig());
+                item.addConfig("config", supplier.getNetworkConfig());
             } else {
                 item.addConfig("bind", "不可用");
             }

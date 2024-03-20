@@ -10,7 +10,7 @@ import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
-import com.iteaj.iboot.module.iot.consts.GatewayType;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

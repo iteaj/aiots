@@ -12,6 +12,7 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfig;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.dto.GatewayDto;
@@ -91,8 +92,8 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
     }
 
     @Override
-    public ListResult<IVOption> protocols(TransportProtocol protocol) {
-        List<IVOption> optionList = getBaseMapper().protocols(protocol);
+    public ListResult<IVOption> protocols(GatewayType type, TransportProtocol protocol, ConnectionType connectionType) {
+        List<IVOption> optionList = getBaseMapper().protocols(type, protocol, connectionType);
         return new ListResult<>(optionList);
     }
 

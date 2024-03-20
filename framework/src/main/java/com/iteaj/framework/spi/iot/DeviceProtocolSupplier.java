@@ -2,6 +2,7 @@ package com.iteaj.framework.spi.iot;
 
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.iot.FrameworkComponent;
@@ -30,6 +31,12 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends Frame
     ProtocolModel getProtocol();
 
     /**
+     * 网关类型
+     * @return
+     */
+    GatewayType getGatewayType();
+
+    /**
      * 连接类型
      * @return
      */
@@ -41,12 +48,14 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends Frame
      */
     ProtocolImplMode getImplMode();
 
+    ParamMeta[] EMPTY_CONFIG = new ParamMeta[]{};
+
     /**
      * 产品额外配置
      * @return
      */
     default ParamMeta[] getProductConfig() {
-        return new ParamMeta[]{};
+        return EMPTY_CONFIG;
     }
 
     /**
@@ -54,15 +63,23 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends Frame
      * @return
      */
     default ParamMeta[] getDeviceConfig() {
-        return new ParamMeta[]{};
+        return EMPTY_CONFIG;
     }
 
     /**
-     * 网关额外配置
+     * 网关设备配置
      * @return
      */
     default ParamMeta[] getGatewayConfig() {
-        return new ParamMeta[]{};
+        return EMPTY_CONFIG;
+    }
+
+    /**
+     * 网络组件额外配置
+     * @return
+     */
+    default ParamMeta[] getNetworkConfig() {
+        return EMPTY_CONFIG;
     }
 
     /**
