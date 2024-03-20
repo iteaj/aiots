@@ -60,12 +60,14 @@ public class ProductController extends BaseController {
 
     /**
      * 获取指定类型下面的列表
+     * @param deviceType 设备类型
      * @param productTypeId -1将获取所有
      * @return
      */
     @GetMapping("/listByType")
-    public Result<List<ProductDto>> listByType(Long productTypeId) {
+    public Result<List<ProductDto>> listByType(Long productTypeId, DeviceType deviceType) {
         Product product = new Product();
+        product.setDeviceType(deviceType);
         product.setProductTypeId(productTypeId);
         return this.productService.listOfDetail(product);
     }

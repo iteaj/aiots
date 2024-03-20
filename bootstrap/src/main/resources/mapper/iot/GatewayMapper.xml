@@ -55,8 +55,14 @@
         select a.id, a.name, a.code extra, if(g.id, '已绑定', ' ') bind from iot_protocol a
             left join iot_gateway g on a.id=g.protocol_id
         <where>
-            <if test="type != null">
+            <if test="protocol != null">
                 and a.type = #{protocol}
+            </if>
+            <if test="type != null">
+                and a.gateway_type = #{type}
+            </if>
+            <if test="connectionType != null">
+                and a.connection_type = #{connectionType}
             </if>
         </where>
     </select>

@@ -3,10 +3,7 @@ package com.iteaj.iboot.plugin.protocol.modbus.rtu;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticProtocolSupplier;
 import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
-import com.iteaj.framework.spi.iot.consts.ConnectionType;
-import com.iteaj.framework.spi.iot.consts.CtrlMode;
-import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.plugin.protocol.modbus.ModbusProtocolConsts;
 import com.iteaj.iot.FrameworkComponent;
@@ -77,6 +74,11 @@ public class ModbusRtuForDtuProtocolSupplier extends StaticServerProtocolSupplie
     @Override
     public ProtocolModel getProtocol() {
         return protocolModel;
+    }
+
+    @Override
+    public GatewayType getGatewayType() {
+        return GatewayType.Gateway;
     }
 
     @Override

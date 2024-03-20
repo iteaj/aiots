@@ -25,9 +25,7 @@ import com.iteaj.iboot.module.iot.service.IProtocolService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -134,7 +132,9 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
             ProtocolDto protocolDto = new ProtocolDto();
             protocolDto.setDeviceConfig(supplier.getDeviceConfig());
             protocolDto.setProductConfig(supplier.getProductConfig());
-            protocolDto.setGatewayConfig(supplier.getGatewayConfig());
+            protocolDto.setGatewayConfig(supplier.getNetworkConfig());
+            protocolDto.setGatewayType(supplier.getGatewayType());
+            protocolDto.setConnectionType(supplier.getConnectionType());
             protocolDto.setVersion(supplier.getVersion());
             ProtocolModel protocol = supplier.getProtocol();
             protocolDto.setCode(protocol.getCode()).setRemark(protocol.getRemark())

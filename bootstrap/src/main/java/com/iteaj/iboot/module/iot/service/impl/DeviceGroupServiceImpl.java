@@ -55,6 +55,7 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
         validateParent(entity, parent);
         return this.update(Wrappers.<DeviceGroup>lambdaUpdate()
                 .set(DeviceGroup::getPath, entity.getPath())
+                .set(DeviceGroup::getGroupProductId, entity.getGroupProductId())
                 .eq(DeviceGroup::getId, entity.getId()));
     }
 
@@ -131,16 +132,7 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
 
     @Override
     public DetailResult<DeviceGroup> getGroupProductById(Long id) {
-        DetailResult<DeviceGroup> detailResult = this.getById(id);
-        return detailResult.ifPresentThrow("产品组不存在").of().map(item -> {
-            if(item.getType() == GroupType.device) {
-                return this.getById(item.getPid());
-            } else if(item.getType() == GroupType.product){
-                return detailResult;
-            } else {
-                return null;
-            }
-        }).get();
+        return new DetailResult<>(getBaseMapper().getGroupProductById(id));
     }
 
     @Override

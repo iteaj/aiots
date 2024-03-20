@@ -4,6 +4,8 @@ import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.dto.GatewayDto;
@@ -30,7 +32,7 @@ public interface IGatewayService extends IBaseService<Gateway> {
      */
     DetailResult<GatewayDto> getByProtocolId(Long protocolId);
 
-    ListResult<IVOption> protocols(TransportProtocol protocol);
+    ListResult<IVOption> protocols(GatewayType type, TransportProtocol protocol, ConnectionType connectionType);
 
     /**
      * 切换网关状态

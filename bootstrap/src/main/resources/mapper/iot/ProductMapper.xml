@@ -108,6 +108,9 @@
             <if test="status != null">
                 and a.status=#{status}
             </if>
+            <if test="deviceType != null">
+                and a.device_type=#{deviceType}
+            </if>
             <if test="productTypeId != null">
                 and a.product_type_id=#{productTypeId}
             </if>
