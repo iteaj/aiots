@@ -49,8 +49,8 @@ public class DeviceController extends BaseController {
     */
     @GetMapping("/edit")
     @CheckPermission({"iot:device:edit"})
-    public Result<Device> getEditDetail(Long id) {
-        return this.deviceService.getById(id);
+    public Result<DeviceDto> getEditDetail(Long id) {
+        return this.deviceService.detailById(id);
     }
 
     /**

@@ -29,10 +29,12 @@
         <result property="deviceType" column="device_type" />
         <result property="productName" column="product_name" />
         <result property="productCode" column="product_code" />
+        <result property="gatewayId" column="gateway_id" />
         <result property="productTypeName" column="product_type_name" />
+        <result property="deviceGroupName" column="device_group_name" />
     </resultMap>
     <select id="pageOfDetail" resultMap="DeviceDtoMap">
-        select a.*, idm.name product_name, idt.name product_type_name, idm.device_type from iot_device a
+        select a.*, idm.name product_name, idt.name product_type_name, idm.device_type, dg.name device_group_name from iot_device a
             left join iot_product idm on a.product_id=idm.id
             left join iot_product_type idt on idm.product_type_id=idt.id
             left join iot_device_group dg on a.device_group_id=dg.id
@@ -78,7 +80,8 @@
         where a.uid=#{uid}
     </select>
     <select id="detailById" resultMap="DeviceDtoMap">
-        select a.*, pd.device_sn parent_device_sn, idm.name product_name, idt.name product_type_name, idm.code product_code from iot_device a
+        select a.*, pd.device_sn parent_device_sn, idm.name product_name, idt.name product_type_name
+             , idm.code product_code, idm.gateway_id from iot_device a
             left join iot_device pd on a.pid = pd.id
             left join iot_product idm on a.product_id=idm.id
             left join iot_product_type idt on idm.product_type_id=idt.id
