@@ -82,6 +82,10 @@ public class ProtocolModelApiConfig {
         this.protocolModelAttrField = protocolModelAttrField;
     }
 
+    public static ProtocolModelApiConfig upBuild(String attrField) {
+        return upBuild(attrField, null, 0);
+    }
+
     public static ProtocolModelApiConfig upBuild(String attrField, String remark) {
         return upBuild(attrField, remark, 0);
     }
@@ -90,12 +94,20 @@ public class ProtocolModelApiConfig {
         return new ProtocolModelApiConfig(attrField, remark, ApiConfigDirection.UP, sort);
     }
 
+    public static ProtocolModelApiConfig upStatusBuild(String attrField) {
+        return upBuild(attrField, null, 0).setFieldType(ApiFieldType.status);
+    }
+
     public static ProtocolModelApiConfig upStatusBuild(String attrField, String remark) {
         return upBuild(attrField, remark, 0).setFieldType(ApiFieldType.status);
     }
 
     public static ProtocolModelApiConfig upStatusBuild(String attrField, String remark, int sort) {
         return upBuild(attrField, remark, sort).setFieldType(ApiFieldType.status);
+    }
+
+    public static ProtocolModelApiConfig downBuild(String attrField) {
+        return downBuild(attrField, null, 0);
     }
 
     public static ProtocolModelApiConfig downBuild(String attrField, String remark) {
