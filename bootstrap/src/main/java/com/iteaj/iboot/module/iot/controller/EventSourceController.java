@@ -119,10 +119,7 @@ public class EventSourceController extends BaseController {
     public Result<List<IVOption>> deviceGroups() {
         List<DeviceGroup> data = deviceGroupService.list().getData();
         List<IVOption> options = IVOption.convert(data, deviceGroup -> {
-            IVOption ivOption = new IVOption(deviceGroup.getName(), deviceGroup.getId(), deviceGroup.getType().getDesc());
-            if(deviceGroup.getType() == GroupType.archive) {
-                ivOption.setSelectable(false).setDisabled(true);
-            }
+            IVOption ivOption = new IVOption(deviceGroup.getName(), deviceGroup.getId());
 
             return ivOption;
         });

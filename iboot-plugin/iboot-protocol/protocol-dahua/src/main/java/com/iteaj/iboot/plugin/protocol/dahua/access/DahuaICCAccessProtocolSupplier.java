@@ -3,11 +3,14 @@ package com.iteaj.iboot.plugin.protocol.dahua.access;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.iboot.plugin.protocol.dahua.DahuaICCProtocolType;
 import com.iteaj.iboot.plugin.protocol.dahua.DahuaOpenComponent;
 import com.iteaj.iot.client.http.HttpClient;
 import com.iteaj.iot.config.ConnectProperties;
@@ -18,10 +21,18 @@ import com.iteaj.iot.config.ConnectProperties;
 public class DahuaICCAccessProtocolSupplier extends StaticClientProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, DahuaOpenComponent, HttpClient> {
 
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("DAHUA_ICC_ACCESS", CtrlMode.COMMON, TransportProtocol.HTTP)
-            .addModelAttr(new ProtocolModelAttr("childSn", "从机地址", "string", "从机地址(1-255的值)"))
-            .addModelAttr(new ProtocolModelAttr("position", "寄存器地址", "string", "寄存器地址"))
-            .addModelAttr(new ProtocolModelAttr("value", "点位值", "object", "读/写寄存器的值(跟随数据类型转换)"))
-            .addModelAttr(new ProtocolModelAttr("type", "数据类型", "string", "要读取或者写入的值的数据类型"));
+            .addModelAttr(new ProtocolModelAttr("channelCodeList", "门禁通道列表", "string", "如:1000003$7$0$0, 多个值可用逗号隔开"))
+            .addModelApi(new DahuaICCAccessProtocolModelApi(DahuaICCProtocolType.openDoor.name(), DahuaICCProtocolType.openDoor.getDesc())
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("channelCodeList", "门禁通道号")))
+            .addModelApi(new DahuaICCAccessProtocolModelApi(DahuaICCProtocolType.closeDoor.name(), DahuaICCProtocolType.closeDoor.getDesc())
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("channelCodeList", "门禁通道号")))
+            .addModelApi(new DahuaICCAccessProtocolModelApi(DahuaICCProtocolType.stayOpen.name(), DahuaICCProtocolType.stayOpen.getDesc())
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("channelCodeList", "门禁通道号")))
+            .addModelApi(new DahuaICCAccessProtocolModelApi(DahuaICCProtocolType.stayClose.name(), DahuaICCProtocolType.stayClose.getDesc())
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("channelCodeList", "门禁通道号")))
+            .addModelApi(new DahuaICCAccessProtocolModelApi(DahuaICCProtocolType.normal.name(), DahuaICCProtocolType.normal.getDesc())
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("channelCodeList", "门禁通道号")))
+            ;
 
     @Override
     public String getDesc() {
@@ -36,6 +47,11 @@ public class DahuaICCAccessProtocolSupplier extends StaticClientProtocolSupplier
     @Override
     public ProtocolModel getProtocol() {
         return protocolModel;
+    }
+
+    @Override
+    public GatewayType getGatewayType() {
+        return GatewayType.Gateway;
     }
 
     @Override

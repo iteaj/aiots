@@ -109,7 +109,7 @@ public class DeviceGroupController extends BaseController {
                 .ifNotPresentThrow("设备组不存在").getData();
         if(data.getProductIds() != null && !data.getProductIds().isEmpty()) {
             List<Long> longs = CollectionUtil.newArrayList(data.getProductIds().iterator())
-                    .stream().map(item -> item.asLong()).collect(Collectors.toList());
+                    .stream().map(item -> Long.valueOf(item.toString())).collect(Collectors.toList());
             List<ModelApi> list = modelApiService.list(Wrappers.<ModelApi>lambdaQuery()
                     .in(ModelApi::getProductId, longs).eq(ModelApi::getType, ProtocolApiType.event))
                     .ofNullable().orElse(Collections.EMPTY_LIST);

@@ -3,6 +3,7 @@ package com.iteaj.iboot.plugin.protocol.dahua.video;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
@@ -36,6 +37,11 @@ public class DahuaICCVideoProtocolSupplier extends StaticClientProtocolSupplier<
     @Override
     public ProtocolModel getProtocol() {
         return protocolModel;
+    }
+
+    @Override
+    public GatewayType getGatewayType() {
+        return GatewayType.Gateway;
     }
 
     @Override
