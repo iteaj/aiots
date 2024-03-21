@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -204,14 +205,14 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
         return new ProtocolApiConfig()
                 .setSort(config.getSort())
                 .setLength(config.getLength())
-                .setRemark(config.getRemark())
                 .setPosition(config.getPosition())
                 .setFieldType(config.getFieldType())
                 .setProtocolApiCode(protocolApi.getCode())
                 .setAttrName(attr != null ? attr.getName() : null)
                 .setAttrType(attr != null ? attr.getType() : null)
                 .setAttrRemark(attr != null ? attr.getRemark() : null)
-                .setProtocolAttrField(config.getProtocolModelAttrField());
+                .setProtocolAttrField(config.getProtocolModelAttrField())
+                .setRemark(StrUtil.isBlank(config.getRemark()) ? attr.getRemark() : config.getRemark());
     }
 
     @Override
