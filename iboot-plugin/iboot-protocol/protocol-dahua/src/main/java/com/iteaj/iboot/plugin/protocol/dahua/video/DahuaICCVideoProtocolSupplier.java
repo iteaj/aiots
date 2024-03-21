@@ -28,12 +28,12 @@ public class DahuaICCVideoProtocolSupplier extends StaticClientProtocolSupplier<
             .addModelAttr(new ProtocolModelAttr("command", "命令", "string", "0=停止, 1=开启"))
             .addModelAttr(new ProtocolModelAttr("status", "状态", "boolean", "接口响应状态"))
             .addModelApi(new DahuaICCVideoProtocolModelApi(DahuaICCProtocolType.OperateDirect.name(), DahuaICCProtocolType.OperateDirect.getDesc(), FuncType.write)
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("channelId", "通道id"))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("direct", "方向"))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("stepX", "水平方向不长"))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("stepY", "垂直方向步长"))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("command", "命令"))
-                    .addUpConfig(ProtocolModelApiConfig.upBuild("status", "状态")));
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("channelId"))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("direct"))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("stepX"))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("stepY"))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("command"))
+                    .addUpConfig(ProtocolModelApiConfig.upBuild("status")));
 
     @Override
     public String getDesc() {

@@ -40,17 +40,16 @@ public class DahuaICCAccessProtocolSupplier extends StaticClientProtocolSupplier
             .addModelApi(new DahuaICCAccessProtocolModelApi(DahuaICCProtocolType.normal.name(), DahuaICCProtocolType.normal.getDesc(), "正常模式")
                     .addDownConfig(ProtocolModelApiConfig.downBuild("channelCodeList", "门禁通道号")))
             .addModelApi(new DahuaICCAccessProtocolModelApi(DahuaICCProtocolType.OperateDirect.name(), DahuaICCProtocolType.OperateDirect.getDesc(), "")
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("channelId", "通道id"))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("direct", "方向"))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("stepX", "水平方向不长"))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("stepY", "垂直方向步长"))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("command", "命令"))
-                    .addUpConfig(ProtocolModelApiConfig.upBuild("status", "状态")));
-            ;
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("channelId"))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("direct"))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("stepX"))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("stepY"))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("command"))
+                    .addUpConfig(ProtocolModelApiConfig.upBuild("status")));
 
     @Override
     public String getDesc() {
-        return "大华ICC平台门禁";
+        return "大华ICC开放平台";
     }
 
     @Override
