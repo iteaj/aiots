@@ -1,16 +1,12 @@
 package com.iteaj.iboot.plugin.protocol.modbus.rtu;
 
-import com.iteaj.framework.spi.iot.NetworkConfigImpl;
-import com.iteaj.framework.spi.iot.StaticProtocolSupplier;
-import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.plugin.protocol.modbus.ModbusProtocolConsts;
-import com.iteaj.iot.FrameworkComponent;
-import com.iteaj.iot.FrameworkManager;
+import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.consts.ModbusCode;
-import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuMessage;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
 
 public class ModbusRtuForDtuProtocolSupplier extends StaticServerProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, ModbusRtuForDtuServerComponent> {
@@ -84,6 +80,11 @@ public class ModbusRtuForDtuProtocolSupplier extends StaticServerProtocolSupplie
     @Override
     public ProtocolImplMode getImplMode() {
         return ProtocolImplMode.Internal;
+    }
+
+    @Override
+    public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
+        return null;
     }
 
     @Override

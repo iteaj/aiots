@@ -6,6 +6,7 @@ import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.iot.FrameworkComponent;
+import com.iteaj.iot.Protocol;
 
 /**
  * 协议提供
@@ -81,6 +82,15 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends Frame
     default ParamMeta[] getNetworkConfig() {
         return EMPTY_CONFIG;
     }
+
+    /**
+     * 获取协议提供的数据
+     * @param protocol
+     * @param param {@link org.springframework.lang.Nullable} 平台主动调用时的参数
+     * @param value 协议请求返回值
+     * @return
+     */
+    DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value);
 
     /**
      * 获取已经创建的组件

@@ -1,6 +1,12 @@
 package com.iteaj.framework.spi.iot.protocol;
 
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.iot.Protocol;
+import com.iteaj.iot.consts.ExecStatus;
+
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * 协议模型接口
@@ -46,6 +52,9 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
      */
     private Map<String, ProtocolModelApiConfig> downConfig;
 
+    public static final String INVOKE_API = "_InvokeApi";
+    public static final String INVOKE_API_VALUE = "_InvokeApiValue";
+
     public AbstractProtocolModelApi(String code, String name, ProtocolApiType type) {
         this(code, name, type, new ProtocolLinkedMap<>(), new ProtocolLinkedMap<>());
     }
@@ -78,8 +87,8 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public AbstractProtocolModelApi setCode(String code) {
+        this.code = code; return this;
     }
 
     @Override
@@ -87,8 +96,8 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public AbstractProtocolModelApi setName(String name) {
+        this.name = name; return this;
     }
 
     @Override
@@ -96,8 +105,8 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
         return remark;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public AbstractProtocolModelApi setRemark(String remark) {
+        this.remark = remark; return this;
     }
 
     @Override
@@ -109,6 +118,38 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     public ProtocolModel getProtocolModel() {
         return this.protocolModel;
     }
+
+    @Override
+    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) throws ProtocolInvokeException {
+        Protocol protocol = buildProtocol(arg);
+        if(protocol != null) {
+            protocol.addParam(INVOKE_API, arg);
+        }
+
+        doInvoke(protocol, arg, invokeResult -> {
+            // 执行成功则保存之后后的值
+            if(invokeResult.getStatus() == ExecStatus.success) {
+                protocol.addParam(INVOKE_API_VALUE, invokeResult.getValue());
+            }
+
+            result.accept(invokeResult);
+        });
+    }
+
+    /**
+     * 构建请求协议
+     * @param arg
+     * @return
+     */
+    protected abstract Protocol buildProtocol(ProtocolModelApiInvokeParam arg);
+
+    /**
+     * 调用协议
+     * @param protocol
+     * @param arg
+     * @param result
+     */
+    protected abstract void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result);
 
     /**
      * 新增上行接口配置
@@ -130,8 +171,8 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
         return this;
     }
 
-    public void setType(ProtocolApiType type) {
-        this.type = type;
+    public AbstractProtocolModelApi setType(ProtocolApiType type) {
+        this.type = type; return this;
     }
 
     public Map<String, ProtocolModelApiConfig> getUpConfig() {

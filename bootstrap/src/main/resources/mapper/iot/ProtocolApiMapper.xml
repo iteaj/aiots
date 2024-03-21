@@ -10,6 +10,7 @@
         <result column="name" property="name" />
         <result column="status" property="status" />
         <result column="remark" property="remark" />
+        <result column="func_type" property="funcType" />
         <result column="create_time" property="createTime" />
         <result column="protocol_code" property="protocolCode" />
     </resultMap>

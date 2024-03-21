@@ -11,10 +11,7 @@ import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
-import com.iteaj.framework.spi.iot.protocol.AbstractEventProtocolModelApi;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import com.iteaj.iboot.module.iot.entity.Protocol;
 import com.iteaj.iboot.module.iot.entity.ProtocolApi;
@@ -153,6 +150,8 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                 // 事件协议
                 if(api instanceof AbstractEventProtocolModelApi) {
                     protocolApi.setTriggerMode(((AbstractEventProtocolModelApi) api).getTriggerMode());
+                } else {
+                    protocolApi.setFuncType(((AbstractFuncProtocolModelApi) api).getFuncType());
                 }
 
                 // 协议接口上行配置
@@ -207,6 +206,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                 .setLength(config.getLength())
                 .setRemark(config.getRemark())
                 .setPosition(config.getPosition())
+                .setFieldType(config.getFieldType())
                 .setProtocolApiCode(protocolApi.getCode())
                 .setAttrName(attr != null ? attr.getName() : null)
                 .setAttrType(attr != null ? attr.getType() : null)

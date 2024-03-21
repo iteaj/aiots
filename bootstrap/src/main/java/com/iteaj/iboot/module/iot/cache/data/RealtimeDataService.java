@@ -1,5 +1,8 @@
 package com.iteaj.iboot.module.iot.cache.data;
 
+import com.iteaj.framework.spi.iot.DeviceKey;
+import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+
 import java.util.Map;
 
 /**
@@ -16,60 +19,69 @@ public interface RealtimeDataService {
     /**
      * 移除指定协议下指定设备得所有信息
      * @param protocolCode
-     * @param deviceSn
+     * @param key
      */
-    Map<String, RealtimeData> remove(String protocolCode, String deviceSn);
+    Map<String, RealtimeData> remove(String protocolCode, DeviceKey key);
 
     /**
      * 移除指定协议下指定设备下得事件或者点位字段信息
      * @param protocolCode
-     * @param deviceSn
-     * @param eventOrSignalField
+     * @param key
+     * @param signalOrField
      */
-    RealtimeData remove(String protocolCode, String deviceSn, String eventOrSignalField);
+    RealtimeData remove(String protocolCode, DeviceKey key, String signalOrField);
 
 
     /**
      * 移除指定协议下指定设备下得事件或者点位字段信息
      * @param protocolCode
-     * @param deviceSn
-     * @param eventOrSignalFields
+     * @param key
+     * @param signalOrFields
      */
-    Map<String, RealtimeData> remove(String protocolCode, String deviceSn, String... eventOrSignalFields);
+    Map<String, RealtimeData> remove(String protocolCode, DeviceKey key, String... signalOrFields);
 
     /**
      * 缓存数据
      * @param protocolCode 产品代码
-     * @param deviceSn 直连设备或者边缘网关设备的设备编号(或网关设备编号和网关子设备编号的组合)
-     * @param eventOrSignalField 事件代码或者点位字段
+     * @param key 直连设备或者边缘网关设备的设备编号(或网关设备编号和网关子设备编号的组合)
+     * @param signalOrField 事件代码或者点位字段
      * @param value
      */
-    void put(String protocolCode, String deviceSn, String eventOrSignalField, Object value);
+    void put(String protocolCode, DeviceKey key, String signalOrField, Object value);
+
+    /**
+     * 缓存数据
+     * @param protocolCode 产品代码
+     * @param key 直连设备或者边缘网关设备的设备编号(或网关设备编号和网关子设备编号的组合)
+     * @param value 事件代码或者点位字段
+     * @param value
+     */
+    void put(String protocolCode, DeviceKey key, SignalOrFieldValue value);
 
     /**
      * 获取指定设备下面的所有实时数据
      * @param protocolCode
-     * @param deviceSn 设备编号
+     * @param key 设备编号
      * @return
      */
-    Map<String, RealtimeData> listOfDevice(String protocolCode, String deviceSn);
+    Map<String, RealtimeData> listOfDevice(String protocolCode, DeviceKey key);
 
     /**
      * 获取指定设备下指定事件的实时数据
      * @param protocolCode
-     * @param deviceSn 设备编号
-     * @param eventOrSignalField 事件代码或者点位字段
+     * @param key 设备编号
+     * @param signalOrField 事件代码或者点位字段
      * @return
      */
-    RealtimeData getOfDeviceAndKey(String protocolCode, String deviceSn, String eventOrSignalField);
+    RealtimeData getOfDeviceAndKey(String protocolCode, DeviceKey key, String signalOrField);
 
     /**
      * 获取指定设备下面的所有实时数据
      * @param protocolCode
-     * @param deviceSn 设备编号
-     * @param eventOrSignalFields 事件代码或者点位字段列表
+     * @param key 设备编号
+     * @param signalOrFields 事件代码或者点位字段列表
      * @return
      */
-    Map<String, RealtimeData> listOfDevice(String protocolCode, String deviceSn, String... eventOrSignalFields);
+    Map<String, RealtimeData> listOfDevice(String protocolCode, DeviceKey key, String... signalOrFields);
 
 }

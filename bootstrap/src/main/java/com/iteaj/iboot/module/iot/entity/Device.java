@@ -46,7 +46,7 @@ public class Device extends BaseEntity {
     /**
      * 设备uid
      */
-    private Long uid;
+    private String uid;
 
     /**
      * 设备名称
@@ -118,6 +118,12 @@ public class Device extends BaseEntity {
     private String deviceSn;
 
     /**
+     * 父设备编号
+     */
+    @TableField(exist = false)
+    private String parentDeviceSn;
+
+    /**
      * 设备配置
      */
     @TableField(typeHandler = FastjsonTypeHandler.class)
@@ -137,5 +143,4 @@ public class Device extends BaseEntity {
      * 更新时间
      */
     private Date updateTime;
-
 }

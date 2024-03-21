@@ -13,6 +13,8 @@ public interface PlcProtocolConsts {
     String PLC_ADDRESS_REMARK= "读/写的PLC地址";
     String PLC_ADDRESS_CONFIG_REMARK= "要操作的PLC地址";
 
+    String PLC_WRITE_STATUS = "status";
+
     String PLC_WRITE_BOOL = "writeBool";
     String PLC_WRITE_INT16 = "writeInt16";
     String PLC_WRITE_INT32 = "writeInt32";

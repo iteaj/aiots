@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.collect;
 
+import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.iboot.module.iot.entity.Signal;
 import lombok.Data;
 
@@ -60,4 +61,8 @@ public class CollectDevice {
      * 采集的点位信息
      */
     private List<CollectSignal> signals;
+
+    public DeviceKey buildKey() {
+        return DeviceKey.build(getDeviceSn(), getParentDeviceSn());
+    }
 }

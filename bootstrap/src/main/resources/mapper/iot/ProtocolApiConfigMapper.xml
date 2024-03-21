@@ -12,6 +12,7 @@
         <result column="attrName" property="attrName" />
         <result column="attrType" property="attrType" />
         <result column="attrRemark" property="attrRemark" />
+        <result column="field_type" property="fieldType" />
         <result column="create_time" property="createTime" />
         <result column="protocol_api_code" property="protocolApiCode" />
         <result column="protocol_attr_field" property="protocolAttrField" />

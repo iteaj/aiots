@@ -19,10 +19,11 @@
         <result column="password" property="password" />
         <result column="device_sn" property="deviceSn" />
         <result column="config" property="config"
-                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
+            typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
         <result column="product_type_id" property="productTypeId" />
+        <result column="parent_device_sn" property="parentDeviceSn" />
     </resultMap>
     <resultMap id="DeviceDtoMap" type="com.iteaj.iboot.module.iot.dto.DeviceDto" extends="BasicMap">
         <result property="deviceType" column="device_type" />
@@ -71,13 +72,16 @@
         select count(1) today, count(status='online' or null) online from iot_device
     </select>
 
-    <select id="getByUid" resultMap="DeviceDtoMap">
-        select * from iot_device where uid=#{uid}
+    <select id="getByUid" resultMap="BasicMap">
+        select a.*, pd.device_sn parent_device_sn from iot_device a
+            left join iot_device pd on a.pid = pd.id
+        where a.uid=#{uid}
     </select>
     <select id="detailById" resultMap="DeviceDtoMap">
-        select a.*, idm.name product_name, idt.name product_type_name, idm.code product_code from iot_device a
-             left join iot_product idm on a.product_id=idm.id
-             left join iot_product_type idt on idm.product_type_id=idt.id
+        select a.*, pd.device_sn parent_device_sn, idm.name product_name, idt.name product_type_name, idm.code product_code from iot_device a
+            left join iot_device pd on a.pid = pd.id
+            left join iot_product idm on a.product_id=idm.id
+            left join iot_product_type idt on idm.product_type_id=idt.id
         where a.id=#{id}
     </select>
 

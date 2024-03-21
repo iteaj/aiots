@@ -12,6 +12,7 @@
         <result column="attr_field" property="attrField" />
         <result column="attr_type" property="attrType" />
         <result column="attr_name" property="attrName" />
+        <result column="field_type" property="fieldType" />
         <result column="product_id" property="productId" />
         <result column="model_attr_id" property="modelAttrId" />
         <result column="protocol_attr_type" property="protocolAttrType" />

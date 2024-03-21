@@ -109,8 +109,7 @@ public class CollectActionTask implements Runnable {
                             // 存储实时数据
                             values.forEach(data -> {
                                 if(data.getStatus()) {
-                                    realtimeDataService.put(collectDevice.getProductCode()
-                                            , collectDevice.getDeviceSn(), data.getFieldName(), data);
+                                    realtimeDataService.put(collectDevice.getProductCode(), collectDevice.buildKey(), data.getFieldName(), data);
                                 }
                             });
                         }
