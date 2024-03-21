@@ -15,6 +15,7 @@ import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
+import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -99,6 +100,11 @@ public class ModelApi extends BaseEntity {
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 功能类型
+     */
+    private FuncType funcType;
 
     /**
      * 事件触发方式

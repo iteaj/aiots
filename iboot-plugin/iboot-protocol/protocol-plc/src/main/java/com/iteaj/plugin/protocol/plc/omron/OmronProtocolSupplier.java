@@ -3,19 +3,22 @@ package com.iteaj.plugin.protocol.plc.omron;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
+import com.iteaj.framework.spi.iot.protocol.ProtocolSupplierException;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.FrameworkManager;
+import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.SocketClient;
-import com.iteaj.iot.plc.omron.OmronComponent;
-import com.iteaj.iot.plc.omron.OmronConnectProperties;
-import com.iteaj.iot.plc.omron.OmronMessage;
-import com.iteaj.iot.plc.omron.OmronTcpClient;
+import com.iteaj.iot.consts.ExecStatus;
+import com.iteaj.iot.plc.WriteAddress;
+import com.iteaj.iot.plc.omron.*;
 import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
 
 public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, OmronComponent, OmronTcpClient> {
@@ -51,6 +54,29 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     @Override
     public ParamMeta[] getGatewayConfig() {
         return gatewayConfig;
+    }
+
+    @Override
+    public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
+        DataSupplier dataSupplier = new DataSupplier();
+        if(param == null) {
+            throw new ProtocolSupplierException("调用参数不存在");
+        }
+
+        dataSupplier.setKey(param.buildKey());
+        if(protocol instanceof OmronTcpProtocol) {
+            ExecStatus execStatus = ((OmronTcpProtocol) protocol).getExecStatus();
+            WriteAddress writeAddress = ((OmronTcpProtocol) protocol).getWriteAddress();
+            if(writeAddress != null) {
+                dataSupplier.addValue(writeAddress.getAddress(), execStatus == ExecStatus.success);
+            } else {
+                ((OmronTcpProtocol) protocol).getBatchAddress().forEach(item -> {
+                    dataSupplier.addValue(item.getAddress(), value);
+                });
+            }
+        }
+
+        return dataSupplier;
     }
 
     @Override

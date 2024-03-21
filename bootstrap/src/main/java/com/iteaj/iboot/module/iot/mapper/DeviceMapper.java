@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.mapper;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -70,4 +71,6 @@ public interface DeviceMapper extends BaseMapper<Device> {
     RealtimeStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn);
 
     List<RealtimeStatus> listDeviceStatus(String protocolCode, List<String> deviceSns, String parentDeviceSn);
+
+    Device getByUid(String uid);
 }

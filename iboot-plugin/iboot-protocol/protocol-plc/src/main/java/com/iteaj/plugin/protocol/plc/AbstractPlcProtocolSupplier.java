@@ -2,6 +2,7 @@ package com.iteaj.plugin.protocol.plc;
 
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticClientProtocolSupplier;
+import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
@@ -26,6 +27,7 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T
         this.modelAttrs.put(PointProtocolConfig.POINT_ADDRESS, new ProtocolModelAttr(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_NAME, "string", PlcProtocolConsts.PLC_ADDRESS_REMARK));
         this.modelAttrs.put(PointProtocolConfig.POINT_NUMBER, new ProtocolModelAttr(PointProtocolConfig.POINT_NUMBER, PlcProtocolConsts.PLC_NUMBER_NAME, "short", PlcProtocolConsts.PLC_NUMBER_REMARK));
         this.modelAttrs.put(PlcProtocolConsts.PLC_VALUE, new ProtocolModelAttr(PlcProtocolConsts.PLC_VALUE, PlcProtocolConsts.PLC_VALUE_NAME, "any", PlcProtocolConsts.PLC_VALUE_REMARK));
+        this.modelAttrs.put(PlcProtocolConsts.PLC_WRITE_STATUS, new ProtocolModelAttr(PlcProtocolConsts.PLC_WRITE_STATUS, "操作状态", "boolean", "操作状态"));
 
         // 协议模型事件接口
         this.modelApis.put("readBool", new OmronEventProtocolModelApi(PlcProtocolConsts.PLC_READ_BOOL, "读取布尔值", "读取布尔值")
@@ -66,27 +68,34 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T
                 .addUpConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "读取的string值", 1)));
 
         // 协议模型功能接口
-        this.modelApis.put("writeBool", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_BOOL, "写布尔值","写布尔值")
+        this.modelApis.put("writeBool", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_BOOL, "写布尔值", FuncType.write, "写布尔值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
-                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的bool值", 2)));
-        this.modelApis.put("writeInt16", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_INT16, "写short值", "写short值")
+                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的bool值", 2))
+                .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
+        this.modelApis.put("writeInt16", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_INT16, "写short值", FuncType.write, "写short值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
-                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的short值", 2)));
-        this.modelApis.put("writeInt32", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_INT32, "写int值", "写int值")
+                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的short值", 2))
+                .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
+        this.modelApis.put("writeInt32", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_INT32, "写int值", FuncType.write, "写int值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
-                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的int值", 2)));
-        this.modelApis.put("writeInt64", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_INT64, "写long值", "写long值")
+                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的int值", 2))
+                .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
+        this.modelApis.put("writeInt64", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_INT64, "写long值", FuncType.write, "写long值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
-                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的long值", 2)));
-        this.modelApis.put("writeFloat", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_FLOAT, "写float值", "写float值")
+                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的long值", 2))
+                .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
+        this.modelApis.put("writeFloat", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_FLOAT, "写float值", FuncType.write, "写float值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
-                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的float值", 2)));
-        this.modelApis.put("writeDouble", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_DOUBLE, "写double值", "写double值")
+                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的float值", 2))
+                .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
+        this.modelApis.put("writeDouble", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_DOUBLE, "写double值", FuncType.write, "写double值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
-                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的double值", 2)));
-        this.modelApis.put("writeString", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_STRING, "写string值", "写string值")
+                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的double值", 2))
+                .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
+        this.modelApis.put("writeString", new OmronFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_STRING, "写string值", FuncType.write, "写string值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
-                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的string值", 2)));
+                .addDownConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "要写入的string值", 2))
+                .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
     }
 
     @Override

@@ -11,9 +11,9 @@ import java.util.Map;
 public class ProtocolModelApiInvokeParam {
 
     /**
-     * 设备编号
+     * 设备uid
      */
-    private String deviceSn;
+    private String uid;
 
     /**
      * 超时时间
@@ -30,13 +30,15 @@ public class ProtocolModelApiInvokeParam {
      */
     private Map config;
 
-    public ProtocolModelApiInvokeParam(String deviceSn) {
-        this(deviceSn, new JSONObject());
+    public ProtocolModelApiInvokeParam() { }
+
+    public ProtocolModelApiInvokeParam(String uid) {
+        this(uid, new JSONObject());
     }
 
-    public ProtocolModelApiInvokeParam(String deviceSn, JSONObject param) {
+    public ProtocolModelApiInvokeParam(String uid, JSONObject param) {
+        this.uid = uid;
         this.param = param;
-        this.deviceSn = deviceSn;
     }
 
     public Boolean getBoolean(String key) {
@@ -63,12 +65,8 @@ public class ProtocolModelApiInvokeParam {
         return param.getString(key);
     }
 
-    public String getDeviceSn() {
-        return deviceSn;
-    }
-
-    public void setDeviceSn(String deviceSn) {
-        this.deviceSn = deviceSn;
+    public String getUid() {
+        return uid;
     }
 
     public Long getTimeout() {
@@ -77,6 +75,26 @@ public class ProtocolModelApiInvokeParam {
 
     public void setTimeout(Long timeout) {
         this.timeout = timeout;
+    }
+
+    public String getDeviceSn() {
+        return this.getString(DeviceKey.DEVICE_SN_KEY);
+    }
+
+    public String getParentDeviceSn() {
+        return this.getString(DeviceKey.PARENT_DEVICE_SN_KEY);
+    }
+
+    public DeviceKey buildKey() {
+        return DeviceKey.build(getDeviceSn(), getParentDeviceSn());
+    }
+
+    public ProtocolModelApiInvokeParam setDeviceSn(String deviceSn) {
+        return this.addParam(DeviceKey.DEVICE_SN_KEY, deviceSn);
+    }
+
+    public ProtocolModelApiInvokeParam setParentDeviceSn(String parentDeviceSn) {
+        return this.addParam(DeviceKey.PARENT_DEVICE_SN_KEY, parentDeviceSn);
     }
 
     public JSONObject getParam() {

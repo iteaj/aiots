@@ -1,10 +1,7 @@
 package com.iteaj.iboot.plugin.protocol.modbus.tcp;
 
 import com.iteaj.framework.ParamMeta;
-import com.iteaj.framework.spi.iot.NetworkConfigImpl;
-import com.iteaj.framework.spi.iot.ServerProtocolSupplier;
-import com.iteaj.framework.spi.iot.StaticProtocolSupplier;
-import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
@@ -12,11 +9,9 @@ import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.plugin.protocol.modbus.ModbusProtocolConsts;
 import com.iteaj.iboot.plugin.protocol.modbus.rtu.ModbusRtuForDtuProtocolModelApi;
-import com.iteaj.iot.FrameworkComponent;
-import com.iteaj.iot.FrameworkManager;
+import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.consts.ModbusCode;
-import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuMessage;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
 
 public class ModbusTcpForDtuProtocolSupplier extends StaticServerProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, ModbusTcpForDtuServerComponent> {
@@ -105,6 +100,11 @@ public class ModbusTcpForDtuProtocolSupplier extends StaticServerProtocolSupplie
                 ParamMeta.buildRequired("host", "主机", "", "0.0.0.0"),
                 ParamMeta.buildRequired("port", "端口", null, "502")
         };
+    }
+
+    @Override
+    public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
+        return null;
     }
 
     @Override

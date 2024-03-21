@@ -6,6 +6,7 @@ import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.iboot.plugin.protocol.modbus.AbstractModbusProtocolModelApi;
+import com.iteaj.iot.Protocol;
 import com.iteaj.iot.consts.ExecStatus;
 
 import java.util.Map;
@@ -22,7 +23,12 @@ public class ModbusRtuForDtuProtocolModelApi extends AbstractModbusProtocolModel
     }
 
     @Override
-    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
-        result.accept(InvokeResult.status(ExecStatus.offline, null));
+    protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
+        return null;
+    }
+
+    @Override
+    protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
+
     }
 }

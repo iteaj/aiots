@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
+import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -57,6 +58,11 @@ public class ProtocolApi extends BaseEntity {
      * 接口说明
      */
     private String remark;
+
+    /**
+     * 功能类型
+     */
+    private FuncType funcType;
 
     /**
      * 创建时间

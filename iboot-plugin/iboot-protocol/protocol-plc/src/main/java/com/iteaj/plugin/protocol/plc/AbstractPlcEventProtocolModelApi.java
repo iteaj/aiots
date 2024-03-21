@@ -1,11 +1,13 @@
 package com.iteaj.plugin.protocol.plc;
 
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
-import com.iteaj.framework.spi.iot.protocol.*;
+import com.iteaj.framework.spi.iot.protocol.AbstractEventProtocolModelApi;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
+import com.iteaj.iot.Protocol;
 import com.iteaj.iot.plc.PlcClientProtocol;
 
 import java.util.Map;
@@ -30,48 +32,47 @@ public abstract class AbstractPlcEventProtocolModelApi extends AbstractEventProt
     }
 
     @Override
-    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) throws ProtocolInvokeException {
-        PlcClientProtocol protocol = createPlcProtocol(arg);
+    protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
+        PlcClientProtocol plcClientProtocol = (PlcClientProtocol) protocol;
         try {
             Object value;
             String address = arg.getString(PointProtocolConfig.POINT_ADDRESS);
             switch (this.getCode()) {
                 case PlcProtocolConsts.PLC_READ_BOOL:
-                    value = protocol.readBool(address);
+                    value = plcClientProtocol.readBool(address);
                     break;
                 case PlcProtocolConsts.PLC_READ_INT16:
-                    value = protocol.readInt16(address);
+                    value = plcClientProtocol.readInt16(address);
                     break;
                 case PlcProtocolConsts.PLC_READ_UINT16:
-                    value = protocol.readUInt16(address);
+                    value = plcClientProtocol.readUInt16(address);
                     break;
                 case PlcProtocolConsts.PLC_READ_INT32:
-                    value = protocol.readInt32(address);
+                    value = plcClientProtocol.readInt32(address);
                     break;
                 case PlcProtocolConsts.PLC_READ_UINT32:
-                    value = protocol.readUInt32(address);
+                    value = plcClientProtocol.readUInt32(address);
                     break;
                 case PlcProtocolConsts.PLC_READ_INT64:
-                    value = protocol.readInt64(address);
+                    value = plcClientProtocol.readInt64(address);
                     break;
                 case PlcProtocolConsts.PLC_READ_FLOAT:
-                    value = protocol.readFloat(address);
+                    value = plcClientProtocol.readFloat(address);
                     break;
                 case PlcProtocolConsts.PLC_READ_DOUBLE:
-                    value = protocol.readDouble(address);
+                    value = plcClientProtocol.readDouble(address);
                     break;
                 case PlcProtocolConsts.PLC_READ_STRING:
                     short length = arg.getShort(PointProtocolConfig.POINT_NUMBER);
-                    value = protocol.readString(address, length);
+                    value = plcClientProtocol.readString(address, length);
                     break;
                 default: throw new ServiceException("未知指令["+this.getCode()+"]");
             }
 
-            result.accept(InvokeResult.status(protocol.getExecStatus(), value, protocol));
+            result.accept(InvokeResult.status(plcClientProtocol.getExecStatus(), value, plcClientProtocol));
         } catch (Exception e) {
             result.accept(InvokeResult.fail(e.getMessage(), protocol));
         }
     }
 
-    protected abstract PlcClientProtocol createPlcProtocol(ProtocolModelApiInvokeParam arg) throws NotIotClientException;
 }

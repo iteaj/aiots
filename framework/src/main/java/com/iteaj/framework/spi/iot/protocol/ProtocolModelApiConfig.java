@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.iot.protocol;
 
 import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
+import com.iteaj.framework.spi.iot.consts.ApiFieldType;
 
 /**
  * 协议模型接口配置
@@ -28,6 +29,11 @@ public class ProtocolModelApiConfig {
     private String position;
 
     /**
+     * 字段类型
+     */
+    private ApiFieldType fieldType;
+
+    /**
      * 属性方向
      */
     private ApiConfigDirection direction;
@@ -38,32 +44,32 @@ public class ProtocolModelApiConfig {
     private String protocolModelAttrField;
 
     public ProtocolModelApiConfig(String remark, String protocolModelAttrField) {
-        this.remark = remark;
-        this.protocolModelAttrField = protocolModelAttrField;
+        this(remark, protocolModelAttrField, 0);
     }
 
     public ProtocolModelApiConfig(String remark, String protocolModelAttrField, int sort) {
         this.sort = sort;
         this.remark = remark;
+        this.fieldType = ApiFieldType.field;
         this.protocolModelAttrField = protocolModelAttrField;
     }
 
     public ProtocolModelApiConfig(String protocolModelAttrField, String remark, ApiConfigDirection direction) {
-        this.remark = remark;
-        this.direction = direction;
-        this.protocolModelAttrField = protocolModelAttrField;
+        this(protocolModelAttrField, remark, direction, 0);
     }
 
     public ProtocolModelApiConfig(String protocolModelAttrField, String remark, ApiConfigDirection direction, int sort) {
         this.sort = sort;
         this.remark = remark;
         this.direction = direction;
+        this.fieldType = ApiFieldType.field;
         this.protocolModelAttrField = protocolModelAttrField;
     }
 
     public ProtocolModelApiConfig(int length, String remark, String protocolModelAttrField) {
         this.length = length;
         this.remark = remark;
+        this.fieldType = ApiFieldType.field;
         this.protocolModelAttrField = protocolModelAttrField;
     }
 
@@ -72,6 +78,7 @@ public class ProtocolModelApiConfig {
         this.length = length;
         this.remark = remark;
         this.position = position;
+        this.fieldType = ApiFieldType.field;
         this.protocolModelAttrField = protocolModelAttrField;
     }
 
@@ -81,6 +88,14 @@ public class ProtocolModelApiConfig {
 
     public static ProtocolModelApiConfig upBuild(String attrField, String remark, int sort) {
         return new ProtocolModelApiConfig(attrField, remark, ApiConfigDirection.UP, sort);
+    }
+
+    public static ProtocolModelApiConfig upStatusBuild(String attrField, String remark) {
+        return upBuild(attrField, remark, 0).setFieldType(ApiFieldType.status);
+    }
+
+    public static ProtocolModelApiConfig upStatusBuild(String attrField, String remark, int sort) {
+        return upBuild(attrField, remark, sort).setFieldType(ApiFieldType.status);
     }
 
     public static ProtocolModelApiConfig downBuild(String attrField, String remark) {
@@ -95,47 +110,55 @@ public class ProtocolModelApiConfig {
         return sort;
     }
 
-    public void setSort(int sort) {
-        this.sort = sort;
+    public ProtocolModelApiConfig setSort(int sort) {
+        this.sort = sort; return this;
+    }
+
+    public ApiFieldType getFieldType() {
+        return fieldType;
+    }
+
+    public ProtocolModelApiConfig setFieldType(ApiFieldType fieldType) {
+        this.fieldType = fieldType; return this;
     }
 
     public int getLength() {
         return length;
     }
 
-    public void setLength(int length) {
-        this.length = length;
+    public ProtocolModelApiConfig setLength(int length) {
+        this.length = length; return this;
     }
 
     public String getRemark() {
         return remark;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public ProtocolModelApiConfig setRemark(String remark) {
+        this.remark = remark; return this;
     }
 
     public String getProtocolModelAttrField() {
         return protocolModelAttrField;
     }
 
-    public void setProtocolModelAttrField(String protocolModelAttrField) {
-        this.protocolModelAttrField = protocolModelAttrField;
+    public ProtocolModelApiConfig setProtocolModelAttrField(String protocolModelAttrField) {
+        this.protocolModelAttrField = protocolModelAttrField; return this;
     }
 
     public String getPosition() {
         return position;
     }
 
-    public void setPosition(String position) {
-        this.position = position;
+    public ProtocolModelApiConfig setPosition(String position) {
+        this.position = position; return this;
     }
 
     public ApiConfigDirection getDirection() {
         return direction;
     }
 
-    public void setDirection(ApiConfigDirection direction) {
-        this.direction = direction;
+    public ProtocolModelApiConfig setDirection(ApiConfigDirection direction) {
+        this.direction = direction; return this;
     }
 }

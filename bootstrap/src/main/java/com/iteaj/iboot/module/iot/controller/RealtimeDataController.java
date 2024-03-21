@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -38,7 +39,7 @@ public class RealtimeDataController extends BaseController {
     @GetMapping("listByDeviceId")
     public Result<Map<String, Object>> listByDevice(Long deviceId) {
         DeviceDto device = deviceService.detailById(deviceId).ifNotPresentThrow("设备不存在").getData();
-        Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(device.getProductCode(), device.getDeviceSn());
+        Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(device.getProductCode(), DeviceKey.build(device.getDeviceSn(), device.getDeviceSn()));
         if(realtimeDataMap != null) {
             Map<String, Object> result = new HashMap<>();
             realtimeDataMap.entrySet().forEach(entry -> {
@@ -58,7 +59,7 @@ public class RealtimeDataController extends BaseController {
      */
     @GetMapping("listByDevice")
     public Result<Map<String, Object>> listByDevice(String productCode, String deviceSn) {
-        Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productCode, deviceSn);
+        Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productCode, DeviceKey.build(deviceSn, null));
         if(realtimeDataMap != null) {
             Map<String, Object> result = new HashMap<>();
             realtimeDataMap.entrySet().forEach(entry -> {
@@ -71,7 +72,7 @@ public class RealtimeDataController extends BaseController {
     }
 
     /**
-     * 获取指定设备下某个事件或者点位字段的实时数据
+     * 获取指定设备点位或者字段实时数据
      * @param productCode
      * @param deviceSn
      * @param eventOrSignalField 事件代码或者点位字段
@@ -79,20 +80,21 @@ public class RealtimeDataController extends BaseController {
      */
     @GetMapping("get")
     public Result<RealtimeData> getByEventOrSignalField(String productCode, String deviceSn, String eventOrSignalField) {
-        RealtimeData realtimeData = realtimeDataService.getOfDeviceAndKey(productCode, deviceSn, eventOrSignalField);
+        RealtimeData realtimeData = realtimeDataService.getOfDeviceAndKey(productCode, DeviceKey.build(deviceSn, null), eventOrSignalField);
         return success(realtimeData);
     }
 
     /**
      * 获取指定设备下某个事件或者点位字段的实时数据
      * @param deviceId
-     * @param eventOrSignalField 事件代码或者点位字段
+     * @param signalOrField 事件代码或者点位字段
      * @return
      */
     @GetMapping("getByDeviceId")
-    public Result<RealtimeData> getByEventOrSignalField(Long deviceId, String eventOrSignalField) {
+    public Result<RealtimeData> getByEventOrSignalField(Long deviceId, String signalOrField) {
         DeviceDto device = deviceService.detailById(deviceId).ifNotPresentThrow("设备不存在").getData();
-        RealtimeData realtimeData = realtimeDataService.getOfDeviceAndKey(device.getProductCode(), device.getDeviceSn(), eventOrSignalField);
+        RealtimeData realtimeData = realtimeDataService.getOfDeviceAndKey(device.getProductCode()
+                , DeviceKey.build(device.getDeviceSn(), device.getDeviceSn()), signalOrField);
         return success(realtimeData);
     }
 }

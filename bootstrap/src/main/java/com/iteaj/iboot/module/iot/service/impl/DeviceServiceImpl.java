@@ -109,7 +109,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Transactional
     public BooleanResult save(Device entity) {
         validate(entity);
-        entity.setUid(IdWorker.getId());
+        entity.setUid(String.valueOf(IdWorker.getId()));
         return super.save(entity).ifPresentAndTrue(item -> {
             RealtimeStatus status = this.getDeviceStatusFromCache(entity.getId());
             iotCacheManager.cache(status);
@@ -126,7 +126,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                             .ifPresent(item -> {
                                 if(entity.getId() == null) { // 新增
                                     throw new ServiceException("网关设备["+parent.getDeviceSn()+"]已包含子设备编号["+ entity.getDeviceSn()+"]");
-                                } else if(item.getId() != entity.getId()) { // 更新
+                                } else if(!item.getId().equals(entity.getId())) { // 更新
                                     throw new ServiceException("网关设备["+parent.getDeviceSn()+"]已包含子设备编号["+ entity.getDeviceSn()+"]");
                                 }
                             });
@@ -136,7 +136,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                         .ifPresent(item -> {
                             if(entity.getId() == null) { // 新增
                                 throw new ServiceException("网络组件["+productDto.getProtocolCode()+"]已包含设备编号["+ entity.getDeviceSn()+"]");
-                            } else if(item.getId() != entity.getId()) { // 更新
+                            } else if(!item.getId().equals(entity.getId())) { // 更新
                                 throw new ServiceException("网络组件["+productDto.getProtocolCode()+"]已包含设备编号["+ entity.getDeviceSn()+"]");
                             }
                         });
@@ -215,6 +215,11 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     public RealtimeStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn) {
         return this.getBaseMapper().getDeviceStatus(protocolCode, deviceSn, parentDeviceSn);
+    }
+
+    @Override
+    public DetailResult<Device> getByUid(String uid) {
+        return new DetailResult<>(this.getBaseMapper().getByUid(uid));
     }
 
     @Override

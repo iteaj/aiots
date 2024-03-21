@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
+import com.iteaj.framework.spi.iot.consts.ApiFieldType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -78,6 +79,11 @@ public class ModelApiConfig extends BaseEntity {
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long modelAttrId;
+
+    /**
+     * 字段类型
+     */
+    private ApiFieldType fieldType;
 
     /**
      * 协议属性类型

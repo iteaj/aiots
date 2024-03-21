@@ -12,8 +12,9 @@
         <result column="status" property="status" />
         <result column="remark" property="remark" />
         <result column="direct" property="direct" />
-        <result column="as_status" property="asStatus" />
         <result column="protocol" property="protocol" />
+        <result column="as_status" property="asStatus" />
+        <result column="func_type" property="funcType" />
         <result column="product_id" property="productId" />
         <result column="trigger_mode" property="triggerMode" />
         <result column="create_time" property="createTime" />

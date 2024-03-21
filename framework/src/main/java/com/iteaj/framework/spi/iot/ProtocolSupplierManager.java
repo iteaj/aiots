@@ -7,10 +7,12 @@ import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.exception.FrameworkException;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolSupplierException;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.Message;
+import com.iteaj.iot.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,6 +202,23 @@ public class ProtocolSupplierManager {
      */
     public static DeviceProtocolSupplier get(Class<? extends Message> messageClass) {
         return messageMap.get(messageClass);
+    }
+
+    /**
+     * 获取协议提供的数据
+     * @param protocol
+     * @return
+     */
+    public static Optional<DataSupplier> getDataSupplier(Protocol protocol) {
+        Message message = protocol.requestMessage();
+        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(message.getClass());
+        if(supplier != null) {
+            Object param = protocol.getParam(AbstractProtocolModelApi.INVOKE_API);
+            Object value = protocol.getParam(AbstractProtocolModelApi.INVOKE_API_VALUE);
+            return Optional.ofNullable(supplier.getDataSupplier(protocol, (ProtocolModelApiInvokeParam) param, value));
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**

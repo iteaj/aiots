@@ -7,6 +7,7 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.iboot.plugin.protocol.modbus.AbstractModbusProtocolModelApi;
+import com.iteaj.iot.Protocol;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.consts.ModbusCoilStatus;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
@@ -27,7 +28,7 @@ public class ModbusTcpForDtuProtocolModeApi extends AbstractModbusProtocolModelA
     }
 
     @Override
-    public void invoke(ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
+    protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
         ModbusCode modbusCode = ModbusCode.valueOf(getCode());
         int num = 0;
         int start = 0;
@@ -63,7 +64,12 @@ public class ModbusTcpForDtuProtocolModeApi extends AbstractModbusProtocolModelA
                 throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码["+getCode()+"]");
         }
 
-        protocol.request();
+        return protocol;
+    }
+
+    @Override
+    protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
+        ((ModbusTcpForDtuCommonProtocol)protocol).request();
         result.accept(null);
     }
 }

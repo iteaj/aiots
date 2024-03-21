@@ -5,6 +5,7 @@ import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
 import com.iteaj.framework.spi.iot.protocol.NotIotClientException;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.iot.FrameworkManager;
+import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.plc.PlcClientProtocol;
 import com.iteaj.iot.plc.omron.OmronConnectProperties;
@@ -33,7 +34,7 @@ public class OmronEventProtocolModelApi extends AbstractPlcEventProtocolModelApi
     }
 
     @Override
-    protected PlcClientProtocol createPlcProtocol(ProtocolModelApiInvokeParam arg) {
+    protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
         IotClient client = FrameworkManager.getClient(arg.getDeviceSn(), OmronMessage.class);
         if(client == null) {
             throw new NotIotClientException("获取不到欧姆龙客户端["+arg.getDeviceSn()+"]");

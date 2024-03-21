@@ -351,6 +351,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 .setRemark(config.getRemark())
                 .setAttrField(attr.getField())
                 .setApiCode(protocolApi.getCode())
+                .setFieldType(config.getFieldType())
                 .setDirection(config.getDirection());
     }
 }

@@ -2,9 +2,7 @@ package com.iteaj.iboot.module.iot.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.framework.result.DetailResult;
-import com.iteaj.framework.result.ListResult;
-import com.iteaj.framework.result.Result;
+import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -138,4 +136,6 @@ public interface IDeviceService extends IBaseService<Device> {
     ListResult<RealtimeStatus> listDeviceStatus();
 
     RealtimeStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn);
+
+    DetailResult<Device> getByUid(String uid);
 }

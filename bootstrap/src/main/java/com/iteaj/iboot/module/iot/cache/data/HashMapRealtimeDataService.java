@@ -1,5 +1,8 @@
 package com.iteaj.iboot.module.iot.cache.data;
 
+import com.iteaj.framework.spi.iot.DeviceKey;
+import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,31 +19,31 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
-    public Map<String, RealtimeData> remove(String protocolCode, String deviceSn) {
+    public Map<String, RealtimeData> remove(String protocolCode, DeviceKey key) {
         Map<String, Map<String, RealtimeData>> productMap = realtimeMap.get(protocolCode);
         if(productMap != null) {
-            return productMap.remove(deviceSn);
+            return productMap.remove(key.getKey());
         }
 
         return null;
     }
 
     @Override
-    public RealtimeData remove(String protocolCode, String deviceSn, String eventOrSignalField) {
-        Map<String, RealtimeData> realtimeDataMap = remove(protocolCode, deviceSn);
+    public RealtimeData remove(String protocolCode, DeviceKey key, String signalOrField) {
+        Map<String, RealtimeData> realtimeDataMap = remove(protocolCode, key);
         if(null != realtimeDataMap) {
-            return realtimeDataMap.remove(eventOrSignalField);
+            return realtimeDataMap.remove(signalOrField);
         }
 
         return null;
     }
 
     @Override
-    public Map<String, RealtimeData> remove(String protocolCode, String deviceSn, String... eventOrSignalFields) {
-        Map<String, RealtimeData> realtimeDataMap = this.listOfDevice(protocolCode, deviceSn);
-        if(realtimeDataMap != null && eventOrSignalFields != null) {
+    public Map<String, RealtimeData> remove(String protocolCode, DeviceKey key, String... signalOrFields) {
+        Map<String, RealtimeData> realtimeDataMap = this.listOfDevice(protocolCode, key);
+        if(realtimeDataMap != null && signalOrFields != null) {
             Map<String, RealtimeData> result = new HashMap<>();
-            Arrays.stream(eventOrSignalFields).forEach(item -> {
+            Arrays.stream(signalOrFields).forEach(item -> {
                 RealtimeData remove = realtimeDataMap.remove(item);
                 result.put(item, remove);
             });
@@ -52,7 +55,7 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
-    public void put(String protocolCode, String deviceSn, String eventOrSignalField, Object value) {
+    public void put(String protocolCode, DeviceKey key, String signalOrField, Object value) {
         Map<String, Map<String, RealtimeData>> productMap = realtimeMap.get(protocolCode);
         if(productMap == null) {
             synchronized (this) {
@@ -63,45 +66,50 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
             }
         }
 
-        Map<String, RealtimeData> deviceMap = productMap.get(deviceSn);
+        Map<String, RealtimeData> deviceMap = productMap.get(key.getKey());
         if(deviceMap == null) {
             synchronized (this) {
-                deviceMap = productMap.get(deviceSn);
+                deviceMap = productMap.get(key.getKey());
                 if(deviceMap == null) {
-                    productMap.put(deviceSn, deviceMap = new ConcurrentHashMap<>());
+                    productMap.put(key.getKey(), deviceMap = new ConcurrentHashMap<>());
                 }
             }
         }
 
-        RealtimeData data = deviceMap.get(eventOrSignalField);
+        RealtimeData data = deviceMap.get(signalOrField);
         if(data == null) {
-            deviceMap.put(eventOrSignalField, new RealtimeData<>(eventOrSignalField, value));
+            deviceMap.put(signalOrField, new RealtimeData<>(signalOrField, value));
         } else {
             data.setRealtime(value);
         }
     }
 
     @Override
-    public Map<String, RealtimeData> listOfDevice(String protocolCode, String deviceSn) {
+    public void put(String protocolCode, DeviceKey key, SignalOrFieldValue value) {
+        this.put(protocolCode, key, value.getSignalOrField(), value.getValue());
+    }
+
+    @Override
+    public Map<String, RealtimeData> listOfDevice(String protocolCode, DeviceKey key) {
         Map<String, Map<String, RealtimeData>> deviceMap = realtimeMap.get(protocolCode);
         if(deviceMap != null) {
-            return deviceMap.get(deviceSn);
+            return deviceMap.get(key.getKey());
         }
 
         return Collections.EMPTY_MAP;
     }
 
     @Override
-    public RealtimeData getOfDeviceAndKey(String protocolCode, String deviceSn, String eventOrSignalField) {
-        return this.listOfDevice(protocolCode, deviceSn).get(eventOrSignalField);
+    public RealtimeData getOfDeviceAndKey(String protocolCode, DeviceKey key, String signalOrField) {
+        return this.listOfDevice(protocolCode, key).get(signalOrField);
     }
 
     @Override
-    public Map<String, RealtimeData> listOfDevice(String protocolCode, String deviceSn, String... eventOrSignalFields) {
-        Map<String, RealtimeData> realtimeDataMap = listOfDevice(protocolCode, deviceSn);
-        if(null != realtimeDataMap && eventOrSignalFields != null) {
+    public Map<String, RealtimeData> listOfDevice(String protocolCode, DeviceKey key, String... signalOrFields) {
+        Map<String, RealtimeData> realtimeDataMap = listOfDevice(protocolCode, key);
+        if(null != realtimeDataMap && signalOrFields != null) {
             Map<String, RealtimeData> result = new HashMap<>();
-            Arrays.stream(eventOrSignalFields).forEach(item -> {
+            Arrays.stream(signalOrFields).forEach(item -> {
                 result.put(item, realtimeDataMap.get(item));
             });
 

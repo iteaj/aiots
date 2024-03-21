@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.Result;
@@ -111,16 +112,18 @@ public class DeviceCtrlController extends BaseController {
 
         // 网关子设备需要取网关设备
         if(product.getDeviceType() == DeviceType.Child) {
-            deviceService.getByDeviceSn(param.getDeviceSn())
-                .ifNotPresentThrow("查找不到设备[deviceSn="+param.getDeviceSn()+"]")
+            deviceService.getByUid(param.getUid())
+                .ifNotPresentThrow("查找不到设备[uid="+param.getUid()+"]")
                 .ifPresent(item -> {
                     if(item.getPid() == null) {
-                        throw new ServiceException("此网关子设备没有关联对应的网关设备");
+                        throw new ServiceException("此网关子设备没有关联父网关设备");
                     }
-                    deviceService.getById(item.getPid())
-                        .ifNotPresentThrow("查找不到绑定的网关设备")
-                        // 设备编号改成父网关设备的编号
-                        .ifPresent(parent -> param.setDeviceSn(parent.getDeviceSn()));
+
+                    if(StrUtil.isBlank(item.getParentDeviceSn())) {
+                        throw new ServiceException("查找不到绑定的父网关设备");
+                    }
+
+                    param.setDeviceSn(item.getDeviceSn()).setParentDeviceSn(item.getParentDeviceSn());
             });
         }
 
