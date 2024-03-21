@@ -14,6 +14,11 @@ public class DeviceDto extends Device {
     private DeviceType deviceType;
 
     /**
+     * 所属网关
+     */
+    private Long gatewayId;
+
+    /**
      * 产品代码
      */
     private String productCode;
