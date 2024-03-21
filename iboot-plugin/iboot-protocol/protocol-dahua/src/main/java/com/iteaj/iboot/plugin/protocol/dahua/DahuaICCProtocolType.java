@@ -8,6 +8,8 @@ public enum DahuaICCProtocolType implements ProtocolType {
     stayOpen("常开"),
     stayClose("常闭"),
     normal("正常模式"),
+
+    OperateDirect("云台方向控制"),
     ;
 
     DahuaICCProtocolType(String desc) {
