@@ -31,9 +31,9 @@ public class DahuaICCAutoConfiguration {
         GeneralRequest generalRequest = new GeneralRequest("/evo-apigw/evo-brm/1.2.0/device/subsystem/page", Method.POST);
 //        // set http post body
         JSONObject json = new JSONObject();
-        json.put("categorys", new String[]{"8"});
-        json.put("types", new String[]{"8_22"});
-        json.put("unitTypes", new String[]{"7"});
+//        json.put("categorys", new String[]{"1"});
+        json.put("types", new String[]{"1_2"});
+        json.put("unitTypes", new String[]{"1"});
         generalRequest.body(json.toJSONString());
         // 发起请求处理应答
         GeneralResponse generalResponse =iClient.doAction(generalRequest, generalRequest.getResponseClass());
