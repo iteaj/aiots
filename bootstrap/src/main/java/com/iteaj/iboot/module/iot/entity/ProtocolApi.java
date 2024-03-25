@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.util.List;
 
-import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
@@ -37,7 +37,7 @@ public class ProtocolApi extends BaseEntity {
     /**
      * 事件触发方式
      */
-    private EventTriggerMode triggerMode;
+    private TriggerMode triggerMode;
 
     /**
      * 接口代码

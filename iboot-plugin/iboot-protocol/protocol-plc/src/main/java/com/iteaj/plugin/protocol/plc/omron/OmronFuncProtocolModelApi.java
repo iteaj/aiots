@@ -19,7 +19,6 @@ import java.util.function.Consumer;
 
 public class OmronFuncProtocolModelApi extends AbstractPlcFuncProtocolModelApi {
 
-
     public OmronFuncProtocolModelApi(String code, String name, FuncType type, String remark) {
         super(code, name, type, remark);
     }

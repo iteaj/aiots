@@ -1,5 +1,8 @@
 package com.iteaj.framework.spi.iot.protocol;
 
+import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.consts.DataType;
+
 /**
  * 协议模型属性
  */
@@ -18,24 +21,28 @@ public class ProtocolModelAttr {
     /**
      * 属性类型
      */
-    private String type;
+    private DataType type;
+
+    /**
+     * 读写方式
+     */
+    private AttrType attrType;
 
     /**
      * 属性说明
      */
     private String remark;
 
-    public ProtocolModelAttr(String field, String name, String type) {
-        this.field = field;
-        this.name = name;
-        this.type = type;
+    public ProtocolModelAttr(String field, String name, DataType type, AttrType attrType) {
+        this(field, name, type, attrType, null);
     }
 
-    public ProtocolModelAttr(String field, String name, String type, String remark) {
-        this.field = field;
+    public ProtocolModelAttr(String field, String name, DataType type, AttrType attrType, String remark) {
         this.name = name;
         this.type = type;
+        this.field = field;
         this.remark = remark;
+        this.attrType = attrType;
     }
 
     public String getField() {
@@ -54,11 +61,11 @@ public class ProtocolModelAttr {
         this.name = name;
     }
 
-    public String getType() {
+    public DataType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(DataType type) {
         this.type = type;
     }
 
@@ -68,5 +75,13 @@ public class ProtocolModelAttr {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public AttrType getAttrType() {
+        return attrType;
+    }
+
+    public void setAttrType(AttrType attrType) {
+        this.attrType = attrType;
     }
 }

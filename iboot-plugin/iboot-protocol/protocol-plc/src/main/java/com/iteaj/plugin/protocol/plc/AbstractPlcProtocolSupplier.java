@@ -2,9 +2,7 @@ package com.iteaj.plugin.protocol.plc;
 
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticClientProtocolSupplier;
-import com.iteaj.framework.spi.iot.consts.FuncType;
-import com.iteaj.framework.spi.iot.consts.GatewayType;
-import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
@@ -24,10 +22,10 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T
 
     public AbstractPlcProtocolSupplier() {
         // 协议模型属性
-        this.modelAttrs.put(PointProtocolConfig.POINT_ADDRESS, new ProtocolModelAttr(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_NAME, "string", PlcProtocolConsts.PLC_ADDRESS_REMARK));
-        this.modelAttrs.put(PointProtocolConfig.POINT_NUMBER, new ProtocolModelAttr(PointProtocolConfig.POINT_NUMBER, PlcProtocolConsts.PLC_NUMBER_NAME, "short", PlcProtocolConsts.PLC_NUMBER_REMARK));
-        this.modelAttrs.put(PlcProtocolConsts.PLC_VALUE, new ProtocolModelAttr(PlcProtocolConsts.PLC_VALUE, PlcProtocolConsts.PLC_VALUE_NAME, "any", PlcProtocolConsts.PLC_VALUE_REMARK));
-        this.modelAttrs.put(PlcProtocolConsts.PLC_WRITE_STATUS, new ProtocolModelAttr(PlcProtocolConsts.PLC_WRITE_STATUS, "操作状态", "boolean", "操作状态"));
+        this.modelAttrs.put(PointProtocolConfig.POINT_ADDRESS, new ProtocolModelAttr(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_NAME, DataType.t_string, AttrType.IGNORE, PlcProtocolConsts.PLC_ADDRESS_REMARK));
+        this.modelAttrs.put(PointProtocolConfig.POINT_NUMBER, new ProtocolModelAttr(PointProtocolConfig.POINT_NUMBER, PlcProtocolConsts.PLC_NUMBER_NAME, DataType.t_short, AttrType.IGNORE, PlcProtocolConsts.PLC_NUMBER_REMARK));
+        this.modelAttrs.put(PlcProtocolConsts.PLC_VALUE, new ProtocolModelAttr(PlcProtocolConsts.PLC_VALUE, PlcProtocolConsts.PLC_VALUE_NAME, DataType.t_any, AttrType.R, PlcProtocolConsts.PLC_VALUE_REMARK));
+        this.modelAttrs.put(PlcProtocolConsts.PLC_WRITE_STATUS, new ProtocolModelAttr(PlcProtocolConsts.PLC_WRITE_STATUS, "操作状态", DataType.t_boolean, AttrType.STATUS, "操作状态"));
 
         // 协议模型事件接口
         this.modelApis.put("readBool", new OmronEventProtocolModelApi(PlcProtocolConsts.PLC_READ_BOOL, "读取布尔值", "读取布尔值")

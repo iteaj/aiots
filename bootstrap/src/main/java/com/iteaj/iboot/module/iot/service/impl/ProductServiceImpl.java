@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
-import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
@@ -12,6 +11,7 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,7 +75,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
         BooleanResult save = super.save(entity);
         // 保存协议对应的指令到物模型
-//        saveProtocolToModel(entity);
+        saveProtocolToModel(entity);
 
         return save;
     }
@@ -107,7 +106,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 this.removeModel(entity.getId());
 
                 // 保存协议对应的指令到物模型
-//                saveProtocolToModel(entity);
+                saveProtocolToModel(entity);
             }
         });
 
@@ -125,42 +124,42 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         ProtocolToProductModel productModel = protocolToProductModel(entity.getProtocolId());
         // 批量保存物模型属性
         if(!CollectionUtils.isEmpty(productModel.getAttrs())) {
-            productModel.getAttrs().forEach(item -> item.setProductId(entity.getId()));
+            productModel.getAttrs().forEach(item -> item.setProductId(entity.getId()).setAttrType(AttrType.R));
             modelAttrService.saveBatch(productModel.getAttrs());
         }
 
         // 批量保存事件接口
-        List<ModelApi> apis = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(productModel.getEventApis())) {
-            apis.addAll(productModel.getEventApis());
-        }
-
-        if(!CollectionUtils.isEmpty(productModel.getFuncApis())) {
-            productModel.getFuncApis().forEach(item -> item.setProductId(entity.getId()));
-            apis.addAll(productModel.getFuncApis());
-        }
-
-        if(!CollectionUtils.isEmpty(apis)) {
-            apis.forEach(item -> {
-                item.setProductId(entity.getId());
-                modelApiService.save(item);
-                List<ModelApiConfig> apiConfigs = new ArrayList<>();
-
-                if(!CollectionUtils.isEmpty(item.getUpConfig())) {
-                    apiConfigs.addAll(item.getUpConfig());
-                }
-
-                if(!CollectionUtils.isEmpty(item.getDownConfig())) {
-                    apiConfigs.addAll(item.getDownConfig());
-                }
-
-                // 批量保存api配置
-                if(!CollectionUtils.isEmpty(apiConfigs)) {
-                    apiConfigs.forEach(config -> config.setProductId(entity.getId()));
-                    modelApiConfigService.saveBatch(apiConfigs);
-                }
-            });
-        }
+//        List<ModelApi> apis = new ArrayList<>();
+//        if(!CollectionUtils.isEmpty(productModel.getEventApis())) {
+//            apis.addAll(productModel.getEventApis());
+//        }
+//
+//        if(!CollectionUtils.isEmpty(productModel.getFuncApis())) {
+//            productModel.getFuncApis().forEach(item -> item.setProductId(entity.getId()));
+//            apis.addAll(productModel.getFuncApis());
+//        }
+//
+//        if(!CollectionUtils.isEmpty(apis)) {
+//            apis.forEach(item -> {
+//                item.setProductId(entity.getId());
+//                modelApiService.save(item);
+//                List<ModelApiConfig> apiConfigs = new ArrayList<>();
+//
+//                if(!CollectionUtils.isEmpty(item.getUpConfig())) {
+//                    apiConfigs.addAll(item.getUpConfig());
+//                }
+//
+//                if(!CollectionUtils.isEmpty(item.getDownConfig())) {
+//                    apiConfigs.addAll(item.getDownConfig());
+//                }
+//
+//                // 批量保存api配置
+//                if(!CollectionUtils.isEmpty(apiConfigs)) {
+//                    apiConfigs.forEach(config -> config.setProductId(entity.getId()));
+//                    modelApiConfigService.saveBatch(apiConfigs);
+//                }
+//            });
+//        }
     }
 
     @Override
@@ -232,11 +231,14 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
                     // 协议属性转模型属性
                     List<ModelAttr> attrs = protocol.getAttrs().values().stream()
+                            .filter(attr -> attr.getAttrType() == AttrType.R)
                         .map(attr -> new ModelAttr()
                                 .setName(attr.getName())
                                 .setField(attr.getField())
                                 .setRemark(attr.getRemark())
-                                .setType(attr.getType())
+                                .setType(attr.getType().getValue())
+                                .setRealType(attr.getType().getValue())
+                                .setEnumerate(false)
                                 .setOrigin(AttrOrigin.Protocol))
                         .collect(Collectors.toList());
                     model.setAttrs(attrs);

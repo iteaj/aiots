@@ -9,6 +9,7 @@
         <result column="name" property="name" />
         <result column="type" property="type" />
         <result column="remark" property="remark" />
+        <result column="attr_type" property="attrType" />
         <result column="create_time" property="createTime" />
         <result column="protocol_code" property="protocolCode" />
     </resultMap>
