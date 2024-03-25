@@ -7,13 +7,11 @@ import com.dahuatech.icc.oauth.http.DefaultClient;
 import com.dahuatech.icc.oauth.http.IClient;
 import com.dahuatech.icc.oauth.model.v202010.GeneralRequest;
 import com.dahuatech.icc.oauth.model.v202010.GeneralResponse;
-import com.iteaj.iboot.plugin.protocol.dahua.access.DahuaICCAccessProtocolSupplier;
-import com.iteaj.iboot.plugin.protocol.dahua.video.DahuaICCVideoProtocolSupplier;
+import com.iteaj.iboot.plugin.protocol.dahua.access.DahuaICCProtocolSupplier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 
-@PropertySource({"classpath:application-dahua.yml"})
 @EnableConfigurationProperties(DahuaProperties.class)
 public class DahuaICCAutoConfiguration {
 
@@ -42,8 +40,8 @@ public class DahuaICCAutoConfiguration {
     }
 
     @Bean
-    public DahuaICCAccessProtocolSupplier dahuaICCAccessProtocolSupplier() {
-        return new DahuaICCAccessProtocolSupplier();
+    public DahuaICCProtocolSupplier dahuaICCAccessProtocolSupplier() {
+        return new DahuaICCProtocolSupplier();
     }
 
 //    @Bean

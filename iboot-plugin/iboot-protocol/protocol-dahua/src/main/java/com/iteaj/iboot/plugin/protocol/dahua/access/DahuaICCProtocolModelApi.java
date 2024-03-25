@@ -3,6 +3,7 @@ package com.iteaj.iboot.plugin.protocol.dahua.access;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.FuncType;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractFuncProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
@@ -18,10 +19,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class DahuaICCAccessProtocolModelApi extends AbstractFuncProtocolModelApi {
+public class DahuaICCProtocolModelApi extends AbstractFuncProtocolModelApi {
 
-    public DahuaICCAccessProtocolModelApi(String code, String name, String remark) {
-        super(code, name, FuncType.write, remark);
+    public DahuaICCProtocolModelApi(String code, String name, String remark) {
+        super(code, name, FuncType.write, TriggerMode.passive, remark);
     }
 
     @Override
