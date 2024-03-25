@@ -73,6 +73,12 @@ public class Signal extends BaseEntity {
     private Date createTime;
 
     /**
+     * 所属协议
+     */
+    @TableField(exist = false)
+    private Long protocolId;
+
+    /**
      * 指令名称
      */
     @TableField(exist = false)

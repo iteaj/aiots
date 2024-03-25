@@ -5,10 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.ListResult;
-import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.result.Result;
+import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.entity.Signal;
 import com.iteaj.iboot.module.iot.mapper.SignalMapper;
 import com.iteaj.iboot.module.iot.service.IPointGroupService;
@@ -68,6 +65,11 @@ public class SignalServiceImpl extends BaseServiceImpl<SignalMapper, Signal> imp
         }
 
         return new ListResult<>(this.getBaseMapper().listByProductIds(productIds, name));
+    }
+
+    @Override
+    public DetailResult<Signal> detailById(Long id) {
+        return new DetailResult<>(this.getBaseMapper().detailById(id));
     }
 
     @Override
