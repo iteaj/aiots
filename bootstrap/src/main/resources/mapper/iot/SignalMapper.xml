@@ -12,6 +12,7 @@
         <result column="message" property="message" />
         <result column="direct" property="direct" />
         <result column="product_id" property="productId" />
+        <result column="protocol_id" property="protocolId" />
         <result column="product_name" property="productName" />
         <result column="direct_name" property="directName" />
         <result column="field_name" property="fieldName" />
@@ -58,5 +59,11 @@
                 and a.name like '%${name}%'
             </if>
         </where>
+    </select>
+    <select id="detailById" resultMap="BaseResultMap">
+        select a.*, p.name direct_name, idm.name product_name, idm.id product_id, p.id protocol_id from iot_signal a
+           left join iot_product idm on a.product_id = idm.id
+           left join iot_protocol p on idm.protocol_id=p.id
+        where a.id=#{id}
     </select>
 </mapper>

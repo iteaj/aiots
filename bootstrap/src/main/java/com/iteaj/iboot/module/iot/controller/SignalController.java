@@ -67,7 +67,7 @@ public class SignalController extends BaseController {
     @GetMapping("/edit")
     @CheckPermission({"iot:signal:edit"})
     public Result<Signal> getById(Long id) {
-        return this.signalService.getById(id);
+        return this.signalService.detailById(id);
     }
 
     /**

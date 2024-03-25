@@ -21,4 +21,6 @@ public interface SignalMapper extends BaseMapper<Signal> {
     IPage<Signal> detailByPage(Page<Signal> page, Signal entity);
 
     List<Signal> listByProductIds(@Param("list") List<Long> productIds, @Param("name") String name);
+
+    Signal detailById(Long id);
 }
