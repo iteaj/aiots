@@ -3,6 +3,7 @@ package com.iteaj.plugin.protocol.plc;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractFuncProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
@@ -14,21 +15,8 @@ import java.util.function.Consumer;
 
 public abstract class AbstractPlcFuncProtocolModelApi extends AbstractFuncProtocolModelApi {
 
-
-    public AbstractPlcFuncProtocolModelApi(String code, String name, FuncType type) {
-        super(code, name, type);
-    }
-
     public AbstractPlcFuncProtocolModelApi(String code, String name, FuncType type, String remark) {
-        super(code, name, type, remark);
-    }
-
-    public AbstractPlcFuncProtocolModelApi(String code, String name, FuncType type, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
-        super(code, name, type, upConfig, downConfig);
-    }
-
-    public AbstractPlcFuncProtocolModelApi(String code, String name, FuncType type, String remark, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
-        super(code, name, type, remark, upConfig, downConfig);
+        super(code, name, type, TriggerMode.passive, remark);
     }
 
     @Override

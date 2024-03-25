@@ -2,8 +2,8 @@ package com.iteaj.plugin.protocol.plc;
 
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractEventProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
@@ -15,20 +15,8 @@ import java.util.function.Consumer;
 
 public abstract class AbstractPlcEventProtocolModelApi extends AbstractEventProtocolModelApi {
 
-    public AbstractPlcEventProtocolModelApi(String code, String name, EventTriggerMode eventType) {
-        super(code, name, eventType);
-    }
-
-    public AbstractPlcEventProtocolModelApi(String code, String name, String remark, EventTriggerMode eventType) {
-        super(code, name, remark, eventType);
-    }
-
-    public AbstractPlcEventProtocolModelApi(String code, String name, EventTriggerMode eventType, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
-        super(code, name, eventType, upConfig, downConfig);
-    }
-
-    public AbstractPlcEventProtocolModelApi(String code, String name, String remark, EventTriggerMode eventType, Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
-        super(code, name, remark, eventType, upConfig, downConfig);
+    public AbstractPlcEventProtocolModelApi(String code, String name, String remark, TriggerMode mode) {
+        super(code, name, remark, mode);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.iteaj.framework.spi.iot.protocol;
 
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.consts.ExecStatus;
 
@@ -32,6 +33,11 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
      * 接口类型
      */
     private ProtocolApiType type;
+
+    /**
+     * 触发方式
+     */
+    private TriggerMode triggerMode;
 
     /**
      * 所属协议模型
@@ -185,6 +191,14 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
 
     public Map<String, ProtocolModelApiConfig> getDownConfig() {
         return downConfig;
+    }
+
+    public TriggerMode getTriggerMode() {
+        return triggerMode;
+    }
+
+    public void setTriggerMode(TriggerMode triggerMode) {
+        this.triggerMode = triggerMode;
     }
 
     public void setDownConfig(Map<String, ProtocolModelApiConfig> downConfig) {

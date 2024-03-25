@@ -1,9 +1,7 @@
 package com.iteaj.iboot.module.iot.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -14,7 +12,7 @@ import java.util.stream.Collectors;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
-import com.iteaj.framework.spi.iot.consts.EventTriggerMode;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
@@ -109,7 +107,7 @@ public class ModelApi extends BaseEntity {
     /**
      * 事件触发方式
      */
-    private EventTriggerMode triggerMode;
+    private TriggerMode triggerMode;
 
     /**
      * 指令参数

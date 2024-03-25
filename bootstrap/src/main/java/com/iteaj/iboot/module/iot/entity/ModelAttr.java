@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.validate.AllGroup;
 import com.iteaj.iboot.module.iot.consts.AttrOrigin;
 import lombok.Data;
@@ -61,6 +62,11 @@ public class ModelAttr extends BaseEntity {
      * 实际类型
      */
     private String realType;
+
+    /**
+     * 读写方式
+     */
+    private AttrType attrType;
 
     /**
      * 是否枚举

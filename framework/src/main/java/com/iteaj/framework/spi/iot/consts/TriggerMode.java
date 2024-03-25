@@ -1,24 +1,24 @@
 package com.iteaj.framework.spi.iot.consts;
 
 /**
- * 事件接口触发方式
+ * 接口触发方式
  */
-public enum EventTriggerMode {
+public enum TriggerMode {
 
     /**
-     * 设备主动上报事件
+     * 设备主动上报
      */
     active("主动"),
 
     /**
-     * 服务器主动(设备被动)上报事件
+     * 服务器主动(设备被动)上报
      */
     passive("被动")
     ;
 
     private String desc;
 
-    EventTriggerMode(String desc) {
+    TriggerMode(String desc) {
         this.desc = desc;
     }
 
