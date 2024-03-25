@@ -44,8 +44,4 @@ public class DahuaICCAutoConfiguration {
         return new DahuaICCProtocolSupplier();
     }
 
-//    @Bean
-//    public DahuaICCVideoProtocolSupplier dahuaICCVideoProtocolSupplier() {
-//        return new DahuaICCVideoProtocolSupplier();
-//    }
 }
