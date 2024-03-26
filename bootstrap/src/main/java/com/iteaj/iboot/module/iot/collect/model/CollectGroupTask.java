@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
+import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
@@ -33,7 +34,14 @@ public class CollectGroupTask implements Runnable{
                     if(supplier != null) {
                         AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());
                         if(modelApi != null) {
-                            ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam();
+                            JSONObject param = new JSONObject();
+                            api.getDownConfig().forEach(item -> {
+                                param.put(item.getProtocolAttrField(), item.getValue());
+                            });
+                            ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(device.getUid().toString(), param);
+                            invokeParam.setDeviceSn(device.getDeviceSn())
+                                    .setParentDeviceSn(device.getDeviceSn())
+                                    .addConfig("device", device);
                             modelApi.invoke(invokeParam, result -> {
 
                             });
