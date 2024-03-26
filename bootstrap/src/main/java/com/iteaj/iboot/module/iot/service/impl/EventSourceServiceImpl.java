@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
@@ -104,6 +105,12 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
 
     @Override
     public BooleanResult removeAllByIds(List<Long> idList) {
+        this.listByIds(idList).forEach(item -> {
+           if(item.getStatus() == FuncStatus.enabled) {
+               throw new ServiceException("请先停用事件源["+item.getName()+"]");
+           }
+        });
+
         int result = this.getBaseMapper().removeAllByIds(idList);
         return new BooleanResult(result > 0);
     }

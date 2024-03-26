@@ -16,7 +16,6 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
@@ -48,10 +47,10 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
         this.coreProperties = coreProperties;
     }
 
-//    @Bean
-//    public TaskScheduler taskScheduler(TaskSchedulerBuilder builder) {
-//        return new ThreadPoolTaskScheduler();
-//    }
+    @Bean
+    public TaskScheduler taskScheduler() {
+        return new ThreadPoolTaskScheduler();
+    }
 
     @Bean
     public ResourceManager menuResourceManager() {
