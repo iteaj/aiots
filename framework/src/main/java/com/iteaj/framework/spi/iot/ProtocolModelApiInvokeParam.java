@@ -78,11 +78,11 @@ public class ProtocolModelApiInvokeParam {
     }
 
     public String getDeviceSn() {
-        return this.getString(DeviceKey.DEVICE_SN_KEY);
+        return this.getConfig(DeviceKey.DEVICE_SN_KEY);
     }
 
     public String getParentDeviceSn() {
-        return this.getString(DeviceKey.PARENT_DEVICE_SN_KEY);
+        return this.getConfig(DeviceKey.PARENT_DEVICE_SN_KEY);
     }
 
     public DeviceKey buildKey() {
@@ -90,11 +90,11 @@ public class ProtocolModelApiInvokeParam {
     }
 
     public ProtocolModelApiInvokeParam setDeviceSn(String deviceSn) {
-        return this.addParam(DeviceKey.DEVICE_SN_KEY, deviceSn);
+        return this.addConfig(DeviceKey.DEVICE_SN_KEY, deviceSn);
     }
 
     public ProtocolModelApiInvokeParam setParentDeviceSn(String parentDeviceSn) {
-        return this.addParam(DeviceKey.PARENT_DEVICE_SN_KEY, parentDeviceSn);
+        return this.addConfig(DeviceKey.PARENT_DEVICE_SN_KEY, parentDeviceSn);
     }
 
     public JSONObject getParam() {
