@@ -45,6 +45,11 @@ public class RealtimeStatus {
     private String protocolCode;
 
     /**
+     * 所属产品id
+     */
+    private Long productId;
+
+    /**
      * 所属产品
      */
     private String productCode;

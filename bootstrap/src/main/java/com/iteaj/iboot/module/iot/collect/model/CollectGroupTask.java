@@ -28,7 +28,7 @@ public class CollectGroupTask implements Runnable{
         cacheManager.listByGroupId(group.getId()).forEach(device -> {
             apis.forEach(api -> {
                 // 对此设备同一产品的模型接口进行调用
-                if(api.getProductId().equals(device.getProductCode())) {
+                if(api.getProductId().equals(device.getProductId())) {
                     DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(device.getProtocolCode());
                     if(supplier != null) {
                         AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());
