@@ -20,7 +20,7 @@
         <result column="create_time" property="createTime" />
     </resultMap>
 
-    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.ModelApi">
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.ModelApi" extends="BaseResultMap">
         <collection property="upConfig" column="{apiCode=code}" ofType="ModelApiConfig"
                     select="com.iteaj.iboot.module.iot.mapper.ModelApiConfigMapper.listUpByApiCode" />
         <collection property="downConfig" column="{apiCode=code}" ofType="ModelApiConfig"

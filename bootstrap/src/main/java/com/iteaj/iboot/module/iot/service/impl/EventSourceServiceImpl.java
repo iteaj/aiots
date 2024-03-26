@@ -4,17 +4,21 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.EventSourceDto;
+import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.EventSourceDetail;
 import com.iteaj.iboot.module.iot.mapper.EventSourceMapper;
+import com.iteaj.iboot.module.iot.service.IDeviceGroupService;
 import com.iteaj.iboot.module.iot.service.IEventSourceDetailService;
 import com.iteaj.iboot.module.iot.service.IEventSourceService;
-import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +37,11 @@ import java.util.stream.Collectors;
 @Service
 public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, EventSource> implements IEventSourceService {
 
+    private final IDeviceGroupService deviceGroupService;
     private final IEventSourceDetailService eventSourceDetailService;
 
-    public EventSourceServiceImpl(IEventSourceDetailService eventSourceDetailService) {
+    public EventSourceServiceImpl(IDeviceGroupService deviceGroupService, IEventSourceDetailService eventSourceDetailService) {
+        this.deviceGroupService = deviceGroupService;
         this.eventSourceDetailService = eventSourceDetailService;
     }
 
@@ -100,5 +106,22 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
     public BooleanResult removeAllByIds(List<Long> idList) {
         int result = this.getBaseMapper().removeAllByIds(idList);
         return new BooleanResult(result > 0);
+    }
+
+    @Override
+    public BooleanResult switchStatus(FuncStatus status, Long id) {
+
+        return BooleanResult.buildTrue("切换成功");
+    }
+
+    @Override
+    public DetailResult<EventSourceDto> collectDetailById(Long id) {
+        EventSourceDto eventSourceDto = this.getBaseMapper().collectDetailById(id);
+        if(eventSourceDto != null) {
+            List<DeviceGroup> groups = this.getBaseMapper().listGroupById(id);
+            eventSourceDto.setGroups(groups);
+        }
+
+        return new DetailResult<>(eventSourceDto);
     }
 }

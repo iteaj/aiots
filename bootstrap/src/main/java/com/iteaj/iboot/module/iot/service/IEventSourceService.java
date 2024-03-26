@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.*;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.framework.IBaseService;
 
@@ -33,4 +35,8 @@ public interface IEventSourceService extends IBaseService<EventSource> {
      * @return
      */
     BooleanResult removeAllByIds(List<Long> idList);
+
+    BooleanResult switchStatus(FuncStatus status, Long id);
+
+    DetailResult<EventSourceDto> collectDetailById(Long id);
 }

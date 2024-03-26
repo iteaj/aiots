@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.iteaj.iboot.module.iot.consts.EventSourceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -41,6 +42,11 @@ public class EventSource extends BaseEntity {
      * 事件名称
      */
     private String name;
+
+    /**
+     * 场景状态
+     */
+    private FuncStatus status;
 
     /**
      * 有没有被动事件

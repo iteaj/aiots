@@ -8,6 +8,7 @@
         <result column="type" property="type" />
         <result column="cron" property="cron" />
         <result column="name" property="name" />
+        <result column="status" property="status" />
         <result column="linkage_id" property="linkageId" />
         <result column="linkage_name" property="linkageName" />
         <result column="has_passive" property="hasPassive" />
@@ -18,6 +19,10 @@
         <collection property="modelApiIds" ofType="String">
             <result column="model_api_id" />
         </collection>
+    </resultMap>
+    <resultMap id="DetailCollectResultMap" type="com.iteaj.iboot.module.iot.dto.EventSourceDto" extends="BaseResultMap">
+        <collection property="apis" resultMap="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.DetailResultMap"
+                    columnPrefix="ma_" foreignColumn="event_source_id"/>
     </resultMap>
     <delete id="removeAllByIds">
         delete f,b,c,d,e from iot_event_source f
@@ -58,4 +63,19 @@
             left join iot_linkage l on a.id=l.event_source_id
     </select>
 
+    <select id="collectDetailById" resultMap="DetailCollectResultMap">
+        select a.*, esd.event_source_id ma_event_source_id, ma.id ma_id, ma.type ma_type, ma.code ma_code, ma.direct ma_direct, ma.product_id ma_product_id
+             , ma.name ma_name, ma.status ma_status, ma.func_type ma_func_type, ma.trigger_mode ma_trigger_mode
+        from iot_event_source a
+            left join iot_event_source_detail esd on a.id= esd.event_source_id
+            left join iot_model_api ma on ma.id = esd.model_api_id and ma.func_type='read' and ma.trigger_mode='passive'
+        where a.id=#{id}
+    </select>
+
+    <select id="listGroupById" resultType="com.iteaj.iboot.module.iot.entity.DeviceGroup">
+        select a.* from iot_event_source a
+            left join iot_device_group dg on dg.id=a.device_group_id
+            left join iot_device_group pdg on pdg.id=dg.group_product_id
+        where a.id=#{id}
+    </select>
 </mapper>
