@@ -12,6 +12,7 @@
         <result column="reason" property="reason" />
         <result column="address" property="address" />
         <result column="field_type" property="fieldType" />
+        <result column="collect_mode" property="collectMode" />
         <result column="create_time" property="createTime" />
         <result column="collect_time" property="collectTime" />
         <result column="collect_task_id" property="collectTaskId" />
@@ -33,6 +34,9 @@
             </if>
             <if test="entity.cid != null">
                 and a.cid=#{entity.cid}
+            </if>
+            <if test="entity.collectMode != null">
+                and a.collect_mode = #{entity.collectMode}
             </if>
             <if test="entity.productTypeId != null">
                 and p.product_type_id=#{entity.productTypeId}
