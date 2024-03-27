@@ -19,4 +19,9 @@ public interface PointProtocolConfig {
      * modbus子设备编号
      */
     String POINT_CHILD_SN = "childSn";
+
+    /**
+     * 点位字段
+     */
+    String POINT_FIELD_KEY = "POINT_FIELD";
 }
