@@ -12,6 +12,7 @@ import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 import com.iteaj.iot.consts.ExecStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,12 @@ public class CollectGroupTask implements Runnable{
                                     // 如果是点位采集
                                     if(supplier.getProtocol().getCtrlMode() == CtrlMode.POINT) {
                                         if(Objects.equals(item.getProtocolAttrField(), PointProtocolConfig.POINT_ADDRESS)) {
-                                            invokeParam.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), item.getAttrField());
+                                            for (int i = 0; i < api.getUpConfig().size(); i++) {
+                                                ModelApiConfig apiConfig = api.getUpConfig().get(i); // 获取此点位地址绑定的物模型属性
+                                                if(Objects.equals(apiConfig.getProtocolAttrField(), "value") && apiConfig.getModelAttrId() != null) {
+                                                    invokeParam.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
+                                                }
+                                            }
                                         }
                                     }
                                 });
