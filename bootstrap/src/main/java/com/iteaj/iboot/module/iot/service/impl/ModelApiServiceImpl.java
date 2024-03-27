@@ -82,11 +82,13 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         }
         if(StrUtil.isNotBlank(config.getValue())) {
             if(config.getValue().startsWith("@")) {
+                if(config.getModelAttrId() == null) {
+                    throw new ServiceException("未指定模型属性[modelAttrId]");
+                }
+
                 if(StrUtil.isBlank(config.getAttrField())) {
                     config.setAttrField(config.getValue().substring(1));
                 }
-            } else {
-                config.setAttrField(null).setModelAttrId(null);
             }
         }
     }
