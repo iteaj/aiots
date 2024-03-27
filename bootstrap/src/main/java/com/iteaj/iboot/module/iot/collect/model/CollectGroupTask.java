@@ -13,6 +13,8 @@ import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iot.consts.ExecStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +27,7 @@ public class CollectGroupTask implements Runnable{
     private List<ModelApi> apis;
     private EventSourceDto source;
     private IotCacheManager cacheManager;
+    private static Logger logger = LoggerFactory.getLogger(CollectGroupTask.class);
 
     public CollectGroupTask(DeviceGroup group, EventSourceDto source, IotCacheManager cacheManager) {
         this.group = group;
@@ -76,7 +79,8 @@ public class CollectGroupTask implements Runnable{
                                             info.addDeviceInfo(device, api, data);
                                         });
                                     } else {
-
+                                        logger.warn("接口执行失败({}) {} - 设备编号: {} - 接口: {}/{}", result.getStatus()
+                                                , result.getReason(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                                     }
                                 });
                             } else {
@@ -84,18 +88,21 @@ public class CollectGroupTask implements Runnable{
                             }
                         }
                     }
-
-                    EventGroupCollectManager.getInstance().forEach(listener -> {
-                        listener.listener(info);
-                    });
                 } catch (ProtocolInvokeException e) {
-                    e.printStackTrace();
+                    logger.error("接口调用执行异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
+                    logger.error("接口调用参数错误 {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("接口调用未知异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 }
             });
+        });
+
+        EventGroupCollectManager.getInstance().forEach(listener -> {
+            listener.listener(info);
         });
     }
 }

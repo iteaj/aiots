@@ -35,7 +35,16 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
     @Override
     public void started(ApplicationContext context) {
+        this.eventSourceService.list(Wrappers.<EventSource>lambdaQuery()
+                .eq(EventSource::getStatus, FuncStatus.enabled)).forEach(item -> {
 
+            EventSourceDto source = eventSourceService.collectDetailById(item.getId())
+                    .ifNotPresentThrow("事件源不存在").getData();
+
+            ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(scheduler
+                    , source, cacheManager), new CronTrigger(source.getCron()));
+            futures.put(source.getId(), schedule);
+        });
     }
 
     public BooleanResult switchTask(Long id, FuncStatus status) {

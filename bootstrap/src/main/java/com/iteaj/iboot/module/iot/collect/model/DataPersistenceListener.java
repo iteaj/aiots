@@ -24,6 +24,7 @@ public interface DataPersistenceListener extends EventGroupCollectListener {
                     CollectData data = new CollectData(CollectMode.model)
                             .setCid(cid).setStatus(true).setReason("")
                             .setCollectTime(item.getCollectTime())
+                            .setAddress(value.getAddress())
                             .setUid(item.getDevice().getUid())
                             .setValue(value.getValue().toString())
                             .setSignalId(item.getApi().getId())
