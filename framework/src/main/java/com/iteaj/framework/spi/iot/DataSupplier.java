@@ -31,4 +31,8 @@ public class DataSupplier {
     public DataSupplier addValue(String signalOrField, Object value) {
         return this.addValue(SignalOrFieldValue.build(signalOrField, value));
     }
+
+    public DataSupplier addValue(String address, String signalOrField, Object value) {
+        return this.addValue(SignalOrFieldValue.build(address, signalOrField, value));
+    }
 }

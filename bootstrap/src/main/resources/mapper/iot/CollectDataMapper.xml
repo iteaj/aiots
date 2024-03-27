@@ -12,6 +12,7 @@
         <result column="reason" property="reason" />
         <result column="address" property="address" />
         <result column="field_type" property="fieldType" />
+        <result column="collect_mode" property="collectMode" />
         <result column="create_time" property="createTime" />
         <result column="collect_time" property="collectTime" />
         <result column="collect_task_id" property="collectTaskId" />

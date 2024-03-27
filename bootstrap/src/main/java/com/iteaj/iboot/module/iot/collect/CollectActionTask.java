@@ -12,6 +12,7 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.store.StoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
+import com.iteaj.iboot.module.iot.consts.CollectMode;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.CollectDetail;
@@ -53,7 +54,7 @@ public class CollectActionTask implements Runnable {
                         if(supplier != null) {
                             ProtocolModel protocol = supplier.getProtocol();
                             collectDevice.getSignals().forEach(signal -> {
-                                CollectData data = new CollectData()
+                                CollectData data = new CollectData(CollectMode.signal)
                                         .setCid(cid).setReason("")
                                         .setFieldName(signal.getFieldName())
                                         .setAddress(signal.getAddress())

@@ -22,7 +22,7 @@ public class EventSourceTask implements Runnable {
     public void run() {
         if(CollectionUtil.isNotEmpty(sourceDto.getGroups())) {
             sourceDto.getGroups().forEach(group -> {
-                executor.execute(new CollectGroupTask(group, sourceDto.getApis(), cacheManager));
+                executor.execute(new CollectGroupTask(group, sourceDto, cacheManager));
             });
         }
     }
