@@ -75,6 +75,10 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         if(config.getProtocolAttrField().equals(PointProtocolConfig.POINT_ADDRESS)) {
             CtrlMode ctrlMode = this.getProtocolCtrlModelByProductId(entity.getProductId());
             if (ctrlMode == CtrlMode.POINT) {
+                if(config.getValue().startsWith("@")) { //
+                    throw new ServiceException("点位地址错误["+config.getValue()+"], 不允许提及模型属性");
+                }
+
                 if(this.getBaseMapper().hasSameAddress(entity.getProductId(), entity.getType(), PointProtocolConfig.POINT_ADDRESS, config.getValue())) {
                     throw new ServiceException("同一个产品不允许有相同的点位地址,"+config.getDirection().getDesc()+"点位地址["+config.getValue()+"]已经存在");
                 }

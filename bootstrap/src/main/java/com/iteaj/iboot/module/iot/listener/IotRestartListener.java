@@ -1,8 +1,11 @@
 package com.iteaj.iboot.module.iot.listener;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
@@ -94,7 +97,7 @@ public class IotRestartListener implements ApplicationReadyListener {
                                 IotClient client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
                                 resolveClientStatus(client);
                             } catch (Exception e) {
-                                logger.error("<<< 启动产品[{}]下的设备[{}]失败", item.getName(), device.getName(), e);
+                                logger.error("<<< 启动产品[{}]下的网关设备[{}]失败", item.getName(), device.getName(), e);
                             }
                         });
                     }
@@ -114,9 +117,14 @@ public class IotRestartListener implements ApplicationReadyListener {
     private NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, DeviceDto device) {
         TransportProtocol type = supplier.getProtocol().getType();
         if(type == TransportProtocol.TCP) {
+            JSONObject jsonObject = device.getConfig();
+            if(jsonObject == null) {
+                throw new IllegalArgumentException("配置错误");
+            }
+
             NetworkConfigImpl.TcpNetworkConfig config = new NetworkConfigImpl.TcpNetworkConfig();
-            config.setHost(device.getIp());
-            config.setPort(device.getPort());
+            config.setHost(jsonObject.getString(ConstConfig.HOST));
+            config.setPort(jsonObject.getInteger(ConstConfig.PORT));
             config.setDeviceSn(device.getDeviceSn());
             return config;
         }
