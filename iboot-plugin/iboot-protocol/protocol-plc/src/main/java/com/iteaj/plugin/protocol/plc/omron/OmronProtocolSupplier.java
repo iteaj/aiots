@@ -6,6 +6,7 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
@@ -28,8 +29,8 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
             , CtrlMode.POINT, TransportProtocol.TCP, getModelApis(), getModelAttrs());
 
     private ParamMeta[] gatewayConfig = new ParamMeta[]{
-            ParamMeta.buildRequired("host", "主机", "", "127.0.0.1"),
-            ParamMeta.buildRequiredNumber("port", "端口", 9600, ""),
+            ParamMeta.buildRequired(ConstConfig.HOST, "主机", "", "127.0.0.1"),
+            ParamMeta.buildRequiredNumber(ConstConfig.PORT, "端口", 9600, ""),
     };
 
     @Override
