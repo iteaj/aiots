@@ -70,4 +70,6 @@ public interface IProductService extends IBaseService<Product> {
     ListResult<Product> listByPoint();
 
     ListResult<ProductDto> listJoinDetailByIds(List<Long> productIds);
+
+    boolean hasBindEnabledEventSource(Long id);
 }

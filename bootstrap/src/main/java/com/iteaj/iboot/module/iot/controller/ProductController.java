@@ -28,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 产品管理
@@ -56,6 +57,19 @@ public class ProductController extends BaseController {
     @CheckPermission({"iot:product:view"})
     public Result<IPage<ProductDto>> list(Page<Product> page, Product entity) {
         return this.productService.pageOfDetail(page, entity);
+    }
+
+    /**
+     * 返回产品列表
+     * @param entity
+     * @return
+     */
+    @GetMapping("/list")
+    public Result<List<IVOption>> list(Product entity) {
+        List<IVOption> options = this.productService.list(entity).stream()
+                .map(item -> new IVOption(item.getName(), item.getId()))
+                .collect(Collectors.toList());
+        return success(options);
     }
 
     /**
@@ -135,6 +149,13 @@ public class ProductController extends BaseController {
         this.productService.detailById(id)
             .ifNotPresentThrow("查找不到此产品")
             .ifPresent(item -> {
+                // 被启用的事件源绑定后产品不能被禁用
+                if(status == FuncStatus.disabled) {
+                    if(this.productService.hasBindEnabledEventSource(id)) {
+                        throw new ServiceException("此产品正被事件源使用中, 请先禁用对应事件源");
+                    }
+                }
+
                 // 网关子设备的父产品是边缘网关产品
                 if(item.getDeviceType() == DeviceType.Child) {
                     if(status == FuncStatus.enabled) {

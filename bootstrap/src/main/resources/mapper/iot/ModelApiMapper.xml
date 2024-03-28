@@ -56,4 +56,7 @@
             left join iot_model_api_config b on a.code=b.api_code and b.product_id=#{productId}
         where a.product_id=#{productId} and b.protocol_attr_field=#{pointAddress} and a.type=#{type} and b.value=#{value}
     </select>
+    <select id="isEnabled" resultType="java.lang.Boolean">
+        select status='enabled' from iot_product where id = #{productId}
+    </select>
 </mapper>

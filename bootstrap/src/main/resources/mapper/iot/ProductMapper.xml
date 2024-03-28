@@ -143,6 +143,13 @@
         #{id}
     </foreach>)
     </select>
+    <select id="hasBindEnabledEventSource" resultType="java.lang.Boolean">
+        select count(p.id) > 0 from iot_event_source a
+            inner join iot_device_group dg on a.device_group_id = dg.id
+            inner join iot_device_group pdg on pdg.id = dg.group_product_id
+            inner join iot_product p on p.id=#{id} and json_contains(pdg.product_ids, concat('', p.id))
+        where a.status = 'enabled' and p.id=#{id} limit 1
+    </select>
 
     <delete id="removeModel">
         delete from iot_model_api where product_id=#{productId};

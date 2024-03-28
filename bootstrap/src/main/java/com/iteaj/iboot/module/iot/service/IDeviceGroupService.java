@@ -1,7 +1,10 @@
 package com.iteaj.iboot.module.iot.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.framework.IBaseService;
@@ -33,4 +36,6 @@ public interface IDeviceGroupService extends IBaseService<DeviceGroup> {
     DetailResult<DeviceGroup> getGroupProductById(Long id);
 
     boolean hasBindEventSource(Collection<? extends Serializable> idList);
+
+    PageResult<IPage<DeviceGroup>> detailPage(Page<DeviceGroup> page, DeviceGroup entity);
 }

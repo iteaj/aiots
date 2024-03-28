@@ -100,23 +100,25 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Override
     @Transactional
     public BooleanResult updateById(ModelApi entity) {
+        if(this.getBaseMapper().isEnabled(entity.getProductId())) {
+            throw new ServiceException("请先停用产品后更新");
+        }
+
         this.getByProductIdAndCode(entity.getProductId(), entity.getCode()).ifPresent(item -> {
            if(!item.getId().equals(entity.getId())) {
                throw new ServiceException("接口代码已存在["+entity.getCode()+"]");
            }
         });
 
-        // 删除此接口的所有配置
-        this.modelApiConfigService.remove(Wrappers.<ModelApiConfig>lambdaQuery().eq(ModelApiConfig::getApiCode, entity.getCode()));
         if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
             entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));
             // 重新添加配置
-            this.modelApiConfigService.saveBatch(entity.getDownConfig());
+            this.modelApiConfigService.updateBatchById(entity.getDownConfig());
         }
 
         if(!CollectionUtils.isEmpty(entity.getUpConfig())) {
             entity.getUpConfig().forEach(item -> resolverModelApiConfig(entity, item));
-            this.modelApiConfigService.saveOrUpdateBatch(entity.getUpConfig());
+            this.modelApiConfigService.updateBatchById(entity.getUpConfig());
         }
 
         return super.updateById(entity);
@@ -126,6 +128,10 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Transactional
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
         listByIds(idList).stream().filter(item -> item != null).forEach(item -> {
+            if(this.getBaseMapper().isEnabled(item.getProductId())) {
+                throw new ServiceException("请先停用产品后删除");
+            }
+
             modelApiConfigService.remove(Wrappers.<ModelApiConfig>lambdaQuery()
                     .eq(ModelApiConfig::getApiCode, item.getCode())
                     .eq(ModelApiConfig::getProductId, item.getProductId()));

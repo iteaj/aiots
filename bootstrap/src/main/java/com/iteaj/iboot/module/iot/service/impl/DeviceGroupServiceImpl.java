@@ -1,12 +1,12 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.DetailResult;
-import com.iteaj.framework.result.ListResult;
-import com.iteaj.framework.result.Result;
+import com.iteaj.framework.result.*;
 import com.iteaj.framework.utils.TreeUtils;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.ProductType;
@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,11 +98,15 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
 
     @Override
     public ListResult<DeviceGroup> tree(DeviceGroup entity) {
-        return list().ifPresent((list, result) -> {
-            List<DeviceGroup> deviceGroups = TreeUtils.toTrees(list)
+        List<DeviceGroup> groups = this.getBaseMapper().listDetail(entity);
+        if(CollectionUtil.isNotEmpty(groups)) {
+            List<DeviceGroup> deviceGroups = TreeUtils.toTrees(groups)
                     .stream().collect(Collectors.toList());
-            result.setData(deviceGroups);
-        });
+
+            return new ListResult<>(deviceGroups);
+        }
+
+        return new ListResult<>(Collections.EMPTY_LIST);
     }
 
     @Override
@@ -122,6 +127,12 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
     @Override
     public boolean hasBindEventSource(Collection<? extends Serializable> idList) {
         return this.getBaseMapper().hasBindEventSource(idList);
+    }
+
+    @Override
+    public PageResult<IPage<DeviceGroup>> detailPage(Page<DeviceGroup> page, DeviceGroup entity) {
+        this.getBaseMapper().detailPage(page, entity);
+        return new PageResult<>(page);
     }
 
     @Override

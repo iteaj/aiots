@@ -9,6 +9,7 @@
         <result column="name" property="name" />
         <result column="path" property="path" />
         <result column="remark" property="remark" />
+        <result column="product_names" property="productNames" />
         <result column="group_product_id" property="groupProductId" />
         <result column="product_ids" property="productIds"
                 typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
@@ -41,6 +42,24 @@
                 #{id}
             </foreach>
         )
+    </select>
+    <select id="detailPage" resultMap="BaseResultMap">
+        select a.* from iot_device_group a
+    </select>
+
+    <select id="listDetail" resultMap="BaseResultMap">
+        select a.*, group_concat(p.name) product_names from iot_device_group a
+            left join iot_device_group pdg on pdg.id = a.group_product_id
+            left join iot_product p on json_contains(pdg.product_ids, concat('', p.id))
+        <where>
+            <if test="name != null and name != ''">
+                and a.name like '%${name}%'
+            </if>
+            <if test="productId != null">
+                and p.id = #{productId}
+            </if>
+        </where>
+        group by a.id
     </select>
 
 
