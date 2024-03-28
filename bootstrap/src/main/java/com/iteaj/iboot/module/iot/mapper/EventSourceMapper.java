@@ -3,10 +3,12 @@ package com.iteaj.iboot.module.iot.mapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IVOption;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.iteaj.iboot.module.iot.entity.Product;
 
 import java.util.List;
 
@@ -31,4 +33,6 @@ public interface EventSourceMapper extends BaseMapper<EventSource> {
     EventSourceDto collectDetailById(Long id);
 
     List<DeviceGroup> listGroupById(Long id);
+
+    List<Product> listProductById(Long id, FuncStatus status);
 }

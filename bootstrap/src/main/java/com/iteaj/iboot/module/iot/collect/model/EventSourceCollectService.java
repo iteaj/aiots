@@ -2,13 +2,19 @@ package com.iteaj.iboot.module.iot.collect.model;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.EventSource;
+import com.iteaj.iboot.module.iot.entity.Product;
+import com.iteaj.iboot.module.iot.service.IDeviceGroupService;
 import com.iteaj.iboot.module.iot.service.IEventSourceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
@@ -23,13 +29,17 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
     private final IotCacheManager cacheManager;
     private final ThreadPoolTaskScheduler scheduler;
+    private final IDeviceGroupService deviceGroupService;
     private final IEventSourceService eventSourceService;
+    private Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<Long, ScheduledFuture> futures = new ConcurrentHashMap<>(128);
 
     public EventSourceCollectService(IotCacheManager cacheManager
-            , ThreadPoolTaskScheduler scheduler, IEventSourceService eventSourceService) {
+            , ThreadPoolTaskScheduler scheduler, IDeviceGroupService deviceGroupService
+            , IEventSourceService eventSourceService) {
         this.cacheManager = cacheManager;
         this.scheduler = scheduler;
+        this.deviceGroupService = deviceGroupService;
         this.eventSourceService = eventSourceService;
     }
 
@@ -38,12 +48,30 @@ public class EventSourceCollectService implements ApplicationReadyListener {
         this.eventSourceService.list(Wrappers.<EventSource>lambdaQuery()
                 .eq(EventSource::getStatus, FuncStatus.enabled)).forEach(item -> {
 
-            EventSourceDto source = eventSourceService.collectDetailById(item.getId())
-                    .ifNotPresentThrow("事件源不存在").getData();
+            try {
+                EventSourceDto source = eventSourceService.collectDetailById(item.getId())
+                        .ifNotPresentThrow("事件源不存在").getData();
 
-            ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(scheduler
-                    , source, cacheManager), new CronTrigger(source.getCron()));
-            futures.put(source.getId(), schedule);
+                eventSourceService.listProductById(source.getId(), null).forEach(product -> {
+                    if(product.getStatus() == FuncStatus.disabled) {
+                        throw new ServiceException("产品["+product.getName()+"]未启用");
+                    }
+                });
+
+                ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(scheduler
+                        , source, cacheManager), new CronTrigger(source.getCron()));
+                futures.put(source.getId(), schedule);
+            } catch (ServiceException e) {
+                logger.error("启动事件源失败({}) {}", item.getName(), e.getMessage());
+                eventSourceService.update(Wrappers.<EventSource>lambdaUpdate()
+                        .set(EventSource::getReason, e.getMessage())
+                        .eq(EventSource::getId, item.getId()));
+            } catch (Exception e) {
+                logger.error("启动事件源失败({}) {}", item.getName(), e.getMessage(), e);
+                eventSourceService.update(Wrappers.<EventSource>lambdaUpdate()
+                        .set(EventSource::getReason, "未知错误")
+                        .eq(EventSource::getId, item.getId()));
+            }
         });
     }
 
@@ -64,6 +92,12 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
         ScheduledFuture scheduledFuture = futures.get(id);
         if(status == FuncStatus.enabled) { // 启用
+            this.eventSourceService.listProductById(source.getId(), null).forEach(product -> {
+                if(product.getStatus() == FuncStatus.disabled) {
+                    throw new ServiceException("产品["+product.getName()+"]未启用");
+                }
+            });
+
             if(scheduledFuture != null) { // 已经存在则先移除并取消
                 futures.remove(id).cancel(true);
             }
@@ -80,6 +114,7 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
         return this.eventSourceService.update(Wrappers.<EventSource>lambdaUpdate()
                 .set(EventSource::getStatus, status)
+                .set(EventSource::getReason, "")
                 .eq(EventSource::getId, id));
     }
 }

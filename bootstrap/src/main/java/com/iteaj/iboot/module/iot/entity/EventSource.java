@@ -59,6 +59,11 @@ public class EventSource extends BaseEntity {
     private Date createTime;
 
     /**
+     * 启用失败原因
+     */
+    private String reason;
+
+    /**
      * 所属设备组
      */
     private Long deviceGroupId;

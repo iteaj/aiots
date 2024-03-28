@@ -16,6 +16,7 @@ import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.EventSourceDetail;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.mapper.EventSourceMapper;
 import com.iteaj.iboot.module.iot.service.IDeviceGroupService;
 import com.iteaj.iboot.module.iot.service.IEventSourceDetailService;
@@ -130,5 +131,10 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
         }
 
         return new DetailResult<>(eventSourceDto);
+    }
+
+    @Override
+    public ListResult<Product> listProductById(Long id, FuncStatus status) {
+        return new ListResult<>(this.getBaseMapper().listProductById(id, status));
     }
 }

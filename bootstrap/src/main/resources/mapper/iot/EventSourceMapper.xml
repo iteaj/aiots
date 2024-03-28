@@ -78,4 +78,12 @@
             inner join iot_device_group pdg on pdg.group_product_id=dg.group_product_id
         where a.id=#{id}
     </select>
+
+    <select id="listProductById" resultType="com.iteaj.iboot.module.iot.entity.Product">
+        select p.* from iot_event_source a
+            inner join iot_device_group dg on a.device_group_id = dg.id
+            left join iot_device_group pdg on pdg.id = dg.group_product_id
+            left join iot_product p on json_contains(pdg.product_ids, concat('', p.id))
+        where a.id=#{id} <if test="status != null">and p.status = #{status}</if>
+    </select>
 </mapper>

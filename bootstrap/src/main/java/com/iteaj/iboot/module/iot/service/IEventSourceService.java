@@ -8,6 +8,7 @@ import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.iboot.module.iot.entity.Product;
 
 import java.util.List;
 
@@ -39,4 +40,12 @@ public interface IEventSourceService extends IBaseService<EventSource> {
     BooleanResult switchStatus(FuncStatus status, Long id);
 
     DetailResult<EventSourceDto> collectDetailById(Long id);
+
+    /**
+     * 获取事件源绑定的组下面的所有产品
+     * @param id
+     * @param status
+     * @return
+     */
+    ListResult<Product> listProductById(Long id, FuncStatus status);
 }
