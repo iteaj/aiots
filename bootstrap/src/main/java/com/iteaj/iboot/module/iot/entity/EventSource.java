@@ -1,0 +1,88 @@
+package com.iteaj.iboot.module.iot.entity;
+
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.iteaj.framework.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.Date;
+import java.util.List;
+
+import com.iteaj.iboot.module.iot.consts.EventSourceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+/**
+ * <p>
+ * 事件源
+ * </p>
+ *
+ * @author iteaj
+ * @since 2024-02-27
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("iot_event_source")
+public class EventSource extends BaseEntity {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 事件类型
+     */
+    private EventSourceType type;
+
+    /**
+     * 采集周期
+     */
+    private String cron;
+
+    /**
+     * 事件名称
+     */
+    private String name;
+
+    /**
+     * 场景状态
+     */
+    private FuncStatus status;
+
+    /**
+     * 有没有被动事件
+     */
+    private Boolean hasPassive;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 启用失败原因
+     */
+    private String reason;
+
+    /**
+     * 所属设备组
+     */
+    private Long deviceGroupId;
+
+    /**
+     * 绑定场景id
+     */
+    @TableField(exist = false)
+    private Long linkageId;
+
+    /**
+     * 绑定的场景名称
+     */
+    @TableField(exist = false)
+    private String linkageName;
+
+    /**
+     * 模型接口列表
+     */
+    @TableField(exist = false)
+    private List<String> modelApiIds;
+}

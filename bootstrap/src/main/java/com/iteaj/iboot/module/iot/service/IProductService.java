@@ -10,6 +10,7 @@ import com.iteaj.iboot.module.iot.entity.Product;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
@@ -67,4 +68,6 @@ public interface IProductService extends IBaseService<Product> {
      * @return
      */
     ListResult<Product> listByPoint();
+
+    ListResult<ProductDto> listJoinDetailByIds(List<Long> productIds);
 }

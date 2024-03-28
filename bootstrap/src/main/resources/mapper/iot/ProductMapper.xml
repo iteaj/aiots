@@ -42,8 +42,8 @@
                     select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listFuncByProductId" />
         <collection property="eventApis" column="{productId=id}" ofType="ModelApi"
                     select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listEventByProductId" />
-<!--        <collection property="attrs" column="{productId=id}" ofType="ModelAttr"-->
-<!--                    select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listByProtocolCode" />-->
+        <collection property="attrs" column="{productId=id}" ofType="ModelAttr"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listByProductId" />
     </resultMap>
 
     <select id="pageOfDetail" resultMap="BaseResultDtoMap">
@@ -137,6 +137,11 @@
 
     <select id="listByPoint" resultMap="BaseResultMap">
         select a.* from iot_product a left join iot_protocol p on a.protocol_id=p.id where p.ctrl_mode='POINT'
+    </select>
+    <select id="listJoinDetailByIds" resultMap="JoinDetailMap">
+        select a.* from iot_product a where a.id in (<foreach collection="list" item="id" separator=",">
+        #{id}
+    </foreach>)
     </select>
 
     <delete id="removeModel">

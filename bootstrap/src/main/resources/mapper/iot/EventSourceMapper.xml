@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.EventSourceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.EventSource">
+        <result column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="cron" property="cron" />
+        <result column="name" property="name" />
+        <result column="status" property="status" />
+        <result column="linkage_id" property="linkageId" />
+        <result column="linkage_name" property="linkageName" />
+        <result column="has_passive" property="hasPassive" />
+        <result column="create_time" property="createTime" />
+        <result column="device_group_id" property="deviceGroupId" />
+    </resultMap>
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.EventSource" extends="BaseResultMap">
+        <collection property="modelApiIds" ofType="String">
+            <result column="model_api_id" />
+        </collection>
+    </resultMap>
+    <resultMap id="DetailCollectResultMap" type="com.iteaj.iboot.module.iot.dto.EventSourceDto" extends="BaseResultMap">
+        <collection property="apis" resultMap="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.DetailResultMap"
+                    columnPrefix="ma_" foreignColumn="event_source_id"/>
+    </resultMap>
+    <delete id="removeAllByIds">
+        delete f,b,c,d,e from iot_event_source f
+            inner join iot_linkage a on f.id=a.event_source_id
+            inner join iot_linkage_condition b on a.id=b.linkage_id
+            inner join iot_linkage_action c on a.id=c.linkage_id
+            inner join iot_linkage_item d on a.id=d.linkage_id
+            inner join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where f.id in (
+        <foreach collection="list" item="eventSourceId" separator=",">
+            #{eventSourceId}
+        </foreach>);
+    </delete>
+    <select id="detailPage" resultMap="BaseResultMap">
+        select a.*, l.id linkage_id, l.name linkage_name from iot_event_source a
+            left join iot_linkage l on a.id=l.event_source_id
+        <where>
+            <if test="entity.type != null">
+                and a.type = #{entity.type}
+            </if>
+            <if test="entity.deviceGroupId != null">
+                and a.device_group_id = #{entity.deviceGroupId}
+            </if>
+            <if test="entity.name != null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+        </where>
+    </select>
+
+    <select id="detailById" resultMap="DetailResultMap">
+        select a.*, esd.model_api_id from iot_event_source a
+            left join iot_event_source_detail esd on a.id = esd.event_source_id
+        where a.id=#{id}
+    </select>
+
+    <select id="availableSources" resultType="com.iteaj.framework.IVOption">
+        select a.name label, a.id value, if(l.id, '已绑定', '') extra from iot_event_source a
+            left join iot_linkage l on a.id=l.event_source_id
+    </select>
+
+    <select id="collectDetailById" resultMap="DetailCollectResultMap">
+        select a.*, esd.event_source_id ma_event_source_id, ma.id ma_id, ma.type ma_type, ma.code ma_code, ma.direct ma_direct, ma.product_id ma_product_id
+             , ma.name ma_name, ma.status ma_status, ma.func_type ma_func_type, ma.trigger_mode ma_trigger_mode
+        from iot_event_source a
+            left join iot_event_source_detail esd on a.id= esd.event_source_id
+            left join iot_model_api ma on ma.id = esd.model_api_id and ma.func_type='read' and ma.trigger_mode='passive'
+        where a.id=#{id}
+    </select>
+
+    <select id="listGroupById" resultType="com.iteaj.iboot.module.iot.entity.DeviceGroup">
+        select pdg.* from iot_event_source a
+            inner join iot_device_group dg on dg.id=a.device_group_id
+            inner join iot_device_group pdg on pdg.group_product_id=dg.group_product_id
+        where a.id=#{id}
+    </select>
+
+    <select id="listProductById" resultType="com.iteaj.iboot.module.iot.entity.Product">
+        select p.* from iot_event_source a
+            inner join iot_device_group dg on a.device_group_id = dg.id
+            left join iot_device_group pdg on pdg.id = dg.group_product_id
+            left join iot_product p on json_contains(pdg.product_ids, concat('', p.id))
+        where a.id=#{id} <if test="status != null">and p.status = #{status}</if>
+    </select>
+</mapper>

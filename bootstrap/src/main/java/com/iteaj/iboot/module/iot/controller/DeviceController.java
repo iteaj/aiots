@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ArrayUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -108,8 +109,8 @@ public class DeviceController extends BaseController {
      * @return
      */
     @GetMapping("listOfProducts")
-    public Result<List<Device>> listOfProducts(List<Long> productIds) {
-        if(CollectionUtil.isEmpty(productIds)) {
+    public Result<List<Device>> listOfProducts(Long[] productIds) {
+        if(ArrayUtil.isEmpty(productIds)) {
             return success(Collections.EMPTY_LIST);
         }
 

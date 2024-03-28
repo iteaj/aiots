@@ -117,7 +117,7 @@
 
     <select id="getDeviceCacheById" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
         select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
-             , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
             left join iot_device pd on a.pid = pd.id
             inner join iot_product p on a.product_id = p.id
@@ -126,7 +126,7 @@
     </select>
     <select id="listDeviceStatusById" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
         select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
-             , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
             left join iot_device pd on a.pid = pd.id
             inner join iot_product p on a.product_id = p.id
@@ -140,7 +140,7 @@
 
     <select id="listDeviceCache" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
         select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
-             , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
              left join iot_device pd on a.pid = pd.id
              inner join iot_product p on a.product_id = p.id
@@ -149,7 +149,7 @@
 
     <select id="getDeviceStatus" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
         select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
-             , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
             left join iot_device pd on a.pid = pd.id
              inner join iot_product p on a.product_id = p.id
@@ -161,7 +161,7 @@
     </select>
     <select id="listDeviceStatus" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
         select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
-            , pd.device_sn parentDeviceSn, p.code productCode, pl.code protocolCode, a.status
+            , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
             left join iot_device pd on a.pid = pd.id
             inner join iot_product p on a.product_id = p.id

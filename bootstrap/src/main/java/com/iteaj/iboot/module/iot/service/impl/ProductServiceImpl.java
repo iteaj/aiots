@@ -318,6 +318,12 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         return new ListResult<>(list);
     }
 
+    @Override
+    public ListResult<ProductDto> listJoinDetailByIds(List<Long> productIds) {
+        List<ProductDto> list = this.getBaseMapper().listJoinDetailByIds(productIds);
+        return new ListResult<>(list);
+    }
+
 
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {
         ModelApi modelApi = new ModelApi();
