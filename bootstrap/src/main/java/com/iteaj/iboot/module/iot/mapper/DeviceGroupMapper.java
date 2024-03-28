@@ -1,10 +1,15 @@
 package com.iteaj.iboot.module.iot.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.result.AbstractResult;
+import com.iteaj.framework.result.OptionalResult;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
@@ -29,4 +34,8 @@ public interface DeviceGroupMapper extends BaseMapper<DeviceGroup> {
     DeviceGroup getGroupProductById(Long id);
 
     boolean hasBindEventSource(Collection<? extends Serializable> idList);
+
+    IPage<DeviceGroup> detailPage(Page<DeviceGroup> page, DeviceGroup entity);
+
+    List<DeviceGroup> listDetail(DeviceGroup entity);
 }

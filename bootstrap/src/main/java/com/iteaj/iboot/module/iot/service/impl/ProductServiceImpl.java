@@ -324,6 +324,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         return new ListResult<>(list);
     }
 
+    @Override
+    public boolean hasBindEnabledEventSource(Long id) {
+        return this.getBaseMapper().hasBindEnabledEventSource(id);
+    }
+
 
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {
         ModelApi modelApi = new ModelApi();

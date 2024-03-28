@@ -68,6 +68,12 @@ public class DeviceGroup extends TreeEntity {
     private JSONArray productIds;
 
     /**
+     * 产品名列表
+     */
+    @TableField(exist = false)
+    private String productNames;
+
+    /**
      * 创建时间
      */
     private Date createTime;

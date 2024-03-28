@@ -37,12 +37,17 @@
         </foreach>);
     </delete>
     <select id="detailPage" resultMap="BaseResultMap">
-        select a.*, l.id linkage_id, l.name linkage_name from iot_event_source a
-            left join iot_linkage l on a.id=l.event_source_id
+        select a.* from iot_event_source a
+            left join iot_device_group dg on a.device_group_id = dg.id
+            left join iot_device_group pdg on pdg.id = dg.group_product_id
+            left join iot_product p on json_contains(pdg.product_ids, concat('', p.id))
         <where>
             <if test="entity.type != null">
                 and a.type = #{entity.type}
             </if>
+           <if test="entity.productId != null">
+                and p.id = #{entity.productId}
+           </if>
             <if test="entity.deviceGroupId != null">
                 and a.device_group_id = #{entity.deviceGroupId}
             </if>
@@ -50,6 +55,7 @@
                 and a.name like '%${entity.name}%'
             </if>
         </where>
+        group by a.id order by a.create_time desc
     </select>
 
     <select id="detailById" resultMap="DetailResultMap">

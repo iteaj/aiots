@@ -45,4 +45,11 @@ public interface ProductMapper extends BaseMapper<Product> {
     List<Product> listByPoint();
 
     List<ProductDto> listJoinDetailByIds(List<Long> productIds);
+
+    /**
+     * 是否被启用的事件源绑定
+     * @param id
+     * @return
+     */
+    boolean hasBindEnabledEventSource(Long id);
 }

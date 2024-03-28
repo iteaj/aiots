@@ -34,4 +34,11 @@ public interface ModelApiMapper extends BaseMapper<ModelApi> {
      * @return
      */
     boolean hasSameAddress(Long productId, ProtocolApiType type, String pointAddress, String value);
+
+    /**
+     * 产品状态是否为启用
+     * @param productId
+     * @return
+     */
+    boolean isEnabled(Long productId);
 }
