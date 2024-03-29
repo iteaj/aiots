@@ -16,9 +16,18 @@ public class DataSupplier {
     private DeviceKey key;
 
     /**
+     * 协议码
+     */
+    private String protocolCode;
+
+    /**
      * 点位或者字段列表值
      */
     private List<SignalOrFieldValue> values;
+
+    public DataSupplier(String protocolCode) {
+        this.protocolCode = protocolCode;
+    }
 
     public DataSupplier addValue(SignalOrFieldValue value) {
         if(values == null) {

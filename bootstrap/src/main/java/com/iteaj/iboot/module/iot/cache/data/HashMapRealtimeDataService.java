@@ -1,12 +1,10 @@
 package com.iteaj.iboot.module.iot.cache.data;
 
+import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HashMapRealtimeDataService implements RealtimeDataService{
@@ -87,6 +85,15 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     @Override
     public void put(String protocolCode, DeviceKey key, SignalOrFieldValue value) {
         this.put(protocolCode, key, value.getSignalOrField(), value.getValue());
+    }
+
+    @Override
+    public void put(List<DataSupplier> suppliers) {
+        suppliers.forEach(item -> {
+            item.getValues().forEach(value -> {
+                this.put(item.getProtocolCode(), item.getKey(), value);
+            });
+        });
     }
 
     @Override

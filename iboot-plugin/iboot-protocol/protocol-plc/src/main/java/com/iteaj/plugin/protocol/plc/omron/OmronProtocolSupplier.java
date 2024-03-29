@@ -60,7 +60,7 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
 
     @Override
     public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
-        DataSupplier dataSupplier = new DataSupplier();
+        DataSupplier dataSupplier = new DataSupplier(getProtocol().getCode());
         if(param == null) {
             throw new ProtocolSupplierException("调用参数不存在");
         }

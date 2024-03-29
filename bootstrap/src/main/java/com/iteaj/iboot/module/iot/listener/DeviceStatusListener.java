@@ -3,6 +3,9 @@ package com.iteaj.iboot.module.iot.listener;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -10,7 +13,6 @@ import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.event.CombinedEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -22,11 +24,13 @@ import java.util.Date;
 @Component
 public class DeviceStatusListener implements CombinedEventListener, ApplicationReadyListener {
 
+    private final IotCacheManager cacheManager;
     private final IDeviceService deviceService;
     private final FrameworkProperties properties;
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public DeviceStatusListener(IDeviceService deviceService, FrameworkProperties properties) {
+    public DeviceStatusListener(IotCacheManager cacheManager, IDeviceService deviceService, FrameworkProperties properties) {
+        this.cacheManager = cacheManager;
         this.deviceService = deviceService;
         this.properties = properties;
     }
@@ -35,12 +39,20 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
     public void online(String source, FrameworkComponent component) {
         // 设备上线事件
         deviceService.update(source, DeviceStatus.online);
+        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
+        if(supplier != null) {
+            cacheManager.updateStatus(supplier.getProtocol().getCode(), source, DeviceStatus.online);
+        }
     }
 
     @Override
     public void offline(String source, FrameworkComponent component) {
         // 设备掉线事件
         deviceService.update(source, DeviceStatus.offline);
+        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
+        if(supplier != null) {
+            cacheManager.updateStatus(supplier.getProtocol().getCode(), source, DeviceStatus.offline);
+        }
     }
 
     @Override

@@ -1,8 +1,10 @@
 package com.iteaj.iboot.module.iot.cache.data;
 
+import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,6 +59,12 @@ public interface RealtimeDataService {
      * @param value
      */
     void put(String protocolCode, DeviceKey key, SignalOrFieldValue value);
+
+    /**
+     * 缓存数据
+     * @param suppliers 提供数据列表
+     */
+    void put(List<DataSupplier> suppliers);
 
     /**
      * 获取指定设备下面的所有实时数据
