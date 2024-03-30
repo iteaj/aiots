@@ -173,6 +173,7 @@ public class IotLocalCacheManager implements IotCacheManager {
             RealtimeStatus realtimeStatus = statusMap.get(deviceSn);
             if(realtimeStatus != null) {
                 realtimeStatus.setStatus(status);
+                realtimeStatus.setUpdateTime(new Date());
             }
 
             return realtimeStatus;
