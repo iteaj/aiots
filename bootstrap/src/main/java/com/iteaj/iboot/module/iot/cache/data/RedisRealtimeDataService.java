@@ -105,33 +105,6 @@ public class RedisRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
-    public void put(List<DataSupplier> suppliers) {
-        suppliers.forEach(item -> { // 循环同一台设备数据
-            String valueKey = KEY_PREFIX + item.getProtocolCode() + ":" + item.getKey().getKey();
-            Map<String, SignalOrFieldValue> collect = item.getValues().stream()
-                    .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, value -> value));
-
-            Map<String, Object> result = new HashMap<>();
-            ArrayList<String> keys = new ArrayList<>(collect.keySet());
-            List list = RedisUtils.getOpsForHash().multiGet(valueKey, keys);
-            for (int i = 0; i < collect.size(); i++) {
-                String key = keys.get(i);
-                Object value = list.get(i);
-                SignalOrFieldValue fieldValue = collect.get(key);
-                if(value instanceof RealtimeData) {
-                    ((RealtimeData) value).setRealtime(fieldValue.getValue());
-                } else {
-                    value = new RealtimeData<>(fieldValue.getSignalOrField(), value);
-                }
-
-                result.put(key, value);
-            }
-
-            RedisUtils.getOpsForHash().putAll(valueKey, result);
-        });
-    }
-
-    @Override
     public Map<String, RealtimeData> listOfDevice(String protocolCode, DeviceKey key) {
         Map entries = RedisUtils.getOpsForHash().entries(KEY_PREFIX + protocolCode + ":" + key.getKey());
         return entries;
