@@ -79,7 +79,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
                     throw new ServiceException("点位地址错误["+config.getValue()+"], 不允许提及模型属性");
                 }
 
-                if(this.getBaseMapper().hasSameAddress(entity.getProductId(), entity.getType(), PointProtocolConfig.POINT_ADDRESS, config.getValue())) {
+                if(this.getBaseMapper().hasSameAddress(config.getId(), entity.getProductId(), entity.getType(), PointProtocolConfig.POINT_ADDRESS, config.getValue())) {
                     throw new ServiceException("同一个产品不允许有相同的点位地址,"+config.getDirection().getDesc()+"点位地址["+config.getValue()+"]已经存在");
                 }
             }

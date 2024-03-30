@@ -1,9 +1,11 @@
 package com.iteaj.framework.spi.iot;
 
+import cn.hutool.core.collection.CollectionUtil;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -19,6 +21,11 @@ public class DataSupplier {
      * 协议码
      */
     private String protocolCode;
+
+    /**
+     * 采集时间
+     */
+    private Date collectTime;
 
     /**
      * 点位或者字段列表值
@@ -43,5 +50,13 @@ public class DataSupplier {
 
     public DataSupplier addValue(String address, String signalOrField, Object value) {
         return this.addValue(SignalOrFieldValue.build(address, signalOrField, value));
+    }
+
+    public DataSupplier build(Date collectTime) {
+        this.collectTime = collectTime;
+        if(CollectionUtil.isNotEmpty(this.getValues())) {
+            this.getValues().forEach(item -> item.setCollectTime(collectTime));
+        }
+        return this;
     }
 }

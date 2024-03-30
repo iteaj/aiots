@@ -62,6 +62,12 @@ public interface RealtimeDataService {
 
     /**
      * 缓存数据
+     * @param supplier
+     */
+    void put(DataSupplier supplier);
+
+    /**
+     * 缓存数据
      * @param suppliers 提供数据列表
      */
     void put(List<DataSupplier> suppliers);

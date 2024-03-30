@@ -46,8 +46,6 @@ public class CollectInfo {
 
         private ModelApi api;
 
-        private Date collectTime;
-
         private RealtimeStatus device;
 
         private DataSupplier supplier;
@@ -56,7 +54,6 @@ public class CollectInfo {
             this.api = api;
             this.device = device;
             this.supplier = supplier;
-            this.collectTime = new Date();
         }
     }
 }

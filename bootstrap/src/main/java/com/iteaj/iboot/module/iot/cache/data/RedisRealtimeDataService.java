@@ -24,7 +24,7 @@ public class RedisRealtimeDataService implements RealtimeDataService{
         List<RealtimeData> values = RedisUtils.getOpsForHash().values(valueKey);
         if(CollectionUtil.isNotEmpty(values)) {
             RedisUtils.getTemplate().delete(valueKey);
-            return values.stream().collect(Collectors.toMap(RealtimeData::getEventOrSignalField, item -> item));
+            return values.stream().collect(Collectors.toMap(RealtimeData::getSignalOrField, item -> item));
         }
 
         return null;
@@ -47,7 +47,7 @@ public class RedisRealtimeDataService implements RealtimeDataService{
         List<RealtimeData> values = RedisUtils.getOpsForHash().multiGet(valueKey, Arrays.asList(signalOrFields));
         if(CollectionUtil.isNotEmpty(values)) {
             RedisUtils.getOpsForHash().delete(valueKey, signalOrFields);
-            return values.stream().collect(Collectors.toMap(RealtimeData::getEventOrSignalField, item -> item));
+            return values.stream().collect(Collectors.toMap(RealtimeData::getSignalOrField, item -> item));
         }
 
         return null;
@@ -55,6 +55,12 @@ public class RedisRealtimeDataService implements RealtimeDataService{
 
     @Override
     public void put(String protocolCode, DeviceKey key, String signalOrField, Object value) {
+        this.put(protocolCode, key, SignalOrFieldValue.build(signalOrField, value));
+    }
+
+    @Override
+    public void put(String protocolCode, DeviceKey key, SignalOrFieldValue value) {
+        String signalOrField = value.getSignalOrField();
         String valueKey = KEY_PREFIX + protocolCode + ":" + key.getKey();
         Object o = RedisUtils.getOpsForHash().get(valueKey, signalOrField);
         if(o instanceof RealtimeData) {
@@ -62,13 +68,40 @@ public class RedisRealtimeDataService implements RealtimeDataService{
             RedisUtils.getOpsForHash().put(valueKey, signalOrField, o);
         } else {
             RedisUtils.getOpsForHash().put(valueKey
-                    , signalOrField, new RealtimeData<>(signalOrField, value));
+                    , signalOrField, new RealtimeData(value));
         }
     }
 
     @Override
-    public void put(String protocolCode, DeviceKey key, SignalOrFieldValue value) {
-        this.put(protocolCode, key, value.getSignalOrField(), value.getValue());
+    public void put(DataSupplier supplier) {
+        String valueKey = KEY_PREFIX + supplier.getProtocolCode() + ":" + supplier.getKey().getKey();
+        Map<String, SignalOrFieldValue> collect = supplier.getValues().stream()
+                .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, value -> value));
+
+        Map<String, Object> result = new HashMap<>();
+        ArrayList<String> keys = new ArrayList<>(collect.keySet());
+        List list = RedisUtils.getOpsForHash().multiGet(valueKey, keys);
+        for (int i = 0; i < collect.size(); i++) {
+            String key = keys.get(i);
+            Object value = list.get(i);
+            SignalOrFieldValue fieldValue = collect.get(key);
+            if(value instanceof RealtimeData) {
+                ((RealtimeData) value).setRealtime(fieldValue);
+            } else {
+                value = new RealtimeData(fieldValue);
+            }
+
+            result.put(key, value);
+        }
+
+        RedisUtils.getOpsForHash().putAll(valueKey, result);
+    }
+
+    @Override
+    public void put(List<DataSupplier> suppliers) {
+        suppliers.forEach(item -> {
+            this.put(item);
+        });
     }
 
     @Override
@@ -113,7 +146,7 @@ public class RedisRealtimeDataService implements RealtimeDataService{
     public Map<String, RealtimeData> listOfDevice(String protocolCode, DeviceKey key, String... signalOrFields) {
         List<RealtimeData> list = RedisUtils.getOpsForHash().multiGet(KEY_PREFIX + protocolCode + ":" + key.getKey(), Arrays.asList(signalOrFields));
         if(CollectionUtil.isNotEmpty(list)) {
-            return list.stream().collect(Collectors.toMap(RealtimeData::getEventOrSignalField, item -> item));
+            return list.stream().collect(Collectors.toMap(RealtimeData::getSignalOrField, item -> item));
         }
 
         return Collections.EMPTY_MAP;

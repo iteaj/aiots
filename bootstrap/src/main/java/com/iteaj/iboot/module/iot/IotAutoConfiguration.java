@@ -8,10 +8,7 @@ import com.iteaj.iboot.module.iot.cache.IotLocalCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.data.RedisRealtimeDataService;
-import com.iteaj.iboot.module.iot.collect.model.DataPersistenceListener;
-import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
-import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectManager;
-import com.iteaj.iboot.module.iot.collect.model.RDBMSPersistenceListener;
+import com.iteaj.iboot.module.iot.collect.model.*;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
@@ -65,10 +62,25 @@ public class IotAutoConfiguration {
         return new IotLocalCacheManager();
     }
 
+    /**
+     * 数据持久化处理
+     * @param rdbmsSqlManager
+     * @return
+     */
     @Bean
     @ConditionalOnMissingBean(DataPersistenceListener.class)
     public RDBMSPersistenceListener rdbmsPersistenceListener(DefaultRdbmsSqlManager rdbmsSqlManager) {
         return new RDBMSPersistenceListener(rdbmsSqlManager);
+    }
+
+    /**
+     * 实时数据缓存处理
+     * @param realtimeDataService
+     * @return
+     */
+    @Bean
+    public RealtimeDataCacheListener realtimeDataStoreListener(RealtimeDataService realtimeDataService) {
+        return new RealtimeDataCacheListener(realtimeDataService);
     }
 
     @Bean
