@@ -21,7 +21,12 @@ public interface PointProtocolConfig {
     String POINT_CHILD_SN = "childSn";
 
     /**
+     * 点位值
+     */
+    String POINT_VALUE = "value";
+
+    /**
      * 点位字段
      */
-    String POINT_FIELD_KEY = "POINT_FIELD";
+    String POINT_FIELD_KEY = "POINT_FIELD_";
 }

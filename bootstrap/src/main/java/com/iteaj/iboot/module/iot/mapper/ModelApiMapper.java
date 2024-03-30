@@ -27,13 +27,15 @@ public interface ModelApiMapper extends BaseMapper<ModelApi> {
 
     /**
      * 是否有相同点位地址
+     *
+     * @param modelApiConfigId
      * @param productId
      * @param type
      * @param pointAddress
      * @param value
      * @return
      */
-    boolean hasSameAddress(Long productId, ProtocolApiType type, String pointAddress, String value);
+    boolean hasSameAddress(Long modelApiConfigId, Long productId, ProtocolApiType type, String pointAddress, String value);
 
     /**
      * 产品状态是否为启用

@@ -8,11 +8,13 @@ import com.iteaj.iboot.module.iot.cache.IotLocalCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.data.RedisRealtimeDataService;
+import com.iteaj.iboot.module.iot.collect.model.*;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -22,6 +24,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 @Profile("iot")
 @ComponentScan({"com.iteaj.iboot.module.iot"})
@@ -57,6 +60,32 @@ public class IotAutoConfiguration {
     @Bean
     public IotCacheManager iotLocalCacheManager() {
         return new IotLocalCacheManager();
+    }
+
+    /**
+     * 数据持久化处理
+     * @param rdbmsSqlManager
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean(DataPersistenceListener.class)
+    public RDBMSPersistenceListener rdbmsPersistenceListener(DefaultRdbmsSqlManager rdbmsSqlManager) {
+        return new RDBMSPersistenceListener(rdbmsSqlManager);
+    }
+
+    /**
+     * 实时数据缓存处理
+     * @param realtimeDataService
+     * @return
+     */
+    @Bean
+    public RealtimeDataCacheListener realtimeDataStoreListener(RealtimeDataService realtimeDataService) {
+        return new RealtimeDataCacheListener(realtimeDataService);
+    }
+
+    @Bean
+    public EventGroupCollectManager eventGroupCollectManager(@Autowired(required = false) List<EventGroupCollectListener> listeners) {
+        return EventGroupCollectManager.build(listeners);
     }
 
     /**

@@ -1,12 +1,10 @@
 package com.iteaj.iboot.module.iot.cache.data;
 
+import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HashMapRealtimeDataService implements RealtimeDataService{
@@ -56,6 +54,11 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
 
     @Override
     public void put(String protocolCode, DeviceKey key, String signalOrField, Object value) {
+        this.put(protocolCode, key, SignalOrFieldValue.build(signalOrField, new Date(), value));
+    }
+
+    @Override
+    public void put(String protocolCode, DeviceKey key, SignalOrFieldValue value) {
         Map<String, Map<String, RealtimeData>> productMap = realtimeMap.get(protocolCode);
         if(productMap == null) {
             synchronized (this) {
@@ -76,17 +79,28 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
             }
         }
 
-        RealtimeData data = deviceMap.get(signalOrField);
+        RealtimeData data = deviceMap.get(value.getSignalOrField());
         if(data == null) {
-            deviceMap.put(signalOrField, new RealtimeData<>(signalOrField, value));
+            deviceMap.put(value.getSignalOrField(), new RealtimeData(value));
         } else {
             data.setRealtime(value);
         }
     }
 
     @Override
-    public void put(String protocolCode, DeviceKey key, SignalOrFieldValue value) {
-        this.put(protocolCode, key, value.getSignalOrField(), value.getValue());
+    public void put(DataSupplier supplier) {
+        supplier.getValues().forEach(signalOrFieldValue -> {
+            this.put(supplier.getProtocolCode(), supplier.getKey(), signalOrFieldValue);
+        });
+    }
+
+    @Override
+    public void put(List<DataSupplier> suppliers) {
+        suppliers.forEach(item -> {
+            item.getValues().forEach(value -> {
+                this.put(item.getProtocolCode(), item.getKey(), value);
+            });
+        });
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.NotIotClientException;
@@ -110,7 +111,8 @@ public class CollectActionTask implements Runnable {
                             // 存储实时数据
                             values.forEach(data -> {
                                 if(data.getStatus()) {
-                                    realtimeDataService.put(collectDevice.getProductCode(), collectDevice.buildKey(), data.getFieldName(), data);
+                                    realtimeDataService.put(collectDevice.getProductCode(), collectDevice.buildKey()
+                                            , SignalOrFieldValue.build(data.getFieldName(), data.getCollectTime(), data.getValue()));
                                 }
                             });
                         }
@@ -121,11 +123,5 @@ public class CollectActionTask implements Runnable {
             logger.error("采集任务失败 任务不存在");
         }
 
-    }
-
-    private void collectOmronData(CollectDetail item, CollectDevice collectDevice, OmronProtocolSupplier supplier) {
-        List<CollectSignal> signals = collectDevice.getSignals();
-//        new OmronTcpProtocol().batchRead()
-        supplier.getProtocol().getApi(collectDevice.getProtocolCode());
     }
 }

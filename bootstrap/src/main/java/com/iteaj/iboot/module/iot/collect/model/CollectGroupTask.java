@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.collect.model;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
@@ -17,10 +18,7 @@ import com.iteaj.iot.consts.ExecStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class CollectGroupTask implements Runnable{
 
@@ -65,8 +63,12 @@ public class CollectGroupTask implements Runnable{
                                         if(Objects.equals(item.getProtocolAttrField(), PointProtocolConfig.POINT_ADDRESS)) {
                                             for (int i = 0; i < api.getUpConfig().size(); i++) {
                                                 ModelApiConfig apiConfig = api.getUpConfig().get(i); // 获取此点位地址绑定的物模型属性
-                                                if(Objects.equals(apiConfig.getProtocolAttrField(), "value") && apiConfig.getModelAttrId() != null) {
-                                                    invokeParam.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
+                                                if(Objects.equals(apiConfig.getProtocolAttrField(), PointProtocolConfig.POINT_VALUE)) {
+                                                    if(apiConfig.getModelAttrId() != null && apiConfig.getAttrField() != null) {
+                                                        invokeParam.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
+                                                    } else {
+                                                        throw new IllegalArgumentException("上行配置[protocolAttrName="+apiConfig.getProtocolAttrName()+"]未指定物模型属性");
+                                                    }
                                                 }
                                             }
                                         }
@@ -82,7 +84,7 @@ public class CollectGroupTask implements Runnable{
                                 modelApi.invoke(invokeParam, result -> {
                                     if(result.getStatus() == ExecStatus.success) {
                                         ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
-                                            info.addDeviceInfo(device, api, data);
+                                            info.addDeviceInfo(device, api, data.getCollectTime() == null ? data.build(new Date()) : data);
                                         });
                                     } else {
                                         logger.warn("接口执行失败({}) {} - 设备编号: {} - 接口: {}/{}", result.getStatus()

@@ -8,6 +8,7 @@ import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
@@ -59,7 +60,7 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
 
     @Override
     public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
-        DataSupplier dataSupplier = new DataSupplier();
+        DataSupplier dataSupplier = new DataSupplier(getProtocol().getCode());
         if(param == null) {
             throw new ProtocolSupplierException("调用参数不存在");
         }
@@ -69,10 +70,12 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
             ExecStatus execStatus = ((OmronTcpProtocol) protocol).getExecStatus();
             WriteAddress writeAddress = ((OmronTcpProtocol) protocol).getWriteAddress();
             if(writeAddress != null) {
-                dataSupplier.addValue(writeAddress.getAddress(), execStatus == ExecStatus.success);
+                String field = param.getConfig(PointProtocolConfig.POINT_FIELD_KEY + writeAddress.getAddress());
+                dataSupplier.addValue(writeAddress.getAddress(), field, execStatus == ExecStatus.success);
             } else {
                 ((OmronTcpProtocol) protocol).getBatchAddress().forEach(item -> {
-                    dataSupplier.addValue(item.getAddress(), value);
+                    String field = param.getConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getAddress());
+                    dataSupplier.addValue(item.getAddress(), field, value);
                 });
             }
         }
