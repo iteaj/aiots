@@ -104,6 +104,9 @@ public class ModelApi extends BaseEntity {
      */
     private FuncType funcType;
 
+    @TableField(exist = false)
+    private String productCode;
+
     /**
      * 事件触发方式
      */

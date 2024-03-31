@@ -77,6 +77,25 @@ public class RealtimeStatus {
         return parentDeviceSn + "_" + deviceSn;
     }
 
+    /**
+     * 是否是当前设备的子设备
+     * @param parentDeviceSn
+     * @return
+     */
+    public boolean isChild(String parentDeviceSn) {
+        return Objects.equals(parentDeviceSn, this.parentDeviceSn);
+    }
+
+    /**
+     * 是否是当前设备的子设备
+     * @param protocolCode 协议码
+     * @param parentDeviceSn 父设备编号
+     * @return
+     */
+    public boolean isChild(String protocolCode, String parentDeviceSn) {
+        return Objects.equals(protocolCode, this.protocolCode) && Objects.equals(parentDeviceSn, this.parentDeviceSn);
+    }
+
     public boolean equals(Object o) {
         RealtimeStatus other = (RealtimeStatus) o;
         return Objects.equals(this.getProtocolCode(), other.getProtocolCode())

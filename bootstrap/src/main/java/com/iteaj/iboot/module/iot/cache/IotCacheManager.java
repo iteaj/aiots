@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.cache;
 
+import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 
@@ -54,6 +55,15 @@ public interface IotCacheManager {
     RealtimeStatus removeByKey(String protocolCode, String deviceSn, String parentDeviceSn);
 
     /**
+     * 更新指定设备状态
+     * @param protocolCode
+     * @param key
+     * @param status
+     * @return
+     */
+    RealtimeStatus updateStatus(String protocolCode, DeviceKey key, DeviceStatus status);
+
+    /**
      * 更新直连或者网关设备状态
      * @param protocolCode 协议码
      * @param deviceSn 设备编号
@@ -79,6 +89,14 @@ public interface IotCacheManager {
      * @return
      */
     RealtimeStatus get(String protocolCode, String deviceSn);
+
+    /**
+     * 获取设备的实时数据
+     * @param protocolCode
+     * @param key
+     * @return
+     */
+    RealtimeStatus get(String protocolCode, DeviceKey key);
 
     /**
      *  获取指定的网关子设备信息
@@ -127,4 +145,12 @@ public interface IotCacheManager {
      * @return
      */
     Collection<RealtimeStatus> listGroupAndProduct(Long groupId, String productCode);
+
+    /**
+     * 更新网关设备下所有网关子设备的状态
+     * @param protocolCode
+     * @param parentDeviceSn
+     * @param status
+     */
+    void updateChildStatus(String protocolCode, String parentDeviceSn, DeviceStatus status);
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.*;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
 import com.iteaj.iboot.module.iot.entity.Product;
@@ -72,4 +73,11 @@ public interface IProductService extends IBaseService<Product> {
     ListResult<ProductDto> listJoinDetailByIds(List<Long> productIds);
 
     boolean hasBindEnabledEventSource(Long id);
+
+    /**
+     * 切换产品状态
+     * @param id
+     * @param status
+     */
+    void switchStatus(Long id, FuncStatus status);
 }

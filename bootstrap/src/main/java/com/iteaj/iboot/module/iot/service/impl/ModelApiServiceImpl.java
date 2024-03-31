@@ -175,4 +175,14 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     public CtrlMode getProtocolCtrlModelByProductId(Long productId) {
         return this.getBaseMapper().getProtocolCtrlModelByProductId(productId);
     }
+
+    @Override
+    public ListResult<ModelApi> listAsStatusModelApi() {
+        return new ListResult<>(this.getBaseMapper().listAsStatusModelApi());
+    }
+
+    @Override
+    public DetailResult<ModelApi> getAsStatusModelApi(Long productId) {
+        return new DetailResult<>(this.getBaseMapper().getAsStatusModelApi(productId));
+    }
 }

@@ -89,6 +89,15 @@ public class IotAutoConfiguration {
     }
 
     /**
+     * 设备状态采集
+     * @return
+     */
+    @Bean
+    public DeviceStatusModelApiManager deviceStatusModelApiManager() {
+        return DeviceStatusModelApiManager.getInstance();
+    }
+
+    /**
      * redis实时数据
      * @return
      */

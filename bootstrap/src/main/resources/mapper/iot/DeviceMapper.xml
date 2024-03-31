@@ -170,9 +170,12 @@
         <if test="parentDeviceSn != null and parentDeviceSn != ''">
             and pd.device_sn = #{parentDeviceSn}
         </if>
-        and a.device_sn in (
-        <foreach collection="list" separator="," item="deviceSn">
-            #{deviceSn}
-        </foreach>)
+        <if test="deviceSns != null and deviceSns.size() > 0">
+            and a.device_sn in (
+            <foreach collection="deviceSns" separator="," item="deviceSn">
+                #{deviceSn}
+            </foreach>)
+        </if>
+
     </select>
 </mapper>

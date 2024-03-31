@@ -6,6 +6,7 @@ import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -38,20 +39,34 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
     @Override
     public void online(String source, FrameworkComponent component) {
         // 设备上线事件
-        deviceService.update(source, DeviceStatus.online);
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
         if(supplier != null) {
-            cacheManager.updateStatus(supplier.getProtocol().getCode(), source, DeviceStatus.online);
+            RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), source);
+            if(device != null) {
+                device.setStatus(DeviceStatus.online);
+                deviceService.updateDeviceStatus(device);
+            } else {
+                logger.warn("更新设备状态失败 设备不存在 - 设备编号: {}", source);
+            }
+        } else {
+            logger.warn("更新设备状态失败 协议不存在 - 设备编号: {} - 协议类: {}", source, component.getMessageClass().getSimpleName());
         }
     }
 
     @Override
     public void offline(String source, FrameworkComponent component) {
         // 设备掉线事件
-        deviceService.update(source, DeviceStatus.offline);
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
         if(supplier != null) {
-            cacheManager.updateStatus(supplier.getProtocol().getCode(), source, DeviceStatus.offline);
+            RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), source);
+            if(device != null) {
+                device.setStatus(DeviceStatus.offline);
+                deviceService.updateDeviceStatus(device);
+            } else {
+                logger.warn("更新设备状态失败 设备不存在 - 设备编号: {} - 协议码: {}", source, supplier.getProtocol().getCode());
+            }
+        } else {
+            logger.warn("更新设备状态失败 协议不存在 - 设备编号: {} - 协议类: {}", source, component.getMessageClass().getSimpleName());
         }
     }
 

@@ -63,4 +63,15 @@
     <select id="isEnabled" resultType="java.lang.Boolean">
         select status='enabled' from iot_product where id = #{productId}
     </select>
+
+    <select id="listAsStatusModelApi" resultMap="DetailResultMap">
+        select a.*, p.code product_code from iot_model_api a
+            inner join iot_product p on a.product_id = p.id
+        where p.status = 'enabled' and a.as_status=true and a.trigger_mode='passive'
+    </select>
+    <select id="getAsStatusModelApi" resultMap="DetailResultMap">
+        select a.*, p.code product_code from iot_model_api a
+             inner join iot_product p on a.product_id = p.id
+        where a.product_id=#{productId} and a.as_status=true and a.trigger_mode='passive'
+    </select>
 </mapper>

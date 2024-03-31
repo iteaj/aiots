@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.cache;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 
@@ -167,10 +168,10 @@ public class IotLocalCacheManager implements IotCacheManager {
     }
 
     @Override
-    public RealtimeStatus updateStatus(String protocolCode, String deviceSn, DeviceStatus status) {
+    public RealtimeStatus updateStatus(String protocolCode, DeviceKey key, DeviceStatus status) {
         Map<String, RealtimeStatus> statusMap = realtimeMap.get(protocolCode);
         if(statusMap != null) {
-            RealtimeStatus realtimeStatus = statusMap.get(deviceSn);
+            RealtimeStatus realtimeStatus = statusMap.get(key.getKey());
             if(realtimeStatus != null) {
                 realtimeStatus.setStatus(status);
                 realtimeStatus.setUpdateTime(new Date());
@@ -182,19 +183,13 @@ public class IotLocalCacheManager implements IotCacheManager {
     }
 
     @Override
+    public RealtimeStatus updateStatus(String protocolCode, String deviceSn, DeviceStatus status) {
+        return updateStatus(protocolCode, DeviceKey.build(deviceSn, null), status);
+    }
+
+    @Override
     public RealtimeStatus updateStatus(String protocolCode, String deviceSn, String parentDeviceSn, DeviceStatus status) {
-        Map<String, RealtimeStatus> statusMap = realtimeMap.get(protocolCode);
-        if(statusMap != null) {
-            RealtimeStatus realtimeStatus = statusMap.get(RealtimeStatus.buildDeviceKey(deviceSn, parentDeviceSn));
-            if(realtimeStatus != null) {
-                realtimeStatus.setStatus(status);
-                realtimeStatus.setUpdateTime(new Date());
-            }
-
-            return realtimeStatus;
-        }
-
-        return null;
+        return this.updateStatus(protocolCode, DeviceKey.build(deviceSn, parentDeviceSn), status);
     }
 
     @Override
@@ -208,6 +203,19 @@ public class IotLocalCacheManager implements IotCacheManager {
         Map<String, RealtimeStatus> statusMap = realtimeMap.get(protocolCode);
         if(statusMap != null) {
             return statusMap.get(deviceSn);
+        }
+
+        return null;
+    }
+
+    @Override
+    public RealtimeStatus get(String protocolCode, DeviceKey key) {
+        if(key == null) {
+            throw new IllegalArgumentException("参数[key]必填");
+        }
+        Map<String, RealtimeStatus> statusMap = realtimeMap.get(protocolCode);
+        if(statusMap != null) {
+            return statusMap.get(key.getKey());
         }
 
         return null;
@@ -263,15 +271,21 @@ public class IotLocalCacheManager implements IotCacheManager {
         if(StrUtil.isBlank(parentDeviceSn)) {
             throw new IllegalArgumentException("未指定参数[parentDeviceSn]");
         }
-        if(ArrayUtil.isEmpty(deviceSn)) {
-            throw new IllegalArgumentException("未指定参数[deviceSn[]]");
-        }
+
         Map<String, RealtimeStatus> result = new HashMap<>();
         Map<String, RealtimeStatus> statusMap = realtimeMap.get(protocolCode);
         if(statusMap != null) {
-            for (int i = 0; i < deviceSn.length; i++) {
-                String key = deviceSn[i];
-                result.put(key, statusMap.get(RealtimeStatus.buildDeviceKey(key, parentDeviceSn)));
+            if(ArrayUtil.isNotEmpty(deviceSn)) {
+                for (int i = 0; i < deviceSn.length; i++) {
+                    String key = deviceSn[i];
+                    result.put(key, statusMap.get(RealtimeStatus.buildDeviceKey(key, parentDeviceSn)));
+                }
+            } else {
+                statusMap.forEach((key, device) -> {
+                    if(device.isChild(parentDeviceSn)) {
+                        result.put(device.getDeviceSn(), device);
+                    }
+                });
             }
         }
 
@@ -315,6 +329,13 @@ public class IotLocalCacheManager implements IotCacheManager {
         }
 
         return Collections.emptySet();
+    }
+
+    @Override
+    public void updateChildStatus(String protocolCode, String parentDeviceSn, DeviceStatus status) {
+        this.listForParent(protocolCode, parentDeviceSn).values().forEach(item -> {
+            item.setStatus(status);
+        });
     }
 
 }
