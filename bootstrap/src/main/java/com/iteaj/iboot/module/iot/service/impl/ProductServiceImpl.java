@@ -9,21 +9,27 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.AttrOrigin;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.consts.GatewayStatus;
+import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.mapper.ProductMapper;
 import com.iteaj.iboot.module.iot.service.*;
+import com.iteaj.iot.client.IotClient;
+import com.iteaj.iot.client.TcpSocketClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -329,6 +335,114 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         return this.getBaseMapper().hasBindEnabledEventSource(id);
     }
 
+    @Override
+    @Transactional
+    public void switchStatus(Long id, FuncStatus status) {
+        this.detailById(id).ifNotPresentThrow("查找不到此产品")
+            .ifPresent(item -> {
+                // 被启用的事件源绑定后产品不能被禁用
+                if(status == FuncStatus.disabled) {
+                    if(this.hasBindEnabledEventSource(id)) {
+                        throw new ServiceException("此产品正被事件源使用中, 请先禁用对应事件源");
+                    }
+                }
+
+                // 网关子设备的父产品是边缘网关产品
+                if(item.getDeviceType() == DeviceType.Child) {
+                    if(status == FuncStatus.enabled) {
+                        this.getById(item.getParentId()).ifNotPresentThrow("查找不到父产品["+item.getGatewayTypeName()+"]")
+                            .ifPresent(parent -> {
+                                if(parent.getStatus() == FuncStatus.disabled) {
+                                    throw new ServiceException("请先启用父产品["+parent.getName()+"]");
+                                }
+                            });
+                    }
+                } else if(item.getDeviceType() == DeviceType.Gateway) { // 启用边缘网关下面所有的设备
+                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
+                    if(supplier == null) {
+                        throw new ServiceException("查找不到对应的协议提供[code="+item.getProtocolCode()+"]");
+                    }
+
+                    // 校验此网关产品下面有没有已启用的子产品
+                    if(status == FuncStatus.disabled) {
+                        this.getOne(Wrappers.<Product>lambdaQuery()
+                                .eq(Product::getParentId, item.getId())
+                                .eq(Product::getStatus, FuncStatus.enabled)
+                                .last("limit 1")).ifPresent(child -> {
+                            throw new ServiceException("请先停用子产品["+child.getName()+"]");
+                        });
+                    }
+
+                    if(supplier instanceof ClientProtocolSupplier) {
+                        // 先校验产品绑定的网关是否启用
+                        if(status == FuncStatus.enabled) {
+                            if(item.getGatewayStatus() == GatewayStatus.stop) {
+                                throw new ServiceException("请先启用网关["+item.getGatewayName()+"]");
+                            }
+                        }
+
+                        // 获取此网关产品下面的所有网关设备
+                        this.getBaseMapper().listDeviceByProductId(item.getId()).forEach(device -> {
+                            try {
+                                IotClient client = null;
+                                NetworkConfig networkConfig = createClientConfig(supplier, device);
+                                try {
+                                    client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
+                                } finally {
+                                    // 处理网关产品设备的状态
+                                    resolveGatewayProductClientStatus(client, device, status);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                }
+
+                this.update(Wrappers.<Product>lambdaUpdate().eq(Product::getId, item.getId()).set(Product::getStatus, status));
+                if(item.getDeviceType() == DeviceType.Child) {
+                    if(status == FuncStatus.enabled) {
+                        // 启用的时候加入到状态定时任务
+                        this.modelApiService.getAsStatusModelApi(id).ifPresent(modelApi -> {
+                            DeviceStatusModelApiManager.getInstance().register(modelApi);
+                        });
+                    } else {
+                        // 禁用的时候移除掉此产品的状态接口
+                        DeviceStatusModelApiManager.getInstance().remove(id);
+                    }
+                }
+            });
+    }
+
+    private void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {
+        if(status == FuncStatus.enabled) {
+            if(client instanceof TcpSocketClient) {
+                if(!((TcpSocketClient) client).isConnect()) {
+                    client.connect();
+                }
+            }
+        } else if(status == FuncStatus.disabled) {
+            if(client instanceof TcpSocketClient) {
+                if(((TcpSocketClient) client).isConnect()) {
+                    client.disconnect();
+                }
+            }
+        } else {
+            throw new ServiceException("错误的状态[status="+status+"]");
+        }
+    }
+
+    private NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, Device device) {
+        TransportProtocol type = supplier.getProtocol().getType();
+        if(type == TransportProtocol.TCP) {
+            NetworkConfigImpl.TcpNetworkConfig config = new NetworkConfigImpl.TcpNetworkConfig();
+            config.setHost(device.getIp());
+            config.setPort(device.getPort());
+            config.setDeviceSn(device.getDeviceSn());
+            return config;
+        }
+        return null;
+    }
 
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {
         ModelApi modelApi = new ModelApi();

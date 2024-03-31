@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -210,6 +211,30 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     public ListResult<RealtimeStatus> listDeviceStatus() {
         return new ListResult<>(this.getBaseMapper().listDeviceCache());
+    }
+
+    @Override
+    @Transactional
+    public void updateDeviceStatus(RealtimeStatus device) {
+        this.update(Wrappers.<Device>lambdaUpdate()
+                .set(Device::getStatus, device.getStatus())
+                .eq(Device::getUid, device.getUid()));
+
+        // 如果是边缘网关下线则所有的网关子设备也必须下线
+        if(device.getType() == DeviceType.Gateway && device.getStatus() == DeviceStatus.offline) {
+            Map<String, RealtimeStatus> childDeviceStatus = this.listChildDeviceStatusFromCache(device.getProtocolCode(), device.getDeviceSn());
+            if(CollectionUtil.isNotEmpty(childDeviceStatus)) {
+                List<Long> uidList = childDeviceStatus.values().stream()
+                        .map(item -> item.getUid()).collect(Collectors.toList());
+                this.update(Wrappers.<Device>lambdaUpdate()
+                        .set(Device::getStatus, DeviceStatus.offline)
+                        .in(Device::getUid, uidList));
+
+                this.iotCacheManager.updateChildStatus(device.getProtocolCode(), device.getDeviceSn(), DeviceStatus.offline);
+            }
+        }
+
+        this.iotCacheManager.updateStatus(device.getProtocolCode(), device.buildDeviceKey(), device.getStatus());
     }
 
     @Override

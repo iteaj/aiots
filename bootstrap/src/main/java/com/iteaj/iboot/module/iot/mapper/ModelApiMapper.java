@@ -43,4 +43,12 @@ public interface ModelApiMapper extends BaseMapper<ModelApi> {
      * @return
      */
     boolean isEnabled(Long productId);
+
+    /**
+     * 获取已启用产品下的状态协议
+     * @return
+     */
+    List<ModelApi> listAsStatusModelApi();
+
+    ModelApi getAsStatusModelApi(Long productId);
 }

@@ -135,6 +135,12 @@ public interface IDeviceService extends IBaseService<Device> {
      */
     ListResult<RealtimeStatus> listDeviceStatus();
 
+    /**
+     * 更新设备状态
+     * @param device
+     */
+    void updateDeviceStatus(RealtimeStatus device);
+
     RealtimeStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn);
 
     DetailResult<Device> getByUid(String uid);

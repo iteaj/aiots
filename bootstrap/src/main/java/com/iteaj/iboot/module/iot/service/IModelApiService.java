@@ -5,8 +5,6 @@ import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.framework.IBaseService;
 
-import java.util.List;
-
 /**
  * <p>
  * 物模型接口 服务类
@@ -39,4 +37,17 @@ public interface IModelApiService extends IBaseService<ModelApi> {
     BooleanResult updateAsStatus(Long productId, String code);
 
     CtrlMode getProtocolCtrlModelByProductId(Long productId);
+
+    /**
+     * 获取已启用产品下的状态协议
+     * @return
+     */
+    ListResult<ModelApi> listAsStatusModelApi();
+
+    /**
+     * 获取指定产品下面的状态接口
+     * @param productId
+     * @return
+     */
+    DetailResult<ModelApi> getAsStatusModelApi(Long productId);
 }

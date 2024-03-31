@@ -16,7 +16,7 @@ public class ProtocolModelApiInvokeParam {
     private String uid;
 
     /**
-     * 超时时间
+     * 超时时间(毫秒)
      */
     private Long timeout;
 

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Product;
 
 import java.io.Serializable;
@@ -52,4 +53,6 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return
      */
     boolean hasBindEnabledEventSource(Long id);
+
+    List<Device> listDeviceByProductId(Long id);
 }

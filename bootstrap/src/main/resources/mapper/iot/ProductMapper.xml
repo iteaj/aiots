@@ -151,6 +151,10 @@
         where a.status = 'enabled' and p.id=#{id} limit 1
     </select>
 
+    <select id="listDeviceByProductId" resultMap="com.iteaj.iboot.module.iot.mapper.DeviceMapper.BasicMap">
+        select * from iot_device where product_id = #{id}
+    </select>
+
     <delete id="removeModel">
         delete from iot_model_api where product_id=#{productId};
         delete from iot_model_attr_dict where model_attr_id in (select id from iot_model_attr where product_id=#{productId});
