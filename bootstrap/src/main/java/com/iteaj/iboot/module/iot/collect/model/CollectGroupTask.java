@@ -4,6 +4,7 @@ import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -38,6 +39,13 @@ public class CollectGroupTask implements Runnable{
         devices.forEach(device -> {
             apis.forEach(api -> {
                 try {
+                    // 对于离线的设备不进行采集
+                    if(device.getStatus() == DeviceStatus.offline) {
+                        logger.warn("放弃设备采集任务 设备离线 - 设备编号: {} - 接口: {}/{}"
+                                , device.buildDeviceKey(), api.getCode(), api.getDirect());
+                        return;
+                    }
+
                     // 对此设备同一产品的模型接口进行调用
                     if(api.getProductId().equals(device.getProductId())) {
                         ProtocolInvokeUtil.invoke(api, device, result -> {
