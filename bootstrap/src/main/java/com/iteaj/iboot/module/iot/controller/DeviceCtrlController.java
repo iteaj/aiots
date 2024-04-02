@@ -10,6 +10,8 @@ import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
+import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.DebugRespDto;
@@ -18,6 +20,7 @@ import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -34,11 +37,14 @@ public class DeviceCtrlController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final IModelApiService modelApiService;
+    private final CollectDataRealtimeListener realtimeListener;
     public DeviceCtrlController(IDeviceService deviceService
-            , IProductService productService, IModelApiService modelApiService) {
+            , IProductService productService, IModelApiService modelApiService
+            , CollectDataRealtimeListener realtimeListener) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.modelApiService = modelApiService;
+        this.realtimeListener = realtimeListener;
     }
 
     /**
@@ -49,12 +55,21 @@ public class DeviceCtrlController extends BaseController {
      */
     @PostMapping("/ctrl/{modelApiCode}")
     public Mono<Result> ctrl(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
-        AbstractProtocolModelApi protocolModelApi = this.getProtocolModelApi(modelApiCode, param);
+        Object[] objects = this.getProtocolModelApi(modelApiCode, param);
+        AbstractProtocolModelApi protocolModelApi = (AbstractProtocolModelApi) objects[0];
 
         return Mono.<InvokeResult>create(item -> {
-            protocolModelApi.invoke(param, result -> {
-                item.success(result);
-            });
+            try {
+                protocolModelApi.invoke(param, result -> {
+                    item.success(result);
+                    // 将实时结果写出到前端
+                    IotThreadManager.instance().getExecutorService().execute(() -> {
+                        realtimeListener.write(param.getUid(), result);
+                    });
+                });
+            } catch (ProtocolInvokeException e) {
+                item.success(InvokeResult.fail(e.getMessage(), null));
+            }
         }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
             if(item.getStatus() == ExecStatus.success) {
                 return success(item.getValue());
@@ -71,7 +86,8 @@ public class DeviceCtrlController extends BaseController {
     @PostMapping("/debug/{modelApiCode}")
     public Mono<Result<DebugRespDto>> debug(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
         // 获取协议模型接口
-        AbstractProtocolModelApi protocolModelApi = this.getProtocolModelApi(modelApiCode, param);
+        Object[] objects = this.getProtocolModelApi(modelApiCode, param);
+        AbstractProtocolModelApi protocolModelApi = (AbstractProtocolModelApi) objects[0];
 
         DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
         return Mono.<InvokeResult>create(item -> {
@@ -97,7 +113,7 @@ public class DeviceCtrlController extends BaseController {
         });
     }
 
-    private AbstractProtocolModelApi getProtocolModelApi(String modelApiCode, ProtocolModelApiInvokeParam param) {
+    private Object[] getProtocolModelApi(String modelApiCode, ProtocolModelApiInvokeParam param) {
         //查找对应的物模型api
         ModelApi modelApi = modelApiService.getByCode(modelApiCode)
                 .ifNotPresentThrow("接口代码不存在[modelApiCode=" + modelApiCode + "]")
@@ -138,6 +154,6 @@ public class DeviceCtrlController extends BaseController {
             throw new ServiceException("没有找到接口[apiCode="+modelApi.getDirect()+"]");
         }
 
-        return protocolModelApi;
+        return new Object[]{protocolModelApi, modelApi, product};
     }
 }
