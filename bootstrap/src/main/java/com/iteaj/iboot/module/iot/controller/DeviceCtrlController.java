@@ -10,7 +10,8 @@ import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
-import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
@@ -20,6 +21,7 @@ import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.web.bind.annotation.*;
@@ -34,16 +36,18 @@ import java.time.Duration;
 @RequestMapping("/iot/instruct")
 public class DeviceCtrlController extends BaseController {
 
+    private final IotCacheManager cacheManager;
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final IModelApiService modelApiService;
     private final CollectDataRealtimeListener realtimeListener;
     public DeviceCtrlController(IDeviceService deviceService
             , IProductService productService, IModelApiService modelApiService
-            , CollectDataRealtimeListener realtimeListener) {
+            , IotCacheManager cacheManager, CollectDataRealtimeListener realtimeListener) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.modelApiService = modelApiService;
+        this.cacheManager = cacheManager;
         this.realtimeListener = realtimeListener;
     }
 
@@ -56,15 +60,16 @@ public class DeviceCtrlController extends BaseController {
     @PostMapping("/ctrl/{modelApiCode}")
     public Mono<Result> ctrl(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
         Object[] objects = this.getProtocolModelApi(modelApiCode, param);
-        AbstractProtocolModelApi protocolModelApi = (AbstractProtocolModelApi) objects[0];
+        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
 
         return Mono.<InvokeResult>create(item -> {
             try {
-                protocolModelApi.invoke(param, result -> {
+                RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
+                ProtocolInvokeUtil.invoke((ModelApi) objects[1], realtimeStatus, result -> {
                     item.success(result);
                     // 将实时结果写出到前端
                     IotThreadManager.instance().getExecutorService().execute(() -> {
-                        realtimeListener.write(param.getUid(), result);
+                        realtimeListener.write(param.getUid(), (ModelApi) objects[1], result);
                     });
                 });
             } catch (ProtocolInvokeException e) {
@@ -154,6 +159,6 @@ public class DeviceCtrlController extends BaseController {
             throw new ServiceException("没有找到接口[apiCode="+modelApi.getDirect()+"]");
         }
 
-        return new Object[]{protocolModelApi, modelApi, product};
+        return new Object[]{protocolModelApi, modelApi, product, protocolSupplier};
     }
 }

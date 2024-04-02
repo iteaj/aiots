@@ -87,6 +87,8 @@ public class PanelsController extends BaseController {
                                 }
                             });
                         }
+
+                        productDto.setAttrs(null);
                     });
         });
 

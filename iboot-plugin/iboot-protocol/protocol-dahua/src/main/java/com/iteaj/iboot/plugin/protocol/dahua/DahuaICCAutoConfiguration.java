@@ -34,8 +34,8 @@ public class DahuaICCAutoConfiguration {
         json.put("unitTypes", new String[]{"1"});
         generalRequest.body(json.toJSONString());
         // 发起请求处理应答
-        GeneralResponse generalResponse =iClient.doAction(generalRequest, generalRequest.getResponseClass());
-        System.out.println(generalResponse);
+//        GeneralResponse generalResponse =iClient.doAction(generalRequest, generalRequest.getResponseClass());
+//        System.out.println(generalResponse);
         return iClient;
     }
 
