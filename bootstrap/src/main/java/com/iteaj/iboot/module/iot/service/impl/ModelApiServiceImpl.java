@@ -185,4 +185,9 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     public DetailResult<ModelApi> getAsStatusModelApi(Long productId) {
         return new DetailResult<>(this.getBaseMapper().getAsStatusModelApi(productId));
     }
+
+    @Override
+    public DetailResult<ModelApi> detailByCode(String modelApiCode) {
+        return new DetailResult<>(this.getBaseMapper().detailByCode(modelApiCode));
+    }
 }

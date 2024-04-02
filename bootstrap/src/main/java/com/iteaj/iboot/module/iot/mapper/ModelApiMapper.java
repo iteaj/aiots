@@ -51,4 +51,6 @@ public interface ModelApiMapper extends BaseMapper<ModelApi> {
     List<ModelApi> listAsStatusModelApi();
 
     ModelApi getAsStatusModelApi(Long productId);
+
+    ModelApi detailByCode(String modelApiCode);
 }

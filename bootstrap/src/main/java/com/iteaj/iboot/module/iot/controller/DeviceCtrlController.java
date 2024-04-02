@@ -120,7 +120,7 @@ public class DeviceCtrlController extends BaseController {
 
     private Object[] getProtocolModelApi(String modelApiCode, ProtocolModelApiInvokeParam param) {
         //查找对应的物模型api
-        ModelApi modelApi = modelApiService.getByCode(modelApiCode)
+        ModelApi modelApi = modelApiService.detailByCode(modelApiCode)
                 .ifNotPresentThrow("接口代码不存在[modelApiCode=" + modelApiCode + "]")
                 .getData();
 

@@ -74,4 +74,8 @@
              inner join iot_product p on a.product_id = p.id
         where a.product_id=#{productId} and a.as_status=true and a.trigger_mode='passive'
     </select>
+
+    <select id="detailByCode" resultMap="DetailResultMap">
+        select * from iot_model_api where code=#{modelApiCode}
+    </select>
 </mapper>
