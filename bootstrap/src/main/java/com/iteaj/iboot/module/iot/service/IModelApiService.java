@@ -50,4 +50,6 @@ public interface IModelApiService extends IBaseService<ModelApi> {
      * @return
      */
     DetailResult<ModelApi> getAsStatusModelApi(Long productId);
+
+    DetailResult<ModelApi> detailByCode(String modelApiCode);
 }
