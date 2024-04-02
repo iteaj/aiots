@@ -213,9 +213,20 @@ public class ProtocolSupplierManager {
         Message message = protocol.requestMessage();
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(message.getClass());
         if(supplier != null) {
+            // 先从缓存中获取数据
+            Object dataCache = protocol.getParam(AbstractProtocolModelApi.INVOKE_API_DATA_SUPPLIER);
+            if(dataCache instanceof DataSupplier) {
+                return Optional.of((DataSupplier) dataCache);
+            }
+
+            // 缓存中没有则从协议提供方获取数据
             Object param = protocol.getParam(AbstractProtocolModelApi.INVOKE_API);
             Object value = protocol.getParam(AbstractProtocolModelApi.INVOKE_API_VALUE);
-            return Optional.ofNullable(supplier.getDataSupplier(protocol, (ProtocolModelApiInvokeParam) param, value));
+            DataSupplier dataSupplier = supplier.getDataSupplier(protocol, (ProtocolModelApiInvokeParam) param, value);
+            if(dataSupplier != null) { // 将数据加入缓存
+                protocol.addParam(AbstractProtocolModelApi.INVOKE_API_DATA_SUPPLIER, dataSupplier);
+            }
+            return Optional.ofNullable(dataSupplier);
         } else {
             return Optional.empty();
         }

@@ -60,6 +60,7 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
 
     public static final String INVOKE_API = "_InvokeApi";
     public static final String INVOKE_API_VALUE = "_InvokeApiValue";
+    public static final String INVOKE_API_DATA_SUPPLIER = "_InvokeApiDataSupplier";
 
     public AbstractProtocolModelApi(String code, String name, ProtocolApiType type) {
         this(code, name, type, new ProtocolLinkedMap<>(), new ProtocolLinkedMap<>());
