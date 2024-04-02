@@ -3,9 +3,13 @@ package com.iteaj.iboot.module.iot.collect.websocket;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.iteaj.framework.spi.iot.DeviceKey;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
+import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.server.websocket.WebSocketChannelMatcher;
 import com.iteaj.iot.server.websocket.WebSocketServerListener;
@@ -69,5 +73,23 @@ public class CollectDataRealtimeListener implements WebSocketServerListener, Eve
                 });
             });
         }
+    }
+
+    public void write(String deviceUid, InvokeResult result) {
+        ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(supplier -> {
+            if(CollectionUtil.isNotEmpty(supplier.getValues())) {
+                Map<String, SignalOrFieldValue> valueMap = supplier.getValues().stream()
+                        .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+                String jsonString = JSONObject.toJSONString(valueMap);
+                DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
+                    String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
+                    if(StrUtil.isNotBlank(uid)) {
+                        return Objects.equals(uid, deviceUid);
+                    }
+
+                    return false;
+                }));
+            }
+        });
     }
 }
