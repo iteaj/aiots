@@ -65,7 +65,7 @@ public class DeviceCtrlController extends BaseController {
         return Mono.<InvokeResult>create(item -> {
             try {
                 RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
-                ProtocolInvokeUtil.invoke((ModelApi) objects[1], realtimeStatus, result -> {
+                ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, realtimeStatus, result -> {
                     item.success(result);
                     // 将实时结果写出到前端
                     IotThreadManager.instance().getExecutorService().execute(() -> {
