@@ -123,7 +123,7 @@ public class IotAutoConfiguration {
      * @return
      */
     @Bean
-    public CollectDataRealtimeListener collectDataRealtimeListener() {
-        return new CollectDataRealtimeListener();
+    public CollectDataRealtimeListener collectDataRealtimeListener(RealtimeDataService realtimeDataService) {
+        return new CollectDataRealtimeListener(realtimeDataService);
     }
 }

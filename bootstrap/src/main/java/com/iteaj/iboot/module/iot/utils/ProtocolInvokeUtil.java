@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.utils;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
@@ -27,13 +29,17 @@ public class ProtocolInvokeUtil {
         if(supplier != null) {
             AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());
             if(modelApi != null) {
+                if(CollectionUtil.isEmpty(modelApi.getDownConfig())) {
+                    throw new ServiceException("协议对象["+modelApi.getCode()+"]异常, 没有下行配置");
+                }
+
                 JSONObject param = new JSONObject();
                 ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(device.getUid().toString(), param);
                 invokeParam.setTimeout(timeout);
 
                 api.getDownConfig().forEach(item -> {
                     if(item.getValue().startsWith("@") && item.getModelAttrId() != null) {
-                        throw new IllegalArgumentException("协议参数使用@提及属性导致没有默认值");
+                        throw new ServiceException("协议参数使用@提及属性导致没有默认值");
                     }
 
                     param.put(item.getProtocolAttrField(), item.getValue());
@@ -63,7 +69,7 @@ public class ProtocolInvokeUtil {
                 // 发起调用
                 modelApi.invoke(invokeParam, result);
             } else {
-                throw new IllegalArgumentException("没有找到协议指令[direct="+api.getDirect()+"]");
+                throw new ServiceException("没有找到协议指令[direct="+api.getDirect()+"]");
             }
         }
     }

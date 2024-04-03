@@ -3,11 +3,11 @@ package com.iteaj.iboot.module.iot.collect.websocket;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -28,7 +28,12 @@ import java.util.stream.Collectors;
 public class CollectDataRealtimeListener implements WebSocketServerListener, EventGroupCollectListener {
 
     private static final String URI = "/ws/iot/realtime";
+    private final RealtimeDataService realtimeDataService;
     private Logger logger = LoggerFactory.getLogger(getClass());
+
+    public CollectDataRealtimeListener(RealtimeDataService realtimeDataService) {
+        this.realtimeDataService = realtimeDataService;
+    }
 
     @Override
     public String uri() {
@@ -82,6 +87,9 @@ public class CollectDataRealtimeListener implements WebSocketServerListener, Eve
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
                     Map<String, SignalOrFieldValue> valueMap = supplier.getValues().stream()
                             .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+                    realtimeDataService.put(supplier); // 加入实时数据缓存
+
+                    // websocket方式写数据到前端
                     String jsonString = JSONObject.toJSONString(valueMap);
                     DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
                         String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
