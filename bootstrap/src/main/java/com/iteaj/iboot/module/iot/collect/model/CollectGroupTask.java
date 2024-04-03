@@ -51,7 +51,7 @@ public class CollectGroupTask implements Runnable{
                         ProtocolInvokeUtil.invoke(api, device, result -> {
                             if(result.getStatus() == ExecStatus.success) {
                                 ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
-                                    info.addDeviceInfo(device, api, data.getCollectTime() == null ? data.build(new Date()) : data);
+                                    info.addDeviceInfo(device, api, data);
                                 });
                             } else {
                                 logger.warn("接口执行失败({}) {} - 设备编号: {} - 接口: {}/{}", result.getStatus()

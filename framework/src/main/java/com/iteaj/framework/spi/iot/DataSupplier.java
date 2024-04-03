@@ -32,7 +32,9 @@ public class DataSupplier {
      */
     private List<SignalOrFieldValue> values;
 
-    public DataSupplier(String protocolCode) {
+    public DataSupplier(String protocolCode, DeviceKey key) {
+        this.key = key;
+        this.collectTime = new Date();
         this.protocolCode = protocolCode;
     }
 
@@ -45,11 +47,11 @@ public class DataSupplier {
     }
 
     public DataSupplier addValue(String signalOrField, Object value) {
-        return this.addValue(SignalOrFieldValue.build(signalOrField, value));
+        return this.addValue(SignalOrFieldValue.build(signalOrField, this.collectTime, value));
     }
 
     public DataSupplier addValue(String address, String signalOrField, Object value) {
-        return this.addValue(SignalOrFieldValue.build(address, signalOrField, value));
+        return this.addValue(SignalOrFieldValue.build(address, signalOrField, this.collectTime, value));
     }
 
     public DataSupplier build(Date collectTime) {
@@ -57,6 +59,7 @@ public class DataSupplier {
         if(CollectionUtil.isNotEmpty(this.getValues())) {
             this.getValues().forEach(item -> item.setCollectTime(collectTime));
         }
+
         return this;
     }
 }

@@ -60,12 +60,11 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
 
     @Override
     public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
-        DataSupplier dataSupplier = new DataSupplier(getProtocol().getCode());
+        DataSupplier dataSupplier = new DataSupplier(getProtocol().getCode(), param.buildKey());
         if(param == null) {
             throw new ProtocolSupplierException("调用参数不存在");
         }
 
-        dataSupplier.setKey(param.buildKey());
         if(protocol instanceof OmronTcpProtocol) {
             ExecStatus execStatus = ((OmronTcpProtocol) protocol).getExecStatus();
             WriteAddress writeAddress = ((OmronTcpProtocol) protocol).getWriteAddress();
