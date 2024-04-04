@@ -4,6 +4,7 @@ import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 public class CollectGroupTask implements Runnable{
@@ -72,7 +72,7 @@ public class CollectGroupTask implements Runnable{
             });
         });
 
-        EventGroupCollectManager.getInstance().forEach(listener -> {
+        CollectListenerManager.getInstance().forEach(listener -> {
             listener.listener(info);
         });
     }

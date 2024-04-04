@@ -1,11 +1,14 @@
 package com.iteaj.iboot.module.iot.cache.entity;
 
+import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.Objects;
+
+import static com.iteaj.framework.spi.iot.DeviceKey.DEVICE_SPILT;
 
 /**
  * 设备实时状态
@@ -67,14 +70,18 @@ public class RealtimeStatus {
 
     public String buildDeviceKey() {
         if(this.getType() == DeviceType.Child) {
-            return parentDeviceSn + "_" + deviceSn;
+            return parentDeviceSn + DEVICE_SPILT + deviceSn;
         } else {
             return deviceSn;
         }
     }
 
+    public DeviceKey buildKey() {
+        return DeviceKey.build(getDeviceSn(), getParentDeviceSn());
+    }
+
     public static String buildDeviceKey(String deviceSn, String parentDeviceSn) {
-        return parentDeviceSn + "_" + deviceSn;
+        return parentDeviceSn + DEVICE_SPILT + deviceSn;
     }
 
     /**

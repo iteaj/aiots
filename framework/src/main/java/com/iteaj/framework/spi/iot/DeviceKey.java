@@ -13,13 +13,14 @@ public class DeviceKey {
 
     private String parentDeviceSn;
 
+    public static final String DEVICE_SPILT = "->";
     public static final String DEVICE_SN_KEY = "deviceSn";
     public static final String PARENT_DEVICE_SN_KEY = "parentDeviceSn";
 
     protected DeviceKey(String deviceSn, String parentDeviceSn) {
         this.deviceSn = deviceSn;
         this.parentDeviceSn = parentDeviceSn;
-        this.key = parentDeviceSn != null ? (parentDeviceSn + "_" + deviceSn) : deviceSn;
+        this.key = parentDeviceSn != null ? (parentDeviceSn + DEVICE_SPILT + deviceSn) : deviceSn;
     }
 
     public static DeviceKey build(String deviceSn, String parentDeviceSn) {

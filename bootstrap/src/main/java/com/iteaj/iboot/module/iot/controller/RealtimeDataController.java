@@ -5,6 +5,7 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 /**
  * 实时数据管理
- * @see com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener websocket实时数据监听
+ * @see RealtimePushListener websocket实时数据监听
  */
 @RestController
 @RequestMapping("/iot/realtime")
