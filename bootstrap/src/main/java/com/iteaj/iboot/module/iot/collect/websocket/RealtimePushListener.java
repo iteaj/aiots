@@ -8,8 +8,11 @@ import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.collect.CollectDevice;
+import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
+import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.server.websocket.WebSocketChannelMatcher;
@@ -18,6 +21,7 @@ import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,13 +29,13 @@ import java.util.stream.Collectors;
 /**
  * 将采集的数据实时推送到前端
  */
-public class CollectDataRealtimeListener implements WebSocketServerListener, EventGroupCollectListener {
+public class RealtimePushListener implements WebSocketServerListener, EventGroupCollectListener, SignalCollectListener {
 
     private static final String URI = "/ws/iot/realtime";
     private final RealtimeDataService realtimeDataService;
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public CollectDataRealtimeListener(RealtimeDataService realtimeDataService) {
+    public RealtimePushListener(RealtimeDataService realtimeDataService) {
         this.realtimeDataService = realtimeDataService;
     }
 
@@ -54,7 +58,8 @@ public class CollectDataRealtimeListener implements WebSocketServerListener, Eve
             if(CollectionUtil.isNotEmpty(device.getSupplier().getValues())) {
                 Map<String, SignalOrFieldValue> valueMap = device.getSupplier().getValues().stream()
                         .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
-                String jsonString = JSONObject.toJSONString(valueMap);
+                String jsonString = JSONObject.toJSONString(PushData.buildModel(valueMap));
+
                 DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
                     String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
                     if(StrUtil.isNotBlank(uid)) {
@@ -90,7 +95,7 @@ public class CollectDataRealtimeListener implements WebSocketServerListener, Eve
                     realtimeDataService.put(supplier); // 加入实时数据缓存
 
                     // websocket方式写数据到前端
-                    String jsonString = JSONObject.toJSONString(valueMap);
+                    String jsonString = JSONObject.toJSONString(PushData.buildModel(valueMap));
                     DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
                         String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
                         if(StrUtil.isNotBlank(uid)) {
@@ -101,6 +106,29 @@ public class CollectDataRealtimeListener implements WebSocketServerListener, Eve
                     }));
                 }
             });
+        }
+    }
+
+    @Override
+    public void listener(CollectDevice device, List<CollectData> data) {
+        try {
+            if(CollectionUtil.isNotEmpty(data)) {
+                Map<String, SignalOrFieldValue> valueMap = data.stream()
+                        .map(item -> SignalOrFieldValue.build(item.getAddress(), item.getAddress(), item.getCollectTime(), item.getValue()))
+                        .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+                String jsonString = JSONObject.toJSONString(PushData.buildSignal(valueMap));
+
+                DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
+                    String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
+                    if(StrUtil.isNotBlank(uid)) {
+                        return Objects.equals(uid, device.getUid().toString());
+                    }
+
+                    return false;
+                }));
+            }
+        } catch (Exception e) {
+            logger.error("实时推送到前端异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
         }
     }
 }

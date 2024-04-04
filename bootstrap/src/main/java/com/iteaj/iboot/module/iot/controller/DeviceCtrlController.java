@@ -12,7 +12,7 @@ import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
+import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.DebugRespDto;
@@ -40,10 +40,10 @@ public class DeviceCtrlController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final IModelApiService modelApiService;
-    private final CollectDataRealtimeListener realtimeListener;
+    private final RealtimePushListener realtimeListener;
     public DeviceCtrlController(IDeviceService deviceService
             , IProductService productService, IModelApiService modelApiService
-            , IotCacheManager cacheManager, CollectDataRealtimeListener realtimeListener) {
+            , IotCacheManager cacheManager, RealtimePushListener realtimeListener) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.modelApiService = modelApiService;

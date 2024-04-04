@@ -3,7 +3,7 @@ package com.iteaj.iboot.module.iot.collect;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
-import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.module.iot.entity.CollectTask;
@@ -29,18 +29,18 @@ import java.util.concurrent.ScheduledFuture;
 public class CollectTaskListenerService implements ApplicationReadyListener {
 
     private final TaskScheduler scheduler;
+    private final IotCacheManager cacheManager;
     private final StoreActionFactory storeActionFactory;
     private final ICollectTaskService collectTaskService;
-    private final RealtimeDataService realtimeDataService;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Long, ScheduledFuture> scheduledFutureMap = new ConcurrentHashMap<>();
 
-    public CollectTaskListenerService(TaskScheduler scheduler, StoreActionFactory storeActionFactory
-            , ICollectTaskService collectTaskService, RealtimeDataService realtimeDataService) {
+    public CollectTaskListenerService(TaskScheduler scheduler, IotCacheManager cacheManager
+            , StoreActionFactory storeActionFactory, ICollectTaskService collectTaskService) {
         this.scheduler = scheduler;
+        this.cacheManager = cacheManager;
         this.storeActionFactory = storeActionFactory;
         this.collectTaskService = collectTaskService;
-        this.realtimeDataService = realtimeDataService;
     }
 
     public void statusSwitch(Long id, String status) throws CollectException{
@@ -128,7 +128,7 @@ public class CollectTaskListenerService implements ApplicationReadyListener {
     }
 
     private void createScheduledTask(CollectTaskDto taskDto) {
-        scheduledFutureMap.put(taskDto.getId(), scheduler.schedule(new CollectActionTask(taskDto, realtimeDataService), new CronTrigger(taskDto.getCron())));
+        scheduledFutureMap.put(taskDto.getId(), scheduler.schedule(new CollectActionTask(taskDto, cacheManager), new CronTrigger(taskDto.getCron())));
     }
 
     @Override

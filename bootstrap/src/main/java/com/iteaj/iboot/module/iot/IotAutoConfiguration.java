@@ -8,10 +8,15 @@ import com.iteaj.iboot.module.iot.cache.IotLocalCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.data.RedisRealtimeDataService;
-import com.iteaj.iboot.module.iot.collect.model.*;
+import com.iteaj.iboot.module.iot.collect.CollectDataListener;
+import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
+import com.iteaj.iboot.module.iot.collect.model.DataPersistenceListener;
+import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
+import com.iteaj.iboot.module.iot.collect.model.RDBMSPersistenceListener;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataCacheListener;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
-import com.iteaj.iboot.module.iot.collect.websocket.CollectDataRealtimeListener;
+import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,8 +89,8 @@ public class IotAutoConfiguration {
     }
 
     @Bean
-    public EventGroupCollectManager eventGroupCollectManager(@Autowired(required = false) List<EventGroupCollectListener> listeners) {
-        return EventGroupCollectManager.build(listeners);
+    public CollectListenerManager eventGroupCollectManager(@Autowired(required = false) List<CollectDataListener> listeners) {
+        return CollectListenerManager.build(listeners);
     }
 
     /**
@@ -123,7 +128,7 @@ public class IotAutoConfiguration {
      * @return
      */
     @Bean
-    public CollectDataRealtimeListener collectDataRealtimeListener(RealtimeDataService realtimeDataService) {
-        return new CollectDataRealtimeListener(realtimeDataService);
+    public RealtimePushListener collectDataRealtimeListener(RealtimeDataService realtimeDataService) {
+        return new RealtimePushListener(realtimeDataService);
     }
 }
