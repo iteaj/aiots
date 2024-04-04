@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
@@ -9,11 +10,12 @@ import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
-import com.iteaj.iboot.module.iot.dto.DebugDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.dto.PanelsDetailDto;
+import com.iteaj.iboot.module.iot.entity.Signal;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.service.ISignalService;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,11 +30,14 @@ import java.util.Map;
 @RequestMapping("/iot/panels")
 public class PanelsController extends BaseController {
 
+    private final ISignalService signalService;
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final RealtimeDataService realtimeDataService;
 
-    public PanelsController(IDeviceService deviceService, IProductService productService, RealtimeDataService realtimeDataService) {
+    public PanelsController(ISignalService signalService, IDeviceService deviceService
+            , IProductService productService, RealtimeDataService realtimeDataService) {
+        this.signalService = signalService;
         this.deviceService = deviceService;
         this.productService = productService;
         this.realtimeDataService = realtimeDataService;
@@ -70,25 +75,37 @@ public class PanelsController extends BaseController {
                             productDto.getFuncApis().forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
                         }
 
+                        Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
+                                , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                         if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
-                            Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
-                                    , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                             productDto.getAttrs().forEach(attr -> {
                                 if(realtimeDataMap != null) {
                                     RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
                                     if(realtimeData != null && realtimeData.getRealtime() != null) {
                                         SignalOrFieldValue realtime = realtimeData.getRealtime();
                                         debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType(), realtime.getValue(), realtime.getCollectTime());
-                                    } else {
-                                        debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType(), "-", null);
+                                        return;
                                     }
-                                } else {
-                                    debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType(), "-", null);
                                 }
                             });
                         }
 
                         productDto.setAttrs(null);
+
+                        // 处理点位数据
+                        signalService.list(Wrappers.<Signal>lambdaQuery().eq(Signal::getProductId, productDto.getId()))
+                                .stream().forEach(signal -> {
+                            if(realtimeDataMap != null) {
+                                RealtimeData realtimeData = realtimeDataMap.get(signal.getAddress());
+                                if(realtimeData != null && realtimeData.getRealtime() != null) {
+                                    SignalOrFieldValue realtime = realtimeData.getRealtime();
+                                    debugDto.addSignal(signal.getName(), signal.getAddress(), realtime.getValue(), realtime.getCollectTime());
+                                    return;
+                                }
+                            }
+
+                            debugDto.addSignal(signal.getName(), signal.getAddress());
+                        });
                     });
         });
 

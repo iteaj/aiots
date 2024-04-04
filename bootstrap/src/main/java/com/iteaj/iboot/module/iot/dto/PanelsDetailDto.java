@@ -28,6 +28,11 @@ public class PanelsDetailDto {
     private List<ModelAttr> attrs = new ArrayList<>();
 
     /**
+     * 点位信息
+     */
+    private List<Signal> signals = new ArrayList<>();
+
+    /**
      * 接口调试参数
      */
     private Map<String, List<IVOption>> apiCodeDebugMap;
@@ -39,6 +44,42 @@ public class PanelsDetailDto {
     public PanelsDetailDto addAttr(String field, String name, String unit, AttrType type, Object value, Date collectTime) {
         attrs.add(new ModelAttr(field, name, unit, value, type, collectTime));
         return this;
+    }
+
+    public PanelsDetailDto addSignal(String name, String address) {
+        this.signals.add(new Signal(name, "-", address, null)); return this;
+    }
+
+    public PanelsDetailDto addSignal(String name, String address, Object value, Date collectTime) {
+        this.signals.add(new Signal(name, value, address, collectTime)); return this;
+    }
+
+    @Getter
+    @Setter
+    public class Signal {
+        /**
+         * 点位名称
+         */
+        private String name;
+        /**
+         * 实时值
+         */
+        private Object value;
+        /**
+         * 地位地址
+         */
+        private String address;
+        /**
+         * 采集时间
+         */
+        private Date collectTime;
+
+        public Signal(String name, Object value, String address, Date collectTime) {
+            this.name = name;
+            this.value = value;
+            this.address = address;
+            this.collectTime = collectTime;
+        }
     }
 
     @Getter
