@@ -8,6 +8,7 @@ import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectDevice;
 import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
@@ -21,9 +22,7 @@ import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,11 +48,47 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
 
     }
 
+    @Override
+    public void listener(CollectInfo info) {
+        if(CollectionUtil.isNotEmpty(info.getInfos())) {
+            // 异步发送
+            IotThreadManager.instance().getExecutorService().execute(() -> {
+                info.getInfos().forEach(device -> {
+                    push(device);
+                });
+            });
+        }
+    }
+
+    public void push(RealtimeStatus device) {
+        this.push(Arrays.asList(device));
+    }
+
+    public void push(Collection<RealtimeStatus> devices) {
+        if(CollectionUtil.isNotEmpty(devices)) {
+            devices.forEach(device -> {
+                try {
+                    String jsonString = JSONObject.toJSONString(PushData.buildStatus(device));
+                    DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
+                        String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
+                        if(StrUtil.isNotBlank(uid)) {
+                            return Objects.equals(uid, device.getUid().toString());
+                        }
+
+                        return false;
+                    }));
+                } catch (Exception e) {
+                    logger.error("推送实时状态异常 {} - 设备: {}", e.getMessage(), device.buildDeviceKey(), e);
+                }
+            });
+        }
+    }
+
     /**
      * 写出数据
      * @param device
      */
-    public void write(CollectInfo.DeviceInfo device) {
+    public void push(CollectInfo.DeviceInfo device) {
         try {
             if(CollectionUtil.isNotEmpty(device.getSupplier().getValues())) {
                 Map<String, SignalOrFieldValue> valueMap = device.getSupplier().getValues().stream()
@@ -70,23 +105,11 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
                 }));
             }
         } catch (Exception e) {
-            logger.error("实时推送到前端异常 {} - 设备: {}", e.getMessage(), device.getDevice().buildDeviceKey(), e);
+            logger.error("实时推送模型数据异常 {} - 设备: {}", e.getMessage(), device.getDevice().buildDeviceKey(), e);
         }
     }
 
-    @Override
-    public void listener(CollectInfo info) {
-        if(CollectionUtil.isNotEmpty(info.getInfos())) {
-            // 异步发送
-            IotThreadManager.instance().getExecutorService().execute(() -> {
-                info.getInfos().forEach(device -> {
-                    write(device);
-                });
-            });
-        }
-    }
-
-    public void write(String deviceUid, ModelApi api, InvokeResult result) {
+    public void push(String deviceUid, ModelApi api, InvokeResult result) {
         if(api.getFuncType() == FuncType.read) { // 读指令才需要更新数据
             ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(supplier -> {
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
@@ -128,7 +151,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
                 }));
             }
         } catch (Exception e) {
-            logger.error("实时推送到前端异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
+            logger.error("实时推送点位数据异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
         }
     }
 }

@@ -9,6 +9,7 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -38,10 +39,11 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
-
-    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager) {
+    private final RealtimePushListener pushListener;
+    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager, RealtimePushListener pushListener) {
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
+        this.pushListener = pushListener;
     }
 
 
@@ -233,11 +235,13 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                         .set(Device::getStatus, DeviceStatus.offline)
                         .in(Device::getUid, uidList));
 
+                pushListener.push(childDeviceStatus.values()); // 推送离线信息到前端
                 this.iotCacheManager.updateChildStatus(device.getProtocolCode(), device.getDeviceSn(), DeviceStatus.offline);
             }
         }
 
         this.iotCacheManager.updateStatus(device.getProtocolCode(), device.buildDeviceKey(), device.getStatus());
+        pushListener.push(device);
     }
 
     @Override
