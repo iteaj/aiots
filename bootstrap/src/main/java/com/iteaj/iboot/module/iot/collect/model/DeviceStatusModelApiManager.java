@@ -102,7 +102,8 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                         // 父设备不存在或者不在线则不采集子设备状态
                         if(realtimeStatus == null || realtimeStatus.getStatus() == DeviceStatus.offline) {
                             if(logger.isDebugEnabled()) {
-                                logger.warn("放弃子设备状态接口调用 网关设备不在线 - 设备编号: {} - 接口: {}/{}", device.buildDeviceKey(), api.getCode(), api.getDirect());
+                                logger.warn("放弃子设备状态接口调用 网关设备不在线 - 网关编号: {} - 设备编号: {} - 接口: {}/{}"
+                                        , device.getParentDeviceSn(), device.getDeviceSn(), api.getCode(), api.getDirect());
                             }
 
                             return;

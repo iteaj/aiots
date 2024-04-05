@@ -23,7 +23,7 @@ public class CollectGroupTask implements Runnable{
     private List<ModelApi> apis;
     private EventSourceDto source;
     private IotCacheManager cacheManager;
-    private static Logger logger = LoggerFactory.getLogger(CollectGroupTask.class);
+    private static Logger logger = LoggerFactory.getLogger("IOT:MODEL:COLLECT");
 
     public CollectGroupTask(DeviceGroup group, EventSourceDto source, IotCacheManager cacheManager) {
         this.group = group;

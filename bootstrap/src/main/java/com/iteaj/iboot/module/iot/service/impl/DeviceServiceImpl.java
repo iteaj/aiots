@@ -216,8 +216,10 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     @Transactional
     public void updateDeviceStatus(RealtimeStatus device) {
+        Date switchTime = new Date();
         this.update(Wrappers.<Device>lambdaUpdate()
                 .set(Device::getStatus, device.getStatus())
+                .set(Device::getSwitchTime, switchTime)
                 .eq(Device::getUid, device.getUid()));
 
         // 如果是边缘网关下线则所有的网关子设备也必须下线
@@ -227,6 +229,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                 List<Long> uidList = childDeviceStatus.values().stream()
                         .map(item -> item.getUid()).collect(Collectors.toList());
                 this.update(Wrappers.<Device>lambdaUpdate()
+                        .set(Device::getSwitchTime, switchTime)
                         .set(Device::getStatus, DeviceStatus.offline)
                         .in(Device::getUid, uidList));
 
