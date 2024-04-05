@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,6 +12,7 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
@@ -435,9 +437,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     private NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, Device device) {
         TransportProtocol type = supplier.getProtocol().getType();
         if(type == TransportProtocol.TCP) {
+            JSONObject deviceConfig = device.getConfig();
             NetworkConfigImpl.TcpNetworkConfig config = new NetworkConfigImpl.TcpNetworkConfig();
-            config.setHost(device.getIp());
-            config.setPort(device.getPort());
+            config.setHost(deviceConfig.getString(ConstConfig.HOST));
+            config.setPort(deviceConfig.getInteger(ConstConfig.PORT));
             config.setDeviceSn(device.getDeviceSn());
             return config;
         }

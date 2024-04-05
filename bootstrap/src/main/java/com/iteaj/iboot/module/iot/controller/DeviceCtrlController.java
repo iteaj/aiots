@@ -69,7 +69,7 @@ public class DeviceCtrlController extends BaseController {
                     item.success(result);
                     // 将实时结果写出到前端
                     IotThreadManager.instance().getExecutorService().execute(() -> {
-                        realtimeListener.write(param.getUid(), (ModelApi) objects[1], result);
+                        realtimeListener.push(param.getUid(), (ModelApi) objects[1], result);
                     });
                 });
             } catch (ProtocolInvokeException e) {

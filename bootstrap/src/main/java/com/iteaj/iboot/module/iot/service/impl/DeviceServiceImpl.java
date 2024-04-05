@@ -9,6 +9,7 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -38,10 +39,11 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
-
-    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager) {
+    private final RealtimePushListener pushListener;
+    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager, RealtimePushListener pushListener) {
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
+        this.pushListener = pushListener;
     }
 
 
@@ -216,8 +218,10 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     @Transactional
     public void updateDeviceStatus(RealtimeStatus device) {
+        Date switchTime = new Date();
         this.update(Wrappers.<Device>lambdaUpdate()
                 .set(Device::getStatus, device.getStatus())
+                .set(Device::getSwitchTime, switchTime)
                 .eq(Device::getUid, device.getUid()));
 
         // 如果是边缘网关下线则所有的网关子设备也必须下线
@@ -227,14 +231,17 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                 List<Long> uidList = childDeviceStatus.values().stream()
                         .map(item -> item.getUid()).collect(Collectors.toList());
                 this.update(Wrappers.<Device>lambdaUpdate()
+                        .set(Device::getSwitchTime, switchTime)
                         .set(Device::getStatus, DeviceStatus.offline)
                         .in(Device::getUid, uidList));
 
+                pushListener.push(childDeviceStatus.values()); // 推送离线信息到前端
                 this.iotCacheManager.updateChildStatus(device.getProtocolCode(), device.getDeviceSn(), DeviceStatus.offline);
             }
         }
 
         this.iotCacheManager.updateStatus(device.getProtocolCode(), device.buildDeviceKey(), device.getStatus());
+        pushListener.push(device);
     }
 
     @Override
