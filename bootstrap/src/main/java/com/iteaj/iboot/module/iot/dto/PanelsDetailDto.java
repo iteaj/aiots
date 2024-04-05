@@ -72,6 +72,7 @@ public class PanelsDetailDto {
         /**
          * 采集时间
          */
+        @JsonFormat(pattern = "MM-dd HH:mm:ss")
         private Date collectTime;
 
         public Signal(String name, Object value, String address, Date collectTime) {
