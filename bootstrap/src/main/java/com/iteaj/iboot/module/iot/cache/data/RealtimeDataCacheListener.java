@@ -26,6 +26,6 @@ public class RealtimeDataCacheListener implements EventGroupCollectListener, Sig
     public void supplier(CollectDevice device, CollectData data) {
         realtimeDataService.put(device.getProtocolCode(), device.buildKey()
                 , SignalOrFieldValue.build(data.getAddress(), data.getCollectTime()
-                        , data.getValue()).builder(data.getCollectStatus()));
+                        , data.getValue(), data.getAddress()).builder(data.getCollectStatus()));
     }
 }
