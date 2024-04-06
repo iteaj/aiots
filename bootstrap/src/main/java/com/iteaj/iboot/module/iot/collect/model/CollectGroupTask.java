@@ -41,6 +41,11 @@ public class CollectGroupTask implements Runnable{
         CollectInfo info = new CollectInfo(source, group);
         Collection<RealtimeStatus> devices = cacheManager.listByGroupId(group.getId());
         devices.forEach(device -> {
+            if(device.getStatus() == DeviceStatus.offline) {
+                logger.warn("放弃设备采集任务 设备不在线 - 事件源: {} - 设备组: {} - 设备编号: {}"
+                        , source.getName(), group.getName(), device.buildDeviceKey());
+                return;
+            }
             apis.forEach(api -> {
                 try {
                     // 对此设备同一产品的模型接口进行调用
