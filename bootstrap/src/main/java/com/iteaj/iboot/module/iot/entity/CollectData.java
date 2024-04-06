@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.iboot.module.iot.consts.CollectMode;
 import com.iteaj.iot.tools.annotation.IotField;
 import com.iteaj.iot.tools.annotation.IotTable;
@@ -92,9 +93,26 @@ public class CollectData extends BaseEntity {
     @IotField(value = "create_time", type = 93)
     private Date createTime;
 
+    /**
+     * 采集状态
+     */
+    private CollectStatus collectStatus;
+
     public CollectData() { }
 
     public CollectData(CollectMode collectMode) {
         this.collectMode = collectMode.name();
+    }
+
+    public CollectData setCollectStatus(CollectStatus collectStatus) {
+        this.collectStatus = collectStatus;
+        if(collectStatus == CollectStatus.Success) {
+            this.status = true;
+        } else {
+            this.status = false;
+            this.reason = collectStatus.getReason();
+        }
+
+        return this;
     }
 }

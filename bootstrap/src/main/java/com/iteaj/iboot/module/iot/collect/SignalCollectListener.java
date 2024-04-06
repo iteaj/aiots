@@ -6,5 +6,7 @@ import java.util.List;
 
 public interface SignalCollectListener extends CollectDataListener {
 
-    void listener(CollectDevice device, List<CollectData> data);
+    void supplier(CollectDevice device, CollectData data);
+
+    default void finished(CollectDevice device, List<CollectData> data) {}
 }

@@ -4,15 +4,16 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.InvokeStatusException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
-import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 
@@ -26,13 +27,13 @@ public class ProtocolInvokeUtil {
     }
 
     public static void invoke(DeviceProtocolSupplier supplier, ModelApi api, ProtocolModelApiInvokeParam param, RealtimeStatus device, Consumer<InvokeResult> result) {
+        if(device.getStatus() == DeviceStatus.offline) {
+            throw new ServiceException("设备不在线["+device.getDeviceSn()+"]");
+        }
+
         if(supplier != null) {
             AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());
             if(modelApi != null) {
-                if(device.getStatus() == DeviceStatus.offline) {
-                    throw new ServiceException("设备不在线["+device.getDeviceSn()+"]");
-                }
-
                 if(CollectionUtil.isEmpty(api.getDownConfig())) {
                     throw new ServiceException("协议对象["+api.getCode()+"]异常, 没有下行配置");
                 }
@@ -47,7 +48,7 @@ public class ProtocolInvokeUtil {
                                     if(apiConfig.getModelAttrId() != null && apiConfig.getAttrField() != null) {
                                         param.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
                                     } else {
-                                        throw new IllegalArgumentException("上行配置[protocolAttrName="+apiConfig.getProtocolAttrName()+"]未指定物模型属性");
+                                        throw new ServiceException("上行配置[protocolAttrName="+apiConfig.getProtocolAttrName()+"]未指定物模型属性");
                                     }
                                 }
                             }
@@ -69,6 +70,9 @@ public class ProtocolInvokeUtil {
     }
 
     public static void invoke(ModelApi api, RealtimeStatus device, long timeout, Consumer<InvokeResult> result) {
+        if(device.getStatus() == DeviceStatus.offline) {
+            throw new ServiceException("设备不在线["+device.getDeviceSn()+"]");
+        }
 
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(device.getProtocolCode());
         if(supplier != null) {
@@ -84,7 +88,7 @@ public class ProtocolInvokeUtil {
 
                 api.getDownConfig().forEach(item -> {
                     if(item.getValue().startsWith("@") && item.getModelAttrId() != null) {
-                        throw new ServiceException("协议参数使用@提及属性导致没有默认值");
+                        throw new InvokeStatusException("协议参数使用@提及属性导致没有默认值", CollectStatus.NonDownValue);
                     }
 
                     param.put(item.getProtocolAttrField(), item.getValue());
@@ -98,7 +102,7 @@ public class ProtocolInvokeUtil {
                                     if(apiConfig.getModelAttrId() != null && apiConfig.getAttrField() != null) {
                                         invokeParam.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
                                     } else {
-                                        throw new IllegalArgumentException("上行配置[protocolAttrName="+apiConfig.getProtocolAttrName()+"]未指定物模型属性");
+                                        throw new ServiceException("上行配置[protocolAttrName="+apiConfig.getProtocolAttrName()+"]未指定物模型属性");
                                     }
                                 }
                             }

@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.iboot.module.iot.consts.CollectMode;
 import com.iteaj.iboot.module.iot.entity.CollectData;
+import com.iteaj.iboot.module.iot.entity.DeviceGroup;
+import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iot.utils.UniqueIdGen;
 
 import java.util.ArrayList;
@@ -14,6 +16,11 @@ import java.util.List;
  * 数据持久化监听
  */
 public interface DataPersistenceListener extends EventGroupCollectListener {
+
+    @Override
+    default void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
+
+    }
 
     @Override
     default void listener(CollectInfo info) {

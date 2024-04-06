@@ -107,7 +107,10 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     public Map<String, RealtimeData> listOfDevice(String protocolCode, DeviceKey key) {
         Map<String, Map<String, RealtimeData>> deviceMap = realtimeMap.get(protocolCode);
         if(deviceMap != null) {
-            return deviceMap.get(key.getKey());
+            Map<String, RealtimeData> dataMap = deviceMap.get(key.getKey());
+            if(dataMap != null) {
+                return dataMap;
+            }
         }
 
         return Collections.EMPTY_MAP;

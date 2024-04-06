@@ -1,5 +1,6 @@
 package com.iteaj.framework.spi.iot;
 
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -32,25 +33,49 @@ public class SignalOrFieldValue {
      */
     private String signalOrField;
 
-    public SignalOrFieldValue(Object value, String signalOrField, Date collectTime) {
+    /**
+     * 采集状态
+     */
+    private CollectStatus status;
+
+    public SignalOrFieldValue(String signalOrField, Date collectTime, Object value) {
         this.value = value;
+        this.collectTime = collectTime;
+        this.signalOrField = signalOrField;
+        this.status = CollectStatus.Success;
+    }
+
+    public SignalOrFieldValue(String signalOrField, Date collectTime, CollectStatus status) {
+        this.status = status;
         this.collectTime = collectTime;
         this.signalOrField = signalOrField;
     }
 
+    public SignalOrFieldValue builder(CollectStatus status) {
+        this.status = status; return this;
+    }
+
     public static SignalOrFieldValue build(String signalOrField, Object value) {
-        return build(signalOrField, (Date) null, value);
+        return build(signalOrField, new Date(), value);
+    }
+
+    public static SignalOrFieldValue build(String signalOrField, CollectStatus status) {
+        return new SignalOrFieldValue(signalOrField, new Date(), status);
     }
 
     public static SignalOrFieldValue build(String signalOrField, Date collectTime, Object value) {
-        return new SignalOrFieldValue(value, signalOrField, collectTime);
+        return new SignalOrFieldValue(signalOrField, collectTime, value);
     }
 
-    public static SignalOrFieldValue build(String address, String signalOrField, Object value) {
-        return build(address, signalOrField, null, value);
+    public static SignalOrFieldValue build(String signalOrField, Date collectTime, CollectStatus status) {
+        return new SignalOrFieldValue(signalOrField, collectTime, status);
     }
 
-    public static SignalOrFieldValue build(String address, String signalOrField, Date collectTime, Object value) {
-        return new SignalOrFieldValue(value, signalOrField, collectTime).setAddress(address);
+    public static SignalOrFieldValue build(String signalOrField, Date collectTime, Object value, String address) {
+        return new SignalOrFieldValue(signalOrField, collectTime, value).setAddress(address);
+    }
+
+    public static SignalOrFieldValue build(String signalOrField, Date collectTime, CollectStatus status, String address) {
+        return new SignalOrFieldValue(signalOrField, collectTime, status).setAddress(address);
     }
 }

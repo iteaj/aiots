@@ -5,13 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.NotIotClientException;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
-import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.store.StoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
@@ -19,11 +18,8 @@ import com.iteaj.iboot.module.iot.consts.CollectMode;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
-import com.iteaj.iboot.module.iot.entity.CollectDetail;
-import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.utils.UniqueIdGen;
-import com.iteaj.plugin.protocol.plc.omron.OmronProtocolSupplier;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +62,8 @@ public class CollectActionTask implements Runnable {
                                                 .setCid(cid).setReason("")
                                                 .setFieldName(signal.getFieldName())
                                                 .setAddress(signal.getAddress())
-                                                .setStatus(false).setCreateTime(date)
+                                                .setCollectStatus(CollectStatus.Success)
+                                                .setCreateTime(date)
                                                 .setUid(collectDevice.getUid())
                                                 .setSignalId(signal.getId())
                                                 .setCollectTaskId(taskDto.getId());
@@ -83,30 +80,37 @@ public class CollectActionTask implements Runnable {
                                             modelApi.invoke(invokeParam, invokeResult -> {
                                                 data.setCollectTime(new Date());
                                                 if(invokeResult.getStatus() == ExecStatus.success) {
-                                                    data.setValue(invokeResult.getValue().toString()).setStatus(true);
+                                                    data.setValue(invokeResult.getValue().toString());
                                                 } else {
-                                                    data.setStatus(false).setReason(invokeResult.getReason());
+                                                    data.setCollectStatus(CollectStatus.from(invokeResult.getStatus()));
                                                 }
                                             });
                                         } catch (CollectException e) {
                                             String message = e.getMessage() == null ? e.getCause().getMessage() : e.getMessage();
-                                            data.setStatus(false).setCollectTime(new Date()).setReason(message);
+                                            data.setCollectStatus(CollectStatus.Fail).setCollectTime(new Date()).setReason(message);
                                             logger.error("采集任务失败 {} - 任务: {} - 周期: {} - 设备: {} - 点位: {}({})"
                                                     , message, taskDto.getName(), taskDto.getCron()
                                                     , collectDevice.getDeviceSn(), signal.getName(), signal.getAddress(), e);
                                         } catch (NotIotClientException e) {
-                                            data.setStatus(false).setCollectTime(new Date()).setReason("获取不到客户端");
+                                            data.setCollectStatus(CollectStatus.Fail).setCollectTime(new Date()).setReason("获取不到客户端");
                                             logger.error("采集任务失败 {} - 任务: {} - 周期: {} - 设备: {} - 点位: {}({})"
                                                     , e.getMessage(), taskDto.getName(), taskDto.getCron()
                                                     , collectDevice.getDeviceSn(), signal.getName(), signal.getAddress(), e);
                                         } catch (Exception e) {
-                                            data.setStatus(false).setCollectTime(new Date()).setReason("未知错误");
+                                            data.setCollectStatus(CollectStatus.Fail).setCollectTime(new Date()).setReason("未知错误");
                                             logger.error("采集任务失败 {} - 任务: {} - 周期: {} - 设备: {} - 点位: {}({})"
                                                     , e.getMessage(), taskDto.getName(), taskDto.getCron()
                                                     , collectDevice.getDeviceSn(), signal.getName(), signal.getAddress(), e);
                                         }
 
                                         values.add(data);
+                                        CollectListenerManager.getInstance().signalForEach(listener -> {
+                                            try {
+                                                listener.supplier(collectDevice, data);
+                                            } catch (Exception e) {
+                                                logger.error("采集点位事件实时发布异常 - 任务: {} - 设备: {}", taskDto.getName(), collectDevice.buildKey(), e);
+                                            }
+                                        });
                                     });
                                 }
 
@@ -119,7 +123,11 @@ public class CollectActionTask implements Runnable {
 
                                     // 存储实时数据
                                     CollectListenerManager.getInstance().signalForEach(listener -> {
-                                        listener.listener(collectDevice, values);
+                                        try {
+                                            listener.finished(collectDevice, values);
+                                        } catch (Exception e) {
+                                            logger.error("采集点位事件完成发布异常 - 任务: {} - 设备: {}", taskDto.getName(), collectDevice.buildKey(), e);
+                                        }
                                     });
                                 }
                             } else {
@@ -128,7 +136,6 @@ public class CollectActionTask implements Runnable {
                         } else {
                             logger.warn("采集点位取消 设备不存在 - 任务: {} - 设备: {}", taskDto.getName(), collectDevice.buildKey());
                         }
-
                     });
                 }
             });

@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.cache.data;
 
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import lombok.Data;
 
 /**
@@ -30,7 +31,11 @@ public class RealtimeData {
     }
 
     public void setRealtime(SignalOrFieldValue realtime) {
-        this.prev = this.realtime;
+        // 上一条记录必须是成功状态
+        if(this.realtime.getStatus() == CollectStatus.Success) {
+            this.prev = this.realtime;
+        }
+
         this.realtime = realtime;
     }
 }

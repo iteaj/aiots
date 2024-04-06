@@ -1,7 +1,11 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.spi.iot.DataSupplier;
+import com.iteaj.framework.spi.iot.InvokeStatusException;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
@@ -41,39 +45,45 @@ public class CollectGroupTask implements Runnable{
                 try {
                     // 对此设备同一产品的模型接口进行调用
                     if(api.getProductId().equals(device.getProductId())) {
-                        // 对于离线的设备不进行采集
-                        if(device.getStatus() == DeviceStatus.offline) {
-                            logger.warn("放弃设备采集任务 设备离线 - 设备编号: {} - 接口: {}/{}"
-                                    , device.buildDeviceKey(), api.getCode(), api.getDirect());
-                            return;
-                        }
-
                         ProtocolInvokeUtil.invoke(api, device, result -> {
-                            if(result.getStatus() == ExecStatus.success) {
-                                ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
-                                    info.addDeviceInfo(device, api, data);
-                                });
-                            } else {
-                                logger.warn("接口执行失败({}) {} - 设备编号: {} - 接口: {}/{}", result.getStatus()
-                                        , result.getReason(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                            if(result.getStatus() != ExecStatus.success) {
+                                logger.warn("接口执行失败({}) {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getStatus()
+                                        , result.getReason(), source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                             }
+
+                            ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
+                                CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
+
+                                CollectListenerManager.getInstance().modelForEach(item -> {
+                                    try {
+                                        item.supplier(source, group, deviceInfo);
+                                    } catch (Exception e) {
+                                        logger.error("采集事件实时发布异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                                    }
+                                });
+                            });
                         });
                     }
                 } catch (ProtocolInvokeException e) {
-                    logger.error("接口调用执行异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                            , device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
-                } catch (IllegalArgumentException e) {
-                    logger.error("接口调用参数错误 {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                            , device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                    logger.error("接口调用执行异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                } catch (ServiceException e) {
+                    logger.error("接口调用错误 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 } catch (Exception e) {
-                    logger.error("接口调用未知异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                            , device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                    logger.error("接口调用未知异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 }
             });
         });
 
-        CollectListenerManager.getInstance().forEach(listener -> {
-            listener.listener(info);
+        CollectListenerManager.getInstance().modelForEach(listener -> {
+            try {
+                listener.listener(info);
+            } catch (Exception e) {
+                logger.error("采集事件完成发布异常 {} - 事件源: {} - 设备组: {}", e.getMessage(), source.getName(), group.getName(), e);
+            }
         });
     }
 }

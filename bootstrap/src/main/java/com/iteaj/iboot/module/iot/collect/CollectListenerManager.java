@@ -40,7 +40,7 @@ public class CollectListenerManager {
         signalCollectListeners.add(listener);
     }
 
-    public void forEach(Consumer<EventGroupCollectListener> consumer) {
+    public void modelForEach(Consumer<EventGroupCollectListener> consumer) {
         groupCollectListeners.forEach(consumer);
     }
 

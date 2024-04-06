@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.iot;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -51,7 +52,15 @@ public class DataSupplier {
     }
 
     public DataSupplier addValue(String address, String signalOrField, Object value) {
-        return this.addValue(SignalOrFieldValue.build(address, signalOrField, this.collectTime, value));
+        return this.addValue(SignalOrFieldValue.build(signalOrField, this.collectTime, value, address));
+    }
+
+    public DataSupplier addValue(String address, String signalOrField, CollectStatus status) {
+        return this.addValue(SignalOrFieldValue.build(signalOrField, this.collectTime, status, address));
+    }
+
+    public DataSupplier addValue(String address, String signalOrField, Object value, Date collectTime) {
+        return this.addValue(SignalOrFieldValue.build(signalOrField, collectTime, value, address));
     }
 
     public DataSupplier build(Date collectTime) {

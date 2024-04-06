@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
 import com.iteaj.framework.spi.iot.consts.ApiFieldType;
+import com.iteaj.framework.spi.iot.consts.AttrType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -111,6 +112,12 @@ public class ModelApiConfig extends BaseEntity {
      * 接口方向
      */
     private ApiConfigDirection direction;
+
+    /**
+     * 属性读写类型
+     */
+    @TableField(exist = false)
+    private AttrType funcType;
 
     /**
      * 属性字典列表

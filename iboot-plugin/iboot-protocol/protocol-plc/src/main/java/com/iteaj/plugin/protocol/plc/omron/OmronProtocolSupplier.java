@@ -6,11 +6,7 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.consts.ConstConfig;
-import com.iteaj.framework.spi.iot.consts.CtrlMode;
-import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
-import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolSupplierException;
@@ -19,6 +15,7 @@ import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.SocketClient;
 import com.iteaj.iot.consts.ExecStatus;
+import com.iteaj.iot.plc.ReadAddress;
 import com.iteaj.iot.plc.WriteAddress;
 import com.iteaj.iot.plc.omron.*;
 import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
@@ -72,10 +69,13 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
                 String field = param.getConfig(PointProtocolConfig.POINT_FIELD_KEY + writeAddress.getAddress());
                 dataSupplier.addValue(writeAddress.getAddress(), field, execStatus == ExecStatus.success);
             } else {
-                ((OmronTcpProtocol) protocol).getBatchAddress().forEach(item -> {
-                    String field = param.getConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getAddress());
-                    dataSupplier.addValue(item.getAddress(), field, value);
-                });
+                ReadAddress readAddress = ((OmronTcpProtocol) protocol).getBatchAddress().get(0);
+                String field = param.getConfig(PointProtocolConfig.POINT_FIELD_KEY + readAddress.getAddress());
+                if(execStatus == ExecStatus.success) {
+                    dataSupplier.addValue(readAddress.getAddress(), field, value);
+                } else {
+                    dataSupplier.addValue(readAddress.getAddress(), field, CollectStatus.from(execStatus));
+                }
             }
         }
 

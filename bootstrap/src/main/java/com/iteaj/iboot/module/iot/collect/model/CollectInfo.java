@@ -36,8 +36,9 @@ public class CollectInfo {
         this.source = source;
     }
 
-    public CollectInfo addDeviceInfo(RealtimeStatus device, ModelApi api, DataSupplier supplier) {
-        this.infos.add(new DeviceInfo(api, device, supplier)); return this;
+    public DeviceInfo addDeviceInfo(RealtimeStatus device, ModelApi api, DataSupplier supplier) {
+        DeviceInfo deviceInfo = new DeviceInfo(api, device, supplier);
+        this.infos.add(deviceInfo); return deviceInfo;
     }
 
     @Getter

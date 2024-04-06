@@ -14,6 +14,8 @@ import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.entity.CollectData;
+import com.iteaj.iboot.module.iot.entity.DeviceGroup;
+import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.server.websocket.WebSocketChannelMatcher;
@@ -49,15 +51,8 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     }
 
     @Override
-    public void listener(CollectInfo info) {
-        if(CollectionUtil.isNotEmpty(info.getInfos())) {
-            // 异步发送
-            IotThreadManager.instance().getExecutorService().execute(() -> {
-                info.getInfos().forEach(device -> {
-                    push(device);
-                });
-            });
-        }
+    public void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
+        IotThreadManager.instance().getDeviceManageEventExecutor().execute(() -> this.push(info));
     }
 
     public void push(RealtimeStatus device) {
@@ -133,23 +128,20 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     }
 
     @Override
-    public void listener(CollectDevice device, List<CollectData> data) {
+    public void supplier(CollectDevice device, CollectData data) {
         try {
-            if(CollectionUtil.isNotEmpty(data)) {
-                Map<String, SignalOrFieldValue> valueMap = data.stream()
-                        .map(item -> SignalOrFieldValue.build(item.getAddress(), item.getAddress(), item.getCollectTime(), item.getValue()))
-                        .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
-                String jsonString = JSONObject.toJSONString(PushData.buildSignal(valueMap));
+            Map<String, SignalOrFieldValue> valueMap = new HashMap<>();
+            valueMap.put(data.getAddress(), SignalOrFieldValue.build(data.getAddress(), data.getCollectTime(), data.getValue()).builder(data.getCollectStatus()));
+            String jsonString = JSONObject.toJSONString(PushData.buildSignal(valueMap));
 
-                DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
-                    String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
-                    if(StrUtil.isNotBlank(uid)) {
-                        return Objects.equals(uid, device.getUid().toString());
-                    }
+            DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
+                String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
+                if(StrUtil.isNotBlank(uid)) {
+                    return Objects.equals(uid, device.getUid().toString());
+                }
 
-                    return false;
-                }));
-            }
+                return false;
+            }));
         } catch (Exception e) {
             logger.error("实时推送点位数据异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
         }
