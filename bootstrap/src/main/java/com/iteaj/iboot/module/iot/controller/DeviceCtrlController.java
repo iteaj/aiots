@@ -13,6 +13,7 @@ import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
+import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.DebugRespDto;
@@ -65,6 +66,10 @@ public class DeviceCtrlController extends BaseController {
         return Mono.<InvokeResult>create(item -> {
             try {
                 RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
+                if(realtimeStatus.getStatus() == DeviceStatus.offline) {
+                    item.success(InvokeResult.fail("设备不在线", null)); return;
+                }
+
                 ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, realtimeStatus, result -> {
                     item.success(result);
                     // 将实时结果写出到前端

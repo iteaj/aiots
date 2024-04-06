@@ -27,10 +27,6 @@ public class ProtocolInvokeUtil {
     }
 
     public static void invoke(DeviceProtocolSupplier supplier, ModelApi api, ProtocolModelApiInvokeParam param, RealtimeStatus device, Consumer<InvokeResult> result) {
-        if(device.getStatus() == DeviceStatus.offline) {
-            throw new ServiceException("设备不在线["+device.getDeviceSn()+"]");
-        }
-
         if(supplier != null) {
             AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());
             if(modelApi != null) {
@@ -70,10 +66,6 @@ public class ProtocolInvokeUtil {
     }
 
     public static void invoke(ModelApi api, RealtimeStatus device, long timeout, Consumer<InvokeResult> result) {
-        if(device.getStatus() == DeviceStatus.offline) {
-            throw new ServiceException("设备不在线["+device.getDeviceSn()+"]");
-        }
-
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(device.getProtocolCode());
         if(supplier != null) {
             AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());
