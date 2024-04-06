@@ -19,14 +19,14 @@ public class DataSupplier {
     private DeviceKey key;
 
     /**
-     * 采集时间
-     */
-    private Date collectTime;
-
-    /**
      * 协议码
      */
     private String protocolCode;
+
+    /**
+     * 采集时间
+     */
+    private Date collectTime;
 
     /**
      * 点位或者字段列表值

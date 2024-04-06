@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.LinkageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.Linkage">
+        <result column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="create_time" property="createTime" />
+        <result column="event_source_id" property="eventSourceId" />
+        <result column="event_source_name" property="eventSourceName" />
+    </resultMap>
+
+    <resultMap id="DtoResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="BaseResultMap">
+        <result column="device_group_name" property="deviceGroupName" />
+        <collection property="productIds" ofType="Long">
+            <result column="p_id" />
+        </collection>
+        <collection property="productNames" ofType="String">
+            <result column="p_name" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="ItemResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageItem">
+        <id property="id" column="id" />
+        <result property="linkageId" column="linkage_id" />
+        <collection property="actions" select="com.iteaj.iboot.module.iot.mapper.LinkageActionMapper.listByLinkageItemId" column="{linkageItemId=id}" />
+        <collection property="conditions" select="com.iteaj.iboot.module.iot.mapper.LinkageConditionMapper.listByLinkageItemId" column="{linkageItemId=id}"/>
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="DtoResultMap">
+        <collection property="items" select="com.iteaj.iboot.module.iot.mapper.LinkageMapper.listItemById" column="{linkageId=id}" />
+    </resultMap>
+
+    <delete id="removeByItemIds">
+        delete a,b,c,e from iot_linkage_item a
+            inner join iot_linkage_condition b on a.id=b.linkage_item_id
+            inner join iot_linkage_action c on a.id=c.linkage_item_id
+            inner join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where a.id in (
+        <foreach collection="list" item="itemId" separator=",">
+            #{itemId}
+        </foreach>);
+    </delete>
+    <delete id="removeAllByIds">
+        delete a,b,c,d,e from iot_linkage a
+            inner join iot_linkage_condition b on a.id=b.linkage_id
+            inner join iot_linkage_action c on a.id=c.linkage_id
+            inner join iot_linkage_item d on a.id=d.linkage_id
+            inner join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where a.id in (
+        <foreach collection="list" item="linkageId" separator=",">
+            #{linkageId}
+        </foreach>);
+
+    </delete>
+
+    <select id="listItemById" resultMap="ItemResultMap">
+        select * from iot_linkage_item where linkage_id=#{linkageId}
+    </select>
+
+    <select id="detailById" resultMap="DetailResultMap">
+        select a.*, p.id p_id, p.name p_name,dg.name device_group_name, es.name event_source_name from iot_linkage a
+            left join iot_event_source es on a.event_source_id = es.id
+            left join (
+                select ca.name, ca.id, if(ca.type='device', cp.product_ids, ca.product_ids) product_ids from iot_device_group ca
+                    left join iot_device_group cp on ca.pid=cp.id
+                ) as dg on es.device_group_id = dg.id
+            left join iot_product p on json_contains(dg.product_ids, concat('', p.id))
+        where a.id=#{id}
+    </select>
+
+    <select id="joinDeviceGroupAndProductById" resultMap="DtoResultMap">
+        select a.*, p.id p_id, p.name p_name,dg.name device_group_name, es.name event_source_name from iot_linkage a
+           left join iot_event_source es on a.event_source_id = es.id
+           left join (
+                select ca.name, ca.id, if(ca.type='device', cp.product_ids, ca.product_ids) product_ids from iot_device_group ca
+                    left join iot_device_group cp on ca.pid=cp.id
+                ) as dg on es.device_group_id = dg.id
+           left join iot_product p on json_contains(dg.product_ids, concat('', p.id))
+        where a.id=#{id}
+    </select>
+
+</mapper>

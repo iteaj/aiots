@@ -97,9 +97,7 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     @Override
     public void put(List<DataSupplier> suppliers) {
         suppliers.forEach(item -> {
-            item.getValues().forEach(value -> {
-                this.put(item.getProtocolCode(), item.getKey(), value);
-            });
+            this.put(item);
         });
     }
 

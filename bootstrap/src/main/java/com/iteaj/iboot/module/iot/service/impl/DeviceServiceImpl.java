@@ -235,6 +235,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                         .set(Device::getStatus, DeviceStatus.offline)
                         .in(Device::getUid, uidList));
 
+                childDeviceStatus.values().forEach(item -> item.setStatus(DeviceStatus.offline));
                 pushListener.push(childDeviceStatus.values()); // 推送离线信息到前端
                 this.iotCacheManager.updateChildStatus(device.getProtocolCode(), device.getDeviceSn(), DeviceStatus.offline);
             }

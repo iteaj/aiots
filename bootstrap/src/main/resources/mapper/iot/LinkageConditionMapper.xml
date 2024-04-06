@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.LinkageConditionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageCondition">
+        <result column="id" property="id" />
+        <result column="sort" property="sort" />
+        <result column="logical" property="logical" />
+        <result column="linkage_id" property="linkageId" />
+        <result column="linkage_item_id" property="linkageItemId" />
+        <result column="linkage_action_id" property="linkageActionId" />
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageCondition" extends="BaseResultMap">
+        <collection property="items" ofType="com.iteaj.iboot.module.iot.entity.LinkageConditionItem" foreignColumn="linkage_condition_id"
+                    columnPrefix="lci_" resultMap="com.iteaj.iboot.module.iot.mapper.LinkageConditionItemMapper.BaseResultMap">
+        </collection>
+    </resultMap>
+
+    <select id="listByLinkageItemId" resultMap="DetailResultMap">
+        select a.*, p.name lci_product_name, p.code lci_product_code, ma.name lci_linked_name, d.name lci_device_name, lci.id lci_id, lci.logical lci_logical, p.protocol_code lci_protocol_code
+             , ma.direct lci_direct, lci.value lci_value, lci.operator lci_operator, lci.linked_id lci_linked_id, lci.type_name lci_type_name, lci.linkage_condition_id lci_linkage_condition_id
+             , lci.event_source_detail_id lci_event_source_detail_id, lci.product_id lci_product_id, lci.uid lci_uid, lci.type lci_type, lci.type_value lci_type_value
+        from iot_linkage_condition a
+            left join iot_linkage_condition_item lci on a.id=lci.linkage_condition_id
+            left join iot_product p on lci.product_id = p.id
+            left join iot_device d on d.uid = lci.uid
+            left join iot_model_api ma on ma.id = lci.linked_id
+        where a.linkage_item_id=#{linkageItemId} and a.linkage_action_id is null order by a.sort, lci.sort
+    </select>
+</mapper>
