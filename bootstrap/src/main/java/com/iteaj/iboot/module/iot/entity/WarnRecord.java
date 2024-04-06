@@ -1,8 +1,11 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -26,7 +29,7 @@ public class WarnRecord extends BaseEntity {
     /**
      * 告警设备
      */
-    private Long uid;
+    private String uid;
 
     /**
      * 告警内容
@@ -50,5 +53,21 @@ public class WarnRecord extends BaseEntity {
 
     private Date createTime;
 
+    /**
+     * 告警配置等级
+     */
+    @TableField(exist = false)
+    private WarnGrade grade;
 
+    /**
+     * 告警配置名称
+     */
+    @TableField(exist = false)
+    private String name;
+
+    public WarnRecord() { }
+
+    public WarnRecord(String uid) {
+        this.uid = uid;
+    }
 }

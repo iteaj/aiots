@@ -6,11 +6,30 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.WarnRecord">
         <result column="id" property="id" />
         <result column="uid" property="uid" />
+        <result column="name" property="name" />
+        <result column="grade" property="grade" />
         <result column="content" property="content" />
         <result column="device_sn" property="deviceSn" />
         <result column="warn_config_id" property="warnConfigId" />
         <result column="warn_time" property="warnTime" />
         <result column="create_time" property="createTime" />
     </resultMap>
+
+    <select id="detailPage" resultMap="BaseResultMap">
+        select a.*, c.name, c.grade from iot_warn_record a
+            left join iot_warn_config c on a.warn_config_id=c.id
+        <where>
+            <if test="entity.grade != null">
+                and c.grade = #{entity.grade}
+            </if>
+            <if test="entity.uid != null and entity.uid != ''">
+                and a.uid = #{entity.uid}
+            </if>
+            <if test="entity.name != null and entity.name != ''">
+                and c.name like '%${#{entity.name}}%'
+            </if>
+        </where>
+        order by a.warn_time desc
+    </select>
 
 </mapper>

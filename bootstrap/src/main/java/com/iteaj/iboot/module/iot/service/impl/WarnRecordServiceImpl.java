@@ -1,5 +1,8 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.mapper.WarnRecordMapper;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
@@ -17,4 +20,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class WarnRecordServiceImpl extends BaseServiceImpl<WarnRecordMapper, WarnRecord> implements IWarnRecordService {
 
+    @Override
+    public PageResult<IPage<WarnRecord>> detailPage(Page page, WarnRecord entity) {
+        this.getBaseMapper().detailPage(page, entity);
+        return new PageResult<>(page);
+    }
 }

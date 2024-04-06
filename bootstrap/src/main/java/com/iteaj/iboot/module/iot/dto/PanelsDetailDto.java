@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,6 +34,11 @@ public class PanelsDetailDto {
     private List<Signal> signals = new ArrayList<>();
 
     /**
+     * 告警记录
+     */
+    private List<Warn> warns = new ArrayList<>();
+
+    /**
      * 接口调试参数
      */
     private Map<String, List<IVOption>> apiCodeDebugMap;
@@ -52,6 +58,10 @@ public class PanelsDetailDto {
 
     public PanelsDetailDto addSignal(String name, String address, Object value, Date collectTime) {
         this.signals.add(new Signal(name, value, address, collectTime)); return this;
+    }
+
+    public PanelsDetailDto addWarn(String name, WarnGrade grade, String content, Date warnTime) {
+        this.warns.add(new Warn(name, grade.getDesc(), content, warnTime)); return this;
     }
 
     @Getter
@@ -134,5 +144,35 @@ public class PanelsDetailDto {
         }
 
         apiCodeDebugMap.put(apiCode, params);
+    }
+
+    @Getter
+    @Setter
+    public class Warn {
+
+        /**
+         * 告警名称
+         */
+        private String name;
+
+        /**
+         * 告警等级
+         */
+        private String grade;
+
+        /**
+         * 告警内容
+         */
+        private String content;
+
+        @JsonFormat(pattern = "yy-MM-dd HH:mm:ss")
+        private Date warnTime;
+
+        public Warn(String name, String grade, String content, Date warnTime) {
+            this.name = name;
+            this.grade = grade;
+            this.content = content;
+            this.warnTime = warnTime;
+        }
     }
 }

@@ -8,14 +8,17 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.dto.PanelsDetailDto;
 import com.iteaj.iboot.module.iot.entity.Signal;
+import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.service.ISignalService;
+import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,13 +36,15 @@ public class PanelsController extends BaseController {
     private final ISignalService signalService;
     private final IDeviceService deviceService;
     private final IProductService productService;
+    private final IWarnRecordService warnRecordService;
     private final RealtimeDataService realtimeDataService;
 
     public PanelsController(ISignalService signalService, IDeviceService deviceService
-            , IProductService productService, RealtimeDataService realtimeDataService) {
+            , IProductService productService, IWarnRecordService warnRecordService, RealtimeDataService realtimeDataService) {
         this.signalService = signalService;
         this.deviceService = deviceService;
         this.productService = productService;
+        this.warnRecordService = warnRecordService;
         this.realtimeDataService = realtimeDataService;
     }
 
@@ -78,7 +83,7 @@ public class PanelsController extends BaseController {
                         Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
                                 , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                         if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
-                            productDto.getAttrs().forEach(attr -> {
+                            productDto.getAttrs().stream().filter(attr -> attr.getAttrType() == AttrType.R).forEach(attr -> {
                                 if(realtimeDataMap != null) {
                                     RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
                                     if(realtimeData != null && realtimeData.getRealtime() != null) {
@@ -87,6 +92,8 @@ public class PanelsController extends BaseController {
                                         return;
                                     }
                                 }
+
+                                debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType());
                             });
                         }
 
@@ -105,6 +112,12 @@ public class PanelsController extends BaseController {
                             }
 
                             debugDto.addSignal(signal.getName(), signal.getAddress());
+                        });
+
+                        WarnRecord entity = new WarnRecord(item.getUid());
+                        warnRecordService.detailPage(new Page<WarnRecord>(1, 30), entity)
+                                .<WarnRecord>stream().forEach(record -> {
+                            debugDto.addWarn(record.getName(), record.getGrade(), record.getContent(), record.getWarnTime());
                         });
                     });
         });
