@@ -72,6 +72,12 @@ public class EventSource extends BaseEntity {
     private Long productId;
 
     /**
+     * 设备组id
+     */
+    @TableField(exist = false)
+    private Long deviceGroupId;
+
+    /**
      * 操作的产品
      */
     @TableField(typeHandler = FastjsonTypeHandler.class)
