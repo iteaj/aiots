@@ -9,11 +9,12 @@
         <result column="cron" property="cron" />
         <result column="name" property="name" />
         <result column="status" property="status" />
-        <result column="linkage_id" property="linkageId" />
-        <result column="linkage_name" property="linkageName" />
         <result column="has_passive" property="hasPassive" />
         <result column="create_time" property="createTime" />
-        <result column="device_group_id" property="deviceGroupId" />
+        <result column="product_ids" property="productIds"
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"/>
+        <result column="device_group_ids" property="deviceGroupIds"
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
     </resultMap>
     <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.EventSource" extends="BaseResultMap">
         <collection property="modelApiIds" ofType="String">
@@ -38,18 +39,16 @@
     </delete>
     <select id="detailPage" resultMap="BaseResultMap">
         select a.* from iot_event_source a
-            left join iot_device_group dg on a.device_group_id = dg.id
-            left join iot_device_group pdg on pdg.id = dg.group_product_id
-            left join iot_product p on json_contains(pdg.product_ids, concat('', p.id))
+            left join iot_product p on json_contains(a.product_ids, concat('', p.id))
         <where>
             <if test="entity.type != null">
                 and a.type = #{entity.type}
             </if>
            <if test="entity.productId != null">
-                and p.id = #{entity.productId}
+                and json_contains(a.product_ids, concat('', #{entity.productId}))
            </if>
             <if test="entity.deviceGroupId != null">
-                and a.device_group_id = #{entity.deviceGroupId}
+                and json_contains(a.device_group_ids, concat('', #{entity.deviceGroupId}))
             </if>
             <if test="entity.name != null and entity.name != ''">
                 and a.name like '%${entity.name}%'
