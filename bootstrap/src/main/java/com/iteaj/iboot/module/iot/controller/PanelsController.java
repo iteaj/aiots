@@ -88,7 +88,8 @@ public class PanelsController extends BaseController {
                                     RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
                                     if(realtimeData != null && realtimeData.getRealtime() != null) {
                                         SignalOrFieldValue realtime = realtimeData.getRealtime();
-                                        debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType(), realtime.getValue(), realtime.getCollectTime());
+                                        debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType()
+                                                , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
                                         return;
                                     }
                                 }
@@ -106,7 +107,8 @@ public class PanelsController extends BaseController {
                                 RealtimeData realtimeData = realtimeDataMap.get(signal.getAddress());
                                 if(realtimeData != null && realtimeData.getRealtime() != null) {
                                     SignalOrFieldValue realtime = realtimeData.getRealtime();
-                                    debugDto.addSignal(signal.getName(), signal.getAddress(), realtime.getValue(), realtime.getCollectTime());
+                                    debugDto.addSignal(signal.getName(), signal.getAddress(), realtime.getValue()
+                                            , realtime.getCollectTime(), realtime.getStatus());
                                     return;
                                 }
                             }

@@ -1,8 +1,10 @@
 package com.iteaj.iboot.module.iot.mapper;
 
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
+import com.iteaj.iboot.module.iot.entity.LinkageItem;
 
 import java.util.List;
 
@@ -23,4 +25,6 @@ public interface LinkageMapper extends BaseMapper<Linkage> {
     Boolean removeByItemIds(List<Long> itemIds);
 
     int removeAllByIds(List<Long> idList);
+
+    LinkageItem detailItemById(Long id);
 }

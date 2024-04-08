@@ -110,9 +110,17 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
             }
         }
 
-        if(item.getId() != null) { // 移除原来的所有记录
+        // 校验是否已经存在
+        LinkageItem linkageItem = linkageItemMapper.selectOne(Wrappers.<LinkageItem>lambdaQuery()
+                .eq(LinkageItem::getLinkageId, item.getLinkageId())
+                .eq(LinkageItem::getName, item.getName())
+                .ne(item.getId() != null, LinkageItem::getId, item.getId()));
+        if(linkageItem != null) {
+            return BooleanResult.buildFalse("联动项名已存在["+item.getName()+"]");
+        }
+
+        if(item.getId() != null) { // 如果是更新则移除原来的所有记录
             this.removeByItemIds(Arrays.asList(item.getId()));
-            item.setId(null);
         }
 
         int insert = linkageItemMapper.insert(item);
@@ -141,5 +149,10 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
 
         int i = this.getBaseMapper().removeAllByIds(idList);
         return new BooleanResult(i > 0);
+    }
+
+    @Override
+    public DetailResult<LinkageItem> detailItemById(Long id) {
+        return new DetailResult<>(this.getBaseMapper().detailItemById(id));
     }
 }

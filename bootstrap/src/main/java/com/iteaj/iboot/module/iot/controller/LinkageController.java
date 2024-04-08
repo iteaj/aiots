@@ -8,6 +8,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
@@ -121,14 +122,24 @@ public class LinkageController extends BaseController {
     /**
      * 新增或更新联动项
      * @param item
-     * @return
+     * @return 联动项id
      */
     @PostMapping("/saveOrUpdateItem")
     @Logger("删除场景联动项")
     @CheckPermission({"iot:linkage:del"})
     public Result<Long> saveOrUpdateItem(@RequestBody LinkageItem item) {
-        this.linkageService.saveOrUpdateItem(item);
-        return success(item.getId());
+        BooleanResult result = this.linkageService.saveOrUpdateItem(item);
+        return result.of().map(status -> status == true ? success(item.getId()) : fail((Long) null, result.getMessage())).get();
+    }
+
+    /**
+     * 获取联动项详情
+     * @param id
+     * @return
+     */
+    @GetMapping("detailItemById")
+    public Result<LinkageItem> detailItemById(Long id) {
+        return this.linkageService.detailItemById(id);
     }
 
     /**
@@ -160,6 +171,17 @@ public class LinkageController extends BaseController {
     @GetMapping("/sources")
     public Result<List<IVOption>> sources(Long id) {
         return this.eventSourceService.availableSources(id);
+    }
+
+    /**
+     * 获取指定联动场景下面的组信息
+     * @param id
+     * @return
+     */
+    @GetMapping("getDeviceGroups")
+    public Result<List<IVOption>> getDeviceGroups(Long id) {
+
+        return success();
     }
 
     /**

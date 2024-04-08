@@ -29,4 +29,6 @@ public interface ILinkageService extends IBaseService<Linkage> {
     BooleanResult saveOrUpdateItem(LinkageItem item);
 
     BooleanResult removeAllByIds(List<Long> idList);
+
+    DetailResult<LinkageItem> detailItemById(Long id);
 }

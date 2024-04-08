@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,20 +45,20 @@ public class PanelsDetailDto {
     private Map<String, List<IVOption>> apiCodeDebugMap;
 
     public PanelsDetailDto addAttr(String field, String name, String unit, AttrType type) {
-        return addAttr(field, name, unit, type, null, null);
+        return addAttr(field, name, unit, type, null, null, CollectStatus.Success);
     }
 
-    public PanelsDetailDto addAttr(String field, String name, String unit, AttrType type, Object value, Date collectTime) {
-        attrs.add(new ModelAttr(field, name, unit, value, type, collectTime));
+    public PanelsDetailDto addAttr(String field, String name, String unit, AttrType type, Object value, Date collectTime, CollectStatus status) {
+        attrs.add(new ModelAttr(field, name, unit, value, type, collectTime, status));
         return this;
     }
 
     public PanelsDetailDto addSignal(String name, String address) {
-        this.signals.add(new Signal(name, "-", address, null)); return this;
+        this.signals.add(new Signal(name, "-", address, null, CollectStatus.Success)); return this;
     }
 
-    public PanelsDetailDto addSignal(String name, String address, Object value, Date collectTime) {
-        this.signals.add(new Signal(name, value, address, collectTime)); return this;
+    public PanelsDetailDto addSignal(String name, String address, Object value, Date collectTime, CollectStatus status) {
+        this.signals.add(new Signal(name, value, address, collectTime, status)); return this;
     }
 
     public PanelsDetailDto addWarn(String name, WarnGrade grade, String content, Date warnTime) {
@@ -85,9 +86,12 @@ public class PanelsDetailDto {
         @JsonFormat(pattern = "MM-dd HH:mm:ss")
         private Date collectTime;
 
-        public Signal(String name, Object value, String address, Date collectTime) {
+        private CollectStatus status;
+
+        public Signal(String name, Object value, String address, Date collectTime, CollectStatus status) {
             this.name = name;
             this.value = value;
+            this.status = status;
             this.address = address;
             this.collectTime = collectTime;
         }
@@ -128,11 +132,15 @@ public class PanelsDetailDto {
         @JsonFormat(pattern = "MM-dd HH:mm:ss")
         private Date collectTime;
 
-        public ModelAttr(String field, String name, String unit, Object value, AttrType attrType, Date collectTime) {
+        private CollectStatus status;
+
+        public ModelAttr(String field, String name, String unit, Object value
+                , AttrType attrType, Date collectTime, CollectStatus status) {
             this.field = field;
             this.name = name;
             this.unit = unit;
             this.value = value;
+            this.status = status;
             this.attrType = attrType;
             this.collectTime = collectTime;
         }
