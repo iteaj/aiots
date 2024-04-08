@@ -1,11 +1,13 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.util.List;
 
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.iboot.module.iot.consts.EventSourceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import lombok.Data;
@@ -70,9 +72,16 @@ public class EventSource extends BaseEntity {
     private Long productId;
 
     /**
-     * 所属设备组
+     * 操作的产品
      */
-    private Long deviceGroupId;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray productIds;
+
+    /**
+     * 设备组
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray deviceGroupIds;
 
     /**
      * 模型接口列表
