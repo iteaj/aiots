@@ -22,7 +22,7 @@ public interface ILinkageService extends IBaseService<Linkage> {
 
     DetailResult<LinkageDto> detailById(Long id);
 
-    DetailResult<LinkageDto> joinDeviceGroupAndProductById(Long id);
+    DetailResult<LinkageDto> joinProductById(Long id);
 
     BooleanResult removeByItemIds(List<Long> itemIds);
 

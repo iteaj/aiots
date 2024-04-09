@@ -18,9 +18,7 @@ import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -74,8 +72,8 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
     }
 
     @Override
-    public DetailResult<LinkageDto> joinDeviceGroupAndProductById(Long id) {
-        return new DetailResult<>(this.getBaseMapper().joinDeviceGroupAndProductById(id));
+    public DetailResult<LinkageDto> joinProductById(Long id) {
+        return new DetailResult<>(this.getBaseMapper().joinProductById(id));
     }
 
     @Override

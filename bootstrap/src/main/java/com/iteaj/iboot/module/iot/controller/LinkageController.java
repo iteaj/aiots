@@ -3,13 +3,13 @@ package com.iteaj.iboot.module.iot.controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
@@ -20,15 +20,12 @@ import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.OperatorType;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.entity.*;
-import com.iteaj.iboot.module.iot.service.IEventSourceService;
-import com.iteaj.iboot.module.iot.service.IProductService;
-import com.iteaj.iboot.module.iot.service.IWarnConfigService;
+import com.iteaj.iboot.module.iot.service.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.iboot.module.iot.service.ILinkageService;
 import com.iteaj.framework.BaseController;
 
 /**
@@ -40,13 +37,15 @@ import com.iteaj.framework.BaseController;
 @RequestMapping("/iot/linkage")
 public class LinkageController extends BaseController {
 
+    private final IDeviceService deviceService;
     private final ILinkageService linkageService;
     private final IProductService productService;
     private final IWarnConfigService warnConfigService;
     private final IEventSourceService eventSourceService;
 
-    public LinkageController(ILinkageService linkageService, IProductService productService
+    public LinkageController(IDeviceService deviceService, ILinkageService linkageService, IProductService productService
             , IWarnConfigService warnConfigService, IEventSourceService eventSourceService) {
+        this.deviceService = deviceService;
         this.linkageService = linkageService;
         this.productService = productService;
         this.warnConfigService = warnConfigService;
@@ -156,6 +155,38 @@ public class LinkageController extends BaseController {
     }
 
     /**
+     * 获取事件源下面的设备组
+     * @param id 联动id
+     * @return
+     */
+    @GetMapping("listDeviceGroupTree")
+    public Result<List<DeviceGroup>> listDeviceGroupTree(Long id) {
+        Linkage linkage = linkageService.getById(id).ifNotPresentThrow("联动项不存在").getData();
+        return eventSourceService.listDeviceGroupById(linkage.getEventSourceId());
+    }
+
+    /**
+     * 获取指定产品和设备组下的设备列表
+     * @param productId 产品id
+     * @param deviceGroupIds
+     * @return
+     */
+    @GetMapping("listDeviceByProductAndDeviceGroupIds")
+    public Result<List<IVOption>> listDeviceByProductAndDeviceGroupIds(Long productId, Long[] deviceGroupIds) {
+        List<IVOption> data = new ArrayList<>();
+        if(deviceGroupIds != null && deviceGroupIds.length == 1 && deviceGroupIds[0] != -1) {
+            data = deviceService.list(Wrappers.<Device>lambdaQuery()
+                    .eq(Device::getProductId, productId)
+                    .eq(Device::getDeviceGroupId, deviceGroupIds[0]))
+                    .stream().map(device -> new IVOption(device.getName(), device.getUid())).collect(Collectors.toList());
+        } else {
+            data.add(new IVOption("所有设备", "-1"));
+        }
+
+        return success(data);
+    }
+
+    /**
      * 操作类型列表
      * @return
      */
@@ -195,7 +226,7 @@ public class LinkageController extends BaseController {
             return fail("未指定场景id");
         }
 
-        LinkageDto linkageDto = this.linkageService.joinDeviceGroupAndProductById(id)
+        LinkageDto linkageDto = this.linkageService.joinProductById(id)
                 .ifNotPresentThrow("场景不存在").getData();
         if(CollectionUtil.isNotEmpty(linkageDto.getProductIds())) {
             return productService.listByIds(linkageDto.getProductIds());

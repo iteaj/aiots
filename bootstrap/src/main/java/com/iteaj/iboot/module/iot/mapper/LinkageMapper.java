@@ -20,7 +20,7 @@ public interface LinkageMapper extends BaseMapper<Linkage> {
 
     LinkageDto detailById(Long id);
 
-    LinkageDto joinDeviceGroupAndProductById(Long id);
+    LinkageDto joinProductById(Long id);
 
     Boolean removeByItemIds(List<Long> itemIds);
 
