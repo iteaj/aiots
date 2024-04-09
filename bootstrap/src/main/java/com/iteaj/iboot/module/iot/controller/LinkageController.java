@@ -14,10 +14,7 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
-import com.iteaj.iboot.module.iot.consts.ActionType;
-import com.iteaj.iboot.module.iot.consts.ConditionType;
-import com.iteaj.iboot.module.iot.consts.FuncStatus;
-import com.iteaj.iboot.module.iot.consts.OperatorType;
+import com.iteaj.iboot.module.iot.consts.*;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.service.*;
@@ -161,6 +158,10 @@ public class LinkageController extends BaseController {
      */
     @GetMapping("listDeviceGroupTree")
     public Result<List<DeviceGroup>> listDeviceGroupTree(Long id) {
+        if(id == null) {
+            return success(Collections.EMPTY_LIST);
+        }
+
         Linkage linkage = linkageService.getById(id).ifNotPresentThrow("联动项不存在").getData();
         return eventSourceService.listDeviceGroupById(linkage.getEventSourceId());
     }
@@ -172,17 +173,15 @@ public class LinkageController extends BaseController {
      * @return
      */
     @GetMapping("listDeviceByProductAndDeviceGroupIds")
-    public Result<List<IVOption>> listDeviceByProductAndDeviceGroupIds(Long productId, Long[] deviceGroupIds) {
-        List<IVOption> data = new ArrayList<>();
+    public Result<List<Device>> listDeviceByProductAndDeviceGroupIds(Long productId, Long[] deviceGroupIds) {
+        List<Device> data = new ArrayList<>();
         if(deviceGroupIds != null && deviceGroupIds.length == 1 && deviceGroupIds[0] != -1) {
             data = deviceService.list(Wrappers.<Device>lambdaQuery()
                     .eq(Device::getProductId, productId)
-                    .eq(Device::getDeviceGroupId, deviceGroupIds[0]))
-                    .stream().map(device -> new IVOption(device.getName(), device.getUid())).collect(Collectors.toList());
-        } else {
-            data.add(new IVOption("所有设备", "-1"));
+                    .eq(Device::getDeviceGroupId, deviceGroupIds[0])).getData();
         }
 
+        data.add(0, new Device().setUid("-1").setName("所有设备"));
         return success(data);
     }
 
@@ -228,11 +227,7 @@ public class LinkageController extends BaseController {
 
         LinkageDto linkageDto = this.linkageService.joinProductById(id)
                 .ifNotPresentThrow("场景不存在").getData();
-        if(CollectionUtil.isNotEmpty(linkageDto.getProductIds())) {
-            return productService.listByIds(linkageDto.getProductIds());
-        } else {
-            return success(Collections.EMPTY_LIST);
-        }
+        return this.eventSourceService.listProductById(linkageDto.getEventSourceId(), null);
     }
 
     /**
@@ -247,6 +242,10 @@ public class LinkageController extends BaseController {
         }
 
         List<IVOption> result = new ArrayList<>();
+        result.add(new IVOption("设备状态", ConditionType.DeviceStatus, "")
+                .addChildren(new IVOption("设备上线", DeviceStatus.online, "").addConfig("type", ConditionType.DeviceStatus))
+                .addChildren("设备离线", DeviceStatus.offline, "状态").addConfig("type", ConditionType.DeviceStatus));
+
         this.productService.joinDetailById(productId).ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
                     IVOption eventApi = new IVOption("事件接口", ConditionType.ModelApi, "物模型").setSelectable(false);
