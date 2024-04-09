@@ -1,8 +1,10 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -31,12 +33,8 @@ public class LinkageItem extends BaseEntity {
     /**
      * 操作的设备组
      */
-    private Long deviceGroupId;
-
-    /**
-     * 操作的父设备组
-     */
-    private Long parentDeviceGroupId;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray deviceGroupIds;
 
     /**
      * 场景执行动作
@@ -50,11 +48,4 @@ public class LinkageItem extends BaseEntity {
     @TableField(exist = false)
     private List<LinkageCondition> conditions;
 
-    /**
-     * 获取设备组信息
-     * @return
-     */
-    public Long[] getDeviceGroup() {
-        return new Long[] {this.getParentDeviceGroupId(), this.getDeviceGroupId()};
-    }
 }
