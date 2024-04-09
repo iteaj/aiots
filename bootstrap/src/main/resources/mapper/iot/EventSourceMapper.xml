@@ -79,9 +79,7 @@
 
     <select id="listProductById" resultType="com.iteaj.iboot.module.iot.entity.Product">
         select p.* from iot_event_source a
-            inner join iot_device_group dg on a.device_group_id = dg.id
-            left join iot_device_group pdg on pdg.id = dg.group_product_id
-            left join iot_product p on json_contains(pdg.product_ids, concat('', p.id))
+            left join iot_product p on json_contains(a.product_ids, concat('', p.id))
         where a.id=#{id} <if test="status != null">and p.status = #{status}</if>
     </select>
     <select id="listDeviceGroupById" resultType="com.iteaj.iboot.module.iot.entity.DeviceGroup">
