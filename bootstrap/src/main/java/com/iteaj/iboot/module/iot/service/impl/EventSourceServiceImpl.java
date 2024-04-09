@@ -126,7 +126,7 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
     public DetailResult<EventSourceDto> collectDetailById(Long id) {
         EventSourceDto eventSourceDto = this.getBaseMapper().collectDetailById(id);
         if(eventSourceDto != null) {
-            List<DeviceGroup> groups = this.getBaseMapper().listGroupById(id);
+            List<DeviceGroup> groups = this.getBaseMapper().listDeviceGroupById(id);
             eventSourceDto.setGroups(groups);
         }
 
@@ -136,5 +136,11 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
     @Override
     public ListResult<Product> listProductById(Long id, FuncStatus status) {
         return new ListResult<>(this.getBaseMapper().listProductById(id, status));
+    }
+
+    @Override
+    public ListResult<DeviceGroup> listDeviceGroupById(Long id) {
+        List<DeviceGroup> list = this.getBaseMapper().listDeviceGroupById(id);
+        return new ListResult<>(list);
     }
 }

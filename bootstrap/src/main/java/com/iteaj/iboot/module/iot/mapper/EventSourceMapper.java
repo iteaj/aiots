@@ -32,7 +32,7 @@ public interface EventSourceMapper extends BaseMapper<EventSource> {
 
     EventSourceDto collectDetailById(Long id);
 
-    List<DeviceGroup> listGroupById(Long id);
-
     List<Product> listProductById(Long id, FuncStatus status);
+
+    List<DeviceGroup> listDeviceGroupById(Long id);
 }
