@@ -3,7 +3,6 @@ package com.iteaj.iboot.module.iot.controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -12,7 +11,7 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.consts.*;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
@@ -242,43 +241,57 @@ public class LinkageController extends BaseController {
         }
 
         List<IVOption> result = new ArrayList<>();
-        result.add(new IVOption("设备状态", ConditionType.DeviceStatus, "")
-                .addChildren(new IVOption("设备上线", DeviceStatus.online, "").addConfig("type", ConditionType.DeviceStatus))
-                .addChildren("设备离线", DeviceStatus.offline, "状态").addConfig("type", ConditionType.DeviceStatus));
+        result.add(new IVOption("设备状态", ConditionType.DeviceStatus, "").setSelectable(false)
+                .addChildren(new IVOption("设备上线", DeviceStatus.online, "")
+                        .addConfig("type", ConditionType.DeviceStatus).addConfig("attrType", DeviceStatus.online))
+                .addChildren(new IVOption("设备离线", DeviceStatus.offline, "")
+                        .addConfig("type", ConditionType.DeviceStatus).addConfig("attrType", DeviceStatus.offline)));
 
         this.productService.joinDetailById(productId).ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
-                    IVOption eventApi = new IVOption("事件接口", ConditionType.ModelApi, "物模型").setSelectable(false);
-                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
-                        productDto.getEventApis().stream().forEach(item -> {
-                            IVOption children = new IVOption(item.getName(), item.getId(), ProtocolApiType.event.getDesc());
-                            List<ModelApiConfig> upConfig = item.getUpConfig();
-                            if(CollectionUtil.isNotEmpty(upConfig)) {
-                                upConfig.forEach(config -> {
-                                    // 点位控制协议使用接口码
-                                    if(productDto.getCtrlMode() == CtrlMode.POINT) {
-                                        children.addChildren(new IVOption(config.getAttrName(), item.getCode(), "属性")
-                                                .addConfig("type", ConditionType.ModelApi)
-                                                .addConfig("code", item.getCode())
-                                                .addConfig("attrType", config.getAttrType())
-                                                .addConfig("linkedName", item.getName())
-                                                .addConfig("linkedId", item.getId()));
-                                    } else {
-                                        children.addChildren(new IVOption(config.getAttrName(), config.getAttrField(), "属性")
-                                                .addConfig("type", ConditionType.ModelApi)
-                                                .addConfig("code", item.getCode())
-                                                .addConfig("attrType", config.getAttrType())
-                                                .addConfig("linkedName", item.getName())
-                                                .addConfig("linkedId", item.getId()));
-                                    }
-                                });
-                                children.setSelectable(false);
+                    IVOption attrOption = new IVOption("模型属性", ConditionType.ModelApi, "物模型").setSelectable(false);
+                    if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
+                        productDto.getAttrs().forEach(attr -> {
+                            if(attr.getAttrType() == AttrType.R || attr.getAttrType() == AttrType.RW) {
+                                attrOption.addChildren(new IVOption(attr.getName(), attr.getId(), "")
+                                        .addConfig("type", ConditionType.ModelApi)
+                                        .addConfig("attrType", attr.getDataType()));
                             }
-
-                            eventApi.addChildren(children);
                         });
                     }
-                    result.add(eventApi);
+
+                    result.add(attrOption);
+//                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+//
+//                        productDto.getEventApis().stream().forEach(item -> {
+//                            IVOption children = new IVOption(item.getName(), item.getId(), ProtocolApiType.event.getDesc());
+//                            List<ModelApiConfig> upConfig = item.getUpConfig();
+//                            if(CollectionUtil.isNotEmpty(upConfig)) {
+//                                upConfig.forEach(config -> {
+//                                    // 点位控制协议使用接口码
+//                                    if(productDto.getCtrlMode() == CtrlMode.POINT) {
+//                                        children.addChildren(new IVOption(config.getAttrName(), item.getCode(), "属性")
+//                                                .addConfig("type", ConditionType.ModelApi)
+//                                                .addConfig("code", item.getCode())
+//                                                .addConfig("attrType", config.getAttrType())
+//                                                .addConfig("linkedName", item.getName())
+//                                                .addConfig("linkedId", item.getId()));
+//                                    } else {
+//                                        children.addChildren(new IVOption(config.getAttrName(), config.getAttrField(), "属性")
+//                                                .addConfig("type", ConditionType.ModelApi)
+//                                                .addConfig("code", item.getCode())
+//                                                .addConfig("attrType", config.getAttrType())
+//                                                .addConfig("linkedName", item.getName())
+//                                                .addConfig("linkedId", item.getId()));
+//                                    }
+//                                });
+//                                children.setSelectable(false);
+//                            }
+//
+//                            eventApi.addChildren(children);
+//                        });
+//                    }
+//                    result.add(eventApi);
                 });
         return success(result);
     }

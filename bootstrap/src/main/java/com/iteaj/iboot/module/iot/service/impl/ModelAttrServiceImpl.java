@@ -77,13 +77,13 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
     }
 
     private void resolveField(ModelAttr entity) {
-        if(entity.getType() == null) {
+        if(entity.getDataType() == null) {
             throw new ServiceException("类型必填");
         }
-        entity.setRealType(entity.getType());
-        if(entity.getType().startsWith("[")) {
+        entity.setRealType(entity.getDataType());
+        if(entity.getDataType().startsWith("[")) {
             entity.setEnumerate(true); // 属于枚举类型
-            String realType = entity.getType().substring(1, entity.getType().length() - 1); // 真实类型
+            String realType = entity.getDataType().substring(1, entity.getDataType().length() - 1); // 真实类型
             entity.setRealType(realType);
         }
     }

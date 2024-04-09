@@ -24,7 +24,6 @@ import com.iteaj.iboot.module.iot.consts.AttrOrigin;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
 import com.iteaj.iboot.module.iot.entity.*;
@@ -244,7 +243,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                                 .setName(attr.getName())
                                 .setField(attr.getField())
                                 .setRemark(attr.getRemark())
-                                .setType(attr.getType().getValue())
+                                .setDataType(attr.getType().getValue())
                                 .setRealType(attr.getType().getValue())
                                 .setEnumerate(false)
                                 .setOrigin(AttrOrigin.Protocol))
