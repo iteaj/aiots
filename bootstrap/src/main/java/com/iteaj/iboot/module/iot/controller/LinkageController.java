@@ -147,6 +147,7 @@ public class LinkageController extends BaseController {
     @Logger("删除场景联动项")
     @CheckPermission({"iot:linkage:switch"})
     public Result<Boolean> switchStatus(@PathVariable FuncStatus status, @RequestBody Linkage entity) {
+//        this.linkageService.switchStatus()
         return success();
     }
 
