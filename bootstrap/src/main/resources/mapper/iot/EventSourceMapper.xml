@@ -23,7 +23,8 @@
     </resultMap>
     <resultMap id="DetailCollectResultMap" type="com.iteaj.iboot.module.iot.dto.EventSourceDto" extends="BaseResultMap">
         <collection property="apis" resultMap="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.DetailResultMap"
-                    columnPrefix="ma_" foreignColumn="event_source_id"/>
+                    columnPrefix="ma_" foreignColumn="id"/>
+        <collection property="groups" resultMap="com.iteaj.iboot.module.iot.mapper.DeviceGroupMapper.BaseResultMap" columnPrefix="dg_" />
     </resultMap>
     <delete id="removeAllByIds">
         delete f,b,c,d,e from iot_event_source f
@@ -69,11 +70,12 @@
     </select>
 
     <select id="collectDetailById" resultMap="DetailCollectResultMap">
-        select a.*, esd.event_source_id ma_event_source_id, ma.id ma_id, ma.type ma_type, ma.code ma_code, ma.direct ma_direct, ma.product_id ma_product_id
+        select a.*, ma.id ma_id, ma.type ma_type, ma.code ma_code, ma.direct ma_direct, ma.product_id ma_product_id
              , ma.name ma_name, ma.status ma_status, ma.func_type ma_func_type, ma.trigger_mode ma_trigger_mode
+             , dg.id dg_id, dg.name dg_name, dg.pid dg_pid
         from iot_event_source a
-            left join iot_event_source_detail esd on a.id= esd.event_source_id
-            left join iot_model_api ma on ma.id = esd.model_api_id and ma.func_type='read' and ma.trigger_mode='passive'
+            left join iot_device_group dg on json_contains(a.device_group_ids, concat('', dg.id))
+            left join iot_model_api ma on ma.func_type='R' and ma.trigger_mode='passive' and json_contains(a.product_ids, concat('', ma.product_id))
         where a.id=#{id}
     </select>
 
