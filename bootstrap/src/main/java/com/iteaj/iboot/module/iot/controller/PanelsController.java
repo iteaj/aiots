@@ -72,7 +72,7 @@ public class PanelsController extends BaseController {
         deviceService.detailById(deviceId)
                 .ifNotPresentThrow("设备不存在").of().ifPresent(item -> {
             debugDto.setDevice(item);
-            productService.debugById(item.getProductId())
+            productService.joinDetailById(item.getProductId())
                     .ifNotPresentThrow("此设备数据不完整["+item.getName()+"]")
                     .ifPresent(productDto -> {
                         debugDto.setProduct(productDto);

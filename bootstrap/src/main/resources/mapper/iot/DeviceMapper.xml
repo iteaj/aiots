@@ -67,7 +67,7 @@
                 and a.name like '%${entity.name}%'
             </if>
         </where>
-        order by a.create_time desc
+        order by a.status, a.create_time desc
     </select>
 
     <select id="countCurrentDevice" resultType="com.iteaj.iboot.module.iot.dto.CurrentDeviceDto">
