@@ -19,19 +19,19 @@
     </resultMap>
 
     <select id="listByApiCode" resultMap="BaseResultMap">
-        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark from iot_protocol_api_config a
+        select a.*, pa.name attrName, pa.data_type attrType, pa.remark attrRemark from iot_protocol_api_config a
             left join iot_protocol_attr pa on a.protocol_attr_field=pa.field and a.protocol_api_code=#{protocolApiCode}
         where protocol_api_code=#{protocolApiCode} and a.direction=#{direction} order by sort
     </select>
 
     <select id="listUpByApiCode" resultMap="BaseResultMap">
-        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark from iot_protocol_api_config a
+        select a.*, pa.name attrName, pa.data_type attrType, pa.remark attrRemark from iot_protocol_api_config a
             left join iot_protocol_attr pa on a.protocol_attr_field=pa.field and a.protocol_api_code=#{protocolApiCode}
         where protocol_api_code=#{protocolApiCode} and a.direction='UP' order by sort
     </select>
 
     <select id="listDownByApiCode" resultMap="BaseResultMap">
-        select a.*, pa.name attrName, pa.type attrType, pa.remark attrRemark from iot_protocol_api_config a
+        select a.*, pa.name attrName, pa.data_type attrType, pa.remark attrRemark from iot_protocol_api_config a
             left join iot_protocol_attr pa on a.protocol_attr_field=pa.field and a.protocol_api_code=#{protocolApiCode}
         where protocol_api_code=#{protocolApiCode} and a.direction='DOWN' order by sort
     </select>

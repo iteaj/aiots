@@ -63,7 +63,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
 
     private void resolverModelApiConfig(ModelApi entity, ModelApiConfig config) {
         config.setApiCode(entity.getCode());
-        if(StrUtil.isBlank(config.getAttrType())) {
+        if(StrUtil.isBlank(config.getDataType())) {
             throw new ServiceException("属性类型[attrType]不能为空");
         }
 

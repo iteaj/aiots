@@ -131,7 +131,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         ProtocolToProductModel productModel = protocolToProductModel(entity.getProtocolId());
         // 批量保存物模型属性
         if(!CollectionUtils.isEmpty(productModel.getAttrs())) {
-            productModel.getAttrs().forEach(item -> item.setProductId(entity.getId()).setAttrType(AttrType.R));
+            productModel.getAttrs().forEach(item -> item.setProductId(entity.getId()));
             modelAttrService.saveBatch(productModel.getAttrs());
         }
 
@@ -243,8 +243,9 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                                 .setName(attr.getName())
                                 .setField(attr.getField())
                                 .setRemark(attr.getRemark())
-                                .setDataType(attr.getType().getValue())
-                                .setRealType(attr.getType().getValue())
+                                .setDataType(attr.getDataType().getValue())
+                                .setRealType(attr.getDataType().getValue())
+                                .setAttrType(attr.getAttrType())
                                 .setEnumerate(false)
                                 .setOrigin(AttrOrigin.Protocol))
                         .collect(Collectors.toList());

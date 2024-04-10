@@ -21,7 +21,7 @@ public class ProtocolModelAttr {
     /**
      * 属性类型
      */
-    private DataType type;
+    private DataType dataType;
 
     /**
      * 读写方式
@@ -39,7 +39,7 @@ public class ProtocolModelAttr {
 
     public ProtocolModelAttr(String field, String name, DataType type, AttrType attrType, String remark) {
         this.name = name;
-        this.type = type;
+        this.dataType = type;
         this.field = field;
         this.remark = remark;
         this.attrType = attrType;
@@ -61,12 +61,12 @@ public class ProtocolModelAttr {
         this.name = name;
     }
 
-    public DataType getType() {
-        return type;
+    public DataType getDataType() {
+        return dataType;
     }
 
-    public void setType(DataType type) {
-        this.type = type;
+    public void setDataType(DataType dataType) {
+        this.dataType = dataType;
     }
 
     public String getRemark() {

@@ -71,7 +71,7 @@ public class ProtocolApiConfig extends BaseEntity {
      * 属性类型
      */
     @TableField(exist = false)
-    private String attrType;
+    private String dataType;
 
     /**
      * 属性说明

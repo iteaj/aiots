@@ -1,11 +1,9 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.spi.iot.DataSupplier;
-import com.iteaj.framework.spi.iot.InvokeStatusException;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
@@ -56,18 +54,20 @@ public class CollectGroupTask implements Runnable{
                                         , result.getReason(), source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                             }
 
-                            ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
-                                CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
+                            if(api.getFuncType() != FuncType.W) { // 单纯写的功能没有采集数据
+                                ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
+                                    CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
 
-                                CollectListenerManager.getInstance().modelForEach(item -> {
-                                    try {
-                                        item.supplier(source, group, deviceInfo);
-                                    } catch (Exception e) {
-                                        logger.error("采集事件实时发布异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
-                                    }
+                                    CollectListenerManager.getInstance().modelForEach(item -> {
+                                        try {
+                                            item.supplier(source, group, deviceInfo);
+                                        } catch (Exception e) {
+                                            logger.error("采集事件实时发布异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                                                    , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                                        }
+                                    });
                                 });
-                            });
+                            }
                         });
                     }
                 } catch (ProtocolInvokeException e) {

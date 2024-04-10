@@ -5,8 +5,9 @@ package com.iteaj.framework.spi.iot.consts;
  */
 public enum FuncType {
 
-    read("读"),
-    write("写")
+    R("读"),
+    W("写"),
+    RW("读写"),
     ;
 
     private String desc;
