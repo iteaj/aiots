@@ -34,12 +34,6 @@ public interface ProductMapper extends BaseMapper<Product> {
     ProductDto joinDetailById(Long productId);
 
     /**
-     * 获取调试用的产品详情
-     * @return
-     */
-    ProductDto debugById(Long productId);
-
-    /**
      * 获取点位协议的产品列表
      * @return
      */
