@@ -33,11 +33,11 @@ public abstract class AbstractFuncProtocolModelApi extends AbstractProtocolModel
     }
 
     public AbstractFuncProtocolModelApi buildRead() {
-        return this.setFuncType(FuncType.read);
+        return this.setFuncType(FuncType.R);
     }
 
     public AbstractFuncProtocolModelApi buildWrite() {
-        return this.setFuncType(FuncType.write);
+        return this.setFuncType(FuncType.W);
     }
 
     public FuncType getFuncType() {

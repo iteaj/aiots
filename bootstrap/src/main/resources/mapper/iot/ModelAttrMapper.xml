@@ -8,7 +8,7 @@
         <result column="product_id" property="productId" />
         <result column="field" property="field" />
         <result column="name" property="name" />
-        <result column="type" property="type" />
+        <result column="data_type" property="dataType" />
         <result column="unit" property="unit" />
         <result column="enumerate" property="enumerate" />
         <result column="attr_type" property="attrType" />

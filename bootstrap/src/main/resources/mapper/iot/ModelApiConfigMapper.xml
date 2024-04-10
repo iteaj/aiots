@@ -10,13 +10,13 @@
         <result column="remark" property="remark" />
         <result column="api_code" property="apiCode" />
         <result column="attr_field" property="attrField" />
-        <result column="attr_type" property="attrType" />
+        <result column="data_type" property="dataType" />
         <result column="func_type" property="funcType" />
         <result column="attr_name" property="attrName" />
         <result column="field_type" property="fieldType" />
         <result column="product_id" property="productId" />
         <result column="model_attr_id" property="modelAttrId" />
-        <result column="protocol_attr_type" property="protocolAttrType" />
+        <result column="protocol_data_type" property="protocolDataType" />
         <result column="protocol_attr_name" property="protocolAttrName" />
         <result column="protocol_attr_field" property="protocolAttrField" />
         <result column="direction" property="direction" />

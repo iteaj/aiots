@@ -36,9 +36,9 @@ public class ProtocolAttr extends BaseEntity {
     private String name;
 
     /**
-     * 属性类型
+     * 数据类型
      */
-    private String type;
+    private String dataType;
 
     /**
      * 属性说明

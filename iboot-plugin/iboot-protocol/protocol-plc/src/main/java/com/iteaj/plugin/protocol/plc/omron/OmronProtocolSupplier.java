@@ -65,10 +65,7 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
         if(protocol instanceof OmronTcpProtocol) {
             ExecStatus execStatus = ((OmronTcpProtocol) protocol).getExecStatus();
             WriteAddress writeAddress = ((OmronTcpProtocol) protocol).getWriteAddress();
-            if(writeAddress != null) {
-                String field = param.getConfig(PointProtocolConfig.POINT_FIELD_KEY + writeAddress.getAddress());
-                dataSupplier.addValue(writeAddress.getAddress(), field, execStatus == ExecStatus.success);
-            } else {
+            if(writeAddress == null) {
                 ReadAddress readAddress = ((OmronTcpProtocol) protocol).getBatchAddress().get(0);
                 String field = param.getConfig(PointProtocolConfig.POINT_FIELD_KEY + readAddress.getAddress());
                 if(execStatus == ExecStatus.success) {

@@ -105,7 +105,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     }
 
     public void push(String deviceUid, ModelApi api, InvokeResult result) {
-        if(api.getFuncType() == FuncType.read) { // 读指令才需要更新数据
+        if(api.getFuncType() == FuncType.R) { // 读指令才需要更新数据
             ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(supplier -> {
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
                     Map<String, SignalOrFieldValue> valueMap = supplier.getValues().stream()

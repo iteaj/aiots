@@ -53,10 +53,10 @@ public class ModelAttr extends BaseEntity {
     private String name;
 
     /**
-     * 属性类型
+     * 数据类型
      */
-    @NotBlank(message = "属性类型必填")
-    private String type;
+    @NotBlank(message = "数据类型必填")
+    private String dataType;
 
     /**
      * 实际类型

@@ -57,7 +57,7 @@ public class ModelApiConfig extends BaseEntity {
      * 属性类型
      */
     @NotBlank(message = "属性类型必填")
-    private String attrType;
+    private String dataType;
 
     /**
      * 所属产品
@@ -90,7 +90,7 @@ public class ModelApiConfig extends BaseEntity {
      * 协议属性类型
      */
     @NotBlank(message = "协议属性类型必填")
-    private String protocolAttrType;
+    private String protocolDataType;
 
     /**
      * 协议属性字段

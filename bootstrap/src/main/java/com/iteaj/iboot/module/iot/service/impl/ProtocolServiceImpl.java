@@ -180,7 +180,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                             .setName(attr.getName())
                             .setField(attr.getField())
                             .setRemark(attr.getRemark())
-                            .setType(attr.getType().getValue()))
+                            .setDataType(attr.getDataType().getValue()))
                     .collect(Collectors.toList());
             protocolDto.setAttrs(attrs);
 
@@ -208,7 +208,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                 .setFieldType(config.getFieldType())
                 .setProtocolApiCode(protocolApi.getCode())
                 .setAttrName(attr != null ? attr.getName() : null)
-                .setAttrType(attr != null ? attr.getType().getValue() : null)
+                .setDataType(attr != null ? attr.getDataType().getValue() : null)
                 .setAttrRemark(attr != null ? attr.getRemark() : null)
                 .setProtocolAttrField(config.getProtocolModelAttrField())
                 .setRemark(StrUtil.isBlank(config.getRemark()) ? attr.getRemark() : config.getRemark());
