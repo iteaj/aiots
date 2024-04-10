@@ -300,7 +300,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
     @Override
     public DetailResult<ProductDto> debugById(Long productId) {
-        ProductDto productDto = getBaseMapper().debugById(productId);
+        ProductDto productDto = getBaseMapper().joinDetailById(productId);
         if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
             List<ModelApi> funcApis = productDto.getFuncApis().stream()
                     .filter(item -> Boolean.TRUE.equals(item.getDebug()))

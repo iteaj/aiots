@@ -29,14 +29,6 @@
         <result property="gatewayStatus" column="gateway_status" />
         <result property="transportProtocol" column="transport_protocol" />
     </resultMap>
-    <resultMap id="DebugMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
-        <collection property="funcApis" column="{productId=id}" ofType="ModelApi"
-                    select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listFuncByProductId" />
-        <collection property="eventApis" column="{productId=id}" ofType="ModelApi"
-                    select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listEventByProductId" />
-        <collection property="attrs" column="{productId=id}" ofType="ModelAttr"
-                    select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listByProductId" />
-    </resultMap>
     <resultMap id="JoinDetailMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
         <collection property="funcApis" column="{productId=id}" ofType="ModelApi"
                     select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.listFuncByProductId" />
@@ -122,13 +114,8 @@
             </if>
         </where>
     </select>
-    <select id="joinDetailById" resultMap="JoinDetailMap">
-        select a.*, ip.ctrl_mode from iot_product a
-            left join iot_protocol ip on ip.id = a.protocol_id
-        where a.id=#{productId}
-    </select>
 
-    <select id="debugById" resultMap="DebugMap">
+    <select id="joinDetailById" resultMap="JoinDetailMap">
         select a.*, ig.id gateway_id, ig.name gateway_name, ip.ctrl_mode, ip.name protocol_name, ip.code protocol_code, ig.status gateway_status from iot_product a
             left join iot_gateway ig on a.gateway_id=ig.id
             left join iot_protocol ip on ip.id = a.protocol_id
