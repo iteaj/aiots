@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 public class DahuaICCProtocolModelApi extends AbstractFuncProtocolModelApi {
 
     public DahuaICCProtocolModelApi(String code, String name, String remark) {
-        super(code, name, FuncType.write, TriggerMode.passive, remark);
+        super(code, name, FuncType.W, TriggerMode.passive, remark);
     }
 
     @Override
