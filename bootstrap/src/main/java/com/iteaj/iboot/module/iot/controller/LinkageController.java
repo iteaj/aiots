@@ -15,6 +15,7 @@ import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.consts.*;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
+import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.service.*;
 import org.springframework.util.CollectionUtils;
@@ -139,16 +140,14 @@ public class LinkageController extends BaseController {
 
     /**
      * 更新场景联动状态
-     * @param status
      * @param entity
      * @return
      */
-    @PostMapping("/switch/{status}")
+    @PostMapping("/switch")
     @Logger("删除场景联动项")
     @CheckPermission({"iot:linkage:switch"})
-    public Result<Boolean> switchStatus(@PathVariable FuncStatus status, @RequestBody Linkage entity) {
-//        this.linkageService.switchStatus()
-        return success();
+    public Result<Boolean> switchStatus(@RequestBody StatusSwitchDto<FuncStatus> entity) {
+        return this.linkageService.switchStatus(entity.getId(), entity.getStatus());
     }
 
     /**
@@ -250,13 +249,15 @@ public class LinkageController extends BaseController {
 
         this.productService.joinDetailById(productId).ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
-                    IVOption attrOption = new IVOption("模型属性", ConditionType.ModelApi, "物模型").setSelectable(false);
+                    IVOption attrOption = new IVOption("模型属性", ConditionType.Model, "物模型").setSelectable(false);
                     if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
                         productDto.getAttrs().forEach(attr -> {
                             if(attr.getAttrType() == AttrType.R || attr.getAttrType() == AttrType.RW) {
                                 attrOption.addChildren(new IVOption(attr.getName(), attr.getId(), "")
-                                        .addConfig("type", ConditionType.ModelApi)
-                                        .addConfig("attrType", attr.getDataType()));
+                                        .addConfig("type", ConditionType.Model)
+                                        .addConfig("attrType", attr.getDataType())
+                                        .addConfig("linkedId", attr.getId())
+                                        .addConfig("linkedName", attr.getName()));
                             }
                         });
                     }

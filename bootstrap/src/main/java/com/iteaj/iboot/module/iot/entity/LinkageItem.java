@@ -48,4 +48,8 @@ public class LinkageItem extends BaseEntity {
     @TableField(exist = false)
     private List<LinkageCondition> conditions;
 
+    public boolean equals(Object obj) {
+        LinkageItem item = (LinkageItem) obj;
+        return this.getId().equals(item.getId());
+    }
 }

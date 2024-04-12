@@ -27,4 +27,10 @@ public interface LinkageMapper extends BaseMapper<Linkage> {
     int removeAllByIds(List<Long> idList);
 
     LinkageItem detailItemById(Long id);
+
+    /**
+     * 移除和这个项id关联的所有记录(不包含项本身)
+     * @param itemId
+     */
+    void removeJoinByItemId(Long itemId);
 }

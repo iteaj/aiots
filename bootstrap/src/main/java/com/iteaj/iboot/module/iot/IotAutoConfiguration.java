@@ -17,6 +17,10 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeDataCacheListener;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
+import com.iteaj.iboot.module.iot.linkage.ConditionCalc;
+import com.iteaj.iboot.module.iot.linkage.ConditionalsManager;
+import com.iteaj.iboot.module.iot.linkage.LinkageCacheService;
+import com.iteaj.iboot.module.iot.linkage.LocalLinkageCacheService;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,5 +134,19 @@ public class IotAutoConfiguration {
     @Bean
     public RealtimePushListener collectDataRealtimeListener(RealtimeDataService realtimeDataService) {
         return new RealtimePushListener(realtimeDataService);
+    }
+
+    /**
+     * 本地实现的联动项缓存服务
+     * @return
+     */
+    @Bean
+    public LinkageCacheService localLinkageCacheService() {
+        return new LocalLinkageCacheService();
+    }
+
+    @Bean
+    public ConditionalsManager conditionalsManager(@Autowired(required = false) List<ConditionCalc> calcs) {
+        return ConditionalsManager.build(calcs);
     }
 }

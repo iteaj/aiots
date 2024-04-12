@@ -12,6 +12,7 @@ public enum OperatorType {
     eq("等于"), // =
     lt("小于"), // <
     lte("小于等于"), // <=
+    neq("不等于"), // <=
     contain("包含"), // 包含
     between("在...之间"), // 在...之间
     ;

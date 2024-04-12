@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
@@ -9,6 +10,7 @@ import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.entity.LinkageCondition;
 import com.iteaj.iboot.module.iot.entity.LinkageItem;
+import com.iteaj.iboot.module.iot.linkage.LinkageCacheService;
 import com.iteaj.iboot.module.iot.mapper.LinkageItemMapper;
 import com.iteaj.iboot.module.iot.mapper.LinkageMapper;
 import com.iteaj.iboot.module.iot.service.ILinkageActionService;
@@ -33,13 +35,15 @@ import java.util.List;
 public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> implements ILinkageService {
 
     private final LinkageItemMapper linkageItemMapper;
+    private final LinkageCacheService linkageCacheService;
     private final ILinkageActionService linkageActionService;
     private final ILinkageConditionService linkageConditionService;
 
     public LinkageServiceImpl(ILinkageActionService linkageActionService
-            , LinkageItemMapper linkageItemMapper, ILinkageConditionService linkageConditionService) {
+            , LinkageItemMapper linkageItemMapper, LinkageCacheService linkageCacheService, ILinkageConditionService linkageConditionService) {
         this.linkageActionService = linkageActionService;
         this.linkageItemMapper = linkageItemMapper;
+        this.linkageCacheService = linkageCacheService;
         this.linkageConditionService = linkageConditionService;
     }
 
@@ -118,10 +122,12 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
         }
 
         if(item.getId() != null) { // 如果是更新则移除原来的所有记录
-            this.removeByItemIds(Arrays.asList(item.getId()));
+            this.getBaseMapper().removeJoinByItemId(item.getId());
+            this.linkageItemMapper.updateById(item);
+        } else {
+            linkageItemMapper.insert(item);
         }
 
-        int insert = linkageItemMapper.insert(item);
         item.getActions().forEach(action -> action.setLinkageId(item.getLinkageId()).setLinkageItemId(item.getId()));
 
         linkageActionService.saveBatch(item.getActions());
@@ -131,7 +137,7 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
             linkageConditionService.save(condition);
         }
 
-        return new BooleanResult(insert > 0);
+        return BooleanResult.buildTrue("更新成功");
     }
 
     @Override
@@ -152,5 +158,31 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
     @Override
     public DetailResult<LinkageItem> detailItemById(Long id) {
         return new DetailResult<>(this.getBaseMapper().detailItemById(id));
+    }
+
+    @Override
+    public BooleanResult switchStatus(Long id, FuncStatus status) {
+        if(id == null) {
+            return BooleanResult.buildFalse("未指定要操作的id");
+        }
+        if(status == null) {
+            return BooleanResult.buildFalse("未指定要切换的状态");
+        }
+
+        this.detailById(id).ifNotPresentThrow("不存在事件联动").ifPresent(linkageDto -> {
+            if(status == FuncStatus.enabled) {
+                if(CollectionUtil.isNotEmpty(linkageDto.getItems())) {
+                    linkageDto.getItems().forEach(item -> {
+//                        linkageCacheService.register(item);
+                    });
+                } else {
+                    throw new ServiceException("没有配置联动项");
+                }
+            } else {
+                linkageCacheService.removeLinkageItemsByLinkageId(id);
+            }
+        });
+
+        return this.update(Wrappers.<Linkage>lambdaUpdate().set(Linkage::getStatus, status).eq(Linkage::getId, id));
     }
 }

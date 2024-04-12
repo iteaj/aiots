@@ -1,11 +1,14 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.iboot.module.iot.consts.ConditionType;
 import com.iteaj.iboot.module.iot.consts.LinkageLogical;
 import com.iteaj.iboot.module.iot.consts.OperatorType;
+import com.iteaj.iboot.module.iot.linkage.ConditionCalc;
+import com.iteaj.iboot.module.iot.linkage.ConditionalsManager;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -39,7 +42,7 @@ public class LinkageConditionItem extends BaseEntity {
     private LinkageLogical logical;
 
     /**
-     * 操作设备(-1表示所有设备)
+     * 操作设备(-1表示组所有设备)
      */
     private String uid;
 
@@ -78,7 +81,7 @@ public class LinkageConditionItem extends BaseEntity {
     /**
      * 运算符
      */
-    private OperatorType operator;
+    private String operator;
 
     /**
      * 所属产品
@@ -128,8 +131,19 @@ public class LinkageConditionItem extends BaseEntity {
         return logical != null ? logical.getDesc() : "";
     }
 
+    /**
+     * 运算符名称
+     * @return
+     */
     public String getOperatorName() {
-        return operator != null ? operator.getDesc() : "";
+        if(StrUtil.isNotBlank(this.getOperator())) {
+            ConditionCalc conditionCalc = ConditionalsManager.get(this.getOperator());
+            if(conditionCalc != null) {
+                return conditionCalc.getName();
+            }
+        }
+
+        return getOperator();
     }
 
     public String[] getMergeValue() {

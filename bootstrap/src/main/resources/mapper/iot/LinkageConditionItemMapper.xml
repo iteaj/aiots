@@ -13,7 +13,7 @@
         <result column="operator" property="operator" />
         <result column="product_id" property="productId" />
         <result column="product_name" property="productName" />
-        <result column="product_code" property="productCode" />
+        <result column="product_id" property="productCode" />
         <result column="protocol_code" property="protocolCode" />
         <result column="device_name" property="deviceName" />
         <result column="linked_id" property="linkedId" />

@@ -57,6 +57,13 @@
         </foreach>);
 
     </delete>
+    <delete id="removeJoinByItemId">
+        delete b,c,e from iot_linkage_item a
+            inner join iot_linkage_condition b on a.id=b.linkage_item_id
+            inner join iot_linkage_action c on a.id=c.linkage_item_id
+            inner join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where a.id = #{itemId}
+    </delete>
 
     <select id="listItemById" resultMap="ItemResultMap">
         select * from iot_linkage_item where linkage_id=#{linkageId}
