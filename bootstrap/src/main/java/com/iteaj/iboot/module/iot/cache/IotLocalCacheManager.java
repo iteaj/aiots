@@ -14,6 +14,7 @@ public class IotLocalCacheManager implements IotCacheManager {
 
     private Map<String, Set<RealtimeStatus>> productMaps = new ConcurrentHashMap<>(50);
     private Map<Long, Set<RealtimeStatus>> groupMaps = new ConcurrentHashMap<>(50);
+    // protocolCode -> deviceKey
     private Map<String, Map<String, RealtimeStatus>> realtimeMap = new ConcurrentHashMap(500);
 
     @Override
@@ -190,6 +191,12 @@ public class IotLocalCacheManager implements IotCacheManager {
     @Override
     public RealtimeStatus updateStatus(String protocolCode, String deviceSn, String parentDeviceSn, DeviceStatus status) {
         return this.updateStatus(protocolCode, DeviceKey.build(deviceSn, parentDeviceSn), status);
+    }
+
+    @Override
+    public RealtimeStatus getByUid(Long deviceGroupId, String uid) {
+        Set<RealtimeStatus> statuses = this.listByGroupId(deviceGroupId);
+        return statuses.stream().filter(item -> item.getUid().equals(uid)).findFirst().orElse(null);
     }
 
     @Override
