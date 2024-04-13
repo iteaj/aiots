@@ -228,7 +228,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
         if(device.getType() == DeviceType.Gateway && device.getStatus() == DeviceStatus.offline) {
             Map<String, RealtimeStatus> childDeviceStatus = this.listChildDeviceStatusFromCache(device.getProtocolCode(), device.getDeviceSn());
             if(CollectionUtil.isNotEmpty(childDeviceStatus)) {
-                List<Long> uidList = childDeviceStatus.values().stream()
+                List<String> uidList = childDeviceStatus.values().stream()
                         .map(item -> item.getUid()).collect(Collectors.toList());
                 this.update(Wrappers.<Device>lambdaUpdate()
                         .set(Device::getSwitchTime, switchTime)
