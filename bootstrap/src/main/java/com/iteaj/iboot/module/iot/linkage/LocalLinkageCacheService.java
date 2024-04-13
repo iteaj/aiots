@@ -104,7 +104,8 @@ public class LocalLinkageCacheService implements LinkageCacheService, Applicatio
 
     @Override
     public Set<LinkageItem> listLinkageItem(String productCode, String signalOrField) {
-        return productFieldMap.get(productCode + "->" + signalOrField);
+        Set<LinkageItem> linkageItems = productFieldMap.get(productCode + "->" + signalOrField);
+        return linkageItems != null ? linkageItems : Collections.emptySet();
     }
 
     @Override

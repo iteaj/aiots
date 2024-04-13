@@ -62,4 +62,12 @@ public class Linkage extends BaseEntity {
      */
     @TableField(exist = false)
     private List<LinkageItem> items;
+
+    public String getStatusName() {
+        return this.getStatus() != null ? this.status.getDesc() : null;
+    }
+
+    public String getEventSourceStatusName() {
+        return this.getEventSourceStatus() != null ? this.eventSourceStatus.getDesc() : null;
+    }
 }

@@ -17,10 +17,7 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeDataCacheListener;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
-import com.iteaj.iboot.module.iot.linkage.ConditionCalc;
-import com.iteaj.iboot.module.iot.linkage.ConditionalsManager;
-import com.iteaj.iboot.module.iot.linkage.LinkageCacheService;
-import com.iteaj.iboot.module.iot.linkage.LocalLinkageCacheService;
+import com.iteaj.iboot.module.iot.linkage.*;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,6 +142,24 @@ public class IotAutoConfiguration {
         return new LocalLinkageCacheService();
     }
 
+    /**
+     * 场景联动触发服务
+     * @param cacheManager
+     * @param realtimeDataService
+     * @param linkageCacheService
+     * @return
+     */
+    @Bean
+    public LinkageTriggerService linkageTriggerService(IotCacheManager cacheManager
+            , RealtimeDataService realtimeDataService, LinkageCacheService linkageCacheService) {
+        return new LinkageTriggerService(cacheManager, realtimeDataService, linkageCacheService);
+    }
+
+    /**
+     * 条件表达式运算符管理
+     * @param calcs
+     * @return
+     */
     @Bean
     public ConditionalsManager conditionalsManager(@Autowired(required = false) List<ConditionCalc> calcs) {
         return ConditionalsManager.build(calcs);

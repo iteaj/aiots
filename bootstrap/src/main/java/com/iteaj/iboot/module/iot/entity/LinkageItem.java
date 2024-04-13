@@ -53,7 +53,7 @@ public class LinkageItem extends BaseEntity {
      * @return
      */
     public boolean useAllGroup() {
-        return deviceGroupIds != null ? deviceGroupIds.contains(-1) : false;
+        return deviceGroupIds == null || deviceGroupIds.size() == 0;
     }
 
     public boolean equals(Object obj) {

@@ -9,6 +9,7 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
+import com.iteaj.iboot.module.iot.consts.ConditionType;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.LinkageLogical;
 import com.iteaj.iboot.module.iot.entity.*;
@@ -28,7 +29,8 @@ public class LinkageTriggerService implements EventGroupCollectListener {
     private final LinkageCacheService linkageCacheService;
     private Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
 
-    public LinkageTriggerService(IotCacheManager cacheManager, RealtimeDataService realtimeDataService, LinkageCacheService linkageCacheService) {
+    public LinkageTriggerService(IotCacheManager cacheManager, RealtimeDataService realtimeDataService
+            , LinkageCacheService linkageCacheService) {
         this.cacheManager = cacheManager;
         this.realtimeDataService = realtimeDataService;
         this.linkageCacheService = linkageCacheService;
@@ -36,11 +38,21 @@ public class LinkageTriggerService implements EventGroupCollectListener {
 
     /**
      * 设备状态事件触发
-     * @param key
-     * @param status
+     * @param device
      */
-    public void trigger(DeviceKey key, DeviceStatus status) {
+    public void trigger(RealtimeStatus device) {
+        Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), device.getStatus().name());
+        this.invokeLinkage(linkageItems, null, device);
+    }
 
+    /**
+     * 设备状态事件触发
+     * @param device
+     */
+    public void trigger(Collection<RealtimeStatus> device) {
+        if(CollectionUtil.isNotEmpty(device)) {
+            device.forEach(item -> this.trigger(item));
+        }
     }
 
     /**
@@ -192,7 +204,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                     RealtimeData data = realtimeDataService.getOfDeviceAndKey(dataSupplier.getProtocolCode(), linkageDevice.buildKey(), conditionItem.getTypeValue());
                     return calcCondition(conditionItem, conditionCalc, data, linkageDevice);
                 } else {
-                    logger.error("条件项校验失败 校验设备不存在 - 设备组id: {} - 设备uid: {}", groupId, conditionItem.getUid());
+                    logger.error("条件项校验失败 校验设备不存在 - 触发组id: {} - 联动条件设备uid: {}", groupId, conditionItem.getUid());
                 }
             }
 
@@ -204,15 +216,22 @@ public class LinkageTriggerService implements EventGroupCollectListener {
     }
 
     @Nullable
-    private boolean calcCondition(LinkageConditionItem conditionItem, ConditionCalc conditionCalc, RealtimeData data, RealtimeStatus next) {
+    private boolean calcCondition(LinkageConditionItem conditionItem, ConditionCalc conditionCalc, RealtimeData data, RealtimeStatus device) {
         if (data != null) {
-            SignalOrFieldValue realtime = data.getRealtime();
-            if (realtime.getStatus() == CollectStatus.Success) {
-                return conditionCalc.calc(realtime.getValue(), conditionItem.getValue());
-            } else {
-                if(logger.isDebugEnabled()) {
-                    logger.debug("条件项计算失败 最新采集值状态失败 - 设备: {} - 实时状态: {} - 表达式: {} {} {}"
-                            , next.buildDeviceKey(), realtime.getStatus(), data.getSignalOrField(), conditionCalc.getOperational(), conditionItem.getValue());
+            if(conditionItem.getType() == ConditionType.Model) { // 模型属性计算
+                SignalOrFieldValue realtime = data.getRealtime();
+                if (realtime.getStatus() == CollectStatus.Success) {
+                    return conditionCalc.calc(realtime.getValue(), conditionItem.getValue());
+                } else {
+                    if(logger.isDebugEnabled()) {
+                        logger.debug("条件项计算失败 最新采集值状态失败 - 设备: {} - 实时状态: {} - 表达式: {} {} {}"
+                                , device.buildDeviceKey(), realtime.getStatus(), data.getSignalOrField(), conditionCalc.getOperational(), conditionItem.getValue());
+                    }
+                }
+            } else if(conditionItem.getType() == ConditionType.DeviceStatus) { // 设备状态校验
+                DeviceStatus status = DeviceStatus.valueOf(conditionItem.getTypeValue());
+                if(status == device.getStatus()) {
+                    return true;
                 }
             }
         }

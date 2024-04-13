@@ -65,14 +65,18 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
 
     @Override
     public BooleanResult updateById(Linkage entity) {
+        this.getById(entity.getId()).ifNotPresentThrow("场景联动不存在")
+                .ifPresent(item -> {
+                    if(item.getStatus() == FuncStatus.enabled &&
+                            !entity.getEventSourceId().equals(item.getEventSourceId())) {
+                        throw new ServiceException("请先停用此场景联动");
+                    }
+                });
+
         this.getOne(Wrappers.<Linkage>lambdaQuery()
                 .ne(Linkage::getId, entity.getId())
                 .eq(Linkage::getName, entity.getName()))
-                .ifPresentThrow("名称已存在["+entity.getName()+"]").ifPresent(item -> {
-                    if(item.getStatus() == FuncStatus.enabled) {
-                        throw new ServiceException("请先停用此场景联动");
-                    }
-        });
+                .ifPresentThrow("名称已存在["+entity.getName()+"]");
         return super.updateById(entity);
     }
 
@@ -118,6 +122,13 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
                 return BooleanResult.buildFalse("存在未配置条件项错误");
             }
         }
+
+        this.getById(item.getLinkageId()).ifNotPresentThrow("联动场景不存在")
+                .ifPresent(linkage -> {
+           if(linkage.getStatus() == FuncStatus.enabled) {
+               throw new ServiceException("请先停用场景联动");
+           }
+        });
 
         // 校验是否已经存在
         LinkageItem linkageItem = linkageItemMapper.selectOne(Wrappers.<LinkageItem>lambdaQuery()

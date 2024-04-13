@@ -180,7 +180,7 @@ public class LinkageController extends BaseController {
                     .eq(Device::getDeviceGroupId, deviceGroupIds[0])).getData();
         }
 
-        data.add(0, new Device().setUid("-1").setName("所有设备"));
+        data.add(0, new Device().setUid("-1").setName("各组产品下所有设备"));
         return success(data);
     }
 
@@ -253,9 +253,9 @@ public class LinkageController extends BaseController {
                     if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
                         productDto.getAttrs().forEach(attr -> {
                             if(attr.getAttrType() == AttrType.R || attr.getAttrType() == AttrType.RW) {
-                                attrOption.addChildren(new IVOption(attr.getName(), attr.getId(), "")
+                                attrOption.addChildren(new IVOption(attr.getName(), attr.getField(), "")
                                         .addConfig("type", ConditionType.Model)
-                                        .addConfig("attrType", attr.getDataType())
+                                        .addConfig("attrType", attr.getRealType())
                                         .addConfig("linkedId", attr.getId())
                                         .addConfig("linkedName", attr.getName()));
                             }

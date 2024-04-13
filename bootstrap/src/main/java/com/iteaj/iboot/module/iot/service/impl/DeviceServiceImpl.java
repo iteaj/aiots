@@ -15,6 +15,7 @@ import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
+import com.iteaj.iboot.module.iot.linkage.LinkageTriggerService;
 import com.iteaj.iboot.module.iot.mapper.DeviceMapper;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.framework.BaseServiceImpl;
@@ -40,10 +41,13 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
     private final RealtimePushListener pushListener;
-    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager, RealtimePushListener pushListener) {
+    private final LinkageTriggerService linkageTriggerService;
+    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager
+            , RealtimePushListener pushListener, LinkageTriggerService linkageTriggerService) {
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
         this.pushListener = pushListener;
+        this.linkageTriggerService = linkageTriggerService;
     }
 
 
@@ -228,21 +232,23 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
         if(device.getType() == DeviceType.Gateway && device.getStatus() == DeviceStatus.offline) {
             Map<String, RealtimeStatus> childDeviceStatus = this.listChildDeviceStatusFromCache(device.getProtocolCode(), device.getDeviceSn());
             if(CollectionUtil.isNotEmpty(childDeviceStatus)) {
-                List<Long> uidList = childDeviceStatus.values().stream()
-                        .map(item -> item.getUid()).collect(Collectors.toList());
+                Collection<RealtimeStatus> values = childDeviceStatus.values();
+                List<Long> uidList = values.stream().map(item -> item.getUid()).collect(Collectors.toList());
                 this.update(Wrappers.<Device>lambdaUpdate()
                         .set(Device::getSwitchTime, switchTime)
                         .set(Device::getStatus, DeviceStatus.offline)
                         .in(Device::getUid, uidList));
 
-                childDeviceStatus.values().forEach(item -> item.setStatus(DeviceStatus.offline));
-                pushListener.push(childDeviceStatus.values()); // 推送离线信息到前端
+                values.forEach(item -> item.setStatus(DeviceStatus.offline));
+                pushListener.push(values); // 推送离线信息到前端
+                linkageTriggerService.trigger(values);
                 this.iotCacheManager.updateChildStatus(device.getProtocolCode(), device.getDeviceSn(), DeviceStatus.offline);
             }
         }
 
         this.iotCacheManager.updateStatus(device.getProtocolCode(), device.buildDeviceKey(), device.getStatus());
         pushListener.push(device);
+        linkageTriggerService.trigger(device);
     }
 
     @Override
