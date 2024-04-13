@@ -9,6 +9,7 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
+import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.LinkageLogical;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iot.Message;
@@ -33,6 +34,19 @@ public class LinkageTriggerService implements EventGroupCollectListener {
         this.linkageCacheService = linkageCacheService;
     }
 
+    /**
+     * 设备状态事件触发
+     * @param key
+     * @param status
+     */
+    public void trigger(DeviceKey key, DeviceStatus status) {
+
+    }
+
+    /**
+     * 设备物模型属性事件触发
+     * @param protocol
+     */
     public void trigger(Protocol protocol) {
         Optional<DataSupplier> supplier = ProtocolSupplierManager.getDataSupplier(protocol);
         if(supplier.isPresent()) {
@@ -144,48 +158,62 @@ public class LinkageTriggerService implements EventGroupCollectListener {
     private boolean validateConditionItem(LinkageConditionItem conditionItem, DataSupplier dataSupplier, Object deviceOrGroup) {
         ConditionCalc conditionCalc = ConditionalsManager.get(conditionItem.getOperator());
         if(conditionCalc != null) {
-            Long groupId = null;
-            RealtimeStatus device;
+            Long groupId;
+            RealtimeStatus triggerDevice = null;
             if(deviceOrGroup instanceof RealtimeStatus) { // 设备触发
-                device = (RealtimeStatus) deviceOrGroup;
-
+                triggerDevice = (RealtimeStatus) deviceOrGroup;
+                groupId = triggerDevice.getGroupId();
             } else if(deviceOrGroup instanceof DeviceGroup) { // 组触发
-
+                groupId = ((DeviceGroup) deviceOrGroup).getId();
             } else {
-                logger.error("条件项校验失败 未知的校验方式");
+                logger.error("条件项校验失败 未知的校验方式({})", deviceOrGroup); return false;
             }
 
-            if(conditionItem.getUid().equals(device.getUid())) { // 条件项设备刚好和触发设备属于同一台
-
-            } else if("-1".equals(conditionItem.getUid())){ // 组下面且属于此联动项产品的所有设备
+            if("-1".equals(conditionItem.getUid())){ // 组下面且属于此联动项产品的所有设备
                 Collection<RealtimeStatus> statuses = cacheManager.listGroupAndProduct(groupId, conditionItem.getProductCode());
                 Iterator<RealtimeStatus> iterator = statuses.iterator();
-                // 同一产品下面包含有台设备的按或运算, 只要有一台条件满足就行
+                // 同一组且同一产品下包含多台设备的按或运算, 只要有一台条件满足就行
                 while (iterator.hasNext()) {
                     RealtimeStatus next = iterator.next();
                     RealtimeData data = realtimeDataService.getOfDeviceAndKey(next.getProtocolCode(), next.buildKey(), conditionItem.getTypeValue());
-                    if (calcCondition(conditionItem, conditionCalc, data)) {
+                    if (calcCondition(conditionItem, conditionCalc, data, next)) {
                         return true;
                     }
                 }
             } else {
-//                cacheManager.getByUid(conditionItem.getUid());
+                RealtimeStatus linkageDevice;
+                if(triggerDevice != null && triggerDevice.getUid().equals(conditionItem.getUid())) {
+                    linkageDevice = triggerDevice;
+                } else {
+                    linkageDevice = cacheManager.getByUid(groupId, conditionItem.getUid());
+                }
+
+                if(linkageDevice != null) {
+                    RealtimeData data = realtimeDataService.getOfDeviceAndKey(dataSupplier.getProtocolCode(), linkageDevice.buildKey(), conditionItem.getTypeValue());
+                    return calcCondition(conditionItem, conditionCalc, data, linkageDevice);
+                } else {
+                    logger.error("条件项校验失败 校验设备不存在 - 设备组id: {} - 设备uid: {}", groupId, conditionItem.getUid());
+                }
             }
-            RealtimeData data = realtimeDataService.getOfDeviceAndKey(dataSupplier.getProtocolCode(), device.buildKey(), conditionItem.getTypeValue());
-            Boolean realtime = calcCondition(conditionItem, conditionCalc, data);
-            if (realtime != null) return realtime;
+
         } else {
-            logger.warn("条件项校验失败 无此条件运行 - 运算符: {}", conditionItem.getOperator());
+            logger.warn("条件项校验失败 无此条件执行器 - 运算符: {}", conditionItem.getOperator());
         }
+
         return false;
     }
 
     @Nullable
-    private boolean calcCondition(LinkageConditionItem conditionItem, ConditionCalc conditionCalc, RealtimeData data) {
+    private boolean calcCondition(LinkageConditionItem conditionItem, ConditionCalc conditionCalc, RealtimeData data, RealtimeStatus next) {
         if (data != null) {
             SignalOrFieldValue realtime = data.getRealtime();
             if (realtime.getStatus() == CollectStatus.Success) {
                 return conditionCalc.calc(realtime.getValue(), conditionItem.getValue());
+            } else {
+                if(logger.isDebugEnabled()) {
+                    logger.debug("条件项计算失败 最新采集值状态失败 - 设备: {} - 实时状态: {} - 表达式: {} {} {}"
+                            , next.buildDeviceKey(), realtime.getStatus(), data.getSignalOrField(), conditionCalc.getOperational(), conditionItem.getValue());
+                }
             }
         }
 

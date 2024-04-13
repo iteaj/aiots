@@ -1,8 +1,8 @@
 package com.iteaj.iboot.module.iot.service;
 
-import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.DetailResult;
-import com.iteaj.framework.result.Result;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.iteaj.framework.IBaseService;
@@ -34,4 +34,12 @@ public interface ILinkageService extends IBaseService<Linkage> {
     DetailResult<LinkageItem> detailItemById(Long id);
 
     BooleanResult switchStatus(Long id, FuncStatus status);
+
+    PageResult<IPage<Linkage>> detailPage(Page<Linkage> page, Linkage entity);
+
+    /**
+     * 获取已经启用的所有场景联动
+     * @return
+     */
+    ListResult<LinkageDto> listDetailOfEnabled();
 }

@@ -1,5 +1,7 @@
 package com.iteaj.iboot.module.iot.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -33,4 +35,8 @@ public interface LinkageMapper extends BaseMapper<Linkage> {
      * @param itemId
      */
     void removeJoinByItemId(Long itemId);
+
+    IPage<Linkage> detailPage(Page<Linkage> page, Linkage entity);
+
+    List<LinkageDto> listDetailOfEnabled();
 }

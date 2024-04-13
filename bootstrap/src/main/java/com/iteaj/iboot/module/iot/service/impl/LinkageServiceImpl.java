@@ -1,11 +1,17 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.fastjson.JSONArray;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.entity.LinkageCondition;
@@ -13,6 +19,7 @@ import com.iteaj.iboot.module.iot.entity.LinkageItem;
 import com.iteaj.iboot.module.iot.linkage.LinkageCacheService;
 import com.iteaj.iboot.module.iot.mapper.LinkageItemMapper;
 import com.iteaj.iboot.module.iot.mapper.LinkageMapper;
+import com.iteaj.iboot.module.iot.service.IEventSourceService;
 import com.iteaj.iboot.module.iot.service.ILinkageActionService;
 import com.iteaj.iboot.module.iot.service.ILinkageConditionService;
 import com.iteaj.iboot.module.iot.service.ILinkageService;
@@ -20,7 +27,6 @@ import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,14 +41,17 @@ import java.util.List;
 public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> implements ILinkageService {
 
     private final LinkageItemMapper linkageItemMapper;
+    private final IEventSourceService eventSourceService;
     private final LinkageCacheService linkageCacheService;
     private final ILinkageActionService linkageActionService;
     private final ILinkageConditionService linkageConditionService;
 
     public LinkageServiceImpl(ILinkageActionService linkageActionService
-            , LinkageItemMapper linkageItemMapper, LinkageCacheService linkageCacheService, ILinkageConditionService linkageConditionService) {
+            , LinkageItemMapper linkageItemMapper, IEventSourceService eventSourceService
+            , LinkageCacheService linkageCacheService, ILinkageConditionService linkageConditionService) {
         this.linkageActionService = linkageActionService;
         this.linkageItemMapper = linkageItemMapper;
+        this.eventSourceService = eventSourceService;
         this.linkageCacheService = linkageCacheService;
         this.linkageConditionService = linkageConditionService;
     }
@@ -51,8 +60,6 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
     public BooleanResult save(Linkage entity) {
         this.getOne(Wrappers.<Linkage>lambdaQuery().eq(Linkage::getName, entity.getName()))
                 .ifPresentThrow("名称已存在["+entity.getName()+"]");
-        this.getOne(Wrappers.<Linkage>lambdaQuery().eq(Linkage::getEventSourceId, entity.getEventSourceId()))
-                .ifPresentThrow("事件源已被绑定");
         return super.save(entity);
     }
 
@@ -61,11 +68,11 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
         this.getOne(Wrappers.<Linkage>lambdaQuery()
                 .ne(Linkage::getId, entity.getId())
                 .eq(Linkage::getName, entity.getName()))
-                .ifPresentThrow("名称已存在["+entity.getName()+"]");
-        this.getOne(Wrappers.<Linkage>lambdaQuery()
-                .ne(Linkage::getId, entity.getId())
-                .eq(Linkage::getEventSourceId, entity.getEventSourceId()))
-                .ifPresentThrow("事件源已被绑定");
+                .ifPresentThrow("名称已存在["+entity.getName()+"]").ifPresent(item -> {
+                    if(item.getStatus() == FuncStatus.enabled) {
+                        throw new ServiceException("请先停用此场景联动");
+                    }
+        });
         return super.updateById(entity);
     }
 
@@ -173,8 +180,12 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
             if(status == FuncStatus.enabled) {
                 if(CollectionUtil.isNotEmpty(linkageDto.getItems())) {
                     linkageDto.getItems().forEach(item -> {
-//                        linkageCacheService.register(item);
+                        if(item.useAllGroup()) { // 使用和事件源相同的所有组
+                            item.setDeviceGroupIds(linkageDto.getSourceDeviceGroupIds());
+                        }
                     });
+
+                    linkageCacheService.register(linkageDto.getEventSourceId(), linkageDto.getItems());
                 } else {
                     throw new ServiceException("没有配置联动项");
                 }
@@ -184,5 +195,17 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
         });
 
         return this.update(Wrappers.<Linkage>lambdaUpdate().set(Linkage::getStatus, status).eq(Linkage::getId, id));
+    }
+
+    @Override
+    public PageResult<IPage<Linkage>> detailPage(Page<Linkage> page, Linkage entity) {
+        this.getBaseMapper().detailPage(page, entity);
+        return new PageResult<>(page);
+    }
+
+    @Override
+    public ListResult<LinkageDto> listDetailOfEnabled() {
+        List<LinkageDto> linkages = this.getBaseMapper().listDetailOfEnabled();
+        return new ListResult<>(linkages);
     }
 }

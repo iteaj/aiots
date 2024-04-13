@@ -48,6 +48,14 @@ public class LinkageItem extends BaseEntity {
     @TableField(exist = false)
     private List<LinkageCondition> conditions;
 
+    /**
+     * 是否使用所有组
+     * @return
+     */
+    public boolean useAllGroup() {
+        return deviceGroupIds != null ? deviceGroupIds.contains(-1) : false;
+    }
+
     public boolean equals(Object obj) {
         LinkageItem item = (LinkageItem) obj;
         return this.getId().equals(item.getId());

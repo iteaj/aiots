@@ -9,16 +9,14 @@
         <result column="create_time" property="createTime" />
         <result column="event_source_id" property="eventSourceId" />
         <result column="event_source_name" property="eventSourceName" />
+        <result column="event_source_status" property="eventSourceStatus" />
     </resultMap>
 
     <resultMap id="DtoResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="BaseResultMap">
         <result column="device_group_name" property="deviceGroupName" />
-        <collection property="productIds" ofType="Long">
-            <result column="p_id" />
-        </collection>
-        <collection property="productNames" ofType="String">
-            <result column="p_name" />
-        </collection>
+        <result column="source_device_group_ids" property="sourceDeviceGroupIds" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"/>
+        <result column="product_ids" property="productIds"  typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"/>
+        <result property="productNames" column="product_names" />
     </resultMap>
 
     <resultMap id="ItemResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageItem">
@@ -70,21 +68,41 @@
     </select>
 
     <select id="detailById" resultMap="DetailResultMap">
-        select a.*, p.id p_id, p.name p_name, es.name event_source_name from iot_linkage a
+        select a.*, es.name event_source_name, es.product_ids, es.status event_source_status, es.device_group_ids source_device_group_ids from iot_linkage a
             left join iot_event_source es on a.event_source_id = es.id
-            left join iot_product p on json_contains(es.product_ids, concat('', p.id))
         where a.id=#{id}
     </select>
 
     <select id="joinProductById" resultMap="DtoResultMap">
-        select a.*, p.id p_id, p.name p_name, es.name event_source_name from iot_linkage a
+        select a.*, es.product_ids, group_concat(p.name), es.device_group_ids source_device_group_ids, es.name event_source_name from iot_linkage a
            left join iot_event_source es on a.event_source_id = es.id
            left join iot_product p on json_contains(es.product_ids, concat('', p.id))
-        where a.id=#{id}
+        where a.id=#{id} group by a.id
     </select>
 
     <select id="detailItemById" resultMap="ItemResultMap">
         select * from iot_linkage_item where id=#{id}
+    </select>
+    <select id="detailPage" resultMap="BaseResultMap">
+        select a.*, es.name event_source_name, es.status event_source_status from iot_linkage a
+            left join iot_event_source es on a.event_source_id = es.id
+        <where>
+            <if test="entity.status != null">
+                and a.status = #{entity.status}
+            </if>
+            <if test="entity.eventSourceId != null">
+                and a.event_source_id=#{entity.eventSourceId}
+            </if>
+            <if test="entity.name != null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+        </where>
+        order by a.create_time desc
+    </select>
+    <select id="listDetailOfEnabled" resultMap="DetailResultMap">
+        select a.*, es.name event_source_name, es.product_ids, es.status event_source_status, es.device_group_ids source_device_group_ids from iot_linkage a
+            inner join iot_event_source es on a.event_source_id = es.id
+        where a.status = 'enabled'
     </select>
 
 </mapper>

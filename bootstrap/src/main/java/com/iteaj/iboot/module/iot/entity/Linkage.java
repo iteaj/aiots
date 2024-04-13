@@ -52,6 +52,12 @@ public class Linkage extends BaseEntity {
     private String eventSourceName;
 
     /**
+     * 事件源状态
+     */
+    @TableField(exist = false)
+    private FuncStatus eventSourceStatus;
+
+    /**
      * 场景联动项
      */
     @TableField(exist = false)

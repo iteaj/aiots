@@ -58,7 +58,7 @@ public class LinkageController extends BaseController {
     @Logger("浏览场景联动功能")
     @CheckPermission({"iot:linkage:view"})
     public Result<IPage<Linkage>> list(Page<Linkage> page, Linkage entity) {
-        return this.linkageService.page(page, entity);
+        return this.linkageService.detailPage(page, entity);
     }
 
     /**
