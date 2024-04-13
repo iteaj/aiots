@@ -67,7 +67,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
                     DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
                         String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
                         if(StrUtil.isNotBlank(uid)) {
-                            return Objects.equals(uid, device.getUid().toString());
+                            return Objects.equals(uid, device.getUid());
                         }
 
                         return false;
@@ -93,7 +93,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
                 DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
                     String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
                     if(StrUtil.isNotBlank(uid)) {
-                        return Objects.equals(uid, device.getDevice().getUid().toString());
+                        return Objects.equals(uid, device.getDevice().getUid());
                     }
 
                     return false;
