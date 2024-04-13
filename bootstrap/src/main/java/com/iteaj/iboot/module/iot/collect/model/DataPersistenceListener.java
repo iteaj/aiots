@@ -35,7 +35,7 @@ public interface DataPersistenceListener extends EventGroupCollectListener {
                                 .setCid(cid).setStatus(true).setReason("")
                                 .setCreateTime(new Date())
                                 .setAddress(value.getAddress())
-                                .setUid(item.getDevice().getUid())
+                                .setUid(Long.valueOf(item.getDevice().getUid()))
                                 .setSignalId(item.getApi().getId())
                                 .setValue(value.getValue().toString())
                                 .setCollectTime(supplier.getCollectTime())
