@@ -19,7 +19,7 @@ public class RealtimeStatus {
     /**
      * 设备所属uid
      */
-    private Long uid;
+    private String uid;
 
     /**
      * 设备编号

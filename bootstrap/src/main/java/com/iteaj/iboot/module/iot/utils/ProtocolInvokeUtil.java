@@ -75,7 +75,7 @@ public class ProtocolInvokeUtil {
                 }
 
                 JSONObject param = new JSONObject();
-                ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(device.getUid().toString(), param);
+                ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(device.getUid(), param);
                 invokeParam.setTimeout(timeout);
 
                 api.getDownConfig().forEach(item -> {
