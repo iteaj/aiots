@@ -31,12 +31,6 @@ import java.util.List;
 @EnableConfigurationProperties({FrameworkProperties.class})
 public class FrameworkAutoConfiguration implements ApplicationListener<ApplicationReadyEvent> {
 
-    private final List<ApplicationReadyListener> listeners;
-
-    public FrameworkAutoConfiguration(@Autowired(required = false) List<ApplicationReadyListener> listeners) {
-        this.listeners = listeners;
-    }
-
     @Bean
     @ConditionalOnMissingBean(UploadService.class)
     public UploadService fileService(FrameworkProperties properties) {
@@ -55,8 +49,7 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        if(!CollectionUtils.isEmpty(listeners)) {
-            listeners.forEach(item -> item.started(event.getApplicationContext()));
-        }
+        event.getApplicationContext().getBeansOfType(ApplicationReadyListener.class)
+                .forEach((name, item) -> item.started(event.getApplicationContext()));
     }
 }
