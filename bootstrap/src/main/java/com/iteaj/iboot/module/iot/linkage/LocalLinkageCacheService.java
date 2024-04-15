@@ -1,12 +1,8 @@
 package com.iteaj.iboot.module.iot.linkage;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.fastjson.JSONArray;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
-import com.iteaj.iboot.module.iot.dto.LinkageDto;
-import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.iteaj.iboot.module.iot.entity.LinkageItem;
 import com.iteaj.iboot.module.iot.service.ILinkageService;
 import org.springframework.context.ApplicationContext;
@@ -127,7 +123,7 @@ public class LocalLinkageCacheService implements LinkageCacheService, Applicatio
     @Override
     public void started(ApplicationContext context) {
         ILinkageService linkageService = context.getBean(ILinkageService.class);
-        linkageService.listDetailOfEnabled().forEach(linkage -> {
+        linkageService.listDetailExecOfEnabled().forEach(linkage -> {
             if(CollectionUtil.isNotEmpty(linkage.getItems())) {
                 linkage.getItems().forEach(item -> {
                     if(item.useAllGroup()) { // 使用和事件源相同的所有组

@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.linkage;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
@@ -9,12 +11,16 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
+import com.iteaj.iboot.module.iot.consts.ActionType;
 import com.iteaj.iboot.module.iot.consts.ConditionType;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.LinkageLogical;
+import com.iteaj.iboot.module.iot.dto.LinkageActionExecDto;
 import com.iteaj.iboot.module.iot.entity.*;
+import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.Message;
 import com.iteaj.iot.Protocol;
+import com.iteaj.iot.consts.ExecStatus;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +110,77 @@ public class LinkageTriggerService implements EventGroupCollectListener {
     }
 
     protected void execLinkageAction(LinkageItem item, Object deviceOrGroup) {
+        if(CollectionUtil.isNotEmpty(item.getActions())) {
+            Long groupId;
+            RealtimeStatus triggerDevice = null;
+            if(deviceOrGroup instanceof RealtimeStatus) { // 设备触发
+                triggerDevice = (RealtimeStatus) deviceOrGroup;
+                groupId = triggerDevice.getGroupId();
+            } else if(deviceOrGroup instanceof DeviceGroup) { // 组触发
+                groupId = ((DeviceGroup) deviceOrGroup).getId();
+            } else {
+                logger.error("动作项执行失败 未知的方式({})", deviceOrGroup); return;
+            }
 
+            for (int i = 0; i < item.getActions().size(); i++) {
+                LinkageActionExecDto linkageAction = (LinkageActionExecDto) item.getActions().get(i);
+                if(linkageAction.getType() == ActionType.model) {// 调用物模型接口
+                    ModelApi api = linkageAction.getApi();
+                    if(api != null) {
+                        if("-1".equals(linkageAction.getUid())) { // 触发组全部设备
+                            cacheManager.listGroupAndProduct(groupId, linkageAction.getProductCode()).forEach(device -> {
+                                doInvokeAction(linkageAction, api, device);
+                            });
+                        } else if("-2".equals(linkageAction.getUid())){ // 当前触发设备
+                            if(triggerDevice != null) { // 设备触发
+                                doInvokeAction(linkageAction, api, triggerDevice);
+                            } else {
+                                // 组触发不做任何事情
+                            }
+                        } else { // 指定设备
+                            cacheManager.listByProductCode(linkageAction.getProductCode()).forEach(device -> {
+                                if(device.getUid().equals(linkageAction.getUid())) {
+                                    doInvokeAction(linkageAction, api, device);
+                                }
+                            });
+                        }
+                    }
+                } else if(linkageAction.getType() == ActionType.warn) { // 触发告警
+                    WarnConfig warn = linkageAction.getWarn();
+                }
+            }
+        }
+    }
+
+    private void doInvokeAction(LinkageActionExecDto linkageAction, ModelApi api, RealtimeStatus device) {
+        if (device.getStatus() == DeviceStatus.online) {
+            ProtocolModelApiInvokeParam param = createInvokeParam(linkageAction, device);
+            ProtocolInvokeUtil.invoke(api, param, device, (result) -> {
+                if(result.getStatus() == ExecStatus.success) {
+
+                } else {
+                    logger.warn("执行联动动作失败 {} - 接口: {}/{} - 设备: {}"
+                            , result.getStatus(), api.getName(), api.getCode(), device.buildKey());
+                }
+            });
+        } else {
+            logger.warn("执行联动动作失败 设备不在线 - 接口: {}/{} - 设备: {}", api.getName(), api.getCode(), device.buildKey());
+        }
+    }
+
+    private ProtocolModelApiInvokeParam createInvokeParam(LinkageActionExecDto linkageAction, RealtimeStatus device) {
+        if(CollectionUtil.isNotEmpty(linkageAction.getApi().getDownConfig())) {
+            JSONObject execParam = linkageAction.getApi().resolveStrValue(linkageAction.getTypeValue());
+            ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(device.getUid(), execParam);
+            invokeParam.setDeviceSn(device.getDeviceSn()).setParentDeviceSn(device.getParentDeviceSn());
+            return invokeParam;
+        } else {
+            logger.error("执行联动动作异常 api没有下行配置 - api: {}/{} - 设备: {}"
+                    , linkageAction.getApi().getName(), linkageAction.getApi().getCode()
+                    , device != null ? device.buildKey() : null);
+        }
+
+        return null;
     }
 
     protected boolean validateCondition(LinkageItem item, DataSupplier dataSupplier, Object deviceOrGroup) {
@@ -201,7 +277,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                 }
 
                 if(linkageDevice != null) {
-                    RealtimeData data = realtimeDataService.getOfDeviceAndKey(dataSupplier.getProtocolCode(), linkageDevice.buildKey(), conditionItem.getTypeValue());
+                    RealtimeData data = realtimeDataService.getOfDeviceAndKey(linkageDevice.getProtocolCode(), linkageDevice.buildKey(), conditionItem.getTypeValue());
                     return calcCondition(conditionItem, conditionCalc, data, linkageDevice);
                 } else {
                     logger.error("条件项校验失败 校验设备不存在 - 触发组id: {} - 联动条件设备uid: {}", groupId, conditionItem.getUid());

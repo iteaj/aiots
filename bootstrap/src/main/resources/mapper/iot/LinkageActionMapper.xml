@@ -9,6 +9,7 @@
         <result column="type" property="type" />
         <result column="device_name" property="deviceName" />
         <result column="product_id" property="productId" />
+        <result column="product_code" property="productCode" />
         <result column="product_name" property="productName" />
         <result column="linkage_id" property="linkageId" />
         <result column="linkage_item_id" property="linkageItemId" />
@@ -18,12 +19,27 @@
         <result column="type_name" property="typeName" />
     </resultMap>
 
+    <resultMap id="ExecResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageActionExecDto" extends="BaseResultMap">
+        <association property="api" select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.detailById" column="{id=model_api_id}"/>
+        <association property="warn" resultMap="com.iteaj.iboot.module.iot.mapper.WarnConfigMapper.BaseResultMap" columnPrefix="warn_"/>
+    </resultMap>
+
     <select id="listByLinkageItemId" resultMap="BaseResultMap">
-        select a.*, if(a.type='model', p.name, c.name) linked_name, p.name product_name, d.name device_name from iot_linkage_action a
+        select a.*, if(a.type='model', ma.name, c.name) linked_name, p.name product_name, p.code product_code, d.name device_name, ma.id model_api_id from iot_linkage_action a
             left join iot_product p on a.product_id=p.id
             left join iot_device d on a.uid=d.uid
             left join iot_model_api ma on ma.id=a.linked_id and a.type='model'
             left join iot_warn_config c on c.id=a.linked_id and a.type='warn'
+        where a.linkage_item_id=#{linkageItemId}
+    </select>
+
+    <select id="listExecByLinkageItemId" resultMap="ExecResultMap">
+        select a.*, if(a.type='model', ma.name, c.name) linked_name, p.name product_name, d.name device_name, p.code product_code
+             , ma.id model_api_id, c.id warn_id, c.name warn_name, c.product_id warn_product_id, c.grade warn_grade, c.template warn_template from iot_linkage_action a
+           left join iot_product p on a.product_id=p.id
+           left join iot_device d on a.uid=d.uid
+           left join iot_model_api ma on ma.id=a.linked_id and a.type='model'
+           left join iot_warn_config c on c.id=a.linked_id and a.type='warn'
         where a.linkage_item_id=#{linkageItemId}
     </select>
 </mapper>

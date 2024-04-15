@@ -26,6 +26,10 @@ public class ProtocolInvokeUtil {
         invoke(api, device, 5000, result);
     }
 
+    public static void invoke(ModelApi api, ProtocolModelApiInvokeParam param, RealtimeStatus device, Consumer<InvokeResult> result) {
+        invoke(ProtocolSupplierManager.get(device.getProtocolCode()), api, param, device, result);
+    }
+
     public static void invoke(DeviceProtocolSupplier supplier, ModelApi api, ProtocolModelApiInvokeParam param, RealtimeStatus device, Consumer<InvokeResult> result) {
         if(supplier != null) {
             AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());
@@ -36,20 +40,7 @@ public class ProtocolInvokeUtil {
 
                 api.getDownConfig().forEach(item -> {
                     // 如果是点位采集
-                    if(supplier.getProtocol().getCtrlMode() == CtrlMode.POINT) {
-                        if(Objects.equals(item.getProtocolAttrField(), PointProtocolConfig.POINT_ADDRESS)) {
-                            for (int i = 0; i < api.getUpConfig().size(); i++) {
-                                ModelApiConfig apiConfig = api.getUpConfig().get(i); // 获取此点位地址绑定的物模型属性
-                                if(Objects.equals(apiConfig.getProtocolAttrField(), PointProtocolConfig.POINT_VALUE)) {
-                                    if(apiConfig.getModelAttrId() != null && apiConfig.getAttrField() != null) {
-                                        param.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
-                                    } else {
-                                        throw new ServiceException("上行配置[protocolAttrName="+apiConfig.getProtocolAttrName()+"]未指定物模型属性");
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    resolverPointField(supplier, api, param, item);
                 });
 
                 // 组装调用参数
@@ -61,6 +52,23 @@ public class ProtocolInvokeUtil {
                 modelApi.invoke(param, result);
             } else {
                 throw new ServiceException("没有找到协议指令[direct="+api.getDirect()+"]");
+            }
+        }
+    }
+
+    private static void resolverPointField(DeviceProtocolSupplier supplier, ModelApi api, ProtocolModelApiInvokeParam param, ModelApiConfig item) {
+        if(supplier.getProtocol().getCtrlMode() == CtrlMode.POINT) {
+            if(Objects.equals(item.getProtocolAttrField(), PointProtocolConfig.POINT_ADDRESS)) {
+                for (int i = 0; i < api.getUpConfig().size(); i++) {
+                    ModelApiConfig apiConfig = api.getUpConfig().get(i); // 获取此点位地址绑定的物模型属性
+                    if(Objects.equals(apiConfig.getProtocolAttrField(), PointProtocolConfig.POINT_VALUE)) {
+                        if(apiConfig.getModelAttrId() != null && apiConfig.getAttrField() != null) {
+                            param.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
+                        } else {
+                            throw new ServiceException("上行配置[protocolAttrName="+apiConfig.getProtocolAttrName()+"]未指定物模型属性");
+                        }
+                    }
+                }
             }
         }
     }
@@ -86,20 +94,7 @@ public class ProtocolInvokeUtil {
                     param.put(item.getProtocolAttrField(), item.getValue());
 
                     // 如果是点位采集
-                    if(supplier.getProtocol().getCtrlMode() == CtrlMode.POINT) {
-                        if(Objects.equals(item.getProtocolAttrField(), PointProtocolConfig.POINT_ADDRESS)) {
-                            for (int i = 0; i < api.getUpConfig().size(); i++) {
-                                ModelApiConfig apiConfig = api.getUpConfig().get(i); // 获取此点位地址绑定的物模型属性
-                                if(Objects.equals(apiConfig.getProtocolAttrField(), PointProtocolConfig.POINT_VALUE)) {
-                                    if(apiConfig.getModelAttrId() != null && apiConfig.getAttrField() != null) {
-                                        invokeParam.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
-                                    } else {
-                                        throw new ServiceException("上行配置[protocolAttrName="+apiConfig.getProtocolAttrName()+"]未指定物模型属性");
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    resolverPointField(supplier, api, invokeParam, item);
                 });
 
                 // 组装调用参数

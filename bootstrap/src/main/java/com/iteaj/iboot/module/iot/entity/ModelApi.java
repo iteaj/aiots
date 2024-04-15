@@ -1,5 +1,8 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -129,6 +132,33 @@ public class ModelApi extends BaseEntity {
      */
     @TableField(exist = false)
     private List<ModelApiConfig> downConfig;
+
+    public JSONObject resolveStrValue(String value) {
+        Map<String, String> attrValueMap = new HashMap<>();
+        if(StrUtil.isNotBlank(value) && value.contains("::")) {
+            String[] split = value.split(",");
+            for (int i = 0; i < split.length; i++) {
+                String[] fieldValueMap = split[i].split("::");
+                if(fieldValueMap.length == 2) {
+                    attrValueMap.put(fieldValueMap[0], fieldValueMap[1]);
+                }
+            }
+        }
+
+        JSONObject param = new JSONObject();
+        if(CollectionUtil.isNotEmpty(downConfig)) {
+            downConfig.forEach(config -> {
+                String configValue = config.getValue();
+                if(configValue.startsWith("@")) { // 对提及的物模型属性赋值
+                    String attrField = configValue.substring(1);
+                    configValue = attrValueMap.get(attrField);
+                }
+
+                param.put(config.getProtocolAttrField(), configValue);
+            });
+        }
+        return param;
+    }
 
     /**
      * 解析接口字典配置

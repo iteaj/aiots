@@ -3,8 +3,11 @@ package com.iteaj.iboot.module.iot.controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ArrayUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
@@ -17,6 +20,7 @@ import com.iteaj.iboot.module.iot.consts.*;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
 import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
 import com.iteaj.iboot.module.iot.entity.*;
+import com.iteaj.iboot.module.iot.linkage.ConditionalsManager;
 import com.iteaj.iboot.module.iot.service.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -190,7 +194,7 @@ public class LinkageController extends BaseController {
      */
     @GetMapping("/operators")
     public Result<List<IVOption>> operators() {
-        return success(OperatorType.options());
+        return success(ConditionalsManager.options());
     }
 
     /**
@@ -227,6 +231,36 @@ public class LinkageController extends BaseController {
         LinkageDto linkageDto = this.linkageService.joinProductById(id)
                 .ifNotPresentThrow("场景不存在").getData();
         return this.eventSourceService.listProductById(linkageDto.getEventSourceId(), null);
+    }
+
+    /**
+     * 获取指定设备组以及事件源下所有产品的设备列表
+     * @param linkageId 情景联动
+     * @param productId 选中的产品
+     * @param deviceGroupIds 联动项id
+     * @return
+     */
+    @GetMapping("listDeviceOfAction")
+    public Result<List<IVOption>> listDeviceOfAction(Long linkageId, Long productId, Long[] deviceGroupIds) {
+        LinkageDto linkage = this.linkageService.joinEventSourceById(linkageId).ifNotPresentThrow("情景联动不存在").getData();
+        // 如果没有指定设备组则默认选择事件源下面的所有组
+        if(ArrayUtil.isEmpty(deviceGroupIds)) {
+            JSONArray groupIds = linkage.getSourceDeviceGroupIds();
+            deviceGroupIds = new Long[groupIds.size()];
+            for (int i = 0; i < groupIds.size(); i++) {
+                deviceGroupIds[i] = groupIds.getLong(i);
+            }
+        }
+
+        List<IVOption> options = this.deviceService.list(Wrappers.<Device>lambdaQuery()
+                .eq(Device::getProductId, productId)
+                .in(Device::getDeviceGroupId, deviceGroupIds)).stream()
+                .map(device -> new IVOption(device.getName(), device.getUid()))
+                .collect(Collectors.toList());
+
+        options.add(0, new IVOption("触发组所有设备", "-1"));
+        options.add(0, new IVOption("当前触发设备", "-2"));
+        return success(options);
     }
 
     /**

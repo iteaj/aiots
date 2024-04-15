@@ -1,9 +1,8 @@
 package com.iteaj.iboot.module.iot.entity;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.BaseEntity;
 import com.iteaj.iboot.module.iot.consts.ActionType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -89,6 +88,12 @@ public class LinkageAction extends BaseEntity {
      * 选中的动作值
      */
     private String typeValue;
+
+    /**
+     * 产品码
+     */
+    @TableField(exist = false)
+    private String productCode;
 
     /**
      * 合并值

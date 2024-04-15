@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.DetailResult;
-import com.iteaj.framework.result.ListResult;
-import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.Linkage;
@@ -187,7 +184,7 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
             return BooleanResult.buildFalse("未指定要切换的状态");
         }
 
-        this.detailById(id).ifNotPresentThrow("不存在事件联动").ifPresent(linkageDto -> {
+        this.detailExecById(id).ifNotPresentThrow("不存在事件联动").ifPresent(linkageDto -> {
             if(status == FuncStatus.enabled) {
                 if(CollectionUtil.isNotEmpty(linkageDto.getItems())) {
                     linkageDto.getItems().forEach(item -> {
@@ -208,6 +205,11 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
         return this.update(Wrappers.<Linkage>lambdaUpdate().set(Linkage::getStatus, status).eq(Linkage::getId, id));
     }
 
+    private DetailResult<LinkageDto> detailExecById(Long id) {
+        LinkageDto dto = this.getBaseMapper().detailExecById(id);
+        return new DetailResult<>(dto);
+    }
+
     @Override
     public PageResult<IPage<Linkage>> detailPage(Page<Linkage> page, Linkage entity) {
         this.getBaseMapper().detailPage(page, entity);
@@ -215,8 +217,14 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
     }
 
     @Override
-    public ListResult<LinkageDto> listDetailOfEnabled() {
-        List<LinkageDto> linkages = this.getBaseMapper().listDetailOfEnabled();
+    public ListResult<LinkageDto> listDetailExecOfEnabled() {
+        List<LinkageDto> linkages = this.getBaseMapper().listDetailExecOfEnabled();
         return new ListResult<>(linkages);
+    }
+
+    @Override
+    public DetailResult<LinkageDto> joinEventSourceById(Long id) {
+        LinkageDto dto = this.getBaseMapper().joinEventSourceById(id);
+        return new DetailResult<>(dto);
     }
 }

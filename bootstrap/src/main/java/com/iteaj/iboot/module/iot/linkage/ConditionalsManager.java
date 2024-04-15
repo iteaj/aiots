@@ -1,11 +1,13 @@
 package com.iteaj.iboot.module.iot.linkage;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.iteaj.framework.IVOption;
 import com.iteaj.iboot.module.iot.linkage.calc.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ConditionalsManager {
 
@@ -19,6 +21,7 @@ public class ConditionalsManager {
         register(new LTEConditionCalc());
         register(new LTConditionCalc());
         register(new NEQConditionCalc());
+        register(new INConditionCalc());
         register(new ContainConditionCalc());
         register(new BetweenConditionCalc());
     }
@@ -41,5 +44,11 @@ public class ConditionalsManager {
 
     public static ConditionCalc get(String operational) {
         return calcMap.get(operational);
+    }
+
+    public static List<IVOption> options() {
+        return calcMap.values().stream()
+                .map(item -> new IVOption(item.getName(), item.getOperational(), item.getDesc()))
+                .collect(Collectors.toList());
     }
 }

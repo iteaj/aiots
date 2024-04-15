@@ -22,7 +22,7 @@ public class LinkageDto extends Linkage {
     /**
      * 产品列表
      */
-    private List<Long> productIds;
+    private JSONArray productIds;
 
     /**
      * 产品名称列表

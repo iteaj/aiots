@@ -29,15 +29,29 @@
         <collection property="conditions" select="com.iteaj.iboot.module.iot.mapper.LinkageConditionMapper.listByLinkageItemId" column="{linkageItemId=id}"/>
     </resultMap>
 
+    <resultMap id="ExecItemResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageItem">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="remark" column="remark" />
+        <result property="linkageId" column="linkage_id" />
+        <result property="deviceGroupIds" column="device_group_ids" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
+        <collection property="actions" select="com.iteaj.iboot.module.iot.mapper.LinkageActionMapper.listExecByLinkageItemId" column="{linkageItemId=id}" />
+        <collection property="conditions" select="com.iteaj.iboot.module.iot.mapper.LinkageConditionMapper.listByLinkageItemId" column="{linkageItemId=id}"/>
+    </resultMap>
+
     <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="DtoResultMap">
         <collection property="items" select="com.iteaj.iboot.module.iot.mapper.LinkageMapper.listItemById" column="{linkageId=id}" />
     </resultMap>
 
+    <resultMap id="ExecDetailResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="DtoResultMap">
+        <collection property="items" select="com.iteaj.iboot.module.iot.mapper.LinkageMapper.listExecItemById" column="{linkageId=id}" />
+    </resultMap>
+
     <delete id="removeByItemIds">
         delete a,b,c,e from iot_linkage_item a
-            inner join iot_linkage_condition b on a.id=b.linkage_item_id
-            inner join iot_linkage_action c on a.id=c.linkage_item_id
-            inner join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+            left join iot_linkage_condition b on a.id=b.linkage_item_id
+            left join iot_linkage_action c on a.id=c.linkage_item_id
+            left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
         where a.id in (
         <foreach collection="list" item="itemId" separator=",">
             #{itemId}
@@ -45,10 +59,10 @@
     </delete>
     <delete id="removeAllByIds">
         delete a,b,c,d,e from iot_linkage a
-            inner join iot_linkage_condition b on a.id=b.linkage_id
-            inner join iot_linkage_action c on a.id=c.linkage_id
-            inner join iot_linkage_item d on a.id=d.linkage_id
-            inner join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+            left join iot_linkage_condition b on a.id=b.linkage_id
+            left join iot_linkage_action c on a.id=c.linkage_id
+            left join iot_linkage_item d on a.id=d.linkage_id
+            left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
         where a.id in (
         <foreach collection="list" item="linkageId" separator=",">
             #{linkageId}
@@ -57,13 +71,17 @@
     </delete>
     <delete id="removeJoinByItemId">
         delete b,c,e from iot_linkage_item a
-            inner join iot_linkage_condition b on a.id=b.linkage_item_id
-            inner join iot_linkage_action c on a.id=c.linkage_item_id
-            inner join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+              left join iot_linkage_condition b on a.id=b.linkage_item_id
+              left join iot_linkage_action c on a.id=c.linkage_item_id
+              left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
         where a.id = #{itemId}
     </delete>
 
     <select id="listItemById" resultMap="ItemResultMap">
+        select * from iot_linkage_item where linkage_id=#{linkageId}
+    </select>
+
+    <select id="listExecItemById" resultMap="ExecItemResultMap">
         select * from iot_linkage_item where linkage_id=#{linkageId}
     </select>
 
@@ -99,10 +117,20 @@
         </where>
         order by a.create_time desc
     </select>
-    <select id="listDetailOfEnabled" resultMap="DetailResultMap">
+    <select id="listDetailExecOfEnabled" resultMap="ExecDetailResultMap">
         select a.*, es.name event_source_name, es.product_ids, es.status event_source_status, es.device_group_ids source_device_group_ids from iot_linkage a
-            inner join iot_event_source es on a.event_source_id = es.id
+            left join iot_event_source es on a.event_source_id = es.id
         where a.status = 'enabled'
+    </select>
+    <select id="joinEventSourceById" resultMap="DtoResultMap">
+        select a.*, es.name event_source_name, es.product_ids, es.status event_source_status, es.device_group_ids source_device_group_ids from iot_linkage a
+           left join iot_event_source es on a.event_source_id = es.id
+        where a.id=#{id}
+    </select>
+    <select id="detailExecById" resultMap="ExecDetailResultMap">
+        select a.*, es.name event_source_name, es.product_ids, es.status event_source_status, es.device_group_ids source_device_group_ids from iot_linkage a
+           left join iot_event_source es on a.event_source_id = es.id
+        where a.id=#{id}
     </select>
 
 </mapper>

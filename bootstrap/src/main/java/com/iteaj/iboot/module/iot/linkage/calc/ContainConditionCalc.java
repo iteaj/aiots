@@ -13,4 +13,9 @@ public class ContainConditionCalc implements ConditionCalc {
     public String getOperational() {
         return "contain";
     }
+
+    @Override
+    public boolean calc(Object value, Object condition) {
+        return value.toString().contains(condition.toString());
+    }
 }

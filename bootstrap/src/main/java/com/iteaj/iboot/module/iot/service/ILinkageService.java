@@ -41,5 +41,12 @@ public interface ILinkageService extends IBaseService<Linkage> {
      * 获取已经启用的所有场景联动
      * @return
      */
-    ListResult<LinkageDto> listDetailOfEnabled();
+    ListResult<LinkageDto> listDetailExecOfEnabled();
+
+    /**
+     * 关联事件源
+     * @param id
+     * @return
+     */
+    DetailResult<LinkageDto> joinEventSourceById(Long id);
 }

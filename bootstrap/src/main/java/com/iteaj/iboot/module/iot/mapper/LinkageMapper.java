@@ -38,5 +38,9 @@ public interface LinkageMapper extends BaseMapper<Linkage> {
 
     IPage<Linkage> detailPage(Page<Linkage> page, Linkage entity);
 
-    List<LinkageDto> listDetailOfEnabled();
+    List<LinkageDto> listDetailExecOfEnabled();
+
+    LinkageDto joinEventSourceById(Long id);
+
+    LinkageDto detailExecById(Long id);
 }
