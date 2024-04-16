@@ -238,7 +238,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
                     // 协议属性转模型属性
                     List<ModelAttr> attrs = protocol.getAttrs().values().stream()
-                            .filter(attr -> attr.getAttrType() == AttrType.R)
+                            .filter(attr -> attr.getAttrType() == AttrType.R || attr.getAttrType() == AttrType.RW)
                         .map(attr -> new ModelAttr()
                                 .setName(attr.getName())
                                 .setField(attr.getField())

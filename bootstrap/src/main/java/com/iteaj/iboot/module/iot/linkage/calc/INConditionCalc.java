@@ -20,7 +20,7 @@ public class INConditionCalc implements ConditionCalc {
 
     @Override
     public String getDesc() {
-        return "([1,6,...])";
+        return "([x,...])";
     }
 
     @Override

@@ -22,7 +22,7 @@ public class BetweenConditionCalc implements ConditionCalc {
 
     @Override
     public String getDesc() {
-        return "([0,3])";
+        return "([x,x])";
     }
 
     @Override
