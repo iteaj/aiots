@@ -184,7 +184,9 @@ public class LinkageController extends BaseController {
                     .eq(Device::getDeviceGroupId, deviceGroupIds[0])).getData();
         }
 
-        data.add(0, new Device().setUid("-1").setName("各组产品下所有设备"));
+        data.add(0, new Device()
+                .setUid(LinkageConditionItem.DEVICE_ANY[0])
+                .setName(LinkageConditionItem.DEVICE_ANY[1]));
         return success(data);
     }
 
@@ -258,8 +260,8 @@ public class LinkageController extends BaseController {
                 .map(device -> new IVOption(device.getName(), device.getUid()))
                 .collect(Collectors.toList());
 
-        options.add(0, new IVOption("触发组所有设备", "-1"));
-        options.add(0, new IVOption("当前触发设备", "-2"));
+        options.add(0, new IVOption(LinkageAction.DEVICE_ALL[1], LinkageAction.DEVICE_ALL[0]));
+        options.add(0, new IVOption(LinkageAction.DEVICE_TRIGGER[1], LinkageAction.DEVICE_TRIGGER[0]));
         return success(options);
     }
 
@@ -354,6 +356,11 @@ public class LinkageController extends BaseController {
                                     .addConfig("code", item.getCode())
                                     .addConfig("linkedName", item.getName()));
                             children.setChildren(ivOptions).setSelectable(false);
+                        } else {
+                            children.addConfig("type", ActionType.model)
+                                    .addConfig("linkedId", item.getId())
+                                    .addConfig("code", item.getCode())
+                                    .addConfig("linkedName", item.getName());
                         }
                     }
 

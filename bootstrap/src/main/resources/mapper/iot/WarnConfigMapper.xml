@@ -33,4 +33,10 @@
         order by a.create_time desc
     </select>
 
+    <select id="isBinded" resultType="java.lang.Boolean">
+        select count(a.id) > 0 from iot_warn_config a
+            inner join iot_linkage_action la on la.type='warn' and a.id=la.linked_id
+        where a.id=#{id} limit 1
+    </select>
+
 </mapper>

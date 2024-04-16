@@ -108,6 +108,9 @@
             <if test="entity.status != null">
                 and a.status = #{entity.status}
             </if>
+            <if test="entity.productId != null">
+                and json_contains(es.product_ids, concat('', #{entity.productId}))
+            </if>
             <if test="entity.eventSourceId != null">
                 and a.event_source_id=#{entity.eventSourceId}
             </if>

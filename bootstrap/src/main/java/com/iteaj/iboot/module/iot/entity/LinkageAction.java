@@ -95,6 +95,9 @@ public class LinkageAction extends BaseEntity {
     @TableField(exist = false)
     private String productCode;
 
+    public static final String[] DEVICE_ALL = {"-1", "组下所有设备"};
+    public static final String[] DEVICE_TRIGGER = {"-2", "当前触发设备"};
+
     /**
      * 合并值
      * @return
@@ -105,10 +108,10 @@ public class LinkageAction extends BaseEntity {
 
     public String getDeviceName() {
         if(this.deviceName == null) {
-            if(Objects.equals(this.uid, "-1")) {
-                return "组全部设备";
-            } else if(Objects.equals(this.uid, "-1")) {
-                return "当前设备";
+            if(Objects.equals(this.uid, DEVICE_ALL[0])) {
+                return DEVICE_ALL[1];
+            } else if(Objects.equals(this.uid, DEVICE_TRIGGER[0])) {
+                return DEVICE_TRIGGER[1];
             }
         }
 

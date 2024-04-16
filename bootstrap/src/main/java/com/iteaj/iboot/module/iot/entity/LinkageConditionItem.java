@@ -127,6 +127,8 @@ public class LinkageConditionItem extends BaseEntity {
      */
     private Long eventSourceDetailId;
 
+    public static final String[] DEVICE_ANY = {"-1", "各组任一此产品下的设备"};
+
     public String getLogicalName() {
         return logical != null ? logical.getDesc() : "";
     }
@@ -152,8 +154,8 @@ public class LinkageConditionItem extends BaseEntity {
 
     public String getDeviceName() {
         if(this.deviceName == null) {
-            if(Objects.equals(this.uid, "-1")) {
-                return "组全部设备";
+            if(Objects.equals(this.uid, DEVICE_ANY[0])) {
+                return DEVICE_ANY[1];
             }
         }
 

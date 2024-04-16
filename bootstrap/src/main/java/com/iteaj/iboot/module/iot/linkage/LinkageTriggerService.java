@@ -139,8 +139,14 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                         } else if("-2".equals(linkageAction.getUid())){ // 当前触发设备
                             if(triggerDevice != null) { // 设备触发
                                 doInvokeAction(linkageAction, api, triggerDevice);
-                            } else {
-                                // 组触发不做任何事情
+                            } else { //组触发
+                                // 从条件校验成功的记录中查找相同产品的设备
+                                validateSuccessField.values().forEach(trigger -> {
+                                    // 对成功触发此次动作的设备进行api调用
+                                    if(trigger.getDevice().getProductCode().equals(linkageAction.getProductCode())) {
+                                        doInvokeAction(linkageAction, api, trigger.getDevice());
+                                    }
+                                });
                             }
                         } else { // 指定设备
                             cacheManager.listByProductCode(linkageAction.getProductCode()).forEach(device -> {

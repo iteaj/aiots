@@ -46,6 +46,12 @@ public class Linkage extends BaseEntity {
     private Long eventSourceId;
 
     /**
+     * 产品id
+     */
+    @TableField(exist = false)
+    private Long productId;
+
+    /**
      * 事件源名称
      */
     @TableField(exist = false)

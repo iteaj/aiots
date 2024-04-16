@@ -16,4 +16,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface WarnConfigMapper extends BaseMapper<WarnConfig> {
 
     IPage<WarnConfig> pageDetail(Page<WarnConfig> page, WarnConfig entity);
+
+    boolean isBinded(Long id);
 }

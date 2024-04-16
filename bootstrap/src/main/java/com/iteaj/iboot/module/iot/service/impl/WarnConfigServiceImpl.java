@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.entity.WarnConfig;
@@ -33,6 +34,14 @@ public class WarnConfigServiceImpl extends BaseServiceImpl<WarnConfigMapper, War
 
     @Override
     public BooleanResult updateById(WarnConfig entity) {
+        this.getById(entity.getId()).ifPresent(config -> {
+           if(!config.getProductId().equals(entity.getProductId())) {
+               if(this.getBaseMapper().isBinded(entity.getId())) {
+                   throw new ServiceException("已被场景联动绑定, 不允许修改产品");
+               }
+           }
+        });
+
         this.getOne(Wrappers.<WarnConfig>lambdaQuery()
                 .ne(WarnConfig::getId, entity.getId())
                 .eq(WarnConfig::getProductId, entity.getProductId())
