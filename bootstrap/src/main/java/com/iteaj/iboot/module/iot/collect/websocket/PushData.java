@@ -20,6 +20,10 @@ public class PushData {
         this.value = value;
     }
 
+    public static PushData build(String type, Object value) {
+        return new PushData(type, value);
+    }
+
     public static PushData buildStatus(RealtimeStatus status) {
         return new PushData("status", status);
     }
