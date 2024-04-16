@@ -1,11 +1,13 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -114,6 +116,22 @@ public class ModelAttrController extends BaseController {
     @Logger("删除物模型属性字典记录")
     public Result<Boolean> removeDict(@RequestBody List<Long> idList) {
         return this.modelAttrService.removeModelAttrDictByIds(idList);
+    }
+
+    /**
+     * 获取指定产品下面的物模型属性
+     * @param productId
+     * @return
+     */
+    @GetMapping("listByProductId")
+    public Result<List<ModelAttr>> listByProductId(Long productId) {
+        if(productId == null) {
+            return success(Collections.EMPTY_LIST);
+        }
+
+        return this.modelAttrService.list(Wrappers.<ModelAttr>lambdaQuery()
+                .eq(ModelAttr::getProductId, productId)
+                .in(ModelAttr::getAttrType, AttrType.R, AttrType.RW));
     }
 }
 
