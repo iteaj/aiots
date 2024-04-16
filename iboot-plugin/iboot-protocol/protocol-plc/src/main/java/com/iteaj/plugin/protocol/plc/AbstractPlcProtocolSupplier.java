@@ -24,7 +24,7 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T
         // 协议模型属性
         this.modelAttrs.put(PointProtocolConfig.POINT_ADDRESS, new ProtocolModelAttr(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_NAME, DataType.t_string, AttrType.IGNORE, PlcProtocolConsts.PLC_ADDRESS_REMARK));
         this.modelAttrs.put(PointProtocolConfig.POINT_NUMBER, new ProtocolModelAttr(PointProtocolConfig.POINT_NUMBER, PlcProtocolConsts.PLC_NUMBER_NAME, DataType.t_short, AttrType.IGNORE, PlcProtocolConsts.PLC_NUMBER_REMARK));
-        this.modelAttrs.put(PlcProtocolConsts.PLC_VALUE, new ProtocolModelAttr(PlcProtocolConsts.PLC_VALUE, PlcProtocolConsts.PLC_VALUE_NAME, DataType.t_any, AttrType.R, PlcProtocolConsts.PLC_VALUE_REMARK));
+        this.modelAttrs.put(PlcProtocolConsts.PLC_VALUE, new ProtocolModelAttr(PlcProtocolConsts.PLC_VALUE, PlcProtocolConsts.PLC_VALUE_NAME, DataType.t_any, AttrType.IGNORE, PlcProtocolConsts.PLC_VALUE_REMARK));
         this.modelAttrs.put(PlcProtocolConsts.PLC_WRITE_STATUS, new ProtocolModelAttr(PlcProtocolConsts.PLC_WRITE_STATUS, "操作状态", DataType.t_boolean, AttrType.STATUS, "操作状态"));
 
         // 协议模型事件接口
