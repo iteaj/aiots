@@ -20,7 +20,7 @@ import java.util.List;
  */
 public interface DeviceGroupMapper extends BaseMapper<DeviceGroup> {
 
-    boolean hasBindDevice(Collection<?> idList);
+    boolean hasBindDevice(Serializable id);
 
     DeviceGroup detailById(Long id);
 
@@ -33,7 +33,7 @@ public interface DeviceGroupMapper extends BaseMapper<DeviceGroup> {
      */
     DeviceGroup getGroupProductById(Long id);
 
-    boolean hasBindEventSource(Collection<? extends Serializable> idList);
+    boolean hasBindEventSource(Serializable id);
 
     IPage<DeviceGroup> detailPage(Page<DeviceGroup> page, DeviceGroup entity);
 

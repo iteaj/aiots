@@ -110,8 +110,8 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
     }
 
     @Override
-    public boolean hasBindDevice(Collection<?> idList) {
-        return getBaseMapper().hasBindDevice(idList);
+    public boolean hasBindDevice(Serializable id) {
+        return getBaseMapper().hasBindDevice(id);
     }
 
     @Override
@@ -125,8 +125,8 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
     }
 
     @Override
-    public boolean hasBindEventSource(Collection<? extends Serializable> idList) {
-        return this.getBaseMapper().hasBindEventSource(idList);
+    public boolean hasBindEventSource(Serializable id) {
+        return this.getBaseMapper().hasBindEventSource(id);
     }
 
     @Override
@@ -137,7 +137,15 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
 
     @Override
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
-        this.count(Wrappers.<DeviceGroup>lambdaQuery().in(DeviceGroup::getPid, idList))
+        if(CollectionUtil.isEmpty(idList)) {
+            return BooleanResult.buildFalse("未指定要删除的记录");
+        }
+        if(idList.size() > 1) {
+            return BooleanResult.buildFalse("不支持批量删除");
+        }
+
+        Serializable id = idList.stream().findFirst().get();
+        this.count(Wrappers.<DeviceGroup>lambdaQuery().eq(DeviceGroup::getPid, id))
                 .ifPresent(count -> {
             if(count > 0) {
                 throw new ServiceException("请先删除子分组");
@@ -145,12 +153,12 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
         });
 
         // 校验是否已绑定设备
-        if(this.hasBindDevice(idList)) {
+        if(this.hasBindDevice(id)) {
             throw new ServiceException("请先解绑此分组下的设备");
         }
 
         // 校验是否已被事件源绑定
-        if(this.hasBindEventSource(idList)) {
+        if(this.hasBindEventSource(id)) {
             throw new ServiceException("请先解绑此分组下的事件源");
         }
 
