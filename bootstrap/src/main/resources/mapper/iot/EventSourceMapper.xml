@@ -65,7 +65,7 @@
     </select>
 
     <select id="availableSources" resultType="com.iteaj.framework.IVOption">
-        select a.name label, a.id value, if(l.id, '已绑定', '') extra from iot_event_source a
+        select a.name label, a.id value, count(l.event_source_id) extra from iot_event_source a
             left join iot_linkage l on a.id=l.event_source_id
     </select>
 
