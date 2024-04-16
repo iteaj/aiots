@@ -156,24 +156,26 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                 } else if(linkageAction.getType() == ActionType.warn) { // 触发告警
                     WarnConfig warn = linkageAction.getWarn();
                     if(warn != null) {
-                        if(triggerDevice != null) {
-                            // 成功触发此次联动条件的设备和字段
-                            SuccessDeviceAndField deviceAndField = validateSuccessField.get(linkageAction.getTypeValue());
-                            if(deviceAndField != null) {
-                                Date date = new Date();
-                                String content = resolverWarnTemplate(warn, deviceAndField);
-                                WarnRecord warnRecord = new WarnRecord().setDeviceSn(deviceAndField.getDeviceSn()).
-                                        setUid(deviceAndField.getUid()).setCreateTime(date).setWarnTime(date).setGrade(warn.getGrade())
-                                        .setWarnConfigId(warn.getId()).setContent(content);
-                                CollectListenerManager.getInstance().forEach(listener -> {
-                                    if(listener instanceof LinkageActionListener) {
-                                        ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, deviceAndField.device);
-                                    }
-                                });
-                            }
+                        // 成功触发此次联动条件的设备和字段
+                        SuccessDeviceAndField deviceAndField = validateSuccessField.get(warn.getModelAttrField());
+                        if(deviceAndField != null) {
+                            Date date = new Date();
+                            String content = resolverWarnTemplate(warn, deviceAndField);
+                            WarnRecord warnRecord = new WarnRecord().setDeviceSn(deviceAndField.getDeviceSn()).
+                                    setUid(deviceAndField.getUid()).setCreateTime(date).setWarnTime(date).setGrade(warn.getGrade())
+                                    .setWarnConfigId(warn.getId()).setContent(content);
+                            CollectListenerManager.getInstance().forEach(listener -> {
+                                if(listener instanceof LinkageActionListener) {
+                                    ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, deviceAndField.device);
+                                }
+                            });
                         } else {
-
+                            logger.error("动作项执行失败 未找到触发属性 - 属性: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", warn.getModelAttrField()
+                                    , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
                         }
+                    } else {
+                        logger.error("动作项执行失败 未找到告警配置 - 联动项: {} - 动作项: {}/{} - 动作id: {}"
+                                , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
                     }
                 }
             }

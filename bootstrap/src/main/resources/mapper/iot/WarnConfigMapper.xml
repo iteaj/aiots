@@ -10,7 +10,8 @@
         <result column="remark" property="remark" />
         <result column="template" property="template" />
         <result column="product_id" property="productId" />
-        <result column="product_Name" property="productName" />
+        <result column="model_attr_field" property="modelAttrField" />
+        <result column="model_attr_id" property="modelAttrId" />
         <result column="create_time" property="createTime" />
     </resultMap>
 

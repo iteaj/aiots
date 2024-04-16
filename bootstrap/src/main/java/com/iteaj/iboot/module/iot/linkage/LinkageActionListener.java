@@ -15,7 +15,7 @@ public interface LinkageActionListener extends CollectDataListener {
      * @param record
      * @param status
      */
-    void warnTrigger(WarnConfig config, WarnRecord record, RealtimeStatus status);
+    default void warnTrigger(WarnConfig config, WarnRecord record, RealtimeStatus status) {}
 
     /**
      * api调用
@@ -23,5 +23,5 @@ public interface LinkageActionListener extends CollectDataListener {
      * @param status
      * @param result
      */
-    void apiInvoke(ModelApi api, RealtimeStatus status, InvokeResult result);
+    default void apiInvoke(ModelApi api, RealtimeStatus status, InvokeResult result) {}
 }

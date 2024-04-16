@@ -51,6 +51,16 @@ public class WarnConfig extends BaseEntity {
      */
     private Long productId;
 
+    /**
+     * 属性id
+     */
+    private Long modelAttrId;
+
+    /**
+     * 属性字段
+     */
+    private String modelAttrField;
+
     @TableField(exist = false)
     private String productName;
 

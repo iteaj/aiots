@@ -18,6 +18,8 @@ import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.linkage.*;
+import com.iteaj.iboot.module.iot.linkage.warn.RDBMSPersistenceWarnListener;
+import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +79,16 @@ public class IotAutoConfiguration {
     @ConditionalOnMissingBean(DataPersistenceListener.class)
     public RDBMSPersistenceListener rdbmsPersistenceListener(DefaultRdbmsSqlManager rdbmsSqlManager) {
         return new RDBMSPersistenceListener(rdbmsSqlManager);
+    }
+
+    /**
+     * 告警数据实时入库
+     * @param warnRecordService
+     * @return
+     */
+    @Bean
+    public RDBMSPersistenceWarnListener rdbmsPersistenceWarnListener(IWarnRecordService warnRecordService) {
+        return new RDBMSPersistenceWarnListener(warnRecordService);
     }
 
     /**
