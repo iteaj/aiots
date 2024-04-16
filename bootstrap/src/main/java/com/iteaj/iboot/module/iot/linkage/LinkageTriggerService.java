@@ -9,6 +9,7 @@ import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.consts.ActionType;
@@ -21,6 +22,7 @@ import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.Message;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.consts.ExecStatus;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +50,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
      */
     public void trigger(RealtimeStatus device) {
         Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), device.getStatus().name());
-        this.invokeLinkage(linkageItems, null, device);
+        this.invokeLinkage(linkageItems, null, device, new HashMap<>());
     }
 
     /**
@@ -79,7 +81,9 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                     Set<LinkageItem> linkageItemSet = linkageItems.stream()
                             .filter(item -> item.getDeviceGroupIds().contains(device.getGroupId()))
                             .collect(Collectors.toSet());
-                    invokeLinkage(linkageItemSet, dataSupplier, device);
+                    Map<String, SignalOrFieldValue> attrValueMap = dataSupplier.getValues().stream()
+                            .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, value -> value));
+                    invokeLinkage(linkageItemSet, dataSupplier, device, attrValueMap);
                 }
             });
         } else {
@@ -101,15 +105,19 @@ public class LinkageTriggerService implements EventGroupCollectListener {
         }
     }
 
-    protected void invokeLinkage(Set<LinkageItem> linkageItems, DataSupplier dataSupplier, Object deviceOrGroup) {
+    protected void invokeLinkage(Set<LinkageItem> linkageItems, DataSupplier dataSupplier, Object deviceOrGroup, Map<String, SignalOrFieldValue> attrValueMap) {
+        Map<String, SuccessDeviceAndField> validateSuccessField = new HashMap<>();
         linkageItems.forEach(item -> {
-            if(validateCondition(item, dataSupplier, deviceOrGroup)) {
-                execLinkageAction(item, deviceOrGroup);
+            if(validateCondition(item, dataSupplier, deviceOrGroup, validateSuccessField)) {
+                execLinkageAction(item, deviceOrGroup, attrValueMap, validateSuccessField);
             }
+
+            validateSuccessField.clear(); // 清除所有的参数
         });
     }
 
-    protected void execLinkageAction(LinkageItem item, Object deviceOrGroup) {
+    protected void execLinkageAction(LinkageItem item, Object deviceOrGroup, Map<String
+            , SignalOrFieldValue> attrValueMap, Map<String, SuccessDeviceAndField> validateSuccessField) {
         if(CollectionUtil.isNotEmpty(item.getActions())) {
             Long groupId;
             RealtimeStatus triggerDevice = null;
@@ -147,22 +155,66 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                     }
                 } else if(linkageAction.getType() == ActionType.warn) { // 触发告警
                     WarnConfig warn = linkageAction.getWarn();
+                    if(warn != null) {
+                        if(triggerDevice != null) {
+                            // 成功触发此次联动条件的设备和字段
+                            SuccessDeviceAndField deviceAndField = validateSuccessField.get(linkageAction.getTypeValue());
+                            if(deviceAndField != null) {
+                                Date date = new Date();
+                                String content = resolverWarnTemplate(warn, deviceAndField);
+                                WarnRecord warnRecord = new WarnRecord().setDeviceSn(deviceAndField.getDeviceSn()).
+                                        setUid(deviceAndField.getUid()).setCreateTime(date).setWarnTime(date).setGrade(warn.getGrade())
+                                        .setWarnConfigId(warn.getId()).setContent(content);
+                                CollectListenerManager.getInstance().forEach(listener -> {
+                                    if(listener instanceof LinkageActionListener) {
+                                        ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, deviceAndField.device);
+                                    }
+                                });
+                            }
+                        } else {
+
+                        }
+                    }
                 }
             }
         }
     }
 
+    /**
+     * 解析告警配置模板
+     * @param warn
+     * @param deviceAndField
+     * @return
+     */
+    private String resolverWarnTemplate(WarnConfig warn, SuccessDeviceAndField deviceAndField) {
+        Map<String, String> value = new HashMap<>();
+        SignalOrFieldValue fieldValue = deviceAndField.value;
+        value.put("deviceSn", deviceAndField.getDeviceSn());
+        value.put("value", fieldValue.getValue().toString());
+
+        return StrUtil.format(warn.getTemplate(), value, true);
+    }
+
     private void doInvokeAction(LinkageActionExecDto linkageAction, ModelApi api, RealtimeStatus device) {
         if (device.getStatus() == DeviceStatus.online) {
-            ProtocolModelApiInvokeParam param = createInvokeParam(linkageAction, device);
-            ProtocolInvokeUtil.invoke(api, param, device, (result) -> {
-                if(result.getStatus() == ExecStatus.success) {
+            try {
+                ProtocolModelApiInvokeParam param = createInvokeParam(linkageAction, device);
+                ProtocolInvokeUtil.invoke(api, param, device, (result) -> {
+                    if(result.getStatus() == ExecStatus.success) {
 
-                } else {
-                    logger.warn("执行联动动作失败 {} - 接口: {}/{} - 设备: {}"
-                            , result.getStatus(), api.getName(), api.getCode(), device.buildKey());
-                }
-            });
+                    } else {
+                        logger.warn("执行联动动作失败 {} - 接口: {}/{} - 设备: {}"
+                                , result.getStatus(), api.getName(), api.getCode(), device.buildKey());
+                    }
+                    CollectListenerManager.getInstance().forEach(item -> {
+                        if(item instanceof LinkageActionListener) {
+                            ((LinkageActionListener) item).apiInvoke(api, device, result);
+                        }
+                    });
+                });
+            } catch (Exception e) {
+                logger.error("执行联动动作失败 调用物模型接口异常 - 接口: {}/{} - 设备: {}", api.getName(), api.getCode(), device.buildKey(), e);
+            }
         } else {
             logger.warn("执行联动动作失败 设备不在线 - 接口: {}/{} - 设备: {}", api.getName(), api.getCode(), device.buildKey());
         }
@@ -183,7 +235,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
         return null;
     }
 
-    protected boolean validateCondition(LinkageItem item, DataSupplier dataSupplier, Object deviceOrGroup) {
+    protected boolean validateCondition(LinkageItem item, DataSupplier dataSupplier, Object deviceOrGroup, Map<String, SuccessDeviceAndField> validateSuccessField) {
         Iterator<LinkageCondition> iterator = item.getConditions().iterator();
         boolean prev = false;
 
@@ -192,11 +244,11 @@ public class LinkageTriggerService implements EventGroupCollectListener {
             LinkageLogical logical = condition.getLogical();
             if(logical == null) { // 第一个条件
                 // 当前条件校验状态
-                prev = doValidateCondition(condition, dataSupplier, deviceOrGroup);
+                prev = doValidateCondition(condition, dataSupplier, deviceOrGroup, validateSuccessField);
             } else { // 有两个以上条件
                 if(logical == LinkageLogical.and) { // and关系
                     if(prev) { // 上一个为true则继续校验下一个
-                        prev = doValidateCondition(condition, dataSupplier, deviceOrGroup);
+                        prev = doValidateCondition(condition, dataSupplier, deviceOrGroup, validateSuccessField);
                     } else { // 上一个为false直接返回false
                         return false;
                     }
@@ -204,7 +256,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                     if(prev) {
                         return true;
                     } else {
-                        prev = doValidateCondition(condition, dataSupplier, deviceOrGroup);
+                        prev = doValidateCondition(condition, dataSupplier, deviceOrGroup, validateSuccessField);
                     }
                 }
             }
@@ -213,7 +265,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
         return prev;
     }
 
-    private boolean doValidateCondition(LinkageCondition condition, DataSupplier dataSupplier, Object deviceOrGroup) {
+    private boolean doValidateCondition(LinkageCondition condition, DataSupplier dataSupplier, Object deviceOrGroup, Map<String, SuccessDeviceAndField> validateSuccessField) {
         List<LinkageConditionItem> items = condition.getItems();
         Iterator<LinkageConditionItem> iterator = items.iterator();
         boolean prev = false;
@@ -222,11 +274,11 @@ public class LinkageTriggerService implements EventGroupCollectListener {
             LinkageLogical logical = conditionItem.getLogical();
             if(logical == null) { // 第一个条件
                 // 当前条件校验状态
-                prev = validateConditionItem(conditionItem, dataSupplier, deviceOrGroup);
+                prev = validateConditionItem(conditionItem, dataSupplier, deviceOrGroup, validateSuccessField);
             } else { // 有两个以上条件
                 if(logical == LinkageLogical.and) { // and关系
                     if(prev) { // 上一个为true则继续校验下一个
-                        prev = validateConditionItem(conditionItem, dataSupplier, deviceOrGroup);
+                        prev = validateConditionItem(conditionItem, dataSupplier, deviceOrGroup, validateSuccessField);
                     } else { // 上一个为false直接返回false
                         return false;
                     }
@@ -234,7 +286,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                     if(prev) {
                         return true;
                     } else {
-                        prev = validateConditionItem(conditionItem, dataSupplier, deviceOrGroup);
+                        prev = validateConditionItem(conditionItem, dataSupplier, deviceOrGroup, validateSuccessField);
                     }
                 }
             }
@@ -243,7 +295,8 @@ public class LinkageTriggerService implements EventGroupCollectListener {
         return prev;
     }
 
-    private boolean validateConditionItem(LinkageConditionItem conditionItem, DataSupplier dataSupplier, Object deviceOrGroup) {
+    private boolean validateConditionItem(LinkageConditionItem conditionItem, DataSupplier dataSupplier
+            , Object deviceOrGroup, Map<String, SuccessDeviceAndField> validateSuccessField) {
         ConditionCalc conditionCalc = ConditionalsManager.get(conditionItem.getOperator());
         if(conditionCalc != null) {
             Long groupId;
@@ -265,6 +318,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                     RealtimeStatus next = iterator.next();
                     RealtimeData data = realtimeDataService.getOfDeviceAndKey(next.getProtocolCode(), next.buildKey(), conditionItem.getTypeValue());
                     if (calcCondition(conditionItem, conditionCalc, data, next)) {
+                        validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(next, data.getRealtime()));
                         return true;
                     }
                 }
@@ -278,7 +332,9 @@ public class LinkageTriggerService implements EventGroupCollectListener {
 
                 if(linkageDevice != null) {
                     RealtimeData data = realtimeDataService.getOfDeviceAndKey(linkageDevice.getProtocolCode(), linkageDevice.buildKey(), conditionItem.getTypeValue());
-                    return calcCondition(conditionItem, conditionCalc, data, linkageDevice);
+                    if(calcCondition(conditionItem, conditionCalc, data, linkageDevice)) {
+                        validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(linkageDevice, data.getRealtime()));
+                    }
                 } else {
                     logger.error("条件项校验失败 校验设备不存在 - 触发组id: {} - 联动条件设备uid: {}", groupId, conditionItem.getUid());
                 }
@@ -317,10 +373,37 @@ public class LinkageTriggerService implements EventGroupCollectListener {
 
     public void trigger(CollectInfo info) {
         if(CollectionUtil.isNotEmpty(info.getInfos())) {
+            Map<String, SignalOrFieldValue> attrValueMap = new HashMap<>();
+            info.getInfos().forEach(deviceInfo -> {
+                List<SignalOrFieldValue> values = deviceInfo.getSupplier().getValues();
+                if(CollectionUtil.isNotEmpty(values)) {
+                    values.forEach(value -> attrValueMap.put(value.getSignalOrField(), value));
+                }
+            });
+
             Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(info.getSource().getId(), info.getGroup().getId());
             if(CollectionUtil.isNotEmpty(linkageItems) && CollectionUtil.isNotEmpty(info.getInfos())) {
-                this.invokeLinkage(linkageItems, null, info.getGroup());
+                this.invokeLinkage(linkageItems, null, info.getGroup(), attrValueMap);
             }
+        }
+    }
+
+    @Getter
+    public class SuccessDeviceAndField {
+        private RealtimeStatus device;
+        private SignalOrFieldValue value;
+
+        public SuccessDeviceAndField(RealtimeStatus device, SignalOrFieldValue value) {
+            this.device = device;
+            this.value = value;
+        }
+
+        public String getDeviceSn() {
+            return device.getDeviceSn();
+        }
+
+        public String getUid() {
+            return device.getUid();
         }
     }
 
