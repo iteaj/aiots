@@ -20,11 +20,7 @@
     </update>
 
     <select id="hasBindDevice" resultType="java.lang.Boolean">
-        select count(id) > 0 from iot_device where device_group_id in (
-            <foreach collection="list" item="id" separator=",">
-                #{id}
-            </foreach>
-        )
+        select count(id) > 0 from iot_device where device_group_id = #{id} limit 1
     </select>
 
     <select id="detailById" resultMap="BaseResultMap">
@@ -37,26 +33,17 @@
         where a.id=#{id}
     </select>
     <select id="hasBindEventSource" resultType="java.lang.Boolean">
-        select count(id) > 0 from iot_event_source where device_group_id in (
-            <foreach collection="list" item="id" separator=",">
-                #{id}
-            </foreach>
-        )
+        select count(id) > 0 from iot_event_source where json_contains(device_group_ids, '${id}') limit 1
     </select>
     <select id="detailPage" resultMap="BaseResultMap">
         select a.* from iot_device_group a
     </select>
 
     <select id="listDetail" resultMap="BaseResultMap">
-        select a.*, group_concat(p.name) product_names from iot_device_group a
-            left join iot_device_group pdg on pdg.id = a.group_product_id
-            left join iot_product p on json_contains(pdg.product_ids, concat('', p.id))
+        select a.* from iot_device_group a
         <where>
             <if test="name != null and name != ''">
                 and a.name like '%${name}%'
-            </if>
-            <if test="productId != null">
-                and p.id = #{productId}
             </if>
         </where>
         group by a.id

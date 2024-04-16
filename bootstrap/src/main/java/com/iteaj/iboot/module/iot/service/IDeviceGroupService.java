@@ -24,7 +24,7 @@ public interface IDeviceGroupService extends IBaseService<DeviceGroup> {
 
     ListResult<DeviceGroup> tree(DeviceGroup entity);
 
-    boolean hasBindDevice(Collection<?> idList);
+    boolean hasBindDevice(Serializable id);
 
     DetailResult<DeviceGroup> detailById(Long id);
 
@@ -35,7 +35,7 @@ public interface IDeviceGroupService extends IBaseService<DeviceGroup> {
      */
     DetailResult<DeviceGroup> getGroupProductById(Long id);
 
-    boolean hasBindEventSource(Collection<? extends Serializable> idList);
+    boolean hasBindEventSource(Serializable id);
 
     PageResult<IPage<DeviceGroup>> detailPage(Page<DeviceGroup> page, DeviceGroup entity);
 }
