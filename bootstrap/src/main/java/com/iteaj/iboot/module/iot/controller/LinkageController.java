@@ -15,6 +15,7 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.consts.*;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
@@ -277,11 +278,17 @@ public class LinkageController extends BaseController {
         }
 
         List<IVOption> result = new ArrayList<>();
-        result.add(new IVOption("设备状态", ConditionType.DeviceStatus, "").setSelectable(false)
-                .addChildren(new IVOption("设备上线", DeviceStatus.online, "")
-                        .addConfig("type", ConditionType.DeviceStatus).addConfig("attrType", DeviceStatus.online))
-                .addChildren(new IVOption("设备离线", DeviceStatus.offline, "")
-                        .addConfig("type", ConditionType.DeviceStatus).addConfig("attrType", DeviceStatus.offline)));
+        result.add(new IVOption("设备状态", ConditionType.Status, "").setSelectable(false)
+                .addChildren(new IVOption("设备上线", ConditionType.Status + ":" + DeviceStatus.online, "")
+                        .addConfig("type", ConditionType.Status)
+                        .addConfig("linkedId", LinkageConditionItem.DEVICE_ONLINE[0])
+                        .addConfig("linkedName", LinkageConditionItem.DEVICE_ONLINE[1])
+                        .addConfig("attrType", DataType.t_boolean.getValue()))
+                .addChildren(new IVOption("设备离线", ConditionType.Status + ":" + DeviceStatus.offline, "")
+                        .addConfig("type", ConditionType.Status)
+                        .addConfig("linkedId", LinkageConditionItem.DEVICE_OFFLINE[0])
+                        .addConfig("linkedName", LinkageConditionItem.DEVICE_OFFLINE[1])
+                        .addConfig("attrType", DataType.t_boolean.getValue())));
 
         this.productService.joinDetailById(productId).ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
@@ -345,7 +352,7 @@ public class LinkageController extends BaseController {
         this.productService.joinDetailById(productId).ifPresent(productDto -> {
             if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
                 productDto.getFuncApis().forEach(item -> {
-                    IVOption children = new IVOption(item.getName(), item.getId(), ProtocolApiType.func.getDesc());
+                    IVOption children = new IVOption(item.getName(), ActionType.model + item.getId().toString(), ProtocolApiType.func.getDesc());
                     List<ModelApiConfig> downConfig = item.getDownConfig();
                     if (CollectionUtil.isNotEmpty(downConfig)) {
                         List<IVOption> ivOptions = item.resolveDownApiConfig(productDto.getAttrs());
@@ -370,7 +377,7 @@ public class LinkageController extends BaseController {
 
             if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
                 productDto.getEventApis().forEach(item -> {
-                    func.addChildren(new IVOption(item.getName(), item.getId(), ProtocolApiType.event.getDesc())
+                    func.addChildren(new IVOption(item.getName(), ActionType.model + item.getId().toString(), ProtocolApiType.event.getDesc())
                             .addConfig("type", ActionType.model)
                             .addConfig("linkedId", item.getId())
                             .addConfig("linkedName", item.getName())
@@ -383,7 +390,7 @@ public class LinkageController extends BaseController {
         warnConfigService.list(Wrappers.<WarnConfig>lambdaQuery().eq(WarnConfig::getProductId, productId))
                 .ifPresent(warnConfigs -> {
             warnConfigs.forEach(warnConfig -> {
-                warn.addChildren(new IVOption(warnConfig.getName(), warnConfig.getId(), "告警")
+                warn.addChildren(new IVOption(warnConfig.getName(), (ActionType.warn + warnConfig.getId().toString()), warnConfig.getGrade().getDesc())
                         .addConfig("type", ActionType.warn)
                         .addConfig("linkedName", warnConfig.getName())
                         .addConfig("linkedId", warnConfig.getId()));

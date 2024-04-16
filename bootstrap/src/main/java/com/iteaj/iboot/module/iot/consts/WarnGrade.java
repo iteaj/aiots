@@ -11,7 +11,8 @@ public enum WarnGrade {
     fatal("严重"),
     urgent("紧急"),
     warn("告警"),
-    notice("通知")
+    notice("通知"),
+    status("状态"), // 用于一些状态通知
     ;
 
     private String desc;

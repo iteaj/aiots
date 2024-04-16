@@ -365,7 +365,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                                 , device.buildDeviceKey(), realtime.getStatus(), data.getSignalOrField(), conditionCalc.getOperational(), conditionItem.getValue());
                     }
                 }
-            } else if(conditionItem.getType() == ConditionType.DeviceStatus) { // 设备状态校验
+            } else if(conditionItem.getType() == ConditionType.Status) { // 设备状态校验
                 DeviceStatus status = DeviceStatus.valueOf(conditionItem.getTypeValue());
                 if(status == device.getStatus()) {
                     return true;

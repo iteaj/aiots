@@ -101,7 +101,7 @@ public class LinkageConditionItem extends BaseEntity {
     private String productName;
 
     /**
-     * 物模型接口
+     * 连接id
      */
     private Long linkedId;
 
@@ -128,9 +128,22 @@ public class LinkageConditionItem extends BaseEntity {
     private Long eventSourceDetailId;
 
     public static final String[] DEVICE_ANY = {"-1", "各组任一此产品下的设备"};
+    public static final String[] DEVICE_ONLINE = {"-1", "设备上线"};
+    public static final String[] DEVICE_OFFLINE = {"-2", "设备离线"};
 
     public String getLogicalName() {
         return logical != null ? logical.getDesc() : "";
+    }
+
+    public String getLinkedName() {
+        String linkedId = this.linkedId + "";
+        if(DEVICE_ONLINE[0].equals(linkedId)) {
+            return DEVICE_ONLINE[1];
+        } else if(DEVICE_OFFLINE[0].equals(linkedId)) {
+            return DEVICE_OFFLINE[1];
+        }
+
+        return linkedName;
     }
 
     /**
