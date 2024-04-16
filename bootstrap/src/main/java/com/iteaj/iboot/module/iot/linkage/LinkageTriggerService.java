@@ -50,7 +50,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
      */
     public void trigger(RealtimeStatus device) {
         Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), device.getStatus().name());
-        this.invokeLinkage(linkageItems, null, device, new HashMap<>());
+        this.invokeLinkage(linkageItems, null, device);
     }
 
     /**
@@ -81,9 +81,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                     Set<LinkageItem> linkageItemSet = linkageItems.stream()
                             .filter(item -> item.getDeviceGroupIds().contains(device.getGroupId()))
                             .collect(Collectors.toSet());
-                    Map<String, SignalOrFieldValue> attrValueMap = dataSupplier.getValues().stream()
-                            .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, value -> value));
-                    invokeLinkage(linkageItemSet, dataSupplier, device, attrValueMap);
+                    invokeLinkage(linkageItemSet, dataSupplier, device);
                 }
             });
         } else {
@@ -105,19 +103,18 @@ public class LinkageTriggerService implements EventGroupCollectListener {
         }
     }
 
-    protected void invokeLinkage(Set<LinkageItem> linkageItems, DataSupplier dataSupplier, Object deviceOrGroup, Map<String, SignalOrFieldValue> attrValueMap) {
+    protected void invokeLinkage(Set<LinkageItem> linkageItems, DataSupplier dataSupplier, Object deviceOrGroup) {
         Map<String, SuccessDeviceAndField> validateSuccessField = new HashMap<>();
         linkageItems.forEach(item -> {
             if(validateCondition(item, dataSupplier, deviceOrGroup, validateSuccessField)) {
-                execLinkageAction(item, deviceOrGroup, attrValueMap, validateSuccessField);
+                execLinkageAction(item, deviceOrGroup, validateSuccessField);
             }
 
             validateSuccessField.clear(); // 清除所有的参数
         });
     }
 
-    protected void execLinkageAction(LinkageItem item, Object deviceOrGroup, Map<String
-            , SignalOrFieldValue> attrValueMap, Map<String, SuccessDeviceAndField> validateSuccessField) {
+    protected void execLinkageAction(LinkageItem item, Object deviceOrGroup, Map<String, SuccessDeviceAndField> validateSuccessField) {
         if(CollectionUtil.isNotEmpty(item.getActions())) {
             Long groupId;
             RealtimeStatus triggerDevice = null;
@@ -375,17 +372,9 @@ public class LinkageTriggerService implements EventGroupCollectListener {
 
     public void trigger(CollectInfo info) {
         if(CollectionUtil.isNotEmpty(info.getInfos())) {
-            Map<String, SignalOrFieldValue> attrValueMap = new HashMap<>();
-            info.getInfos().forEach(deviceInfo -> {
-                List<SignalOrFieldValue> values = deviceInfo.getSupplier().getValues();
-                if(CollectionUtil.isNotEmpty(values)) {
-                    values.forEach(value -> attrValueMap.put(value.getSignalOrField(), value));
-                }
-            });
-
             Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(info.getSource().getId(), info.getGroup().getId());
             if(CollectionUtil.isNotEmpty(linkageItems) && CollectionUtil.isNotEmpty(info.getInfos())) {
-                this.invokeLinkage(linkageItems, null, info.getGroup(), attrValueMap);
+                this.invokeLinkage(linkageItems, null, info.getGroup());
             }
         }
     }
