@@ -104,7 +104,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     }
 
     @Override
-    public Result<IPage<DeviceDto>> pageOfDetail(Page<Device> page, DeviceDto entity) {
+    public PageResult<IPage<DeviceDto>> pageOfDetail(Page<Device> page, DeviceDto entity) {
         return new PageResult<>(getBaseMapper().pageOfDetail(page, entity));
     }
 
