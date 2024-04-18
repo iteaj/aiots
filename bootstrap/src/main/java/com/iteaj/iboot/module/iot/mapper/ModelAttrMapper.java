@@ -2,9 +2,11 @@ package com.iteaj.iboot.module.iot.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
+import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
@@ -29,4 +31,6 @@ public interface ModelAttrMapper extends BaseMapper<ModelAttr> {
      * @return
      */
     boolean hasBinded(Collection<? extends Serializable> idList);
+
+    List<ModelAttrDict> listDetailDict(ModelAttrDict entity);
 }

@@ -83,6 +83,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>protocol-mqtt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <scope>provided</scope>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>

@@ -11,6 +11,7 @@ import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
@@ -148,6 +149,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                         .setCode(api.getCode())
                         .setName(api.getName())
                         .setType(api.getType())
+                        .setFuncType(FuncType.R)
                         .setRemark(api.getRemark())
                         .setTriggerMode(api.getTriggerMode());
 

@@ -7,16 +7,17 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.InvokeStatusException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.framework.spi.iot.consts.CollectStatus;
-import com.iteaj.framework.spi.iot.consts.CtrlMode;
-import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -34,14 +35,19 @@ public class ProtocolInvokeUtil {
         if(supplier != null) {
             AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());
             if(modelApi != null) {
-                if(CollectionUtil.isEmpty(api.getDownConfig())) {
-                    throw new ServiceException("协议对象["+api.getCode()+"]异常, 没有下行配置");
+                if(modelApi.getTriggerMode() == TriggerMode.active) {
+                    throw new ServiceException("设备主动触发的协议不允许调用");
                 }
 
-                api.getDownConfig().forEach(item -> {
-                    // 如果是点位采集
-                    resolverPointField(supplier, api, param, item);
-                });
+                if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
+                    buildUpConfigAttrs(api, param);
+                }
+                if(CollectionUtil.isNotEmpty(api.getDownConfig())) {
+                    api.getDownConfig().forEach(item -> {
+                        // 如果是点位采集
+                        resolverPointModelAttr(api, supplier, param, item);
+                    });
+                }
 
                 // 组装调用参数
                 param.setDeviceSn(device.getDeviceSn())
@@ -56,46 +62,41 @@ public class ProtocolInvokeUtil {
         }
     }
 
-    private static void resolverPointField(DeviceProtocolSupplier supplier, ModelApi api, ProtocolModelApiInvokeParam param, ModelApiConfig item) {
-        if(supplier.getProtocol().getCtrlMode() == CtrlMode.POINT) {
-            if(Objects.equals(item.getProtocolAttrField(), PointProtocolConfig.POINT_ADDRESS)) {
-                for (int i = 0; i < api.getUpConfig().size(); i++) {
-                    ModelApiConfig apiConfig = api.getUpConfig().get(i); // 获取此点位地址绑定的物模型属性
-                    if(Objects.equals(apiConfig.getProtocolAttrField(), PointProtocolConfig.POINT_VALUE)) {
-                        if(apiConfig.getModelAttrId() != null && apiConfig.getAttrField() != null) {
-                            param.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
-                        } else {
-                            throw new ServiceException("上行配置[protocolAttrName="+apiConfig.getProtocolAttrName()+"]未指定物模型属性");
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public static void invoke(ModelApi api, RealtimeStatus device, long timeout, Consumer<InvokeResult> result) {
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(device.getProtocolCode());
         if(supplier != null) {
             AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());
             if(modelApi != null) {
-                if(CollectionUtil.isEmpty(api.getDownConfig())) {
-                    throw new ServiceException("协议对象["+modelApi.getCode()+"]异常, 没有下行配置");
+                if(modelApi.getTriggerMode() == TriggerMode.active) {
+                    throw new ServiceException("设备主动触发的协议不允许调用");
                 }
 
                 JSONObject param = new JSONObject();
                 ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(device.getUid(), param);
                 invokeParam.setTimeout(timeout);
 
-                api.getDownConfig().forEach(item -> {
-                    if(item.getValue().startsWith("@") && item.getModelAttrId() != null) {
-                        throw new InvokeStatusException("协议参数使用@提及属性导致没有默认值", CollectStatus.NonDownValue);
-                    }
+                if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
+                    buildUpConfigAttrs(api, invokeParam);
+                }
 
-                    param.put(item.getProtocolAttrField(), item.getValue());
+                if(CollectionUtil.isNotEmpty(api.getDownConfig())) {
+                    api.getDownConfig().forEach(item -> {
+                        if(item.getValue().startsWith("@") && item.getModelAttrId() != null) {
+                            if(item.getAttrDefaultValue() == null) {
+                                throw new ServiceException("协议参数["+item.getProtocolAttrName()+"]没有默认值");
+                            }
 
-                    // 如果是点位采集
-                    resolverPointField(supplier, api, invokeParam, item);
-                });
+                            param.put(item.getProtocolAttrField(), item.getAttrDefaultValue());
+                        } else {
+                            param.put(item.getProtocolAttrField(), item.getValue());
+                        }
+
+                        // 如果是点位采集
+                        resolverPointModelAttr(api, supplier, invokeParam, item);
+                    });
+                } else {
+                    // 允许没有下行配置的接口
+                }
 
                 // 组装调用参数
                 invokeParam.setDeviceSn(device.getDeviceSn())
@@ -108,5 +109,37 @@ public class ProtocolInvokeUtil {
                 throw new ServiceException("没有找到协议指令[direct="+api.getDirect()+"]");
             }
         }
+    }
+
+    private static void resolverPointModelAttr(ModelApi api, DeviceProtocolSupplier supplier, ProtocolModelApiInvokeParam invokeParam, ModelApiConfig item) {
+        if (supplier.getProtocol().getCtrlMode() == CtrlMode.POINT) {
+            if (Objects.equals(item.getProtocolAttrField(), PointProtocolConfig.POINT_ADDRESS)) {
+                for (int i = 0; i < api.getUpConfig().size(); i++) {
+                    ModelApiConfig apiConfig = api.getUpConfig().get(i); // 获取此点位地址绑定的物模型属性
+                    if (Objects.equals(apiConfig.getProtocolAttrField(), PointProtocolConfig.POINT_VALUE)) {
+                        if (apiConfig.getModelAttrId() != null && apiConfig.getAttrField() != null) {
+                            invokeParam.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
+                        } else {
+                            throw new ServiceException("上行配置[protocolAttrName=" + apiConfig.getProtocolAttrName() + "]未指定物模型属性");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void buildUpConfigAttrs(ModelApi api, ProtocolModelApiInvokeParam invokeParam) {
+        List<ProtocolModelAttr> upConfigAttrs = new ArrayList<>();
+        api.getUpConfig().forEach(item -> {
+            if(DataType.t_json.getValue().equals(item.getDataType())) {
+                item.getDicts().forEach(dict -> {
+                    upConfigAttrs.add(new ProtocolModelAttr(dict.getAttrField(), dict.getDictName(), DataType.build(dict.getDataType()), null));
+                });
+            } else {
+                upConfigAttrs.add(new ProtocolModelAttr(item.getAttrField(), item.getAttrName(), DataType.build(item.getDataType()), null));
+            }
+        });
+
+        invokeParam.addConfig(AbstractProtocolModelApi.INVOKE_UP_CONFIG, upConfigAttrs);
     }
 }

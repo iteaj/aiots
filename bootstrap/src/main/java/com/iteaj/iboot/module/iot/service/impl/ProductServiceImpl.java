@@ -435,16 +435,14 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     private NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, Device device) {
+        JSONObject config = device.getConfig();
         TransportProtocol type = supplier.getProtocol().getType();
-        if(type == TransportProtocol.TCP) {
-            JSONObject deviceConfig = device.getConfig();
-            NetworkConfigImpl.TcpNetworkConfig config = new NetworkConfigImpl.TcpNetworkConfig();
-            config.setHost(deviceConfig.getString(ConstConfig.HOST));
-            config.setPort(deviceConfig.getInteger(ConstConfig.PORT));
-            config.setDeviceSn(device.getDeviceSn());
-            return config;
+        if(config == null) {
+            throw new ServiceException("设备[" + device.getName() + " / " + device.getDeviceSn() + "]缺少配置");
         }
-        return null;
+
+        config.put("deviceSn", device.getDeviceSn());
+        return NetworkConfig.resolve(type, config);
     }
 
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {

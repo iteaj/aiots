@@ -33,6 +33,7 @@ public class DefaultProtocolModel implements ProtocolModel{
             , Map<String, AbstractProtocolModelApi> modelApis, Map<String, ProtocolModelAttr> modelAttrs, String remark) {
         this.code = code;
         this.type = type;
+        this.remark = remark;
         this.ctrlMode = ctrlMode;
         this.modelApis = modelApis;
         this.modelAttrs = modelAttrs;
