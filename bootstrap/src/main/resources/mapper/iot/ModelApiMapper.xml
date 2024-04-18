@@ -27,8 +27,8 @@
                     select="com.iteaj.iboot.module.iot.mapper.ModelApiConfigMapper.listDownByApiCode" />
     </resultMap>
     <update id="updateAsStatus">
-        update iot_model_api set as_status = false where type = 'event' and product_id=#{productId};
-        update iot_model_api set as_status=true where type = 'event' and product_id=#{productId} and code=#{code}
+        update iot_model_api set as_status = false where product_id=#{productId} and func_type=#{funcType};
+        update iot_model_api set as_status=true where product_id=#{productId} and func_type=#{funcType} and trigger_mode='passive' and code=#{code}
     </update>
 
     <select id="listFuncByProductId" resultMap="DetailResultMap">
@@ -67,15 +67,19 @@
     <select id="listAsStatusModelApi" resultMap="DetailResultMap">
         select a.*, p.code product_code from iot_model_api a
             inner join iot_product p on a.product_id = p.id
-        where p.status = 'enabled' and a.as_status=true and a.trigger_mode='passive'
+        where p.status = 'enabled' and a.func_type='R' and a.as_status=true and a.trigger_mode='passive'
     </select>
     <select id="getAsStatusModelApi" resultMap="DetailResultMap">
         select a.*, p.code product_code from iot_model_api a
              inner join iot_product p on a.product_id = p.id
-        where a.product_id=#{productId} and a.as_status=true and a.trigger_mode='passive'
+        where a.product_id=#{productId} and a.func_type='R' and a.as_status=true and a.trigger_mode='passive'
     </select>
 
     <select id="detailByCode" resultMap="DetailResultMap">
         select * from iot_model_api where code=#{modelApiCode}
+    </select>
+
+    <select id="isEnabledOfProduct" resultType="java.lang.Boolean">
+        select count(id) > 0 from iot_product where id=#{productId} and status='enabled'
     </select>
 </mapper>

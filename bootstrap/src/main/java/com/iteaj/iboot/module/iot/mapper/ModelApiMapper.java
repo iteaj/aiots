@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.mapper;
 
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -19,7 +20,7 @@ public interface ModelApiMapper extends BaseMapper<ModelApi> {
 
     ModelApi detailById(Long id);
 
-    int updateAsStatus(Long productId, String code);
+    int updateAsStatus(Long productId, String code, FuncType funcType);
 
     List<ModelApi> detailsOfProductId(Long productId);
 
@@ -53,4 +54,6 @@ public interface ModelApiMapper extends BaseMapper<ModelApi> {
     ModelApi getAsStatusModelApi(Long productId);
 
     ModelApi detailByCode(String modelApiCode);
+
+    boolean isEnabledOfProduct(Long productId);
 }

@@ -170,14 +170,19 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
          */
         private long keepalive;
 
+        /**
+         * 订阅的主题(支持分隔符[,])
+         */
+        private String topics;
+
         public static ParamMeta[] mqttMetas = new ParamMeta[]{
-            ParamMeta.buildRequired("host", "主机", "mqtt服务器地址", "0.0.0.0"),
-            ParamMeta.buildRequiredNumber("port", "端口", 1883, "mqtt服务器端口"),
-            ParamMeta.buildRequired("clientId", "客户端id"),
-            ParamMeta.buildRequired("username", "用户名"),
-            ParamMeta.buildRequired("password", "密码"),
-            ParamMeta.buildNumber("keepalive", "保活时间(秒)", 600, "必须是大于0的整数"),
-//            ParamMeta.buildHidden("@type", "MQTT"),
+                ParamMeta.buildRequired("host", "主机", "mqtt服务器地址", "0.0.0.0"),
+                ParamMeta.buildRequiredNumber("port", "端口", 1883, "mqtt服务器端口"),
+                ParamMeta.buildRequired("username", "用户名"),
+                ParamMeta.buildRequired("password", "密码"),
+                ParamMeta.buildRequired("clientId", "客户端id"),
+                ParamMeta.buildRequired("topics", "订阅主题列表", "支持多个订阅用逗号隔开", ""),
+                ParamMeta.buildNumber("keepalive", "保活时间(秒)", 600, "必须是大于0的整数"),
         };
     }
 }

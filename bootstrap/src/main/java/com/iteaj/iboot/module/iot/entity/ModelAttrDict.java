@@ -20,6 +20,11 @@ import javax.validation.constraints.NotNull;
 public class ModelAttrDict extends BaseEntity {
 
     /**
+     * 路径
+     */
+    private String path;
+
+    /**
      * 字典名称
      */
     @NotBlank(message = "字典名称必填")
@@ -31,6 +36,18 @@ public class ModelAttrDict extends BaseEntity {
      */
     @NotBlank(message = "字典值必填")
     private String dictValue;
+
+    /**
+     * 数据类型
+     */
+    @TableField(exist = false)
+    private String dataType;
+
+    /**
+     * 属性字段
+     */
+    @TableField(exist = false)
+    private String attrField;
 
     /**
      * 模型属性id

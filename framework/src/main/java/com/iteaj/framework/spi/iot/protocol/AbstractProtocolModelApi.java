@@ -59,6 +59,7 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     private Map<String, ProtocolModelApiConfig> downConfig;
 
     public static final String INVOKE_API = "_InvokeApi";
+    public static final String INVOKE_UP_CONFIG = "_InvokeUpConfig";
     public static final String INVOKE_API_VALUE = "_InvokeApiValue";
     public static final String INVOKE_API_DATA_SUPPLIER = "_InvokeApiDataSupplier";
 

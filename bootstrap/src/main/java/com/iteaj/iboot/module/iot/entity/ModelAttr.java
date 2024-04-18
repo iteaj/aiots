@@ -74,6 +74,11 @@ public class ModelAttr extends BaseEntity {
     private Boolean enumerate;
 
     /**
+     * 默认值
+     */
+    private String defaultValue;
+
+    /**
      * 单位
      */
     private String unit;

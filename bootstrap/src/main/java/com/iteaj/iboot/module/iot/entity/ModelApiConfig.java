@@ -51,6 +51,7 @@ public class ModelApiConfig extends BaseEntity {
     /**
      * 属性名称
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String attrName;
 
     /**
@@ -118,6 +119,12 @@ public class ModelApiConfig extends BaseEntity {
      */
     @TableField(exist = false)
     private AttrType funcType;
+
+    /**
+     * 属性默认值
+     */
+    @TableField(exist = false)
+    private String attrDefaultValue;
 
     /**
      * 属性字典列表

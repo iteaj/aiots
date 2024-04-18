@@ -90,35 +90,20 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     }
 
     @Override
-    public synchronized OmronTcpClient createClient(NetworkConfigImpl.TcpNetworkConfig config) {
-        OmronComponent component = FrameworkManager.getComponent(OmronMessage.class);
-        if(component == null || !component.isStart()) {
-            throw new ServiceException("未启动网络组件");
-        }
-
+    protected OmronTcpClient doCreateClient(NetworkConfigImpl.TcpNetworkConfig config, OmronComponent component) {
         OmronConnectProperties connectProperties = new OmronConnectProperties(config.getHost(), config.getPort());
         if(StrUtil.isNotBlank(config.getDeviceSn())) {
             connectProperties.setConnectKey(config.getDeviceSn());
         }
 
-        SocketClient client = component.getClient(connectProperties);
-        if(client == null) {
-            if(config.getAllIdle() != null) {
-                connectProperties.setAllIdleTime(config.getAllIdle());
-            } else if(config.getReadIdle() != null) {
-                connectProperties.setReaderIdleTime(config.getReadIdle());
-            } else if(config.getWriteIdle() != null) {
-                connectProperties.setWriterIdleTime(config.getWriteIdle());
-            }
-
-            client = component.createNewClient(connectProperties);
-            client.init(null);
-            component.getClientManager().addClient(connectProperties, client);
-        } else { // 修改最新的主机和端口配置
-            client.getConfig().setHost(config.getHost());
-            client.getConfig().setPort(config.getPort());
+        if(config.getAllIdle() != null) {
+            connectProperties.setAllIdleTime(config.getAllIdle());
+        } else if(config.getReadIdle() != null) {
+            connectProperties.setReaderIdleTime(config.getReadIdle());
+        } else if(config.getWriteIdle() != null) {
+            connectProperties.setWriterIdleTime(config.getWriteIdle());
         }
 
-        return (OmronTcpClient) client;
+        return (OmronTcpClient) component.createNewClient(connectProperties);
     }
 }

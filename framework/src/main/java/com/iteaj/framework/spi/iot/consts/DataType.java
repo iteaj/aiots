@@ -11,6 +11,7 @@ public enum DataType {
     t_double("double", "double(双精度)"),
     t_date("date", "date(日期)"),
     t_time("time", "time(时间)"),
+    t_json("json", "json类型"),
     t_datetime("datetime", "datetime(完整时间)"),
     t_timestamp("timestamp", "timestamp(时间戳)"),
     t_string("string", "string(字符串)"),
@@ -23,6 +24,27 @@ public enum DataType {
     DataType(String value, String desc) {
         this.value = value;
         this.desc = desc;
+    }
+
+    public static DataType build(String dataType) {
+        if(dataType == null) {
+            return null;
+        }
+
+        switch (dataType) {
+            case "byte": return t_byte;
+            case "short": return t_short;
+            case "int": return t_int;
+            case "long": return t_long;
+            case "float": return t_float;
+            case "double": return t_double;
+            case "date": return t_date;
+            case "time": return t_time;
+            case "timestamp": return t_timestamp;
+            case "string": return t_string;
+            case "boolean": return t_boolean;
+            default: throw new IllegalArgumentException("未知的数据类型["+dataType+"]");
+        }
     }
 
     public String getValue() {

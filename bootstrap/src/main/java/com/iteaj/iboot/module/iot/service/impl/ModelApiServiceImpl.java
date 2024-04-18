@@ -8,8 +8,11 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 import com.iteaj.iboot.module.iot.mapper.ModelApiMapper;
@@ -85,13 +88,14 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
             }
         }
         if(StrUtil.isNotBlank(config.getValue())) {
-            if(config.getValue().startsWith("@")) {
-                if(config.getModelAttrId() == null) {
-                    throw new ServiceException("未指定模型属性[modelAttrId]");
-                }
-
-                if(StrUtil.isBlank(config.getAttrField())) {
-                    config.setAttrField(config.getValue().substring(1));
+            // 下行配置使用@提及模型属性
+            if(config.getDirection() == ApiConfigDirection.DOWN) {
+                if(config.getValue().startsWith("@")) {
+                    if(config.getModelAttrId() == null || StrUtil.isBlank(config.getAttrField())) {
+                        throw new ServiceException("未指定模型属性[modelAttrId或attrField]");
+                    }
+                } else {
+                    config.setModelAttrId(null).setAttrField(null).setAttrName(null);
                 }
             }
         }
@@ -168,7 +172,17 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
             return BooleanResult.buildFalse("参数错误[productId="+productId+", code="+code+"]");
         }
 
-        return new BooleanResult(this.getBaseMapper().updateAsStatus(productId, code) > 0);
+        this.getByCode(code).ifNotPresentThrow("协议不存在["+code+"]").ifPresent(api -> {
+            this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
+            if(api.getFuncType() == FuncType.R) { // 采集设备状态
+                this.getAsStatusModelApi(productId).ifPresent(modelApi -> {
+                    if(this.getBaseMapper().isEnabledOfProduct(productId)) { // 如果产品启用则放到设备状态采集管理里面
+                        DeviceStatusModelApiManager.getInstance().update(modelApi);
+                    }
+                });
+            }
+        });
+        return BooleanResult.buildTrue("设置状态成功");
     }
 
     @Override

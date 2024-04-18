@@ -133,7 +133,7 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
 
     @Override
     public ListResult<ModelAttrDict> listModelAttrDicts(ModelAttrDict entity) {
-        List<ModelAttrDict> modelAttrDicts = modelAttrDictMapper.selectList(Wrappers.lambdaQuery(entity));
+        List<ModelAttrDict> modelAttrDicts = this.getBaseMapper().listDetailDict(entity);
         return new ListResult<>(modelAttrDicts);
     }
 
