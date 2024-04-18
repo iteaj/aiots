@@ -90,7 +90,7 @@ public class DahuaICCProtocolSupplier extends StaticClientProtocolSupplier<Netwo
     }
 
     @Override
-    public HttpClient createClient(NetworkConfigImpl.TcpNetworkConfig config) {
+    protected HttpClient doCreateClient(NetworkConfigImpl.TcpNetworkConfig config, DahuaOpenComponent component) {
         return null;
     }
 }

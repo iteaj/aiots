@@ -13,6 +13,7 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.dto.PanelsDetailDto;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Signal;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -58,6 +60,7 @@ public class PanelsController extends BaseController {
         DeviceDto device = new DeviceDto();
         device.setProductId(productId);
         device.setDeviceGroupId(deviceGroupId);
+        Map<Long, ProductDto> productApiMap = new HashMap<>();
         return deviceService.pageOfDetail(page, device);
     }
 
