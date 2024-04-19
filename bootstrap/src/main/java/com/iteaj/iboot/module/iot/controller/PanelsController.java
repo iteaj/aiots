@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,14 +68,75 @@ public class PanelsController extends BaseController {
         DeviceDto device = new DeviceDto();
         device.setProductId(productId);
         device.setDeviceGroupId(deviceGroupId);
-        Map<Long, ProductDto> productApiMap = new HashMap<>();
         PageResult<IPage<DeviceDto>> pageResult = deviceService.pageOfDetail(page, device);
+
+        Map<Long, String> productProtocolMap = new HashMap<>();
+        Map<Long, List<IVOption>> productOptionsMap = new HashMap<>();
+        Map<Long, List<PanelsDeviceDto.AttrValue>> productValuesMap = new HashMap<>();
+
         IPage<DeviceDto> data = pageResult.getData();
         if(CollectionUtil.isNotEmpty(data.getRecords())) {
             List<Long> productIds = data.getRecords().stream()
                     .map(item -> item.getProductId()).distinct()
                     .collect(Collectors.toList());
             List<ProductDto> list = productService.listCtrlStatusModelApi(productIds);
+            if(CollectionUtil.isNotEmpty(list)) {
+                list.forEach(productDto -> {
+                    List<IVOption> options = new ArrayList<>();
+                    List<PanelsDeviceDto.AttrValue> values = new ArrayList<>();
+                    productProtocolMap.put(productDto.getId(), productDto.getProtocolCode());
+                    if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
+                        productDto.getAttrs().forEach(attr -> {
+                            if(attr.getAttrType() != AttrType.W) { // 读和读写
+                                if(DataType.t_json.getValue().equals(attr.getDataType())) {
+
+                                } else {
+                                    values.add(new PanelsDeviceDto.AttrValue(attr.getField(), attr.getName(), attr.getUnit(), attr.getCtrlStatus()));
+                                }
+                            }
+                            if(attr.getAttrType() != AttrType.R) { // 写或者读写
+                                if(Boolean.TRUE.equals(attr.getCtrlStatus()) && CollectionUtil.isNotEmpty(attr.getDicts())) {
+                                    attr.getDicts().forEach(dict -> options.add(new IVOption(dict.getDictName(), dict.getDictValue())));
+                                }
+                            }
+                        });
+
+                        productValuesMap.put(productDto.getId(), values);
+                        productOptionsMap.put(productDto.getId(), options);
+                    }
+                });
+
+                List<PanelsDeviceDto> panelsDeviceDtos = new ArrayList<>();
+                data.getRecords().forEach(deviceDto -> {
+                    deviceDto.setConfig(null);
+                    List<IVOption> options = productOptionsMap.get(deviceDto.getProductId());
+                    List<PanelsDeviceDto.AttrValue> attrValues = productValuesMap.get(deviceDto.getProductId());
+                    PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(options, attrValues, deviceDto);
+                    // 获取每个属性的实时数据
+                    if(CollectionUtil.isNotEmpty(attrValues)) {
+                        attrValues.forEach(attrValue -> {
+                            String protocolCode = productProtocolMap.get(deviceDto.getProductId());
+                            Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(protocolCode
+                                    , DeviceKey.build(deviceDto.getDeviceSn(), deviceDto.getParentDeviceSn()));
+                            if(CollectionUtil.isNotEmpty(realtimeDataMap)) {
+                                // 设置各属性的实时值
+                                RealtimeData realtimeData = realtimeDataMap.get(attrValue.getField());
+                                if(realtimeData != null && realtimeData.getRealtime() != null
+                                        && realtimeData.getRealtime().getStatus() == CollectStatus.Success) {
+                                    attrValue.setValue(realtimeData.getRealtime().getValue().toString());
+                                    if(Boolean.TRUE.equals(attrValue.getCtrlStatus())) {
+                                        panelsDeviceDto.setCtrlValue(attrValue.getValue());
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    panelsDeviceDtos.add(panelsDeviceDto);
+                });
+
+                page.setRecords(panelsDeviceDtos);
+            }
         }
         return success(page);
     }
@@ -98,7 +163,7 @@ public class PanelsController extends BaseController {
                         Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
                                 , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                         if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
-                            productDto.getAttrs().stream().filter(attr -> attr.getAttrType() == AttrType.R).forEach(attr -> {
+                            productDto.getAttrs().stream().filter(attr -> attr.getAttrType() != AttrType.W).forEach(attr -> {
                                 if(realtimeDataMap != null) {
                                     RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
                                     if(realtimeData != null && realtimeData.getRealtime() != null) {
