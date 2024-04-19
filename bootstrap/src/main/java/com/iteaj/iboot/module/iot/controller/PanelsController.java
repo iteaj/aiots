@@ -1,32 +1,38 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.DeviceKey;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.consts.DataType;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.dto.*;
+import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.iteaj.iboot.module.iot.entity.Signal;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.service.ISignalService;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
+import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
+import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,14 +50,17 @@ public class PanelsController extends BaseController {
     private final ISignalService signalService;
     private final IDeviceService deviceService;
     private final IProductService productService;
+    private final IotCacheManager cacheManager;
     private final IWarnRecordService warnRecordService;
     private final RealtimeDataService realtimeDataService;
 
     public PanelsController(ISignalService signalService, IDeviceService deviceService
-            , IProductService productService, IWarnRecordService warnRecordService, RealtimeDataService realtimeDataService) {
+            , IProductService productService, IotCacheManager cacheManager
+            , IWarnRecordService warnRecordService, RealtimeDataService realtimeDataService) {
         this.signalService = signalService;
         this.deviceService = deviceService;
         this.productService = productService;
+        this.cacheManager = cacheManager;
         this.warnRecordService = warnRecordService;
         this.realtimeDataService = realtimeDataService;
     }
@@ -77,7 +86,7 @@ public class PanelsController extends BaseController {
             List<Long> productIds = data.getRecords().stream()
                     .map(item -> item.getProductId()).distinct()
                     .collect(Collectors.toList());
-            List<ProductDto> list = productService.listCtrlStatusModelApi(productIds);
+            List<ProductDto> list = productService.listCtrlStatusModelAttrs(productIds);
             if(CollectionUtil.isNotEmpty(list)) {
                 list.forEach(productDto -> {
                     List<IVOption> options = new ArrayList<>();
@@ -211,12 +220,56 @@ public class PanelsController extends BaseController {
      * @return
      */
     @PostMapping("switchCtrlStatus")
-    public Result switchCtrlStatus(StatusSwitchDto dto) {
+    public Result switchCtrlStatus(@RequestBody StatusSwitchDto dto) {
         this.deviceService.getByUid(dto.getId().toString())
                 .ifNotPresentThrow("设备不存在")
                 .ifPresent(item -> {
-//            this.productService.listCtrlStatusModelApi(item.getProductId());
+            this.productService.getCtrlStatusModelApi(item.getProductId())
+                    .ifNotPresentThrow("此设备绑定的产品有误").ifPresent(productDto -> {
+               if(CollectionUtil.isEmpty(productDto.getFuncApis())) {
+                   throw new ServiceException("此产品["+productDto.getName()+"]没有指定状态接口");
+               }
+
+                ModelApi modelApi = productDto.getFuncApis().get(0);
+                RealtimeStatus realtimeStatus = cacheManager.get(productDto.getProtocolCode()
+                        , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
+
+                if(CollectionUtil.isEmpty(productDto.getAttrs())) {
+                    throw new ServiceException("此产品["+productDto.getName()+"]没有模型属性");
+                }
+
+                ModelAttr ctrlStatusAttr = productDto.getAttrs().stream()
+                        .filter(attr -> Boolean.TRUE.equals(attr.getCtrlStatus()))
+                        .findFirst().orElse(null);
+                if(ctrlStatusAttr == null) {
+                    throw new ServiceException("此产品["+productDto.getName()+"]没有设置控制属性");
+                }
+
+                JSONObject jsonObject = new JSONObject();
+                ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(realtimeStatus.getUid(), jsonObject);
+                if(CollectionUtil.isNotEmpty(modelApi.getDownConfig())) {
+                    modelApi.getDownConfig().forEach(config -> {
+                        if(config.getModelAttrId() != null) {
+                            // 控制属性
+                            if(ctrlStatusAttr.getField().equals(config.getAttrField())) {
+                                jsonObject.put(config.getProtocolAttrField(), dto.getStatus());
+                            } else {
+                                jsonObject.put(config.getProtocolAttrField(), config.getAttrDefaultValue());
+                            }
+                        } else {
+                            jsonObject.put(config.getProtocolAttrField(), config.getValue());
+                        }
+                    });
+                }
+
+                ProtocolInvokeUtil.invoke(modelApi, invokeParam, realtimeStatus, (result) -> {
+                    if(result.getStatus() != ExecStatus.success) {
+                        throw new ServiceException("调用设备失败["+result.getReason()+"]");
+                    }
+                });
+            });
         });
+
         return success();
     }
 }
