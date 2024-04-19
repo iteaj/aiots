@@ -231,8 +231,8 @@ public class PanelsController extends BaseController {
                }
 
                 ModelApi modelApi = productDto.getFuncApis().get(0);
-                RealtimeStatus realtimeStatus = cacheManager.get(productDto.getProtocolCode()
-                        , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
+                DeviceKey deviceKey = DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn());
+                RealtimeStatus realtimeStatus = cacheManager.get(productDto.getProtocolCode(), deviceKey);
 
                 if(CollectionUtil.isEmpty(productDto.getAttrs())) {
                     throw new ServiceException("此产品["+productDto.getName()+"]没有模型属性");
