@@ -33,4 +33,13 @@ public interface ModelAttrMapper extends BaseMapper<ModelAttr> {
     boolean hasBinded(Collection<? extends Serializable> idList);
 
     List<ModelAttrDict> listDetailDict(ModelAttrDict entity);
+
+    /**
+     * 切换状态属性
+     * @param productId
+     * @param id
+     * @param status
+     * @return
+     */
+    int switchCtrlStatus(Long productId, Long id, Boolean status);
 }

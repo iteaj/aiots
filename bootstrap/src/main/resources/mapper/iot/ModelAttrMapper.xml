@@ -14,6 +14,7 @@
         <result column="default_value" property="defaultValue" />
         <result column="attr_type" property="attrType" />
         <result column="real_type" property="realType" />
+        <result column="ctrl_status" property="ctrlStatus" />
         <result column="accuracy" property="accuracy" />
         <result column="remark" property="remark" />
     </resultMap>
@@ -27,6 +28,13 @@
             <result column="model_attr_id" property="modelAttrId" />
         </collection>
     </resultMap>
+    <update id="switchCtrlStatus">
+        update iot_model_attr set ctrl_status=false where product_id=#{productId};
+        update iot_model_api set as_status=false where product_id=#{productId} and func_type='W' and as_status=true;
+        <if test="status==true">
+            update iot_model_attr set ctrl_status = true where id=#{id};
+        </if>
+    </update>
 
     <select id="detailById" resultMap="DetailResultMap">
         select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path from iot_model_attr a

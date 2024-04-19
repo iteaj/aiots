@@ -56,4 +56,12 @@ public interface ModelApiMapper extends BaseMapper<ModelApi> {
     ModelApi detailByCode(String modelApiCode);
 
     boolean isEnabledOfProduct(Long productId);
+
+    /**
+     * 是否含有控制状态属性
+     * @param productId 产品id
+     * @param code api接口码
+     * @return
+     */
+    boolean hasCtrlStatus(Long productId, String code);
 }

@@ -100,6 +100,11 @@ public class ModelAttr extends BaseEntity {
     private AttrOrigin origin;
 
     /**
+     * 是否属于控制状态
+     */
+    private Boolean ctrlStatus;
+
+    /**
      * 创建时间
      */
     private Date createTime;

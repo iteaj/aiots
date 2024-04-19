@@ -173,13 +173,20 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         }
 
         this.getByCode(code).ifNotPresentThrow("协议不存在["+code+"]").ifPresent(api -> {
-            this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
             if(api.getFuncType() == FuncType.R) { // 采集设备状态
+                this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
                 this.getAsStatusModelApi(productId).ifPresent(modelApi -> {
                     if(this.getBaseMapper().isEnabledOfProduct(productId)) { // 如果产品启用则放到设备状态采集管理里面
                         DeviceStatusModelApiManager.getInstance().update(modelApi);
                     }
                 });
+            } else {
+                // 如果包含有控制状态的属性
+                if(this.getBaseMapper().hasCtrlStatus(productId, code)) {
+                    this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
+                } else {
+                    throw new ServiceException("没有包含控制属性");
+                }
             }
         });
         return BooleanResult.buildTrue("设置状态成功");

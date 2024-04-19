@@ -82,4 +82,9 @@
     <select id="isEnabledOfProduct" resultType="java.lang.Boolean">
         select count(id) > 0 from iot_product where id=#{productId} and status='enabled'
     </select>
+    <select id="hasCtrlStatus" resultType="java.lang.Boolean">
+        select count(a.id) > 0 from iot_model_api_config a
+            inner join iot_model_attr ma on a.model_attr_id=ma.id and ma.ctrl_status=true
+        where a.api_code=#{code} and a.product_id=#{productId} and a.direction='DOWN' limit 1
+    </select>
 </mapper>
