@@ -39,6 +39,10 @@
         select * from iot_model_api where product_id = #{productId} and type='event' order by as_status desc, create_time desc
     </select>
 
+    <select id="getCtrlStatusByProductId" resultMap="DetailResultMap">
+        select * from iot_model_api where product_id = #{productId} and type='func' and func_type='W' and as_status=true
+    </select>
+
     <select id="detailById" resultMap="DetailResultMap">
         select * from iot_model_api where id=#{id}
     </select>

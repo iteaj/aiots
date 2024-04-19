@@ -82,9 +82,16 @@ public interface IProductService extends IBaseService<Product> {
     void switchStatus(Long id, FuncStatus status);
 
     /**
+     * 获取指定产品下面的状态控制api
+     * @param productId
+     * @return
+     */
+    DetailResult<ProductDto> getCtrlStatusModelApi(Long productId);
+
+    /**
      * 获取指定产品下面的开关状态物模型接口
      * @param productIds
      * @return
      */
-    List<ProductDto> listCtrlStatusModelApi(List<Long> productIds);
+    List<ProductDto> listCtrlStatusModelAttrs(List<Long> productIds);
 }

@@ -416,7 +416,13 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     @Override
-    public List<ProductDto> listCtrlStatusModelApi(List<Long> productIds) {
+    public DetailResult<ProductDto> getCtrlStatusModelApi(Long productId) {
+        ProductDto productDto = this.getBaseMapper().getCtrlStatusModelApi(productId);
+        return new DetailResult<>(productDto);
+    }
+
+    @Override
+    public List<ProductDto> listCtrlStatusModelAttrs(List<Long> productIds) {
         return this.getBaseMapper().listCtrlStatusModelAttrs(productIds);
     }
 
