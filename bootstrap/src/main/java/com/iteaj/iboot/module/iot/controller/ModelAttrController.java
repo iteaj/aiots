@@ -8,6 +8,7 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -116,6 +117,16 @@ public class ModelAttrController extends BaseController {
     @Logger("删除物模型属性字典记录")
     public Result<Boolean> removeDict(@RequestBody List<Long> idList) {
         return this.modelAttrService.removeModelAttrDictByIds(idList);
+    }
+
+    /**
+     * 设置属性指定属性为控制属性
+     * @param dto 只需要设置id
+     * @return
+     */
+    @PostMapping("ctrlStatus")
+    public Result<Boolean> ctrlStatus(@RequestBody StatusSwitchDto<Boolean> dto) {
+        return this.modelAttrService.switchCtrlStatus(dto);
     }
 
     /**

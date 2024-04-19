@@ -7,6 +7,7 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
 import com.iteaj.iboot.module.iot.mapper.ModelAttrDictMapper;
@@ -140,5 +141,12 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
     @Override
     public boolean hasBinded(Collection<? extends Serializable> idList) {
         return this.getBaseMapper().hasBinded(idList);
+    }
+
+    @Override
+    public BooleanResult switchCtrlStatus(StatusSwitchDto<Boolean> dto) {
+        ModelAttr modelAttr = this.getById(dto.getId()).ifNotPresentThrow("模型属性不存在").getData();
+        return new BooleanResult(this.getBaseMapper()
+                .switchCtrlStatus(modelAttr.getProductId(), dto.getId(), dto.getStatus()) > 0);
     }
 }
