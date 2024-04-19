@@ -144,7 +144,7 @@
     </select>
     <select id="listCtrlStatusModelAttrs" resultMap="JoinAttrMap">
         select a.* from iot_product a
-            left join iot_model_api ma on a.id=ma.product_id and ma.as_status = true and ma.func_type='W'
+#             left join iot_model_api ma on a.id=ma.product_id and ma.as_status = true and ma.func_type='W'
         where a.id in (<foreach collection="list" item="id" separator=",">
         #{id}
     </foreach>)
