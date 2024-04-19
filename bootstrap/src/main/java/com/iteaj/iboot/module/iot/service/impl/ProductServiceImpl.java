@@ -12,7 +12,6 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.AttrType;
-import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
@@ -418,7 +417,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
     @Override
     public List<ProductDto> listCtrlStatusModelApi(List<Long> productIds) {
-        return this.getBaseMapper().listCtrlStatusModelApi(productIds);
+        return this.getBaseMapper().listCtrlStatusModelAttrs(productIds);
     }
 
     private void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {

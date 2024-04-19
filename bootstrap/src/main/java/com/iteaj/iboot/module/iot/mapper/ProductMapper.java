@@ -50,5 +50,5 @@ public interface ProductMapper extends BaseMapper<Product> {
 
     List<Device> listDeviceByProductId(Long id);
 
-    List<ProductDto> listCtrlStatusModelApi(List<Long> productIds);
+    List<ProductDto> listCtrlStatusModelAttrs(List<Long> productIds);
 }
