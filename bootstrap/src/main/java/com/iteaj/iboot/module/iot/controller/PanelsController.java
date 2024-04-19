@@ -15,10 +15,7 @@ import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
-import com.iteaj.iboot.module.iot.dto.PanelsDetailDto;
-import com.iteaj.iboot.module.iot.dto.PanelsDeviceDto;
-import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Signal;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -27,6 +24,7 @@ import com.iteaj.iboot.module.iot.service.ISignalService;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -205,5 +203,20 @@ public class PanelsController extends BaseController {
         });
 
         return success(debugDto);
+    }
+
+    /**
+     * 切换控制状态
+     * @param dto
+     * @return
+     */
+    @PostMapping("switchCtrlStatus")
+    public Result switchCtrlStatus(StatusSwitchDto dto) {
+        this.deviceService.getByUid(dto.getId().toString())
+                .ifNotPresentThrow("设备不存在")
+                .ifPresent(item -> {
+//            this.productService.listCtrlStatusModelApi(item.getProductId());
+        });
+        return success();
     }
 }
