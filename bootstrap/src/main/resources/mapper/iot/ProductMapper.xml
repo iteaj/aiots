@@ -37,7 +37,10 @@
         <collection property="attrs" column="{productId=id}" ofType="ModelAttr"
                     select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listByProductId" />
     </resultMap>
-
+    <resultMap id="JoinAttrMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
+        <collection property="attrs" column="{productId=id}" ofType="ModelAttr"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listDetailByProductId" />
+    </resultMap>
     <select id="pageOfDetail" resultMap="BaseResultDtoMap">
         select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code
              , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, ig.connect_type, ig.status gateway_status
@@ -138,6 +141,13 @@
 
     <select id="listDeviceByProductId" resultMap="com.iteaj.iboot.module.iot.mapper.DeviceMapper.BasicMap">
         select * from iot_device where product_id = #{id}
+    </select>
+    <select id="listCtrlStatusModelApi" resultMap="JoinAttrMap">
+        select a.* from iot_product a
+            left join iot_model_api ma on a.id=ma.product_id and ma.as_status = true and ma.func_type='W'
+        where a.id in (<foreach collection="list" item="id" separator=",">
+        #{id}
+    </foreach>)
     </select>
 
     <delete id="removeModel">

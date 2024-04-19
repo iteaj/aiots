@@ -49,4 +49,6 @@ public interface ProductMapper extends BaseMapper<Product> {
     boolean hasBindEnabledEventSource(Long id);
 
     List<Device> listDeviceByProductId(Long id);
+
+    List<ProductDto> listCtrlStatusModelApi(List<Long> productIds);
 }

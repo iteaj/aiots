@@ -418,7 +418,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
     @Override
     public List<ProductDto> listCtrlStatusModelApi(List<Long> productIds) {
-        return null;
+        return this.getBaseMapper().listCtrlStatusModelApi(productIds);
     }
 
     private void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {
