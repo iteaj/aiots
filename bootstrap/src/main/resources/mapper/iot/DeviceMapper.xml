@@ -34,8 +34,10 @@
         <result property="deviceGroupName" column="device_group_name" />
     </resultMap>
     <select id="pageOfDetail" resultMap="DeviceDtoMap">
-        select a.*, idm.name product_name, idt.name product_type_name, idm.device_type, dg.name device_group_name from iot_device a
+        select a.*, idm.name product_name, idt.name product_type_name, idm.device_type
+             , dg.name device_group_name, pd.device_sn parent_device_sn from iot_device a
             left join iot_product idm on a.product_id=idm.id
+            left join iot_device pd on a.pid = pd.id
             left join iot_product_type idt on idm.product_type_id=idt.id
             left join iot_device_group dg on a.device_group_id=dg.id
         <where>
