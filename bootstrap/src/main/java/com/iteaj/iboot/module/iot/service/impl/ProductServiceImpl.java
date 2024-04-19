@@ -12,7 +12,6 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.AttrType;
-import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
@@ -238,7 +237,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
                     // 协议属性转模型属性
                     List<ModelAttr> attrs = protocol.getAttrs().values().stream()
-                            .filter(attr -> attr.getAttrType() == AttrType.R)
+                            .filter(attr -> attr.getAttrType() == AttrType.R || attr.getAttrType() == AttrType.RW)
                         .map(attr -> new ModelAttr()
                                 .setName(attr.getName())
                                 .setField(attr.getField())
@@ -414,6 +413,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                     }
                 }
             });
+    }
+
+    @Override
+    public List<ProductDto> listCtrlStatusModelApi(List<Long> productIds) {
+        return this.getBaseMapper().listCtrlStatusModelAttrs(productIds);
     }
 
     private void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {
