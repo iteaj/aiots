@@ -416,6 +416,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             });
     }
 
+    @Override
+    public List<ProductDto> listCtrlStatusModelApi(List<Long> productIds) {
+        return null;
+    }
+
     private void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {
         if(status == FuncStatus.enabled) {
             if(client instanceof TcpSocketClient) {

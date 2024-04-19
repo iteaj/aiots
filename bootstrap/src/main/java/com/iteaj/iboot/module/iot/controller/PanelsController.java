@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
@@ -13,6 +14,7 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.dto.PanelsDetailDto;
+import com.iteaj.iboot.module.iot.dto.PanelsDeviceDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Signal;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
@@ -26,7 +28,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 运行展板模块
@@ -56,12 +60,20 @@ public class PanelsController extends BaseController {
      * @return
      */
     @GetMapping("/devices")
-    public Result<IPage<DeviceDto>> devices(Page page, Long deviceGroupId, Long productId) {
+    public Result<IPage<PanelsDeviceDto>> devices(Page page, Long deviceGroupId, Long productId) {
         DeviceDto device = new DeviceDto();
         device.setProductId(productId);
         device.setDeviceGroupId(deviceGroupId);
         Map<Long, ProductDto> productApiMap = new HashMap<>();
-        return deviceService.pageOfDetail(page, device);
+        PageResult<IPage<DeviceDto>> pageResult = deviceService.pageOfDetail(page, device);
+        IPage<DeviceDto> data = pageResult.getData();
+        if(CollectionUtil.isNotEmpty(data.getRecords())) {
+            List<Long> productIds = data.getRecords().stream()
+                    .map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList());
+            List<ProductDto> list = productService.listCtrlStatusModelApi(productIds);
+        }
+        return success(page);
     }
 
     /**

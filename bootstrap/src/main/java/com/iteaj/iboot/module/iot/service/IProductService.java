@@ -80,4 +80,11 @@ public interface IProductService extends IBaseService<Product> {
      * @param status
      */
     void switchStatus(Long id, FuncStatus status);
+
+    /**
+     * 获取指定产品下面的开关状态物模型接口
+     * @param productIds
+     * @return
+     */
+    List<ProductDto> listCtrlStatusModelApi(List<Long> productIds);
 }
