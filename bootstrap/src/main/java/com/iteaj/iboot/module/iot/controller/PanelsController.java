@@ -175,7 +175,6 @@ public class PanelsController extends BaseController {
                                     RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
                                     if(realtimeData != null && realtimeData.getRealtime() != null) {
                                         SignalOrFieldValue realtime = realtimeData.getRealtime();
-//                                        attr.getDicts()
                                         debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType()
                                                 , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
                                         return;
