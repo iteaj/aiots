@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
@@ -114,4 +115,17 @@ public class ModelAttr extends BaseEntity {
      */
     @TableField(exist = false)
     private List<ModelAttrDict> dicts;
+
+    public ModelAttrDict resolveValueToDict(String value) {
+        if(CollectionUtil.isNotEmpty(dicts)) {
+            for (int i = 0; i < dicts.size(); i++) {
+                ModelAttrDict attrDict = dicts.get(i);
+                if(attrDict.getDictValue().equals(value)) {
+                    return attrDict;
+                }
+            }
+        }
+
+        return null;
+    }
 }
