@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Product;
@@ -58,4 +59,11 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return
      */
     ProductDto getCtrlStatusModelApi(Long productId);
+
+    /**
+     * 获取指定协议下面的模型接口
+     * @param protocolCode
+     * @return
+     */
+    List<ProductDto> listByProtocolCode(String protocolCode);
 }

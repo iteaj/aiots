@@ -2,7 +2,10 @@ package com.iteaj.framework.spi.iot;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.ParamMeta;
+import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
 public abstract class NetworkConfigImpl implements NetworkConfig {
@@ -147,7 +150,8 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
     /**
      * mqtt客户端网络配置
      */
-    @Data
+    @Getter
+    @Setter
     public static class MqttNetworkConfig extends TcpNetworkConfig {
 
         /**
@@ -168,21 +172,39 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
         /**
          * 保活时间
          */
-        private long keepalive;
+        private int keepalive;
 
         /**
          * 订阅的主题(支持分隔符[,])
          */
         private String topics;
 
+        /**
+         * 订阅等级
+         */
+        private Integer qos;
+
         public static ParamMeta[] mqttMetas = new ParamMeta[]{
-                ParamMeta.buildRequired("host", "主机", "mqtt服务器地址", "0.0.0.0"),
-                ParamMeta.buildRequiredNumber("port", "端口", 1883, "mqtt服务器端口"),
-                ParamMeta.buildRequired("username", "用户名"),
-                ParamMeta.buildRequired("password", "密码"),
+                ParamMeta.buildRequired(ConstConfig.HOST, "主机", "", "").setPlaceholder("mqtt服务器地址"),
+                ParamMeta.buildRequiredNumber(ConstConfig.PORT, "端口", 1883, "").setPlaceholder("mqtt服务器端口"),
+                ParamMeta.build("username", "用户名"),
+                ParamMeta.build("password", "密码"),
                 ParamMeta.buildRequired("clientId", "客户端id"),
-                ParamMeta.buildRequired("topics", "订阅主题列表", "支持多个订阅用逗号隔开", ""),
-                ParamMeta.buildNumber("keepalive", "保活时间(秒)", 600, "必须是大于0的整数"),
+                ParamMeta.buildNumber("keepalive", "保活时间(秒)", 600, "").setPlaceholder("必须是大于0的整数"),
+                ParamMeta.buildRequiredNumber("qos", "消息等级", 0, "").setPlaceholder("可选值(0、1、2)"),
+                ParamMeta.buildRequired("topics", "订阅的主题", "", "").setPlaceholder("订阅的主题列表以逗号隔开"),
         };
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "clientId='" + clientId + '\'' +
+                    ", username='" + username + '\'' +
+                    ", password='" + password + '\'' +
+                    ", keepalive=" + keepalive +
+                    ", topics='" + topics + '\'' +
+                    ", qos=" + qos +
+                    '}';
+        }
     }
 }

@@ -53,11 +53,6 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
-    public void put(String protocolCode, DeviceKey key, String signalOrField, Object value) {
-        this.put(protocolCode, key, SignalOrFieldValue.build(signalOrField, new Date(), value));
-    }
-
-    @Override
     public void put(String protocolCode, DeviceKey key, SignalOrFieldValue value) {
         Map<String, Map<String, RealtimeData>> productMap = realtimeMap.get(protocolCode);
         if(productMap == null) {

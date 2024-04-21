@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.collect;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
+import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,26 +47,38 @@ public class CollectListenerManager {
     }
 
     /**
-     * 其他监听
+     * 事件发布
      * @param consumer
      */
-    public void forEach(Consumer<CollectDataListener> consumer) {
+    public void publish(Consumer<CollectDataListener> consumer) {
         this.listeners.forEach(consumer);
     }
 
     /**
-     * 事件源采集监听
+     * 模型属性发布
      * @param consumer
      */
-    public void modelForEach(Consumer<EventGroupCollectListener> consumer) {
+    public void modelAttrPublish(Consumer<ModelAttrListener> consumer) {
+        this.listeners.forEach(item -> {
+            if(item instanceof ModelAttrListener) {
+                consumer.accept((ModelAttrListener) item);
+            }
+        });
+    }
+
+    /**
+     * 事件源采集发布
+     * @param consumer
+     */
+    public void eventGroupPublish(Consumer<EventGroupCollectListener> consumer) {
         groupCollectListeners.forEach(consumer);
     }
 
     /**
-     * 点位数据采集监听
+     * 点位数据采集发布
      * @param consumer
      */
-    public void signalForEach(Consumer<SignalCollectListener> consumer) {
+    public void signalPublish(Consumer<SignalCollectListener> consumer) {
         signalCollectListeners.forEach(consumer);
     }
 

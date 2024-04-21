@@ -58,7 +58,7 @@ public class CollectGroupTask implements Runnable{
                                 ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
                                     CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
 
-                                    CollectListenerManager.getInstance().modelForEach(item -> {
+                                    CollectListenerManager.getInstance().eventGroupPublish(item -> {
                                         try {
                                             item.supplier(source, group, deviceInfo);
                                         } catch (Exception e) {
@@ -83,9 +83,9 @@ public class CollectGroupTask implements Runnable{
             });
         });
 
-        CollectListenerManager.getInstance().modelForEach(listener -> {
+        CollectListenerManager.getInstance().eventGroupPublish(listener -> {
             try {
-                listener.listener(info);
+                listener.finished(info);
             } catch (Exception e) {
                 logger.error("采集事件完成发布异常 {} - 事件源: {} - 设备组: {}", e.getMessage(), source.getName(), group.getName(), e);
             }

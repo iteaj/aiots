@@ -2,7 +2,9 @@ package com.iteaj.framework.spi.iot;
 
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,6 +31,8 @@ public class ProtocolModelApiInvokeParam {
      * 执行配置
      */
     private Map config;
+
+    public static final String INVOKE_UP_CONFIG = "_InvokeUpConfig";
 
     public ProtocolModelApiInvokeParam() { }
 
@@ -83,6 +87,14 @@ public class ProtocolModelApiInvokeParam {
 
     public String getParentDeviceSn() {
         return this.getConfig(DeviceKey.PARENT_DEVICE_SN_KEY);
+    }
+
+    public List<UpModelAttr> listUpAttrs() {
+        return this.getConfig() != null ? this.getConfig(INVOKE_UP_CONFIG) : Collections.emptyList();
+    }
+
+    public ProtocolModelApiInvokeParam addUpAttrs(List<UpModelAttr> attrs) {
+        this.addConfig(INVOKE_UP_CONFIG, attrs); return this;
     }
 
     public DeviceKey buildKey() {

@@ -13,6 +13,11 @@ import java.util.Date;
 public class SignalOrFieldValue {
 
     /**
+     * 属性或信号id
+     */
+    private Long id;
+
+    /**
      * 值
      */
     private Object value;
@@ -38,14 +43,16 @@ public class SignalOrFieldValue {
      */
     private CollectStatus status;
 
-    public SignalOrFieldValue(String signalOrField, Date collectTime, Object value) {
+    public SignalOrFieldValue(Long id, String signalOrField, Date collectTime, Object value) {
+        this.id = id;
         this.value = value;
         this.collectTime = collectTime;
         this.signalOrField = signalOrField;
         this.status = CollectStatus.Success;
     }
 
-    public SignalOrFieldValue(String signalOrField, Date collectTime, CollectStatus status) {
+    public SignalOrFieldValue(Long id, String signalOrField, Date collectTime, CollectStatus status) {
+        this.id = id;
         this.status = status;
         this.collectTime = collectTime;
         this.signalOrField = signalOrField;
@@ -55,27 +62,27 @@ public class SignalOrFieldValue {
         this.status = status; return this;
     }
 
-    public static SignalOrFieldValue build(String signalOrField, Object value) {
-        return build(signalOrField, new Date(), value);
+    public static SignalOrFieldValue build(Long id, String signalOrField, Object value) {
+        return build(id, signalOrField, new Date(), value);
     }
 
-    public static SignalOrFieldValue build(String signalOrField, CollectStatus status) {
-        return new SignalOrFieldValue(signalOrField, new Date(), status);
+    public static SignalOrFieldValue build(Long id, String signalOrField, CollectStatus status) {
+        return new SignalOrFieldValue(id, signalOrField, new Date(), status);
     }
 
-    public static SignalOrFieldValue build(String signalOrField, Date collectTime, Object value) {
-        return new SignalOrFieldValue(signalOrField, collectTime, value);
+    public static SignalOrFieldValue build(Long id, String signalOrField, Date collectTime, Object value) {
+        return new SignalOrFieldValue(id, signalOrField, collectTime, value);
     }
 
-    public static SignalOrFieldValue build(String signalOrField, Date collectTime, CollectStatus status) {
-        return new SignalOrFieldValue(signalOrField, collectTime, status);
+    public static SignalOrFieldValue build(Long id, String signalOrField, Date collectTime, CollectStatus status) {
+        return new SignalOrFieldValue(id, signalOrField, collectTime, status);
     }
 
-    public static SignalOrFieldValue build(String signalOrField, Date collectTime, Object value, String address) {
-        return new SignalOrFieldValue(signalOrField, collectTime, value).setAddress(address);
+    public static SignalOrFieldValue build(Long id, String signalOrField, Date collectTime, Object value, String address) {
+        return new SignalOrFieldValue(id, signalOrField, collectTime, value).setAddress(address);
     }
 
-    public static SignalOrFieldValue build(String signalOrField, Date collectTime, CollectStatus status, String address) {
-        return new SignalOrFieldValue(signalOrField, collectTime, status).setAddress(address);
+    public static SignalOrFieldValue build(Long id, String signalOrField, Date collectTime, CollectStatus status, String address) {
+        return new SignalOrFieldValue(id, signalOrField, collectTime, status).setAddress(address);
     }
 }

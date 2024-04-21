@@ -158,6 +158,9 @@
     <select id="getCtrlStatusModelApi" resultMap="JoinCtrlStatusApiMap">
         select a.* from iot_product a where a.id = #{productId}
     </select>
+    <select id="listByProtocolCode" resultMap="JoinDetailMap">
+        select a.* from iot_product a where a.protocol_code=#{protocolCode}
+    </select>
 
     <delete id="removeModel">
         delete from iot_model_api where product_id=#{productId};

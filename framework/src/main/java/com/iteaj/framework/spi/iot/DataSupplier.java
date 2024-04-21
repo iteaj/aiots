@@ -47,20 +47,20 @@ public class DataSupplier {
         values.add(value); return this;
     }
 
-    public DataSupplier addValue(String signalOrField, Object value) {
-        return this.addValue(SignalOrFieldValue.build(signalOrField, this.collectTime, value));
+    public DataSupplier addValue(Long id, String signalOrField, Object value) {
+        return this.addValue(SignalOrFieldValue.build(id, signalOrField, this.collectTime, value));
     }
 
-    public DataSupplier addValue(String address, String signalOrField, Object value) {
-        return this.addValue(SignalOrFieldValue.build(signalOrField, this.collectTime, value, address));
+    public DataSupplier addValue(Long id, String address, String signalOrField, Object value) {
+        return this.addValue(SignalOrFieldValue.build(id, signalOrField, this.collectTime, value, address));
     }
 
-    public DataSupplier addValue(String address, String signalOrField, CollectStatus status) {
-        return this.addValue(SignalOrFieldValue.build(signalOrField, this.collectTime, status, address));
+    public DataSupplier addValue(Long id, String address, String signalOrField, CollectStatus status) {
+        return this.addValue(SignalOrFieldValue.build(id, signalOrField, this.collectTime, status, address));
     }
 
-    public DataSupplier addValue(String address, String signalOrField, Object value, Date collectTime) {
-        return this.addValue(SignalOrFieldValue.build(signalOrField, collectTime, value, address));
+    public DataSupplier addValue(Long id, String address, String signalOrField, Object value, Date collectTime) {
+        return this.addValue(SignalOrFieldValue.build(id, signalOrField, collectTime, value, address));
     }
 
     public DataSupplier build(Date collectTime) {

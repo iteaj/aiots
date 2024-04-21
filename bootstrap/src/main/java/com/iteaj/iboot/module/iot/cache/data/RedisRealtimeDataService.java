@@ -54,11 +54,6 @@ public class RedisRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
-    public void put(String protocolCode, DeviceKey key, String signalOrField, Object value) {
-        this.put(protocolCode, key, SignalOrFieldValue.build(signalOrField, value));
-    }
-
-    @Override
     public void put(String protocolCode, DeviceKey key, SignalOrFieldValue value) {
         String signalOrField = value.getSignalOrField();
         String valueKey = KEY_PREFIX + protocolCode + ":" + key.getKey();
