@@ -126,9 +126,12 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                             }
 
                             realtimeStatus = status == true ? DeviceStatus.online : DeviceStatus.offline;
+                            if(logger.isDebugEnabled() && !status) {
+                                logger.warn("采集在线状态失败 采集值为{}(布尔值为true、数值须大于0、其他类型) - 设备编号: {} - 接口: {}/{}", result.getValue(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                            }
                         } else {
                             realtimeStatus = DeviceStatus.offline;
-                            logger.warn("调用状态协议失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                            logger.warn("采集在线状态失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                         }
 
                         // 如果现在的状态和上一次的状态不一致则更新状态
@@ -145,7 +148,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                         deviceService.updateDeviceStatus(prevDeviceStatus);
                     }
 
-                    logger.error("调用状态协议异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                    logger.error("采集在线状态异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 }
             });
         });
