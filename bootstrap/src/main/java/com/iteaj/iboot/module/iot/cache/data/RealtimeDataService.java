@@ -46,15 +46,6 @@ public interface RealtimeDataService {
      * 缓存数据
      * @param protocolCode 产品代码
      * @param key 直连设备或者边缘网关设备的设备编号(或网关设备编号和网关子设备编号的组合)
-     * @param signalOrField 事件代码或者点位字段
-     * @param value
-     */
-    void put(String protocolCode, DeviceKey key, String signalOrField, Object value);
-
-    /**
-     * 缓存数据
-     * @param protocolCode 产品代码
-     * @param key 直连设备或者边缘网关设备的设备编号(或网关设备编号和网关子设备编号的组合)
      * @param value 事件代码或者点位字段
      * @param value
      */

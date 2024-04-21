@@ -426,6 +426,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         return this.getBaseMapper().listCtrlStatusModelAttrs(productIds);
     }
 
+    @Override
+    public ListResult<ProductDto> listByProtocolCode(String protocolCode) {
+        return new ListResult<>(this.getBaseMapper().listByProtocolCode(protocolCode));
+    }
+
     private void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {
         if(status == FuncStatus.enabled) {
             if(client instanceof TcpSocketClient) {
@@ -436,7 +441,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         } else if(status == FuncStatus.disabled) {
             if(client instanceof TcpSocketClient) {
                 if(((TcpSocketClient) client).isConnect()) {
-                    client.disconnect();
+                    client.close(); // 断开连接并且移除客户端
                 }
             }
         } else {

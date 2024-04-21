@@ -4,15 +4,16 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.InvokeStatusException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.framework.spi.iot.consts.*;
+import com.iteaj.framework.spi.iot.UpModelAttr;
+import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.consts.DataType;
+import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 
@@ -125,17 +126,17 @@ public class ProtocolInvokeUtil {
     }
 
     private static void buildUpConfigAttrs(ModelApi api, ProtocolModelApiInvokeParam invokeParam) {
-        List<ProtocolModelAttr> upConfigAttrs = new ArrayList<>();
+        List<UpModelAttr> upConfigAttrs = new ArrayList<>();
         api.getUpConfig().forEach(item -> {
             if(DataType.t_json.getValue().equals(item.getDataType())) {
                 item.getDicts().forEach(dict -> {
-                    upConfigAttrs.add(new ProtocolModelAttr(dict.getAttrField(), dict.getDictName(), DataType.build(dict.getDataType()), null));
+                    upConfigAttrs.add(new UpModelAttr(dict.getModelAttrId(), dict.getAttrField(), dict.getDictName(), DataType.build(dict.getDataType())));
                 });
             } else {
-                upConfigAttrs.add(new ProtocolModelAttr(item.getAttrField(), item.getAttrName(), DataType.build(item.getDataType()), null));
+                upConfigAttrs.add(new UpModelAttr(item.getModelAttrId(), item.getAttrField(), item.getAttrName(), DataType.build(item.getDataType())));
             }
         });
 
-        invokeParam.addConfig(AbstractProtocolModelApi.INVOKE_UP_CONFIG, upConfigAttrs);
+        invokeParam.addUpAttrs(upConfigAttrs);
     }
 }

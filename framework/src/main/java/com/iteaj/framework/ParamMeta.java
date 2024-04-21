@@ -35,6 +35,8 @@ public class ParamMeta {
      */
     private Object defaultValue;
 
+    private String placeholder;
+
     public ParamMeta(String field, String label) {
         this(field, label, false);
     }
@@ -102,5 +104,9 @@ public class ParamMeta {
 
     public static ParamMeta buildHidden(String field, Object defaultValue) {
         return new ParamMeta(field, null, null, true, defaultValue, "hidden");
+    }
+
+    public ParamMeta setPlaceholder(String placeholder) {
+        this.placeholder = placeholder; return this;
     }
 }

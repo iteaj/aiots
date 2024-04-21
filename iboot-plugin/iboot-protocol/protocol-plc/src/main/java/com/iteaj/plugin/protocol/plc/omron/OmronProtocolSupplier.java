@@ -67,12 +67,13 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
             WriteAddress writeAddress = ((OmronTcpProtocol) protocol).getWriteAddress();
             if(writeAddress == null) {
                 ReadAddress readAddress = ((OmronTcpProtocol) protocol).getBatchAddress().get(0);
-                String field = param.getConfig(PointProtocolConfig.POINT_FIELD_KEY + readAddress.getAddress());
-                if(execStatus == ExecStatus.success) {
-                    dataSupplier.addValue(readAddress.getAddress(), field, value);
-                } else {
-                    dataSupplier.addValue(readAddress.getAddress(), field, CollectStatus.from(execStatus));
-                }
+                param.listUpAttrs().stream().findFirst().ifPresent(upModelAttr -> {
+                    if(execStatus == ExecStatus.success) {
+                        dataSupplier.addValue(upModelAttr.getId(), readAddress.getAddress(), upModelAttr.getField(), value);
+                    } else {
+                        dataSupplier.addValue(upModelAttr.getId(), readAddress.getAddress(), upModelAttr.getField(), CollectStatus.from(execStatus));
+                    }
+                });
             }
         }
 

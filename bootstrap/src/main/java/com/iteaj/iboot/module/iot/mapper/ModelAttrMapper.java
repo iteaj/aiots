@@ -42,4 +42,18 @@ public interface ModelAttrMapper extends BaseMapper<ModelAttr> {
      * @return
      */
     int switchCtrlStatus(Long productId, Long id, Boolean status);
+
+    /**
+     * 关联删除模型属性, 字典
+     * @param id
+     * @return
+     */
+    int deleteByJoin(Serializable id);
+
+    /**
+     * 关联的产品是否启用
+     * @param id
+     * @return
+     */
+    boolean isEnabledOfProduct(Serializable id);
 }

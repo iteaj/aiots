@@ -12,41 +12,47 @@ import com.iteaj.iot.client.mqtt.MqttClient;
 import com.iteaj.iot.client.mqtt.MqttClientComponent;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttConnectProperties;
-import com.iteaj.iot.client.mqtt.impl.MqttSubscribeListener;
-import com.iteaj.iot.client.mqtt.impl.MqttSubscribeListenerManager;
+import io.netty.handler.codec.mqtt.MqttQoS;
+import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DefaultMqttProtocolSupplier extends StaticClientProtocolSupplier<NetworkConfigImpl.MqttNetworkConfig, MqttClientComponent, MqttClient> {
 
     private Map<String, ProtocolModelAttr> modelAttrs = new LinkedHashMap<>();
     private Map<String, AbstractProtocolModelApi> modelApis = new LinkedHashMap<>();
-    private ParamMeta[] gatewayConfig = new ParamMeta[]{
-            ParamMeta.buildRequired(ConstConfig.HOST, "主机", "", "127.0.0.1"),
-            ParamMeta.buildRequiredNumber(ConstConfig.PORT, "端口", 9600, ""),
-            ParamMeta.buildRequired("clientId", "ClientId", "", ""),
-            ParamMeta.buildRequired("username", "用户名", "", ""),
-            ParamMeta.buildRequired("password", "密码", "", ""),
-            ParamMeta.buildRequiredNumber("keepalive", "保活时间", 600, ""),
-    };
 
     public DefaultMqttProtocolSupplier() {
-        modelAttrs.put("topic", new ProtocolModelAttr("topic", "主题", DataType.t_any, AttrType.IGNORE, "支持使用占位符{deviceSn}{parentDeviceSn}"));
-        modelAttrs.put("payload", new ProtocolModelAttr("payload", "负载", DataType.t_json, AttrType.RW));
+        modelAttrs.put("topic", new ProtocolModelAttr("topic", "主题", DataType.t_any, AttrType.IGNORE, "支持使用占位符{deviceSn}{gatewaySn}"));
+        modelAttrs.put("payload", new ProtocolModelAttr("payload", "负载", DataType.t_json, AttrType.IGNORE));
         modelApis.put("publish", new DefaultMqttPublishProtocolModelApi("public", "发布")
-                .addDownConfig(ProtocolModelApiConfig.downBuild("topic", "发布的主题, 支持使用占位符{clientId}{deviceSn}{parentDeviceSn}", 1))
+                .addDownConfig(ProtocolModelApiConfig.downBuild("topic", "发布的主题, 支持使用占位符{clientId}{deviceSn}{gatewaySn}", 1))
                 .addDownConfig(ProtocolModelApiConfig.downBuild("payload", "发布的数据", 2)));
         modelApis.put("subscribe", new DefaultMqttSubscribeProtocolModelApi("subscribe", "订阅")
-                .addUpConfig(ProtocolModelApiConfig.upBuild("topic", "此功能的主题, 支持使用占位符{clientId}{deviceSn}{parentDeviceSn}", 1))
+                .addUpConfig(ProtocolModelApiConfig.upBuild("topic", "匹配的主题, 支持使用占位符{clientId}{deviceSn}{gatewaySn}", 1))
                 .addUpConfig(ProtocolModelApiConfig.upBuild("payload", "订阅的数据", 2)));
     }
 
     @Override
     protected MqttClient doCreateClient(NetworkConfigImpl.MqttNetworkConfig config, MqttClientComponent component) {
-//        new MqttSubscribeListener()
-        DefaultMqttConnectProperties connectProperties = new DefaultMqttConnectProperties(config.getHost(), config.getPort(), config.getClientId(), null, null);
+        Integer qos = config.getQos();
+        String[] split = config.getTopics().split(",");
+        List<MqttTopicSubscription> subscriptions = new ArrayList<>();
+        if(split != null) {
+            MqttQoS mqttQoS = MqttQoS.valueOf(qos);
+            for (int i = 0; i < split.length; i++) {
+                subscriptions.add(new MqttTopicSubscription(split[i], mqttQoS));
+            }
+        }
+
+        DefaultMqttConnectProperties connectProperties = new DefaultMqttConnectProperties(config.getHost(), config.getPort(), config.getClientId(), subscriptions, null);
         connectProperties.setConnectKey(config.getDeviceSn()); // 使用设备编号作为唯一标识
+        if(config.getKeepalive() > 0) {
+            connectProperties.setKeepAlive(config.getKeepalive());
+        }
         return new MqttClient(component, connectProperties);
     }
 
@@ -67,7 +73,7 @@ public class DefaultMqttProtocolSupplier extends StaticClientProtocolSupplier<Ne
 
     @Override
     public ParamMeta[] getGatewayConfig() {
-        return gatewayConfig;
+        return NetworkConfigImpl.MqttNetworkConfig.mqttMetas;
     }
 
     @Override

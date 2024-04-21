@@ -17,9 +17,6 @@ public abstract class StaticClientProtocolSupplier<C extends NetworkConfigImpl, 
 
         K client = (K) component.getClient(config.getDeviceSn());
         if(client != null) {
-            // 防止网关设备修改了host和ip
-            client.getConfig().setHost(config.getHost());
-            client.getConfig().setPort(config.getPort());
             return client;
         }
 

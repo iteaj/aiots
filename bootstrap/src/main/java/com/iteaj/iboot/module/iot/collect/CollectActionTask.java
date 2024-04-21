@@ -104,7 +104,7 @@ public class CollectActionTask implements Runnable {
                                         }
 
                                         values.add(data);
-                                        CollectListenerManager.getInstance().signalForEach(listener -> {
+                                        CollectListenerManager.getInstance().signalPublish(listener -> {
                                             try {
                                                 listener.supplier(collectDevice, data);
                                             } catch (Exception e) {
@@ -122,7 +122,7 @@ public class CollectActionTask implements Runnable {
                                     }
 
                                     // 存储实时数据
-                                    CollectListenerManager.getInstance().signalForEach(listener -> {
+                                    CollectListenerManager.getInstance().signalPublish(listener -> {
                                         try {
                                             listener.finished(collectDevice, values);
                                         } catch (Exception e) {

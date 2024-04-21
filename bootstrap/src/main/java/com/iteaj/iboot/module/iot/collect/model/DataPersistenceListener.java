@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.collect.model;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.spi.iot.DataSupplier;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.CollectMode;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
@@ -15,7 +16,27 @@ import java.util.List;
 /**
  * 数据持久化监听
  */
-public interface DataPersistenceListener extends EventGroupCollectListener {
+public interface DataPersistenceListener extends EventGroupCollectListener, ModelAttrListener {
+
+    @Override
+    default void supplier(DataSupplier supplier, RealtimeStatus device) {
+        if(supplier != null && CollectionUtil.isNotEmpty(supplier.getValues())) {
+            long cid = UniqueIdGen.nextLong(); // 声明同一组
+            List<CollectData> data = new ArrayList<>();
+            supplier.getValues().forEach(value -> {
+                data.add(new CollectData(CollectMode.model).setCid(cid)
+                        .setReason("").setCreateTime(supplier.getCollectTime())
+                        .setSignalId(value.getId())
+                        .setCollectTime(value.getCollectTime())
+                        .setCollectStatus(value.getStatus())
+                        .setUid(Long.valueOf(device.getUid()))
+                        .setFieldName(value.getSignalOrField())
+                );
+            });
+
+            this.persistence(data);
+        }
+    }
 
     @Override
     default void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
@@ -23,7 +44,7 @@ public interface DataPersistenceListener extends EventGroupCollectListener {
     }
 
     @Override
-    default void listener(CollectInfo info) {
+    default void finished(CollectInfo info) {
         List<CollectData> collectData = new ArrayList<>();
         if(CollectionUtil.isNotEmpty(info.getInfos())) {
             long cid = UniqueIdGen.nextLong(); // 声明同一组
@@ -36,7 +57,7 @@ public interface DataPersistenceListener extends EventGroupCollectListener {
                                 .setCreateTime(new Date())
                                 .setAddress(value.getAddress())
                                 .setUid(Long.valueOf(item.getDevice().getUid()))
-                                .setSignalId(item.getApi().getId())
+                                .setSignalId(value.getId())
                                 .setValue(value.getValue().toString())
                                 .setCollectTime(supplier.getCollectTime())
                                 .setCollectTaskId(info.getSource().getId());

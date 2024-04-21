@@ -35,6 +35,10 @@
             update iot_model_attr set ctrl_status = true where id=#{id};
         </if>
     </update>
+    <delete id="deleteByJoin">
+        delete a, ad from iot_model_attr a left join iot_model_attr_dict ad on ad.model_attr_id=a.id where a.id=#{id};
+        delete a from iot_model_attr_dict a left join iot_model_attr ad on ad.id=a.model_attr_id where a.dict_value='${id}' and ad.data_type='json';
+    </delete>
 
     <select id="detailById" resultMap="DetailResultMap">
         select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path from iot_model_attr a
@@ -65,5 +69,10 @@
             left join iot_model_attr jma on jma.id=a.dict_value and ma.data_type='json'
         where a.model_attr_id=#{modelAttrId}
         <if test="dictName != null">and a.dict_name like '%${dictName}%'</if>
+    </select>
+    <select id="isEnabledOfProduct" resultType="java.lang.Boolean">
+        select count(p.id) > 0 from iot_model_attr a
+            inner join iot_product p on a.product_id = p.id
+        where p.status = 'enabled' and a.id=#{id}
     </select>
 </mapper>

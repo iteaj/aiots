@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.*;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
@@ -94,4 +95,11 @@ public interface IProductService extends IBaseService<Product> {
      * @return
      */
     List<ProductDto> listCtrlStatusModelAttrs(List<Long> productIds);
+
+    /**
+     * 获取指定协议下面的模型接口
+     * @param protocolCode
+     * @return
+     */
+    ListResult<ProductDto> listByProtocolCode(String protocolCode);
 }

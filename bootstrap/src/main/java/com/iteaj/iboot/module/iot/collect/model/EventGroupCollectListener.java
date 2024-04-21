@@ -6,7 +6,17 @@ import com.iteaj.iboot.module.iot.entity.EventSource;
 
 public interface EventGroupCollectListener extends CollectDataListener {
 
-    default void listener(CollectInfo info) {}
+    /**
+     *  组任务采集完成
+     * @param info
+     */
+    default void finished(CollectInfo info) {}
 
+    /**
+     * 设备采集完成
+     * @param source
+     * @param group
+     * @param info
+     */
     void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info);
 }

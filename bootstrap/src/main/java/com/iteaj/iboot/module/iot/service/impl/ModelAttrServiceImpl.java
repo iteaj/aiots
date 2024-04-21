@@ -96,16 +96,21 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
             return BooleanResult.buildFalse("未指定要删除的记录");
         }
 
+        if(idList.size() > 1) {
+            return BooleanResult.buildFalse("不支持批量删除");
+        }
+
+        Serializable id = idList.stream().findFirst().get();
+        if(this.getBaseMapper().isEnabledOfProduct(id)) {
+            return BooleanResult.buildFalse("请先停用产品");
+        }
+
         if(this.hasBinded(idList)) {
             return BooleanResult.buildFalse("此属性已被绑定");
         }
 
-        return super.removeByIds(idList).ifPresent(item -> {
-            if(Boolean.TRUE.equals(item)) {
-                modelAttrDictMapper.delete(Wrappers.<ModelAttrDict>lambdaQuery()
-                        .in(ModelAttrDict::getModelAttrId, idList));
-            }
-        });
+        this.getBaseMapper().deleteByJoin(id);
+        return BooleanResult.buildTrue("删除成功");
     }
 
     @Override

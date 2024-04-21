@@ -115,20 +115,14 @@ public class IotRestartListener implements ApplicationReadyListener {
     }
 
     private NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, DeviceDto device) {
+        JSONObject config = device.getConfig();
         TransportProtocol type = supplier.getProtocol().getType();
-        if(type == TransportProtocol.TCP) {
-            JSONObject jsonObject = device.getConfig();
-            if(jsonObject == null) {
-                throw new IllegalArgumentException("配置错误");
-            }
-
-            NetworkConfigImpl.TcpNetworkConfig config = new NetworkConfigImpl.TcpNetworkConfig();
-            config.setHost(jsonObject.getString(ConstConfig.HOST));
-            config.setPort(jsonObject.getInteger(ConstConfig.PORT));
-            config.setDeviceSn(device.getDeviceSn());
-            return config;
+        if(config == null) {
+            throw new ServiceException("设备[" + device.getName() + " / " + device.getDeviceSn() + "]缺少配置");
         }
-        return null;
+
+        config.put("deviceSn", device.getDeviceSn());
+        return NetworkConfig.resolve(type, config);
     }
 
     /**
