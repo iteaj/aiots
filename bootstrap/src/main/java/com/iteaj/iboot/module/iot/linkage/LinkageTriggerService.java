@@ -167,7 +167,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                             WarnRecord warnRecord = new WarnRecord().setDeviceSn(deviceAndField.getDeviceSn()).
                                     setUid(deviceAndField.getUid()).setCreateTime(date).setWarnTime(date).setGrade(warn.getGrade())
                                     .setWarnConfigId(warn.getId()).setContent(content);
-                            CollectListenerManager.getInstance().forEach(listener -> {
+                            CollectListenerManager.getInstance().publish(listener -> {
                                 if(listener instanceof LinkageActionListener) {
                                     ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, deviceAndField.device);
                                 }
@@ -211,7 +211,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                         logger.warn("执行联动动作失败 {} - 接口: {}/{} - 设备: {}"
                                 , result.getStatus(), api.getName(), api.getCode(), device.buildKey());
                     }
-                    CollectListenerManager.getInstance().forEach(item -> {
+                    CollectListenerManager.getInstance().publish(item -> {
                         if(item instanceof LinkageActionListener) {
                             ((LinkageActionListener) item).apiInvoke(api, device, result);
                         }
@@ -405,7 +405,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
     }
 
     @Override
-    public void listener(CollectInfo info) {
+    public void finished(CollectInfo info) {
         this.trigger(info);
     }
 

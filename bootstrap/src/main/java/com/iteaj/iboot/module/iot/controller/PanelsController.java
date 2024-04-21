@@ -16,6 +16,7 @@ import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.consts.DataType;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
@@ -164,24 +165,40 @@ public class PanelsController extends BaseController {
                     .ifPresent(productDto -> {
                         debugDto.setProduct(productDto);
                         if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
-                            productDto.getFuncApis().forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
+                            // 过滤出被动的功能接口
+                            List<ModelApi> modelApis = productDto.getFuncApis().stream()
+                                    .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                    .collect(Collectors.toList());
+                            if(CollectionUtil.isNotEmpty(modelApis)) {
+                                modelApis.forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
+                                productDto.setFuncApis(modelApis);
+                            }
                         }
 
+                        if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                            // 过滤出被动的事件接口
+                            List<ModelApi> modelApis = productDto.getEventApis().stream()
+                                    .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                    .collect(Collectors.toList());
+                            productDto.setEventApis(modelApis);
+                        }
                         Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
                                 , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                         if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
-                            productDto.getAttrs().stream().filter(attr -> attr.getAttrType() != AttrType.W).forEach(attr -> {
-                                if(realtimeDataMap != null) {
-                                    RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
-                                    if(realtimeData != null && realtimeData.getRealtime() != null) {
-                                        SignalOrFieldValue realtime = realtimeData.getRealtime();
-                                        debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType()
-                                                , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
-                                        return;
+                            productDto.getAttrs().stream().filter(attr -> (attr.getAttrType() != AttrType.W
+                                    && !DataType.t_json.getValue().equals(attr.getDataType())))
+                                .forEach(attr -> {
+                                    if(realtimeDataMap != null) {
+                                        RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
+                                        if(realtimeData != null && realtimeData.getRealtime() != null) {
+                                            SignalOrFieldValue realtime = realtimeData.getRealtime();
+                                            debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType()
+                                                    , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
+                                            return;
+                                        }
                                     }
-                                }
 
-                                debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType());
+                                    debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType());
                             });
                         }
 
@@ -267,7 +284,8 @@ public class PanelsController extends BaseController {
                         throw new ServiceException("调用设备失败["+result.getReason()+"]");
                     } else {
                         // 将实时值更新为下发的值
-                        realtimeDataService.put(realtimeStatus.getProtocolCode(), deviceKey, ctrlStatusAttr.getField(), dto.getStatus());
+                        realtimeDataService.put(realtimeStatus.getProtocolCode(), deviceKey
+                                , SignalOrFieldValue.build(ctrlStatusAttr.getId(), ctrlStatusAttr.getField(), dto.getStatus()));
                     }
                 });
             });
