@@ -6,7 +6,8 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.WarnRecord">
         <result column="id" property="id" />
         <result column="uid" property="uid" />
-        <result column="name" property="name" />
+        <result column="name" property="warnConfigName" />
+        <result column="device_name" property="deviceName" />
         <result column="grade" property="grade" />
         <result column="content" property="content" />
         <result column="device_sn" property="deviceSn" />
@@ -16,8 +17,9 @@
     </resultMap>
 
     <select id="detailPage" resultMap="BaseResultMap">
-        select a.*, c.name, c.grade from iot_warn_record a
+        select a.*, c.name, c.grade, d.name device_name from iot_warn_record a
             left join iot_warn_config c on a.warn_config_id=c.id
+            left join iot_device d on a.uid = d.uid
         <where>
             <if test="entity.grade != null">
                 and c.grade = #{entity.grade}
@@ -25,8 +27,14 @@
             <if test="entity.uid != null and entity.uid != ''">
                 and a.uid = #{entity.uid}
             </if>
-            <if test="entity.name != null and entity.name != ''">
-                and c.name like '%${#{entity.name}}%'
+            <if test="entity.productId != null">
+                and c.product_id = #{entity.productId}
+            </if>
+            <if test="entity.deviceName != null and entity.deviceName != ''">
+                and d.name like '%${entity.deviceName}%'
+            </if>
+            <if test="entity.warnConfigName != null and entity.warnConfigName != ''">
+                and c.name like '%${entity.warnConfigName}%'
             </if>
         </where>
         order by a.warn_time desc

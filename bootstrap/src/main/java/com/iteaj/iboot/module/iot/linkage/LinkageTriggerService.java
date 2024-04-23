@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_OFFLINE;
+import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_ONLINE;
+
 public class LinkageTriggerService implements EventGroupCollectListener {
 
     private final IotCacheManager cacheManager;
@@ -49,7 +52,8 @@ public class LinkageTriggerService implements EventGroupCollectListener {
      * @param device
      */
     public void trigger(RealtimeStatus device) {
-        Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), device.getStatus().name());
+        String status = device.getStatus() == DeviceStatus.online ? DEVICE_ONLINE[2] : DEVICE_OFFLINE[2];
+        Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), status);
         this.invokeLinkage(linkageItems, null, device);
     }
 
@@ -162,16 +166,9 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                         // 成功触发此次联动条件的设备和字段
                         SuccessDeviceAndField deviceAndField = validateSuccessField.get(warn.getModelAttrField());
                         if(deviceAndField != null) {
-                            Date date = new Date();
-                            String content = resolverWarnTemplate(warn, deviceAndField);
-                            WarnRecord warnRecord = new WarnRecord().setDeviceSn(deviceAndField.getDeviceSn()).
-                                    setUid(deviceAndField.getUid()).setCreateTime(date).setWarnTime(date).setGrade(warn.getGrade())
-                                    .setWarnConfigId(warn.getId()).setContent(content);
-                            CollectListenerManager.getInstance().publish(listener -> {
-                                if(listener instanceof LinkageActionListener) {
-                                    ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, deviceAndField.device);
-                                }
-                            });
+                            doHandleWarn(warn, deviceAndField.getDevice(), deviceAndField.getValue().getValue());
+                        } else if(triggerDevice != null) {
+                            doHandleWarn(warn, triggerDevice, triggerDevice.getStatus().name());
                         } else {
                             logger.error("动作项执行失败 未找到触发属性 - 属性: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", warn.getModelAttrField()
                                     , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
@@ -185,19 +182,30 @@ public class LinkageTriggerService implements EventGroupCollectListener {
         }
     }
 
+    private void doHandleWarn(WarnConfig warn, RealtimeStatus device, Object value) {
+        Date date = new Date();
+        String content = resolverWarnTemplate(warn, device.getDeviceSn(), value);
+        WarnRecord warnRecord = new WarnRecord().setDeviceSn(device.getDeviceSn()).
+                setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(warn.getGrade())
+                .setWarnConfigId(warn.getId()).setContent(content);
+        CollectListenerManager.getInstance().publish(listener -> {
+            if(listener instanceof LinkageActionListener) {
+                ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, device);
+            }
+        });
+    }
+
     /**
      * 解析告警配置模板
      * @param warn
-     * @param deviceAndField
      * @return
      */
-    private String resolverWarnTemplate(WarnConfig warn, SuccessDeviceAndField deviceAndField) {
-        Map<String, String> value = new HashMap<>();
-        SignalOrFieldValue fieldValue = deviceAndField.value;
-        value.put("deviceSn", deviceAndField.getDeviceSn());
-        value.put("value", fieldValue.getValue().toString());
+    private String resolverWarnTemplate(WarnConfig warn, String deviceSn, Object value) {
+        Map<String, String> param = new HashMap<>();
+        param.put("deviceSn", deviceSn);
+        param.put("value", value.toString());
 
-        return StrUtil.format(warn.getTemplate(), value, true);
+        return StrUtil.format(warn.getTemplate(), param, true);
     }
 
     private void doInvokeAction(LinkageActionExecDto linkageAction, ModelApi api, RealtimeStatus device) {
@@ -315,7 +323,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                 logger.error("条件项校验失败 未知的校验方式({})", deviceOrGroup); return false;
             }
 
-            if("-1".equals(conditionItem.getUid())){ // 组下面且属于此联动项产品的所有设备
+            if(LinkageConditionItem.DEVICE_ANY[0].equals(conditionItem.getUid())){ // 组下面且属于此联动项产品的所有设备
                 Collection<RealtimeStatus> statuses = cacheManager.listGroupAndProduct(groupId, conditionItem.getProductCode());
                 Iterator<RealtimeStatus> iterator = statuses.iterator();
                 // 同一组且同一产品下包含多台设备的按或运算, 只要有一台条件满足就行
@@ -327,7 +335,20 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                         return true;
                     }
                 }
-            } else {
+            } else if(LinkageConditionItem.DEVICE_TRIGGER[0].equals(conditionItem.getUid())) { // 当前触发设备(只支持设备状态校验)
+                if(conditionItem.getType() == ConditionType.Status) { // 设备状态校验
+                    if(triggerDevice != null) {
+                        DeviceStatus status = DeviceStatus.getInstance(conditionItem.getTypeValue());
+                        if(status == triggerDevice.getStatus()) {
+                            return true;
+                        }
+                    } else if(logger.isDebugEnabled()){
+                        logger.debug("条件项校验 状态校验不支持组触发 - 触发组id: {} - 联动条件设备uid: {}", groupId, conditionItem.getUid());
+                    }
+                } else {
+                    logger.error("条件项校验失败 只支持状态校验 - 触发组id: {} - 联动条件设备uid: {}", groupId, conditionItem.getUid());
+                }
+            } else { // 指定设备
                 RealtimeStatus linkageDevice;
                 if(triggerDevice != null && triggerDevice.getUid().equals(conditionItem.getUid())) {
                     linkageDevice = triggerDevice;
@@ -364,11 +385,6 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                         logger.debug("条件项计算失败 最新采集值状态失败 - 设备: {} - 实时状态: {} - 表达式: {} {} {}"
                                 , device.buildDeviceKey(), realtime.getStatus(), data.getSignalOrField(), conditionCalc.getOperational(), conditionItem.getValue());
                     }
-                }
-            } else if(conditionItem.getType() == ConditionType.Status) { // 设备状态校验
-                DeviceStatus status = DeviceStatus.valueOf(conditionItem.getTypeValue());
-                if(status == device.getStatus()) {
-                    return true;
                 }
             }
         }

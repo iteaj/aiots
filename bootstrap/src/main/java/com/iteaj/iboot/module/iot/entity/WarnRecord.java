@@ -60,14 +60,34 @@ public class WarnRecord extends BaseEntity {
     private WarnGrade grade;
 
     /**
+     * 所属产品
+     */
+    @TableField(exist = false)
+    private Long productId;
+
+    /**
      * 告警配置名称
      */
     @TableField(exist = false)
-    private String name;
+    private String warnConfigName;
+
+    /**
+     * 告警设备名称
+     */
+    @TableField(exist = false)
+    private String deviceName;
 
     public WarnRecord() { }
 
     public WarnRecord(String uid) {
         this.uid = uid;
+    }
+
+    /**
+     * 告警等级名称
+     * @return
+     */
+    public String getGradeName() {
+        return this.getGrade() != null ? this.getGrade().getDesc() : null;
     }
 }

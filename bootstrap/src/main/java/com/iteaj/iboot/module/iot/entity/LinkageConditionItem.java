@@ -128,8 +128,9 @@ public class LinkageConditionItem extends BaseEntity {
     private Long eventSourceDetailId;
 
     public static final String[] DEVICE_ANY = {"-1", "各组任一此产品下的设备"};
-    public static final String[] DEVICE_ONLINE = {"-1", "设备上线"};
-    public static final String[] DEVICE_OFFLINE = {"-2", "设备离线"};
+    public static final String[] DEVICE_TRIGGER = {"-2", "当前触发设备"};
+    public static final String[] DEVICE_ONLINE = {"-1", "设备上线", "status::online"};
+    public static final String[] DEVICE_OFFLINE = {"-2", "设备离线", "status::offline"};
 
     public String getLogicalName() {
         return logical != null ? logical.getDesc() : "";

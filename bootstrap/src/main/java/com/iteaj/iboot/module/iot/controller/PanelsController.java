@@ -223,7 +223,7 @@ public class PanelsController extends BaseController {
                         WarnRecord entity = new WarnRecord(item.getUid());
                         warnRecordService.detailPage(new Page<WarnRecord>(1, 30), entity)
                                 .<WarnRecord>stream().forEach(record -> {
-                            debugDto.addWarn(record.getName(), record.getGrade(), record.getContent(), record.getWarnTime());
+                            debugDto.addWarn(record.getWarnConfigName(), record.getGrade(), record.getContent(), record.getWarnTime());
                         });
                     });
         });

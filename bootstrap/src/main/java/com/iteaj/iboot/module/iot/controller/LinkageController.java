@@ -30,6 +30,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 
+import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.*;
+
 /**
  * 场景联动管理
  * @author iteaj
@@ -188,6 +190,9 @@ public class LinkageController extends BaseController {
         data.add(0, new Device()
                 .setUid(LinkageConditionItem.DEVICE_ANY[0])
                 .setName(LinkageConditionItem.DEVICE_ANY[1]));
+        data.add(0, new Device()
+                .setUid(LinkageConditionItem.DEVICE_TRIGGER[0])
+                .setName(LinkageConditionItem.DEVICE_TRIGGER[1]));
         return success(data);
     }
 
@@ -279,16 +284,17 @@ public class LinkageController extends BaseController {
 
         List<IVOption> result = new ArrayList<>();
         result.add(new IVOption("设备状态", ConditionType.Status, "").setSelectable(false)
-                .addChildren(new IVOption("设备上线", ConditionType.Status + ":" + DeviceStatus.online, "")
+                .addChildren(new IVOption("设备上线", DEVICE_ONLINE[2], "")
                         .addConfig("type", ConditionType.Status)
-                        .addConfig("linkedId", LinkageConditionItem.DEVICE_ONLINE[0])
-                        .addConfig("linkedName", LinkageConditionItem.DEVICE_ONLINE[1])
-                        .addConfig("attrType", DataType.t_boolean.getValue()))
-                .addChildren(new IVOption("设备离线", ConditionType.Status + ":" + DeviceStatus.offline, "")
+                        .addConfig("linkedId", DEVICE_ONLINE[0])
+                        .addConfig("linkedName", DEVICE_ONLINE[1])
+                        .addConfig("attrType", DeviceStatus.online)
+                ).addChildren(new IVOption("设备离线", DEVICE_OFFLINE[2], "")
                         .addConfig("type", ConditionType.Status)
-                        .addConfig("linkedId", LinkageConditionItem.DEVICE_OFFLINE[0])
-                        .addConfig("linkedName", LinkageConditionItem.DEVICE_OFFLINE[1])
-                        .addConfig("attrType", DataType.t_boolean.getValue())));
+                        .addConfig("linkedId", DEVICE_OFFLINE[0])
+                        .addConfig("linkedName", DEVICE_OFFLINE[1])
+                        .addConfig("attrType", DeviceStatus.offline)
+                ));
 
         this.productService.joinDetailById(productId).ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {

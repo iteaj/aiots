@@ -36,7 +36,7 @@ public class WarnRecordController extends BaseController {
     @Logger("浏览告警记录功能")
     @CheckPermission({"iot:warnRecord:view"})
     public Result<IPage<WarnRecord>> list(Page<WarnRecord> page, WarnRecord entity) {
-        return this.warnRecordService.page(page, entity);
+        return this.warnRecordService.detailPage(page, entity);
     }
 
     /**

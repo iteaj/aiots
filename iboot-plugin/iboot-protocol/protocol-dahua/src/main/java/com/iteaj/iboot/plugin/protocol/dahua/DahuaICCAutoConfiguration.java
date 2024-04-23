@@ -24,19 +24,8 @@ public class DahuaICCAutoConfiguration {
 
     @Bean
     public IClient defaultClient() throws ClientException {
-        iClient = new DefaultClient(properties.getHost(), properties.getUsername()
+        return new DefaultClient(properties.getHost(), properties.getUsername()
                 , properties.getPassword(),properties.getPwdClientId(), properties.getPwdClientSecret());
-        GeneralRequest generalRequest = new GeneralRequest("/evo-apigw/evo-brm/1.2.0/device/subsystem/page", Method.POST);
-//        // set http post body
-        JSONObject json = new JSONObject();
-//        json.put("categorys", new String[]{"1"});
-        json.put("types", new String[]{"1_2"});
-        json.put("unitTypes", new String[]{"1"});
-        generalRequest.body(json.toJSONString());
-        // 发起请求处理应答
-//        GeneralResponse generalResponse =iClient.doAction(generalRequest, generalRequest.getResponseClass());
-//        System.out.println(generalResponse);
-        return iClient;
     }
 
     @Bean
