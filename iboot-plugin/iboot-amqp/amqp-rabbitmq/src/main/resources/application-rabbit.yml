@@ -1,0 +1,33 @@
+#############################                rabbitmq\u914D\u7F6E               ################################
+spring:
+  config:
+    activate:
+      on-profile: dev #\u5F00\u53D1\u73AF\u5883\u914D\u7F6E
+  rabbitmq:
+    host: 124.222.187.121
+    port: 5672
+    username: iteaj
+    password: iteazer888
+    virtual-host: /
+---
+spring:
+  config:
+    activate:
+      on-profile: dev #\u6D4B\u8BD5\u73AF\u5883\u914D\u7F6E
+  rabbitmq:
+    host:
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+---
+spring:
+  config:
+    activate:
+      on-profile: dev #\u6B63\u5F0F\u73AF\u5883\u914D\u7F6E
+  rabbitmq:
+    host:
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
