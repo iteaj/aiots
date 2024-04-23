@@ -34,6 +34,7 @@
         <module>iboot-protocol</module>
         <!--国标gb28181模块-->
         <module>iboot-gb28181</module>
+        <module>iboot-amqp</module>
     </modules>
 
     <dependencies>
