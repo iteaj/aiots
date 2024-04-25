@@ -28,10 +28,16 @@ public class UpModelAttr {
      */
     private DataType dataType;
 
-    public UpModelAttr(Long id, String field, String name, DataType dataType) {
+    /**
+     * 精度
+     */
+    private Integer accuracy;
+
+    public UpModelAttr(Long id, String field, String name, DataType dataType, Integer accuracy) {
         this.id = id;
         this.field = field;
         this.name = name;
+        this.accuracy = accuracy;
         this.dataType = dataType;
     }
 }

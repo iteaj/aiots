@@ -50,6 +50,12 @@ public class ModelAttrDict extends BaseEntity {
     private String attrField;
 
     /**
+     * 精度
+     */
+    @TableField(exist = false)
+    private Integer accuracy;
+
+    /**
      * 模型属性id
      */
     @NotNull(message = "模型属性必填")

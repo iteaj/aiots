@@ -115,6 +115,12 @@ public class ModelApiConfig extends BaseEntity {
     private ApiConfigDirection direction;
 
     /**
+     * 精度
+     */
+    @TableField(exist = false)
+    private Integer accuracy;
+
+    /**
      * 属性读写类型
      */
     @TableField(exist = false)

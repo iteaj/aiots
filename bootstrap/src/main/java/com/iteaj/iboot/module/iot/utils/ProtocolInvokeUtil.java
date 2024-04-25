@@ -130,10 +130,10 @@ public class ProtocolInvokeUtil {
         api.getUpConfig().forEach(item -> {
             if(DataType.t_json.getValue().equals(item.getDataType())) {
                 item.getDicts().forEach(dict -> {
-                    upConfigAttrs.add(new UpModelAttr(dict.getModelAttrId(), dict.getAttrField(), dict.getDictName(), DataType.build(dict.getDataType())));
+                    upConfigAttrs.add(new UpModelAttr(dict.getModelAttrId(), dict.getAttrField(), dict.getDictName(), DataType.build(dict.getDataType()), dict.getAccuracy()));
                 });
             } else {
-                upConfigAttrs.add(new UpModelAttr(item.getModelAttrId(), item.getAttrField(), item.getAttrName(), DataType.build(item.getDataType())));
+                upConfigAttrs.add(new UpModelAttr(item.getModelAttrId(), item.getAttrField(), item.getAttrName(), DataType.build(item.getDataType()), item.getAccuracy()));
             }
         });
 
