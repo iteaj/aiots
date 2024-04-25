@@ -53,6 +53,15 @@ public class DeviceGroupController extends BaseController {
     }
 
     /**
+     * 获取所有组列表
+     * @return
+     */
+    @GetMapping("/list")
+    public Result<List<DeviceGroup>> groups() {
+        return this.deviceGroupService.list();
+    }
+
+    /**
      * 树结构分组列表
      * @param entity
      * @return
