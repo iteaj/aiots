@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
@@ -226,5 +228,10 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
     public DetailResult<LinkageDto> joinEventSourceById(Long id) {
         LinkageDto dto = this.getBaseMapper().joinEventSourceById(id);
         return new DetailResult<>(dto);
+    }
+
+    @Override
+    public FuncStatusProfileDto countStatusProfile(GroupAndProductParamDto param) {
+        return getBaseMapper().countStatusProfile(param);
     }
 }

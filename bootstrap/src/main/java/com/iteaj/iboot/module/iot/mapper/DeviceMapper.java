@@ -6,6 +6,8 @@ import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
+import com.iteaj.iboot.module.iot.dto.DeviceStatusDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -73,4 +75,11 @@ public interface DeviceMapper extends BaseMapper<Device> {
     List<RealtimeStatus> listDeviceStatus(String protocolCode, List<String> deviceSns, String parentDeviceSn);
 
     Device getByUid(String uid);
+
+    /**
+     * 统计设备的在线离线状态
+     * @param param
+     * @return
+     */
+    DeviceStatusDto countDeviceStatus(GroupAndProductParamDto param);
 }

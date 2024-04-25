@@ -135,5 +135,17 @@
            left join iot_event_source es on a.event_source_id = es.id
         where a.id=#{id}
     </select>
+    <select id="countStatusProfile" resultType="com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto">
+        select count(1) totalNum, count(if(a.status='enabled', 1, null)) enabledNum from iot_linkage a
+            left join iot_event_source e on a.event_source_id = e.id
+        <where>
+            <if test="groupId!=null">
+                and json_contains(e.device_group_ids, concat('', #{groupId}))
+            </if>
+            <if test="productId!=null">
+                and json_contains(e.product_ids, concat('', #{productId}))
+            </if>
+        </where>
+    </select>
 
 </mapper>

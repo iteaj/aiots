@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
@@ -49,4 +51,11 @@ public interface ILinkageService extends IBaseService<Linkage> {
      * @return
      */
     DetailResult<LinkageDto> joinEventSourceById(Long id);
+
+    /**
+     * 统计场景联动下状态信息
+     * @param param
+     * @return
+     */
+    FuncStatusProfileDto countStatusProfile(GroupAndProductParamDto param);
 }

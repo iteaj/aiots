@@ -6,6 +6,8 @@ import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.framework.IBaseService;
@@ -56,4 +58,11 @@ public interface IEventSourceService extends IBaseService<EventSource> {
      * @return
      */
     ListResult<DeviceGroup> listDeviceGroupById(Long id);
+
+    /**
+     * 统计事件源下面功能状态信息
+     * @param param
+     * @return
+     */
+    FuncStatusProfileDto countStatusProfile(GroupAndProductParamDto param);
 }

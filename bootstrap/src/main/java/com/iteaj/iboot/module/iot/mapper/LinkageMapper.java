@@ -3,6 +3,8 @@ package com.iteaj.iboot.module.iot.mapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.DetailResult;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.iboot.module.iot.dto.LinkageDto;
@@ -43,4 +45,11 @@ public interface LinkageMapper extends BaseMapper<Linkage> {
     LinkageDto joinEventSourceById(Long id);
 
     LinkageDto detailExecById(Long id);
+
+    /**
+     * 统计场景联动下状态信息
+     * @param param
+     * @return
+     */
+    FuncStatusProfileDto countStatusProfile(GroupAndProductParamDto param);
 }

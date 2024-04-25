@@ -14,6 +14,8 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
+import com.iteaj.iboot.module.iot.dto.DeviceStatusDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.linkage.LinkageTriggerService;
 import com.iteaj.iboot.module.iot.mapper.DeviceMapper;
@@ -259,6 +261,11 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     public DetailResult<Device> getByUid(String uid) {
         return new DetailResult<>(this.getBaseMapper().getByUid(uid));
+    }
+
+    @Override
+    public DeviceStatusDto countDeviceStatus(GroupAndProductParamDto param) {
+        return getBaseMapper().countDeviceStatus(param);
     }
 
     @Override

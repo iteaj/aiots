@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IVOption;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -35,4 +37,11 @@ public interface EventSourceMapper extends BaseMapper<EventSource> {
     List<Product> listProductById(Long id, FuncStatus status);
 
     List<DeviceGroup> listDeviceGroupById(Long id);
+
+    /**
+     * 统计事件源下面功能状态信息
+     * @param param
+     * @return
+     */
+    FuncStatusProfileDto countStatusProfile(GroupAndProductParamDto param);
 }

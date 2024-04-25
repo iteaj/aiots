@@ -6,6 +6,8 @@ import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.*;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
 import com.iteaj.iboot.module.iot.entity.Product;
@@ -102,4 +104,10 @@ public interface IProductService extends IBaseService<Product> {
      * @return
      */
     ListResult<ProductDto> listByProtocolCode(String protocolCode);
+
+    /**
+     * 统计产品状态信息
+     * @return
+     */
+    FuncStatusProfileDto countStatusProfile();
 }

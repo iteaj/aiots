@@ -161,6 +161,9 @@
     <select id="listByProtocolCode" resultMap="JoinDetailMap">
         select a.* from iot_product a where a.protocol_code=#{protocolCode}
     </select>
+    <select id="countStatusProfile" resultType="com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto">
+        select count(1) totalNum, count(if(status='enabled', 1, null)) enabledNum from iot_product
+    </select>
 
     <delete id="removeModel">
         delete from iot_model_api where product_id=#{productId};

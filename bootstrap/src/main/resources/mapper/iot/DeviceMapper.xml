@@ -180,4 +180,15 @@
         </if>
 
     </select>
+    <select id="countDeviceStatus" resultType="com.iteaj.iboot.module.iot.dto.DeviceStatusDto">
+        select count(if(status='online', 1, null)) onlineNum, count(if(status='offline', 1, null)) offlineNum from iot_device
+        <where>
+            <if test="groupId!=null">
+                and device_group_id=#{groupId}
+            </if>
+            <if test="productId!=null">
+                and product_id=#{productId}
+            </if>
+        </where>
+    </select>
 </mapper>
