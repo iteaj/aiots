@@ -9,6 +9,7 @@
         <result column="value" property="value" />
         <result column="remark" property="remark" />
         <result column="api_code" property="apiCode" />
+        <result column="accuracy" property="accuracy" />
         <result column="attr_field" property="attrField" />
         <result column="data_type" property="dataType" />
         <result column="func_type" property="funcType" />
@@ -31,13 +32,14 @@
             <result property="dataType" column="data_type" />
             <result property="dictName" column="dict_name" />
             <result property="dictValue" column="dict_value" />
+            <result property="accuracy" column="accuracy" />
             <result property="modelAttrId" column="model_attr_id" />
         </collection>
     </resultMap>
 
     <select id="listUpByApiCode" resultMap="JoinModelAttrDictMap">
-        select a.*, pa.attr_type func_type, ad.model_attr_id ad_model_attr_id, ad.dict_name ad_dict_name, ad.dict_value ad_dict_value
-             , jpa.field ad_attr_field, jpa.data_type ad_data_type from iot_model_api_config a
+        select a.*, pa.attr_type func_type, pa.accuracy, ad.model_attr_id ad_model_attr_id, ad.dict_name ad_dict_name, ad.dict_value ad_dict_value
+             , jpa.field ad_attr_field, jpa.data_type ad_data_type, jpa.accuracy ad_accuracy from iot_model_api_config a
             left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
             left join iot_model_attr pa on a.model_attr_id=pa.id
             left join iot_model_attr jpa on a.protocol_data_type = 'json' and jpa.id=ad.dict_value
@@ -45,8 +47,8 @@
     </select>
 
     <select id="listDownByApiCode" resultMap="JoinModelAttrDictMap">
-        select a.*, pa.attr_type func_type, ad.model_attr_id ad_model_attr_id, ad.dict_name ad_dict_name, ad.dict_value ad_dict_value
-             , pa.default_value attr_default_value from iot_model_api_config a
+        select a.*, pa.attr_type func_type, pa.accuracy, ad.model_attr_id ad_model_attr_id, ad.dict_name ad_dict_name, ad.dict_value ad_dict_value
+             , pa.default_value attr_default_value, jpa.accuracy ad_accuracy from iot_model_api_config a
             left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
             left join iot_model_attr pa on a.model_attr_id=pa.id
             left join iot_model_attr jpa on a.protocol_data_type = 'json' and jpa.id=ad.dict_value
