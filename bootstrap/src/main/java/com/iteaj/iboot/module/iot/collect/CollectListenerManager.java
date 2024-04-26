@@ -53,7 +53,11 @@ public class CollectListenerManager {
      * @param consumer
      */
     public void publish(Consumer<CollectDataListener> consumer) {
-        this.listeners.forEach(consumer);
+        try {
+            this.listeners.forEach(consumer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -61,11 +65,15 @@ public class CollectListenerManager {
      * @param consumer
      */
     public void modelAttrPublish(Consumer<ModelAttrListener> consumer) {
-        this.listeners.forEach(item -> {
-            if(item instanceof ModelAttrListener) {
-                consumer.accept((ModelAttrListener) item);
-            }
-        });
+        try {
+            this.listeners.forEach(item -> {
+                if(item instanceof ModelAttrListener) {
+                    consumer.accept((ModelAttrListener) item);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -73,11 +81,15 @@ public class CollectListenerManager {
      * @param consumer
      */
     public void deviceStatusPublish(Consumer<DeviceStatusListener> consumer) {
-        this.listeners.forEach(item -> {
-            if(item instanceof DeviceStatusListener) {
-                consumer.accept((DeviceStatusListener) item);
-            }
-        });
+        try {
+            this.listeners.forEach(item -> {
+                if(item instanceof DeviceStatusListener) {
+                    consumer.accept((DeviceStatusListener) item);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -85,7 +97,11 @@ public class CollectListenerManager {
      * @param consumer
      */
     public void eventGroupPublish(Consumer<EventGroupCollectListener> consumer) {
-        groupCollectListeners.forEach(consumer);
+        try {
+            groupCollectListeners.forEach(consumer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -93,7 +109,11 @@ public class CollectListenerManager {
      * @param consumer
      */
     public void signalPublish(Consumer<SignalCollectListener> consumer) {
-        signalCollectListeners.forEach(consumer);
+        try {
+            signalCollectListeners.forEach(consumer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static CollectListenerManager getInstance() {
