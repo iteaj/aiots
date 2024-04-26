@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.mq;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iteaj.framework.json.JacksonUtils;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -63,12 +64,16 @@ public class RabbitmqDataListener implements SignalCollectListener, EventGroupCo
     }
 
     @Override
-    public void supplier(RealtimeStatus device) {
-        DeviceStatusListener.super.supplier(device);
-    }
-
-    @Override
     public void supplier(Collection<RealtimeStatus> devices) {
-        DeviceStatusListener.super.supplier(devices);
+        if(CollectionUtil.isNotEmpty(devices)) {
+            devices.forEach(device -> {
+                try {
+                    byte[] bytes = JacksonUtils.getGenericMapper().writeValueAsBytes(device);
+                    amqpTemplate.send(IOT_EXCHANGE, IOT_ROUTING_REALTIME_DATA, new Message(bytes));
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 }
