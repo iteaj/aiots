@@ -31,11 +31,13 @@ public class CollectListenerManager {
     public void register(CollectDataListener listener) {
         if(listener instanceof EventGroupCollectListener) {
             instance.register((EventGroupCollectListener) listener);
-        } else if(listener instanceof SignalCollectListener) {
-            instance.register((SignalCollectListener) listener);
-        } else {
-            listeners.add(listener);
         }
+
+        if(listener instanceof SignalCollectListener) {
+            instance.register((SignalCollectListener) listener);
+        }
+
+        listeners.add(listener);
     }
 
     public void register(EventGroupCollectListener listener) {
