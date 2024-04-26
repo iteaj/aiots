@@ -156,6 +156,11 @@
 <!--            <version>${project.version}</version>-->
 <!--            <artifactId>iboot-message</artifactId>-->
 <!--        </dependency>-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${reversion}</version>
+            <artifactId>amqp-rabbitmq</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
