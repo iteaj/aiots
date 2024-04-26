@@ -5,11 +5,17 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.result.*;
+import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
+import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
+import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -20,7 +26,6 @@ import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.linkage.LinkageTriggerService;
 import com.iteaj.iboot.module.iot.mapper.DeviceMapper;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
-import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,13 +47,10 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
-    private final RealtimePushListener pushListener;
     private final LinkageTriggerService linkageTriggerService;
-    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager
-            , RealtimePushListener pushListener, LinkageTriggerService linkageTriggerService) {
+    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager, RealtimePushListener pushListener) {
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
-        this.pushListener = pushListener;
         this.linkageTriggerService = linkageTriggerService;
     }
 
@@ -242,14 +244,14 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                         .in(Device::getUid, uidList));
 
                 values.forEach(item -> item.setStatus(DeviceStatus.offline));
-                pushListener.push(values); // 推送离线信息到前端
                 linkageTriggerService.trigger(values);
+                CollectListenerManager.getInstance().deviceStatusPublish(listener -> listener.supplier(childDeviceStatus.values())); // 推送离线信息到前端
                 this.iotCacheManager.updateChildStatus(device.getProtocolCode(), device.getDeviceSn(), DeviceStatus.offline);
             }
         }
 
         this.iotCacheManager.updateStatus(device.getProtocolCode(), device.buildDeviceKey(), device.getStatus());
-        pushListener.push(device);
+        CollectListenerManager.getInstance().deviceStatusPublish(listener -> listener.supplier(device));
         linkageTriggerService.trigger(device);
     }
 

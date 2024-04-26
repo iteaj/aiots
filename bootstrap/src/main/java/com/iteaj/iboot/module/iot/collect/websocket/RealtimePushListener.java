@@ -10,6 +10,7 @@ import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectDevice;
+import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
 import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
  * 将采集的数据实时推送到前端
  */
 public class RealtimePushListener implements WebSocketServerListener
-        , EventGroupCollectListener, SignalCollectListener, LinkageActionListener {
+        , EventGroupCollectListener, SignalCollectListener, LinkageActionListener, DeviceStatusListener {
 
     private static final String URI = "/ws/iot/realtime";
     private final RealtimeDataService realtimeDataService;
@@ -54,11 +55,13 @@ public class RealtimePushListener implements WebSocketServerListener
         IotThreadManager.instance().getDeviceManageEventExecutor().execute(() -> this.push(info));
     }
 
-    public void push(RealtimeStatus device) {
-        this.push(Arrays.asList(device));
+    @Override
+    public void supplier(RealtimeStatus device) {
+        this.supplier(Arrays.asList(device));
     }
 
-    public void push(Collection<RealtimeStatus> devices) {
+    @Override
+    public void supplier(Collection<RealtimeStatus> devices) {
         if(CollectionUtil.isNotEmpty(devices)) {
             devices.forEach(device -> {
                 try {

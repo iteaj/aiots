@@ -67,6 +67,18 @@ public class CollectListenerManager {
     }
 
     /**
+     * 发布设备状态事件
+     * @param consumer
+     */
+    public void deviceStatusPublish(Consumer<DeviceStatusListener> consumer) {
+        this.listeners.forEach(item -> {
+            if(item instanceof DeviceStatusListener) {
+                consumer.accept((DeviceStatusListener) item);
+            }
+        });
+    }
+
+    /**
      * 事件源采集发布
      * @param consumer
      */
