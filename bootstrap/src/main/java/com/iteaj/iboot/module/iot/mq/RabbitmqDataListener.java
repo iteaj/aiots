@@ -1,5 +1,7 @@
 package com.iteaj.iboot.module.iot.mq;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.iteaj.framework.json.JacksonUtils;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectDevice;
 import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
@@ -9,6 +11,7 @@ import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.linkage.LinkageActionListener;
 import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +23,10 @@ public class RabbitmqDataListener implements SignalCollectListener, EventGroupCo
         , LinkageActionListener, DeviceStatusListener {
 
     private final AmqpTemplate amqpTemplate;
+    private final static String IOT_EXCHANGE = "iot-exchange";
+    private final static String IOT_ROUTING_REALTIME_DATA = "iot.routing.realtime.data";
+    private final static String IOT_ROUTING_REALTIME_WARN = "iot.routing.realtime.warn";
+    private final static String IOT_ROUTING_REALTIME_STATUS = "iot.routing.realtime.status";
 
     public RabbitmqDataListener(AmqpTemplate amqpTemplate) {
         this.amqpTemplate = amqpTemplate;
@@ -27,7 +34,12 @@ public class RabbitmqDataListener implements SignalCollectListener, EventGroupCo
 
     @Override
     public void supplier(CollectDevice device, CollectData data) {
-
+        try {
+            byte[] bytes = JacksonUtils.getGenericMapper().writeValueAsBytes(data);
+            amqpTemplate.send(IOT_EXCHANGE, IOT_ROUTING_REALTIME_DATA, new Message(bytes));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
