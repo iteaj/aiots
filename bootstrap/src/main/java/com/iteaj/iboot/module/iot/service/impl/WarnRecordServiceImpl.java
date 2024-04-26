@@ -51,7 +51,7 @@ public class WarnRecordServiceImpl extends BaseServiceImpl<WarnRecordMapper, War
         }
 
         List<CountLastWeekDto> result = new ArrayList<>();
-        DateTime lastWeek = new DateTime().offset(DateField.DAY_OF_MONTH, -7);
+        DateTime lastWeek = new DateTime().offset(DateField.DAY_OF_MONTH, -6);
         for (int i = 0; i < 7; i++) {
             String time = lastWeek.toString("yyyy-MM-dd");
             CountLastWeekDto lastWeekDto = map.get(time);

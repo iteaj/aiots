@@ -48,7 +48,7 @@
                 and d.device_group_id=#{groupId}
             </if>
         </where>
-        order by a.warn_time, c.grade desc
+        order by a.warn_time desc, c.grade desc
         <if test="size != null">limit #{size}</if>
     </select>
 

@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Device;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,18 +27,34 @@ public class VLScreenController extends BaseController {
     private final IProductService productService;
     private final ILinkageService linkageService;
     private final IWarnRecordService warnRecordService;
+    private final IDeviceGroupService deviceGroupService;
     private final IEventSourceService eventSourceService;
     private final ICollectDataService collectDataService;
 
     public VLScreenController(IDeviceService deviceService, IProductService productService
             , ILinkageService linkageService, IWarnRecordService warnRecordService
-            , IEventSourceService eventSourceService, ICollectDataService collectDataService) {
+            , IDeviceGroupService deviceGroupService, IEventSourceService eventSourceService
+            , ICollectDataService collectDataService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.linkageService = linkageService;
         this.warnRecordService = warnRecordService;
+        this.deviceGroupService = deviceGroupService;
         this.eventSourceService = eventSourceService;
         this.collectDataService = collectDataService;
+    }
+
+    /**
+     * 设备组列表
+     * @return
+     */
+    @GetMapping("/groups")
+    public Result<List<IVOption>> groups() {
+        List<IVOption> options = this.deviceGroupService.list().stream()
+                .map(item -> new IVOption(item.getName(), item.getId()))
+                .collect(Collectors.toList());
+        options.add(0, new IVOption("请选择设备分组", null));
+        return success(options);
     }
 
     /**

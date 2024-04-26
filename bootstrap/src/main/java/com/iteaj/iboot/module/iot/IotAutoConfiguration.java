@@ -19,9 +19,14 @@ import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.linkage.*;
 import com.iteaj.iboot.module.iot.linkage.warn.RDBMSPersistenceWarnListener;
+import com.iteaj.iboot.module.iot.mq.RabbitmqDataListener;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -175,5 +180,40 @@ public class IotAutoConfiguration {
     @Bean
     public ConditionalsManager conditionalsManager(@Autowired(required = false) List<ConditionCalc> calcs) {
         return ConditionalsManager.build(calcs);
+    }
+
+    @Bean
+    public Queue statusQueue() {
+        return new Queue(RabbitmqDataListener.IOT_QUEUE_REALTIME_STATUS);
+    }
+
+    @Bean
+    public Queue dataQueue() {
+        return new Queue(RabbitmqDataListener.IOT_QUEUE_REALTIME_DATA);
+    }
+
+    @Bean
+    public Queue warnQueue() {
+        return new Queue(RabbitmqDataListener.IOT_QUEUE_REALTIME_WARN);
+    }
+
+    @Bean
+    public DirectExchange iotExchange() {
+        return new DirectExchange(RabbitmqDataListener.IOT_EXCHANGE);
+    }
+
+    @Bean
+    public Binding statusBinding(Queue statusQueue, DirectExchange iotExchange) {
+        return BindingBuilder.bind(statusQueue).to(iotExchange).with(RabbitmqDataListener.IOT_ROUTING_REALTIME_STATUS);
+    }
+
+    @Bean
+    public Binding warnBinding(Queue warnQueue, DirectExchange iotExchange) {
+        return BindingBuilder.bind(warnQueue).to(iotExchange).with(RabbitmqDataListener.IOT_ROUTING_REALTIME_WARN);
+    }
+
+    @Bean
+    public Binding dataBinding(Queue dataQueue, DirectExchange iotExchange) {
+        return BindingBuilder.bind(dataQueue).to(iotExchange).with(RabbitmqDataListener.IOT_ROUTING_REALTIME_DATA);
     }
 }

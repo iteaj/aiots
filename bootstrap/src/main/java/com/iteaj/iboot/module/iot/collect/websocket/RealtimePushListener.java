@@ -51,6 +51,11 @@ public class RealtimePushListener implements WebSocketServerListener
     }
 
     @Override
+    public void onClose(DefaultWebSocketServerProtocol protocol) {
+        WebSocketServerListener.super.onClose(protocol);
+    }
+
+    @Override
     public void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
         IotThreadManager.instance().getDeviceManageEventExecutor().execute(() -> this.push(info));
     }
