@@ -1,11 +1,7 @@
 package com.iteaj.framework.autoconfigure;
 
-import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.iteaj.framework.json.JacksonUtils;
 import com.iteaj.framework.utils.RedisUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
@@ -37,14 +33,7 @@ public class RedisJsonAutoConfiguration {
         // value 使用Jackson序列化
         Jackson2JsonRedisSerializer<Object> valueSerializer =
                 new Jackson2JsonRedisSerializer<>(Object.class);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.PUBLIC_ONLY);
-
-        // json包含类型信息, 支持直接反序列号对象
-        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
-        valueSerializer.setObjectMapper(objectMapper);
+        valueSerializer.setObjectMapper(JacksonUtils.getGenericMapper());
 
         redisTemplate.setValueSerializer(valueSerializer);
         redisTemplate.setHashValueSerializer(valueSerializer);
