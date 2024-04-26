@@ -19,4 +19,8 @@ public class CountLastWeekDto {
      * 时间
      */
     private String time;
+
+    public CountLastWeekDto buildZero(String time) {
+        this.time = time; value = 0; return this;
+    }
 }

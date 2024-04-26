@@ -39,5 +39,29 @@
         </where>
         order by a.warn_time desc
     </select>
+    <select id="listByDeviceGroupId" resultMap="BaseResultMap">
+        select a.*, c.name, c.grade, d.name device_name from iot_warn_record a
+             left join iot_warn_config c on a.warn_config_id=c.id
+             left join iot_device d on a.uid = d.uid
+        <where>
+            <if test="groupId != null">
+                and d.device_group_id=#{groupId}
+            </if>
+        </where>
+        order by a.warn_time, c.grade desc
+        <if test="size != null">limit #{size}</if>
+    </select>
+
+    <select id="countLastWeek" resultType="com.iteaj.iboot.module.iot.dto.CountLastWeekDto">
+        select count(1) value, date_format(a.warn_time, '%Y-%m-%d') time from iot_warn_record a
+            left join iot_device d on a.uid = d.uid
+        <where>
+            <if test="deviceGroupId != null">
+                and d.device_group_id = #{deviceGroupId}
+            </if>
+            and a.warn_time > date_sub(curdate(), interval 7 day)
+        </where>
+        group by time
+    </select>
 
 </mapper>

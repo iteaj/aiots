@@ -1,18 +1,20 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
-import com.iteaj.iboot.module.iot.dto.DeviceStatusDto;
-import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
-import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
-import com.iteaj.iboot.module.iot.dto.VlsDeviceAndProductDto;
-import com.iteaj.iboot.module.iot.service.IDeviceService;
-import com.iteaj.iboot.module.iot.service.IEventSourceService;
-import com.iteaj.iboot.module.iot.service.ILinkageService;
-import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.dto.*;
+import com.iteaj.iboot.module.iot.entity.Device;
+import com.iteaj.iboot.module.iot.entity.Product;
+import com.iteaj.iboot.module.iot.entity.WarnRecord;
+import com.iteaj.iboot.module.iot.service.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 大屏接口管理
@@ -24,14 +26,19 @@ public class VLScreenController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final ILinkageService linkageService;
+    private final IWarnRecordService warnRecordService;
     private final IEventSourceService eventSourceService;
+    private final ICollectDataService collectDataService;
 
     public VLScreenController(IDeviceService deviceService, IProductService productService
-            , ILinkageService linkageService, IEventSourceService eventSourceService) {
+            , ILinkageService linkageService, IWarnRecordService warnRecordService
+            , IEventSourceService eventSourceService, ICollectDataService collectDataService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.linkageService = linkageService;
+        this.warnRecordService = warnRecordService;
         this.eventSourceService = eventSourceService;
+        this.collectDataService = collectDataService;
     }
 
     /**
@@ -53,5 +60,53 @@ public class VLScreenController extends BaseController {
                 .setRunningLinkageNum(profileDto.getEnabledNum())
                 .setEnabledProductNum(productProfileDto.getEnabledNum())
                 .setTotalProductNum(productProfileDto.getTotalNum()));
+    }
+
+    /**
+     * 获取告警列表
+     * @param param
+     * @return
+     */
+    @GetMapping("warns")
+    public Result<List<WarnRecord>> warns(GroupAndProductParamDto param) {
+        List<WarnRecord> warnRecords = warnRecordService.listByDeviceGroupId(param.getGroupId(), 8);
+        return success(warnRecords);
+    }
+
+    /**
+     * 近七天告警列表
+     * @param deviceGroupId 设备分组id
+     * @return
+     */
+    @GetMapping("lastWeekWarns")
+    public Result<List<CountLastWeekDto>> lastWeekWarns(Long deviceGroupId) {
+        List<CountLastWeekDto> dtos = warnRecordService.countLastWeek(deviceGroupId);
+        return success(dtos);
+    }
+
+    /**
+     * 近七天采集数据列表
+     * @param deviceGroupId 设备分组id
+     * @return
+     */
+    @GetMapping("lastWeekData")
+    public Result<List<CountLastWeekDto>> lastWeekData(Long deviceGroupId) {
+        List<CountLastWeekDto> dtos = collectDataService.countLastWeek(deviceGroupId);
+        return success(dtos);
+    }
+
+    /**
+     * 获取监控设备列表
+     * @return
+     */
+    @GetMapping("video")
+    public Result<List<String>> video(Long deviceGroupId) {
+        Product product = productService.getOne(Wrappers.<Product>lambdaQuery().eq(Product::getCode, "dahua_video_device"))
+                .ifNotPresentThrow("没有找到大华监控产品").getData();
+        List<String> channelCodes = this.deviceService.list(Wrappers.<Device>lambdaQuery()
+                .eq(Device::getProductId, product.getId())
+                .eq(deviceGroupId != null, Device::getDeviceGroupId, deviceGroupId))
+                .stream().map(item -> item.getDeviceSn()).collect(Collectors.toList());
+        return success(channelCodes);
     }
 }
