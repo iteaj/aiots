@@ -2,17 +2,28 @@ package com.iteaj.iboot.module.iot.mq;
 
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectDevice;
+import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
 import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.linkage.LinkageActionListener;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 
 @Component
-public class RabbitmqDataListener implements SignalCollectListener, EventGroupCollectListener, LinkageActionListener {
+public class RabbitmqDataListener implements SignalCollectListener, EventGroupCollectListener
+        , LinkageActionListener, DeviceStatusListener {
+
+    private final AmqpTemplate amqpTemplate;
+
+    public RabbitmqDataListener(AmqpTemplate amqpTemplate) {
+        this.amqpTemplate = amqpTemplate;
+    }
 
     @Override
     public void supplier(CollectDevice device, CollectData data) {
@@ -37,5 +48,15 @@ public class RabbitmqDataListener implements SignalCollectListener, EventGroupCo
     @Override
     public void warnTrigger(WarnConfig config, WarnRecord record, RealtimeStatus status) {
         LinkageActionListener.super.warnTrigger(config, record, status);
+    }
+
+    @Override
+    public void supplier(RealtimeStatus device) {
+        DeviceStatusListener.super.supplier(device);
+    }
+
+    @Override
+    public void supplier(Collection<RealtimeStatus> devices) {
+        DeviceStatusListener.super.supplier(devices);
     }
 }

@@ -48,7 +48,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
     private final LinkageTriggerService linkageTriggerService;
-    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager, RealtimePushListener pushListener) {
+    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager, LinkageTriggerService linkageTriggerService) {
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
         this.linkageTriggerService = linkageTriggerService;
