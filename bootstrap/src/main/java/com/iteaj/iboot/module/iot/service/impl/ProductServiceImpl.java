@@ -27,6 +27,8 @@ import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
 import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
+import com.iteaj.iboot.module.iot.consts.*;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.mapper.ProductMapper;
 import com.iteaj.iboot.module.iot.service.*;
@@ -436,6 +438,16 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     @Override
     public FuncStatusProfileDto countStatusProfile() {
         return getBaseMapper().countStatusProfile();
+    }
+
+    @Override
+    public List<NameValueDto> countOfDevice() {
+        return getBaseMapper().countOfDevice();
+    }
+
+    @Override
+    public List<DeviceTypeCountDto> countOfDeviceType() {
+        return getBaseMapper().countOfDeviceType();
     }
 
     private void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {

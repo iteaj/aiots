@@ -7,6 +7,8 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
 import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.consts.NameValueDto;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Product;
 
@@ -74,4 +76,16 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return
      */
     FuncStatusProfileDto countStatusProfile();
+
+    /**
+     * 统计各个产品下的设备数量
+     * @return
+     */
+    List<NameValueDto> countOfDevice();
+
+    /**
+     * 统计各个设备类型下面的设备数量
+     * @return
+     */
+    List<DeviceTypeCountDto> countOfDeviceType();
 }

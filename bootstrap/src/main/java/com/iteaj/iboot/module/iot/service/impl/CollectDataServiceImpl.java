@@ -8,6 +8,7 @@ import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.dto.CountLastWeekDto;
+import com.iteaj.iboot.module.iot.dto.CountLastTimeDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.mapper.CollectDataMapper;
 import com.iteaj.iboot.module.iot.service.ICollectDataService;
@@ -44,6 +45,31 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
                 result.add(lastWeekDto);
             } else {
                 result.add(new CountLastWeekDto().buildZero(time));
+            }
+
+            lastWeek = lastWeek.offset(DateField.DAY_OF_MONTH, 1);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<CountLastTimeDto> countLastMonth() {
+        Map<String, CountLastTimeDto> map = new HashMap<>();
+        List<CountLastTimeDto> dtos = this.getBaseMapper().countLastByDays(29);
+        if(CollectionUtil.isNotEmpty(dtos)) {
+            map = dtos.stream().collect(Collectors.toMap(CountLastTimeDto::getTime, item -> item));
+        }
+
+        List<CountLastTimeDto> result = new ArrayList<>();
+        DateTime lastWeek = new DateTime().offset(DateField.DAY_OF_MONTH, -29);
+        for (int i = 0; i < 30; i++) {
+            String time = lastWeek.toString("yyyy-MM-dd");
+            CountLastTimeDto lastWeekDto = map.get(time);
+            if(lastWeekDto != null) {
+                result.add(lastWeekDto);
+            } else {
+                result.add(CountLastTimeDto.buildZero(time));
             }
 
             lastWeek = lastWeek.offset(DateField.DAY_OF_MONTH, 1);

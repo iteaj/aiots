@@ -165,6 +165,19 @@
         select count(1) totalNum, count(if(status='enabled', 1, null)) enabledNum from iot_product
     </select>
 
+    <select id="countOfDevice" resultType="com.iteaj.iboot.module.iot.consts.NameValueDto">
+        select count(1) value, a.name from iot_product a
+            left join iot_device d on a.id = d.product_id
+        group by a.id order by value desc
+    </select>
+    <select id="countOfDeviceType" resultType="com.iteaj.iboot.module.iot.dto.DeviceTypeCountDto">
+        select a.type, count(d.id) total, count(if(d.status='online', 1, null)) online from
+            (select 'Gateway' type union all select 'Child' type union all select 'Direct' type) a
+                left join iot_product p on a.type = p.device_type
+                left join iot_device d on p.id = d.product_id
+        group by a.type;
+    </select>
+
     <delete id="removeModel">
         delete from iot_model_api where product_id=#{productId};
         delete from iot_model_attr_dict where model_attr_id in (select id from iot_model_attr where product_id=#{productId});
