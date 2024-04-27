@@ -38,6 +38,17 @@
             #{eventSourceId}
         </foreach>);
     </delete>
+    <select id="countStatusProfile" resultType="com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto">
+        select count(1) totalNum, count(if(status='enabled', 1, null)) enabledNum from iot_event_source
+        <where>
+            <if test="groupId!=null">
+                and json_contains(device_group_ids, concat('', #{groupId}))
+            </if>
+            <if test="productId!=null">
+                and json_contains(product_ids, concat('', #{productId}))
+            </if>
+        </where>
+    </select>
     <select id="detailPage" resultMap="BaseResultMap">
         select a.* from iot_event_source a
             left join iot_product p on json_contains(a.product_ids, concat('', p.id))

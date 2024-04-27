@@ -13,6 +13,8 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.EventSourceDetail;
@@ -137,5 +139,10 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
     public ListResult<DeviceGroup> listDeviceGroupById(Long id) {
         List<DeviceGroup> list = this.getBaseMapper().listDeviceGroupById(id);
         return new ListResult<>(list);
+    }
+
+    @Override
+    public FuncStatusProfileDto countStatusProfile(GroupAndProductParamDto param) {
+        return getBaseMapper().countStatusProfile(param);
     }
 }

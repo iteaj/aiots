@@ -19,12 +19,8 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
-import com.iteaj.iboot.module.iot.consts.AttrOrigin;
-import com.iteaj.iboot.module.iot.consts.DeviceType;
-import com.iteaj.iboot.module.iot.consts.FuncStatus;
-import com.iteaj.iboot.module.iot.consts.GatewayStatus;
-import com.iteaj.iboot.module.iot.dto.ProductDto;
-import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
+import com.iteaj.iboot.module.iot.consts.*;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.mapper.ProductMapper;
 import com.iteaj.iboot.module.iot.service.*;
@@ -429,6 +425,21 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     @Override
     public ListResult<ProductDto> listByProtocolCode(String protocolCode) {
         return new ListResult<>(this.getBaseMapper().listByProtocolCode(protocolCode));
+    }
+
+    @Override
+    public FuncStatusProfileDto countStatusProfile() {
+        return getBaseMapper().countStatusProfile();
+    }
+
+    @Override
+    public List<NameValueDto> countOfDevice() {
+        return getBaseMapper().countOfDevice();
+    }
+
+    @Override
+    public List<DeviceTypeCountDto> countOfDeviceType() {
+        return getBaseMapper().countOfDeviceType();
     }
 
     private void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {

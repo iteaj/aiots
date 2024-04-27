@@ -8,10 +8,10 @@ public class CurrentDeviceDto {
     /**
      * 总设备数量
      */
-    private long today;
+    private Integer today;
 
     /**
      * 在线数量
      */
-    private long online;
+    private Integer online;
 }
