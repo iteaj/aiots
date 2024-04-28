@@ -144,6 +144,10 @@ public class SaTokenSecurityService implements SecurityService {
             throw new SecurityException("账号不存在");
         }
 
+        if(!byAccount.allowLogin()) {
+            throw new SecurityException("账号已被禁用");
+        }
+
         String md5 = SecureUtil.md5(token.getPassword());
         if(!md5.equals(byAccount.getPassword())) {
             throw new SecurityException("密码不匹配");
