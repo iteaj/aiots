@@ -117,5 +117,10 @@ public class Admin extends BaseEntity implements AuthenticationUser {
     public boolean isSuperUser() {
         return this.getId() == 1l;
     }
+
+    @Override
+    public boolean allowLogin() {
+        return this.getStatus() == UseStatus.enabled;
+    }
 }
 
