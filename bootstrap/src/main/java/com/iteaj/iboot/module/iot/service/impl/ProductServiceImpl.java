@@ -1,6 +1,5 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -10,22 +9,25 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.*;
-import com.iteaj.iboot.module.iot.dto.*;
+import com.iteaj.iboot.module.iot.dto.DeviceTypeCountDto;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.mapper.ProductMapper;
 import com.iteaj.iboot.module.iot.service.*;
-import com.iteaj.iot.client.IotClient;
-import com.iteaj.iot.client.TcpSocketClient;
+import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -381,14 +383,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                         // 获取此网关产品下面的所有网关设备
                         this.getBaseMapper().listDeviceByProductId(item.getId()).forEach(device -> {
                             try {
-                                IotClient client = null;
-                                NetworkConfig networkConfig = createClientConfig(supplier, device);
-                                try {
-                                    client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
-                                } finally {
-                                    // 处理网关产品设备的状态
-                                    resolveGatewayProductClientStatus(client, device, status);
-                                }
+                                IotNetworkUtil.networkCtrl(supplier, device, status);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -440,35 +435,6 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     @Override
     public List<DeviceTypeCountDto> countOfDeviceType() {
         return getBaseMapper().countOfDeviceType();
-    }
-
-    private void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {
-        if(status == FuncStatus.enabled) {
-            if(client instanceof TcpSocketClient) {
-                if(!((TcpSocketClient) client).isConnect()) {
-                    client.connect();
-                }
-            }
-        } else if(status == FuncStatus.disabled) {
-            if(client instanceof TcpSocketClient) {
-                if(((TcpSocketClient) client).isConnect()) {
-                    client.close(); // 断开连接并且移除客户端
-                }
-            }
-        } else {
-            throw new ServiceException("错误的状态[status="+status+"]");
-        }
-    }
-
-    private NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, Device device) {
-        JSONObject config = device.getConfig();
-        TransportProtocol type = supplier.getProtocol().getType();
-        if(config == null) {
-            throw new ServiceException("设备[" + device.getName() + " / " + device.getDeviceSn() + "]缺少配置");
-        }
-
-        config.put("deviceSn", device.getDeviceSn());
-        return NetworkConfig.resolve(type, config);
     }
 
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {

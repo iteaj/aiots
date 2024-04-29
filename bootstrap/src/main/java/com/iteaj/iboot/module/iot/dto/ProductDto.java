@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.dto;
 
+import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
@@ -24,6 +25,11 @@ public class ProductDto extends Product {
      * 操作类型
      */
     private CtrlMode ctrlMode;
+
+    /**
+     * 连接类型
+     */
+    private ConnectionType connectionType;
 
     /**
      * 网关状态

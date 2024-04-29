@@ -27,6 +27,7 @@
         <result property="ctrlMode" column="ctrl_mode" />
         <result property="deviceCount" column="device_count" />
         <result property="gatewayStatus" column="gateway_status" />
+        <result property="connectionType" column="connection_type" />
         <result property="transportProtocol" column="transport_protocol" />
     </resultMap>
     <resultMap id="JoinDetailMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
@@ -77,7 +78,7 @@
         order by a.create_time desc
     </select>
     <select id="detailById" resultMap="BaseResultDtoMap">
-        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code
+        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code, ip.connection_type
              , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, ig.status gateway_status from iot_product a
              left join iot_product_type idt on a.product_type_id=idt.id
              left join iot_gateway ig on a.gateway_id=ig.id
