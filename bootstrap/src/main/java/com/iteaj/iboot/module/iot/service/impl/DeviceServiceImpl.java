@@ -11,12 +11,16 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -27,6 +31,7 @@ import com.iteaj.iboot.module.iot.linkage.LinkageTriggerService;
 import com.iteaj.iboot.module.iot.mapper.DeviceMapper;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,6 +156,21 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                                 throw new ServiceException("网络组件["+productDto.getProtocolCode()+"]已包含设备编号["+ entity.getDeviceSn()+"]");
                             }
                         });
+
+                // 客户端的网关设备如果产品启用则尝试连接网关
+                if(deviceType == DeviceType.Gateway && productDto.getStatus() == FuncStatus.enabled
+                        && productDto.getConnectionType() == ConnectionType.Client) {
+                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(productDto.getProtocolCode());
+                    if(supplier != null) {
+                        try {
+                            IotNetworkUtil.networkCtrl(supplier, entity, FuncStatus.enabled);
+                        } catch (ServiceException e) {
+                            throw e;
+                        } catch (Exception e) {
+                            // ...
+                        }
+                    }
+                }
             }
         });
     }
