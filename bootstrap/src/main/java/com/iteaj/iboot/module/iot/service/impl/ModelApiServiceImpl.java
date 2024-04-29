@@ -48,8 +48,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Transactional
     public BooleanResult save(ModelApi entity) {
         entity.setCreateTime(new Date());
-        this.getByProductIdAndCode(entity.getProductId(), entity.getCode())
-                .ifPresentThrow("接口代码已存在["+entity.getCode()+"]");
+        this.getByCode(entity.getCode()).ifPresentThrow("接口码已存在["+entity.getCode()+"]");
 
         if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
             entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));
@@ -108,9 +107,9 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
             throw new ServiceException("请先停用产品后更新");
         }
 
-        this.getByProductIdAndCode(entity.getProductId(), entity.getCode()).ifPresent(item -> {
+        this.getByCode(entity.getCode()).ifPresent(item -> {
            if(!item.getId().equals(entity.getId())) {
-               throw new ServiceException("接口代码已存在["+entity.getCode()+"]");
+               throw new ServiceException("接口码已存在["+entity.getCode()+"]");
            }
         });
 
