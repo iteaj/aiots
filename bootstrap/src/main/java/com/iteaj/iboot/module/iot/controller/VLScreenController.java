@@ -117,7 +117,7 @@ public class VLScreenController extends BaseController {
      */
     @GetMapping("video")
     public Result<List<String>> video(Long deviceGroupId) {
-        Product product = productService.getOne(Wrappers.<Product>lambdaQuery().eq(Product::getCode, "dahua_video_device"))
+        Product product = productService.getOne(Wrappers.<Product>lambdaQuery().eq(Product::getCode, "mv_icc"))
                 .ifNotPresentThrow("没有找到大华监控产品").getData();
         List<String> channelCodes = this.deviceService.list(Wrappers.<Device>lambdaQuery()
                 .eq(Device::getProductId, product.getId())
