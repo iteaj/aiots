@@ -76,6 +76,13 @@
               left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
         where a.id = #{itemId}
     </delete>
+    <delete id="removeAllItemById">
+        delete a,b,c,e from iot_linkage_item a
+            left join iot_linkage_condition b on a.id=b.linkage_item_id
+            left join iot_linkage_action c on a.id=c.linkage_item_id
+            left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where a.linkage_id=#{id}
+    </delete>
 
     <select id="listItemById" resultMap="ItemResultMap">
         select * from iot_linkage_item where linkage_id=#{linkageId}

@@ -66,6 +66,12 @@ public class EventSource extends BaseEntity {
     private String reason;
 
     /**
+     * 是否有绑定联动项
+     */
+    @TableField(exist = false)
+    private Boolean hasBindLinkage;
+
+    /**
      * 产品
      */
     @TableField(exist = false)

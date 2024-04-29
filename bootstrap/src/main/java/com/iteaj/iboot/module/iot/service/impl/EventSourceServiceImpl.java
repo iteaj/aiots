@@ -112,6 +112,10 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
            if(item.getStatus() == FuncStatus.enabled) {
                throw new ServiceException("请先停用事件源["+item.getName()+"]");
            }
+
+           if(this.getBaseMapper().hasBindEnabledLinkage(item.getId())) {
+               throw new ServiceException("请先停用已绑定的场景联动");
+           }
         });
 
         int result = this.getBaseMapper().removeAllByIds(idList);

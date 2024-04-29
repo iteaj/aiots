@@ -70,6 +70,13 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
                             !entity.getEventSourceId().equals(item.getEventSourceId())) {
                         throw new ServiceException("请先停用此场景联动");
                     }
+
+                    /**
+                     * 修改了事件源则移除所有联动项
+                     */
+                    if(!entity.getEventSourceId().equals(item.getEventSourceId())) {
+                        this.getBaseMapper().removeAllItemById(item.getId());
+                    }
                 });
 
         this.getOne(Wrappers.<Linkage>lambdaQuery()

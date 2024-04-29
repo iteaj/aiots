@@ -12,6 +12,7 @@ import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
+import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 import com.iteaj.iboot.module.iot.consts.ActionType;
 import com.iteaj.iboot.module.iot.consts.ConditionType;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_OFFLINE;
 import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_ONLINE;
 
-public class LinkageTriggerService implements EventGroupCollectListener {
+public class LinkageTriggerService implements EventGroupCollectListener, ModelAttrListener {
 
     private final IotCacheManager cacheManager;
     private final RealtimeDataService realtimeDataService;
@@ -83,7 +84,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
                 if(CollectionUtil.isNotEmpty(linkageItems)) {
                     // 只触发包含触发设备同一组的联动项
                     Set<LinkageItem> linkageItemSet = linkageItems.stream()
-                            .filter(item -> item.getDeviceGroupIds().contains(device.getGroupId()))
+                            .filter(item -> item.getDeviceGroupIds().contains(device.getGroupId().intValue()))
                             .collect(Collectors.toSet());
                     invokeLinkage(linkageItemSet, dataSupplier, device);
                 }
@@ -203,7 +204,7 @@ public class LinkageTriggerService implements EventGroupCollectListener {
     private String resolverWarnTemplate(WarnConfig warn, String deviceSn, Object value) {
         Map<String, String> param = new HashMap<>();
         param.put("deviceSn", deviceSn);
-        param.put("value", value.toString());
+        param.put("value", value != null ? value.toString() : "");
 
         return StrUtil.format(warn.getTemplate(), param, true);
     }
@@ -398,6 +399,19 @@ public class LinkageTriggerService implements EventGroupCollectListener {
             if(CollectionUtil.isNotEmpty(linkageItems) && CollectionUtil.isNotEmpty(info.getInfos())) {
                 this.invokeLinkage(linkageItems, null, info.getGroup());
             }
+        }
+    }
+
+    @Override
+    public void supplier(DataSupplier supplier, RealtimeStatus device) {
+        List<SignalOrFieldValue> values = supplier.getValues();
+        if(CollectionUtil.isNotEmpty(values)) {
+            values.forEach(item -> {
+                Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), item.getSignalOrField());
+                if(CollectionUtil.isNotEmpty(linkageItems)) {
+                    this.invokeLinkage(linkageItems, supplier, device);
+                }
+            });
         }
     }
 

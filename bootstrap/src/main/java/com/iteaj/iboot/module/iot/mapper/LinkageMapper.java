@@ -52,4 +52,6 @@ public interface LinkageMapper extends BaseMapper<Linkage> {
      * @return
      */
     FuncStatusProfileDto countStatusProfile(GroupAndProductParamDto param);
+
+    void removeAllItemById(Long id);
 }
