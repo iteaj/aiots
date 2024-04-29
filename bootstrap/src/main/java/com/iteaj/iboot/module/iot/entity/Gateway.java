@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
@@ -37,6 +38,7 @@ public class Gateway extends BaseEntity {
      * 网关名称
      */
     @NotBlank(message = "网关名称必填")
+    @TableField(condition = SqlCondition.LIKE)
     private String name;
 
     /**
