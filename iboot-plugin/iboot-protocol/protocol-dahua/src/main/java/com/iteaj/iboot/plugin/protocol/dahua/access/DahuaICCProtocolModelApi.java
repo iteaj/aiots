@@ -48,9 +48,10 @@ public class DahuaICCProtocolModelApi extends AbstractFuncProtocolModelApi {
             });
             data.put("channelId", arg.getDeviceSn());
         } else {
-            getDownConfig().forEach((key, value) -> {
-                body.put(key, new String[] {arg.getString(key)});
-            });
+//            getDownConfig().forEach((key, value) -> {
+//                body.put(key, new String[] {arg.getString(key)});
+//            });
+            body.put("channelCodeList", new String[] {arg.getDeviceSn()});
         }
         return new DahuaHttpProtocol(message);
     }
