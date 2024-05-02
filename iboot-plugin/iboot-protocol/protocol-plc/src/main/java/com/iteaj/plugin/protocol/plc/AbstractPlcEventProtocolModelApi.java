@@ -59,6 +59,7 @@ public abstract class AbstractPlcEventProtocolModelApi extends AbstractEventProt
 
             result.accept(InvokeResult.status(plcClientProtocol.getExecStatus(), value, plcClientProtocol));
         } catch (Exception e) {
+            e.printStackTrace();
             result.accept(InvokeResult.fail(e.getMessage(), protocol));
         }
     }

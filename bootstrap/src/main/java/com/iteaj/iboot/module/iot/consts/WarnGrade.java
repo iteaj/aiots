@@ -12,6 +12,7 @@ public enum WarnGrade {
     urgent("紧急"),
     warn("告警"),
     notice("通知"),
+    normal("解除"),
     status("状态"), // 用于一些状态通知
     ;
 

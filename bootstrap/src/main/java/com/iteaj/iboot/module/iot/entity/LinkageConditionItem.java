@@ -118,6 +118,12 @@ public class LinkageConditionItem extends BaseEntity {
     private String linkedName;
 
     /**
+     * 模型属性的数据类型
+     */
+    @TableField(exist = false)
+    private String dataType;
+
+    /**
      * 类型名称
      */
     private String typeName;
@@ -170,6 +176,8 @@ public class LinkageConditionItem extends BaseEntity {
         if(this.deviceName == null) {
             if(Objects.equals(this.uid, DEVICE_ANY[0])) {
                 return DEVICE_ANY[1];
+            } else if(Objects.equals(this.uid, DEVICE_TRIGGER[0])) {
+                return DEVICE_TRIGGER[1];
             }
         }
 

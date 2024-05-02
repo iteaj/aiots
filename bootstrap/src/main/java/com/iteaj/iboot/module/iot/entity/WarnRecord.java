@@ -50,7 +50,7 @@ public class WarnRecord extends BaseEntity {
     /**
      * 告警事件
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTF8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date warnTime;
 
     private Date createTime;

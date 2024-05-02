@@ -13,10 +13,7 @@ import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
-import com.iteaj.iboot.module.iot.consts.ActionType;
-import com.iteaj.iboot.module.iot.consts.ConditionType;
-import com.iteaj.iboot.module.iot.consts.DeviceStatus;
-import com.iteaj.iboot.module.iot.consts.LinkageLogical;
+import com.iteaj.iboot.module.iot.consts.*;
 import com.iteaj.iboot.module.iot.dto.LinkageActionExecDto;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
@@ -29,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_OFFLINE;
@@ -40,6 +38,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     private final RealtimeDataService realtimeDataService;
     private final LinkageCacheService linkageCacheService;
     private Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
+    private final Map<Long, Boolean> warnStatus = new ConcurrentHashMap<>(512);
 
     public LinkageTriggerService(IotCacheManager cacheManager, RealtimeDataService realtimeDataService
             , LinkageCacheService linkageCacheService) {
@@ -53,9 +52,13 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
      * @param device
      */
     public void trigger(RealtimeStatus device) {
-        String status = device.getStatus() == DeviceStatus.online ? DEVICE_ONLINE[2] : DEVICE_OFFLINE[2];
-        Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), status);
-        this.invokeLinkage(linkageItems, null, device);
+        try {
+            String status = device.getStatus() == DeviceStatus.online ? DEVICE_ONLINE[2] : DEVICE_OFFLINE[2];
+            Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), status);
+            this.invokeLinkage(linkageItems, null, device);
+        } catch (Exception e) {
+            logger.error("联动触发失败 设备状态触发 - 设备: {} - 状态: {}", device.buildDeviceKey(), device.getStatus(), e);
+        }
     }
 
     /**
@@ -73,38 +76,42 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
      * @param protocol
      */
     public void trigger(Protocol protocol) {
-        Optional<DataSupplier> supplier = ProtocolSupplierManager.getDataSupplier(protocol);
-        if(supplier.isPresent()) {
-            DataSupplier dataSupplier = supplier.get();
-            RealtimeStatus device = cacheManager.get(dataSupplier.getProtocolCode(), dataSupplier.getKey());
+        try {
+            Optional<DataSupplier> supplier = ProtocolSupplierManager.getDataSupplier(protocol);
+            if(supplier.isPresent()) {
+                DataSupplier dataSupplier = supplier.get();
+                RealtimeStatus device = cacheManager.get(dataSupplier.getProtocolCode(), dataSupplier.getKey());
 
-            dataSupplier.getValues().forEach(signalOrFieldValue -> {
-                // 获取此点位的联动项
-                Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), signalOrFieldValue.getSignalOrField());
-                if(CollectionUtil.isNotEmpty(linkageItems)) {
-                    // 只触发包含触发设备同一组的联动项
-                    Set<LinkageItem> linkageItemSet = linkageItems.stream()
-                            .filter(item -> item.getDeviceGroupIds().contains(device.getGroupId().intValue()))
-                            .collect(Collectors.toSet());
-                    invokeLinkage(linkageItemSet, dataSupplier, device);
-                }
-            });
-        } else {
-            if(logger.isDebugEnabled()) {
-                Message message = protocol.requestMessage();
-                if(message != null) {
-                    DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(message.getClass());
-                    if(protocolSupplier != null) {
-                        logger.debug("执行联动触发取消 没有提供数据 - 协议码: {} - 协议: {}", protocolSupplier.getProtocol().getCode(), protocol.getClass().getSimpleName());
-                    } else {
-                        logger.debug("执行联动触发取消 没有协议提供 - 协议: {}", protocolSupplier.getProtocol().getCode(), protocol.getClass().getSimpleName());
+                dataSupplier.getValues().forEach(signalOrFieldValue -> {
+                    // 获取此点位的联动项
+                    Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), signalOrFieldValue.getSignalOrField());
+                    if(CollectionUtil.isNotEmpty(linkageItems)) {
+                        // 只触发包含触发设备同一组的联动项
+                        Set<LinkageItem> linkageItemSet = linkageItems.stream()
+                                .filter(item -> item.getDeviceGroupIds().contains(device.getGroupId().intValue()))
+                                .collect(Collectors.toSet());
+                        invokeLinkage(linkageItemSet, dataSupplier, device);
+                    }
+                });
+            } else {
+                if(logger.isDebugEnabled()) {
+                    Message message = protocol.requestMessage();
+                    if(message != null) {
+                        DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(message.getClass());
+                        if(protocolSupplier != null) {
+                            logger.debug("执行联动触发取消 没有提供数据 - 协议码: {} - 协议: {}", protocolSupplier.getProtocol().getCode(), protocol.getClass().getSimpleName());
+                        } else {
+                            logger.debug("执行联动触发取消 没有协议提供 - 协议: {}", protocolSupplier.getProtocol().getCode(), protocol.getClass().getSimpleName());
+                        }
+
+                        return;
                     }
 
-                    return;
+                    logger.debug("执行联动触发取消 没有提供数据 - 协议: {}", protocol.getClass().getSimpleName());
                 }
-
-                logger.debug("执行联动触发取消 没有提供数据 - 协议: {}", protocol.getClass().getSimpleName());
             }
+        } catch (Exception e) {
+            logger.error("联动触发失败 设备属性主动触发 - 协议: {} - 设备编号: {}", protocol.getClass().getSimpleName(), protocol.getEquipCode());
         }
     }
 
@@ -184,11 +191,26 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     }
 
     private void doHandleWarn(WarnConfig warn, RealtimeStatus device, Object value) {
+        WarnGrade grade = warn.getGrade();
+        // 属于解除告警并且已经执行一次
+        if(grade == WarnGrade.normal) {
+            if(Boolean.TRUE.equals(warnStatus.get(warn.getModelAttrId()))) {
+                return;
+            }
+        } else if(grade != WarnGrade.status){ // 状态告警不涉及模型属性
+            warnStatus.put(warn.getModelAttrId(), Boolean.FALSE); // 持续告警中
+        }
+
         Date date = new Date();
         String content = resolverWarnTemplate(warn, device.getDeviceSn(), value);
         WarnRecord warnRecord = new WarnRecord().setDeviceSn(device.getDeviceSn()).
-                setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(warn.getGrade())
+                setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(grade)
                 .setWarnConfigId(warn.getId()).setContent(content);
+
+        if(grade == WarnGrade.normal) { // 设置告警已经解除
+            warnStatus.put(warn.getModelAttrId(), Boolean.TRUE);
+        }
+
         CollectListenerManager.getInstance().publish(listener -> {
             if(listener instanceof LinkageActionListener) {
                 ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, device);
@@ -394,11 +416,15 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     }
 
     public void trigger(CollectInfo info) {
-        if(CollectionUtil.isNotEmpty(info.getInfos())) {
-            Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(info.getSource().getId(), info.getGroup().getId());
-            if(CollectionUtil.isNotEmpty(linkageItems) && CollectionUtil.isNotEmpty(info.getInfos())) {
-                this.invokeLinkage(linkageItems, null, info.getGroup());
+        try {
+            if(CollectionUtil.isNotEmpty(info.getInfos())) {
+                Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(info.getSource().getId(), info.getGroup().getId());
+                if(CollectionUtil.isNotEmpty(linkageItems) && CollectionUtil.isNotEmpty(info.getInfos())) {
+                    this.invokeLinkage(linkageItems, null, info.getGroup());
+                }
             }
+        } catch (Exception e) {
+            logger.error("联动触发失败 事件源触发 - 事件源: {} - 触发组: {}", info.getSource().getName(), info.getGroup().getName());
         }
     }
 

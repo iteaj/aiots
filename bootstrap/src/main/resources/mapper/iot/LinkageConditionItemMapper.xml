@@ -20,6 +20,7 @@
         <result column="linked_name" property="linkedName" />
         <result column="type_name" property="typeName" />
         <result column="type_value" property="typeValue" />
+        <result column="data_type" property="dataType" />
         <result column="linkage_condition_id" property="linkageConditionId" />
         <result column="event_source_detail_id" property="eventSourceDetailId" />
     </resultMap>
