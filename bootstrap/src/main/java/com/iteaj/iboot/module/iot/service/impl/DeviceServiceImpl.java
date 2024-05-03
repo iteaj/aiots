@@ -1,11 +1,14 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ArrayUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
@@ -158,16 +161,27 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                         });
 
                 // 客户端的网关设备如果产品启用则尝试连接网关
-                if(deviceType == DeviceType.Gateway && productDto.getStatus() == FuncStatus.enabled
-                        && productDto.getConnectionType() == ConnectionType.Client) {
+                if(deviceType == DeviceType.Gateway) {
                     DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(productDto.getProtocolCode());
-                    if(supplier != null) {
-                        try {
-                            IotNetworkUtil.networkCtrl(supplier, entity, FuncStatus.enabled);
-                        } catch (ServiceException e) {
-                            throw e;
-                        } catch (Exception e) {
-                            // ...
+                    if(entity.getConfig() == null) {
+                        if(supplier != null) {
+                            ParamMeta[] config = supplier.getGatewayConfig();
+                            if(ArrayUtil.isNotEmpty(config)) {
+                                throw new ServiceException("未设置网关配置项");
+                            }
+                        }
+
+                        entity.setConfig(new JSONObject()); // 空配置项
+                    }
+                    if(productDto.getStatus() == FuncStatus.enabled && productDto.getConnectionType() == ConnectionType.Client) {
+                        if(supplier != null) {
+                            try {
+                                IotNetworkUtil.networkCtrl(supplier, entity, FuncStatus.enabled);
+                            } catch (ServiceException e) {
+                                throw e;
+                            } catch (Exception e) {
+                                // ...
+                            }
                         }
                     }
                 }
