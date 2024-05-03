@@ -11,28 +11,31 @@ import java.util.Map;
 @Setter
 public class PushData {
 
+    private String uid;
+
     private String type;
 
     private Object value;
 
-    protected PushData(String type, Object value) {
+    protected PushData(String uid, String type, Object value) {
+        this.uid = uid;
         this.type = type;
         this.value = value;
     }
 
-    public static PushData build(String type, Object value) {
-        return new PushData(type, value);
+    public static PushData build(String uid, String type, Object value) {
+        return new PushData(uid, type, value);
     }
 
     public static PushData buildStatus(RealtimeStatus status) {
-        return new PushData("status", status);
+        return new PushData(status.getUid(), "status", status);
     }
 
-    public static PushData buildModel(Map<String, SignalOrFieldValue> value) {
-        return new PushData("model", value);
+    public static PushData buildModel(String uid, Map<String, SignalOrFieldValue> value) {
+        return new PushData(uid, "model", value);
     }
 
-    public static PushData buildSignal(Map<String, SignalOrFieldValue> value) {
-        return new PushData("signal", value);
+    public static PushData buildSignal(String uid, Map<String, SignalOrFieldValue> value) {
+        return new PushData(uid, "signal", value);
     }
 }
