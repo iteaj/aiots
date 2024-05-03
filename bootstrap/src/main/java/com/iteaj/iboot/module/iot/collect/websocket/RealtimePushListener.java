@@ -35,6 +35,15 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
 
     private static final String URI = "/ws/iot/realtime";
     private final RealtimeDataService realtimeDataService;
+    /**
+     * 监听的告警类型, 可以组合比如：12 表示监听告警和状态
+     */
+    private final static String TYPE_WARN = "1"; // 实时告警
+    private final static String TYPE_STATUS = "2"; // 实时状态
+    private final static String TYPE_DATA = "3"; // 实时数据
+
+    private final static String DEVICE_ALL = "-1"; // 监听所有设备
+
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     public RealtimePushListener(RealtimeDataService realtimeDataService) {
@@ -67,14 +76,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
             devices.forEach(device -> {
                 try {
                     String jsonString = JSONObject.toJSONString(PushData.buildStatus(device));
-                    DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
-                        String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
-                        if(StrUtil.isNotBlank(uid)) {
-                            return Objects.equals(uid, device.getUid());
-                        }
-
-                        return false;
-                    }));
+                    doPush(device.getUid(), jsonString, TYPE_STATUS);
                 } catch (Exception e) {
                     logger.error("推送实时状态异常 {} - 设备: {}", e.getMessage(), device.buildDeviceKey(), e);
                 }
@@ -91,16 +93,9 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
             if(CollectionUtil.isNotEmpty(device.getSupplier().getValues())) {
                 Map<String, SignalOrFieldValue> valueMap = device.getSupplier().getValues().stream()
                         .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
-                String jsonString = JSONObject.toJSONString(PushData.buildModel(valueMap));
 
-                DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
-                    String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
-                    if(StrUtil.isNotBlank(uid)) {
-                        return Objects.equals(uid, device.getDevice().getUid());
-                    }
-
-                    return false;
-                }));
+                String jsonString = JSONObject.toJSONString(PushData.buildModel(device.getDevice().getUid(), valueMap));
+                doPush(device.getDevice().getUid(), jsonString, TYPE_DATA);
             }
         } catch (Exception e) {
             logger.error("实时推送模型数据异常 {} - 设备: {}", e.getMessage(), device.getDevice().buildDeviceKey(), e);
@@ -116,15 +111,8 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
                     realtimeDataService.put(supplier); // 加入实时数据缓存
 
                     // websocket方式写数据到前端
-                    String jsonString = JSONObject.toJSONString(PushData.buildModel(valueMap));
-                    DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
-                        String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
-                        if(StrUtil.isNotBlank(uid)) {
-                            return Objects.equals(uid, deviceUid);
-                        }
-
-                        return false;
-                    }));
+                    String jsonString = JSONObject.toJSONString(PushData.buildModel(deviceUid, valueMap));
+                    doPush(deviceUid, jsonString, TYPE_DATA);
                 }
             });
         }
@@ -136,18 +124,20 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
             Map<String, SignalOrFieldValue> valueMap = new HashMap<>();
             valueMap.put(data.getAddress(), SignalOrFieldValue.build(data.getSignalId()
                     , data.getAddress(), data.getCollectTime(), data.getValue()).builder(data.getCollectStatus()));
-            String jsonString = JSONObject.toJSONString(PushData.buildSignal(valueMap));
+            String deviceUid = device.getUid().toString();
+            String jsonString = JSONObject.toJSONString(PushData.buildSignal(deviceUid, valueMap));
 
-            DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
-                String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
-                if(StrUtil.isNotBlank(uid)) {
-                    return Objects.equals(uid, device.getUid().toString());
-                }
-
-                return false;
-            }));
+            doPush(deviceUid, jsonString, TYPE_DATA);
         } catch (Exception e) {
             logger.error("实时推送点位数据异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
         }
+    }
+
+    private void doPush(String deviceUid, String jsonString, String typeData) {
+        DefaultWebSocketServerProtocol.writeGroup(URI, jsonString, new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
+            String type = httpRequestWrapper.getQueryParam("type").orElse("");
+            String uid = httpRequestWrapper.getQueryParam("uid").orElse("");
+            return (DEVICE_ALL.equals(uid) || (Objects.equals(uid, deviceUid))) && type.contains(typeData);
+        }));
     }
 }
