@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
-import com.iteaj.iboot.module.iot.dto.DeviceStatusDto;
-import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -82,4 +79,12 @@ public interface DeviceMapper extends BaseMapper<Device> {
      * @return
      */
     DeviceStatusDto countDeviceStatus(GroupAndProductParamDto param);
+
+    /**
+     * 电子地图功能的设备列表
+     * @param productId
+     * @param deviceGroupId
+     * @return
+     */
+    List<EMapDeviceDto> listOfEMap(Long productId, Long deviceGroupId);
 }

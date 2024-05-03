@@ -20,17 +20,11 @@ import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
-import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
-import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
-import com.iteaj.iboot.module.iot.consts.DeviceStatus;
-import com.iteaj.iboot.module.iot.dto.DeviceStatusDto;
-import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Device;
-import com.iteaj.iboot.module.iot.linkage.LinkageTriggerService;
 import com.iteaj.iboot.module.iot.mapper.DeviceMapper;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
@@ -55,11 +49,9 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
-    private final LinkageTriggerService linkageTriggerService;
-    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager, LinkageTriggerService linkageTriggerService) {
+    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager) {
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
-        this.linkageTriggerService = linkageTriggerService;
     }
 
 
@@ -278,7 +270,6 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                         .in(Device::getUid, uidList));
 
                 values.forEach(item -> item.setStatus(DeviceStatus.offline));
-                linkageTriggerService.trigger(values);
                 CollectListenerManager.getInstance().deviceStatusPublish(listener -> listener.supplier(childDeviceStatus.values())); // 推送离线信息到前端
                 this.iotCacheManager.updateChildStatus(device.getProtocolCode(), device.getDeviceSn(), DeviceStatus.offline);
             }
@@ -286,7 +277,6 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
         this.iotCacheManager.updateStatus(device.getProtocolCode(), device.buildDeviceKey(), device.getStatus());
         CollectListenerManager.getInstance().deviceStatusPublish(listener -> listener.supplier(device));
-        linkageTriggerService.trigger(device);
     }
 
     @Override
@@ -302,6 +292,11 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     public DeviceStatusDto countDeviceStatus(GroupAndProductParamDto param) {
         return getBaseMapper().countDeviceStatus(param);
+    }
+
+    @Override
+    public List<EMapDeviceDto> listOfEMap(Long productId, Long deviceGroupId) {
+        return this.getBaseMapper().listOfEMap(productId, deviceGroupId);
     }
 
     @Override

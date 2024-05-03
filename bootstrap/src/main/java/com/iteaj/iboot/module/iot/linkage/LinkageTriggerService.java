@@ -10,6 +10,7 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
+import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_OFFLINE;
 import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_ONLINE;
 
-public class LinkageTriggerService implements EventGroupCollectListener, ModelAttrListener {
+public class LinkageTriggerService implements EventGroupCollectListener, ModelAttrListener, DeviceStatusListener {
 
     private final IotCacheManager cacheManager;
     private final RealtimeDataService realtimeDataService;
@@ -45,6 +46,11 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
         this.cacheManager = cacheManager;
         this.realtimeDataService = realtimeDataService;
         this.linkageCacheService = linkageCacheService;
+    }
+
+    @Override
+    public void supplier(Collection<RealtimeStatus> devices) {
+        this.trigger(devices);
     }
 
     /**

@@ -17,7 +17,7 @@ import com.iteaj.iot.client.http.HttpClient;
 /**
  * 大华协议提供
  */
-public class DahuaICCProtocolSupplier extends StaticClientProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, DahuaOpenComponent, HttpClient> {
+public class DahuaICCProtocolSupplier extends StaticClientProtocolSupplier<NetworkConfigImpl.HttpNetworkConfig, DahuaOpenComponent, HttpClient> {
 
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("DAHUA_ICC_OPEN", CtrlMode.COMMON, TransportProtocol.HTTP)
 //            .addModelAttr(new ProtocolModelAttr("channelCodeList", "门禁通道列表", DataType.t_string, AttrType.IGNORE, "如:1000003$7$0$0, 多个值可用逗号隔开"))
@@ -80,12 +80,12 @@ public class DahuaICCProtocolSupplier extends StaticClientProtocolSupplier<Netwo
     }
 
     @Override
-    public DahuaOpenComponent doCreateComponent(NetworkConfigImpl.TcpNetworkConfig config) {
+    public DahuaOpenComponent doCreateComponent(NetworkConfigImpl.HttpNetworkConfig config) {
         return DahuaOpenComponent.instance;
     }
 
     @Override
-    protected HttpClient doCreateClient(NetworkConfigImpl.TcpNetworkConfig config, DahuaOpenComponent component) {
+    protected HttpClient doCreateClient(NetworkConfigImpl.HttpNetworkConfig config, DahuaOpenComponent component) {
         return null;
     }
 }

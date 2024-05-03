@@ -4,11 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.*;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
-import com.iteaj.iboot.module.iot.dto.DeviceStatusDto;
-import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.framework.IBaseService;
 
@@ -153,4 +150,12 @@ public interface IDeviceService extends IBaseService<Device> {
      * @return
      */
     DeviceStatusDto countDeviceStatus(GroupAndProductParamDto param);
+
+    /**
+     * 电子地图功能的设备列表
+     * @param productId
+     * @param deviceGroupId
+     * @return
+     */
+    List<EMapDeviceDto> listOfEMap(Long productId, Long deviceGroupId);
 }
