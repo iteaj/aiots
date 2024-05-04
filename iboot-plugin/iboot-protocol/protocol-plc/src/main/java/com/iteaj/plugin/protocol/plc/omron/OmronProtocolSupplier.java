@@ -18,6 +18,8 @@ import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.plc.ReadAddress;
 import com.iteaj.iot.plc.WriteAddress;
 import com.iteaj.iot.plc.omron.*;
+import com.iteaj.plugin.protocol.plc.AbstractPlcEventProtocolModelApi;
+import com.iteaj.plugin.protocol.plc.AbstractPlcFuncProtocolModelApi;
 import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
 
 import java.math.BigDecimal;
@@ -120,5 +122,15 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
         }
 
         return (OmronTcpClient) component.createNewClient(connectProperties);
+    }
+
+    @Override
+    protected AbstractPlcFuncProtocolModelApi createPlcFuncProtocolModelApi(String code, String name, FuncType type, String remark) {
+        return new OmronFuncProtocolModelApi(code, name, type, remark);
+    }
+
+    @Override
+    protected AbstractPlcEventProtocolModelApi createPlcEventProtocolModelApi(String code, String name, String remark) {
+        return new OmronEventProtocolModelApi(code, name, remark);
     }
 }

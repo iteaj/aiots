@@ -148,16 +148,9 @@ public class RealtimePushListener implements WebSocketServerListener
     @Override
     public void warnTrigger(WarnConfig config, WarnRecord record, RealtimeStatus device) {
         try {
-            PushData warn = PushData.build("warn", record);
-            DefaultWebSocketServerProtocol.writeGroup(URI, JSONObject.toJSONString(warn)
-                    , new WebSocketChannelMatcher((channel, httpRequestWrapper) -> {
-                String uid = httpRequestWrapper.getQueryParam("uid").orElse(null);
-                if(StrUtil.isNotBlank(uid)) {
-                    return Objects.equals(uid, device.getUid());
-                }
-
-                return false;
-            }));
+            PushData warn = PushData.build(record.getUid(), "warn", record);
+            String jsonString = JSONObject.toJSONString(warn);
+            doPush(record.getUid(), jsonString, TYPE_WARN);
         } catch (Exception e) {
             logger.error("实时推送点位数据异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
         }

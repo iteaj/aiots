@@ -233,7 +233,7 @@ public class PanelsController extends BaseController {
 
     /**
      * 切换控制状态
-     * @param dto
+     * @param dto id为设备的uid值
      * @return
      */
     @PostMapping("switchCtrlStatus")
