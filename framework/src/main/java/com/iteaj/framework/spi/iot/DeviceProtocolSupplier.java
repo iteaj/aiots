@@ -1,5 +1,6 @@
 package com.iteaj.framework.spi.iot;
 
+import cn.hutool.core.util.ClassUtil;
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.consts.GatewayType;
@@ -81,6 +82,14 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends Frame
      */
     default ParamMeta[] getNetworkConfig() {
         return EMPTY_CONFIG;
+    }
+
+    /**
+     * 返回网络配置类型
+     * @return
+     */
+    default Class<C> getNetworkConfigClazz() {
+        return (Class<C>) ClassUtil.getTypeArgument(getClass(), 0);
     }
 
     /**

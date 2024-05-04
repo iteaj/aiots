@@ -15,7 +15,6 @@
     <description>提供iot模块的设备协议插件</description>
 
     <modules>
-        <module>protocol-plc</module>
         <module>protocol-modbus</module>
         <module>protocol-mqtt</module>
     </modules>
