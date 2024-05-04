@@ -1,8 +1,6 @@
 package com.iteaj.plugin.protocol.plc.omron;
 
-import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.ParamMeta;
-import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
@@ -13,7 +11,7 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolSupplierException;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
-import com.iteaj.iot.client.SocketClient;
+import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.plc.ReadAddress;
 import com.iteaj.iot.plc.WriteAddress;
@@ -33,6 +31,7 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     private ParamMeta[] gatewayConfig = new ParamMeta[]{
             ParamMeta.buildRequired(ConstConfig.HOST, "主机", "", "127.0.0.1"),
             ParamMeta.buildRequiredNumber(ConstConfig.PORT, "端口", 9600, ""),
+            ParamMeta.buildRequiredNumber("readIdle", "读超时(秒)", 600, ""),
     };
 
     @Override
@@ -107,21 +106,8 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     }
 
     @Override
-    protected OmronTcpClient doCreateClient(NetworkConfigImpl.TcpNetworkConfig config, OmronComponent component) {
-        OmronConnectProperties connectProperties = new OmronConnectProperties(config.getHost(), config.getPort());
-        if(StrUtil.isNotBlank(config.getDeviceSn())) {
-            connectProperties.setConnectKey(config.getDeviceSn());
-        }
-
-        if(config.getAllIdle() != null) {
-            connectProperties.setAllIdleTime(config.getAllIdle());
-        } else if(config.getReadIdle() != null) {
-            connectProperties.setReaderIdleTime(config.getReadIdle());
-        } else if(config.getWriteIdle() != null) {
-            connectProperties.setWriterIdleTime(config.getWriteIdle());
-        }
-
-        return (OmronTcpClient) component.createNewClient(connectProperties);
+    protected ClientConnectProperties createPlcConnectProperties(NetworkConfigImpl.TcpNetworkConfig config) {
+        return new OmronConnectProperties(config.getHost(), config.getPort());
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.iteaj.plugin.protocol.plc.siemens;
 
-import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
@@ -12,18 +11,17 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolSupplierException;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
+import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.plc.ReadAddress;
 import com.iteaj.iot.plc.WriteAddress;
-import com.iteaj.iot.plc.omron.OmronComponent;
 import com.iteaj.iot.plc.omron.OmronTcpProtocol;
-import com.iteaj.iot.plc.siemens.SiemensConnectProperties;
-import com.iteaj.iot.plc.siemens.SiemensS7Client;
-import com.iteaj.iot.plc.siemens.SiemensS7Component;
-import com.iteaj.iot.plc.siemens.SiemensS7Message;
+import com.iteaj.iot.plc.siemens.*;
 import com.iteaj.plugin.protocol.plc.AbstractPlcEventProtocolModelApi;
 import com.iteaj.plugin.protocol.plc.AbstractPlcFuncProtocolModelApi;
 import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,7 +29,7 @@ import java.math.RoundingMode;
 /**
  * 西门子PLC协议提供
  */
-public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, SiemensS7Component, SiemensS7Client> {
+public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<SiemensProtocolSupplier.SiemensNetworkConfig, SiemensS7Component, SiemensS7Client> {
 
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("PLC_SIEMENS_S7"
             , CtrlMode.POINT, TransportProtocol.TCP, getModelApis(), getModelAttrs());
@@ -39,6 +37,8 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Network
     private ParamMeta[] gatewayConfig = new ParamMeta[]{
             ParamMeta.buildRequired(ConstConfig.HOST, "主机", "", "127.0.0.1"),
             ParamMeta.buildRequiredNumber(ConstConfig.PORT, "端口", 102, ""),
+            ParamMeta.buildRequiredNumber("readIdle", "读超时(秒)", 600, ""),
+            ParamMeta.buildRequired("model", "型号", "可选[S200、S300、S400、S1500、S200Smart]", "S1200"),
     };
 
     @Override
@@ -103,7 +103,7 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Network
     }
 
     @Override
-    public SiemensS7Component doCreateComponent(NetworkConfigImpl.TcpNetworkConfig config) {
+    public SiemensS7Component doCreateComponent(SiemensNetworkConfig config) {
         FrameworkComponent component = FrameworkManager.getComponent(SiemensS7Message.class);
         if(component == null) {
             component = new SiemensS7Component();
@@ -113,21 +113,8 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Network
     }
 
     @Override
-    protected SiemensS7Client doCreateClient(NetworkConfigImpl.TcpNetworkConfig config, SiemensS7Component component) {
-        SiemensConnectProperties connectProperties = new SiemensConnectProperties(config.getHost(), config.getPort());
-        if(StrUtil.isNotBlank(config.getDeviceSn())) {
-            connectProperties.setConnectKey(config.getDeviceSn());
-        }
-
-        if(config.getAllIdle() != null) {
-            connectProperties.setAllIdleTime(config.getAllIdle());
-        } else if(config.getReadIdle() != null) {
-            connectProperties.setReaderIdleTime(config.getReadIdle());
-        } else if(config.getWriteIdle() != null) {
-            connectProperties.setWriterIdleTime(config.getWriteIdle());
-        }
-
-        return (SiemensS7Client) component.createNewClient(connectProperties);
+    protected ClientConnectProperties createPlcConnectProperties(SiemensNetworkConfig config) {
+        return new SiemensConnectProperties(config.getHost(), config.getPort(), config.getModel());
     }
 
     @Override
@@ -140,4 +127,13 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Network
         return new SiemensEventProtocolModelApi(code, name, remark);
     }
 
+    @Getter
+    @Setter
+    public static class SiemensNetworkConfig extends NetworkConfigImpl.TcpNetworkConfig {
+
+        /**
+         * 西门子PLC型号
+         */
+        private SiemensModel model;
+    }
 }

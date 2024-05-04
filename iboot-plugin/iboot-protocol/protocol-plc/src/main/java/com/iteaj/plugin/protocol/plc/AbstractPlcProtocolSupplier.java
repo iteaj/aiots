@@ -1,5 +1,6 @@
 package com.iteaj.plugin.protocol.plc;
 
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.*;
@@ -7,14 +8,16 @@ import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iot.client.ClientComponent;
+import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.IotClient;
+import com.iteaj.iot.client.component.SocketClientComponent;
 import com.iteaj.plugin.protocol.plc.omron.OmronEventProtocolModelApi;
 import com.iteaj.plugin.protocol.plc.omron.OmronFuncProtocolModelApi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T extends ClientComponent, K extends IotClient>
+public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl.TcpNetworkConfig, T extends SocketClientComponent, K extends IotClient>
         extends StaticClientProtocolSupplier<C, T, K> {
 
     private Map<String, ProtocolModelAttr> modelAttrs = new LinkedHashMap<>();
@@ -99,6 +102,26 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl, T
     protected abstract AbstractPlcFuncProtocolModelApi createPlcFuncProtocolModelApi(String code, String name, FuncType type, String remark);
 
     protected abstract AbstractPlcEventProtocolModelApi createPlcEventProtocolModelApi(String code, String name, String remark);
+
+    @Override
+    protected K doCreateClient(C config, T component) {
+        ClientConnectProperties connectProperties = createPlcConnectProperties(config);
+        if(StrUtil.isNotBlank(config.getDeviceSn())) {
+            connectProperties.setConnectKey(config.getDeviceSn());
+        }
+
+        if(config.getAllIdle() != null && config.getAllIdle() > 0) {
+            connectProperties.setAllIdleTime(config.getAllIdle());
+        } else if(config.getReadIdle() != null && config.getReadIdle() > 0) {
+            connectProperties.setReaderIdleTime(config.getReadIdle());
+        } else if(config.getWriteIdle() != null && config.getWriteIdle() > 0) {
+            connectProperties.setWriterIdleTime(config.getWriteIdle());
+        }
+
+        return (K) component.createNewClient(connectProperties);
+    }
+
+    protected abstract ClientConnectProperties createPlcConnectProperties(C config);
 
     @Override
     public GatewayType getGatewayType() {
