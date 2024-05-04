@@ -4,9 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
-import com.iteaj.framework.spi.iot.*;
-import com.iteaj.framework.spi.iot.consts.ConstConfig;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.NetworkConfig;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
@@ -23,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Type;
 
 /**
  * iot模块监听应用重启时的初始化
@@ -116,13 +119,12 @@ public class IotRestartListener implements ApplicationReadyListener {
 
     private NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, DeviceDto device) {
         JSONObject config = device.getConfig();
-        TransportProtocol type = supplier.getProtocol().getType();
         if(config == null) {
             throw new ServiceException("设备[" + device.getName() + " / " + device.getDeviceSn() + "]缺少配置");
         }
 
         config.put("deviceSn", device.getDeviceSn());
-        return NetworkConfig.resolve(type, config);
+        return config.toJavaObject((Type) supplier.getNetworkConfigClazz());
     }
 
     /**

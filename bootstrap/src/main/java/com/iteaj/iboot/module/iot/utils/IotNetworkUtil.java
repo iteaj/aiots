@@ -5,11 +5,12 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfig;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.client.TcpSocketClient;
+
+import java.lang.reflect.Type;
 
 public class IotNetworkUtil {
 
@@ -32,13 +33,12 @@ public class IotNetworkUtil {
 
     private static NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, Device device) {
         JSONObject config = device.getConfig();
-        TransportProtocol type = supplier.getProtocol().getType();
         if(config == null) {
             throw new ServiceException("设备[" + device.getName() + " / " + device.getDeviceSn() + "]缺少配置");
         }
 
         config.put("deviceSn", device.getDeviceSn());
-        return NetworkConfig.resolve(type, config);
+        return config.toJavaObject((Type) supplier.getNetworkConfigClazz());
     }
 
     private static void resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status) {
