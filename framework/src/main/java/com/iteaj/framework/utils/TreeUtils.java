@@ -1,6 +1,8 @@
 package com.iteaj.framework.utils;
 
 import com.iteaj.framework.TreeEntity;
+import com.iteaj.framework.spi.admin.MenuResource;
+import com.iteaj.framework.spi.admin.MenuType;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -57,7 +59,15 @@ public class TreeUtils {
             }
         });
 
-        return toTrees(adminMenus.values(), 0l);
+        // 过滤出非功能的菜单并且排序
+        List<T> collect = adminMenus.values().stream().filter(item -> {
+            if(item instanceof MenuResource) {
+                return ((MenuResource) item).getType() != MenuType.A;
+            }
+
+            return true;
+        }).sorted().collect(Collectors.toList());
+        return toTrees(collect, 0l);
     }
 
     private static <T extends TreeEntity> void getParentMenu(Long pid, Map<String, T> menuMap, Map<String, T> adminMenus) {
