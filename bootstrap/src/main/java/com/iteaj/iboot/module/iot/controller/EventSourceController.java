@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
@@ -120,12 +121,9 @@ public class EventSourceController extends BaseController {
      */
     @GetMapping("deviceGroups")
     public Result<List<IVOption>> deviceGroups() {
-        List<DeviceGroup> data = deviceGroupService.list().getData();
-        List<IVOption> options = IVOption.convert(data, deviceGroup -> {
-            IVOption ivOption = new IVOption(deviceGroup.getName(), deviceGroup.getId());
-
-            return ivOption;
-        });
+        List<IVOption> options = deviceGroupService.list().stream()
+                .map(deviceGroup -> new IVOption(deviceGroup.getName(), deviceGroup.getId()))
+                .collect(Collectors.toList());
         return success(options);
     }
 

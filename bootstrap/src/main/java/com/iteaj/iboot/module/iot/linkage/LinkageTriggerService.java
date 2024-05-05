@@ -200,7 +200,9 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
         WarnGrade grade = warn.getGrade();
         // 属于解除告警并且已经执行一次
         if(grade == WarnGrade.normal) {
-            if(Boolean.TRUE.equals(warnStatus.get(warn.getModelAttrId()))) {
+            Boolean aBoolean = warnStatus.get(warn.getModelAttrId());
+            // 1. 等于null说明是第一次触发解除 2.等于true说明告警已经解除 这两种情况都不需要再发送告警
+            if(aBoolean == null || Boolean.TRUE.equals(aBoolean)) {
                 return;
             }
         } else if(grade != WarnGrade.status){ // 状态告警不涉及模型属性
@@ -242,12 +244,11 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             try {
                 ProtocolModelApiInvokeParam param = createInvokeParam(linkageAction, device);
                 ProtocolInvokeUtil.invoke(api, param, device, (result) -> {
-                    if(result.getStatus() == ExecStatus.success) {
-
-                    } else {
+                    if(result.getStatus() != ExecStatus.success) {
                         logger.warn("执行联动动作失败 {} - 接口: {}/{} - 设备: {}"
                                 , result.getStatus(), api.getName(), api.getCode(), device.buildKey());
                     }
+
                     CollectListenerManager.getInstance().publish(item -> {
                         if(item instanceof LinkageActionListener) {
                             ((LinkageActionListener) item).apiInvoke(api, device, result);
