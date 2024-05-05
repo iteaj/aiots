@@ -104,6 +104,15 @@ public class LinkageServiceImpl extends BaseServiceImpl<LinkageMapper, Linkage> 
             return BooleanResult.buildFalse("没有指定删除项");
         }
 
+        this.linkageItemMapper.selectList(Wrappers.<LinkageItem>lambdaQuery().in(LinkageItem::getId, itemIds))
+                .forEach(item -> {
+                    this.getById(item.getLinkageId()).ifPresent(linkage -> {
+                        if(linkage.getStatus() == FuncStatus.enabled) {
+                            throw new ServiceException("请先停用联动场景["+linkage.getName()+"]");
+                        }
+                    });
+                });
+
         return new BooleanResult(this.getBaseMapper().removeByItemIds(itemIds));
     }
 
