@@ -17,6 +17,7 @@
         <result column="linked_name" property="linkedName" />
         <result column="model_api_code" property="modelApiCode" />
         <result column="type_name" property="typeName" />
+        <result column="type_value" property="typeValue" />
     </resultMap>
 
     <resultMap id="ExecResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageActionExecDto" extends="BaseResultMap">
