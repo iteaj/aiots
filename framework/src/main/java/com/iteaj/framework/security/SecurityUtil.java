@@ -51,9 +51,7 @@ public class SecurityUtil {
      * @return 是否超级管理员
      */
     public static boolean isSuper(Serializable loginId) {
-        return getLoginId()
-                .map(item -> item.equals(loginId))
-                .orElse(false);
+        return loginId.equals(1l);
     }
 
     /**
