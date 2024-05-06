@@ -1,0 +1,4 @@
+org.springframework.context.ApplicationListener=\
+com.iteaj.iboot.plugin.satoken.SaTokenAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.iteaj.iboot.plugin.satoken.SaTokenAutoConfiguration

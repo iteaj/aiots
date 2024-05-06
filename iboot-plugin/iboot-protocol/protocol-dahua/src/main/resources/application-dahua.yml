@@ -1,0 +1,39 @@
+############################################# 大华ICC开放平台配置 #####################################
+spring:
+  config:
+    activate:
+      on-profile: dev # 开发环境
+icc:
+  sdk:
+    host: icc-dev.hibetatest.com:4077
+    pwdClientId: CompanyName
+    pwdClientSecret: 42bec152-8f04-476a-9aec-e7d616ff3cb3
+    username: TEST
+    password: Admin123
+    grantType: password
+---
+spring:
+  config:
+    activate:
+      on-profile: test # 测试环境
+icc:
+  sdk:
+    host: icc-dev.hibetatest.com:4077
+    pwdClientId: CompanyName
+    pwdClientSecret: 42bec152-8f04-476a-9aec-e7d616ff3cb3
+    username: TEST
+    password: Admin123
+    grantType: password
+---
+spring:
+  config:
+    activate:
+      on-profile: prod # 正式环境
+icc:
+  sdk:
+    host: icc-dev.hibetatest.com:4077
+    pwdClientId: CompanyName
+    pwdClientSecret: 42bec152-8f04-476a-9aec-e7d616ff3cb3
+    username: TEST
+    password: Admin123
+    grantType: password

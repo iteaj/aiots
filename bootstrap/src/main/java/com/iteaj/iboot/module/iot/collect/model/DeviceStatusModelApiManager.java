@@ -1,0 +1,170 @@
+package com.iteaj.iboot.module.iot.collect.model;
+
+import com.iteaj.framework.spi.event.ApplicationReadyListener;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.service.IDeviceService;
+import com.iteaj.iboot.module.iot.service.IModelApiService;
+import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
+import com.iteaj.iot.IotThreadManager;
+import com.iteaj.iot.consts.ExecStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 物模型的设备在线状态协议管理
+ * 一般用于网关子设备的状态采集
+ */
+public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyListener {
+
+    private IotCacheManager cacheManager;
+    private IDeviceService deviceService;
+    private Logger logger = LoggerFactory.getLogger(getClass());
+    private Map<Long, ModelApi> statusApis = new ConcurrentHashMap<>(16);
+
+    private static DeviceStatusModelApiManager instance = new DeviceStatusModelApiManager();
+
+    public static DeviceStatusModelApiManager getInstance() {
+        return instance;
+    }
+
+    /**
+     * 获取指定产品的状态api接口
+     * @param productId
+     * @return
+     */
+    public ModelApi get(Long productId) {
+        return statusApis.get(productId);
+    }
+
+    /**
+     * 注册api接口
+     * @param api
+     */
+    public void register(ModelApi api) {
+        if(!Boolean.TRUE.equals(api.getAsStatus())) {
+            throw new IllegalArgumentException("必须是状态接口[asStatus == true]");
+        }
+
+        if(!statusApis.containsKey(api.getProductId())) {
+            statusApis.put(api.getProductId(), api);
+        }
+    }
+
+    /**
+     * 更新接口
+     * @param newModelApi
+     * @return
+     */
+    public ModelApi update(ModelApi newModelApi) {
+        if(!Boolean.TRUE.equals(newModelApi.getAsStatus())) {
+            throw new IllegalArgumentException("必须是[asStatus == true]接口");
+        }
+
+        return statusApis.put(newModelApi.getProductId(), newModelApi);
+    }
+
+    /**
+     * 移除接口
+     * @param productId
+     * @return
+     */
+    public ModelApi remove(Long productId) {
+        return statusApis.remove(productId);
+    }
+
+    /**
+     * 获取所有的状态位接口
+     * @return
+     */
+    public Collection<ModelApi> apis() {
+        return Collections.unmodifiableCollection(statusApis.values());
+    }
+
+    @Override
+    public void run() {
+        statusApis.forEach((key, api) -> {
+            // 获取所有此产品下面的所有设备, 并且执行这些设备的状态协议
+            cacheManager.listByProductCode(api.getProductCode()).forEach(device -> {
+                try {
+                    if(device.getType() == DeviceType.Child) { // 先校验父设备是否在线
+                        RealtimeStatus realtimeStatus = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
+                        // 父设备不存在或者不在线则不采集子设备状态
+                        if(realtimeStatus == null || realtimeStatus.getStatus() == DeviceStatus.offline) {
+                            if(logger.isDebugEnabled()) {
+                                logger.warn("放弃子设备状态接口调用 网关设备不在线 - 网关编号: {} - 设备编号: {} - 接口: {}/{}"
+                                        , device.getParentDeviceSn(), device.getDeviceSn(), api.getCode(), api.getDirect());
+                            }
+
+                            return;
+                        }
+                    }
+
+                    // 获取当前设备的状态
+                    RealtimeStatus prevDeviceStatus = cacheManager.get(device.getProtocolCode(), device.buildDeviceKey());
+                    // 调用状态协议
+                    ProtocolInvokeUtil.invoke(api, device, 3000, result -> {
+                        DeviceStatus realtimeStatus;
+                        if(result.getStatus() == ExecStatus.success) {
+                            boolean status = true;
+                            Object value = result.getValue();
+                            if(value instanceof Boolean) { // 如果是布尔值必须等于true
+                                status = Boolean.TRUE.equals(value);
+                            } else if(value instanceof Number){ // 如果是数值必须大于0
+                                Double aDouble = Double.valueOf(value.toString());
+                                status = aDouble != 0.0;
+                            }
+
+                            realtimeStatus = status == true ? DeviceStatus.online : DeviceStatus.offline;
+                            if(logger.isDebugEnabled() && !status) {
+                                logger.warn("采集在线状态失败 采集值为{}(布尔值为true、数值须大于0、其他类型) - 设备编号: {} - 接口: {}/{}", result.getValue(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                            }
+                        } else {
+                            realtimeStatus = DeviceStatus.offline;
+                            logger.warn("采集在线状态失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                        }
+
+                        // 如果现在的状态和上一次的状态不一致则更新状态
+                        if(prevDeviceStatus != null && realtimeStatus != prevDeviceStatus.getStatus()) {
+                            prevDeviceStatus.setStatus(realtimeStatus);
+                            deviceService.updateDeviceStatus(prevDeviceStatus);
+                        }
+                    });
+                } catch (Exception e) {
+                    // 获取当前设备的上一次状态
+                    RealtimeStatus prevDeviceStatus = cacheManager.get(device.getProtocolCode(), device.buildDeviceKey());
+                    if(prevDeviceStatus != null && prevDeviceStatus.getStatus() != DeviceStatus.offline) {
+                        prevDeviceStatus.setStatus(DeviceStatus.offline);
+                        deviceService.updateDeviceStatus(prevDeviceStatus);
+                    }
+
+                    logger.error("采集在线状态异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                }
+            });
+        });
+    }
+
+    @Override
+    public void started(ApplicationContext context) {
+        this.cacheManager = context.getBean(IotCacheManager.class);
+        this.deviceService = context.getBean(IDeviceService.class);
+        IModelApiService modelApiService = context.getBean(IModelApiService.class);
+        modelApiService.listAsStatusModelApi().forEach(api -> this.register(api));
+
+        /**
+         * 30秒执行一次
+         */
+        IotThreadManager.instance().getExecutorService()
+                .scheduleWithFixedDelay(this, 0, 30, TimeUnit.SECONDS);
+    }
+}

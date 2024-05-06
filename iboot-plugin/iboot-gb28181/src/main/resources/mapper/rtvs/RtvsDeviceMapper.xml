@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.gbs.rtvs.RtvsDeviceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BasicMap" type="com.iteaj.iboot.plugin.gbs.rtvs.RtvsDevice">
+        <result column="Model" property="model" />
+        <result column="DeviceId" property="deviceId" />
+        <result column="Manufacturer" property="manufacturer" />
+        <result column="Channel" property="channelCount" />
+        <result column="DeviceName" property="name" />
+        <result column="Firmware" property="firmware" />
+        <result column="RemoteInfo" property="remoteInfo" />
+        <result column="online" property="online" />
+        <result column="register_time" property="registerTime" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="expires" property="expires" />
+        <result column="KeepAliveTime" property="keepaliveTime" />
+        <result column="UpTime" property="updateTime" />
+        <result column="NickName" property="nickName" />
+    </resultMap>
+
+    <select id="getDevices" resultMap="BasicMap">
+        select a.*, count(a.device_id) channel_count from wvp_device a
+            left join wvp_device_channel wdc on a.device_id=wdc.device_id
+        <where>
+            <if test="onLine != null">
+                a.on_line=#{onLine}
+            </if>
+        </where>
+        group by a.device_id order by a.create_time desc
+    </select>
+
+    <select id="getDeviceByDeviceId" resultMap="BasicMap">
+        select a.*, count(a.device_id) channel_count from wvp_device a
+            left join wvp_device_channel wdc on a.device_id=wdc.device_id
+        WHERE a.device_id = #{deviceId} group by a.device_id
+    </select>
+
+    <select id="detailByPage" resultMap="BasicMap">
+        select a.* from T_DeviceInfo a
+        <where>
+            <if test="entity.online != null">
+                and a.Online=#{entity.online}
+            </if>
+            <if test="entity.name != null and entity.name != ''">
+                and (a.DeviceName like '%${entity.name}%' or a.NickName like '%${entity.name}%')
+            </if>
+            <if test="entity.deviceId != null and entity.deviceId != ''">
+                and a.DeviceID like '%${entity.deviceId}%'
+            </if>
+        </where>
+        order by a.CreateTime desc
+    </select>
+
+</mapper>

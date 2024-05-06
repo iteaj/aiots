@@ -1,0 +1,25 @@
+{
+  "serverUrl": "http://192.168.20.168:8085",
+  "isStrict": false,
+  "allInOne": true,
+  "outPath": "target/classes/static/doc",
+  "coverOld": true,
+  "createDebugPage": false,
+  "packageFilters": "",
+  "md5EncryptedHtmlName": false,
+  "style": "xt256",
+  "projectName": "iboot",
+  "customRequestFields": [{
+    "name":"optimizeCountSql",
+    "ignore":true,
+    "ownerClassName":"com.baomidou.mybatisplus.extension.plugins.pagination.Page"
+  },{
+    "name":"isSearchCount",
+    "ignore":true,
+    "ownerClassName":"com.baomidou.mybatisplus.extension.plugins.pagination.Page"
+  },{
+    "name":"hitCount",
+    "ignore":true,
+    "ownerClassName":"com.baomidou.mybatisplus.extension.plugins.pagination.Page"
+  }]
+}
