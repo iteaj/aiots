@@ -20,8 +20,11 @@
             left join iot_collect_task ct on a.collect_task_id=ct.id
             left join iot_point_group pg on a.point_group_id=pg.id
         <where>
-            <if test="entity.id != null">
-                a.collect_task_id=#{entity.id}
+            <if test="entity.pointGroupId != null">
+                and a.point_group_id=#{entity.pointGroupId}
+            </if>
+            <if test="entity.collectTaskId != null">
+                and a.collect_task_id=#{entity.collectTaskId}
             </if>
         </where>
     </select>
