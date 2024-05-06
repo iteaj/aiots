@@ -31,7 +31,7 @@
             left join iot_device d on a.uid=d.uid
             left join iot_product p on p.id = d.product_id
         <choose>
-            <when test="entity.collectMode = 'model'">
+            <when test="entity.collectMode == 'model'">
                 left join iot_model_attr f on f.id = a.signal_id
             </when>
             <otherwise>
