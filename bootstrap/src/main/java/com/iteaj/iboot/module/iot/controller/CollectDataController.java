@@ -32,6 +32,7 @@ public class CollectDataController extends BaseController {
      */
     @GetMapping("/signal")
     public Result<Page<CollectDataDto>> signal(Page page, CollectDataDto entity) {
+        entity.setCollectMode("signal");
         return collectDataService.detailOfPage(page, entity);
     }
 
@@ -43,6 +44,7 @@ public class CollectDataController extends BaseController {
      */
     @GetMapping("/model")
     public Result<Page<CollectDataDto>> model(Page page, CollectDataDto entity) {
+        entity.setCollectMode("model");
         return collectDataService.detailOfPage(page, entity);
     }
 }
