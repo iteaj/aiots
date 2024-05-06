@@ -37,10 +37,10 @@ public class CollectData extends BaseEntity {
     private Long signalId;
 
     /**
-     * 值类型
+     * 属性
      */
-    @IotField("field_type")
-    private Integer fieldType;
+    @IotField("field")
+    private String field;
 
     @TableField(exist = false)
     private String fieldName;

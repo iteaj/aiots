@@ -11,7 +11,8 @@
         <result column="status" property="status" />
         <result column="reason" property="reason" />
         <result column="address" property="address" />
-        <result column="field_type" property="fieldType" />
+        <result column="field" property="field" />
+        <result column="field_name" property="fieldName" />
         <result column="collect_mode" property="collectMode" />
         <result column="create_time" property="createTime" />
         <result column="collect_time" property="collectTime" />
@@ -23,11 +24,20 @@
     </resultMap>
 
     <select id="detailOfPage" resultMap="DtoResultMap">
-        select a.id, a.cid, a.uid, a.signal_id, a.field_type, a.collect_task_id, a.address, a.value
+        select a.id, a.cid, a.uid, a.signal_id, a.field, a.collect_task_id, a.address, a.value
              , a.status, a.reason, a.collect_time, a.create_time, d.name device_name, d.device_sn
+             , f.name field_name
         from iot_collect_data a
             left join iot_device d on a.uid=d.uid
             left join iot_product p on p.id = d.product_id
+        <choose>
+            <when test="entity.collectMode = 'model'">
+                left join iot_model_attr f on f.id = a.signal_id
+            </when>
+            <otherwise>
+                left join iot_signal f on f.id=a.signal_id
+            </otherwise>
+        </choose>
         <where>
             <if test="entity.uid != null">
                 and a.uid=#{entity.uid}
@@ -37,9 +47,6 @@
             </if>
             <if test="entity.collectMode != null">
                 and a.collect_mode = #{entity.collectMode}
-            </if>
-            <if test="entity.productTypeId != null">
-                and p.product_type_id=#{entity.productTypeId}
             </if>
             <if test="entity.productId != null">
                 and d.product_id=#{entity.productId}
