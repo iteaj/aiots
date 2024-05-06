@@ -149,7 +149,7 @@ public class ModelApi extends BaseEntity {
         if(CollectionUtil.isNotEmpty(downConfig)) {
             downConfig.forEach(config -> {
                 String configValue = config.getValue();
-                if(configValue.startsWith("@")) { // 对提及的物模型属性赋值
+                if(config.getModelAttrId() != null && configValue.startsWith("@")) { // 对提及的物模型属性赋值
                     String attrField = configValue.substring(1);
                     configValue = attrValueMap.get(attrField);
                 }

@@ -2,8 +2,6 @@ package com.iteaj.iboot.module.iot.mq;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.iteaj.framework.json.JacksonUtils;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -17,7 +15,6 @@ import com.iteaj.iboot.module.iot.linkage.LinkageActionListener;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.amqp.core.Message;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -58,14 +55,9 @@ public class RabbitmqDataListener implements SignalCollectListener, EventGroupCo
     public void finished(CollectDevice device, List<CollectData> data) {
         if(CollectionUtil.isNotEmpty(data)) {
             data.stream().filter(item -> item.getStatus()).forEach(item -> {
-                try {
-                    RealtimeData realtimeData = new RealtimeData(item.getSignalId(), item.getUid().toString()
-                            , device.getDeviceSn(), item.getValue(), item.getAddress(), item.getCollectTime());
-                    byte[] bytes = JacksonUtils.getGenericMapper().writeValueAsBytes(realtimeData);
-                    amqpTemplate.send(IOT_EXCHANGE, IOT_ROUTING_REALTIME_DATA, new Message(bytes));
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
+                RealtimeData realtimeData = new RealtimeData(item.getSignalId(), item.getUid().toString()
+                        , device.getDeviceSn(), item.getValue(), item.getAddress(), item.getCollectTime());
+                amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_DATA, realtimeData);
             });
         }
     }
@@ -75,40 +67,25 @@ public class RabbitmqDataListener implements SignalCollectListener, EventGroupCo
         List<SignalOrFieldValue> values = info.getSupplier().getValues();
         if(CollectionUtil.isNotEmpty(values)) {
             values.stream().filter(item -> item.getStatus() != null && item.getStatus() == CollectStatus.Success).forEach(item -> {
-                try {
-                    RealtimeData realtimeData = new RealtimeData(item.getId(), info.getDevice().getUid(), info.getDevice().getDeviceSn()
-                            , item.getValue().toString(), item.getSignalOrField(), item.getCollectTime());
-                    byte[] bytes = JacksonUtils.getGenericMapper().writeValueAsBytes(realtimeData);
-                    amqpTemplate.send(IOT_EXCHANGE, IOT_ROUTING_REALTIME_DATA, new Message(bytes));
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
+                RealtimeData realtimeData = new RealtimeData(item.getId(), info.getDevice().getUid(), info.getDevice().getDeviceSn()
+                        , item.getValue().toString(), item.getSignalOrField(), item.getCollectTime());
+                amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_DATA, realtimeData);
             });
         }
     }
 
     @Override
     public void warnTrigger(WarnConfig config, WarnRecord record, RealtimeStatus status) {
-        try {
-            WarnData warnData = new WarnData(record.getUid(), record.getContent()
-                    , record.getDeviceSn(), record.getWarnConfigId(), record.getWarnTime());
-            byte[] bytes = JacksonUtils.getGenericMapper().writeValueAsBytes(warnData);
-            amqpTemplate.send(IOT_EXCHANGE, IOT_ROUTING_REALTIME_WARN, new Message(bytes));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        WarnData warnData = new WarnData(record.getUid(), record.getContent()
+                , record.getDeviceSn(), record.getWarnConfigId(), record.getWarnTime());
+        amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_WARN, warnData);
     }
 
     @Override
     public void supplier(Collection<RealtimeStatus> devices) {
         if(CollectionUtil.isNotEmpty(devices)) {
             devices.forEach(device -> {
-                try {
-                    byte[] bytes = JacksonUtils.getGenericMapper().writeValueAsBytes(device);
-                    amqpTemplate.send(IOT_EXCHANGE, IOT_ROUTING_REALTIME_STATUS, new Message(bytes));
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
+                amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_STATUS, device);
             });
         }
     }
