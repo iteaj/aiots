@@ -52,7 +52,7 @@ public class CollectActionTask implements Runnable {
                     devices.forEach(collectDevice -> {
                         RealtimeStatus realtimeStatus = cacheManager.get(collectDevice.getProtocolCode(), collectDevice.buildKey());
                         if(realtimeStatus != null) {
-//                            if(realtimeStatus.getStatus() == DeviceStatus.online) {
+                            if(realtimeStatus.getStatus() == DeviceStatus.online) {
                                 List<CollectData> values = new ArrayList<>();
                                 DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(collectDevice.getProtocolCode());
                                 if(supplier != null) {
@@ -130,9 +130,9 @@ public class CollectActionTask implements Runnable {
                                         }
                                     });
                                 }
-//                            } else {
-//                                logger.warn("采集点位取消 设备不在线 - 任务: {} - 设备: {}", taskDto.getName(), collectDevice.buildKey());
-//                            }
+                            } else {
+                                logger.warn("采集点位取消 设备不在线 - 任务: {} - 设备: {}", taskDto.getName(), collectDevice.buildKey());
+                            }
                         } else {
                             logger.warn("采集点位取消 设备不存在 - 任务: {} - 设备: {}", taskDto.getName(), collectDevice.buildKey());
                         }
