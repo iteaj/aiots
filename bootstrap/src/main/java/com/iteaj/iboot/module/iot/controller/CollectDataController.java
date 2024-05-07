@@ -25,31 +25,26 @@ public class CollectDataController extends BaseController {
     private ICollectDataService collectDataService;
 
     /**
-     * 获取采集数据
+     * 获取点位数据
      * @param page
      * @param entity
      * @return
      */
-    @GetMapping("/view")
-    public Result<Page<CollectDataDto>> view(Page page, CollectDataDto entity) {
+    @GetMapping("/signal")
+    public Result<Page<CollectDataDto>> signal(Page page, CollectDataDto entity) {
+        entity.setCollectMode("signal");
         return collectDataService.detailOfPage(page, entity);
     }
 
     /**
-     * 新增或者更新记录
-     * @param id
+     * 获取模型数据
+     * @param page
+     * @param entity
+     * @return
      */
-    @GetMapping("/edit")
-    public Result<CollectData> edit(Long id) {
-        return this.collectDataService.getById(id);
-    }
-
-    /**
-     * 删除指定记录
-     * @param idList
-     */
-    @PostMapping("/del")
-    public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.collectDataService.removeByIds(idList);
+    @GetMapping("/model")
+    public Result<Page<CollectDataDto>> model(Page page, CollectDataDto entity) {
+        entity.setCollectMode("model");
+        return collectDataService.detailOfPage(page, entity);
     }
 }
