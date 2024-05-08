@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -57,6 +58,7 @@ public class DeviceController extends BaseController {
     * 修改记录
     * @param entity
     */
+    @Logger("修改设备记录")
     @PostMapping("/edit")
     @CheckPermission({"iot:device:edit"})
     public Result<Boolean> edit(@RequestBody Device entity) {
@@ -67,6 +69,7 @@ public class DeviceController extends BaseController {
     * 新增记录
     * @param entity
     */
+    @Logger("新增设备记录")
     @PostMapping("/add")
     @CheckPermission({"iot:device:add"})
     public Result<Boolean> add(@RequestBody Device entity) {
@@ -77,6 +80,7 @@ public class DeviceController extends BaseController {
     * 删除指定记录
     * @param idList
     */
+    @Logger("删除设备记录")
     @PostMapping("/del")
     @CheckPermission({"iot:device:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
