@@ -1,12 +1,11 @@
-package com.iteaj.iboot.plugin.protocol.modbus.tcp;
+package com.iteaj.iboot.plugin.protocol.dtu.tcp;
 
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
-import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.iboot.plugin.protocol.modbus.AbstractModbusProtocolModelApi;
+import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusProtocolModelApi;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.consts.ModbusCoilStatus;
