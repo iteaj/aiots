@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>iboot-protocol</artifactId>
+        <groupId>com.iteaj</groupId>
+        <version>${reversion}</version>
+    </parent>
+
+<<<<<<<< HEAD:iboot-plugin/iboot-protocol/protocol-plc/pom.xml
+    <name>iboot:protocol:plc</name>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>protocol-plc</artifactId>
+    <description>iot模块提供 plc协议</description>
+========
+    <name>iboot:protocol:dtu</name>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>protocol-dtu</artifactId>
+    <description>iot模块提供 dtu + modbus tcp/rtu协议</description>
+>>>>>>>> develop:iboot-plugin/iboot-protocol/protocol-dtu/pom.xml
+
+    <dependencies>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-plc</artifactId>
+        </dependency>
+    </dependencies>
+</project>
