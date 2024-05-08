@@ -1,0 +1,74 @@
+package com.iteaj.iboot.plugin.protocol.dtu.tcp;
+
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusProtocolModelApi;
+import com.iteaj.iot.Protocol;
+import com.iteaj.iot.modbus.consts.ModbusCode;
+import com.iteaj.iot.modbus.consts.ModbusCoilStatus;
+import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
+
+import java.util.Map;
+import java.util.function.Consumer;
+
+public class ModbusTcpForDtuProtocolModeApi extends AbstractModbusProtocolModelApi {
+
+    public ModbusTcpForDtuProtocolModeApi(String code, String name, ProtocolApiType type, String remark) {
+        super(code, name, type);
+        this.setRemark(remark);
+    }
+
+    public ModbusTcpForDtuProtocolModeApi(String code, String name, ProtocolApiType type
+            , Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
+        super(code, name, type, upConfig, downConfig);
+    }
+
+    @Override
+    protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
+        ModbusCode modbusCode = ModbusCode.valueOf(getCode());
+        int num = 0;
+        int start = 0;
+        int childSn = 0;
+        byte[] writeValue = new byte[0];
+        ModbusTcpForDtuCommonProtocol protocol;
+        switch (modbusCode) {
+            case Read01:
+                protocol = ModbusTcpForDtuCommonProtocol.buildRead01(arg.getDeviceSn(), childSn, start, num);
+                break;
+            case Read02:
+                protocol = ModbusTcpForDtuCommonProtocol.buildRead02(arg.getDeviceSn(), childSn, start, num);
+                break;
+            case Read03:
+                protocol = ModbusTcpForDtuCommonProtocol.buildRead03(arg.getDeviceSn(), childSn, start, num);
+                break;
+            case Read04:
+                protocol = ModbusTcpForDtuCommonProtocol.buildRead04(arg.getDeviceSn(), childSn, start, num);
+                break;
+            case Write05:
+                protocol = ModbusTcpForDtuCommonProtocol.buildWrite05(arg.getDeviceSn(), childSn, start, ModbusCoilStatus.OFF);
+                break;
+            case Write06:
+                protocol = ModbusTcpForDtuCommonProtocol.buildWrite06(arg.getDeviceSn(), childSn, start, writeValue);
+                break;
+            case Write0F:
+                protocol = ModbusTcpForDtuCommonProtocol.buildWrite0F(arg.getDeviceSn(), childSn, start, writeValue);
+                break;
+            case Write10:
+                protocol = ModbusTcpForDtuCommonProtocol.buildWrite10(arg.getDeviceSn(), childSn, start, num, writeValue);
+                break;
+            default:
+                throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码["+getCode()+"]");
+        }
+
+        return protocol;
+    }
+
+    @Override
+    protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
+        ((ModbusTcpForDtuCommonProtocol)protocol).request();
+        result.accept(null);
+    }
+}

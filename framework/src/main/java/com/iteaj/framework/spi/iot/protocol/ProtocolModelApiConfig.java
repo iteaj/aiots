@@ -1,7 +1,11 @@
 package com.iteaj.framework.spi.iot.protocol;
 
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
 import com.iteaj.framework.spi.iot.consts.ApiFieldType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 协议模型接口配置
@@ -42,6 +46,11 @@ public class ProtocolModelApiConfig {
      * 属性代码
      */
     private String protocolModelAttrField;
+
+    /**
+     * 下拉款配置项
+     */
+    private List<ProtocolModelApiConfigOption> options;
 
     public ProtocolModelApiConfig(String remark, String protocolModelAttrField) {
         this(remark, protocolModelAttrField, 0);
@@ -118,6 +127,19 @@ public class ProtocolModelApiConfig {
         return new ProtocolModelApiConfig(attrField, remark, ApiConfigDirection.DOWN, sort);
     }
 
+    public ProtocolModelApiConfig addOption(String label, Object value) {
+        return this.addOption(label, value, "");
+    }
+
+    public ProtocolModelApiConfig addOption(String label, Object value, String extra) {
+        if(this.getOptions() == null) {
+            this.options = new ArrayList<>();
+        }
+
+        this.options.add(new ProtocolModelApiConfigOption(label, value));
+        return this;
+    }
+
     public int getSort() {
         return sort;
     }
@@ -172,5 +194,9 @@ public class ProtocolModelApiConfig {
 
     public ProtocolModelApiConfig setDirection(ApiConfigDirection direction) {
         this.direction = direction; return this;
+    }
+
+    public List<ProtocolModelApiConfigOption> getOptions() {
+        return options;
     }
 }
