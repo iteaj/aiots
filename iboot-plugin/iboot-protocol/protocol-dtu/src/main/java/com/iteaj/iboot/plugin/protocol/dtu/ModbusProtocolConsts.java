@@ -1,4 +1,4 @@
-package com.iteaj.iboot.plugin.protocol.modbus;
+package com.iteaj.iboot.plugin.protocol.dtu;
 
 public interface ModbusProtocolConsts {
 

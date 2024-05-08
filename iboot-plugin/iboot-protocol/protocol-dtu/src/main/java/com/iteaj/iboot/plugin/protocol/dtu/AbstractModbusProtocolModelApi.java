@@ -1,4 +1,4 @@
-package com.iteaj.iboot.plugin.protocol.modbus;
+package com.iteaj.iboot.plugin.protocol.dtu;
 
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;

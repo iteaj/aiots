@@ -1,11 +1,11 @@
-package com.iteaj.iboot.plugin.protocol.modbus.tcp;
+package com.iteaj.iboot.plugin.protocol.dtu.tcp;
 
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.*;
-import com.iteaj.iboot.plugin.protocol.modbus.ModbusProtocolConsts;
-import com.iteaj.iboot.plugin.protocol.modbus.rtu.ModbusRtuForDtuProtocolModelApi;
+import com.iteaj.iboot.plugin.protocol.dtu.ModbusProtocolConsts;
+import com.iteaj.iboot.plugin.protocol.dtu.rtu.ModbusRtuForDtuProtocolModelApi;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.consts.ModbusCode;

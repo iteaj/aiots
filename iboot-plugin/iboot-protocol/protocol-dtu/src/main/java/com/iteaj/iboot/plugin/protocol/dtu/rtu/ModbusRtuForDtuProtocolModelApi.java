@@ -1,13 +1,11 @@
-package com.iteaj.iboot.plugin.protocol.modbus.rtu;
+package com.iteaj.iboot.plugin.protocol.dtu.rtu;
 
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
-import com.iteaj.iboot.plugin.protocol.modbus.AbstractModbusProtocolModelApi;
+import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusProtocolModelApi;
 import com.iteaj.iot.Protocol;
-import com.iteaj.iot.consts.ExecStatus;
 
 import java.util.Map;
 import java.util.function.Consumer;

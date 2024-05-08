@@ -1,7 +1,7 @@
-package com.iteaj.iboot.plugin.protocol.modbus;
+package com.iteaj.iboot.plugin.protocol.dtu;
 
-import com.iteaj.iboot.plugin.protocol.modbus.rtu.ModbusRtuForDtuProtocolSupplier;
-import com.iteaj.iboot.plugin.protocol.modbus.tcp.ModbusTcpForDtuProtocolSupplier;
+import com.iteaj.iboot.plugin.protocol.dtu.rtu.ModbusRtuForDtuProtocolSupplier;
+import com.iteaj.iboot.plugin.protocol.dtu.tcp.ModbusTcpForDtuProtocolSupplier;
 import org.springframework.context.annotation.Bean;
 
 public class ModbusProtocolSupplierAutoConfiguration {
