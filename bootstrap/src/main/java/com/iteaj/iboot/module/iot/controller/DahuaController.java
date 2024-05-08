@@ -10,6 +10,7 @@ import com.dahuatech.icc.oauth.http.IClient;
 import com.dahuatech.icc.oauth.model.v202010.GeneralRequest;
 import com.dahuatech.icc.oauth.model.v202010.GeneralResponse;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.plugin.protocol.dahua.DahuaICCProtocolType;
@@ -34,6 +35,7 @@ public class DahuaController extends BaseController {
      * 监控设备列表
      * @return
      */
+    @Logger("访问监控设备功能")
     @GetMapping("monitor")
     public Result<Page> monitor(Page page, Long isOnline) throws ClientException {
         doGetData(page, isOnline, null, new String[] {"1_2", "1_6"});
@@ -44,6 +46,7 @@ public class DahuaController extends BaseController {
      * 门禁设备列表
      * @return
      */
+    @Logger("访问门禁设备功能")
     @GetMapping("access")
     public Result<Page> access(Page page, Long isOnline) throws ClientException {
         doGetData(page, isOnline, new String[] {"8"}, null);

@@ -1,15 +1,14 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
-
+import com.iteaj.framework.BaseEntity;
 import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.Date;
 
 /**
  * <p>
@@ -50,7 +49,6 @@ public class WarnRecord extends BaseEntity {
     /**
      * 告警事件
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date warnTime;
 
     private Date createTime;

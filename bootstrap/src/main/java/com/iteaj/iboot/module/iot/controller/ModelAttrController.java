@@ -123,6 +123,7 @@ public class ModelAttrController extends BaseController {
      * @param dto 只需要设置id
      * @return
      */
+    @Logger("切换控制属性")
     @PostMapping("ctrlStatus")
     public Result<Boolean> ctrlStatus(@RequestBody StatusSwitchDto<Boolean> dto) {
         return this.modelAttrService.switchCtrlStatus(dto);
