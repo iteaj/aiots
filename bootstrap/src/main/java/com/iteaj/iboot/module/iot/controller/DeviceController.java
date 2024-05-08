@@ -38,6 +38,7 @@ public class DeviceController extends BaseController {
     * @param page 分页
     * @param entity 搜索条件
     */
+    @Logger("浏览设备记录")
     @GetMapping("/view")
     @CheckPermission({"iot:device:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {

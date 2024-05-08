@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
@@ -44,6 +45,7 @@ public class CollectTaskController extends BaseController {
     * @param page 分页
     * @param entity 搜索条件
     */
+    @Logger("访问采集任务页面")
     @GetMapping("/view")
     @CheckPermission({"iot:collectTask:view"})
     public Result<IPage<CollectTaskDto>> list(Page<CollectTaskDto> page, CollectTaskDto entity) {
@@ -64,6 +66,7 @@ public class CollectTaskController extends BaseController {
     * 新增或者更新记录
     * @param entity
     */
+    @Logger("保存采集任务")
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:collectTask:edit", "iot:collectTask:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody CollectTask entity) {
@@ -84,6 +87,7 @@ public class CollectTaskController extends BaseController {
     * 删除指定记录
     * @param idList
     */
+    @Logger("删除采集任务")
     @PostMapping("/del")
     @CheckPermission({"iot:collectTask:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
@@ -94,6 +98,7 @@ public class CollectTaskController extends BaseController {
      * 切换采集状态
      * @param entity
      */
+    @Logger("切换采集任务状态")
     @PostMapping("/status")
     @CheckPermission({"iot:collectTask:status"})
     public Result<Boolean> status(@RequestBody CollectTask entity) {
