@@ -111,6 +111,7 @@ public class ProductController extends BaseController {
     * 新增或者更新记录
     * @param entity
     */
+    @Logger("保存或更新产品")
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:product:edit", "iot:product:add"}, logical = Logical.OR)
     public Result<Boolean> save(@Validated @RequestBody Product entity) {
@@ -121,6 +122,7 @@ public class ProductController extends BaseController {
     * 删除指定记录
     * @param idList
     */
+    @Logger("删除产品")
     @PostMapping("/del")
     @CheckPermission({"iot:product:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.dto.SignalOfProductDto;
@@ -74,6 +75,7 @@ public class SignalController extends BaseController {
     * 新增或者更新记录
     * @param entity
     */
+    @Logger("保存点位信息")
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:signal:edit", "iot:signal:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Signal entity) {
@@ -84,6 +86,7 @@ public class SignalController extends BaseController {
     * 删除指定记录
     * @param idList
     */
+    @Logger("删除点位信息")
     @PostMapping("/del")
     @CheckPermission({"iot:signal:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {

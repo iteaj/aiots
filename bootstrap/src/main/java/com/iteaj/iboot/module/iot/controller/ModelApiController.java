@@ -98,6 +98,7 @@ public class ModelApiController extends BaseController {
      * @param code 接口代码
      * @return
      */
+    @Logger("切换状态接口")
     @PostMapping("asStatus")
     public Result<Boolean> asStatus(Long productId, String code) {
         return this.modelApiService.updateAsStatus(productId, code);
