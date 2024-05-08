@@ -174,6 +174,9 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                                     }
                                 });
                             }
+                        } else {
+                            logger.error("动作项执行失败 未找到模型接口 - modelApiId: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", linkageAction.getLinkedId()
+                                    , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
                         }
                     } else if(linkageAction.getType() == ActionType.warn) { // 触发告警
                         WarnConfig warn = linkageAction.getWarn();
