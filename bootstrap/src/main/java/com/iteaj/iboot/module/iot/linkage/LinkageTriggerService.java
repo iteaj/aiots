@@ -147,50 +147,55 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
             for (int i = 0; i < item.getActions().size(); i++) {
                 LinkageActionExecDto linkageAction = (LinkageActionExecDto) item.getActions().get(i);
-                if(linkageAction.getType() == ActionType.model) {// 调用物模型接口
-                    ModelApi api = linkageAction.getApi();
-                    if(api != null) {
-                        if("-1".equals(linkageAction.getUid())) { // 触发组全部设备
-                            cacheManager.listGroupAndProduct(groupId, linkageAction.getProductCode()).forEach(device -> {
-                                doInvokeAction(linkageAction, api, device);
-                            });
-                        } else if("-2".equals(linkageAction.getUid())){ // 当前触发设备
-                            if(triggerDevice != null) { // 设备触发
-                                doInvokeAction(linkageAction, api, triggerDevice);
-                            } else { //组触发
-                                // 从条件校验成功的记录中查找相同产品的设备
-                                validateSuccessField.values().forEach(trigger -> {
-                                    // 对成功触发此次动作的设备进行api调用
-                                    if(trigger.getDevice().getProductCode().equals(linkageAction.getProductCode())) {
-                                        doInvokeAction(linkageAction, api, trigger.getDevice());
+                try {
+                    if(linkageAction.getType() == ActionType.model) {// 调用物模型接口
+                        ModelApi api = linkageAction.getApi();
+                        if(api != null) {
+                            if("-1".equals(linkageAction.getUid())) { // 触发组全部设备
+                                cacheManager.listGroupAndProduct(groupId, linkageAction.getProductCode()).forEach(device -> {
+                                    doInvokeAction(linkageAction, api, device);
+                                });
+                            } else if("-2".equals(linkageAction.getUid())){ // 当前触发设备
+                                if(triggerDevice != null) { // 设备触发
+                                    doInvokeAction(linkageAction, api, triggerDevice);
+                                } else { //组触发
+                                    // 从条件校验成功的记录中查找相同产品的设备
+                                    validateSuccessField.values().forEach(trigger -> {
+                                        // 对成功触发此次动作的设备进行api调用
+                                        if(trigger.getDevice().getProductCode().equals(linkageAction.getProductCode())) {
+                                            doInvokeAction(linkageAction, api, trigger.getDevice());
+                                        }
+                                    });
+                                }
+                            } else { // 指定设备
+                                cacheManager.listByProductCode(linkageAction.getProductCode()).forEach(device -> {
+                                    if(device.getUid().equals(linkageAction.getUid())) {
+                                        doInvokeAction(linkageAction, api, device);
                                     }
                                 });
                             }
-                        } else { // 指定设备
-                            cacheManager.listByProductCode(linkageAction.getProductCode()).forEach(device -> {
-                                if(device.getUid().equals(linkageAction.getUid())) {
-                                    doInvokeAction(linkageAction, api, device);
-                                }
-                            });
                         }
-                    }
-                } else if(linkageAction.getType() == ActionType.warn) { // 触发告警
-                    WarnConfig warn = linkageAction.getWarn();
-                    if(warn != null) {
-                        // 成功触发此次联动条件的设备和字段
-                        SuccessDeviceAndField deviceAndField = validateSuccessField.get(warn.getModelAttrField());
-                        if(deviceAndField != null) {
-                            doHandleWarn(warn, deviceAndField.getDevice(), deviceAndField.getValue().getValue());
-                        } else if(triggerDevice != null) {
-                            doHandleWarn(warn, triggerDevice, triggerDevice.getStatus().name());
+                    } else if(linkageAction.getType() == ActionType.warn) { // 触发告警
+                        WarnConfig warn = linkageAction.getWarn();
+                        if(warn != null) {
+                            // 成功触发此次联动条件的设备和字段
+                            SuccessDeviceAndField deviceAndField = validateSuccessField.get(warn.getModelAttrField());
+                            if(deviceAndField != null) {
+                                doHandleWarn(warn, deviceAndField.getDevice(), deviceAndField.getValue().getValue());
+                            } else if(triggerDevice != null) {
+                                doHandleWarn(warn, triggerDevice, triggerDevice.getStatus().name());
+                            } else {
+                                logger.error("动作项执行失败 未找到触发属性 - 属性: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", warn.getModelAttrField()
+                                        , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
+                            }
                         } else {
-                            logger.error("动作项执行失败 未找到触发属性 - 属性: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", warn.getModelAttrField()
+                            logger.error("动作项执行失败 未找到告警配置 - 联动项: {} - 动作项: {}/{} - 动作id: {}"
                                     , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
                         }
-                    } else {
-                        logger.error("动作项执行失败 未找到告警配置 - 联动项: {} - 动作项: {}/{} - 动作id: {}"
-                                , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
                     }
+                } catch (Exception e) {
+                    logger.error("动作项执行失败 未知异常 - 联动项: {} - 动作项: {}/{} - 动作id: {}"
+                            , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId(), e);
                 }
             }
         }
