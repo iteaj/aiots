@@ -18,7 +18,6 @@
             <groupId>com.iteaj</groupId>
             <artifactId>iot-modbus</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>iot-server</artifactId>
