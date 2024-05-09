@@ -67,7 +67,7 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
             entity.setLevel(parent.getData().getLevel() + 1);
             entity.setPath(parent.getData().getPath()+","+entity.getId());
 
-            if(parent.getData().getPid() == entity.getId()) {
+            if(parent.getData().getId().equals(entity.getId())) {
                 throw new ServiceException("父部门不能是自己");
             }
         } else {
