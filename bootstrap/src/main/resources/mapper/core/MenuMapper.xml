@@ -10,7 +10,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="pid"    column="pid"  />
         <result property="sort"    column="sort"  />
         <result property="url"    column="url"  />
-        <result property="log"    column="log"  />
         <result property="type"    column="type"  />
         <result property="icon"    column="icon"  />
         <result property="perms"    column="perms"  />
@@ -22,13 +21,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select a.id from sys_menu a
             left join sys_role_menu rm on a.id = rm.mid
             left join sys_admin_role ar on rm.rid=ar.rid
-        where a.status != 'disabled' and ar.aid=#{aid}
+            left join sys_role r on ar.rid = r.id and r.status = 'enabled'
+        where a.status != 'disabled' and ar.aid=#{aid} and r.status = 'enabled'
     </select>
 
     <select id="selectPermissions" resultType="java.lang.String">
         select a.perms from sys_menu a
              left join sys_role_menu rm on a.id = rm.mid
              left join sys_admin_role ar on rm.rid=ar.rid
-        where a.status != 'disabled' and a.type != 'M' and ar.aid=#{adminId}
+             left join sys_role r on ar.rid = r.id and r.status = 'enabled'
+        where a.status != 'disabled' and a.type != 'M' and ar.aid=#{adminId} and r.status = 'enabled'
     </select>
 </mapper>
