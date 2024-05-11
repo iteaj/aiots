@@ -109,7 +109,7 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
     @Override
     public ListResult<Org> selectTrees(Org org) {
         ListResult<Org> selectList = this.list(org);
-        return new ListResult((List<Org>) TreeUtils.toTrees(selectList.getData(), 0l));
+        return new ListResult((List<Org>) TreeUtils.toTrees(selectList.getData()));
     }
 
     @Override
