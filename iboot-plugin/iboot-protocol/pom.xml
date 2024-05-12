@@ -15,6 +15,7 @@
     <description>提供iot模块的设备协议插件</description>
 
     <modules>
+        <module>protocol-dtu</module>
         <module>protocol-mqtt</module>
     </modules>
 </project>
