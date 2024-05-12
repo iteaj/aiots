@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.controller;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
@@ -58,6 +59,7 @@ public class DeviceCtrlController extends BaseController {
      * @param param 调用参数
      * @return
      */
+    @Logger("模型接口调用")
     @PostMapping("/ctrl/{modelApiCode}")
     public Mono<Result> ctrl(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
         Object[] objects = this.getProtocolModelApi(modelApiCode, param);
@@ -93,6 +95,7 @@ public class DeviceCtrlController extends BaseController {
      * 设备调试接口
      * @return
      */
+    @Logger("模型接口调试")
     @PostMapping("/debug/{modelApiCode}")
     public Mono<Result<DebugRespDto>> debug(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
         // 获取协议模型接口

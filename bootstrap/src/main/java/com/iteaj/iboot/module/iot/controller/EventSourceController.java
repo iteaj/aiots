@@ -129,6 +129,13 @@ public class EventSourceController extends BaseController {
         return success(options);
     }
 
+    /**
+     * 切换事件源状态
+     * @param status
+     * @param id
+     * @return
+     */
+    @Logger("切换事件源状态")
     @GetMapping("switch/{status}")
     public Result<Boolean> switchStatus(@PathVariable FuncStatus status, Long id) {
         return this.eventSourceCollectService.switchTask(id, status);

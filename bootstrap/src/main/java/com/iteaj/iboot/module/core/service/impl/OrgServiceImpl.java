@@ -39,20 +39,22 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
     @Override
     @CacheEvict(allEntries = true)
     public BooleanResult save(Org entity) {
-        final BooleanResult booleanResult = super.save(entity);
-        if(entity.getPid() == 0) {
+        this.getOne(Wrappers.<Org>lambdaQuery().eq(Org::getName, entity.getName()))
+                .ifPresentThrow("部门["+entity.getName()+"]已存在");
+
+        super.save(entity);
+        if(entity.getPid() == 0l) {
             entity.setLevel(1);
             entity.setPath(entity.getId().toString());
-        } else if(entity.getPid() > 0) {
+        } else if(entity.getPid() > 0l) {
             DetailResult<Org> parent = getById(entity.getPid());
             parent.ofNullable().orElseThrow(() -> new ServiceException("父部门不存在"));
 
             entity.setLevel(parent.getData().getLevel() + 1);
             entity.setPath(parent.getData().getPath()+","+entity.getId());
-            updateById(entity); // 更新最新路径path
         }
 
-        return booleanResult;
+        return updateById(entity); // 更新最新路径path;
     }
 
     @Override
@@ -65,9 +67,12 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
             entity.setLevel(parent.getData().getLevel() + 1);
             entity.setPath(parent.getData().getPath()+","+entity.getId());
 
-            if(parent.getData().getPid() == entity.getId()) {
+            if(parent.getData().getId().equals(entity.getId())) {
                 throw new ServiceException("父部门不能是自己");
             }
+        } else {
+            entity.setLevel(1);
+            entity.setPath(entity.getId().toString());
         }
 
         return super.updateById(entity);
@@ -104,7 +109,7 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
     @Override
     public ListResult<Org> selectTrees(Org org) {
         ListResult<Org> selectList = this.list(org);
-        return new ListResult((List<Org>) TreeUtils.toTrees(selectList.getData(), 0l));
+        return new ListResult((List<Org>) TreeUtils.toTrees(selectList.getData()));
     }
 
     @Override
