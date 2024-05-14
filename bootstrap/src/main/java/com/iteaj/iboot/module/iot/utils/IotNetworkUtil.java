@@ -52,6 +52,8 @@ public class IotNetworkUtil {
             if(client instanceof TcpSocketClient) {
                 if(((TcpSocketClient) client).isConnect()) {
                     client.close(); // 断开连接并且移除客户端
+                } else {// 如果客户端不在线直接移除客户端
+                    client.getClientComponent().removeClient(client.getConfig());
                 }
             }
         } else {
