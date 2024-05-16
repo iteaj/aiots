@@ -52,7 +52,7 @@ public class GbsRealtimeTree {
     }
 
     public static GbsRealtimeTree buildDevice(String deviceId, String name, Boolean status, Integer childrenNum) {
-        return new GbsRealtimeTree(deviceId, deviceId, name, "device", status, childrenNum);
+        return new GbsRealtimeTree(deviceId, "", name, "device", status, childrenNum);
     }
 
     public static GbsRealtimeTree buildChannel(String deviceId, String channelId, String name, Boolean status) {
@@ -60,7 +60,7 @@ public class GbsRealtimeTree {
     }
 
     public String getId() {
-        return (StrUtil.isBlank(this.getDeviceId()) ? "" : this.getDeviceId()) + "_" + (StrUtil.isBlank(this.getChannelId()) ? "" : this.getChannelId());
+        return (StrUtil.isBlank(this.getDeviceId()) ? "" : this.getDeviceId()) + (StrUtil.isBlank(this.getChannelId()) ? "" : "_" + this.getChannelId());
     }
 
     public String getDeviceId() {

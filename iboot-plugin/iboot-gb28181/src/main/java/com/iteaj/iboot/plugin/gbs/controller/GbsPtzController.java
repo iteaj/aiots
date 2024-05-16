@@ -15,23 +15,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/gbs/ptz")
 public class GbsPtzController extends BaseController {
 
-    private GbsDeviceService deviceService;
+    private final GbsDeviceService deviceService;
+
+    public GbsPtzController(GbsDeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
 
     /**
      *  ptz云台控制
      * @param deviceId 设备国标编号
      * @param channelId 通道国标编号
      * @param command 控制指令,允许值: left, right, up, down, upleft, upright, downleft, downright, zoomin, zoomout, stop
-     * @param horizonSpeed 水平速度
-     * @param verticalSpeed 垂直速度
-     * @param zoomSpeed 缩放速度
+     * @param speed 速度(上下左右为0-255, 缩放为0-15)
      * @return
      */
     @PostMapping("/ctrl/{deviceId}/{channelId}")
-    public Result<Boolean> ctrl(@PathVariable String deviceId, @PathVariable String channelId
-            , String command, int horizonSpeed, int verticalSpeed, int zoomSpeed) {
+    public Result<Boolean> ctrl(@PathVariable String deviceId, @PathVariable String channelId, String command, Integer speed) {
 
-        deviceService.ptzCtrl(deviceId, channelId, command, horizonSpeed, verticalSpeed, zoomSpeed);
+        deviceService.ptzCtrl(deviceId, channelId, command, speed);
 
         return success();
     }

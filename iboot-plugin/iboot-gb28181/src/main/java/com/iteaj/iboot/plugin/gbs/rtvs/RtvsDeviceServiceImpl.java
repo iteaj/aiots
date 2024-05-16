@@ -140,9 +140,36 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
     }
 
     @Override
-    public void ptzCtrl(String deviceId, String channelId, String command, int horizonSpeed, int verticalSpeed, int zoomSpeed) {
+    public void ptzCtrl(String deviceId, String channelId, String command, Integer speed) {
         RtvsProperties.GbSip sip = properties.getSip();
-        String url = String.format("%s%s?deviceId=%s&channel=%s&", sip.getApiUri(), "/api/DeviceControl/PTZCtrl", deviceId);
+
+        String param = "";
+        if(command.equals("up")) {
+            param = "Up="+speed;
+        } else if(command.equals("down")) {
+            param = "Down="+speed;
+        } else if(command.equals("left")) {
+            param = "Left="+speed;
+        } else if(command.equals("right")) {
+            param = "Right="+speed;
+        } else if(command.equals("upleft")) {
+            param = "Up="+speed+"&Left="+speed;
+        } else if(command.equals("upright")) {
+            param = "Up="+speed+"&Right="+speed;
+        } else if(command.equals("downleft")) {
+            param = "Down="+speed+"&Left="+speed;
+        } else if(command.equals("downright")) {
+            param = "Down="+speed+"&Right="+speed;
+        } else if(command.equals("zoomin")) {
+            param = "ZoomIn="+speed;
+        } else if(command.equals("zoomout")) {
+            param = "ZoomOut="+speed;
+        } else if(command.equals("stop")) {
+            // 不需要参数
+        }
+
+        String url = String.format("%s%s?deviceId=%s&channel=%s&%s", sip.getApiUri()
+                , "/api/DeviceControl/PTZCtrl", deviceId, channelId, param);
         HttpResponse response = invokeRequest(url);
         if(response.isOk()) {
             JSONObject jsonObject = JSONObject.parseObject(response.body());

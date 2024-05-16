@@ -7,7 +7,7 @@ import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import lombok.Data;
 
 @Data
-@TableName("t_catalog")
+@TableName("T_Catalog")
 public class RtvsChannel {
     /**
      * 通道国标编号
