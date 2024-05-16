@@ -83,7 +83,7 @@
     </select>
     <select id="detailById" resultMap="DeviceDtoMap">
         select a.*, pd.device_sn parent_device_sn, idm.name product_name, idt.name product_type_name
-             , idm.code product_code, idm.gateway_id from iot_device a
+             , idm.code product_code, idm.gateway_id, idm.device_type from iot_device a
             left join iot_device pd on a.pid = pd.id
             left join iot_product idm on a.product_id=idm.id
             left join iot_product_type idt on idm.product_type_id=idt.id
