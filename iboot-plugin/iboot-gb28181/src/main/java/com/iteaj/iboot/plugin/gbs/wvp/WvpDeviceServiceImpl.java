@@ -1,17 +1,13 @@
 package com.iteaj.iboot.plugin.gbs.wvp;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
 import com.iteaj.iboot.plugin.gbs.MediaInfo;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class WvpDeviceServiceImpl implements GbsDeviceService {
 
@@ -64,7 +60,7 @@ public class WvpDeviceServiceImpl implements GbsDeviceService {
     }
 
     @Override
-    public void ptzCtrl(String deviceId, String channelId, String command, int horizonSpeed, int verticalSpeed, int zoomSpeed) {
+    public void ptzCtrl(String deviceId, String channelId, String command, Integer speed) {
 
     }
 
