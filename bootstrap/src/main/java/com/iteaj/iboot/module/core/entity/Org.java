@@ -1,5 +1,7 @@
 package com.iteaj.iboot.module.core.entity;
 
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.TreeEntity;
@@ -26,6 +28,7 @@ public class Org extends TreeEntity {
     /**
      * 部门名称
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String name;
     /**
      * 排序
@@ -34,10 +37,12 @@ public class Org extends TreeEntity {
     /**
      * 部门负责人电话
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String phone;
     /**
      * 部门负责人
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String leader;
     /**
      * 部门路径

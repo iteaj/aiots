@@ -21,6 +21,7 @@ import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
@@ -167,7 +168,7 @@ public class PanelsController extends BaseController {
                         if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
                             // 过滤出被动的功能接口
                             List<ModelApi> modelApis = productDto.getFuncApis().stream()
-                                    .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                    .filter(api -> api.getTriggerMode() == TriggerMode.passive && !Boolean.TRUE.equals(api.getAsStatus()))
                                     .collect(Collectors.toList());
                             if(CollectionUtil.isNotEmpty(modelApis)) {
                                 modelApis.forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
@@ -245,6 +246,10 @@ public class PanelsController extends BaseController {
                     .ifNotPresentThrow("此设备绑定的产品有误").ifPresent(productDto -> {
                if(CollectionUtil.isEmpty(productDto.getFuncApis())) {
                    throw new ServiceException("此产品["+productDto.getName()+"]没有指定状态接口");
+               }
+
+               if(productDto.getStatus() == FuncStatus.disabled) {
+                   throw new ServiceException("请先启用产品["+productDto.getName()+"]");
                }
 
                 ModelApi modelApi = productDto.getFuncApis().get(0);

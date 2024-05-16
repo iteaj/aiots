@@ -1,5 +1,7 @@
 package com.iteaj.iboot.module.core.entity;
 
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.BaseEntity;
@@ -26,6 +28,7 @@ public class DictData extends BaseEntity {
     /**
      * 字典标签
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String label;
     /**
      * 字典标签值

@@ -143,6 +143,11 @@
                 <version>${iot.version}</version>
                 <artifactId>iot-serial</artifactId>
             </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <version>${iot.version}</version>
+                <artifactId>iot-taos</artifactId>
+            </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>

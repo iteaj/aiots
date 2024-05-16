@@ -16,6 +16,7 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.plugin.protocol.dahua.DahuaICCProtocolType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -82,6 +83,12 @@ public class DahuaController extends BaseController {
         return fail("发送"+type.getDesc()+"指令失败["+resp.getString("desc")+"]");
     }
 
+    /**
+     * 获取WebSocket流
+     * @param json
+     * @return
+     * @throws ClientException
+     */
     @PostMapping("getStream")
     public Result getStream(@RequestBody JSONObject json) throws ClientException {
         String url = json.getString("url");
@@ -96,6 +103,44 @@ public class DahuaController extends BaseController {
             return success(respData);
         }
         return fail("获取流失败["+resp.getString("desc")+"]");
+    }
+
+    /**
+     * 获取实时视频预览地址
+     * @param channelId 通道号
+     * @param streamType 码流类型：1=主码流, 2=辅码流，3=辅码流
+     * @param type 协议类型：hls,hlss,flv,flvs,ws_flv,wss_flv,rtmp
+     * @return 码流播放地址
+     */
+    @GetMapping("realtime")
+    public Result<String> realtime(String channelId, String streamType, String type) throws ClientException {
+        if(StrUtil.isBlank(channelId)) {
+            return fail("通道编号必填");
+        }
+        if(StrUtil.isBlank(streamType)) {
+            return fail("码流类型必填");
+        }
+        if(StrUtil.isBlank(type)) {
+            return fail("协议类型必填");
+        }
+        HashMap<String, String> data = new HashMap<>();
+        data.put("type", type);
+        data.put("channelId", channelId);
+        data.put("streamType", streamType);
+        JSONObject params = new JSONObject();
+        params.put("data", data);
+
+        GeneralRequest generalRequest = new GeneralRequest(DahuaICCProtocolType.realtime.getUrl(), Method.POST);
+        generalRequest.body(params.toJSONString());
+        // 发起请求处理应答
+        GeneralResponse generalResponse = client.doAction(generalRequest, generalRequest.getResponseClass());
+        JSONObject resp = JSONObject.parseObject(generalResponse.getResult());
+        if(generalResponse.isSuccess()) {
+            JSONObject respData = resp.getJSONObject("data");
+            String url = respData.getString("url");
+            return success(url + "?token=" + client.getAccessToken().getAccess_token(), "");
+        }
+        return success();
     }
 
     private void doGetData(Page page, Long isOnline, String[] categorys, String[] types) throws ClientException {
