@@ -73,12 +73,10 @@ public interface GbsDeviceService {
      * @param deviceId 设备国标编号
      * @param channelId 通道国标编号
      * @param command 控制指令,允许值: left, right, up, down, upleft, upright, downleft, downright, zoomin, zoomout, stop
-     * @param horizonSpeed 水平速度
-     * @param verticalSpeed 垂直速度
-     * @param zoomSpeed 缩放速度
+     * @param speed
      * @return
      */
-    void ptzCtrl(String deviceId, String channelId, String command, int horizonSpeed, int verticalSpeed, int zoomSpeed);
+    void ptzCtrl(String deviceId, String channelId, String command, Integer speed);
 
     /**
      * 获取通道记录

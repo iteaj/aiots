@@ -11,7 +11,7 @@ import lombok.Data;
 import java.util.Locale;
 
 @Data
-@TableName("t_deviceinfo")
+@TableName("T_DeviceInfo")
 public class RtvsDevice {
     /**
      * 设备国标编号
