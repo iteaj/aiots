@@ -1,6 +1,5 @@
 ## iboot
-iboot是基于springboot2开发的支持多模块
-
+iboot是基于java1.8、springboot2.7、netty等框架开发的物联网快速开发框架，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc
 - [演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://iot.iteaj.com/#/login)
 - [前端项目仓库(vue3+antdv3+vite2)](https://gitee.com/iteaj/ivzone)
 
