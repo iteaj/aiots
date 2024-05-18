@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.controller;
+package com.iteaj.iboot.plugin.protocol.dahua.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -26,7 +26,7 @@ import java.util.Map;
 @RequestMapping("/iot/dahua")
 public class DahuaController extends BaseController {
 
-    private final IClient client;
+    private IClient client;
 
     public DahuaController(IClient client) {
         this.client = client;
