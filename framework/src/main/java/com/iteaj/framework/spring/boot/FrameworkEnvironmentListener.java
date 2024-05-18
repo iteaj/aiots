@@ -1,24 +1,19 @@
 package com.iteaj.framework.spring.boot;
 
 import com.iteaj.framework.ProfilesInclude;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.annotation.ImportCandidates;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class FrameworkEnvironmentListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
     private static String packagePrefix = "com.iteaj.iboot.plugin";
-    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         Set<String> includes = new HashSet<>(16);
