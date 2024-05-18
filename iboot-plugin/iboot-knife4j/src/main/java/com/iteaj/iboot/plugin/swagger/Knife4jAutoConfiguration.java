@@ -1,19 +1,14 @@
 package com.iteaj.iboot.plugin.swagger;
 
+import com.iteaj.framework.ProfilesInclude;
 import com.iteaj.framework.plugin.Plugin;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.Ordered;
-import org.springframework.web.context.ServletContextAware;
 
-import javax.servlet.ServletContext;
-
-public class Knife4jAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered, Plugin {
+@ProfilesInclude("knife4j")
+public class Knife4jAutoConfiguration implements Plugin {
 
     @Autowired
     private ServerProperties serverProperties;
@@ -22,16 +17,6 @@ public class Knife4jAutoConfiguration implements ApplicationListener<Application
     public OrderFilterChainDefinition swaggerFilterChainDefinition() {
         return new OrderFilterChainDefinition().addAnon("/swagger/**", "/swagger-resources/**", "/swagger-instance/**"
                 , "/doc.html", "/webjars/**", "/openapi/**", "/v3/api-docs/**");
-    }
-
-    @Override
-    public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-        event.getEnvironment().addActiveProfile("knife4j");
-    }
-
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE + 5;
     }
 
     @Override

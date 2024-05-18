@@ -7,6 +7,7 @@ import cn.dev33.satoken.filter.SaServletFilter;
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
+import com.iteaj.framework.ProfilesInclude;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.captcha.CaptchaService;
 import com.iteaj.framework.consts.CoreConst;
@@ -18,12 +19,7 @@ import com.iteaj.iboot.plugin.satoken.impl.SaTokenSecurityService;
 import com.iteaj.iboot.plugin.satoken.impl.StpInterfaceImpl;
 import com.iteaj.iboot.plugin.satoken.listener.SaTokenOnlineListener;
 import eu.bitwalker.useragentutils.UserAgent;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -36,12 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-public class SaTokenAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered, WebMvcConfigurer {
-
-    @Override
-    public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-        event.getEnvironment().addActiveProfile("satoken");
-    }
+@ProfilesInclude("satoken")
+public class SaTokenAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public SaTokenOnlineListener saTokenOnlineListener() {
@@ -110,8 +102,4 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
                 });
     }
 
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE + 5;
-    }
 }
