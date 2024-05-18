@@ -1,0 +1,38 @@
+spring:
+  config:
+    activate:
+      on-profile: dev #开发环境
+media:
+  rtvs:
+    port: 17000
+    host: iot.iteaj.com
+    sip:
+      userName: gbsip
+      password: admin
+      api-uri: http://${media.rtvs.host}:9081
+---
+spring:
+  config:
+    activate:
+      on-profile: test #测试环境
+media:
+  rtvs:
+    port: 17000
+    host: 192.168.20.199
+    sip:
+      userName: gbsip
+      password: admin
+      api-uri: http://${media.rtvs.host}:9081
+---
+spring:
+  config:
+    activate:
+      on-profile: prod #正式环境
+media:
+  rtvs:
+    port: 17000
+    host: iot.iteaj.com
+    sip:
+      userName: gbsip
+      password: admin
+      api-uri: http://${media.rtvs.host}:9081

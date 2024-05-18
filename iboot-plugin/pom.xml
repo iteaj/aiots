@@ -32,6 +32,8 @@
         <module>iboot-file</module>
         <!--物模型协议模块-->
         <module>iboot-protocol</module>
+        <!--国标gb28181模块-->
+        <module>iboot-gb28181</module>
         <module>iboot-amqp</module>
     </modules>
 
