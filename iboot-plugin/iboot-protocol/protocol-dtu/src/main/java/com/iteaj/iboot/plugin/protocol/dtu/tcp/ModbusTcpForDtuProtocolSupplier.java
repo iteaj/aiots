@@ -1,78 +1,33 @@
 package com.iteaj.iboot.plugin.protocol.dtu.tcp;
 
 import com.iteaj.framework.ParamMeta;
-import com.iteaj.framework.spi.iot.*;
-import com.iteaj.framework.spi.iot.consts.*;
-import com.iteaj.framework.spi.iot.protocol.*;
-import com.iteaj.iboot.plugin.protocol.dtu.ModbusProtocolConsts;
-import com.iteaj.iboot.plugin.protocol.dtu.rtu.ModbusRtuForDtuProtocolModelApi;
+import com.iteaj.framework.spi.iot.DataSupplier;
+import com.iteaj.framework.spi.iot.NetworkConfigImpl;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.consts.GatewayType;
+import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
+import com.iteaj.iboot.plugin.protocol.dtu.AbstractDtuForModbusProtocolSupplier;
+import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusEventProtocolModelApi;
+import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusFuncProtocolModelApi;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
-import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
 
-public class ModbusTcpForDtuProtocolSupplier extends StaticServerProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, ModbusTcpForDtuServerComponent> {
+public class ModbusTcpForDtuProtocolSupplier extends AbstractDtuForModbusProtocolSupplier<ModbusTcpForDtuServerComponent> {
 
-    private DefaultProtocolModel protocolModel = new DefaultProtocolModel("MODBUS:TCP:DTU", CtrlMode.POINT, TransportProtocol.TCP, "用于提供边缘网关设备Dtu+Modbus Tcp协议的支持")
-            .addModelAttr(new ProtocolModelAttr("childSn", "从机地址", DataType.t_string, AttrType.W, "从机地址"))
-            .addModelAttr(new ProtocolModelAttr("position", "寄存器地址", DataType.t_string, AttrType.W, "寄存器地址"))
-            .addModelAttr(new ProtocolModelAttr("value", "点位值", DataType.t_any, AttrType.R, "读/写寄存器的值(跟随数据类型转换)"))
-            .addModelApi(new ModbusRtuForDtuProtocolModelApi(ModbusCode.Read01.name(), "读线圈", ProtocolApiType.event, "按位读取寄存器值")
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("childSn", ModbusProtocolConsts.MODBUS_CHILD_SN))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("position", ModbusProtocolConsts.MODBUS_POSITION))
-                    .addUpConfig(ProtocolModelApiConfig.upBuild("value", "读取到的值")))
-            .addModelApi(new ModbusRtuForDtuProtocolModelApi(ModbusCode.Read02.name(), "读离散量输入", ProtocolApiType.event, "按位读取只读寄存器值")
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("childSn", ModbusProtocolConsts.MODBUS_CHILD_SN))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("position", ModbusProtocolConsts.MODBUS_POSITION))
-                    .addUpConfig(ProtocolModelApiConfig.upBuild("value", "读取到的值")))
-            .addModelApi(new ModbusRtuForDtuProtocolModelApi(ModbusCode.Read03.name(), "读保持寄存器", ProtocolApiType.event, "按字节读取寄存器值")
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("childSn", ModbusProtocolConsts.MODBUS_CHILD_SN))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("position", ModbusProtocolConsts.MODBUS_POSITION))
-                    .addUpConfig(ProtocolModelApiConfig.upBuild("value", "读取到的值")))
-            .addModelApi(new ModbusRtuForDtuProtocolModelApi(ModbusCode.Read04.name(), "读输入寄存器", ProtocolApiType.event, "按字节写入寄存器值")
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("childSn", ModbusProtocolConsts.MODBUS_CHILD_SN))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("position", ModbusProtocolConsts.MODBUS_POSITION))
-                    .addUpConfig(ProtocolModelApiConfig.upBuild("value", "读取到的值")))
-            .addModelApi(new ModbusRtuForDtuProtocolModelApi(ModbusCode.Write05.name(), "写单个线圈", ProtocolApiType.func, "按位写值到寄存器")
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("childSn", ModbusProtocolConsts.MODBUS_CHILD_SN))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("position", ModbusProtocolConsts.MODBUS_POSITION))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("value", "要写的值")))
-            .addModelApi(new ModbusRtuForDtuProtocolModelApi(ModbusCode.Write06.name(), "写单个保持寄存器", ProtocolApiType.func, "按字节写值到寄存器")
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("childSn", ModbusProtocolConsts.MODBUS_CHILD_SN))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("position", ModbusProtocolConsts.MODBUS_POSITION))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("value", "要写的值")))
-            .addModelApi(new ModbusRtuForDtuProtocolModelApi(ModbusCode.Write0F.name(), "写多个线圈", ProtocolApiType.func, "一次写多个位寄存器")
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("childSn", ModbusProtocolConsts.MODBUS_CHILD_SN))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("position", ModbusProtocolConsts.MODBUS_POSITION))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("value", "要写的值")))
-            .addModelApi(new ModbusRtuForDtuProtocolModelApi(ModbusCode.Write10.name(), "写多个保持寄存器", ProtocolApiType.func, "一次写多个字节寄存器")
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("childSn", ModbusProtocolConsts.MODBUS_CHILD_SN))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("position", ModbusProtocolConsts.MODBUS_POSITION))
-                    .addDownConfig(ProtocolModelApiConfig.downBuild("value", "要写的值")));
+    public ModbusTcpForDtuProtocolSupplier() {
+        super("DTU:MODBUS_TCP");
+    }
 
     @Override
     public String getDesc() {
-        return "DTU_ModbusTcp";
+        return "基于DTU网关的Modbus Tcp协议提供";
     }
 
     @Override
     public String getVersion() {
         return "1.0.0";
-    }
-
-    @Override
-    public ProtocolModel getProtocol() {
-        return protocolModel;
-    }
-
-    @Override
-    public GatewayType getGatewayType() {
-        return GatewayType.Gateway;
-    }
-
-    @Override
-    public ProtocolImplMode getImplMode() {
-        return ProtocolImplMode.Internal;
     }
 
     @Override
@@ -83,15 +38,8 @@ public class ModbusTcpForDtuProtocolSupplier extends StaticServerProtocolSupplie
     }
 
     @Override
-    public ParamMeta[] getNetworkConfig() {
-        return new ParamMeta[]{
-                ParamMeta.buildRequired("host", "主机", "", "0.0.0.0"),
-                ParamMeta.buildRequired("port", "端口", null, "502")
-        };
-    }
-
-    @Override
     public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
+
         return null;
     }
 
@@ -107,5 +55,15 @@ public class ModbusTcpForDtuProtocolSupplier extends StaticServerProtocolSupplie
         }
 
         return new ModbusTcpForDtuServerComponent(connectProperties);
+    }
+
+    @Override
+    protected AbstractModbusFuncProtocolModelApi createFuncApi(String code, String name, String remark) {
+        return new ModbusTcpForDtuFuncProtocolModeApi(code, name, remark);
+    }
+
+    @Override
+    protected AbstractModbusEventProtocolModelApi createEventApi(String code, String name, String remark) {
+        return new ModbusTcpForDtuEventProtocolModeApi(code, name, remark);
     }
 }

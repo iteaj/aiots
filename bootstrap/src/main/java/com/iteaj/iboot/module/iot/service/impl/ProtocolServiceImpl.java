@@ -208,6 +208,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
         return new ProtocolApiConfig()
                 .setSort(config.getSort())
                 .setLength(config.getLength())
+                .setOptions(config.getOptions())
                 .setPosition(config.getPosition())
                 .setFieldType(config.getFieldType())
                 .setProtocolApiCode(protocolApi.getCode())

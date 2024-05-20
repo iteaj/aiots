@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+import java.util.List;
 
 import com.iteaj.framework.spi.iot.consts.ApiFieldType;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfigOption;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -83,4 +85,10 @@ public class ProtocolApiConfig extends BaseEntity {
      * 字段类型
      */
     private ApiFieldType fieldType;
+
+    /**
+     * 下拉款配置项
+     */
+    @TableField(exist = false)
+    private List<ProtocolModelApiConfigOption> options;
 }
