@@ -180,4 +180,30 @@
         </if>
 
     </select>
+    <select id="countDeviceStatus" resultType="com.iteaj.iboot.module.iot.dto.DeviceStatusDto">
+        select count(if(status='online', 1, null)) onlineNum, count(if(status='offline', 1, null)) offlineNum from iot_device
+        <where>
+            <if test="groupId!=null">
+                and device_group_id=#{groupId}
+            </if>
+            <if test="productId!=null">
+                and product_id=#{productId}
+            </if>
+        </where>
+    </select>
+
+    <select id="listOfEMap" resultType="com.iteaj.iboot.module.iot.dto.EMapDeviceDto">
+        select a.uid, a.name, a.address, a.lat, a.lon, a.device_sn deviceSn, a.status, p.logo from iot_device a
+            left join iot_product p on a.product_id = p.id
+            left join iot_device_group g on a.device_group_id = g.id
+        <where>
+            <if test="productId!=null">
+                and a.product_id=#{productId}
+            </if>
+            <if test="deviceGroupId!=null">
+                and a.device_group_id=#{deviceGroupId}
+            </if>
+            and a.lat is not null
+        </where>
+    </select>
 </mapper>

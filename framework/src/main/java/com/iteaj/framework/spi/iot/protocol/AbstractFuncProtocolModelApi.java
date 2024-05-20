@@ -12,6 +12,14 @@ public abstract class AbstractFuncProtocolModelApi extends AbstractProtocolModel
 
     private FuncType funcType;
 
+    public AbstractFuncProtocolModelApi(String code, String name) {
+        this(code, name, FuncType.W, TriggerMode.passive, null);
+    }
+
+    public AbstractFuncProtocolModelApi(String code, String name, String remark) {
+        this(code, name, FuncType.W, TriggerMode.passive, remark);
+    }
+
     public AbstractFuncProtocolModelApi(String code, String name, FuncType type) {
         this(code, name, type, TriggerMode.passive, null);
     }

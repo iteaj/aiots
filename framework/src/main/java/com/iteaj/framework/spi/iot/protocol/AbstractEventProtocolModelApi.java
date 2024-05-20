@@ -13,6 +13,10 @@ public abstract class AbstractEventProtocolModelApi extends AbstractProtocolMode
         this(code, name, null, TriggerMode.active);
     }
 
+    public AbstractEventProtocolModelApi(String code, String name, String remark) {
+        this(code, name, remark, TriggerMode.active);
+    }
+
     public AbstractEventProtocolModelApi(String code, String name, String remark, TriggerMode triggerMode) {
         super(code, name, remark, ProtocolApiType.event);
         this.setTriggerMode(triggerMode);

@@ -69,10 +69,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
-
+        <!--mqtt协议提供-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>protocol-mqtt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--dtu网关+modbus协议提供-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>protocol-dtu</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

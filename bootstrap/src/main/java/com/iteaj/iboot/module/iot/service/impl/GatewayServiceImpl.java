@@ -24,6 +24,7 @@ import com.iteaj.iot.FrameworkManager;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
@@ -125,7 +126,7 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
 
         FrameworkComponent component;
         if(supplier.getConnectionType() == ConnectionType.Server) {
-            NetworkConfig config = NetworkConfig.resolve(gateway.getProtocolType(), gateway.getConfig());
+            NetworkConfig config = gateway.getConfig().toJavaObject((Type) supplier.getNetworkConfigClazz());
             component = supplier.createComponent(config);
         } else {
             component = supplier.createComponent(null);

@@ -28,6 +28,10 @@ public class ProtocolInvokeUtil {
         invoke(api, device, 5000, result);
     }
 
+    public static void invoke(ModelApi api, ProtocolModelApiInvokeParam param, RealtimeStatus device, Consumer<InvokeResult> result) {
+        invoke(ProtocolSupplierManager.get(device.getProtocolCode()), api, param, device, result);
+    }
+
     public static void invoke(DeviceProtocolSupplier supplier, ModelApi api, ProtocolModelApiInvokeParam param, RealtimeStatus device, Consumer<InvokeResult> result) {
         if(supplier != null) {
             AbstractProtocolModelApi modelApi = supplier.getProtocol().getApi(api.getDirect());

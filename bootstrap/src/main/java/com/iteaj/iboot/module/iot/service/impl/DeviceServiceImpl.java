@@ -20,12 +20,10 @@ import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
-import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
-import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.mapper.DeviceMapper;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -51,7 +49,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
-    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager, RealtimePushListener pushListener) {
+    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager) {
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
     }
@@ -264,13 +262,14 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
         if(device.getType() == DeviceType.Gateway && device.getStatus() == DeviceStatus.offline) {
             Map<String, RealtimeStatus> childDeviceStatus = this.listChildDeviceStatusFromCache(device.getProtocolCode(), device.getDeviceSn());
             if(CollectionUtil.isNotEmpty(childDeviceStatus)) {
-                List<String> uidList = childDeviceStatus.values().stream()
-                        .map(item -> item.getUid()).collect(Collectors.toList());
+                Collection<RealtimeStatus> values = childDeviceStatus.values();
+                List<String> uidList = values.stream().map(item -> item.getUid()).collect(Collectors.toList());
                 this.update(Wrappers.<Device>lambdaUpdate()
                         .set(Device::getSwitchTime, switchTime)
                         .set(Device::getStatus, DeviceStatus.offline)
                         .in(Device::getUid, uidList));
 
+                values.forEach(item -> item.setStatus(DeviceStatus.offline));
                 CollectListenerManager.getInstance().deviceStatusPublish(listener -> listener.supplier(childDeviceStatus.values())); // 推送离线信息到前端
                 this.iotCacheManager.updateChildStatus(device.getProtocolCode(), device.getDeviceSn(), DeviceStatus.offline);
             }
@@ -288,6 +287,16 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     public DetailResult<Device> getByUid(String uid) {
         return new DetailResult<>(this.getBaseMapper().getByUid(uid));
+    }
+
+    @Override
+    public DeviceStatusDto countDeviceStatus(GroupAndProductParamDto param) {
+        return getBaseMapper().countDeviceStatus(param);
+    }
+
+    @Override
+    public List<EMapDeviceDto> listOfEMap(Long productId, Long deviceGroupId) {
+        return this.getBaseMapper().listOfEMap(productId, deviceGroupId);
     }
 
     @Override
