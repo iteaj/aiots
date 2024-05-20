@@ -34,11 +34,6 @@ public class PanelsDetailDto {
     private List<Signal> signals = new ArrayList<>();
 
     /**
-     * 告警记录
-     */
-    private List<Warn> warns = new ArrayList<>();
-
-    /**
      * 接口调试参数
      */
     private Map<String, List<IVOption>> apiCodeDebugMap;
@@ -147,35 +142,5 @@ public class PanelsDetailDto {
         }
 
         apiCodeDebugMap.put(apiCode, params);
-    }
-
-    @Getter
-    @Setter
-    public class Warn {
-
-        /**
-         * 告警名称
-         */
-        private String name;
-
-        /**
-         * 告警等级
-         */
-        private String grade;
-
-        /**
-         * 告警内容
-         */
-        private String content;
-
-        @JsonFormat(pattern = "yy-MM-dd HH:mm:ss")
-        private Date warnTime;
-
-        public Warn(String name, String grade, String content, Date warnTime) {
-            this.name = name;
-            this.grade = grade;
-            this.content = content;
-            this.warnTime = warnTime;
-        }
     }
 }
