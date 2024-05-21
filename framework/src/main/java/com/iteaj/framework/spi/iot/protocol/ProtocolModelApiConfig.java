@@ -199,4 +199,8 @@ public class ProtocolModelApiConfig {
     public List<ProtocolModelApiConfigOption> getOptions() {
         return options;
     }
+
+    public ProtocolModelApiConfig setOptions(List<ProtocolModelApiConfigOption> options) {
+        this.options = options; return this;
+    }
 }

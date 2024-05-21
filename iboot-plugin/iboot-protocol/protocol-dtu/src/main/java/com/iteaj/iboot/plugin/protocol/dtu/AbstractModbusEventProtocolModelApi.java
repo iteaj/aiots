@@ -1,13 +1,24 @@
 package com.iteaj.iboot.plugin.protocol.dtu;
 
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractEventProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iot.Protocol;
+import com.iteaj.iot.ProtocolException;
+import com.iteaj.iot.consts.ExecStatus;
+import com.iteaj.iot.modbus.ModbusCommonProtocol;
+import com.iteaj.iot.modbus.Payload;
 import com.iteaj.iot.modbus.consts.ModbusCode;
+import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuCommonProtocol;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
+import com.iteaj.iot.modbus.server.rtu.ModbusRtuBody;
+import com.iteaj.iot.modbus.server.tcp.ModbusTcpBody;
+import com.iteaj.iot.utils.ByteUtil;
 
+import java.util.Date;
 import java.util.function.Consumer;
 
 public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventProtocolModelApi {
@@ -20,27 +31,44 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
         super(code, name, remark);
     }
 
-
     @Override
     protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
         ModbusCode modbusCode = ModbusCode.valueOf(getCode());
-        int num = 0;
-        int start = 0;
-        int childSn = 0;
-        byte[] writeValue = new byte[0];
-        ModbusTcpForDtuCommonProtocol protocol;
+        String dataType = arg.getString(AbstractDtuForModbusProtocolSupplier.dataType);
+        if(StrUtil.isBlank(dataType)) {
+            throw new ProtocolInvokeException("未找到数据类型参数");
+        }
+
+        int start;
+        try {
+            start = arg.getInteger(PointProtocolConfig.POINT_ADDRESS);
+        } catch (Exception e) {
+            throw new ProtocolInvokeException("寄存器地址错误[必须是[0-65535]的数字]");
+        }
+
+        int childSn;
+        try {
+            childSn = Integer.valueOf(arg.getDeviceSn());
+        } catch (NumberFormatException e) {
+            throw new ProtocolInvokeException("从机设备地址错误[必须是[0-255]的数字]");
+        }
+
+        int num = 1;
+        ModbusCommonProtocol protocol;
         switch (modbusCode) {
             case Read01:
-                protocol = ModbusTcpForDtuCommonProtocol.buildRead01(arg.getDeviceSn(), childSn, start, num);
+                protocol = this.buildRead01(arg.getParentDeviceSn(), childSn, start, num);
                 break;
             case Read02:
-                protocol = ModbusTcpForDtuCommonProtocol.buildRead02(arg.getDeviceSn(), childSn, start, num);
+                protocol = this.buildRead02(arg.getParentDeviceSn(), childSn, start, num);
                 break;
             case Read03:
-                protocol = ModbusTcpForDtuCommonProtocol.buildRead03(arg.getDeviceSn(), childSn, start, num);
+                num = getNum(arg, dataType);
+                protocol = this.buildRead03(arg.getParentDeviceSn(), childSn, start, num);
                 break;
             case Read04:
-                protocol = ModbusTcpForDtuCommonProtocol.buildRead04(arg.getDeviceSn(), childSn, start, num);
+                num = getNum(arg, dataType);
+                protocol = this.buildRead04(arg.getParentDeviceSn(), childSn, start, num);
                 break;
             default:
                 throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码["+getCode()+"]");
@@ -49,9 +77,112 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
         return protocol;
     }
 
+    public abstract ModbusCommonProtocol buildRead01(String equipCode, int device, int start, int num);
+    public abstract ModbusCommonProtocol buildRead02(String equipCode, int device, int start, int num);
+    public abstract ModbusCommonProtocol buildRead03(String equipCode, int device, int start, int num);
+    public abstract ModbusCommonProtocol buildRead04(String equipCode, int device, int start, int num);
+
+    private int getNum(ProtocolModelApiInvokeParam arg, String dataType) {
+        switch (dataType) {
+            case "short":
+            case "ushort":
+                return 1;
+            case "int":
+            case "uint":
+            case "float":
+                return 2;
+            case "long":
+            case "double":
+            case "timestamp":
+                return 4;
+            case "string":
+            case "hex":
+                try {
+                    return arg.getInteger(PointProtocolConfig.POINT_NUMBER);
+                } catch (Exception e) {
+                    throw new ProtocolInvokeException("未指定要读取的寄存器数量");
+                }
+            default:
+                throw new ProtocolInvokeException("不支持的数据类型["+dataType+"]");
+        }
+    }
+
     @Override
     protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
-        ((ModbusTcpForDtuCommonProtocol)protocol).request();
-        result.accept(null);
+        ExecStatus execStatus;
+        InvokeResult invokeResult = null;
+        try {
+            if(protocol instanceof ModbusTcpForDtuCommonProtocol) {
+                ModbusTcpForDtuCommonProtocol commonProtocol = (ModbusTcpForDtuCommonProtocol) protocol;
+                execStatus = commonProtocol.getExecStatus();
+                commonProtocol.request();
+                if(execStatus == ExecStatus.success) {
+                    ModbusTcpBody body = commonProtocol.responseMessage().getBody();
+                    if(body.isSuccess()) {
+                        Payload payload = commonProtocol.getPayload();
+                        Object value = getValue(payload, arg);
+                        invokeResult = InvokeResult.status(execStatus, value, protocol);
+                    } else {
+                        invokeResult = InvokeResult.fail(body.getErrCode().getDesc(), protocol);
+                    }
+                } else {
+                    invokeResult = InvokeResult.status(execStatus, protocol);
+                }
+            } else if(protocol instanceof ModbusRtuForDtuCommonProtocol) {
+                ModbusRtuForDtuCommonProtocol commonProtocol = (ModbusRtuForDtuCommonProtocol) protocol;
+                execStatus = commonProtocol.getExecStatus();
+                commonProtocol.request();
+                if(execStatus == ExecStatus.success) {
+                    ModbusRtuBody body = commonProtocol.responseMessage().getBody();
+                    if(body.isSuccess()) {
+                        Payload payload = commonProtocol.getPayload();
+                        Object value = getValue(payload, arg);
+                        invokeResult = InvokeResult.status(execStatus, value, protocol);
+                    } else {
+                        invokeResult = InvokeResult.fail(body.getErrCode().getDesc(), protocol);
+                    }
+                } else {
+                    invokeResult = InvokeResult.status(execStatus, protocol);
+                }
+            }
+
+            result.accept(invokeResult);
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+            result.accept(InvokeResult.fail(e.getMessage(), protocol));
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.accept(InvokeResult.fail("未知错误["+e.getMessage()+"]", protocol));
+        }
+    }
+
+    public Object getValue(Payload payload, ProtocolModelApiInvokeParam arg) {
+        int start = arg.getInteger(PointProtocolConfig.POINT_ADDRESS);
+        String dataType = arg.getString(AbstractDtuForModbusProtocolSupplier.dataType);
+        switch (dataType) {
+            case "short":
+                return payload.readShort(start);
+            case "ushort":
+                return payload.readUShort(start);
+            case "int":
+                return payload.readInt(start);
+            case "uint":
+                return payload.readUInt(start);
+            case "float":
+                return payload.readFloat(start);
+            case "long":
+                return payload.readLong(start);
+            case "double":
+                return payload.readDouble(start);
+            case "timestamp":
+                return new Date(payload.readLong(start));
+            case "string":
+                int num = arg.getInteger(PointProtocolConfig.POINT_NUMBER);
+                return payload.readString(start, num);
+            case "hex":
+                    return ByteUtil.bytesToHex(payload.getPayload());
+            default:
+                throw new ProtocolInvokeException("不支持的数据类型["+dataType+"]");
+        }
     }
 }
