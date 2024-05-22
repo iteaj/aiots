@@ -27,4 +27,6 @@ public interface GatewayMapper extends BaseMapper<Gateway> {
     GatewayDto getByProtocolId(Long protocolId);
 
     List<IVOption> protocols(GatewayType type, TransportProtocol protocol, ConnectionType connectionType);
+
+    Gateway getByPort(Integer port);
 }

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.dtu;
 
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
@@ -8,18 +9,35 @@ import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.plugin.protocol.dtu.rtu.ModbusRtuForDtuFuncProtocolModelApi;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.server.dtu.DtuDecoderServerComponent;
+import com.iteaj.iot.server.dtu.DtuMessageType;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderServerComponent> extends StaticServerProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, C> {
+public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderServerComponent> extends StaticServerProtocolSupplier<AbstractDtuForModbusProtocolSupplier.DtuNetworkConfig, C> {
 
     private DefaultProtocolModel protocolModel;
     public static final String dataType = "dataType";
     private static final String numRemark = "String和Hex类型必填(一个寄存器两个字节)";
     private static List<ProtocolModelApiConfigOption> readOptions = new ArrayList<>();
     private static List<ProtocolModelApiConfigOption> writeOptions = new ArrayList<>();
+    private ParamMeta[] networkConfig = new ParamMeta[]{
+            ParamMeta.buildRequired("host", "主机", "绑定的网卡ip", "0.0.0.0"),
+            ParamMeta.buildRequiredNumber("port", "端口", "5020", "监听的端口(1024-65535)"),
+            ParamMeta.buildRequiredNumber("readIdle", "读空闲时长(秒)", 0, "多长时间没读到数据关闭链接"),
+            ParamMeta.buildRequiredSelect("messageType", "注册码类型", "ASCII", "可选值(ASCII、HEX)"
+                    , new IVOption("ASCII", "ASCII"), new IVOption("HEX", "HEX")),
+    };
 
+    private ParamMeta[] deviceConfig = new ParamMeta[] {
+            ParamMeta.buildRequiredSelect("dataFormat", "数据格式", "ABCD", ""
+                    , new IVOption("ABCD", "ABCD")
+                    , new IVOption("BADC", "BADC")
+                    , new IVOption("CDAB", "CDAB")
+                    , new IVOption("DCBA", "DCBA")),
+    };
     static {
         readOptions.add(new ProtocolModelApiConfigOption("readShort", "short", "占1个寄存器"));
         readOptions.add(new ProtocolModelApiConfigOption("readUShort", "ushort", "占1个寄存器"));
@@ -84,8 +102,8 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
     protected abstract AbstractModbusEventProtocolModelApi createEventApi(String code, String name, String remark);
 
     @Override
-    public Class<NetworkConfigImpl.TcpNetworkConfig> getNetworkConfigClazz() {
-        return NetworkConfigImpl.TcpNetworkConfig.class;
+    public Class<DtuNetworkConfig> getNetworkConfigClazz() {
+        return DtuNetworkConfig.class;
     }
 
     @Override
@@ -93,12 +111,13 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
         return this.protocolModel;
     }
 
+    public ParamMeta[] getDeviceConfig() {
+        return deviceConfig;
+    }
+
     @Override
     public ParamMeta[] getNetworkConfig() {
-        return new ParamMeta[]{
-                ParamMeta.buildRequired("host", "主机", "绑定的网卡ip", "0.0.0.0"),
-                ParamMeta.buildRequiredNumber("port", "端口", "5020", "监听的端口(1024-65535)")
-        };
+        return networkConfig;
     }
 
     @Override
@@ -109,5 +128,11 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
     @Override
     public ProtocolImplMode getImplMode() {
         return ProtocolImplMode.Internal;
+    }
+
+    @Getter
+    @Setter
+    public static class DtuNetworkConfig extends NetworkConfigImpl.TcpNetworkConfig {
+        private DtuMessageType messageType;
     }
 }

@@ -61,7 +61,7 @@ public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends Frame
     }
 
     /**
-     * 设备额外配置
+     * 子设备配置
      * @return
      */
     default ParamMeta[] getDeviceConfig() {

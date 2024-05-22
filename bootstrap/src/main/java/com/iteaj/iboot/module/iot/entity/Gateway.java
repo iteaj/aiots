@@ -42,7 +42,7 @@ public class Gateway extends BaseEntity {
     private String name;
 
     /**
-     * 连接类型(客户端、服务端)
+     * 设备类型(设备直连、边缘网关)
      */
     private DeviceType type;
 

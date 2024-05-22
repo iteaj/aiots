@@ -66,5 +66,8 @@
             </if>
         </where>
     </select>
+    <select id="getByPort" resultMap="BaseResultMap">
+        select * from iot_gateway where JSON_CONTAINS(config, '${port}', '$.port')
+    </select>
 
 </mapper>

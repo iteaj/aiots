@@ -12,6 +12,7 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfig;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
@@ -43,6 +44,17 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
     public BooleanResult save(Gateway entity) {
         Long protocolId = entity.getProtocolId();
         this.getByProtocolId(protocolId).ifPresentThrow("应用协议已被绑定");
+        if(entity.getConnectType() == ConnectionType.Server) {
+            Integer port = entity.getConfig().getInteger(ConstConfig.PORT);
+            if(port == null) {
+                throw new ServiceException("未指定监听端口");
+            }
+
+            if(this.getBaseMapper().getByPort(port) != null) {
+                throw new ServiceException("端口["+port+"]已被使用");
+            }
+        }
+
         return super.save(entity);
     }
 
@@ -53,6 +65,18 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
                 .ne(Gateway::getId, entity.getId())
                 .eq(Gateway::getProtocolId, protocolId))
                 .ifPresentThrow("应用协议已被绑定");
+        if(entity.getConnectType() == ConnectionType.Server) {
+            Integer port = entity.getConfig().getInteger(ConstConfig.PORT);
+            if(port == null) {
+                throw new ServiceException("未指定监听端口");
+            }
+
+            Gateway byPort = this.getBaseMapper().getByPort(port);
+            if(byPort != null && byPort.getId() != entity.getId()) {
+                throw new ServiceException("端口["+port+"]已被使用");
+            }
+        }
+
         return super.updateById(entity);
     }
 

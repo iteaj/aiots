@@ -269,6 +269,8 @@ public class ProtocolController extends BaseController {
             return success(supplier.getNetworkConfig());
         } else if(type.equals("gateway")) {
             return success(supplier.getGatewayConfig());
+        } else if(type.equals("child")) {
+            return success(supplier.getDeviceConfig());
         } else {
             return fail("不支持的类型[type="+type+"]");
         }

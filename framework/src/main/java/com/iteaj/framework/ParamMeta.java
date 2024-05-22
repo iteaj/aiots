@@ -1,8 +1,10 @@
 package com.iteaj.framework;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class ParamMeta {
 
     /**
@@ -36,6 +38,11 @@ public class ParamMeta {
     private Object defaultValue;
 
     private String placeholder;
+
+    /**
+     * 配置值
+     */
+    private IVOption[] options;
 
     public ParamMeta(String field, String label) {
         this(field, label, false);
@@ -102,8 +109,12 @@ public class ParamMeta {
         return new ParamMeta(field, label, extra, true, defaultValue, "number");
     }
 
-    public static ParamMeta buildHidden(String field, Object defaultValue) {
-        return new ParamMeta(field, null, null, true, defaultValue, "hidden");
+    public static ParamMeta buildSelect(String field, String label, String extra, IVOption... options) {
+        return new ParamMeta(field, label, extra, true, null, "select").setOptions(options);
+    }
+
+    public static ParamMeta buildRequiredSelect(String field, String label, String defaultValue, String extra, IVOption... options) {
+        return new ParamMeta(field, label, extra, true, defaultValue, "select").setOptions(options);
     }
 
     public ParamMeta setPlaceholder(String placeholder) {
