@@ -72,7 +72,7 @@ public class PlcDebugHandle implements DebugHandle<PlcDebugModel> {
                 }
                 switch (model.getType()) {
                     case "bit":
-                        plcClientProtocol.write(model.getAddress(), true); break;
+                        plcClientProtocol.write(model.getAddress(), Boolean.valueOf(model.getValue())); break;
                     case "short":
                         plcClientProtocol.write(model.getAddress(), Short.valueOf(model.getValue())); break;
                     case "int":
