@@ -152,7 +152,7 @@ public class DeviceCtrlController extends BaseController {
                         throw new ServiceException("查找不到绑定的父网关设备");
                     }
 
-                    param.setDeviceSn(item.getDeviceSn()).setParentDeviceSn(item.getParentDeviceSn());
+                    param.setDeviceSn(item.getDeviceSn()).setParentDeviceSn(item.getParentDeviceSn()).addDeviceConfig(item.getConfig());
             });
         }
 

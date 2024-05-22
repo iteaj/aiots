@@ -7,8 +7,12 @@ import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.plugin.protocol.dtu.rtu.ModbusRtuForDtuFuncProtocolModelApi;
+import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.consts.ModbusCode;
+import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
+import com.iteaj.iot.server.dtu.DefaultDtuMessageAware;
 import com.iteaj.iot.server.dtu.DtuDecoderServerComponent;
+import com.iteaj.iot.server.dtu.DtuMessageAware;
 import com.iteaj.iot.server.dtu.DtuMessageType;
 import lombok.Getter;
 import lombok.Setter;
@@ -100,6 +104,31 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
     protected abstract AbstractModbusFuncProtocolModelApi createFuncApi(String code, String name, String remark);
 
     protected abstract AbstractModbusEventProtocolModelApi createEventApi(String code, String name, String remark);
+
+    @Override
+    protected void doRefresh(C component, DtuNetworkConfig config) {
+        if(!component.isStart()) {
+            DtuMessageAware delegation = component.getDtuMessageAwareDelegation();
+            if(delegation.messageType() != config.getMessageType()) {
+                if(delegation instanceof DefaultDtuMessageAware) {
+                    ((DefaultDtuMessageAware<?>) delegation).setMessageType(component.messageType());
+                }
+            }
+
+            ConnectProperties properties = component.config();
+            if(!properties.getPort().equals(config.getPort())) {
+                properties.setPort(config.getPort());
+            }
+
+            if(!properties.getHost().equals(config.getHost())) {
+                properties.setPort(config.getPort());
+            }
+
+            if(config.getReadIdle() != null && config.getReadIdle() > 0) {
+                properties.setReaderIdleTime(config.getReadIdle());
+            }
+        }
+    }
 
     @Override
     public Class<DtuNetworkConfig> getNetworkConfigClazz() {

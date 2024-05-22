@@ -32,6 +32,7 @@ public class ProtocolModelApiInvokeParam {
      */
     private Map config;
 
+    public static final String DEVICE_CONFIG = "_DeviceConfig";
     public static final String INVOKE_UP_CONFIG = "_InvokeUpConfig";
 
     public ProtocolModelApiInvokeParam() { }
@@ -140,5 +141,19 @@ public class ProtocolModelApiInvokeParam {
 
     public void setConfig(Map config) {
         this.config = config;
+    }
+
+    public ProtocolModelApiInvokeParam addDeviceConfig(JSONObject config) {
+        this.addConfig(DEVICE_CONFIG, config); return this;
+    }
+
+    public <T> T getDeviceConfig(String key) {
+        JSONObject config = this.getConfig(DEVICE_CONFIG);
+        if(config instanceof JSONObject) {
+            Object o = config.get(key);
+            return o != null ? (T) o : null;
+        }
+
+        return null;
     }
 }

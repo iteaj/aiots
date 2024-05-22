@@ -23,11 +23,25 @@ public abstract class StaticProtocolSupplier<C extends NetworkConfigImpl, T exte
             component = doCreateComponent(config);
             FrameworkManager.register(component);
             ProtocolSupplierManager.register(component.getMessageClass(), this);
+        } else {
+            doRefresh(component, config);
         }
 
         return component;
     }
 
+    /**
+     * 重新刷新组件
+     * @param component
+     * @param config
+     */
+    protected void doRefresh(T component, C config) {}
+
+    /**
+     * 创建组件
+     * @param config
+     * @return
+     */
     protected abstract T doCreateComponent(C config);
 
     @Override

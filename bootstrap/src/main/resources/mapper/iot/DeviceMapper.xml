@@ -33,6 +33,19 @@
         <result property="productTypeName" column="product_type_name" />
         <result property="deviceGroupName" column="device_group_name" />
     </resultMap>
+    <resultMap id="DeviceStatusMap" type="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
+        <result property="uid" column="uid" />
+        <result property="deviceSn" column="deviceSn" />
+        <result property="parentDeviceSn" column="parentDeviceSn" />
+        <result property="type" column="type" />
+        <result property="status" column="status" />
+        <result property="groupId" column="groupId" />
+        <result property="productId" column="productId" />
+        <result property="updateTime" column="updateTime" />
+        <result property="productCode" column="productCode" />
+        <result property="protocolCode" column="protocolCode" />
+        <result property="config" column="config" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
+    </resultMap>
     <select id="pageOfDetail" resultMap="DeviceDtoMap">
         select a.*, idm.name product_name, idt.name product_type_name, idm.device_type
              , dg.name device_group_name, pd.device_sn parent_device_sn from iot_device a
@@ -117,8 +130,8 @@
         </choose>
     </select>
 
-    <select id="getDeviceCacheById" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
-        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+    <select id="getDeviceCacheById" resultMap="DeviceStatusMap">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
             left join iot_device pd on a.pid = pd.id
@@ -126,8 +139,8 @@
             left join iot_protocol pl on p.protocol_code = pl.code
         where a.id=#{id}
     </select>
-    <select id="listDeviceStatusById" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
-        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+    <select id="listDeviceStatusById" resultMap="DeviceStatusMap">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
             left join iot_device pd on a.pid = pd.id
@@ -140,8 +153,8 @@
         </where>
     </select>
 
-    <select id="listDeviceCache" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
-        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+    <select id="listDeviceCache" resultMap="DeviceStatusMap">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
              left join iot_device pd on a.pid = pd.id
@@ -149,8 +162,8 @@
              left join iot_protocol pl on p.protocol_code = pl.code
     </select>
 
-    <select id="getDeviceStatus" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
-        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+    <select id="getDeviceStatus" resultMap="DeviceStatusMap">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
             left join iot_device pd on a.pid = pd.id
@@ -161,8 +174,8 @@
             and pd.device_sn = #{parentDeviceSn}
         </if>
     </select>
-    <select id="listDeviceStatus" resultType="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
-        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn
+    <select id="listDeviceStatus" resultMap="DeviceStatusMap">
+        select a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, pl.code protocolCode, a.status
         from iot_device a
             left join iot_device pd on a.pid = pd.id

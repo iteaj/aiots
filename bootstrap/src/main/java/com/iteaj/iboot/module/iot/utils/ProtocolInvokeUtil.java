@@ -53,7 +53,7 @@ public class ProtocolInvokeUtil {
                 // 组装调用参数
                 param.setDeviceSn(device.getDeviceSn())
                     .setParentDeviceSn(device.getParentDeviceSn())
-                    .addConfig("device", device);
+                    .addDeviceConfig(device.getConfig());
 
                 // 发起调用
                 modelApi.invoke(param, result);
@@ -102,7 +102,7 @@ public class ProtocolInvokeUtil {
                 // 组装调用参数
                 invokeParam.setDeviceSn(device.getDeviceSn())
                         .setParentDeviceSn(device.getParentDeviceSn())
-                        .addConfig("device", device);
+                        .addDeviceConfig(device.getConfig());
 
                 // 发起调用
                 modelApi.invoke(invokeParam, result);

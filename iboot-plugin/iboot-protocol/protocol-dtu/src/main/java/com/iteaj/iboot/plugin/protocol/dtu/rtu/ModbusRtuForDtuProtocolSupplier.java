@@ -50,7 +50,7 @@ public class ModbusRtuForDtuProtocolSupplier extends AbstractDtuForModbusProtoco
 
     @Override
     protected AbstractModbusFuncProtocolModelApi createFuncApi(String code, String name, String remark) {
-        return new ModbusTcpForDtuFuncProtocolModeApi(code, name, remark);
+        return new ModbusRtuForDtuFuncProtocolModelApi(code, name, remark);
     }
 
     @Override

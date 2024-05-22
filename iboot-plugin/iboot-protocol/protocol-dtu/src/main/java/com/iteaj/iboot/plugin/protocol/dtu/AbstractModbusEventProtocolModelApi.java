@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractEventProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iot.Protocol;
@@ -11,6 +12,8 @@ import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.Payload;
+import com.iteaj.iot.modbus.RealCoilPayload;
+import com.iteaj.iot.modbus.consts.ModbusBitStatus;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuCommonProtocol;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
@@ -19,16 +22,17 @@ import com.iteaj.iot.modbus.server.tcp.ModbusTcpBody;
 import com.iteaj.iot.utils.ByteUtil;
 
 import java.util.Date;
+import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventProtocolModelApi {
 
     public AbstractModbusEventProtocolModelApi(String code, String name) {
-        super(code, name);
+        this(code, name, null);
     }
 
     public AbstractModbusEventProtocolModelApi(String code, String name, String remark) {
-        super(code, name, remark);
+        super(code, name, remark, TriggerMode.passive);
     }
 
     @Override
@@ -114,8 +118,8 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
         try {
             if(protocol instanceof ModbusTcpForDtuCommonProtocol) {
                 ModbusTcpForDtuCommonProtocol commonProtocol = (ModbusTcpForDtuCommonProtocol) protocol;
-                execStatus = commonProtocol.getExecStatus();
                 commonProtocol.request();
+                execStatus = commonProtocol.getExecStatus();
                 if(execStatus == ExecStatus.success) {
                     ModbusTcpBody body = commonProtocol.responseMessage().getBody();
                     if(body.isSuccess()) {
@@ -130,8 +134,8 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 }
             } else if(protocol instanceof ModbusRtuForDtuCommonProtocol) {
                 ModbusRtuForDtuCommonProtocol commonProtocol = (ModbusRtuForDtuCommonProtocol) protocol;
-                execStatus = commonProtocol.getExecStatus();
                 commonProtocol.request();
+                execStatus = commonProtocol.getExecStatus();
                 if(execStatus == ExecStatus.success) {
                     ModbusRtuBody body = commonProtocol.responseMessage().getBody();
                     if(body.isSuccess()) {
@@ -157,6 +161,11 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
     }
 
     public Object getValue(Payload payload, ProtocolModelApiInvokeParam arg) {
+        if(payload instanceof RealCoilPayload) {
+            List<ModbusBitStatus> statuses = ((RealCoilPayload) payload).getStatuses();
+            return statuses.get(0) == ModbusBitStatus.ON ? Boolean.TRUE : Boolean.FALSE;
+        }
+
         int start = arg.getInteger(PointProtocolConfig.POINT_ADDRESS);
         String dataType = arg.getString(AbstractDtuForModbusProtocolSupplier.dataType);
         switch (dataType) {
