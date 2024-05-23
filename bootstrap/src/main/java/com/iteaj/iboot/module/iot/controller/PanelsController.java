@@ -21,6 +21,7 @@ import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -34,10 +35,7 @@ import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -116,14 +114,20 @@ public class PanelsController extends BaseController {
                     deviceDto.setConfig(null);
                     List<IVOption> options = productOptionsMap.get(deviceDto.getProductId());
                     List<PanelsDeviceDto.AttrValue> attrValues = productValuesMap.get(deviceDto.getProductId());
-                    PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(options, attrValues, deviceDto);
+                    PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(options, Collections.EMPTY_LIST, deviceDto);
                     // 获取每个属性的实时数据
                     if(CollectionUtil.isNotEmpty(attrValues)) {
-                        attrValues.forEach(attrValue -> {
+                        List<PanelsDeviceDto.AttrValue> copyAttrValues = attrValues.stream().map(item -> {
+                            return new PanelsDeviceDto.AttrValue(item.getField(), item.getName(), item.getUnit(), item.getCtrlStatus());
+                        }).collect(Collectors.toList());
+                        panelsDeviceDto.setValues(copyAttrValues);
+
+                        copyAttrValues.forEach(attrValue -> {
                             String protocolCode = productProtocolMap.get(deviceDto.getProductId());
                             Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(protocolCode
                                     , DeviceKey.build(deviceDto.getDeviceSn(), deviceDto.getParentDeviceSn()));
                             if(CollectionUtil.isNotEmpty(realtimeDataMap)) {
+
                                 // 设置各属性的实时值
                                 RealtimeData realtimeData = realtimeDataMap.get(attrValue.getField());
                                 if(realtimeData != null && realtimeData.getRealtime() != null
@@ -168,8 +172,9 @@ public class PanelsController extends BaseController {
                                     .collect(Collectors.toList());
                             if(CollectionUtil.isNotEmpty(modelApis)) {
                                 modelApis.forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
-                                productDto.setFuncApis(modelApis);
                             }
+
+                            productDto.setFuncApis(modelApis);
                         }
 
                         if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
@@ -281,6 +286,9 @@ public class PanelsController extends BaseController {
                         // 将实时值更新为下发的值
                         realtimeDataService.put(realtimeStatus.getProtocolCode(), deviceKey
                                 , SignalOrFieldValue.build(ctrlStatusAttr.getId(), ctrlStatusAttr.getField(), dto.getStatus()));
+
+                        // 触发状态更新
+                        DeviceStatusModelApiManager.getInstance().trigger(realtimeStatus.getProductCode(), realtimeStatus.getUid());
                     }
                 });
             });

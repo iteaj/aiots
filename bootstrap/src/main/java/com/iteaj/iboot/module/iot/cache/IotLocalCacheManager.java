@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.cache;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.DeviceKey;
@@ -162,7 +163,10 @@ public class IotLocalCacheManager implements IotCacheManager {
             }
 
             // 从产品里面移除
-            productMaps.remove(remove);
+            Set<RealtimeStatus> realtimeStatuses = productMaps.get(remove.getProductCode());
+            if(CollectionUtil.isNotEmpty(realtimeStatuses)) {
+                realtimeStatuses.remove(remove);
+            }
         }
 
         return remove;
