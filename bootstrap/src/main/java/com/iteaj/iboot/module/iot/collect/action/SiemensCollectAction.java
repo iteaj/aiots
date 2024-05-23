@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import static com.iteaj.iboot.module.iot.consts.IotConsts.*;
 
 /**
- * 欧姆龙plc采集动作
+ * 西门子plc采集动作
  */
 public class SiemensCollectAction extends CollectAction {
 
