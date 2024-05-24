@@ -1,6 +1,8 @@
 package com.iteaj.framework.spi.iot;
 
 import com.alibaba.fastjson.JSONObject;
+import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelApi;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ public class ProtocolModelApiInvokeParam {
      */
     private Map config;
 
+    public static final String INVOKE_API = "_InvokeApi";
     public static final String DEVICE_CONFIG = "_DeviceConfig";
     public static final String INVOKE_UP_CONFIG = "_InvokeUpConfig";
 
@@ -155,5 +158,13 @@ public class ProtocolModelApiInvokeParam {
         }
 
         return null;
+    }
+
+    /**
+     * 执行的api
+     * @return
+     */
+    public ProtocolModelApi getApi() {
+        return this.getConfig(INVOKE_API);
     }
 }

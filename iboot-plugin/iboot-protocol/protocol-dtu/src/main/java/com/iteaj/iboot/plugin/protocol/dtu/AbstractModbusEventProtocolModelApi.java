@@ -47,32 +47,38 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
         try {
             start = arg.getInteger(PointProtocolConfig.POINT_ADDRESS);
         } catch (Exception e) {
-            throw new ProtocolInvokeException("寄存器地址错误[必须是[0-65535]的数字]");
+            throw new ProtocolInvokeException("寄存器地址必须是[0-65535]的数字");
         }
 
         int childSn;
         try {
             childSn = Integer.valueOf(arg.getDeviceSn());
         } catch (NumberFormatException e) {
-            throw new ProtocolInvokeException("从机设备地址错误[必须是[0-255]的数字]");
+            throw new ProtocolInvokeException("从机设备地址必须是[0-255]的数字");
         }
+
+        /**
+         * 调用子设备 -> 设备编号用父网关设备编号
+         * 调用网关设备 -> 设备编号为网关设备编号
+         */
+        String deviceSn = StrUtil.isNotBlank(arg.getParentDeviceSn()) ? arg.getParentDeviceSn() : arg.getDeviceSn();
 
         int num = 1;
         ModbusCommonProtocol protocol;
         switch (modbusCode) {
             case Read01:
-                protocol = this.buildRead01(arg.getParentDeviceSn(), childSn, start, num);
+                protocol = this.buildRead01(deviceSn, childSn, start, num);
                 break;
             case Read02:
-                protocol = this.buildRead02(arg.getParentDeviceSn(), childSn, start, num);
+                protocol = this.buildRead02(deviceSn, childSn, start, num);
                 break;
             case Read03:
                 num = getNum(arg, dataType);
-                protocol = this.buildRead03(arg.getParentDeviceSn(), childSn, start, num);
+                protocol = this.buildRead03(deviceSn, childSn, start, num);
                 break;
             case Read04:
                 num = getNum(arg, dataType);
-                protocol = this.buildRead04(arg.getParentDeviceSn(), childSn, start, num);
+                protocol = this.buildRead04(deviceSn, childSn, start, num);
                 break;
             default:
                 throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码["+getCode()+"]");

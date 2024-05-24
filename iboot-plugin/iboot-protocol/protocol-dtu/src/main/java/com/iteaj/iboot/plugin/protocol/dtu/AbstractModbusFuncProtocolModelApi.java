@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.dtu;
 
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
@@ -31,27 +32,51 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
     protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
         ModbusCode modbusCode = ModbusCode.valueOf(getCode());
         String value = arg.getString(PointProtocolConfig.POINT_VALUE);
-        int start = arg.getInteger(PointProtocolConfig.POINT_ADDRESS);
-        int childSn = Integer.valueOf(arg.getDeviceSn());
+        if(value == null) {
+            throw new ProtocolInvokeException("写入的值不能为空");
+        }
+
+        int start;
+        try {
+            start = arg.getInteger(PointProtocolConfig.POINT_ADDRESS);
+        } catch (Exception e) {
+            throw new ProtocolInvokeException("寄存器地址必须是[0-65535]的数字");
+        }
+
         byte[] writeValue = new byte[0];
+
+        int childSn;
+        try {
+            childSn = Integer.valueOf(arg.getDeviceSn());
+        } catch (NumberFormatException e) {
+            throw new ProtocolInvokeException("从机设备地址必须是[0-255]的数字");
+        }
+
+
+        /**
+         * 调用子设备 -> 设备编号用父网关设备编号
+         * 调用网关设备 -> 设备编号为网关设备编号
+         */
+        String deviceSn = StrUtil.isNotBlank(arg.getParentDeviceSn()) ? arg.getParentDeviceSn() : arg.getDeviceSn();
+
         ModbusCommonProtocol protocol;
         switch (modbusCode) {
             case Write05:
                 Boolean aBoolean = arg.getBoolean(PointProtocolConfig.POINT_VALUE);
                 ModbusCoilStatus status = Boolean.TRUE.equals(aBoolean) ? ModbusCoilStatus.ON : ModbusCoilStatus.OFF;
-                protocol = this.buildWrite05(arg.getParentDeviceSn(), childSn, start, status);
+                protocol = this.buildWrite05(deviceSn, childSn, start, status);
                 break;
             case Write06:
                 Short aShort = Short.valueOf(value);
-                protocol = this.buildWrite06(arg.getParentDeviceSn(), childSn, start, aShort);
+                protocol = this.buildWrite06(deviceSn, childSn, start, aShort);
                 break;
             case Write0F:
-                protocol = this.buildWrite0F(arg.getParentDeviceSn(), childSn, start, writeValue);
+                protocol = this.buildWrite0F(deviceSn, childSn, start, writeValue);
                 break;
             case Write10:
                 writeValue = getValue(arg.getString(AbstractDtuForModbusProtocolSupplier.dataType), value);
                 int num = writeValue.length % 2 == 0 ? writeValue.length / 2 : writeValue.length / 2 + 1;
-                protocol = this.buildWrite10(arg.getParentDeviceSn(), childSn, start, num, writeValue);
+                protocol = this.buildWrite10(deviceSn, childSn, start, num, writeValue);
                 break;
             default:
                 throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码["+getCode()+"]");

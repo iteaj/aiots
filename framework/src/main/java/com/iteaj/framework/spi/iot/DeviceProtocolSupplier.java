@@ -8,11 +8,15 @@ import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.Protocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 协议提供
  */
 public interface DeviceProtocolSupplier<C extends NetworkConfig, T extends FrameworkComponent> {
+
+    Logger supplierLogger = LoggerFactory.getLogger(DeviceProtocolSupplier.class);
 
     /**
      * 协议描述

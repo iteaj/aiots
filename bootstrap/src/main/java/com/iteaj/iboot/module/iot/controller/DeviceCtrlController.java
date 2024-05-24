@@ -19,6 +19,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.DebugRespDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
@@ -80,6 +81,7 @@ public class DeviceCtrlController extends BaseController {
                     });
                 });
             } catch (ProtocolInvokeException e) {
+                e.printStackTrace();
                 item.success(InvokeResult.fail(e.getMessage(), null));
             }
         }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
@@ -111,6 +113,7 @@ public class DeviceCtrlController extends BaseController {
                     debugRespDto.setRespTime(System.currentTimeMillis());
                 });
             } catch (ProtocolInvokeException e) {
+                e.printStackTrace();
                 item.success(InvokeResult.fail(e.getMessage(), null));
             }
         }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
@@ -139,21 +142,20 @@ public class DeviceCtrlController extends BaseController {
             throw new ServiceException("请先启用产品["+product.getName()+"]");
         }
 
+        Device device = deviceService.getByUid(param.getUid())
+                .ifNotPresentThrow("查找不到设备[uid=" + param.getUid() + "]").getData();
+        param.setDeviceSn(device.getDeviceSn()).addDeviceConfig(device.getConfig());
         // 网关子设备需要取网关设备
         if(product.getDeviceType() == DeviceType.Child) {
-            deviceService.getByUid(param.getUid())
-                .ifNotPresentThrow("查找不到设备[uid="+param.getUid()+"]")
-                .ifPresent(item -> {
-                    if(item.getPid() == null) {
-                        throw new ServiceException("此网关子设备没有关联父网关设备");
-                    }
+            if(device.getPid() == null) {
+                throw new ServiceException("此网关子设备没有关联父网关设备");
+            }
 
-                    if(StrUtil.isBlank(item.getParentDeviceSn())) {
-                        throw new ServiceException("查找不到绑定的父网关设备");
-                    }
+            if(StrUtil.isBlank(device.getParentDeviceSn())) {
+                throw new ServiceException("查找不到绑定的父网关设备");
+            }
 
-                    param.setDeviceSn(item.getDeviceSn()).setParentDeviceSn(item.getParentDeviceSn()).addDeviceConfig(item.getConfig());
-            });
+            param.setParentDeviceSn(device.getParentDeviceSn());
         }
 
         DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());

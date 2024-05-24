@@ -30,11 +30,6 @@ public class ModbusRtuForDtuProtocolSupplier extends AbstractDtuForModbusProtoco
     }
 
     @Override
-    public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
-        return null;
-    }
-
-    @Override
     public ModbusRtuForDtuServerComponent doCreateComponent(DtuNetworkConfig config) {
         ConnectProperties connectProperties = new ConnectProperties(config.getHost(), config.getPort());
         if(config.getAllIdle() != null && config.getAllIdle() > 0) {
