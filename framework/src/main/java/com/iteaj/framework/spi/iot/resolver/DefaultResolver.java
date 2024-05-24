@@ -1,13 +1,70 @@
 package com.iteaj.framework.spi.iot.resolver;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.iteaj.framework.spi.iot.DataTypeResolver;
 import com.iteaj.framework.spi.iot.UpModelAttr;
+import com.iteaj.framework.spi.iot.consts.DataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Date;
 
 public class DefaultResolver implements DataTypeResolver {
 
+    private Logger logger = LoggerFactory.getLogger(DefaultResolver.class);
+
     @Override
     public Object resolver(UpModelAttr attr, Object value) {
+        DataType dataType = attr.getDataType();
+        if(value instanceof Number) {
+            if(value instanceof Long && dataType == DataType.t_datetime) {
+                return new Date((Long) value);
+            } else {
+                return doResolverNumberValue(attr, value);
+            }
+        } else if(value instanceof String) {
+            try {
+                if(dataType == DataType.t_date) {
+                    return DateUtil.parse(value.toString(), DatePattern.NORM_DATETIME_PATTERN);
+                } else if(dataType == DataType.t_double || dataType == DataType.t_float) {
+                    return doResolverNumberValue(attr, Double.valueOf(value.toString()));
+                } else if(isInteger(dataType)) {
+                    return doResolverNumberValue(attr, Long.valueOf(value.toString()));
+                }
+            } catch (Exception e) {
+                logger.error("解析数据格式异常({}) 解析器: {} - 属性: {} - 值: {}", dataType
+                        , attr.getResolver(), attr.getField(), value, e);
+            }
+        }
 
-        return null;
+        return value;
+    }
+
+    private boolean isInteger(DataType dataType) {
+        return dataType == DataType.t_int || dataType == DataType.t_byte
+                || dataType == DataType.t_long || dataType == DataType.t_short;
+    }
+
+    private boolean isNumber(DataType dataType) {
+        return dataType == DataType.t_int || dataType == DataType.t_double || dataType == DataType.t_byte
+                || dataType == DataType.t_long || dataType == DataType.t_short || dataType == DataType.t_float;
+    }
+
+    private Object doResolverNumberValue(UpModelAttr attr, Object value) {
+        if(attr.getGain() != null && attr.getGain() != 0) {
+            value = Double.valueOf(value.toString()) / attr.getGain();
+        }
+
+        if(attr.getAccuracy() != null && attr.getAccuracy() > 0) {
+            if(attr.getDataType() == DataType.t_double || attr.getDataType() == DataType.t_float) {
+                BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(value.toString()));
+                value = bigDecimal.setScale(attr.getAccuracy(), RoundingMode.DOWN);
+            }
+        }
+
+        return value;
     }
 }
