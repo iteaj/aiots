@@ -18,6 +18,7 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -49,9 +50,12 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
-    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager) {
+    private final RealtimeDataService realtimeDataService;
+    public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager
+            , RealtimeDataService realtimeDataService) {
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
+        this.realtimeDataService = realtimeDataService;
     }
 
 
@@ -119,7 +123,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     @Transactional
     public BooleanResult save(Device entity) {
-        validate(entity);
+        validate(entity, null);
         entity.setUid(String.valueOf(IdWorker.getId()));
         return super.save(entity).ifPresentAndTrue(item -> {
             RealtimeStatus status = this.getDeviceStatusFromCache(entity.getId());
@@ -127,12 +131,18 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
         });
     }
 
-    private void validate(Device entity) {
+    private void validate(Device entity, RealtimeStatus oldStatus) {
         productService.detailById(entity.getProductId()).ifNotPresentThrow("产品不存在").ifPresent(productDto -> {
             DeviceType deviceType = productDto.getDeviceType();
             // 网关子设备在同一网关设备下的设备编号必须唯一
             if(deviceType == DeviceType.Child) {
                 this.getById(entity.getPid()).ifNotPresentThrow("网关子设备必须指定父网关设备").ifPresent(parent -> {
+                    entity.setParentDeviceSn(parent.getDeviceSn());
+                    if(oldStatus != null && (!parent.getDeviceSn().equals(oldStatus.getParentDeviceSn())
+                            || !entity.getProductId().equals(oldStatus.getProductId()))) { // 切换了网关或者产品
+                        entity.setStatus(DeviceStatus.offline); // 重置设备状态到离线
+                    }
+
                     this.getByDeviceSn(entity.getDeviceSn(), productDto.getProtocolCode(), parent.getDeviceSn())
                             .ifPresent(item -> {
                                 if(entity.getId() == null) { // 新增
@@ -184,11 +194,25 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     @Override
     @Transactional
     public BooleanResult updateById(Device entity) {
-        validate(entity);
         RealtimeStatus oldCache = this.getDeviceStatusFromCache(entity.getId());
+        if(oldCache == null) {
+            return BooleanResult.buildFalse("设备不存在");
+        }
+
+        validate(entity, oldCache);
+
         return super.updateById(entity).ifPresentAndTrue(item -> {
             RealtimeStatus newCache = this.getDeviceStatusFromCache(entity.getId());
             iotCacheManager.update(oldCache, newCache);
+                // 切换了网关或者切换了产品清除实时数据
+                if(!oldCache.getProductId().equals(entity.getProductId()) || // 切换产品
+                        (newCache.getType() == DeviceType.Child && !oldCache.getParentDeviceSn().equals(entity.getParentDeviceSn()))) { // 切换网关
+                    try {
+                        realtimeDataService.remove(oldCache.getProtocolCode(), oldCache.buildKey());
+                    } catch (Exception e) {
+                        //
+                    }
+                }
         });
     }
 

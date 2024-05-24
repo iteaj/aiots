@@ -10,6 +10,9 @@
         <result column="name" property="name" />
         <result column="data_type" property="dataType" />
         <result column="unit" property="unit" />
+        <result column="gain" property="gain" />
+        <result column="script" property="script" />
+        <result column="resolver" property="resolver" />
         <result column="enumerate" property="enumerate" />
         <result column="default_value" property="defaultValue" />
         <result column="attr_type" property="attrType" />

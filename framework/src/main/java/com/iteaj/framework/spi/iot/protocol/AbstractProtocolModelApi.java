@@ -131,6 +131,7 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
         Protocol protocol = buildProtocol(arg);
         if(protocol != null) {
             protocol.addParam(INVOKE_API, arg);
+            arg.addConfig(ProtocolModelApiInvokeParam.INVOKE_API, this);
         }
 
         doInvoke(protocol, arg, invokeResult -> {

@@ -1,11 +1,13 @@
 package com.iteaj.iboot.module.iot.cache.entity;
 
+import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.iteaj.framework.spi.iot.DeviceKey.DEVICE_SPILT;
@@ -67,6 +69,11 @@ public class RealtimeStatus {
      * 设备状态
      */
     private DeviceStatus status;
+
+    /**
+     * 设备配置
+     */
+    private JSONObject config;
 
     public String buildDeviceKey() {
         if(this.getType() == DeviceType.Child) {

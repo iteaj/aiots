@@ -1,12 +1,7 @@
 package com.iteaj.iboot.plugin.protocol.dtu.tcp;
 
-import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.DataSupplier;
-import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.consts.GatewayType;
-import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractDtuForModbusProtocolSupplier;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusEventProtocolModelApi;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusFuncProtocolModelApi;
@@ -31,20 +26,7 @@ public class ModbusTcpForDtuProtocolSupplier extends AbstractDtuForModbusProtoco
     }
 
     @Override
-    public ParamMeta[] getProductConfig() {
-        return new ParamMeta[] {
-                ParamMeta.buildRequired("dataFormat", "数据格式", "可选[ABCD、BADC、CDAB、DCBA]", "ABCD")
-        };
-    }
-
-    @Override
-    public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
-
-        return null;
-    }
-
-    @Override
-    public ModbusTcpForDtuServerComponent doCreateComponent(NetworkConfigImpl.TcpNetworkConfig config) {
+    public ModbusTcpForDtuServerComponent doCreateComponent(DtuNetworkConfig config) {
         ConnectProperties connectProperties = new ConnectProperties(config.getHost(), config.getPort());
         if(config.getAllIdle() != null) {
             connectProperties.setAllIdleTime(config.getAllIdle());
@@ -54,7 +36,7 @@ public class ModbusTcpForDtuProtocolSupplier extends AbstractDtuForModbusProtoco
             connectProperties.setWriterIdleTime(config.getWriteIdle());
         }
 
-        return new ModbusTcpForDtuServerComponent(connectProperties);
+        return new ModbusTcpForDtuServerComponent(connectProperties, config.getMessageType());
     }
 
     @Override
@@ -66,4 +48,5 @@ public class ModbusTcpForDtuProtocolSupplier extends AbstractDtuForModbusProtoco
     protected AbstractModbusEventProtocolModelApi createEventApi(String code, String name, String remark) {
         return new ModbusTcpForDtuEventProtocolModeApi(code, name, remark);
     }
+
 }

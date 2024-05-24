@@ -30,27 +30,22 @@ public class ModbusRtuForDtuProtocolSupplier extends AbstractDtuForModbusProtoco
     }
 
     @Override
-    public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
-        return null;
-    }
-
-    @Override
-    public ModbusRtuForDtuServerComponent doCreateComponent(NetworkConfigImpl.TcpNetworkConfig config) {
+    public ModbusRtuForDtuServerComponent doCreateComponent(DtuNetworkConfig config) {
         ConnectProperties connectProperties = new ConnectProperties(config.getHost(), config.getPort());
-        if(config.getAllIdle() != null) {
+        if(config.getAllIdle() != null && config.getAllIdle() > 0) {
             connectProperties.setAllIdleTime(config.getAllIdle());
-        } else if(config.getReadIdle() != null) {
+        } else if(config.getReadIdle() != null && config.getReadIdle() > 0) {
             connectProperties.setReaderIdleTime(config.getReadIdle());
-        } else if(config.getWriteIdle() != null) {
+        } else if(config.getWriteIdle() != null && config.getWriteIdle() > 0) {
             connectProperties.setWriterIdleTime(config.getWriteIdle());
         }
 
-        return new ModbusRtuForDtuServerComponent(connectProperties);
+        return new ModbusRtuForDtuServerComponent(connectProperties, config.getMessageType());
     }
 
     @Override
     protected AbstractModbusFuncProtocolModelApi createFuncApi(String code, String name, String remark) {
-        return new ModbusTcpForDtuFuncProtocolModeApi(code, name, remark);
+        return new ModbusRtuForDtuFuncProtocolModelApi(code, name, remark);
     }
 
     @Override
