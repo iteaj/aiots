@@ -27,7 +27,7 @@
                 and a.product_id = #{entity.productId}
             </if>
             <if test="entity.name != null and entity.name !=''">
-                and a.name linke '%${entity.name}%'
+                and a.name like '%${entity.name}%'
             </if>
         </where>
         order by a.create_time desc
