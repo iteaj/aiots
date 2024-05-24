@@ -121,7 +121,8 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
                 param.listUpAttrs().forEach(item -> {
                     String address = param.getString(PointProtocolConfig.POINT_ADDRESS);
                     if(status == CollectStatus.Success) {
-                        supplier.addValue(item.getId(), address, item.getField(), value);
+                        Object resolverValue = dataResolver(item, value);
+                        supplier.addValue(item.getId(), address, item.getField(), resolverValue);
                     } else {
                         supplier.addValue(item.getId(), address, item.getField(), status);
                     }

@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class DataTypeResolverFactory {
 
-    private final static String DEFAULT = "DEFAULT:RESOLVER";
+    private final static String DEFAULT = "DEFAULT";
     private final static DataTypeResolver defaultResolver = new DefaultResolver();
     private final static Map<String, DataTypeResolver> resolverMap = new HashMap<>();
 
