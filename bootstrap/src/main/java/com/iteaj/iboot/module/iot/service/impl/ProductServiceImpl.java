@@ -180,6 +180,13 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         // 是否已经有绑定设备
         this.hasBind(idList).ifPresentAndTrueThrow("此产品已被设备绑定");
 
+        this.getOne(Wrappers.<Product>lambdaQuery().in(Product::getId, idList).last("limit 1"))
+                .ifPresent(item -> {
+            if(item.getStatus() == FuncStatus.enabled) {
+                throw new ServiceException("请先停用产品");
+            }
+        });
+
         return super.removeByIds(idList)
                 .ifPresent(item -> idList.forEach(id -> this.removeModel((Long) id)));
     }
