@@ -56,6 +56,24 @@ public class ModelAttrDict extends BaseEntity {
     private Integer accuracy;
 
     /**
+     * 数据增益
+     */
+    @TableField(exist = false)
+    private Integer gain;
+
+    /**
+     * 数据解析器
+     */
+    @TableField(exist = false)
+    private String resolver;
+
+    /**
+     * 自定义解析脚本
+     */
+    @TableField(exist = false)
+    private String script;
+
+    /**
      * 模型属性id
      */
     @NotNull(message = "模型属性必填")

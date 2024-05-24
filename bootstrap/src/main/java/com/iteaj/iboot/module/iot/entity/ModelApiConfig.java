@@ -133,6 +133,24 @@ public class ModelApiConfig extends BaseEntity {
     private String attrDefaultValue;
 
     /**
+     * 数据增益
+     */
+    @TableField(exist = false)
+    private Integer gain;
+
+    /**
+     * 数据解析器
+     */
+    @TableField(exist = false)
+    private String resolver;
+
+    /**
+     * 自定义解析脚本
+     */
+    @TableField(exist = false)
+    private String script;
+
+    /**
      * 属性字典列表
      */
     @TableField(exist = false)

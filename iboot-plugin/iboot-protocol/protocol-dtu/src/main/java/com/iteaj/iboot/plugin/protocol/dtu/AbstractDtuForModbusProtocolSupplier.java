@@ -1,12 +1,17 @@
 package com.iteaj.iboot.plugin.protocol.dtu;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.ParamMeta;
+import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.plugin.protocol.dtu.rtu.ModbusRtuForDtuFuncProtocolModelApi;
+import com.iteaj.iot.AbstractProtocol;
+import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
@@ -106,12 +111,34 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
     protected abstract AbstractModbusEventProtocolModelApi createEventApi(String code, String name, String remark);
 
     @Override
+    public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
+        DataSupplier supplier = new DataSupplier(getProtocol().getCode(), param.buildKey());
+        if(CollectionUtil.isNotEmpty(param.listUpAttrs())) {
+            ModbusCode code = protocol.protocolType();
+            AbstractProtocol abstractProtocol = (AbstractProtocol) protocol;
+            if(code.getCode() <= 0x04) { // 读指令
+                CollectStatus status = CollectStatus.from(abstractProtocol.getExecStatus());
+                param.listUpAttrs().forEach(item -> {
+                    String address = param.getString(PointProtocolConfig.POINT_ADDRESS);
+                    if(status == CollectStatus.Success) {
+                        supplier.addValue(item.getId(), address, item.getField(), value);
+                    } else {
+                        supplier.addValue(item.getId(), address, item.getField(), status);
+                    }
+                });
+            }
+        }
+
+        return supplier;
+    }
+
+    @Override
     protected void doRefresh(C component, DtuNetworkConfig config) {
         if(!component.isStart()) {
             DtuMessageAware delegation = component.getDtuMessageAwareDelegation();
             if(delegation.messageType() != config.getMessageType()) {
                 if(delegation instanceof DefaultDtuMessageAware) {
-                    ((DefaultDtuMessageAware<?>) delegation).setMessageType(component.messageType());
+                    ((DefaultDtuMessageAware<?>) delegation).setMessageType(config.getMessageType());
                 }
             }
 

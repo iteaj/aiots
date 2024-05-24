@@ -90,6 +90,21 @@ public class ModelAttr extends BaseEntity {
     private Integer accuracy;
 
     /**
+     * 数据增益
+     */
+    private Integer gain;
+
+    /**
+     * 数据解析器
+     */
+    private String resolver;
+
+    /**
+     * 自定义解析脚本
+     */
+    private String script;
+
+    /**
      * 描述
      */
     private String remark;
