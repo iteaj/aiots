@@ -19,14 +19,16 @@ public class DefaultResolver implements DataTypeResolver {
     @Override
     public Object resolver(UpModelAttr attr, Object value) {
         DataType dataType = attr.getDataType();
-        if(value instanceof Number) {
-            if(value instanceof Long && dataType == DataType.t_datetime) {
-                return new Date((Long) value);
-            } else {
+        try {
+            if(value instanceof Number) {
+                if(value instanceof Long) {
+                    if(dataType == DataType.t_datetime) {
+                        return new Date((Long) value);
+                    }
+                }
+
                 return doResolverNumberValue(attr, value);
-            }
-        } else if(value instanceof String) {
-            try {
+            } else if(value instanceof String) {
                 if(dataType == DataType.t_date) {
                     return DateUtil.parse(value.toString(), DatePattern.NORM_DATETIME_PATTERN);
                 } else if(dataType == DataType.t_double || dataType == DataType.t_float) {
@@ -34,23 +36,12 @@ public class DefaultResolver implements DataTypeResolver {
                 } else if(isInteger(dataType)) {
                     return doResolverNumberValue(attr, Long.valueOf(value.toString()));
                 }
-            } catch (Exception e) {
-                logger.error("解析数据格式异常({}) 解析器: {} - 属性: {} - 值: {}", dataType
-                        , attr.getResolver(), attr.getField(), value, e);
             }
+        } catch (Exception e) {
+            logger.error("解析数据格式异常({}) 解析器: {} - 属性: {} - 值: {}", dataType
+                    , attr.getResolver(), attr.getField(), value, e);
         }
-
         return value;
-    }
-
-    private boolean isInteger(DataType dataType) {
-        return dataType == DataType.t_int || dataType == DataType.t_byte
-                || dataType == DataType.t_long || dataType == DataType.t_short;
-    }
-
-    private boolean isNumber(DataType dataType) {
-        return dataType == DataType.t_int || dataType == DataType.t_double || dataType == DataType.t_byte
-                || dataType == DataType.t_long || dataType == DataType.t_short || dataType == DataType.t_float;
     }
 
     private Object doResolverNumberValue(UpModelAttr attr, Object value) {
@@ -61,7 +52,7 @@ public class DefaultResolver implements DataTypeResolver {
         if(attr.getAccuracy() != null && attr.getAccuracy() > 0) {
             if(attr.getDataType() == DataType.t_double || attr.getDataType() == DataType.t_float) {
                 BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(value.toString()));
-                value = bigDecimal.setScale(attr.getAccuracy(), RoundingMode.DOWN);
+                value = bigDecimal.setScale(attr.getAccuracy(), RoundingMode.DOWN).doubleValue();
             }
         }
 
