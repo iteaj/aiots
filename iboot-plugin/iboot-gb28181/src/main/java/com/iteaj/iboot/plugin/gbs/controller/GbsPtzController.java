@@ -2,6 +2,7 @@ package com.iteaj.iboot.plugin.gbs.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,7 @@ public class GbsPtzController extends BaseController {
      * @param speed 速度(上下左右为0-255, 缩放为0-15)
      * @return
      */
+    @CheckPermission({"gbs:ptz:ctrl"})
     @PostMapping("/ctrl/{deviceId}/{channelId}")
     public Result<Boolean> ctrl(@PathVariable String deviceId, @PathVariable String channelId, String command, Integer speed) {
 
