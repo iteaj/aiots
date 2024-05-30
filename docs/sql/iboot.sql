@@ -1441,6 +1441,19 @@ LOCK TABLES `vip_user` WRITE;
 /*!40000 ALTER TABLE `vip_user` DISABLE KEYS */;
 /*!40000 ALTER TABLE `vip_user` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- 2024/05/30
+--
+alter table iot_model_attr
+    add gain smallint null comment '增益';
+
+alter table iot_model_attr
+    add resolver varchar(36) default 'DEFAULT' null comment '解析器';
+
+alter table iot_model_attr
+    add script varchar(512) null comment '脚本';
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
