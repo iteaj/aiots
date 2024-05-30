@@ -2,7 +2,7 @@ package com.iteaj.framework.spi.iot.resolver;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
-import com.iteaj.framework.spi.iot.DataTypeResolver;
+import com.iteaj.framework.spi.iot.DataValueResolver;
 import com.iteaj.framework.spi.iot.UpModelAttr;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import org.slf4j.Logger;
@@ -12,9 +12,15 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 
-public class DefaultResolver implements DataTypeResolver {
+public class DefaultResolver implements DataValueResolver {
 
+    private static final String DEFAULT_NAME = "默认";
     private Logger logger = LoggerFactory.getLogger(DefaultResolver.class);
+
+    @Override
+    public String name() {
+        return DEFAULT_NAME;
+    }
 
     @Override
     public Object resolver(UpModelAttr attr, Object value) {

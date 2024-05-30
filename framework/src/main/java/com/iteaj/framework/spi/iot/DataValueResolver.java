@@ -5,7 +5,9 @@ import com.iteaj.framework.spi.iot.consts.DataType;
 /**
  * 数据类型解析器
  */
-public interface DataTypeResolver {
+public interface DataValueResolver {
+
+    String name();
 
     Object resolver(UpModelAttr attr, Object value);
 
