@@ -47,7 +47,7 @@
         <result property="config" column="config" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
     </resultMap>
     <select id="pageOfDetail" resultMap="DeviceDtoMap">
-        select a.*, idm.name product_name, idt.name product_type_name, idm.device_type
+        select a.*, idm.name product_name, idt.name product_type_name, idm.device_type, idm.code product_code
              , dg.name device_group_name, pd.device_sn parent_device_sn from iot_device a
             left join iot_product idm on a.product_id=idm.id
             left join iot_device pd on a.pid = pd.id

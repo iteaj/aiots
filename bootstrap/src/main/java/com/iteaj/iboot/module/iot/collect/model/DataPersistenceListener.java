@@ -24,12 +24,14 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
             long cid = UniqueIdGen.nextLong(); // 声明同一组
             List<CollectData> data = new ArrayList<>();
             supplier.getValues().forEach(value -> {
+                String strValue = value.getValue() == null ? null : value.getValue().toString();
                 data.add(new CollectData(CollectMode.model).setCid(cid)
                         .setReason("").setCreateTime(supplier.getCollectTime())
-                        .setSignalId(value.getId())
+                        .setSignalId(value.getId()).setValue(strValue)
                         .setCollectTime(value.getCollectTime())
                         .setCollectStatus(value.getStatus())
                         .setUid(Long.valueOf(device.getUid()))
+                        .setField(value.getSignalOrField())
                         .setFieldName(value.getSignalOrField())
                 );
             });

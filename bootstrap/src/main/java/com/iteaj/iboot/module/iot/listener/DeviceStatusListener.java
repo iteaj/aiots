@@ -5,6 +5,8 @@ import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.listener.IotListener;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -23,7 +25,7 @@ import java.util.Date;
  * 设备上下线状态事件监听
  */
 @Component
-public class DeviceStatusListener implements CombinedEventListener, ApplicationReadyListener {
+public class DeviceStatusListener implements CombinedEventListener, ApplicationReadyListener, IotListener<RealtimeStatus> {
 
     private final IotCacheManager cacheManager;
     private final IDeviceService deviceService;
@@ -78,6 +80,16 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
                     .set(Device::getStatus, DeviceStatus.offline)
                     .set(Device::getSwitchTime, new Date()));
         }
+    }
+
+    @Override
+    public boolean isEventMatcher(IotEventType eventType) {
+        return IotEventType.DeviceStatus == eventType;
+    }
+
+    @Override
+    public void onIotEvent(IotEventType eventType, RealtimeStatus value) {
+        deviceService.updateDeviceStatus(value);
     }
 
     @Override

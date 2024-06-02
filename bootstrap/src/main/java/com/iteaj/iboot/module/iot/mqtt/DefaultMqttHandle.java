@@ -2,26 +2,28 @@ package com.iteaj.iboot.module.iot.mqtt;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.iteaj.framework.spi.event.ApplicationReadyListener;
-import com.iteaj.framework.spi.iot.DataSupplier;
-import com.iteaj.framework.spi.iot.DeviceKey;
-import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.DataType;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.listener.EntityPayload;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.listener.StatusSwitchListener;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
-import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
-import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iot.client.ClientProtocolHandle;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttConnectProperties;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttSubscribeProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
@@ -29,45 +31,45 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Component
-public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscribeProtocol>, ApplicationReadyListener {
+public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscribeProtocol>, StatusSwitchListener {
 
-    private Long syncTime; // 同步时间
     private final static String clientId = "clientId";
     private final static String deviceSn = "deviceSn";
     private final static String gatewaySn = "gatewaySn";
     private final static String DEFAULT_MQTT_IMPL = "MQTT_DEFAULT_IMPL";
     private IotCacheManager cacheManager;
-    private IDeviceService deviceService;
     private IProductService productService;
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private Map<String, List<ModelAttrDict>> subscribeApis = new HashMap<>();
+    private Map<String, Map<String, List<UpModelAttr>>> productSubscribeApis = new ConcurrentHashMap<>();
+
+    public DefaultMqttHandle(IotCacheManager cacheManager, IProductService productService) {
+        this.cacheManager = cacheManager;
+        this.productService = productService;
+    }
 
     @Override
     public Object handle(DefaultMqttSubscribeProtocol protocol) {
-        if(CollectionUtil.isEmpty(subscribeApis)) {
-            syncSubscribeApi(); // 如果没有订阅接口马上同步一次
-        } else {
-            // 同步间隔大于5 * 60秒再次同步
-            long l = System.currentTimeMillis() - syncTime;
-            if(TimeUnit.MILLISECONDS.toSeconds(l) >= 5 * 60) {
-                syncSubscribeApi();
-            }
-        }
 
+        String protocolTopic = protocol.getTopic(); // 设备发布的topic
+        String[] subscribeTopic = protocolTopic.split("/");
+        Map<String, List<UpModelAttr>> subscribeApis = productSubscribeApis.get(subscribeTopic[0]);
         if(CollectionUtil.isNotEmpty(subscribeApis)) {
             subscribeApis.forEach((topic, dicts) -> {
                 String[] modelTopic = topic.split("/");
-                String[] subscribeTopic = protocol.getTopic().split("/"); // 设备发布的topic
                 if(modelTopic.length != subscribeTopic.length) { // 不匹配
+                    if(logger.isDebugEnabled()) {
+                        logger.debug("mqtt订阅不匹配 topic长度不一致 平台订阅: {} - 设备发布: {}", topic, protocolTopic);
+                    }
+
                     return;
                 }
 
                 DefaultMqttConnectProperties properties = protocol.requestMessage().getProperties();
-                String clientIdValue = null, deviceSnValue = null, gatewaySnValue = properties.connectKey();
+                String clientIdValue, deviceSnValue = null, gatewaySnValue = properties.connectKey();
                 for (int i = 0; i < modelTopic.length; i++) {
                     String item = modelTopic[i];
                     String subscribe = subscribeTopic[i];
@@ -78,12 +80,22 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                             clientIdValue = subscribe;
                             // 只匹配同一个clientId下的
                             if(!properties.getClientId().equals(clientIdValue)) {
+                                if(logger.isDebugEnabled()) {
+                                    logger.debug("mqtt订阅不匹配 不属于平台指定客户端 平台客户端: {} - 设备发布: {}"
+                                            , properties.getClientId(), clientIdValue);
+                                }
+
                                 return;
                             }
                         } else if(item.contains(gatewaySn)) {
                             gatewaySnValue = subscribe;
                             // 只匹配同一网关下的
                             if(!gatewaySnValue.equals(properties.connectKey())) {
+                                if(logger.isDebugEnabled()) {
+                                    logger.debug("mqtt订阅不匹配 不属于统一网关 平台配置: {} - 设备发布: {}"
+                                            , properties.connectKey(), gatewaySnValue);
+                                }
+
                                 return;
                             }
                         }
@@ -94,6 +106,14 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                     }
                 }
 
+                if(deviceSnValue == null) {
+                    if(logger.isWarnEnabled()) {
+                        logger.warn("mqtt订阅不匹配(平台topic未指定占位符{deviceSn}) 未指定设备编号 平台订阅: {}", topic);
+                    }
+
+                    return;
+                }
+
                 DeviceKey deviceKey = DeviceKey.build(deviceSnValue, gatewaySnValue);
                 RealtimeStatus device = cacheManager.get(DEFAULT_MQTT_IMPL, deviceKey);
 
@@ -101,30 +121,34 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                     if(device != null) {
                         if(device.getStatus() == DeviceStatus.offline) {
                             device.setStatus(DeviceStatus.online); // 设备上线
-                            this.deviceService.updateDeviceStatus(device);
+                            IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
                         }
 
                         resolvePayloadValue(dicts, protocol, gatewaySnValue, deviceSnValue, device);
                     } else {
-                        logger.error("处理mqtt报文失败 设备不存在 - 设备: {} - 设备发布: {} - 平台订阅: {}", deviceKey, protocol.getTopic(), topic);
+                        logger.error("mqtt解析topic失败 设备不存在 - 设备: {} - 平台订阅: {} - 设备发布: {}", deviceKey, topic, protocolTopic);
                     }
                 } catch (Exception e) {
-                    logger.error("处理mqtt报文负载到物模型属性失败 未知错误 - 设备发布: {} - 平台订阅: {}", protocol.getTopic(), topic, e);
+                    logger.error("处理mqtt报文负载到物模型属性失败 未知错误 - 平台订阅: {} - 设备发布: {}", topic, protocolTopic, e);
                 }
             });
+        } else {
+            if(logger.isWarnEnabled()) {
+                logger.warn("mqtt处理失败(没有找到Mqtt产品) 没有配置产品或产品未启用 - 设备发布: {}", protocolTopic);
+            }
         }
 
         return null;
     }
 
-    private void resolvePayloadValue(List<ModelAttrDict> dicts, DefaultMqttSubscribeProtocol protocol
+    private void resolvePayloadValue(List<UpModelAttr> dicts, DefaultMqttSubscribeProtocol protocol
             , String gatewaySnValue, String deviceSnValue, RealtimeStatus device) {
         Date date = new Date();
         byte[] message = protocol.requestMessage().getMessage();
         JSONObject jsonObject = JSONObject.parseObject(new String(message, Charset.forName("utf-8")));
         List<SignalOrFieldValue> fieldValues = dicts.stream().map(item -> {
-            Object value = jsonObject.get(item.getAttrField());
-            return new SignalOrFieldValue(Long.valueOf(item.getDictValue()), item.getAttrField(), date, value);
+            Object value = DataValueResolverFactory.resolver(item, jsonObject.get(item.getField()));
+            return new SignalOrFieldValue(item.getId(), item.getField(), date, value);
         }).collect(Collectors.toList());
 
         // 发布模型属性的事件
@@ -135,9 +159,8 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
         });
     }
 
-    private void syncSubscribeApi() {
-        this.syncTime = System.currentTimeMillis();
-        productService.listByProtocolCode(DEFAULT_MQTT_IMPL).forEach(productDto -> {
+    private void syncSubscribeApi(String productCode) {
+        productService.listByProtocolCode(DEFAULT_MQTT_IMPL, productCode).forEach(productDto -> {
             if(CollectionUtil.isEmpty(productDto.getEventApis())) {
                 return; // 没有订阅事件直接返回
             }
@@ -154,10 +177,10 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
 
             List<ModelApi> eventApis = productDto.getEventApis();
             if(CollectionUtil.isNotEmpty(eventApis)) {
+                Map<String, List<UpModelAttr>> subscribeApis = new HashMap<>();
                 eventApis.forEach(api -> {
                     if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
-                        String topic = null;
-                        List<ModelAttrDict> dicts = null;
+                        String topic = null; List<UpModelAttr> attrs = null;
                         for (int i = 0; i < api.getUpConfig().size(); i++) {
                             ModelApiConfig config = api.getUpConfig().get(i);
                             if("topic".equals(config.getProtocolAttrField())) {
@@ -178,22 +201,38 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                                     return;
                                 }
 
-                                dicts = config.getDicts();
+                                attrs = config.getDicts().stream().map(item -> new UpModelAttr(Long.valueOf(item.getDictValue())
+                                        , item.getAttrField(), item.getDictName(), DataType.build(item.getDataType())
+                                        , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript())).collect(Collectors.toList());
                             }
                         }
 
-                        subscribeApis.put(topic, dicts);
+                        subscribeApis.put(topic, attrs);
                     }
                 });
+
+                productSubscribeApis.put(productCode, subscribeApis);
             }
         });
     }
 
     @Override
-    public void started(ApplicationContext context) {
-        cacheManager = context.getBean(IotCacheManager.class);
-        deviceService = context.getBean(IDeviceService.class);
-        productService = context.getBean(IProductService.class);
-        this.syncSubscribeApi();
+    public boolean isEventMatcher(IotEventType eventType) {
+        return eventType == IotEventType.ProductSwitch;
+    }
+
+    @Override
+    public void onIotEvent(IotEventType eventType, EntityPayload payload) {
+        ProductDto productDto = (ProductDto) payload.getPayload();
+
+        // Mqtt网关子设备
+        if(TransportProtocol.MQTT == productDto.getTransportProtocol()
+                && DeviceType.Child == productDto.getDeviceType()) {
+            if(productDto.getStatus() == FuncStatus.enabled) {
+                syncSubscribeApi(productDto.getCode());
+            } else {
+                productSubscribeApis.remove(productDto.getCode());
+            }
+        }
     }
 }

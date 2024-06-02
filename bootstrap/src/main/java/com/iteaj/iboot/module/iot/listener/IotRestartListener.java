@@ -8,6 +8,7 @@ import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfig;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.listener.*;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
@@ -22,10 +23,12 @@ import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.client.TcpSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * iot模块监听应用重启时的初始化
@@ -42,11 +45,16 @@ public class IotRestartListener implements ApplicationReadyListener {
 
     public IotRestartListener(IGatewayService gatewayService
             , IDeviceService deviceService, IProductService productService
-            , IotCacheManager iotCacheManager) {
+            , IotCacheManager iotCacheManager, @Autowired(required = false) List<IotListener> list) {
         this.gatewayService = gatewayService;
         this.deviceService = deviceService;
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
+
+        // 注册事件监听器
+        if(list != null) {
+            list.forEach(item -> IotEvenPublisher.register(item));
+        }
     }
 
     @Override
@@ -93,19 +101,20 @@ public class IotRestartListener implements ApplicationReadyListener {
 
                 if(supplier instanceof ClientProtocolSupplier) {
                     // 先启动网关后才能启动产品
-                    if(item.getGatewayStatus() == GatewayStatus.start) {
-                        this.deviceService.listByProductId(item.getId()).forEach(device -> {
-                            try {
-                                NetworkConfig networkConfig = createClientConfig(supplier, device);
-                                IotClient client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
-                                resolveClientStatus(client);
-                            } catch (Exception e) {
-                                logger.error("<<< 启动产品[{}]下的网关设备[{}]失败", item.getName(), device.getName(), e);
-                            }
-                        });
-                    }
+                    this.deviceService.listByProductId(item.getId()).forEach(device -> {
+                        try {
+                            NetworkConfig networkConfig = createClientConfig(supplier, device);
+                            IotClient client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
+                            resolveClientStatus(client);
+                        } catch (Exception e) {
+                            logger.error("<<< 启动产品[{}]下的网关设备[{}]失败", item.getName(), device.getName(), e);
+                        }
+                    });
                 }
             }
+
+            // 发布产品启用事件
+            IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item));
         });
     }
 

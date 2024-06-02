@@ -14,10 +14,14 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.listener.EntityPayload;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.*;
 import com.iteaj.iboot.module.iot.dto.DeviceTypeCountDto;
@@ -52,15 +56,15 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     private final IProtocolService protocolService;
     private final IModelApiService modelApiService;
     private final IModelAttrService modelAttrService;
-    private final IModelApiConfigService modelApiConfigService;
+    private final IotCacheManager iotCacheManager;
 
     public ProductServiceImpl(IProtocolService protocolService
             , IModelApiService modelApiService, IModelAttrService modelAttrService
-            , IModelApiConfigService modelApiConfigService) {
+            , IotCacheManager iotCacheManager) {
         this.protocolService = protocolService;
         this.modelApiService = modelApiService;
         this.modelAttrService = modelAttrService;
-        this.modelApiConfigService = modelApiConfigService;
+        this.iotCacheManager = iotCacheManager;
     }
 
     @Override
@@ -356,11 +360,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 // 网关子设备的父产品是边缘网关产品
                 if(item.getDeviceType() == DeviceType.Child) {
                     if(status == FuncStatus.enabled) {
-                        this.getById(item.getParentId()).ifNotPresentThrow("查找不到父产品["+item.getGatewayTypeName()+"]")
+                        this.getById(item.getParentId()).ifNotPresentThrow("查找不到父产品")
                             .ifPresent(parent -> {
-                                if(parent.getStatus() == FuncStatus.disabled) {
-                                    throw new ServiceException("请先启用父产品["+parent.getName()+"]");
-                                }
+//                                if(parent.getStatus() == FuncStatus.disabled) {
+//                                    throw new ServiceException("请先启用父产品["+parent.getName()+"]");
+//                                }
                             });
                     }
                 } else if(item.getDeviceType() == DeviceType.Gateway) { // 启用边缘网关下面所有的设备
@@ -371,12 +375,12 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
                     // 校验此网关产品下面有没有已启用的子产品
                     if(status == FuncStatus.disabled) {
-                        this.getOne(Wrappers.<Product>lambdaQuery()
-                                .eq(Product::getParentId, item.getId())
-                                .eq(Product::getStatus, FuncStatus.enabled)
-                                .last("limit 1")).ifPresent(child -> {
-                            throw new ServiceException("请先停用子产品["+child.getName()+"]");
-                        });
+//                        this.getOne(Wrappers.<Product>lambdaQuery()
+//                                .eq(Product::getParentId, item.getId())
+//                                .eq(Product::getStatus, FuncStatus.enabled)
+//                                .last("limit 1")).ifPresent(child -> {
+//                            throw new ServiceException("请先停用子产品["+child.getName()+"]");
+//                        });
                     }
 
                     if(supplier instanceof ClientProtocolSupplier) {
@@ -408,8 +412,26 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                     } else {
                         // 禁用的时候移除掉此产品的状态接口
                         DeviceStatusModelApiManager.getInstance().remove(id);
+
+                         // 产品禁用关闭所有此产品下的设备
+                        iotCacheManager.listByProductCode(item.getCode()).forEach(device -> {
+                            try {
+                                if(device.getStatus() == DeviceStatus.online) {
+                                    device.setStatus(DeviceStatus.offline);
+                                    IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+
                     }
                 }
+
+                /**
+                 * 发布产品状态切换事件
+                 */
+                IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item.setStatus(status)));
             });
     }
 
@@ -425,8 +447,8 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     @Override
-    public ListResult<ProductDto> listByProtocolCode(String protocolCode) {
-        return new ListResult<>(this.getBaseMapper().listByProtocolCode(protocolCode));
+    public ListResult<ProductDto> listByProtocolCode(String protocolCode, String productCode) {
+        return new ListResult<>(this.getBaseMapper().listByProtocolCode(protocolCode, productCode));
     }
 
     @Override

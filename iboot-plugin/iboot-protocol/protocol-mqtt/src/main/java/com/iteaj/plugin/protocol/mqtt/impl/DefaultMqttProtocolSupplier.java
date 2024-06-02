@@ -29,10 +29,10 @@ public class DefaultMqttProtocolSupplier extends StaticClientProtocolSupplier<Ne
         modelAttrs.put("topic", new ProtocolModelAttr("topic", "主题", DataType.t_any, AttrType.IGNORE, "支持使用占位符{deviceSn}{gatewaySn}"));
         modelAttrs.put("payload", new ProtocolModelAttr("payload", "负载", DataType.t_json, AttrType.IGNORE));
         modelApis.put("publish", new DefaultMqttPublishProtocolModelApi("publish", "发布")
-                .addDownConfig(ProtocolModelApiConfig.downBuild("topic", "发布的主题, 支持使用占位符{clientId}{deviceSn}{gatewaySn}", 1))
+                .addDownConfig(ProtocolModelApiConfig.downBuild("topic", "发布的主题, 支持占位符{clientId}{deviceSn}{gatewaySn}", 1))
                 .addDownConfig(ProtocolModelApiConfig.downBuild("payload", "发布的数据", 2)));
         modelApis.put("subscribe", new DefaultMqttSubscribeProtocolModelApi("subscribe", "订阅")
-                .addUpConfig(ProtocolModelApiConfig.upBuild("topic", "匹配的主题, 支持使用占位符{clientId}{deviceSn}{gatewaySn}", 1))
+                .addUpConfig(ProtocolModelApiConfig.upBuild("topic", "必须以其子产品编码开头, 支持占位符{clientId}{deviceSn}{gatewaySn}", 1))
                 .addUpConfig(ProtocolModelApiConfig.upBuild("payload", "订阅的数据", 2)));
     }
 

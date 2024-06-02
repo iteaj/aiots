@@ -15,6 +15,10 @@ import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import com.iteaj.framework.spi.iot.consts.GatewayType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.listener.EntityPayload;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.listener.JsonPayload;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
 import com.iteaj.iboot.module.iot.dto.GatewayDto;
 import com.iteaj.iboot.module.iot.entity.Gateway;
@@ -140,6 +144,9 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
                 .set(Gateway::getStatus, status)
                 .set(Gateway::getReason, "")
                 .eq(Gateway::getId, gatewayDto.getId()));
+
+        // 发布网关状态切换事件
+        IotEvenPublisher.publish(IotEventType.GatewaySwitch, new EntityPayload(gatewayDto.setStatus(status)));
     }
 
     private void doSwitchStatus(GatewayDto gateway, GatewayStatus status) {

@@ -1,12 +1,10 @@
 package com.iteaj.framework.spi.iot;
 
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.resolver.DefaultResolver;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataValueResolverFactory {
 
@@ -31,11 +29,25 @@ public class DataValueResolverFactory {
     }
 
     public static void register(String key, DataValueResolver resolver) {
-        resolverMap.put(key, resolver);
+        resolverMap.putIfAbsent(key, resolver);
     }
 
     public static DataValueResolver update(String key, DataValueResolver resolver) {
-        return resolverMap.putIfAbsent(key, resolver);
+        if(Objects.equals(DEFAULT_KEY, key)) {
+            throw new ServiceException("不支持替换默认解析器");
+        }
+
+        return resolverMap.put(key, resolver);
+    }
+
+    public static Object resolver(UpModelAttr attr, Object value) {
+        DataValueResolver resolver = defaultResolver;
+        if(attr.getResolver() != null) {
+            DataValueResolver valueResolver = DataValueResolverFactory.get(attr.getResolver());
+            resolver = valueResolver == null ? resolver : valueResolver;
+        }
+
+        return resolver.resolver(attr, value);
     }
 
     public static List<IVOption> options() {
