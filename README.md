@@ -11,15 +11,18 @@ iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关�
       iboot只是一个springboot单体项目，只依赖mysql服务和nginx服务就可以，部署简单，运行效率高
 4. ##### 我们设备种类很多，iboot支持自定义设备接入吗<br>
       iboot支持以自定义jar包的方式提供设备驱动, 理论上可以支持任何设备
-5. ##### 我么设备量也多，采集的数据量就一台mysql肯定扛不住要怎么办<br>
+5. ##### 我们设备量大，采集的数据量多就一台mysql肯定扛不住怎么办<br>
+      iboot支持多数据源，支持采集的数据切换到时序数据库(默认TDengine)
+6. ##### 有朋友问我们对TDengine不熟，想使用其他的时序数据源好切换吗 如. influxdb
+      iboot系统关键部位架构在插件化的形式所以可以很方便的进行切换和自定义
 
       
       
 
 #### 语言和框架
-1. 后端：java1.8、spring boot2、、mybatis、mybatis-plus、shiro、thymeleaf、hikaricp
-2. 前端：vue2.6、antd、axios、qs、moment、validate
-3. 数据： mysql5.7+
+1. 后端：java1.8、spring boot2.7、、mybatis、mybatis-plus、shiro、satoken、thymeleaf、hikaricp
+2. 前端：vue3、antd、axios、qs、moment、validate
+3. 数据： mysql8.0+
 4. 开发工具：idea
 
 #### 参与贡献
