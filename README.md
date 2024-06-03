@@ -25,6 +25,7 @@ iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关�
 #### 核心功能页面
 ![产品页面](https://iot.iteaj.com/show/product.png)
 ![联动页面](https://iot.iteaj.com/show/liakage.png)
+![mqtt协议页面](https://iot.iteaj.com/show/mqtt.png)
 ![告警页面](https://iot.iteaj.com/show/warn.png)
 ![网络页面](https://iot.iteaj.com/show/network.png)
 ![地图页面](https://iot.iteaj.com/show/map.png)
