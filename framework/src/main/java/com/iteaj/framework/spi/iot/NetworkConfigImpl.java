@@ -190,9 +190,9 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
                 ParamMeta.build("username", "用户名"),
                 ParamMeta.build("password", "密码"),
                 ParamMeta.buildRequired("clientId", "客户端id"),
-                ParamMeta.buildNumber("keepalive", "保活时间(秒)", 600, "").setPlaceholder("必须是大于0的整数"),
+                ParamMeta.buildNumber("keepalive", "保活时间(秒)", 3600, "").setPlaceholder("必须是大于0的整数"),
                 ParamMeta.buildRequiredNumber("qos", "消息等级", 0, "").setPlaceholder("可选值(0、1、2)"),
-                ParamMeta.buildRequired("topics", "订阅的主题", "主题第一级必须是产品编码", "").setPlaceholder("订阅的主题列表以逗号隔开"),
+                ParamMeta.buildRequired("topics", "订阅的主题", "以网关子设备的产品编码开头", "").setPlaceholder("订阅的主题列表以逗号隔开"),
         };
 
         @Override

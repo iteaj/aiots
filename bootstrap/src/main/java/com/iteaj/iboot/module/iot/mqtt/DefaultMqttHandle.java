@@ -22,15 +22,13 @@ import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iot.client.ClientProtocolHandle;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttConnectProperties;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttSubscribeProtocol;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -44,7 +42,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
     private IotCacheManager cacheManager;
     private IProductService productService;
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private Map<String, Map<String, List<UpModelAttr>>> productSubscribeApis = new ConcurrentHashMap<>();
+    private Map<String, Map<String, SubscribeConfig>> productSubscribeApis = new ConcurrentHashMap<>();
 
     public DefaultMqttHandle(IotCacheManager cacheManager, IProductService productService) {
         this.cacheManager = cacheManager;
@@ -56,9 +54,9 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
 
         String protocolTopic = protocol.getTopic(); // 设备发布的topic
         String[] subscribeTopic = protocolTopic.split("/");
-        Map<String, List<UpModelAttr>> subscribeApis = productSubscribeApis.get(subscribeTopic[0]);
+        Map<String, SubscribeConfig> subscribeApis = productSubscribeApis.get(subscribeTopic[0]);
         if(CollectionUtil.isNotEmpty(subscribeApis)) {
-            subscribeApis.forEach((topic, dicts) -> {
+            subscribeApis.forEach((topic, config) -> {
                 String[] modelTopic = topic.split("/");
                 if(modelTopic.length != subscribeTopic.length) { // 不匹配
                     if(logger.isDebugEnabled()) {
@@ -119,12 +117,17 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
 
                 try {
                     if(device != null) {
-                        if(device.getStatus() == DeviceStatus.offline) {
+                        if(device.getStatus() == DeviceStatus.offline && !config.isWill()) {
                             device.setStatus(DeviceStatus.online); // 设备上线
+                            IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                        } else if(config.isWill()) {
+                            device.setStatus(DeviceStatus.offline); // 设备离线
                             IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
                         }
 
-                        resolvePayloadValue(dicts, protocol, gatewaySnValue, deviceSnValue, device);
+                        if(CollectionUtil.isNotEmpty(config.getAttrs())) {
+                            resolvePayloadValue(config.getAttrs(), protocol, gatewaySnValue, deviceSnValue, device);
+                        }
                     } else {
                         logger.error("mqtt解析topic失败 设备不存在 - 设备: {} - 平台订阅: {} - 设备发布: {}", deviceKey, topic, protocolTopic);
                     }
@@ -177,10 +180,10 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
 
             List<ModelApi> eventApis = productDto.getEventApis();
             if(CollectionUtil.isNotEmpty(eventApis)) {
-                Map<String, List<UpModelAttr>> subscribeApis = new HashMap<>();
+                Map<String, SubscribeConfig> subscribeApis = new HashMap<>();
                 eventApis.forEach(api -> {
                     if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
-                        String topic = null; List<UpModelAttr> attrs = null;
+                        String topic = null; List<UpModelAttr> attrs = new ArrayList<>(); boolean isWill = false;
                         for (int i = 0; i < api.getUpConfig().size(); i++) {
                             ModelApiConfig config = api.getUpConfig().get(i);
                             if("topic".equals(config.getProtocolAttrField())) {
@@ -192,22 +195,25 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                                 }
                             } else if("payload".equals(config.getProtocolAttrField())) {
                                 if(config.getModelAttrId() == null) {
-                                    logger.error("解析mqtt物模型失败 payload没有配置属性 - 产品: {}", productDto.getName(), new IllegalArgumentException("payload没有配置属性"));
-                                    return;
+                                    if(logger.isDebugEnabled()) {
+                                        logger.debug("解析mqtt物模型 payload没有配置属性 - 产品: {}", productDto.getName(), "payload没有配置属性");
+                                    }
+                                } else if(CollectionUtil.isEmpty(config.getDicts())) {
+                                    if(logger.isDebugEnabled()) {
+                                        logger.debug("解析mqtt物模型 payload属性没有配置项 - 产品: {}", productDto.getName(), "payload属性没有配置项");
+                                    }
+                                } else {
+                                    attrs = config.getDicts().stream().map(item -> new UpModelAttr(Long.valueOf(item.getDictValue())
+                                            , item.getAttrField(), item.getDictName(), DataType.build(item.getDataType())
+                                            , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript())).collect(Collectors.toList());
                                 }
 
-                                if(CollectionUtil.isEmpty(config.getDicts())) {
-                                    logger.error("解析mqtt物模型失败 payload属性没有配置项 - 产品: {}", productDto.getName(), new IllegalArgumentException("payload属性没有配置项"));
-                                    return;
-                                }
-
-                                attrs = config.getDicts().stream().map(item -> new UpModelAttr(Long.valueOf(item.getDictValue())
-                                        , item.getAttrField(), item.getDictName(), DataType.build(item.getDataType())
-                                        , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript())).collect(Collectors.toList());
+                            } else {
+                                isWill = Boolean.valueOf(config.getValue());
                             }
                         }
 
-                        subscribeApis.put(topic, attrs);
+                        subscribeApis.put(topic, new SubscribeConfig(isWill, attrs));
                     }
                 });
 
@@ -233,6 +239,24 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
             } else {
                 productSubscribeApis.remove(productDto.getCode());
             }
+        }
+    }
+
+    @Getter
+    public class SubscribeConfig {
+        /**
+         * 是否遗嘱
+         */
+        private boolean isWill;
+
+        /**
+         * 属性配置
+         */
+        private List<UpModelAttr> attrs;
+
+        public SubscribeConfig(boolean isWill, List<UpModelAttr> attrs) {
+            this.isWill = isWill;
+            this.attrs = attrs;
         }
     }
 }
