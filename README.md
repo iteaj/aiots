@@ -24,7 +24,7 @@ iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关�
       iboot的开源产品是收费产品的基础，因为我们只对部分功能收费，收费版本是开发版本的底层分支，核心的功能收费分支都是直接合并的开发分支，所以不需要担心，因为他们是同一套代码，只是收费版本多了一些高级功能
 #### 核心功能页面
 ![产品页面](https://iot.iteaj.com/show/product.png)
-![联动页面](https://iot.iteaj.com/show/liakage.png)
+![联动页面](https://iot.iteaj.com/show/linkage.png)
 ![mqtt协议页面](https://iot.iteaj.com/show/mqtt.png)
 ![告警页面](https://iot.iteaj.com/show/warn.png)
 ![网络页面](https://iot.iteaj.com/show/network.png)
