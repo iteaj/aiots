@@ -7,7 +7,6 @@ import com.dahuatech.icc.oauth.model.v202010.GeneralRequest;
 import com.dahuatech.icc.oauth.model.v202010.GeneralResponse;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.ProtocolHandle;
-import com.iteaj.iot.client.http.ClientHttpProtocol;
 import com.iteaj.iot.client.http.HttpClientProtocol;
 import com.iteaj.iot.client.http.HttpMethod;
 import com.iteaj.iot.client.http.HttpProtocolException;
