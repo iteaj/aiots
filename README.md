@@ -25,6 +25,7 @@ iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关�
 #### 系统安装环境
   iboot是一个springboot单体架构，只需要一台云服务器；安装java运行环境、mysql数据库、nginx代理服务即可
 #### 服务器配置
+  云服务器最低配置在2核8G，cpu密集型、硬盘看采集的数据量(120G+)
       
 
 #### 语言和框架
