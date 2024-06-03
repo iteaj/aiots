@@ -139,7 +139,7 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
             DtuMessageAware delegation = component.getDtuMessageAwareDelegation();
             if(delegation.messageType() != config.getMessageType()) {
                 if(delegation instanceof DefaultDtuMessageAware) {
-                    ((DefaultDtuMessageAware<?>) delegation).setMessageType(config.getMessageType());
+//                    ((DefaultDtuMessageAware<?>) delegation).setMessageType(config.getMessageType());
                 }
             }
 

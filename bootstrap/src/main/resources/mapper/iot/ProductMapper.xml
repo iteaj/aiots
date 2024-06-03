@@ -27,7 +27,6 @@
         <result property="ctrlMode" column="ctrl_mode" />
         <result property="deviceCount" column="device_count" />
         <result property="gatewayStatus" column="gateway_status" />
-        <result property="connectionType" column="connection_type" />
         <result property="transportProtocol" column="transport_protocol" />
     </resultMap>
     <resultMap id="JoinDetailMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
@@ -78,7 +77,7 @@
         order by a.create_time desc
     </select>
     <select id="detailById" resultMap="BaseResultDtoMap">
-        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code, ip.connection_type
+        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code, ig.connect_type
              , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, ig.status gateway_status from iot_product a
              left join iot_product_type idt on a.product_type_id=idt.id
              left join iot_gateway ig on a.gateway_id=ig.id
@@ -95,11 +94,10 @@
 
     <select id="listOfDetail" resultMap="BaseResultDtoMap">
         select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code
-        , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, ig.connect_type, ig.status gateway_status
-        from iot_product a
-        left join iot_product_type idt on a.product_type_id=idt.id
-        left join iot_gateway ig on a.gateway_id=ig.id
-        left join iot_protocol ip on ip.id = a.protocol_id
+        , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, ig.connect_type, ig.status gateway_status from iot_product a
+            left join iot_product_type idt on a.product_type_id=idt.id
+            left join iot_gateway ig on a.gateway_id=ig.id
+            left join iot_protocol ip on ip.id = a.protocol_id
         <where>
             <if test="gatewayId != null">
                 and a.gateway_id=#{gatewayId}
@@ -126,7 +124,8 @@
     </select>
 
     <select id="joinDetailById" resultMap="JoinDetailMap">
-        select a.*, ig.id gateway_id, ig.name gateway_name, ip.ctrl_mode, ip.name protocol_name, ip.code protocol_code, ig.status gateway_status from iot_product a
+        select a.*, ig.id gateway_id, ig.name gateway_name, ip.ctrl_mode, ip.name protocol_name, ip.type transport_protocol
+             , ip.code protocol_code, ig.status gateway_status, ig.type gateway_type from iot_product a
             left join iot_gateway ig on a.gateway_id=ig.id
             left join iot_protocol ip on ip.id = a.protocol_id
         where a.id=#{productId}
@@ -161,6 +160,7 @@
     </select>
     <select id="listByProtocolCode" resultMap="JoinDetailMap">
         select a.* from iot_product a where a.protocol_code=#{protocolCode}
+        <if test="productCode != null and productCode != ''">and a.code = #{productCode}</if>
     </select>
     <select id="countStatusProfile" resultType="com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto">
         select count(1) totalNum, count(if(status='enabled', 1, null)) enabledNum from iot_product

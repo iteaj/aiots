@@ -20,6 +20,7 @@ import com.iteaj.iboot.plugin.satoken.impl.StpInterfaceImpl;
 import com.iteaj.iboot.plugin.satoken.listener.SaTokenOnlineListener;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -34,6 +35,12 @@ import java.util.List;
 
 @ProfilesInclude("satoken")
 public class SaTokenAutoConfiguration implements WebMvcConfigurer {
+
+    private final List<OrderFilterChainDefinition> definitions;
+
+    public SaTokenAutoConfiguration(List<OrderFilterChainDefinition> definitions) {
+        this.definitions = definitions;
+    }
 
     @Bean
     public SaTokenOnlineListener saTokenOnlineListener() {
@@ -57,7 +64,14 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/**");
+        InterceptorRegistration registration = registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/**");
+        definitions.forEach(item -> {
+            item.getFilterChainMap().forEach((key, value) -> {
+                if("anon".endsWith(value)) {
+                    registration.excludePathPatterns(key);
+                }
+            });
+        });
     }
 
     @Bean

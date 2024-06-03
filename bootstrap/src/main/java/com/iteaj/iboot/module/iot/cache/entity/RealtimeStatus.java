@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.cache.entity;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.DeviceKey;
+import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import lombok.Data;
@@ -16,7 +17,7 @@ import static com.iteaj.framework.spi.iot.DeviceKey.DEVICE_SPILT;
  * 设备实时状态
  */
 @Data
-public class RealtimeStatus {
+public class RealtimeStatus implements IotEventPayload {
 
     /**
      * 设备所属uid

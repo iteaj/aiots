@@ -67,9 +67,10 @@ public interface ProductMapper extends BaseMapper<Product> {
     /**
      * 获取指定协议下面的模型接口
      * @param protocolCode
+     * @param productCode
      * @return
      */
-    List<ProductDto> listByProtocolCode(String protocolCode);
+    List<ProductDto> listByProtocolCode(String protocolCode, String productCode);
 
     /**
      * 统计产品状态信息

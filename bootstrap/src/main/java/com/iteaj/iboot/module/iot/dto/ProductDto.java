@@ -27,11 +27,6 @@ public class ProductDto extends Product {
     private CtrlMode ctrlMode;
 
     /**
-     * 连接类型
-     */
-    private ConnectionType connectionType;
-
-    /**
      * 网关状态
      */
     private GatewayStatus gatewayStatus;

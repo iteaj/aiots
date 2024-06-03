@@ -5,25 +5,17 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
-import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.*;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
-import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
-import com.iteaj.iboot.module.iot.consts.GatewayStatus;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
-import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
-import com.iteaj.iot.client.IotClient;
-import com.iteaj.iot.client.TcpSocketClient;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -161,5 +153,13 @@ public class ProductController extends BaseController {
         return this.productService.listByPoint();
     }
 
+    /**
+     * 解析器列表
+     * @return
+     */
+    @GetMapping("resolvers")
+    public Result<List<IVOption>> resolvers() {
+        return success(DataValueResolverFactory.options());
+    }
 }
 

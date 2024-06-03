@@ -175,7 +175,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
                         entity.setConfig(new JSONObject()); // 空配置项
                     }
-                    if(productDto.getStatus() == FuncStatus.enabled && productDto.getConnectionType() == ConnectionType.Client) {
+                    if(productDto.getStatus() == FuncStatus.enabled && productDto.getConnectType() == ConnectionType.Client) {
                         if(supplier != null) {
                             try {
                                 IotNetworkUtil.networkCtrl(supplier, entity, FuncStatus.enabled);
