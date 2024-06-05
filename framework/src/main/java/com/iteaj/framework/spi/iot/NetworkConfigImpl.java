@@ -124,12 +124,18 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
     @Data
     public static class SerialConfig extends NetworkConfigImpl {
 
+        public SerialConfig() { }
+
         public SerialConfig(String com) {
             super(com, null);
         }
 
         public String getCom() {
             return this.getHost();
+        }
+
+        public void setCom(String com) {
+            this.setHost(com);
         }
 
         public static ParamMeta[] serialMetas = new ParamMeta[]{

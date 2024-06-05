@@ -44,6 +44,29 @@ public abstract class StaticProtocolSupplier<C extends NetworkConfigImpl, T exte
      */
     protected abstract T doCreateComponent(C config);
 
+    /**
+     * 属性值数据解析
+     * @param attr
+     * @param value
+     * @return
+     */
+    protected Object dataResolver(UpModelAttr attr, Object value) {
+        DataValueResolver resolver = DataValueResolverFactory.getDefault();
+        if(attr.getResolver() != null && attr.getResolver().length() > 0) {
+            resolver = DataValueResolverFactory.get(attr.getResolver());
+        }
+
+        if(resolver == null) {
+            if(supplierLogger.isWarnEnabled()) {
+                supplierLogger.warn("未找到数据解析器({}) {} - 字段: {} - 值: {}", attr.getResolver(), getDesc(), attr.getField(), value);
+            }
+
+            resolver = DataValueResolverFactory.getDefault();
+        }
+
+        return resolver.resolver(attr, value);
+    }
+
     @Override
     public boolean equals(Object obj) {
         DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) obj;

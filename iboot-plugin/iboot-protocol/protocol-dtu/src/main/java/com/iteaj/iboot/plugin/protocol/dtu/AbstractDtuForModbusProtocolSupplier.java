@@ -70,7 +70,7 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
     }
 
     public AbstractDtuForModbusProtocolSupplier(String code) {
-        protocolModel = new DefaultProtocolModel(code, CtrlMode.POINT, TransportProtocol.TCP, "用于提供边缘网关设备Dtu+Modbus Rtu协议的支持")
+        protocolModel = new DefaultProtocolModel(code, CtrlMode.POINT, TransportProtocol.TCP, "用于提供边缘网关设备Dtu+Modbus协议的支持")
                 .addModelAttr(new ProtocolModelAttr(dataType, "数据类型", DataType.t_string, AttrType.IGNORE,"要操作的数据类型"))
                 .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_NUMBER, "寄存器数量", DataType.t_int, AttrType.IGNORE, numRemark))
                 .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_ADDRESS, "寄存器地址", DataType.t_string, AttrType.IGNORE, "寄存器地址"))

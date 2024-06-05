@@ -1,33 +1,30 @@
 package com.iteaj.iboot.module.iot.listener;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.NetworkConfig;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.framework.spi.iot.listener.*;
+import com.iteaj.framework.spi.iot.listener.EntityPayload;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.listener.IotListener;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IGatewayService;
 import com.iteaj.iboot.module.iot.service.IProductService;
-import com.iteaj.iot.client.IotClient;
-import com.iteaj.iot.client.TcpSocketClient;
+import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 /**
@@ -103,9 +100,7 @@ public class IotRestartListener implements ApplicationReadyListener {
                     // 先启动网关后才能启动产品
                     this.deviceService.listByProductId(item.getId()).forEach(device -> {
                         try {
-                            NetworkConfig networkConfig = createClientConfig(supplier, device);
-                            IotClient client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
-                            resolveClientStatus(client);
+                            IotNetworkUtil.networkCtrl(supplier, device, FuncStatus.enabled);
                         } catch (Exception e) {
                             logger.error("<<< 启动产品[{}]下的网关设备[{}]失败", item.getName(), device.getName(), e);
                         }
@@ -116,24 +111,6 @@ public class IotRestartListener implements ApplicationReadyListener {
             // 发布产品启用事件
             IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item));
         });
-    }
-
-    private void resolveClientStatus(IotClient client) {
-        if(client instanceof TcpSocketClient) {
-            if(!((TcpSocketClient) client).isConnect()) {
-                client.connect();
-            }
-        }
-    }
-
-    private NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, DeviceDto device) {
-        JSONObject config = device.getConfig();
-        if(config == null) {
-            throw new ServiceException("设备[" + device.getName() + " / " + device.getDeviceSn() + "]缺少配置");
-        }
-
-        config.put("deviceSn", device.getDeviceSn());
-        return config.toJavaObject((Type) supplier.getNetworkConfigClazz());
     }
 
     /**

@@ -1454,6 +1454,9 @@ alter table iot_model_attr
 alter table iot_model_attr
     add script varchar(512) null comment '脚本';
 
+alter table iot_collect_data
+    modify collect_task_id bigint null comment '任务id';
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
