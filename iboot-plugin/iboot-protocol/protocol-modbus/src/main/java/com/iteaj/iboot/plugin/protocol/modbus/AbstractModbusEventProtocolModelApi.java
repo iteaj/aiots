@@ -12,6 +12,7 @@ import com.iteaj.iot.Protocol;
 import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.consts.ExecStatus;
+import com.iteaj.iot.format.DataFormat;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.Payload;
 import com.iteaj.iot.modbus.RealCoilPayload;
@@ -121,6 +122,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
     protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
         ExecStatus execStatus;
         InvokeResult invokeResult = null;
+        DataFormat dataFormat = DataFormat.valueOf(arg.getDeviceConfig("dataFormat"));
         try {
             if(protocol instanceof ModbusTcpClientCommonProtocol) {
                 IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), ModbusTcpClientMessage.class);
@@ -131,7 +133,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                     if(execStatus == ExecStatus.success) {
                         ModbusTcpBody body = commonProtocol.responseMessage().getBody();
                         if(body.isSuccess()) {
-                            Payload payload = commonProtocol.getPayload();
+                            Payload payload = commonProtocol.getPayload(dataFormat);
                             Object value = getValue(payload, arg);
                             invokeResult = InvokeResult.status(execStatus, value, protocol);
                         } else {
@@ -153,7 +155,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                     if(execStatus == ExecStatus.success) {
                         ModbusRtuBody body = commonProtocol.responseMessage().getBody();
                         if(body.isSuccess()) {
-                            Payload payload = commonProtocol.getPayload();
+                            Payload payload = commonProtocol.getPayload(dataFormat);
                             Object value = getValue(payload, arg);
                             invokeResult = InvokeResult.status(execStatus, value, protocol);
                         } else {

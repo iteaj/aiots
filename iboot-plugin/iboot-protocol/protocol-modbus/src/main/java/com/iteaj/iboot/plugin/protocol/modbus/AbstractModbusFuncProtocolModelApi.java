@@ -9,7 +9,9 @@ import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.client.IotClient;
+import com.iteaj.iot.format.DataFormat;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
+import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientMessage;
 import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientProtocol;
 import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientCommonProtocol;
 import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientMessage;
@@ -47,8 +49,6 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
             throw new ProtocolInvokeException("寄存器地址必须是[0-65535]的数字");
         }
 
-        byte[] writeValue = new byte[0];
-
         int childSn;
         try {
             childSn = Integer.valueOf(arg.getDeviceSn());
@@ -68,12 +68,12 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
                 protocol = this.buildWrite06(childSn, start, aShort);
                 break;
             case Write0F:
-                protocol = this.buildWrite0F(childSn, start, writeValue);
+                protocol = this.buildWrite0F(childSn, start, new byte[]{});
                 break;
             case Write10:
-                writeValue = getValue(arg.getString(AbstractModbusProtocolSupplier.dataType), value);
-                int num = writeValue.length % 2 == 0 ? writeValue.length / 2 : writeValue.length / 2 + 1;
-                protocol = this.buildWrite10(childSn, start, num, writeValue);
+                String dataFormat = arg.getDeviceConfig("dataFormat");
+                Object writeValue = getValue(arg.getString(AbstractModbusProtocolSupplier.dataType), value);
+                protocol = this.buildWrite10(childSn, start, DataFormat.valueOf(dataFormat), writeValue);
                 break;
             default:
                 throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码["+getCode()+"]");
@@ -85,19 +85,19 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
     protected abstract ModbusCommonProtocol buildWrite05(int device, int start, ModbusCoilStatus status);
     protected abstract ModbusCommonProtocol buildWrite06(int device, int start, short value);
     protected abstract ModbusCommonProtocol buildWrite0F(int device, int start, byte[] write);
-    protected abstract ModbusCommonProtocol buildWrite10(int device, int start, int num, byte[] write);
+    protected abstract ModbusCommonProtocol buildWrite10(int device, int start, DataFormat format, Object value);
 
-    private byte[] getValue(String dataType, String value) {
+    private Object getValue(String dataType, String value) {
         switch (dataType) {
-            case "int": return ByteUtil.getBytes(Integer.valueOf(value));
-            case "float": return ByteUtil.getBytes(Float.valueOf(value));
-            case "double": return ByteUtil.getBytes(Double.valueOf(value));
-            case "short": return ByteUtil.getBytesOfReverse(Short.valueOf(value));
-            case "long": return ByteUtil.getBytes(Long.valueOf(value));
+            case "int": return Integer.valueOf(value);
+            case "float": return Float.valueOf(value);
+            case "double": return Double.valueOf(value);
+            case "short": return Short.valueOf(value);
+            case "long": return Long.valueOf(value);
             case "hex":
                 return ByteUtil.hexToByte(value);
             case "string":
-                return value.getBytes(StandardCharsets.UTF_8);
+                return value;
             default: throw new IllegalArgumentException("不支持的值类型["+dataType+"]");
         }
     }
@@ -114,13 +114,13 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
                     throw new ProtocolInvokeException("网关设备不存在["+arg.getParentDeviceSn()+"]");
                 }
             } else {
-                String com = arg.getDeviceConfig("com");
-                IotClient client = FrameworkManager.getClient(com, ModbusTcpClientMessage.class);
+                String com = arg.getParentDeviceSn();
+                IotClient client = FrameworkManager.getClient(com, ModbusRtuClientMessage.class);
                 if(client != null) {
                     ((ModbusRtuClientProtocol)protocol).request(com);
                     result.accept(InvokeResult.status(((ModbusRtuClientProtocol) protocol).getExecStatus(), protocol));
                 } else {
-                    throw new ProtocolInvokeException("网关设备不存在[" + arg.getParentDeviceSn() + "(" + com + ")]");
+                    throw new ProtocolInvokeException("网关设备不存在[" + arg.getParentDeviceSn() + "]");
                 }
             }
         } catch (ProtocolException e) {

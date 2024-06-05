@@ -8,6 +8,7 @@ import com.iteaj.framework.spi.iot.protocol.AbstractFuncProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.ProtocolException;
+import com.iteaj.iot.format.DataFormat;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.consts.ModbusCoilStatus;
@@ -43,8 +44,6 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
             throw new ProtocolInvokeException("寄存器地址必须是[0-65535]的数字");
         }
 
-        byte[] writeValue = new byte[0];
-
         int childSn;
         try {
             childSn = Integer.valueOf(arg.getDeviceSn());
@@ -71,12 +70,12 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
                 protocol = this.buildWrite06(deviceSn, childSn, start, aShort);
                 break;
             case Write0F:
-                protocol = this.buildWrite0F(deviceSn, childSn, start, writeValue);
+                protocol = this.buildWrite0F(deviceSn, childSn, start, new byte[]{});
                 break;
             case Write10:
-                writeValue = getValue(arg.getString(AbstractDtuForModbusProtocolSupplier.dataType), value);
-                int num = writeValue.length % 2 == 0 ? writeValue.length / 2 : writeValue.length / 2 + 1;
-                protocol = this.buildWrite10(deviceSn, childSn, start, num, writeValue);
+                String dataFormat = arg.getDeviceConfig("dataFormat");
+                Object writeValue = getValue(arg.getString(AbstractDtuForModbusProtocolSupplier.dataType), value);
+                protocol = this.buildWrite10(deviceSn, childSn, start, DataFormat.valueOf(dataFormat), writeValue);
                 break;
             default:
                 throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码["+getCode()+"]");
@@ -88,19 +87,19 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
     protected abstract ModbusCommonProtocol buildWrite05(String equipCode, int device, int start, ModbusCoilStatus status);
     protected abstract ModbusCommonProtocol buildWrite06(String equipCode, int device, int start, short value);
     protected abstract ModbusCommonProtocol buildWrite0F(String equipCode, int device, int start, byte[] write);
-    protected abstract ModbusCommonProtocol buildWrite10(String equipCode, int device, int start, int num, byte[] write);
+    protected abstract ModbusCommonProtocol buildWrite10(String equipCode, int device, int start, DataFormat format, Object value);
 
-    private byte[] getValue(String dataType, String value) {
+    private Object getValue(String dataType, String value) {
         switch (dataType) {
-            case "int": return ByteUtil.getBytes(Integer.valueOf(value));
-            case "float": return ByteUtil.getBytes(Float.valueOf(value));
-            case "double": return ByteUtil.getBytes(Double.valueOf(value));
-            case "short": return ByteUtil.getBytesOfReverse(Short.valueOf(value));
-            case "long": return ByteUtil.getBytes(Long.valueOf(value));
+            case "int": return Integer.valueOf(value);
+            case "float": return Float.valueOf(value);
+            case "double": return Double.valueOf(value);
+            case "short": return Short.valueOf(value);
+            case "long": return Long.valueOf(value);
             case "hex":
                 return ByteUtil.hexToByte(value);
             case "string":
-                return value.getBytes(StandardCharsets.UTF_8);
+                return value;
             default: throw new IllegalArgumentException("不支持的值类型["+dataType+"]");
         }
     }
