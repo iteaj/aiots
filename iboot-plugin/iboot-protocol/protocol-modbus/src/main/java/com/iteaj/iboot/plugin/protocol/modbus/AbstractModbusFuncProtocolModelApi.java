@@ -108,7 +108,12 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
             if(protocol instanceof ModbusTcpClientCommonProtocol) {
                 IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), ModbusTcpClientMessage.class);
                 if(client != null) {
-                    ((ModbusTcpClientCommonProtocol)protocol).request(client.getConfig());
+                    Integer timeout = arg.getParentDeviceConfig("timeout");
+                    if(timeout == null || timeout <= 0) {
+                        throw new ProtocolInvokeException("请求超时时间必须大于0["+timeout+"]");
+                    }
+
+                    ((ModbusTcpClientCommonProtocol)protocol).sync(timeout * 1000).request(client.getConfig());
                     result.accept(InvokeResult.status(((ModbusTcpClientCommonProtocol) protocol).getExecStatus(), protocol));
                 } else {
                     throw new ProtocolInvokeException("网关设备不存在["+arg.getParentDeviceSn()+"]");

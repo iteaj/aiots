@@ -29,7 +29,7 @@
              , f.name field_name
         from iot_collect_data a
             left join iot_device d on a.uid=d.uid
-            left join iot_product p on p.id = d.product_id
+#             left join iot_product p on p.id = d.product_id
         <choose>
             <when test="entity.collectMode == 'model'">
                 left join iot_model_attr f on f.id = a.signal_id
@@ -44,6 +44,9 @@
             </if>
             <if test="entity.cid != null">
                 and a.cid=#{entity.cid}
+            </if>
+            <if test="entity.deviceSn != null and entity.deviceSn != ''">
+                and d.device_sn=#{entity.deviceSn}
             </if>
             <if test="entity.collectMode != null">
                 and a.collect_mode = #{entity.collectMode}

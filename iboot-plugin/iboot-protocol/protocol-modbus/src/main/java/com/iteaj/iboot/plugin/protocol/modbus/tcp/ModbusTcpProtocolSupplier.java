@@ -14,8 +14,9 @@ public class ModbusTcpProtocolSupplier extends AbstractModbusProtocolSupplier<Ne
 
     private ParamMeta[] GatewayMetas = new ParamMeta[]{
             ParamMeta.buildRequired("host", "主机"),
-            ParamMeta.buildRequiredNumber("port", "端口", 502, "必须是[1-65535]的整数"),
-            ParamMeta.buildNumber("readIdle", "读写空闲(秒)", 0, "必须是大于0的整数"),
+            ParamMeta.buildRequiredNumber("port", "端口", 502, ""),
+            ParamMeta.buildRequiredNumber("timeout", "请求超时(秒)", 5, "请求超时时间"),
+            ParamMeta.buildNumber("readIdle", "读空闲(秒)", 0, "小于等于0则不启用"),
     };
 
     public ModbusTcpProtocolSupplier() {

@@ -40,9 +40,6 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
     protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
         ModbusCode modbusCode = ModbusCode.valueOf(getCode());
         String dataType = arg.getString(AbstractDtuForModbusProtocolSupplier.dataType);
-        if(StrUtil.isBlank(dataType)) {
-            throw new ProtocolInvokeException("未找到数据类型参数");
-        }
 
         int start;
         try {
@@ -74,10 +71,18 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 protocol = this.buildRead02(deviceSn, childSn, start, num);
                 break;
             case Read03:
+                if(StrUtil.isBlank(dataType)) {
+                    throw new ProtocolInvokeException("未找到数据类型参数");
+                }
+
                 num = getNum(arg, dataType);
                 protocol = this.buildRead03(deviceSn, childSn, start, num);
                 break;
             case Read04:
+                if(StrUtil.isBlank(dataType)) {
+                    throw new ProtocolInvokeException("未找到数据类型参数");
+                }
+
                 num = getNum(arg, dataType);
                 protocol = this.buildRead04(deviceSn, childSn, start, num);
                 break;

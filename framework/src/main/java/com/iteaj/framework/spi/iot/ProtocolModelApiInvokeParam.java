@@ -36,6 +36,7 @@ public class ProtocolModelApiInvokeParam {
 
     public static final String INVOKE_API = "_InvokeApi";
     public static final String DEVICE_CONFIG = "_DeviceConfig";
+    public static final String PARENT_DEVICE_CONFIG = "_ParentDeviceConfig";
     public static final String INVOKE_UP_CONFIG = "_InvokeUpConfig";
 
     public ProtocolModelApiInvokeParam() { }
@@ -150,8 +151,22 @@ public class ProtocolModelApiInvokeParam {
         this.addConfig(DEVICE_CONFIG, config); return this;
     }
 
+    public ProtocolModelApiInvokeParam addParentDeviceConfig(JSONObject config) {
+        this.addConfig(PARENT_DEVICE_CONFIG, config); return this;
+    }
+
     public <T> T getDeviceConfig(String key) {
         JSONObject config = this.getConfig(DEVICE_CONFIG);
+        if(config instanceof JSONObject) {
+            Object o = config.get(key);
+            return o != null ? (T) o : null;
+        }
+
+        return null;
+    }
+
+    public <T> T getParentDeviceConfig(String key) {
+        JSONObject config = this.getConfig(PARENT_DEVICE_CONFIG);
         if(config instanceof JSONObject) {
             Object o = config.get(key);
             return o != null ? (T) o : null;

@@ -46,9 +46,6 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
     protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
         ModbusCode modbusCode = ModbusCode.valueOf(getCode());
         String dataType = arg.getString(AbstractModbusProtocolSupplier.dataType);
-        if(StrUtil.isBlank(dataType)) {
-            throw new ProtocolInvokeException("未找到数据类型参数");
-        }
 
         int start;
         try {
@@ -74,10 +71,18 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 protocol = this.buildRead02(childSn, start, num);
                 break;
             case Read03:
+                if(StrUtil.isBlank(dataType)) {
+                    throw new ProtocolInvokeException("未找到数据类型参数");
+                }
+
                 num = getNum(arg, dataType);
                 protocol = this.buildRead03(childSn, start, num);
                 break;
             case Read04:
+                if(StrUtil.isBlank(dataType)) {
+                    throw new ProtocolInvokeException("未找到数据类型参数");
+                }
+
                 num = getNum(arg, dataType);
                 protocol = this.buildRead04(childSn, start, num);
                 break;
@@ -127,8 +132,13 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
             if(protocol instanceof ModbusTcpClientCommonProtocol) {
                 IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), ModbusTcpClientMessage.class);
                 if(client != null) {
+                    Integer timeout = arg.getParentDeviceConfig("timeout");
+                    if(timeout == null || timeout <= 0) {
+                        throw new ProtocolInvokeException("请求超时时间必须大于0["+timeout+"]");
+                    }
+
                     ModbusTcpClientCommonProtocol commonProtocol = (ModbusTcpClientCommonProtocol) protocol;
-                    commonProtocol.request(client.getConfig());
+                    commonProtocol.sync(timeout * 1000).request(client.getConfig());
                     execStatus = commonProtocol.getExecStatus();
                     if(execStatus == ExecStatus.success) {
                         ModbusTcpBody body = commonProtocol.responseMessage().getBody();

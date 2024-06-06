@@ -60,6 +60,9 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
                                 .setAddress(value.getAddress())
                                 .setUid(Long.valueOf(item.getDevice().getUid()))
                                 .setSignalId(value.getId())
+                                .setCollectStatus(value.getStatus())
+                                .setField(value.getSignalOrField())
+                                .setFieldName(value.getSignalOrField())
                                 .setValue(value.getValue().toString())
                                 .setCollectTime(supplier.getCollectTime())
                                 .setCollectTaskId(info.getSource().getId());
