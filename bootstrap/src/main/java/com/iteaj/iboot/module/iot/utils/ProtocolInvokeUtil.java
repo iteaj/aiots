@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.utils;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
@@ -13,7 +14,11 @@ import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.spring.SpringUtils;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 
@@ -51,14 +56,26 @@ public class ProtocolInvokeUtil {
                 }
 
                 // 组装调用参数
-                param.setDeviceSn(device.getDeviceSn())
-                        .setParentDeviceSn(device.getParentDeviceSn())
-                        .addDeviceConfig(device.getConfig());
+                initInvokeConfig(param, device);
 
                 // 发起调用
                 modelApi.invoke(param, result);
             } else {
                 throw new ServiceException("没有找到协议指令[direct="+api.getDirect()+"]");
+            }
+        }
+    }
+
+    private static void initInvokeConfig(ProtocolModelApiInvokeParam param, RealtimeStatus device) {
+        param.setDeviceSn(device.getDeviceSn())
+                .setParentDeviceSn(device.getParentDeviceSn())
+                .addDeviceConfig(device.getConfig());
+
+        if(device.getType() == DeviceType.Child) {
+            IotCacheManager cacheManager = SpringUtils.getBean(IotCacheManager.class);
+            RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
+            if(parent != null) {
+                param.addParentDeviceConfig(parent.getConfig());
             }
         }
     }
@@ -84,7 +101,7 @@ public class ProtocolInvokeUtil {
                     api.getDownConfig().forEach(item -> {
                         if(item.getValue().startsWith("@") && item.getModelAttrId() != null) {
                             if(item.getAttrDefaultValue() == null) {
-                                throw new ServiceException("协议参数["+item.getProtocolAttrName()+"]没有默认值");
+                                throw new ServiceException("协议/字段["+api.getName()+" / "+item.getAttrField()+"]没有默认值");
                             }
 
                             param.put(item.getProtocolAttrField(), item.getAttrDefaultValue());
@@ -100,9 +117,7 @@ public class ProtocolInvokeUtil {
                 }
 
                 // 组装调用参数
-                invokeParam.setDeviceSn(device.getDeviceSn())
-                        .setParentDeviceSn(device.getParentDeviceSn())
-                        .addDeviceConfig(device.getConfig());
+                initInvokeConfig(invokeParam, device);
 
                 // 发起调用
                 modelApi.invoke(invokeParam, result);

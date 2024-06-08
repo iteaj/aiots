@@ -126,6 +126,11 @@
             <dependency>
                 <groupId>com.iteaj</groupId>
                 <version>${iot.version}</version>
+                <artifactId>iot-client</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <version>${iot.version}</version>
                 <artifactId>iot-modbus</artifactId>
             </dependency>
             <dependency>

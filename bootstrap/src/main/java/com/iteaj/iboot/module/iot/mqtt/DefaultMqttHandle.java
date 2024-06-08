@@ -169,12 +169,13 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
             }
 
             if(CollectionUtil.isEmpty(productDto.getAttrs())) {
-                logger.error("解析mqtt物模型失败 产品没有配置模型属性 - 产品: {}", productDto.getName(), new IllegalArgumentException("产品没有配置模型属性"));
+                logger.error("解析mqtt物模型失败 产品没有配置模型属性 - 产品: {}", productDto.getName());
                 return;
             }
 
             // 产品没有启用则不进行匹配
             if(productDto.getStatus() == FuncStatus.disabled) {
+                logger.warn("解析mqtt物模型失败 产品未启用 - 产品: {}", productDto.getName());
                 return;
             }
 
@@ -188,7 +189,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                             ModelApiConfig config = api.getUpConfig().get(i);
                             if("topic".equals(config.getProtocolAttrField())) {
                                 if(config.getModelAttrId() != null) {
-                                    logger.error("解析mqtt物模型协议失败 topic不支持属性提及 - 产品: {}", productDto.getName(), new IllegalArgumentException());
+                                    logger.error("解析mqtt物模型协议失败 topic不支持属性提及 - 产品: {}", productDto.getName(), new IllegalArgumentException("topic不支持属性提及"));
                                     return;
                                 } else {
                                     topic = config.getValue();
@@ -196,11 +197,13 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                             } else if("payload".equals(config.getProtocolAttrField())) {
                                 if(config.getModelAttrId() == null) {
                                     if(logger.isDebugEnabled()) {
-                                        logger.debug("解析mqtt物模型 payload没有配置属性 - 产品: {}", productDto.getName(), "payload没有配置属性");
+                                        logger.debug("解析mqtt物模型 payload没有配置属性 - 产品: {} - 事件模型: {}/{}"
+                                                , productDto.getName(), api.getName(), api.getCode());
                                     }
                                 } else if(CollectionUtil.isEmpty(config.getDicts())) {
                                     if(logger.isDebugEnabled()) {
-                                        logger.debug("解析mqtt物模型 payload属性没有配置项 - 产品: {}", productDto.getName(), "payload属性没有配置项");
+                                        logger.debug("解析mqtt物模型 payload属性没有配置项 - 产品: {} - 事件模型: {}/{}"
+                                                , productDto.getName(), api.getName(), api.getCode());
                                     }
                                 } else {
                                     attrs = config.getDicts().stream().map(item -> new UpModelAttr(Long.valueOf(item.getDictValue())

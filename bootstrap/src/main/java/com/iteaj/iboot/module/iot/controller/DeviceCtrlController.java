@@ -169,6 +169,14 @@ public class DeviceCtrlController extends BaseController {
             throw new ServiceException("没有找到接口[apiCode="+modelApi.getDirect()+"]");
         }
 
+        // 设置父网关设备配置
+        if(product.getDeviceType() == DeviceType.Child) {
+            RealtimeStatus parent = cacheManager.get(protocolSupplier.getProtocol().getCode(), device.getParentDeviceSn());
+            if(parent != null) {
+                param.addParentDeviceConfig(parent.getConfig());
+            }
+        }
+
         return new Object[]{protocolModelApi, modelApi, product, protocolSupplier};
     }
 }

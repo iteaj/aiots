@@ -123,6 +123,12 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
      */
     @Data
     public static class SerialConfig extends NetworkConfigImpl {
+        private int
+            baudRate = 9600, // 波特率
+            dataBits = 8, // 数据位
+            parity = 0, // 校验位
+            stopBits = 1; // 停止位
+        public SerialConfig() { }
 
         public SerialConfig(String com) {
             super(com, null);
@@ -130,6 +136,10 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
 
         public String getCom() {
             return this.getHost();
+        }
+
+        public void setCom(String com) {
+            this.setHost(com);
         }
 
         public static ParamMeta[] serialMetas = new ParamMeta[]{
