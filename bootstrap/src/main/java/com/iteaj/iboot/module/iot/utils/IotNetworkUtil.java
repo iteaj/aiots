@@ -71,6 +71,7 @@ public class IotNetworkUtil {
                 Object close = client.close();
                 if(close instanceof Boolean) {
                     if((Boolean) close) {
+                        client.getClientComponent().removeClient(client.getConfig());
                         FrameworkManager.publishEvent(new StatusEvent(client, ClientStatus.offline, component));
                     }
                 }

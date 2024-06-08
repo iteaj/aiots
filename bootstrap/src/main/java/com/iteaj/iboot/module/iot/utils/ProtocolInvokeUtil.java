@@ -101,7 +101,7 @@ public class ProtocolInvokeUtil {
                     api.getDownConfig().forEach(item -> {
                         if(item.getValue().startsWith("@") && item.getModelAttrId() != null) {
                             if(item.getAttrDefaultValue() == null) {
-                                throw new ServiceException("协议/字段["+api.getName()+" / "+item.getAttrField()+"]参数["+item.getAttrName()+"]没有默认值");
+                                throw new ServiceException("协议/字段["+api.getName()+" / "+item.getAttrField()+"]没有默认值");
                             }
 
                             param.put(item.getProtocolAttrField(), item.getAttrDefaultValue());
