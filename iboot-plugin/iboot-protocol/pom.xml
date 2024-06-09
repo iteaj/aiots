@@ -19,6 +19,7 @@
         <module>protocol-plc</module>
         <module>protocol-dahua</module>
         <module>protocol-mqtt</module>
+        <module>protocol-modbus</module>
     </modules>
 
     <profiles>
