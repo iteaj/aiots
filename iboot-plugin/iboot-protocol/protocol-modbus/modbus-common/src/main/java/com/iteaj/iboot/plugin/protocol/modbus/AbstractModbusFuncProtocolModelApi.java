@@ -5,23 +5,14 @@ import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.protocol.AbstractFuncProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
-import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.ProtocolException;
-import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.format.DataFormat;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
-import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientMessage;
-import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientProtocol;
-import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientCommonProtocol;
-import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientMessage;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.consts.ModbusCoilStatus;
-import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuCommonProtocol;
-import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
 import com.iteaj.iot.utils.ByteUtil;
 
-import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncProtocolModelApi {
@@ -105,29 +96,8 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
     @Override
     protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
         try {
-            if(protocol instanceof ModbusTcpClientCommonProtocol) {
-                IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), ModbusTcpClientMessage.class);
-                if(client != null) {
-                    Integer timeout = arg.getParentDeviceConfig("timeout");
-                    if(timeout == null || timeout <= 0) {
-                        throw new ProtocolInvokeException("请求超时时间必须大于0["+timeout+"]");
-                    }
-
-                    ((ModbusTcpClientCommonProtocol)protocol).sync(timeout * 1000).request(client.getConfig());
-                    result.accept(InvokeResult.status(((ModbusTcpClientCommonProtocol) protocol).getExecStatus(), protocol));
-                } else {
-                    throw new ProtocolInvokeException("网关设备不存在["+arg.getParentDeviceSn()+"]");
-                }
-            } else {
-                String com = arg.getParentDeviceSn();
-                IotClient client = FrameworkManager.getClient(com, ModbusRtuClientMessage.class);
-                if(client != null) {
-                    ((ModbusRtuClientProtocol)protocol).request(com);
-                    result.accept(InvokeResult.status(((ModbusRtuClientProtocol) protocol).getExecStatus(), protocol));
-                } else {
-                    throw new ProtocolInvokeException("网关设备不存在[" + arg.getParentDeviceSn() + "]");
-                }
-            }
+            InvokeResult invokeResult = doProtocolInvoke(protocol, arg);
+            result.accept(invokeResult);
         } catch (ProtocolException e) {
             e.printStackTrace();
             result.accept(InvokeResult.fail(e.getMessage(), protocol));
@@ -136,4 +106,6 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
             result.accept(InvokeResult.fail("未知错误["+e.getMessage()+"]", protocol));
         }
     }
+
+    protected abstract InvokeResult doProtocolInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg);
 }

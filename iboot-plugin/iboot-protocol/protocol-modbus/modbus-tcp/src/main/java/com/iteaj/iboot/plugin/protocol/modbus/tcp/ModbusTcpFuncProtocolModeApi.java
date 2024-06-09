@@ -1,10 +1,17 @@
 package com.iteaj.iboot.plugin.protocol.modbus.tcp;
 
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.plugin.protocol.modbus.AbstractModbusFuncProtocolModelApi;
+import com.iteaj.iot.FrameworkManager;
+import com.iteaj.iot.Protocol;
+import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.format.DataFormat;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientProtocol;
 import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientCommonProtocol;
+import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientMessage;
 import com.iteaj.iot.modbus.consts.ModbusCoilStatus;
 import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
 
@@ -38,5 +45,21 @@ public class ModbusTcpFuncProtocolModeApi extends AbstractModbusFuncProtocolMode
         }
 
         return ModbusTcpClientCommonProtocol.buildWrite10(device, start, format, value);
+    }
+
+    @Override
+    protected InvokeResult doProtocolInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg) {
+        IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), ModbusTcpClientMessage.class);
+        if(client != null) {
+            Integer timeout = arg.getParentDeviceConfig("timeout");
+            if(timeout == null || timeout <= 0) {
+                throw new ProtocolInvokeException("请求超时时间必须大于0["+timeout+"]");
+            }
+
+            ((ModbusTcpClientCommonProtocol)protocol).sync(timeout * 1000).request(client.getConfig());
+            return InvokeResult.status(((ModbusTcpClientCommonProtocol) protocol).getExecStatus(), protocol);
+        } else {
+            throw new ProtocolInvokeException("网关设备不存在["+arg.getParentDeviceSn()+"]");
+        }
     }
 }

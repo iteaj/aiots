@@ -7,25 +7,14 @@ import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractEventProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
-import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.ProtocolException;
-import com.iteaj.iot.client.IotClient;
-import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.format.DataFormat;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.Payload;
 import com.iteaj.iot.modbus.RealCoilPayload;
-import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientMessage;
-import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientProtocol;
-import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientCommonProtocol;
-import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientMessage;
 import com.iteaj.iot.modbus.consts.ModbusBitStatus;
 import com.iteaj.iot.modbus.consts.ModbusCode;
-import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuCommonProtocol;
-import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuCommonProtocol;
-import com.iteaj.iot.modbus.server.rtu.ModbusRtuBody;
-import com.iteaj.iot.modbus.server.tcp.ModbusTcpBody;
 import com.iteaj.iot.utils.ByteUtil;
 
 import java.util.Date;
@@ -125,60 +114,9 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
 
     @Override
     protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
-        ExecStatus execStatus;
-        InvokeResult invokeResult = null;
         DataFormat dataFormat = DataFormat.valueOf(arg.getDeviceConfig("dataFormat"));
         try {
-            if(protocol instanceof ModbusTcpClientCommonProtocol) {
-                IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), ModbusTcpClientMessage.class);
-                if(client != null) {
-                    Integer timeout = arg.getParentDeviceConfig("timeout");
-                    if(timeout == null || timeout <= 0) {
-                        throw new ProtocolInvokeException("请求超时时间必须大于0["+timeout+"]");
-                    }
-
-                    ModbusTcpClientCommonProtocol commonProtocol = (ModbusTcpClientCommonProtocol) protocol;
-                    commonProtocol.sync(timeout * 1000).request(client.getConfig());
-                    execStatus = commonProtocol.getExecStatus();
-                    if(execStatus == ExecStatus.success) {
-                        ModbusTcpBody body = commonProtocol.responseMessage().getBody();
-                        if(body.isSuccess()) {
-                            Payload payload = commonProtocol.getPayload(dataFormat);
-                            Object value = getValue(payload, arg);
-                            invokeResult = InvokeResult.status(execStatus, value, protocol);
-                        } else {
-                            invokeResult = InvokeResult.fail(body.getErrCode().getDesc(), protocol);
-                        }
-                    } else {
-                        invokeResult = InvokeResult.status(execStatus, protocol);
-                    }
-                } else {
-                    throw new ProtocolInvokeException("网关设备不存在["+arg.getParentDeviceSn()+"]");
-                }
-            } else if(protocol instanceof ModbusRtuClientProtocol) {
-                String com = arg.getParentDeviceSn();
-                IotClient client = FrameworkManager.getClient(com, ModbusRtuClientMessage.class);
-                if(client != null) {
-                    ModbusRtuClientProtocol commonProtocol = (ModbusRtuClientProtocol) protocol;
-                    commonProtocol.request(com);
-                    execStatus = commonProtocol.getExecStatus();
-                    if(execStatus == ExecStatus.success) {
-                        ModbusRtuBody body = commonProtocol.responseMessage().getBody();
-                        if(body.isSuccess()) {
-                            Payload payload = commonProtocol.getPayload(dataFormat);
-                            Object value = getValue(payload, arg);
-                            invokeResult = InvokeResult.status(execStatus, value, protocol);
-                        } else {
-                            invokeResult = InvokeResult.fail(body.getErrCode().getDesc(), protocol);
-                        }
-                    } else {
-                        invokeResult = InvokeResult.status(execStatus, protocol);
-                    }
-                } else {
-                    throw new ProtocolInvokeException("网关设备不存在[" + com + "]");
-                }
-            }
-
+            InvokeResult invokeResult = doProtocolInvoke(protocol, arg, dataFormat);
             result.accept(invokeResult);
         } catch (ProtocolException e) {
             e.printStackTrace();
@@ -188,6 +126,8 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
             result.accept(InvokeResult.fail("未知错误["+e.getMessage()+"]", protocol));
         }
     }
+
+    protected abstract InvokeResult doProtocolInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, DataFormat dataFormat);
 
     public Object getValue(Payload payload, ProtocolModelApiInvokeParam arg) {
         if(payload instanceof RealCoilPayload) {

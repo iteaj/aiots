@@ -1,11 +1,17 @@
 package com.iteaj.iboot.plugin.protocol.modbus.rtu;
 
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.plugin.protocol.modbus.AbstractModbusFuncProtocolModelApi;
+import com.iteaj.iot.FrameworkManager;
+import com.iteaj.iot.Protocol;
+import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.format.DataFormat;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
+import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientMessage;
 import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientProtocol;
 import com.iteaj.iot.modbus.consts.ModbusCoilStatus;
-import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuCommonProtocol;
 
 public class ModbusRtuFuncProtocolModelApi extends AbstractModbusFuncProtocolModelApi {
 
@@ -35,6 +41,19 @@ public class ModbusRtuFuncProtocolModelApi extends AbstractModbusFuncProtocolMod
             int num = message.length % 2 == 0 ? message.length / 2 : message.length / 2 + 1;
             return ModbusRtuClientProtocol.buildWrite10(device, start, num, message);
         }
+
         return ModbusRtuClientProtocol.buildWrite10(device, start, format, value);
+    }
+
+    @Override
+    protected InvokeResult doProtocolInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg) {
+        String com = arg.getParentDeviceSn();
+        IotClient client = FrameworkManager.getClient(com, ModbusRtuClientMessage.class);
+        if(client != null) {
+            ((ModbusRtuClientProtocol)protocol).request(com);
+            return InvokeResult.status(((ModbusRtuClientProtocol) protocol).getExecStatus(), protocol);
+        } else {
+            throw new ProtocolInvokeException("网关设备不存在[" + arg.getParentDeviceSn() + "]");
+        }
     }
 }
