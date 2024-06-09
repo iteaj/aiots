@@ -3,10 +3,7 @@ package com.iteaj.iboot.module.iot;
 import com.iteaj.iboot.module.iot.debug.DebugHandle;
 import com.iteaj.iboot.module.iot.debug.DebugHandleFactory;
 import com.iteaj.iboot.module.iot.debug.dtu.DtuDebugHandle;
-import com.iteaj.iboot.module.iot.debug.plc.PlcDebugHandle;
 import com.iteaj.iboot.module.iot.debug.websocket.WebsocketDebugListener;
-import com.iteaj.iboot.module.iot.debug.tcp.server.TcpDebugServerComponent;
-import com.iteaj.iot.config.ConnectProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +26,6 @@ public class IotDebugConfiguration {
      * 各种调试用的处理器
      * @see DebugHandle
      * @see DtuDebugHandle dtu调试处理
-     * @see PlcDebugHandle plc调试处理
      * @param handles
      * @return
      */

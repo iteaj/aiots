@@ -30,15 +30,6 @@
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>iot-plc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>iot-serial</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.iteaj</groupId>
             <artifactId>iot-taos</artifactId>
         </dependency>
         <!-- iot end -->
