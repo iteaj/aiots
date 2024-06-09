@@ -22,6 +22,7 @@ import com.iteaj.plugin.protocol.plc.AbstractPlcFuncProtocolModelApi;
 import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -29,6 +30,7 @@ import java.math.RoundingMode;
 /**
  * 西门子PLC协议提供
  */
+@Component
 public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<SiemensProtocolSupplier.SiemensNetworkConfig, SiemensS7Component, SiemensS7Client> {
 
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("PLC_SIEMENS_S7"

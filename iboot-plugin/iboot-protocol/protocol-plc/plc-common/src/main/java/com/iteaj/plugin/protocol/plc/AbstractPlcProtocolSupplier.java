@@ -7,12 +7,9 @@ import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
-import com.iteaj.iot.client.ClientComponent;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.client.component.SocketClientComponent;
-import com.iteaj.plugin.protocol.plc.omron.OmronEventProtocolModelApi;
-import com.iteaj.plugin.protocol.plc.omron.OmronFuncProtocolModelApi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

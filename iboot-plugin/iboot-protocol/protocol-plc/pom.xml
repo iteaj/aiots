@@ -7,11 +7,23 @@
         <groupId>com.iteaj</groupId>
         <version>${reversion}</version>
     </parent>
+    <packaging>pom</packaging>
 
     <name>iboot:protocol:plc</name>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>protocol-plc</artifactId>
     <description>iot模块提供 plc协议</description>
+
+    <properties></properties>
+
+    <modules>
+        <!--plc公共部分-->
+        <module>plc-common</module>
+        <!--欧姆龙plc-->
+        <module>plc-omron</module>
+        <!--西门子plc-->
+        <module>plc-siemens</module>
+    </modules>
 
     <dependencies>
         <dependency>
@@ -19,4 +31,15 @@
             <artifactId>iot-plc</artifactId>
         </dependency>
     </dependencies>
+
+    <profiles>
+      <profile>
+        <id>rdc</id>
+        <properties>
+          <altReleaseDeploymentRepository>
+            repo-protocol::default::https://packages.aliyun.com/5ec0fe1bd1d1abe63b55bc6a/maven/protocol-common
+          </altReleaseDeploymentRepository>
+        </properties>
+      </profile>
+    </profiles>
 </project>

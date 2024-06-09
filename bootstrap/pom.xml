@@ -84,7 +84,7 @@
         <!--plc协议提供-->
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>protocol-plc</artifactId>
+            <artifactId>plc-siemens</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--mqtt协议提供-->
