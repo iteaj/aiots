@@ -28,14 +28,6 @@
             <groupId>com.iteaj</groupId>
             <artifactId>iot-mqtt</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>iot-plc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>iot-serial</artifactId>
-        </dependency>
         <!-- iot end -->
 
         <dependency>
