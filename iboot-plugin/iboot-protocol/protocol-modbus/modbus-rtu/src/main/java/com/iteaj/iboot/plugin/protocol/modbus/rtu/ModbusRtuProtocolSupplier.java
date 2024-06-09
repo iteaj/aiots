@@ -10,7 +10,12 @@ import com.iteaj.iboot.plugin.protocol.modbus.AbstractModbusProtocolSupplier;
 import com.iteaj.iot.modbus.client.rtu.ModbusRtuClientComponent;
 import com.iteaj.iot.serial.SerialClient;
 import com.iteaj.iot.serial.SerialConnectProperties;
+import org.springframework.stereotype.Component;
 
+/**
+ * modbus rtu协议提供
+ */
+@Component
 public class ModbusRtuProtocolSupplier extends AbstractModbusProtocolSupplier<NetworkConfigImpl.SerialConfig, ModbusRtuClientComponent, SerialClient> {
 
     private ParamMeta[] GatewayConfig = new ParamMeta[]{

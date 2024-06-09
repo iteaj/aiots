@@ -19,10 +19,15 @@ import com.iteaj.iot.plc.omron.*;
 import com.iteaj.plugin.protocol.plc.AbstractPlcEventProtocolModelApi;
 import com.iteaj.plugin.protocol.plc.AbstractPlcFuncProtocolModelApi;
 import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/**
+ * 欧姆龙协议提供
+ */
+@Component
 public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, OmronComponent, OmronTcpClient> {
 
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("PLC_OMRON_TCP"

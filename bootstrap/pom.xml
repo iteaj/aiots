@@ -78,6 +78,11 @@
             <artifactId>plc-siemens</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>plc-omron</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--mqtt协议提供-->
         <dependency>
             <groupId>com.iteaj</groupId>

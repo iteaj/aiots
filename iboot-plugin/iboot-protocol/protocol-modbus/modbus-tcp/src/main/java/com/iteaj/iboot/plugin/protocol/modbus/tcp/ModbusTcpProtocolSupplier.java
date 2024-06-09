@@ -9,7 +9,12 @@ import com.iteaj.iboot.plugin.protocol.modbus.AbstractModbusProtocolSupplier;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.modbus.client.tcp.ModbusTcpClient;
 import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientComponent;
+import org.springframework.stereotype.Component;
 
+/**
+ * modbus tcp协议提供
+ */
+@Component
 public class ModbusTcpProtocolSupplier extends AbstractModbusProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, ModbusTcpClientComponent, ModbusTcpClient> {
 
     private ParamMeta[] GatewayMetas = new ParamMeta[]{
