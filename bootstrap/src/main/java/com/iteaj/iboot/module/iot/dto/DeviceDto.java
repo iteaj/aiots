@@ -44,6 +44,11 @@ public class DeviceDto extends Device {
     private String productName;
 
     /**
+     * 协议码
+     */
+    private String protocolCode;
+
+    /**
      * 产品类型名称
      */
     private String productTypeName;

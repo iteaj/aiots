@@ -29,6 +29,7 @@
         <result property="deviceType" column="device_type" />
         <result property="productName" column="product_name" />
         <result property="productCode" column="product_code" />
+        <result property="protocolCode" column="protocol_code" />
         <result property="gatewayId" column="gateway_id" />
         <result property="connectType" column="connect_type" />
         <result property="gatewayName" column="gateway_name" />
@@ -105,7 +106,7 @@
     </select>
     <select id="detailById" resultMap="DeviceDtoMap">
         select a.*, pd.device_sn parent_device_sn, idm.name product_name, idt.name product_type_name
-             , idm.code product_code, idm.gateway_id, idm.device_type from iot_device a
+             , idm.code product_code, idm.gateway_id, idm.device_type, idm.protocol_code from iot_device a
             left join iot_device pd on a.pid = pd.id
             left join iot_product idm on a.product_id=idm.id
             left join iot_product_type idt on idm.product_type_id=idt.id

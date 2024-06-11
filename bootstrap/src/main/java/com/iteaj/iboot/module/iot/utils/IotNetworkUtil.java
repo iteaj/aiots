@@ -5,6 +5,7 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfig;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iot.FrameworkComponent;
@@ -18,6 +19,21 @@ import com.iteaj.iot.event.StatusEvent;
 import java.lang.reflect.Type;
 
 public class IotNetworkUtil {
+
+        /**
+     * 网络控制
+     * @param protocolCode 协议码
+     * @param device
+     * @param status 连接还是断开
+     */
+    public static void networkCtrl(String protocolCode, Device device, FuncStatus status) {
+        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
+        if(supplier == null) {
+            throw new ServiceException("协议驱动["+protocolCode+"]不存在");
+        }
+
+        networkCtrl(supplier, device, status);
+    }
 
     /**
      * 网络控制
