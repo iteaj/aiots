@@ -1,24 +1,24 @@
-package com.iteaj.iboot.module.iot.controller;
+package com.iteaj.iboot.module.iot.controller.iiot;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.module.iot.collect.CollectOption;
 import com.iteaj.iboot.module.iot.consts.SerialStatus;
+import com.iteaj.iboot.module.iot.entity.Serial;
+import com.iteaj.iboot.module.iot.service.ISerialService;
 import com.iteaj.iot.serial.SerialClient;
 import com.iteaj.iot.serial.SerialComponent;
 import com.iteaj.iot.serial.SerialConnectProperties;
 import org.springframework.web.bind.annotation.*;
-import com.iteaj.framework.security.CheckPermission;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.iboot.module.iot.entity.Serial;
-import com.iteaj.iboot.module.iot.service.ISerialService;
-import com.iteaj.framework.BaseController;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 串口设备管理

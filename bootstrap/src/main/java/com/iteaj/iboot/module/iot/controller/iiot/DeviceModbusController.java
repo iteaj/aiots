@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.controller;
+package com.iteaj.iboot.module.iot.controller.iiot;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -19,9 +19,6 @@ import com.iteaj.iboot.module.iot.service.ISerialService;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.SocketClient;
 import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientComponent;
-import com.iteaj.iot.serial.SerialClient;
-import com.iteaj.iot.serial.SerialComponent;
-import com.iteaj.iot.serial.SerialConnectProperties;
 import com.iteaj.framework.security.CheckPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,14 +39,11 @@ public class DeviceModbusController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService deviceModelService;
     private final ModbusTcpClientComponent tcpClientComponent;
-    private final SerialComponent serialComponent;
     public DeviceModbusController(ISerialService serialService, IDeviceService deviceService
             , IProductService deviceModelService
-            , @Autowired(required = false) ModbusTcpClientComponent tcpClientComponent
-            , @Autowired(required = false) SerialComponent serialComponent) {
+            , @Autowired(required = false) ModbusTcpClientComponent tcpClientComponent) {
         this.serialService = serialService;
         this.deviceService = deviceService;
-        this.serialComponent = serialComponent;
         this.deviceModelService = deviceModelService;
         this.tcpClientComponent = tcpClientComponent;
     }
@@ -131,63 +125,7 @@ public class DeviceModbusController extends BaseController {
         }
 
         try {
-            String modelName = entity.getProductName();
-            if(modelName.toLowerCase().contains("rtu")) {
-                Serial serial = this.serialService.getByCom(entity.getDeviceSn()).getData();
-                if(serial == null) {
-                    return fail("串口不存在["+entity.getDeviceSn()+"]");
-                }
-
-                SerialClient client = this.serialComponent.getClient(entity.getDeviceSn());
-                if(status == DeviceStatus.online) {
-                    if(client == null) {
-                        SerialConnectProperties config = new SerialConnectProperties(serial.getCom(), serial.getBaudRate())
-                                .config(serial.getDataBits(), serial.getStopBits(), serial.getParity());
-                        client = this.serialComponent.createNewClientAndConnect(config);
-                    }
-
-                    if(!client.isOpen()) {
-                        if(!client.connect()) {
-                            return fail("连接失败");
-                        }
-                    }
-
-                    this.serialService.update(Wrappers.<Serial>lambdaUpdate()
-                            .set(Serial::getStatus, SerialStatus.open)
-                            .eq(Serial::getId, serial.getId()));
-                    this.deviceService.update(device.getDeviceSn(), status);
-                    return success("连接成功");
-                } else {
-                    if(client != null) {
-                        if(client.disconnect()) {
-                            this.serialService.update(Wrappers.<Serial>lambdaUpdate()
-                                    .set(Serial::getStatus, SerialStatus.close)
-                                    .eq(Serial::getId, serial.getId()));
-                            this.deviceService.update(device.getDeviceSn(), status);
-                            return success("断开成功");
-                        } else {
-                            return success("断开失败");
-                        }
-                    } else {
-                        return fail("客户端不存在");
-                    }
-                }
-
-            } else {
-                ClientConnectProperties properties = new ClientConnectProperties(entity.getIp(), entity.getPort(), entity.getDeviceSn());
-                SocketClient client = tcpClientComponent.getClient(properties);
-                if(status == DeviceStatus.online) {
-                    if(client == null) {
-                        tcpClientComponent.createNewClientAndConnect(properties);
-                    } else {
-                        client.reconnection();
-                    }
-                } else {
-                    client.disconnect();
-                }
-
-                return success(status == DeviceStatus.online ? "连接成功" : "断开成功");
-            }
+            return success();
         } catch (Exception e) {
             e.printStackTrace();
             return fail(e.getMessage());

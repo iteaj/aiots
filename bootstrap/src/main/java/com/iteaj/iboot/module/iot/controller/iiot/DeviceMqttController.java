@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.controller;
+package com.iteaj.iboot.module.iot.controller.iiot;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;

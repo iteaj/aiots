@@ -28,6 +28,10 @@
             <groupId>com.iteaj</groupId>
             <artifactId>iot-mqtt</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-serial</artifactId>
+        </dependency>
         <!-- iot end -->
 
         <dependency>
@@ -71,12 +75,6 @@
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>protocol-dtu</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!--modbus协议提供-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>protocol-modbus</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

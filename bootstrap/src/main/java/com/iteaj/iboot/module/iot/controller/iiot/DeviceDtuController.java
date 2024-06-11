@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.controller;
+package com.iteaj.iboot.module.iot.controller.iiot;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -24,6 +24,7 @@ import java.util.List;
 @RequestMapping("/iot/dtu")
 public class DeviceDtuController extends BaseController {
 
+    private final static String[] dutCode = {"DTU:MODBUS_RTU", "DTU:MODBUS_TCP"};
     private final IDeviceService deviceService;
 
     public DeviceDtuController(IDeviceService deviceService) {
@@ -38,7 +39,7 @@ public class DeviceDtuController extends BaseController {
     @GetMapping("/view")
     @CheckPermission({"iot:dtu:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
-        entity.setAlias(DeviceTypeAlias.DTU);
+        entity.setProtocolCodes(dutCode);
         return this.deviceService.pageOfDetail(page, entity);
     }
 
