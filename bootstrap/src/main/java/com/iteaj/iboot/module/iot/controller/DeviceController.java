@@ -1,21 +1,28 @@
 package com.iteaj.iboot.module.iot.controller;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.consts.DeviceStatus;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
+import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
+import io.netty.channel.ChannelFuture;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 设备管理
@@ -28,9 +35,11 @@ import java.util.List;
 public class DeviceController extends BaseController {
 
     private final IDeviceService deviceService;
+    private final IProductService productService;
 
-    public DeviceController(IDeviceService deviceService) {
+    public DeviceController(IDeviceService deviceService, IProductService productService) {
         this.deviceService = deviceService;
+        this.productService = productService;
     }
 
     /**
@@ -120,6 +129,43 @@ public class DeviceController extends BaseController {
         }
 
         return this.deviceService.list(Wrappers.<Device>lambdaQuery().in(Device::getProductId, productIds));
+    }
+
+    /**
+     * 设备连接
+     * @param device
+     * @return
+     */
+    @PostMapping("connect/{status}")
+    @CheckPermission(value = {"iot:modbus:connect", "iot:mqtt:connect", "iot:device:gateway:connect"}, logical = Logical.OR)
+    public Result connect(@RequestBody Device device, @PathVariable DeviceStatus status) {
+        if(status == null) {
+            return fail("未指定连接状态");
+        }
+
+        DeviceDto entity = deviceService.detailById(device.getId())
+                .ifNotPresentThrow("设备不存在["+device.getDeviceSn()+"]")
+                .getData();
+
+        this.productService.getById(entity.getProductId()).ifNotPresentThrow("产品不存在")
+                .ifPresent(product -> {
+                   if(product.getStatus() == FuncStatus.disabled) {
+                       throw new ServiceException("请先启用产品["+product.getName()+"]");
+                   }
+                });
+
+        try {
+            FuncStatus funcStatus = status == DeviceStatus.online ? FuncStatus.enabled : FuncStatus.disabled;
+            Object networkCtrl = IotNetworkUtil.networkCtrl(entity.getProtocolCode(), entity, funcStatus);
+            if(networkCtrl instanceof ChannelFuture) {
+                ((ChannelFuture) networkCtrl).await(8, TimeUnit.SECONDS);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return fail(e.getMessage());
+        }
+
+        return success("切换状态成功");
     }
 }
 

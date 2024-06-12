@@ -171,6 +171,24 @@
             left join iot_device d on a.id = d.product_id
         group by a.id order by value desc
     </select>
+    <select id="listOfProtocolCodes" resultMap="BaseResultMap">
+        select a.* from iot_product a
+            left join iot_gateway g on a.gateway_id = g.id
+        <where>
+            <if test="deviceType != null">
+                and a.device_type=#{deviceType}
+            </if>
+            <if test="protocol != null">
+                and g.protocol_type=#{protocol}
+            </if>
+            <if test="protocolCodes != null">
+                and (<foreach collection="protocolCodes" item="code" separator=" or ">
+                    a.protocol_code=#{code}
+                </foreach>)
+            </if>
+        </where>
+    </select>
+
     <select id="countOfDeviceType" resultType="com.iteaj.iboot.module.iot.dto.DeviceTypeCountDto">
         select a.type, count(d.id) total, count(if(d.status='online', 1, null)) online from
             (select 'Gateway' type union all select 'Child' type union all select 'Direct' type) a

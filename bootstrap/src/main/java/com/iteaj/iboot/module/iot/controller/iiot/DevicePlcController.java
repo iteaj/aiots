@@ -1,33 +1,38 @@
-package com.iteaj.iboot.module.iot.controller;
+package com.iteaj.iboot.module.iot.controller.iiot;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.security.Logical;
-import com.iteaj.iboot.module.iot.dto.DeviceDto;
-import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
-import com.iteaj.iboot.module.iot.entity.Device;
-import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.dto.DeviceDto;
+import com.iteaj.iboot.module.iot.entity.Device;
+import com.iteaj.iboot.module.iot.entity.Product;
+import com.iteaj.iboot.module.iot.service.IDeviceService;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * dtu设备管理
+ * plc设备管理
  *
  * @author iteaj
  * @since 2022-05-15
  */
 @RestController
-@RequestMapping("/iot/dtu")
-public class DeviceDtuController extends BaseController {
+@RequestMapping("/iot/plc")
+public class DevicePlcController extends BaseController {
 
     private final IDeviceService deviceService;
+    private final IProductService productService;
+    private final static String[] plcCodes = {"PLC_SIEMENS_S7", "PLC_OMRON_TCP"};
 
-    public DeviceDtuController(IDeviceService deviceService) {
+    public DevicePlcController(IDeviceService deviceService, IProductService productService) {
         this.deviceService = deviceService;
+        this.productService = productService;
     }
 
     /**
@@ -36,9 +41,9 @@ public class DeviceDtuController extends BaseController {
     * @param entity 搜索条件
     */
     @GetMapping("/view")
-    @CheckPermission({"iot:dtu:view"})
+    @CheckPermission({"iot:plc:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
-        entity.setAlias(DeviceTypeAlias.DTU);
+        entity.setProtocolCodes(plcCodes);
         return this.deviceService.pageOfDetail(page, entity);
     }
 
@@ -47,7 +52,6 @@ public class DeviceDtuController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @CheckPermission({"iot:dtu:edit"})
     public Result<Device> getEditDetail(Long id) {
         return this.deviceService.getById(id);
     }
@@ -57,7 +61,7 @@ public class DeviceDtuController extends BaseController {
     * @param entity
     */
     @PostMapping("/saveOrUpdate")
-    @CheckPermission(value = {"iot:dtu:edit", "iot:dtu:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:plc:edit", "iot:plc:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Device entity) {
         return this.deviceService.saveOrUpdate(entity);
     }
@@ -67,9 +71,19 @@ public class DeviceDtuController extends BaseController {
     * @param idList
     */
     @PostMapping("/del")
-    @CheckPermission({"iot:dtu:del"})
+    @CheckPermission({"iot:plc:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.deviceService.removeByIds(idList);
+    }
+
+    /**
+     * 获取Dtu产品列表
+     * @param deviceType 设备类型
+     * @return
+     */
+    @GetMapping("/products")
+    public Result<List<Product>> products(DeviceType deviceType) {
+        return this.productService.listOfProtocolCodes(deviceType, plcCodes, null);
     }
 }
 

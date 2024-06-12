@@ -7,6 +7,8 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
 import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Device;
@@ -89,4 +91,13 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return
      */
     List<DeviceTypeCountDto> countOfDeviceType();
+
+        /**
+     * 获取指定协议码下的产品列表
+     * @param deviceType
+     * @param protocolCodes
+     * @param protocol
+         * @return
+     */
+    List<Product> listOfProtocolCodes(DeviceType deviceType, String[] protocolCodes, TransportProtocol protocol);
 }

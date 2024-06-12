@@ -66,13 +66,15 @@ public class ProductController extends BaseController {
 
     /**
      * 获取指定类型下面的列表
+     * @param gatewayId 网关id
      * @param deviceType 设备类型
      * @param productTypeId -1将获取所有
      * @return
      */
     @GetMapping("/listByType")
-    public Result<List<ProductDto>> listByType(Long productTypeId, DeviceType deviceType) {
+    public Result<List<ProductDto>> listByType(Long productTypeId, DeviceType deviceType, Long gatewayId) {
         Product product = new Product();
+        product.setGatewayId(gatewayId);
         product.setDeviceType(deviceType);
         product.setProductTypeId(productTypeId);
         return this.productService.listOfDetail(product);
