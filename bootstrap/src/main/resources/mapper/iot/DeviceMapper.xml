@@ -66,6 +66,9 @@
             <if test="entity.deviceType!=null">
                 and idm.device_type = #{entity.deviceType}
             </if>
+            <if test="entity.protocol != null">
+                and ig.protocol_type = #{entity.protocol}
+            </if>
             <if test="entity.deviceGroupId!=null">
                 and a.device_group_id = #{entity.deviceGroupId}
             </if>

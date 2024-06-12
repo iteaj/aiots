@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.*;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
@@ -120,4 +122,13 @@ public interface IProductService extends IBaseService<Product> {
      * @return
      */
     List<DeviceTypeCountDto> countOfDeviceType();
+
+    /**
+     * 获取指定协议码下的产品列表
+     * @param deviceType
+     * @param protocolCodes
+     * @param protocol 传输协议
+     * @return
+     */
+    ListResult<Product> listOfProtocolCodes(DeviceType deviceType, String[] protocolCodes, TransportProtocol protocol);
 }

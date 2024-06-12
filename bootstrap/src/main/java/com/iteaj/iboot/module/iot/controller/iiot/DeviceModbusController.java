@@ -7,11 +7,13 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.module.iot.consts.SerialStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.entity.Serial;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -37,15 +39,14 @@ public class DeviceModbusController extends BaseController {
 
     private final ISerialService serialService;
     private final IDeviceService deviceService;
-    private final IProductService deviceModelService;
-    private final ModbusTcpClientComponent tcpClientComponent;
+    private final IProductService productService;
+    private final static String[] modbusCodes = {"MODBUS_RTU", "MODBUS_TCP"};
+
     public DeviceModbusController(ISerialService serialService, IDeviceService deviceService
-            , IProductService deviceModelService
-            , @Autowired(required = false) ModbusTcpClientComponent tcpClientComponent) {
+            , IProductService productService) {
         this.serialService = serialService;
         this.deviceService = deviceService;
-        this.deviceModelService = deviceModelService;
-        this.tcpClientComponent = tcpClientComponent;
+        this.productService = productService;
     }
 
     /**
@@ -56,7 +57,7 @@ public class DeviceModbusController extends BaseController {
     @GetMapping("/view")
     @CheckPermission({"iot:modbus:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
-        entity.setAlias(DeviceTypeAlias.MODBUS);
+        entity.setProtocolCodes(modbusCodes);
         return this.deviceService.pageOfDetail(page, entity);
     }
 
@@ -65,7 +66,6 @@ public class DeviceModbusController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @CheckPermission({"iot:modbus:edit"})
     public Result<Device> detail(Long id) {
         return this.deviceService.getById(id);
     }
@@ -77,23 +77,6 @@ public class DeviceModbusController extends BaseController {
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:modbus:edit", "iot:modbus:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Device entity) {
-        // modbus新增
-        DetailResult<Device> one;
-        if(entity.getId() == null) {
-            one = this.deviceService.getOne(Wrappers.<Device>lambdaQuery()
-                    .eq(Device::getIp, entity.getIp())
-                    .eq(Device::getPort, entity.getPort()));
-        } else {
-            one = this.deviceService.getOne(Wrappers.<Device>lambdaQuery()
-                    .eq(Device::getIp, entity.getIp())
-                    .ne(Device::getId, entity.getId())
-                    .eq(Device::getPort, entity.getPort()));
-        }
-
-        if(one.ofNullable().isPresent()) {
-            return fail("已经包含有设备[" + entity.getIp() + ":" + entity.getPort() +"]");
-        }
-
         return this.deviceService.saveOrUpdate(entity);
     }
 
@@ -108,28 +91,13 @@ public class DeviceModbusController extends BaseController {
     }
 
     /**
-     * 设备连接
-     * @param device
+     * 获取Modbus产品列表
+     * @param deviceType 设备类型
      * @return
      */
-    @PostMapping("connect/{status}")
-    @CheckPermission({"iot:modbus:connect"})
-    public Result connect(@RequestBody Device device, @PathVariable DeviceStatus status) {
-        if(status == null) {
-            return fail("未指定连接状态");
-        }
-
-        DeviceDto entity = deviceService.detailById(device.getId()).getData();
-        if(entity == null) {
-            return fail("设备不存在["+device.getDeviceSn()+"]");
-        }
-
-        try {
-            return success();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return fail(e.getMessage());
-        }
+    @GetMapping("/products")
+    public Result<List<Product>> products(DeviceType deviceType) {
+        return this.productService.listOfProtocolCodes(deviceType, modbusCodes, null);
     }
 }
 

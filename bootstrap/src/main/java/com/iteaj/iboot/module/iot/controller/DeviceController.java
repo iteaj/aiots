@@ -17,10 +17,12 @@ import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
+import io.netty.channel.ChannelFuture;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 设备管理
@@ -135,7 +137,7 @@ public class DeviceController extends BaseController {
      * @return
      */
     @PostMapping("connect/{status}")
-    @CheckPermission(value = {"iot:modbus:connect", "iot:dtu:connect", "iot:mqtt:connect", "iot:device:gateway:connect"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:modbus:connect", "iot:mqtt:connect", "iot:device:gateway:connect"}, logical = Logical.OR)
     public Result connect(@RequestBody Device device, @PathVariable DeviceStatus status) {
         if(status == null) {
             return fail("未指定连接状态");
@@ -154,7 +156,10 @@ public class DeviceController extends BaseController {
 
         try {
             FuncStatus funcStatus = status == DeviceStatus.online ? FuncStatus.enabled : FuncStatus.disabled;
-            IotNetworkUtil.networkCtrl(entity.getProtocolCode(), entity, funcStatus);
+            Object networkCtrl = IotNetworkUtil.networkCtrl(entity.getProtocolCode(), entity, funcStatus);
+            if(networkCtrl instanceof ChannelFuture) {
+                ((ChannelFuture) networkCtrl).await(8, TimeUnit.SECONDS);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return fail(e.getMessage());

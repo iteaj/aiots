@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
@@ -50,6 +51,12 @@ public class ProductDto extends Product {
      * 物模型事件接口
      */
     private List<ModelApi> eventApis;
+
+    /**
+     * 协议码列表
+     */
+    @JsonIgnore
+    private String[] protocolCodes;
 
     /**
      * 操作类型名称

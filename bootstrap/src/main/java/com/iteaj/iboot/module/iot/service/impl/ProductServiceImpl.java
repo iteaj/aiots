@@ -14,6 +14,7 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
@@ -464,6 +465,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     @Override
     public List<DeviceTypeCountDto> countOfDeviceType() {
         return getBaseMapper().countOfDeviceType();
+    }
+
+    @Override
+    public ListResult<Product> listOfProtocolCodes(DeviceType deviceType, String[] protocolCodes, TransportProtocol protocol) {
+        return new ListResult<>(getBaseMapper().listOfProtocolCodes(deviceType, protocolCodes, protocol));
     }
 
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {

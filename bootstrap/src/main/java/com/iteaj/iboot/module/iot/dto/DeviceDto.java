@@ -1,13 +1,12 @@
 package com.iteaj.iboot.module.iot.dto;
 
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
 import com.iteaj.iboot.module.iot.entity.Device;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -67,6 +66,11 @@ public class DeviceDto extends Device {
      * 协议码列表
      */
     private String[] protocolCodes;
+
+    /**
+     * 协议类型
+     */
+    private TransportProtocol protocol;
 
     /**
      * 设备类型名称
