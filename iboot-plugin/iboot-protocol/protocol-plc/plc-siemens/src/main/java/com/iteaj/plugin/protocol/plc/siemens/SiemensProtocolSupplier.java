@@ -1,5 +1,6 @@
 package com.iteaj.plugin.protocol.plc.siemens;
 
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
@@ -40,7 +41,11 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Siemens
             ParamMeta.buildRequired(ConstConfig.HOST, "主机", "", "127.0.0.1"),
             ParamMeta.buildRequiredNumber(ConstConfig.PORT, "端口", 102, ""),
             ParamMeta.buildRequiredNumber("readIdle", "读超时(秒)", 600, ""),
-            ParamMeta.buildRequired("model", "型号", "可选[S200、S300、S400、S1500、S200Smart]", "S1200"),
+            //可选[S200、S300、S400、S1500、S200Smart]
+            ParamMeta.buildRequiredSelect("model", "型号", "S1200", null
+                    , new IVOption("S200", "S200"), new IVOption("S200Smart", "S200Smart")
+                    , new IVOption("S300", "S300"), new IVOption("S400", "S400")
+                    , new IVOption("S1200", "S200"), new IVOption("S1500", "S1500")),
     };
 
     @Override
