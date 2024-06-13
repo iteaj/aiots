@@ -65,27 +65,26 @@ public class DevicePlcController extends BaseController {
     @CheckPermission(value = {"iot:plc:edit", "iot:plc:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Device entity) {
         if(entity.getId() == null) {
-            productService.getById(entity.getProductId())
-                    .ifNotPresentThrow("产品不存在")
-                    .ifPresent(product -> {
-                if(product.getDeviceType() == DeviceType.Gateway) {
-                    String deviceSn = product.getProtocolCode();
-                    synchronized (this) {
-                        Device device = this.deviceService.getOne(Wrappers.<Device>lambdaQuery()
-                                .eq(Device::getProductId, entity.getProductId())
-                                .orderByDesc(Device::getDeviceSn).last("limit 1")).getData();
-                        if (device != null) {
-                            String[] number = device.getDeviceSn().split("_");
-                            Integer idValue = Integer.valueOf(number[number.length - 1]);
-                            deviceSn = String.format("gwd_%s_%d_%04d", deviceSn.toLowerCase(), entity.getProductId(), (idValue + 1));
-                        } else {
-                            deviceSn = "gwd_"+deviceSn.toLowerCase()+"_" + entity.getProductId() + "_0001";
-                        }
-
-                        entity.setDeviceSn(deviceSn);
+            Product product = productService.getById(entity.getProductId())
+                    .ifNotPresentThrow("产品不存在").getData();
+            if(product.getDeviceType() == DeviceType.Gateway) {
+                String deviceSn = product.getProtocolCode();
+                synchronized (this) {
+                    Device device = this.deviceService.getOne(Wrappers.<Device>lambdaQuery()
+                            .eq(Device::getProductId, entity.getProductId())
+                            .orderByDesc(Device::getDeviceSn).last("limit 1")).getData();
+                    if (device != null) {
+                        String[] number = device.getDeviceSn().split("_");
+                        Integer idValue = Integer.valueOf(number[number.length - 1]);
+                        deviceSn = String.format("gwd_%s_%d_%04d", deviceSn.toLowerCase(), entity.getProductId(), (idValue + 1));
+                    } else {
+                        deviceSn = "gwd_"+deviceSn.toLowerCase()+"_" + entity.getProductId() + "_0001";
                     }
+
+                    entity.setDeviceSn(deviceSn);
+                    return this.deviceService.saveOrUpdate(entity);
                 }
-            });
+            }
         }
 
         return this.deviceService.saveOrUpdate(entity);
