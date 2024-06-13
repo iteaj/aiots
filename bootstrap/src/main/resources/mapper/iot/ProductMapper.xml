@@ -64,6 +64,9 @@
             <if test="entity.protocolId != null">
                 and a.protocol_id=#{entity.protocolId}
             </if>
+            <if test="entity.deviceType != null">
+                and a.device_type=#{entity.deviceType}
+            </if>
             <if test="entity.productTypeId != null">
                 and find_in_set(#{entity.productTypeId}, idt.path)
             </if>
