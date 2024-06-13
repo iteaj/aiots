@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * modbus设备管理
@@ -77,6 +78,29 @@ public class DeviceModbusController extends BaseController {
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:modbus:edit", "iot:modbus:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Device entity) {
+        if(entity.getId() == null) {
+            productService.getById(entity.getProductId())
+                    .ifNotPresentThrow("产品不存在")
+                    .ifPresent(product -> {
+                if(product.getDeviceType() == DeviceType.Gateway) {
+                    String deviceSn = product.getProtocolCode();
+                    synchronized (this) {
+                        Device device = this.deviceService.getOne(Wrappers.<Device>lambdaQuery()
+                                .eq(Device::getProductId, entity.getProductId())
+                                .orderByDesc(Device::getDeviceSn).last("limit 1")).getData();
+                        if (device != null) {
+                            String[] number = device.getDeviceSn().split("_");
+                            Integer idValue = Integer.valueOf(number[number.length - 1]);
+                            deviceSn = "gw_"+deviceSn.toLowerCase()+"_" + entity.getProductId() + "_" + (idValue + 1);
+                        } else {
+                            deviceSn = "gw_"+deviceSn.toLowerCase()+"_" + entity.getProductId() + "_0001";
+                        }
+
+                        entity.setDeviceSn(deviceSn);
+                    }
+                }
+            });
+        }
         return this.deviceService.saveOrUpdate(entity);
     }
 
