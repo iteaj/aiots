@@ -335,6 +335,8 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
             statusList.forEach(status -> {
                 if(status.getType() == DeviceType.Child) {
                     iotCacheManager.removeByKey(status.getProtocolCode(), status.getDeviceSn(), status.getParentDeviceSn());
+                } else {
+                    iotCacheManager.removeByKey(status.getProtocolCode(), status.getDeviceSn());
                 }
             });
         });

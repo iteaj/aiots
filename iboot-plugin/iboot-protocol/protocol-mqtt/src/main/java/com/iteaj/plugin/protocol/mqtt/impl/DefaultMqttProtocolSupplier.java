@@ -51,6 +51,8 @@ public class DefaultMqttProtocolSupplier extends StaticClientProtocolSupplier<Ne
         }
 
         DefaultMqttConnectProperties connectProperties = new DefaultMqttConnectProperties(config.getHost(), config.getPort(), config.getClientId(), subscriptions, null);
+        connectProperties.setUsername(config.getUsername());
+        connectProperties.setPassword(config.getPassword());
         connectProperties.setConnectKey(config.getDeviceSn()); // 使用设备编号作为唯一标识
         if(config.getKeepalive() > 0) {
             connectProperties.setKeepAlive(config.getKeepalive());
