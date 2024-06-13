@@ -91,9 +91,9 @@ public class DeviceModbusController extends BaseController {
                         if (device != null) {
                             String[] number = device.getDeviceSn().split("_");
                             Integer idValue = Integer.valueOf(number[number.length - 1]);
-                            deviceSn = "gw_"+deviceSn.toLowerCase()+"_" + entity.getProductId() + "_" + (idValue + 1);
+                            deviceSn = String.format("gwd_%s_%d_%04d", deviceSn.toLowerCase(), entity.getProductId(), (idValue + 1));
                         } else {
-                            deviceSn = "gw_"+deviceSn.toLowerCase()+"_" + entity.getProductId() + "_0001";
+                            deviceSn = "gwd_"+deviceSn.toLowerCase()+"_" + entity.getProductId() + "_0001";
                         }
 
                         entity.setDeviceSn(deviceSn);
@@ -101,6 +101,7 @@ public class DeviceModbusController extends BaseController {
                 }
             });
         }
+
         return this.deviceService.saveOrUpdate(entity);
     }
 
