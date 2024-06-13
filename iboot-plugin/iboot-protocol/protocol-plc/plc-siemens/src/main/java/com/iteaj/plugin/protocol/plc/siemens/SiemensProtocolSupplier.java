@@ -40,7 +40,7 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Siemens
     private ParamMeta[] gatewayConfig = new ParamMeta[]{
             ParamMeta.buildRequired(ConstConfig.HOST, "主机", "", "127.0.0.1"),
             ParamMeta.buildRequiredNumber(ConstConfig.PORT, "端口", 102, ""),
-            ParamMeta.buildRequiredNumber("readIdle", "读超时(秒)", 600, ""),
+            ParamMeta.buildRequiredNumber("readIdle", "读空闲(秒)", 600, "多长时间没有读到数据自动断开"),
             //可选[S200、S300、S400、S1500、S200Smart]
             ParamMeta.buildRequiredSelect("model", "型号", "S1200", null
                     , new IVOption("S200", "S200"), new IVOption("S200Smart", "S200Smart")

@@ -36,7 +36,7 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     private ParamMeta[] gatewayConfig = new ParamMeta[]{
             ParamMeta.buildRequired(ConstConfig.HOST, "主机", "", "127.0.0.1"),
             ParamMeta.buildRequiredNumber(ConstConfig.PORT, "端口", 9600, ""),
-            ParamMeta.buildRequiredNumber("readIdle", "读超时(秒)", 600, ""),
+            ParamMeta.buildRequiredNumber("readIdle", "读空闲(秒)", 600, "多长时间没有读到数据自动断开"),
     };
 
     @Override
