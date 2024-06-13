@@ -78,17 +78,7 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
                 ReadAddress readAddress = ((OmronTcpProtocol) protocol).getBatchAddress().get(0);
                 param.listUpAttrs().stream().findFirst().ifPresent(upModelAttr -> {
                     if(execStatus == ExecStatus.success) {
-                        Object collectValue = value;
-                        if(upModelAttr.getDataType() != null && upModelAttr.getAccuracy() != null) {
-                            if(upModelAttr.getDataType() == DataType.t_float) {
-                                BigDecimal decimal = new BigDecimal(value.toString()).setScale(upModelAttr.getAccuracy(), RoundingMode.DOWN);
-                                collectValue = decimal.floatValue();
-                            } else if(upModelAttr.getDataType() == DataType.t_double) {
-                                BigDecimal decimal = new BigDecimal(value.toString()).setScale(upModelAttr.getAccuracy(), RoundingMode.DOWN);
-                                collectValue = decimal.doubleValue();
-                            }
-                        }
-
+                        Object collectValue = dataResolver(upModelAttr, value);
                         dataSupplier.addValue(upModelAttr.getId(), readAddress.getAddress(), upModelAttr.getField(), collectValue);
                     } else {
                         dataSupplier.addValue(upModelAttr.getId(), readAddress.getAddress(), upModelAttr.getField(), CollectStatus.from(execStatus));
