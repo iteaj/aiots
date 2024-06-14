@@ -72,7 +72,7 @@ public class DefaultMqttProtocolSupplier extends StaticClientProtocolSupplier<Ne
 
     @Override
     public ProtocolModel getProtocol() {
-        return new DefaultProtocolModel("MQTT_DEFAULT_IMPL", CtrlMode.COMMON, TransportProtocol.MQTT, modelApis, modelAttrs);
+        return new DefaultProtocolModel(ProtocolCodes.MQTT_DEFAULT_IMPL.getValue(), CtrlMode.COMMON, TransportProtocol.MQTT, modelApis, modelAttrs);
     }
 
     @Override

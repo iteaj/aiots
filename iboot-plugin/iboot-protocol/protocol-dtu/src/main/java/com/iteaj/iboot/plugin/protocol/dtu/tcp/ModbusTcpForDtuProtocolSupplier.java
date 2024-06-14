@@ -2,6 +2,7 @@ package com.iteaj.iboot.plugin.protocol.dtu.tcp;
 
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractDtuForModbusProtocolSupplier;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusEventProtocolModelApi;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusFuncProtocolModelApi;
@@ -12,7 +13,7 @@ import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
 public class ModbusTcpForDtuProtocolSupplier extends AbstractDtuForModbusProtocolSupplier<ModbusTcpForDtuServerComponent> {
 
     public ModbusTcpForDtuProtocolSupplier() {
-        super("DTU:MODBUS_TCP");
+        super(ProtocolCodes.DTU_MODBUS_TCP.getValue());
     }
 
     @Override
