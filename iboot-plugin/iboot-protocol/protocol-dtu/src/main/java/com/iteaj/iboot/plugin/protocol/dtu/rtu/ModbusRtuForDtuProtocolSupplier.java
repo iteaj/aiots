@@ -1,22 +1,16 @@
 package com.iteaj.iboot.plugin.protocol.dtu.rtu;
 
-import com.iteaj.framework.spi.iot.*;
-import com.iteaj.framework.spi.iot.consts.*;
-import com.iteaj.framework.spi.iot.protocol.*;
+import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractDtuForModbusProtocolSupplier;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusEventProtocolModelApi;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusFuncProtocolModelApi;
-import com.iteaj.iboot.plugin.protocol.dtu.ModbusProtocolConsts;
-import com.iteaj.iboot.plugin.protocol.dtu.tcp.ModbusTcpForDtuFuncProtocolModeApi;
-import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
-import com.iteaj.iot.modbus.consts.ModbusCode;
 import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
 
 public class ModbusRtuForDtuProtocolSupplier extends AbstractDtuForModbusProtocolSupplier<ModbusRtuForDtuServerComponent> {
 
     public ModbusRtuForDtuProtocolSupplier() {
-        super("DTU:MODBUS_RTU");
+        super(ProtocolCodes.DTU_MODBUS_RTU.getValue());
     }
 
     @Override

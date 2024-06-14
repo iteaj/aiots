@@ -155,13 +155,13 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                 DeviceStatus realtimeStatus;
                 if(result.getStatus() == ExecStatus.success) {
                     boolean status = true;
-                    Object value = result.getValue();
-                    if(value instanceof Boolean) { // 如果是布尔值必须等于true
-                        status = Boolean.TRUE.equals(value);
-                    } else if(value instanceof Number){ // 如果是数值必须大于0
-                        Double aDouble = Double.valueOf(value.toString());
-                        status = aDouble != 0.0;
-                    }
+//                    Object value = result.getValue();
+//                    if(value instanceof Boolean) { // 如果是布尔值必须等于true
+//                        status = Boolean.TRUE.equals(value);
+//                    } else if(value instanceof Number){ // 如果是数值必须大于0
+//                        Double aDouble = Double.valueOf(value.toString());
+//                        status = aDouble != 0.0;
+//                    }
 
                     realtimeStatus = status == true ? DeviceStatus.online : DeviceStatus.offline;
                     if(logger.isDebugEnabled() && !status) {

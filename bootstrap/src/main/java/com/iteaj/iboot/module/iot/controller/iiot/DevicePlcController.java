@@ -7,6 +7,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.Device;
@@ -29,7 +30,7 @@ public class DevicePlcController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IProductService productService;
-    private final static String[] plcCodes = {"PLC_SIEMENS_S7", "PLC_OMRON_TCP"};
+    private final static String[] plcCodes = {ProtocolCodes.PLC_SIEMENS_S7.getValue(), ProtocolCodes.PLC_OMRON_TCP.getValue()};
 
     public DevicePlcController(IDeviceService deviceService, IProductService productService) {
         this.deviceService = deviceService;

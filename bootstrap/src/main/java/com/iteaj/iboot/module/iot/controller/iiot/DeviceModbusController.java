@@ -7,6 +7,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -41,7 +42,7 @@ public class DeviceModbusController extends BaseController {
     private final ISerialService serialService;
     private final IDeviceService deviceService;
     private final IProductService productService;
-    private final static String[] modbusCodes = {"MODBUS_RTU", "MODBUS_TCP"};
+    private final static String[] modbusCodes = {ProtocolCodes.MODBUS_RTU.getValue(), ProtocolCodes.MODBUS_TCP.getValue()};
 
     public DeviceModbusController(ISerialService serialService, IDeviceService deviceService
             , IProductService productService) {
