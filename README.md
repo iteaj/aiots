@@ -3,13 +3,13 @@ iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关�
 - [演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://iot.iteaj.com/#/login)
 - [项目前端仓库(vue3+antdv3+vite2)](https://gitee.com/iteaj/ivzone)
 ### 目前支持哪些协议
-| 协议 | 实现方式 | 是否开源 | 收费标准 | 说明 |
+| 协议 | 实现方式 | 是否开源 | 资费标准 | 说明 |
 |----|------|------|------|----|
 |  Mqtt  |   系统内置   |   是   |   -   |  支持设备、第三方业务和iboot系统的双向数据对接  |
-|  DTU + Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备以modbus tcp协议对接并且通过dtu网关采集上云  |
-|  DTU + Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过485以modbus rtu协议对接并且通过dtu网关采集上云  |
-|  Modbus Tcp  |   系统内置   |      |      |    |
-
+|  DTU + Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备以modbus tcp协议对接并且通过dtu连接iboot云网关  |
+|  DTU + Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过485以modbus rtu协议对接并且通过dtu连接iboot云网关  |
+|  Modbus Tcp  |   系统内置   |   否   |   899   |  支持设备在内网里面直接和iboot网关(上位机)通过modbus tcp协议对接  |
+|  Modbus Rtu  |   系统内置   |   否   |   599   |  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
 ### 项目介绍
 1. ##### 这个项目能用来做什么<br>
       iboot是一款通用的物联网关平台，用来连接业务系统和物联网设备的网关；对南向主要用于采集和控制设备对北向主要是提供接口给第三方业务平台操作设备，使得对物联网不熟的个人开发者或者公司可以更加关注业务需求，将设备相关部分交由iboot物联网关
