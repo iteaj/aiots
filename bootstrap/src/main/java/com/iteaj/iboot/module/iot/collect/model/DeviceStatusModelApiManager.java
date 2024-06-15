@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
+import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -15,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -125,12 +123,34 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
 
     @Override
     public void run() {
-        statusApis.forEach((key, api) -> {
-            // 获取所有此产品下面的所有设备, 并且执行这些设备的状态协议
-            cacheManager.listByProductCode(api.getProductCode()).forEach(device -> {
-                doTrigger(api, device);
-            });
-        });
+        String prevDeviceSn = "";
+        Iterator<ModelApi> apiIterator = statusApis.values().iterator();
+        while (apiIterator.hasNext()) {
+            ModelApi modelApi = apiIterator.next();
+            // 获取产品下面的所有设备, 并且执行这些设备的状态协议
+            Collection<RealtimeStatus> statuses = cacheManager.listByProductCode(modelApi.getProductCode());
+            Iterator<RealtimeStatus> iterator = statuses.iterator();
+            while (iterator.hasNext()) {
+                RealtimeStatus device = iterator.next();
+                if(ProtocolCodes.isModbus(device.getProtocolCode())) {
+                    if(Objects.equals(device.getParentDeviceSn(), prevDeviceSn)) {
+                        try {
+                            Thread.sleep(300);
+                            doTrigger(modelApi, device);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        doTrigger(modelApi, device);
+                    }
+
+                } else {
+                    doTrigger(modelApi, device);
+                }
+
+                prevDeviceSn = device.getParentDeviceSn();
+            }
+        }
     }
 
     private void doTrigger(ModelApi api, RealtimeStatus device) {
@@ -201,6 +221,6 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
          * 30秒执行一次
          */
         IotThreadManager.instance().getExecutorService()
-                .scheduleWithFixedDelay(this, 0, 30, TimeUnit.SECONDS);
+                .scheduleWithFixedDelay(this, 10, 30, TimeUnit.SECONDS);
     }
 }
