@@ -15,7 +15,11 @@ public class JsonPayload implements IotEventPayload{
     }
 
     public JsonPayload(Object value) {
-        this.json = JSONUtil.parseObj(value);
+        if(value instanceof JSONObject) {
+            json = (JSONObject) value;
+        } else {
+            this.json = JSONUtil.parseObj(value);
+        }
     }
 
     public JSONObject getJson() {

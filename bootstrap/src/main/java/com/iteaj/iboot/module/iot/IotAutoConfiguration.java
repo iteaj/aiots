@@ -18,6 +18,7 @@ import com.iteaj.iboot.module.iot.collect.model.TaosPersistenceListener;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
+import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
 import com.iteaj.iboot.module.iot.linkage.*;
 import com.iteaj.iboot.module.iot.linkage.warn.RDBMSPersistenceWarnListener;
 import com.iteaj.iboot.module.iot.mq.RabbitmqDataListener;
@@ -117,6 +118,15 @@ public class IotAutoConfiguration {
     @Bean
     public RealtimeDataCacheListener realtimeDataStoreListener(RealtimeDataService realtimeDataService) {
         return new RealtimeDataCacheListener(realtimeDataService);
+    }
+
+    /**
+     * 将系统的协议实时数据(采集数据、设备上下线、告警)向各个插件模块发布
+     * @return
+     */
+    @Bean
+    public PluginRealtimeInfoListenerPublisher pluginRealtimeInfoListenerPublisher() {
+        return new PluginRealtimeInfoListenerPublisher();
     }
 
     @Bean
