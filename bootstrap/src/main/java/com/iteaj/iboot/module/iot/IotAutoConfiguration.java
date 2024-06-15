@@ -17,6 +17,7 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeDataCacheListener;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
+import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,15 @@ public class IotAutoConfiguration {
     @Bean
     public RealtimeDataCacheListener realtimeDataStoreListener(RealtimeDataService realtimeDataService) {
         return new RealtimeDataCacheListener(realtimeDataService);
+    }
+
+    /**
+     * 将系统的协议实时数据(采集数据、设备上下线、告警)向各个插件模块发布
+     * @return
+     */
+    @Bean
+    public PluginRealtimeInfoListenerPublisher pluginRealtimeInfoListenerPublisher() {
+        return new PluginRealtimeInfoListenerPublisher();
     }
 
     @Bean

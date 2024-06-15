@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.collect.websocket;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.FuncType;
@@ -14,6 +15,7 @@ import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
 import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
+import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
@@ -31,7 +33,8 @@ import java.util.stream.Collectors;
 /**
  * 将采集的数据实时推送到前端
  */
-public class RealtimePushListener implements WebSocketServerListener, EventGroupCollectListener, SignalCollectListener, DeviceStatusListener {
+public class RealtimePushListener implements WebSocketServerListener, EventGroupCollectListener
+        , SignalCollectListener, DeviceStatusListener, ModelAttrListener {
 
     private static final String URI = "/ws/iot/realtime";
     private final RealtimeDataService realtimeDataService;
@@ -130,6 +133,18 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
             doPush(deviceUid, jsonString, TYPE_DATA);
         } catch (Exception e) {
             logger.error("实时推送点位数据异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
+        }
+    }
+
+    @Override
+    public void supplier(DataSupplier supplier, RealtimeStatus device) {
+        if(CollectionUtil.isNotEmpty(supplier.getValues())) {
+            Map<String, SignalOrFieldValue> valueMap = supplier.getValues().stream()
+                    .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+
+            // websocket方式写数据到前端
+            String jsonString = JSONObject.toJSONString(PushData.buildModel(device.getUid(), valueMap));
+            doPush(device.getUid(), jsonString, TYPE_DATA);
         }
     }
 
