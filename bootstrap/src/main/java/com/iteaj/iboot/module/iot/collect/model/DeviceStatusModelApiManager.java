@@ -133,21 +133,19 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
             while (iterator.hasNext()) {
                 RealtimeStatus device = iterator.next();
                 if(ProtocolCodes.isModbus(device.getProtocolCode())) {
+                    // 同一台网关设备的采集时间需要有一定间隔(防止网关设备性能差导致采集失败)
                     if(Objects.equals(device.getParentDeviceSn(), prevDeviceSn)) {
                         try {
-                            Thread.sleep(300);
+                            Thread.sleep(200);
                             doTrigger(modelApi, device);
+                            continue;
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        doTrigger(modelApi, device);
-                    }
 
-                } else {
-                    doTrigger(modelApi, device);
+                        }
+                    }
                 }
 
+                doTrigger(modelApi, device);
                 prevDeviceSn = device.getParentDeviceSn();
             }
         }
