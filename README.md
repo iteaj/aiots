@@ -3,7 +3,7 @@ iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关�
 - [演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://iot.iteaj.com/#/login)
 - [项目前端仓库(vue3+antdv3+vite2)](https://gitee.com/iteaj/ivzone)
 ### 目前支持哪些协议
-| 协议 | 实现方式 | 是否开源 | 资费标准 | 说明 |
+| 协议 | 实现方式 | 是否开源 | 资费 | 说明 |
 |----|------|------|------|----|
 |  Mqtt  |   系统内置   |   是   |   -   |  支持设备、第三方业务和iboot系统的双向数据对接  |
 |  DTU+Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备以modbus tcp协议对接并且通过dtu连接iboot云网关  |
