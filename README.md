@@ -6,9 +6,9 @@ iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关�
 | 协议 | 实现方式 | 是否开源 | 资费标准 | 说明 |
 |----|------|------|------|----|
 |  Mqtt  |   系统内置   |   是   |   -   |  支持设备、第三方业务和iboot系统的双向数据对接  |
-|  DTU + Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备以modbus tcp协议对接并且通过dtu连接iboot云网关  |
-|  DTU + Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过485以modbus rtu协议对接并且通过dtu连接iboot云网关  |
-|  Modbus Tcp  |   系统内置   |   否   |   899   |  支持设备在内网里面直接和iboot网关(上位机)通过modbus tcp协议对接  |
+|  DTU+Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备以modbus tcp协议对接并且通过dtu连接iboot云网关  |
+|  DTU+Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过485以modbus rtu协议对接并且通过dtu连接iboot云网关  |
+|  Modbus Tcp  |   系统内置   |   否   |   899   |  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
 |  Modbus Rtu  |   系统内置   |   否   |   599   |  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
 ### 项目介绍
 1. ##### 这个项目能用来做什么<br>
