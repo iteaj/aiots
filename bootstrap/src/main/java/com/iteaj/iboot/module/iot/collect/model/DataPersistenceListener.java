@@ -54,16 +54,16 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
                 DataSupplier supplier = item.getSupplier();
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
                     supplier.getValues().forEach(value -> {
+                        String strValue = value.getValue() == null ? null : value.getValue().toString();
                         CollectData data = new CollectData(CollectMode.model)
                                 .setCid(cid).setStatus(true).setReason("")
-                                .setCreateTime(new Date())
+                                .setCreateTime(new Date()).setValue(strValue)
                                 .setAddress(value.getAddress())
                                 .setUid(Long.valueOf(item.getDevice().getUid()))
                                 .setSignalId(value.getId())
                                 .setCollectStatus(value.getStatus())
                                 .setField(value.getSignalOrField())
                                 .setFieldName(value.getSignalOrField())
-                                .setValue(value.getValue().toString())
                                 .setCollectTime(supplier.getCollectTime())
                                 .setCollectTaskId(info.getSource().getId());
 
