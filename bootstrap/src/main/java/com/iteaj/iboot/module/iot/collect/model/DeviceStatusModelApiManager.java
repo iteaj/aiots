@@ -135,13 +135,11 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
             Iterator<RealtimeStatus> iterator = statuses.iterator();
             while (iterator.hasNext()) {
                 RealtimeStatus device = iterator.next();
-                if(ProtocolCodes.isModbus(device.getProtocolCode())) {
+                if(prevDeviceSn != null && ProtocolCodes.isModbus(device.getProtocolCode())) {
                     // 同一台网关设备的采集时间需要有一定间隔(防止网关设备性能差导致采集失败)
-                    if(Objects.equals(device.getParentDeviceSn(), prevDeviceSn)) {
+                    if(prevDeviceSn.equals(device.getParentDeviceSn())) {
                         try {
                             Thread.sleep(1000);
-                            doTrigger(modelApi, device);
-                            continue;
                         } catch (InterruptedException e) {
 
                         }
@@ -155,7 +153,6 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
     }
 
     private void doTrigger(ModelApi api, RealtimeStatus device) {
-        RealtimeStatus prevDeviceStatus = null;
         try {
             if(device.getType() == DeviceType.Child) { // 先校验父设备是否在线
                 RealtimeStatus realtimeStatus = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
@@ -170,34 +167,32 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                 }
             }
 
-            // 获取当前设备的状态
-            prevDeviceStatus = cacheManager.get(device.getProtocolCode(), device.buildDeviceKey());
             // 调用状态协议
-            doInvoke(api, device, prevDeviceStatus, 3000l, false);
+            doInvoke(api, device, 3000l, false);
         } catch (InvokeTimeoutException e) {
             try {
                 Thread.sleep(1000); // 延迟1秒
                 // 重新尝试执行一次
-                doInvoke(api, device, prevDeviceStatus, 6000l, true);
+                doInvoke(api, device, 6000l, true);
             } catch (Exception re) {
-                invokeException(api, device, prevDeviceStatus, e);
+                invokeException(api, device, e);
             }
         } catch (Exception e) {
-            invokeException(api, device, prevDeviceStatus, e);
+            invokeException(api, device, e);
         }
     }
 
-    private void invokeException(ModelApi api, RealtimeStatus device, RealtimeStatus prevDeviceStatus, Exception e) {
+    private void invokeException(ModelApi api, RealtimeStatus device, Exception e) {
         // 获取当前设备的上一次状态
-        if(prevDeviceStatus != null && prevDeviceStatus.getStatus() != DeviceStatus.offline) {
-            prevDeviceStatus.setStatus(DeviceStatus.offline);
-            IotEvenPublisher.publish(IotEventType.DeviceStatus, prevDeviceStatus);
+        if(device.getStatus() != DeviceStatus.offline) {
+            device.setStatus(DeviceStatus.offline);
+            IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
         }
 
         logger.error("采集在线状态异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
     }
 
-    private void doInvoke(ModelApi api, RealtimeStatus device, RealtimeStatus prevDeviceStatus, long timeout, boolean retry) {
+    private void doInvoke(ModelApi api, RealtimeStatus device, long timeout, boolean retry) {
         ProtocolInvokeUtil.invoke(api, device, timeout, result -> {
             DeviceStatus realtimeStatus;
             if(result.getStatus() == ExecStatus.success) {
@@ -229,9 +224,9 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
             }
 
             // 如果现在的状态和上一次的状态不一致则更新状态
-            if(prevDeviceStatus != null && realtimeStatus != prevDeviceStatus.getStatus()) {
-                prevDeviceStatus.setStatus(realtimeStatus);
-                IotEvenPublisher.publish(IotEventType.DeviceStatus, prevDeviceStatus);
+            if(realtimeStatus != device.getStatus()) {
+                device.setStatus(realtimeStatus);
+                IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
             }
         });
     }
