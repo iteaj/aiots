@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 public class ProtocolInvokeUtil {
 
     public static void invoke(ModelApi api, RealtimeStatus device, Consumer<InvokeResult> result) {
-        invoke(api, device, 5000, result);
+        invoke(api, device, ProtocolModelApiInvokeParam.DEFAULT_TIMEOUT, result);
     }
 
     public static void invoke(ModelApi api, ProtocolModelApiInvokeParam param, RealtimeStatus device, Consumer<InvokeResult> result) {
@@ -53,6 +53,11 @@ public class ProtocolInvokeUtil {
                         // 如果是点位采集
                         resolverPointModelAttr(api, supplier, param, item);
                     });
+                }
+
+                // 设置默认超时时间
+                if(param.getTimeout() == null || param.getTimeout() <= 0) {
+                    param.setTimeout(ProtocolModelApiInvokeParam.DEFAULT_TIMEOUT);
                 }
 
                 // 组装调用参数
@@ -91,7 +96,7 @@ public class ProtocolInvokeUtil {
 
                 JSONObject param = new JSONObject();
                 ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(device.getUid(), param);
-                invokeParam.setTimeout(timeout);
+                invokeParam.setTimeout(timeout > 0 ? timeout : ProtocolModelApiInvokeParam.DEFAULT_TIMEOUT);
 
                 if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
                     buildUpConfigAttrs(api, invokeParam);

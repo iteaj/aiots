@@ -1,10 +1,13 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.exception.InvokeTimeoutException;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
@@ -20,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 public class CollectGroupTask implements Runnable{
 
@@ -68,24 +70,36 @@ public class CollectGroupTask implements Runnable{
                 try {
                     // 对此设备同一产品的模型接口进行调用
                     if(api.getProductId().equals(device.getProductId())) {
-                        // 处理modbus dtu等网关性能不足的情况
-                        if(ProtocolCodes.isModbus(device.getProtocolCode())) {
-                            if(prevParentDeviceSn != null && prevParentDeviceSn.equals(device.getParentDeviceSn())) {
-                                Thread.sleep(1000); // 延迟一秒
+                        if(prevParentDeviceSn != null && ProtocolCodes.isModbus(device.getProtocolCode())) {
+                            // 同一台网关设备的采集时间需要有一定间隔(防止网关设备性能差导致采集失败)
+                            if(prevParentDeviceSn.equals(device.getParentDeviceSn())) {
+                                Thread.sleep(1000); // 休眠1秒
                             }
                         }
 
-                        doInvoke(info, device, api);
+                        doInvoke(info, device, api, 3000l, false);
                         prevParentDeviceSn = device.getParentDeviceSn();
                     }
+                } catch (InvokeTimeoutException e) { // 采集超时异常, 重新采集一次
+                    try {
+                        Thread.sleep(1000); // 延迟1秒
+                        doInvoke(info, device, api, 6000l, true); // 超时重新调用一次
+                    } catch (InterruptedException ie) {
+
+                    } catch (Exception re) {
+                        logger.error("接口采集重试失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                    }
+
+                    prevParentDeviceSn = device.getParentDeviceSn();
                 } catch (ProtocolInvokeException e) {
-                    logger.error("接口调用执行异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                    logger.error("接口采集执行异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
                             , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 } catch (ServiceException e) {
-                    logger.error("接口调用错误 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                    logger.error("接口采集执行错误 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
                             , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 } catch (Exception e) {
-                    logger.error("接口调用未知异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                    logger.error("接口采集未知异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
                             , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 }
             }
@@ -100,27 +114,44 @@ public class CollectGroupTask implements Runnable{
         });
     }
 
-    private void doInvoke(CollectInfo info, RealtimeStatus device, ModelApi api) {
-        ProtocolInvokeUtil.invoke(api, device, result -> {
-            if(result.getStatus() != ExecStatus.success) {
-                logger.warn("接口执行失败({}) {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getStatus()
-                        , result.getReason(), source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
-            }
+    private void doInvoke(CollectInfo info, RealtimeStatus device, ModelApi api, long timeout, boolean retry) {
+        ProtocolInvokeUtil.invoke(api, device, timeout, result -> {
+            if(result.getStatus() == ExecStatus.success) {
+                if(api.getFuncType() != FuncType.W) { // 单纯写的功能没有采集数据
+                    // 发布采集的数据
+                    dataPublish(info, device, api, result);
+                }
+            } else {
+                if(result.getStatus() == ExecStatus.timeout && !retry) {
+                    throw new InvokeTimeoutException(result.getReason());
+                }
 
-            if(api.getFuncType() != FuncType.W) { // 单纯写的功能没有采集数据
-                ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
-                    CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
+                if(retry) {
+                    logger.warn("接口采集重试失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
+                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                } else {
+                    logger.warn("接口采集失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
+                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                }
 
-                    CollectListenerManager.getInstance().eventGroupPublish(item -> {
-                        try {
-                            item.supplier(source, group, deviceInfo);
-                        } catch (Exception e) {
-                            logger.error("采集事件实时发布异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                                    , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
-                        }
-                    });
-                });
+                // 发布采集的数据
+                dataPublish(info, device, api, result);
             }
+        });
+    }
+
+    private void dataPublish(CollectInfo info, RealtimeStatus device, ModelApi api, InvokeResult result) {
+        ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
+            CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
+
+            CollectListenerManager.getInstance().eventGroupPublish(item -> {
+                try {
+                    item.supplier(source, group, deviceInfo);
+                } catch (Exception e) {
+                    logger.error("采集事件实时发布异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                }
+            });
         });
     }
 }

@@ -108,10 +108,10 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
     protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
         try {
             if(protocol instanceof ModbusTcpForDtuCommonProtocol) {
-                ((ModbusTcpForDtuCommonProtocol)protocol).request();
+                ((ModbusTcpForDtuCommonProtocol)protocol).timeout(arg.getTimeout()).request();
                 result.accept(InvokeResult.status(((ModbusTcpForDtuCommonProtocol) protocol).getExecStatus(), protocol));
             } else {
-                ((ModbusRtuForDtuCommonProtocol)protocol).request();
+                ((ModbusRtuForDtuCommonProtocol)protocol).timeout(arg.getTimeout()).request();
                 result.accept(InvokeResult.status(((ModbusRtuForDtuCommonProtocol) protocol).getExecStatus(), protocol));
             }
         } catch (ProtocolException e) {

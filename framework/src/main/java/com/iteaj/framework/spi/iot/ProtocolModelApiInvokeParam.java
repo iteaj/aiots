@@ -34,6 +34,7 @@ public class ProtocolModelApiInvokeParam {
      */
     private Map config;
 
+    public static final Long DEFAULT_TIMEOUT = 3600L;
     public static final String INVOKE_API = "_InvokeApi";
     public static final String DEVICE_CONFIG = "_DeviceConfig";
     public static final String PARENT_DEVICE_CONFIG = "_ParentDeviceConfig";
