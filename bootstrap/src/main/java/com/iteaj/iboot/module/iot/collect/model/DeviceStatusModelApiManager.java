@@ -1,7 +1,10 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
+import com.iteaj.framework.exception.InvokeTimeoutException;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -152,6 +155,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
     }
 
     private void doTrigger(ModelApi api, RealtimeStatus device) {
+        RealtimeStatus prevDeviceStatus = null;
         try {
             if(device.getType() == DeviceType.Child) { // 先校验父设备是否在线
                 RealtimeStatus realtimeStatus = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
@@ -167,12 +171,37 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
             }
 
             // 获取当前设备的状态
-            RealtimeStatus prevDeviceStatus = cacheManager.get(device.getProtocolCode(), device.buildDeviceKey());
+            prevDeviceStatus = cacheManager.get(device.getProtocolCode(), device.buildDeviceKey());
             // 调用状态协议
-            ProtocolInvokeUtil.invoke(api, device, 5000, result -> {
-                DeviceStatus realtimeStatus;
-                if(result.getStatus() == ExecStatus.success) {
-                    boolean status = true;
+            doInvoke(api, device, prevDeviceStatus, 3000l, false);
+        } catch (InvokeTimeoutException e) {
+            try {
+                Thread.sleep(1000); // 延迟1秒
+                // 重新尝试执行一次
+                doInvoke(api, device, prevDeviceStatus, 6000l, true);
+            } catch (Exception re) {
+                invokeException(api, device, prevDeviceStatus, e);
+            }
+        } catch (Exception e) {
+            invokeException(api, device, prevDeviceStatus, e);
+        }
+    }
+
+    private void invokeException(ModelApi api, RealtimeStatus device, RealtimeStatus prevDeviceStatus, Exception e) {
+        // 获取当前设备的上一次状态
+        if(prevDeviceStatus != null && prevDeviceStatus.getStatus() != DeviceStatus.offline) {
+            prevDeviceStatus.setStatus(DeviceStatus.offline);
+            IotEvenPublisher.publish(IotEventType.DeviceStatus, prevDeviceStatus);
+        }
+
+        logger.error("采集在线状态异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+    }
+
+    private void doInvoke(ModelApi api, RealtimeStatus device, RealtimeStatus prevDeviceStatus, long timeout, boolean retry) {
+        ProtocolInvokeUtil.invoke(api, device, timeout, result -> {
+            DeviceStatus realtimeStatus;
+            if(result.getStatus() == ExecStatus.success) {
+                boolean status = true;
 //                    Object value = result.getValue();
 //                    if(value instanceof Boolean) { // 如果是布尔值必须等于true
 //                        status = Boolean.TRUE.equals(value);
@@ -181,31 +210,30 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
 //                        status = aDouble != 0.0;
 //                    }
 
-                    realtimeStatus = status == true ? DeviceStatus.online : DeviceStatus.offline;
-                    if(logger.isDebugEnabled() && !status) {
-                        logger.warn("采集在线状态失败 采集值为{}(布尔值为true、数值须大于0、其他类型) - 设备编号: {} - 接口: {}/{}", result.getValue(), device.buildDeviceKey(), api.getCode(), api.getDirect());
-                    }
+                realtimeStatus = status == true ? DeviceStatus.online : DeviceStatus.offline;
+                if(logger.isDebugEnabled() && !status) {
+                    logger.warn("采集在线状态失败 采集值为{}(布尔值为true、数值须大于0、其他类型) - 设备编号: {} - 接口: {}/{}", result.getValue(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                }
+            } else {
+                // 如果执行超时则重新尝试一次
+                if(result.getStatus() == ExecStatus.timeout && !retry) {
+                    throw new InvokeTimeoutException(result.getReason());
+                }
+
+                realtimeStatus = DeviceStatus.offline;
+                if(retry) {
+                    logger.warn("采集在线状态重试失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                 } else {
-                    realtimeStatus = DeviceStatus.offline;
                     logger.warn("采集在线状态失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                 }
-
-                // 如果现在的状态和上一次的状态不一致则更新状态
-                if(prevDeviceStatus != null && realtimeStatus != prevDeviceStatus.getStatus()) {
-                    prevDeviceStatus.setStatus(realtimeStatus);
-                    deviceService.updateDeviceStatus(prevDeviceStatus);
-                }
-            });
-        } catch (Exception e) {
-            // 获取当前设备的上一次状态
-            RealtimeStatus prevDeviceStatus = cacheManager.get(device.getProtocolCode(), device.buildDeviceKey());
-            if(prevDeviceStatus != null && prevDeviceStatus.getStatus() != DeviceStatus.offline) {
-                prevDeviceStatus.setStatus(DeviceStatus.offline);
-                deviceService.updateDeviceStatus(prevDeviceStatus);
             }
 
-            logger.error("采集在线状态异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
-        }
+            // 如果现在的状态和上一次的状态不一致则更新状态
+            if(prevDeviceStatus != null && realtimeStatus != prevDeviceStatus.getStatus()) {
+                prevDeviceStatus.setStatus(realtimeStatus);
+                IotEvenPublisher.publish(IotEventType.DeviceStatus, prevDeviceStatus);
+            }
+        });
     }
 
     @Override
@@ -219,6 +247,6 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
          * 30秒执行一次
          */
         IotThreadManager.instance().getExecutorService()
-                .scheduleWithFixedDelay(this, 10, 30, TimeUnit.SECONDS);
+                .scheduleWithFixedDelay(this, 10, 35, TimeUnit.SECONDS);
     }
 }

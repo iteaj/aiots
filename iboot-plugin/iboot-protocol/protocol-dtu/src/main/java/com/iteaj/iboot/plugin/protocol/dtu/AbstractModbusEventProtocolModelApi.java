@@ -131,7 +131,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
         try {
             if(protocol instanceof ModbusTcpForDtuCommonProtocol) {
                 ModbusTcpForDtuCommonProtocol commonProtocol = (ModbusTcpForDtuCommonProtocol) protocol;
-                commonProtocol.request();
+                commonProtocol.timeout(arg.getTimeout()).request();
                 execStatus = commonProtocol.getExecStatus();
                 if(execStatus == ExecStatus.success) {
                     ModbusTcpBody body = commonProtocol.responseMessage().getBody();
@@ -147,7 +147,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 }
             } else if(protocol instanceof ModbusRtuForDtuCommonProtocol) {
                 ModbusRtuForDtuCommonProtocol commonProtocol = (ModbusRtuForDtuCommonProtocol) protocol;
-                commonProtocol.request();
+                commonProtocol.timeout(arg.getTimeout()).request();
                 execStatus = commonProtocol.getExecStatus();
                 if(execStatus == ExecStatus.success) {
                     ModbusRtuBody body = commonProtocol.responseMessage().getBody();
