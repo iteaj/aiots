@@ -6,6 +6,7 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
+import com.iteaj.iboot.module.iot.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
@@ -28,17 +29,17 @@ import java.util.concurrent.ScheduledFuture;
 public class EventSourceCollectService implements ApplicationReadyListener {
 
     private final IotCacheManager cacheManager;
-    private final ThreadPoolTaskScheduler scheduler;
+    private final IBootThreadManger threadManger;
     private final IDeviceGroupService deviceGroupService;
     private final IEventSourceService eventSourceService;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<Long, ScheduledFuture> futures = new ConcurrentHashMap<>(128);
 
     public EventSourceCollectService(IotCacheManager cacheManager
-            , ThreadPoolTaskScheduler scheduler, IDeviceGroupService deviceGroupService
+            , IBootThreadManger threadManger, IDeviceGroupService deviceGroupService
             , IEventSourceService eventSourceService) {
         this.cacheManager = cacheManager;
-        this.scheduler = scheduler;
+        this.threadManger = threadManger;
         this.deviceGroupService = deviceGroupService;
         this.eventSourceService = eventSourceService;
     }
@@ -58,6 +59,7 @@ public class EventSourceCollectService implements ApplicationReadyListener {
                     }
                 });
 
+                ThreadPoolTaskScheduler scheduler = threadManger.getScheduler();
                 ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(scheduler
                         , source, cacheManager), new CronTrigger(source.getCron()));
                 futures.put(source.getId(), schedule);
@@ -102,6 +104,7 @@ public class EventSourceCollectService implements ApplicationReadyListener {
                 futures.remove(id).cancel(true);
             }
 
+            ThreadPoolTaskScheduler scheduler = threadManger.getScheduler();
             ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(scheduler
                     , source, cacheManager), new CronTrigger(source.getCron()));
             futures.put(id, schedule);

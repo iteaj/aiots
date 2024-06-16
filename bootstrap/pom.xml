@@ -191,6 +191,11 @@
             <version>${reversion}</version>
             <artifactId>amqp-rabbitmq</artifactId>
         </dependency>
+        <dependency>
+            <optional>true</optional>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

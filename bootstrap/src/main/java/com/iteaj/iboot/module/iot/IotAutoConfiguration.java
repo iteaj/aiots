@@ -36,6 +36,8 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
@@ -47,6 +49,7 @@ import java.util.List;
 @ComponentScan({"com.iteaj.iboot.module.iot"})
 @MapperScan({"com.iteaj.iboot.module.iot.mapper"})
 @AutoConfigureAfter(JdbcTemplateAutoConfiguration.class)
+@EnableConfigurationProperties(IotMsnProperties.class)
 @ImportAutoConfiguration(IotProtocolSupplierAutoConfiguration.class)
 public class IotAutoConfiguration {
 
@@ -238,5 +241,13 @@ public class IotAutoConfiguration {
     @Bean
     public Binding dataBinding(Queue dataQueue, DirectExchange iotExchange) {
         return BindingBuilder.bind(dataQueue).to(iotExchange).with(RabbitmqDataListener.IOT_ROUTING_REALTIME_DATA);
+    }
+
+    @Bean
+    public IBootThreadManger iBootThreadManger(IotMsnProperties properties) {
+        Integer poolSize = properties.getTask().getPoolSize();
+        TaskSchedulerBuilder builder = new TaskSchedulerBuilder(poolSize, false
+                , null, properties.getTask().getThreadNamePrefix(), null);
+        return new IBootThreadManger(builder.build());
     }
 }

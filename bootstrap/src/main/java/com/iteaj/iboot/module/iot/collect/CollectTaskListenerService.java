@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.collect;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
+import com.iteaj.iboot.module.iot.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -28,16 +30,16 @@ import java.util.concurrent.ScheduledFuture;
 @Service
 public class CollectTaskListenerService implements ApplicationReadyListener {
 
-    private final TaskScheduler scheduler;
+    private final IBootThreadManger threadManger;
     private final IotCacheManager cacheManager;
     private final StoreActionFactory storeActionFactory;
     private final ICollectTaskService collectTaskService;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Long, ScheduledFuture> scheduledFutureMap = new ConcurrentHashMap<>();
 
-    public CollectTaskListenerService(TaskScheduler scheduler, IotCacheManager cacheManager
+    public CollectTaskListenerService(IBootThreadManger threadManger, IotCacheManager cacheManager
             , StoreActionFactory storeActionFactory, ICollectTaskService collectTaskService) {
-        this.scheduler = scheduler;
+        this.threadManger = threadManger;
         this.cacheManager = cacheManager;
         this.storeActionFactory = storeActionFactory;
         this.collectTaskService = collectTaskService;
@@ -128,6 +130,7 @@ public class CollectTaskListenerService implements ApplicationReadyListener {
     }
 
     private void createScheduledTask(CollectTaskDto taskDto) {
+        ThreadPoolTaskScheduler scheduler = threadManger.getScheduler();
         scheduledFutureMap.put(taskDto.getId(), scheduler.schedule(new CollectActionTask(taskDto, cacheManager), new CronTrigger(taskDto.getCron())));
     }
 
