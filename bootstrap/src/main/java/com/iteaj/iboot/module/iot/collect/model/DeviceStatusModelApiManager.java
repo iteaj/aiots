@@ -136,7 +136,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                     // 同一台网关设备的采集时间需要有一定间隔(防止网关设备性能差导致采集失败)
                     if(Objects.equals(device.getParentDeviceSn(), prevDeviceSn)) {
                         try {
-                            Thread.sleep(300);
+                            Thread.sleep(1000);
                             doTrigger(modelApi, device);
                             continue;
                         } catch (InterruptedException e) {
