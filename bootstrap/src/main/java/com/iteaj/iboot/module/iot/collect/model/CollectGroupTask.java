@@ -55,13 +55,13 @@ public class CollectGroupTask implements Runnable{
             RealtimeStatus device = iterator.next();
             // 当前设备的产品不在事件源包含的产品里面
             if(device.getProductId() == null || !source.getProductIds().contains(device.getProductId().intValue())) {
-                return;
+                continue;
             }
 
             if(device.getStatus() == DeviceStatus.offline) {
                 logger.warn("放弃设备采集任务 设备不在线 - 事件源: {} - 设备组: {} - 设备编号: {}"
                         , source.getName(), group.getName(), device.buildDeviceKey());
-                return;
+                continue;
             }
 
             Iterator<ModelApi> apiIterator = apis.iterator();
