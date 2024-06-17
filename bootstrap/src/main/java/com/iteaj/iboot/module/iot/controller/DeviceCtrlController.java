@@ -102,13 +102,14 @@ public class DeviceCtrlController extends BaseController {
     public Mono<Result<DebugRespDto>> debug(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
         // 获取协议模型接口
         Object[] objects = this.getProtocolModelApi(modelApiCode, param);
-        AbstractProtocolModelApi protocolModelApi = (AbstractProtocolModelApi) objects[0];
 
+        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
         DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
         return Mono.<InvokeResult>create(item -> {
             // 调用接口
             try {
-                protocolModelApi.invoke(param, result -> {
+                RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
+                ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, device, result -> {
                     item.success(result);
                     debugRespDto.setRespTime(System.currentTimeMillis());
                 });
