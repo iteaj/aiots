@@ -50,6 +50,14 @@ public class RabbitDataListenerPublisher implements RealtimeInfoListener {
             } else {
                 amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_STATUS, json);
             }
+        } else if(type.equals("warn")) {
+            if(json instanceof JSONArray) {
+                ((JSONArray) json).forEach(info -> {
+                    amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_WARN, info);
+                });
+            } else {
+                amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_WARN, json);
+            }
         }
     }
 }

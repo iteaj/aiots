@@ -1,6 +1,7 @@
 package com.iteaj.plugin.amqp.rabbit;
 
 import com.iteaj.framework.json.JacksonUtils;
+import com.iteaj.plugin.amqp.rabbit.iot.listener.RabbitTestHandler;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import com.iteaj.plugin.amqp.rabbit.iot.listener.RabbitDataListenerPublisher;
@@ -27,6 +28,11 @@ public class RabbitPluginAutoConfiguration {
     @Bean
     public RabbitDataListenerPublisher rabbitDataListenerPublisher(AmqpTemplate amqpTemplate) {
         return new RabbitDataListenerPublisher(amqpTemplate);
+    }
+
+    @Bean
+    public RabbitTestHandler rabbitTestHandler() {
+        return new RabbitTestHandler();
     }
 
     @Bean
