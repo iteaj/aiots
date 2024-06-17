@@ -111,10 +111,6 @@ public class CollectGroupTask implements Runnable{
                 }
             } else {
                 if(result.getStatus() == ExecStatus.timeout && !retry) {
-                    try {
-                        Thread.sleep(1000); // 延迟1秒
-                    } catch (InterruptedException e) { }
-
                     this.doInvoke(info, device, api, 6000l, true);
                 } else {
                     if(retry) {

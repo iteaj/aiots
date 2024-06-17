@@ -210,11 +210,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
             } else {
                 // 如果执行超时则重新尝试一次
                 if(result.getStatus() == ExecStatus.timeout && !retry) {
-                    try {
-                        Thread.sleep(1000); // 延迟1秒
-                    } catch (InterruptedException e) { }
-
-                    this.doInvoke(api, device, 6000l, true);
+                    this.doInvoke(api, device, 5000l, true);
                 } else {
                     // 如果现在的状态和上一次的状态不一致则更新状态
                     if(DeviceStatus.offline != device.getStatus()) {
