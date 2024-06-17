@@ -17,6 +17,6 @@ public class RabbitTestHandler {
     public void reciveStatus(byte[] message) throws Exception {
 //        String s = new String(message.getBody());
         Object parse = JSONObject.parse(message);
-        System.out.println("设备状态：" + parse);
+        System.out.println("rabbit：" + parse);
     }
 }
