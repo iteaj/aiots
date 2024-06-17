@@ -6,6 +6,7 @@ import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import lombok.Data;
+import org.springframework.data.annotation.Transient;
 
 import java.util.Date;
 import java.util.Map;
@@ -74,6 +75,7 @@ public class RealtimeStatus implements IotEventPayload {
     /**
      * 设备配置
      */
+    @Transient
     private JSONObject config;
 
     public String buildDeviceKey() {
