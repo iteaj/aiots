@@ -80,18 +80,6 @@ public class CollectGroupTask implements Runnable{
                         doInvoke(info, device, api, 3000l, false);
                         prevParentDeviceSn = device.getParentDeviceSn();
                     }
-                } catch (InvokeTimeoutException e) { // 采集超时异常, 重新采集一次
-                    try {
-                        Thread.sleep(1000); // 延迟1秒
-                        doInvoke(info, device, api, 6000l, true); // 超时重新调用一次
-                    } catch (InterruptedException ie) {
-
-                    } catch (Exception re) {
-                        logger.error("接口采集重试失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
-                    }
-
-                    prevParentDeviceSn = device.getParentDeviceSn();
                 } catch (ProtocolInvokeException e) {
                     logger.error("接口采集执行异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
                             , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
@@ -123,19 +111,23 @@ public class CollectGroupTask implements Runnable{
                 }
             } else {
                 if(result.getStatus() == ExecStatus.timeout && !retry) {
-                    throw new InvokeTimeoutException(result.getReason());
-                }
+                    try {
+                        Thread.sleep(1000); // 延迟1秒
+                    } catch (InterruptedException e) { }
 
-                if(retry) {
-                    logger.warn("接口采集重试失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
-                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                    this.doInvoke(info, device, api, 6000l, true);
                 } else {
-                    logger.warn("接口采集失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
-                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
-                }
+                    if(retry) {
+                        logger.warn("接口采集重试失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
+                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                    } else {
+                        logger.warn("接口采集失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
+                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                    }
 
-                // 发布采集的数据
-                dataPublish(info, device, api, result);
+                    // 发布采集的数据
+                    dataPublish(info, device, api, result);
+                }
             }
         });
     }

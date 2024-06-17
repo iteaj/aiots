@@ -1,10 +1,10 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
-import com.iteaj.framework.exception.InvokeTimeoutException;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.iboot.module.iot.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyListener {
 
     private IotCacheManager cacheManager;
-    private IDeviceService deviceService;
+    private IBootThreadManger bootThreadManger;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Long, ModelApi> statusApis = new ConcurrentHashMap<>(16);
 
@@ -169,14 +169,6 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
 
             // 调用状态协议
             doInvoke(api, device, 3000l, false);
-        } catch (InvokeTimeoutException e) {
-            try {
-                Thread.sleep(1000); // 延迟1秒
-                // 重新尝试执行一次
-                doInvoke(api, device, 6000l, true);
-            } catch (Exception re) {
-                invokeException(api, device, e);
-            }
         } catch (Exception e) {
             invokeException(api, device, e);
         }
@@ -206,27 +198,38 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
 //                    }
 
                 realtimeStatus = status == true ? DeviceStatus.online : DeviceStatus.offline;
+                // 如果现在的状态和上一次的状态不一致则更新状态
+                if(realtimeStatus != device.getStatus()) {
+                    device.setStatus(realtimeStatus);
+                    IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                }
+
                 if(logger.isDebugEnabled() && !status) {
                     logger.warn("采集在线状态失败 采集值为{}(布尔值为true、数值须大于0、其他类型) - 设备编号: {} - 接口: {}/{}", result.getValue(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                 }
             } else {
                 // 如果执行超时则重新尝试一次
                 if(result.getStatus() == ExecStatus.timeout && !retry) {
-                    throw new InvokeTimeoutException(result.getReason());
-                }
+                    try {
+                        Thread.sleep(1000); // 延迟1秒
+                    } catch (InterruptedException e) { }
 
-                realtimeStatus = DeviceStatus.offline;
-                if(retry) {
-                    logger.warn("采集在线状态重试失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                    this.doInvoke(api, device, 6000l, true);
                 } else {
-                    logger.warn("采集在线状态失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
-                }
-            }
+                    // 如果现在的状态和上一次的状态不一致则更新状态
+                    if(DeviceStatus.offline != device.getStatus()) {
+                        device.setStatus(DeviceStatus.offline);
+                        IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                    }
 
-            // 如果现在的状态和上一次的状态不一致则更新状态
-            if(realtimeStatus != device.getStatus()) {
-                device.setStatus(realtimeStatus);
-                IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                    if(logger.isWarnEnabled()) {
+                        if(retry) {
+                            logger.warn("采集在线状态重试失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                        } else {
+                            logger.warn("采集在线状态失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                        }
+                    }
+                }
             }
         });
     }
@@ -234,14 +237,14 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
     @Override
     public void started(ApplicationContext context) {
         this.cacheManager = context.getBean(IotCacheManager.class);
-        this.deviceService = context.getBean(IDeviceService.class);
+        this.bootThreadManger = context.getBean(IBootThreadManger.class);
         IModelApiService modelApiService = context.getBean(IModelApiService.class);
         modelApiService.listAsStatusModelApi().forEach(api -> this.register(api));
 
         /**
          * 30秒执行一次
          */
-        IotThreadManager.instance().getExecutorService()
-                .scheduleWithFixedDelay(this, 10, 35, TimeUnit.SECONDS);
+        bootThreadManger.getDeviceStatusScheduler()
+                .scheduleWithFixedDelay(this, 15, 35, TimeUnit.SECONDS);
     }
 }
