@@ -345,7 +345,7 @@ public class IotLocalCacheManager implements IotCacheManager {
     @Override
     public void updateChildStatus(String protocolCode, String parentDeviceSn, DeviceStatus status) {
         this.listForParent(protocolCode, parentDeviceSn).values().forEach(item -> {
-            item.setStatus(status);
+            item.setStatus(status).setUpdateTime(new Date());
         });
     }
 

@@ -6,10 +6,10 @@ import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import lombok.Data;
-import org.springframework.data.annotation.Transient;
+import lombok.experimental.Accessors;
 
+import java.beans.Transient;
 import java.util.Date;
-import java.util.Map;
 import java.util.Objects;
 
 import static com.iteaj.framework.spi.iot.DeviceKey.DEVICE_SPILT;
@@ -18,6 +18,7 @@ import static com.iteaj.framework.spi.iot.DeviceKey.DEVICE_SPILT;
  * 设备实时状态
  */
 @Data
+@Accessors(chain = true)
 public class RealtimeStatus implements IotEventPayload {
 
     /**
@@ -75,7 +76,6 @@ public class RealtimeStatus implements IotEventPayload {
     /**
      * 设备配置
      */
-    @Transient
     private JSONObject config;
 
     public String buildDeviceKey() {
@@ -111,6 +111,11 @@ public class RealtimeStatus implements IotEventPayload {
      */
     public boolean isChild(String protocolCode, String parentDeviceSn) {
         return Objects.equals(protocolCode, this.protocolCode) && Objects.equals(parentDeviceSn, this.parentDeviceSn);
+    }
+
+    @Transient
+    public JSONObject getConfig() {
+        return config;
     }
 
     public boolean equals(Object o) {
