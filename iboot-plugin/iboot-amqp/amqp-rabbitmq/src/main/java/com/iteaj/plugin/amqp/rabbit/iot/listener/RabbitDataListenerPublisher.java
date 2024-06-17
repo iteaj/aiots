@@ -18,6 +18,10 @@ public class RabbitDataListenerPublisher implements RealtimeInfoListener {
     public final static String IOT_QUEUE_REALTIME_DATA = "iot.queue.realtime.data";
     public final static String IOT_ROUTING_REALTIME_DATA = "iot.routing.realtime.data";
 
+    // 实时告警数据队列和key
+    public final static String IOT_QUEUE_REALTIME_WARN = "iot.queue.realtime.warn";
+    public final static String IOT_ROUTING_REALTIME_WARN = "iot.routing.realtime.warn";
+
     // 实时设备状态队列和key
     public final static String IOT_QUEUE_REALTIME_STATUS = "iot.queue.realtime.status";
     public final static String IOT_ROUTING_REALTIME_STATUS = "iot.routing.realtime.status";

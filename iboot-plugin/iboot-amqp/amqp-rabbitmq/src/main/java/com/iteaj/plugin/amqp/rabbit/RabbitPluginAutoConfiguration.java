@@ -46,6 +46,11 @@ public class RabbitPluginAutoConfiguration {
     }
 
     @Bean
+    public Queue warnQueue() {
+        return new Queue(RabbitDataListenerPublisher.IOT_QUEUE_REALTIME_WARN);
+    }
+
+    @Bean
     public DirectExchange iotExchange() {
         return new DirectExchange(RabbitDataListenerPublisher.IOT_EXCHANGE);
     }
@@ -53,6 +58,11 @@ public class RabbitPluginAutoConfiguration {
     @Bean
     public Binding statusBinding(Queue statusQueue, DirectExchange iotExchange) {
         return BindingBuilder.bind(statusQueue).to(iotExchange).with(RabbitDataListenerPublisher.IOT_ROUTING_REALTIME_STATUS);
+    }
+
+    @Bean
+    public Binding warnBinding(Queue warnQueue, DirectExchange iotExchange) {
+        return BindingBuilder.bind(warnQueue).to(iotExchange).with(RabbitDataListenerPublisher.IOT_ROUTING_REALTIME_WARN);
     }
 
     @Bean
