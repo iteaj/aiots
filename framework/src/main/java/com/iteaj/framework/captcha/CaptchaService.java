@@ -32,7 +32,9 @@ public class CaptchaService {
         // 将校验码放入缓存
         long expire = properties.getCaptcha().getExpire();
         Captcha captcha = new Captcha(code, split[1], expire);
-        captchaMapper.insert(captcha);
+        try {
+            captchaMapper.insert(captcha);
+        } catch (Exception e) { }
 
         return image;
     }
