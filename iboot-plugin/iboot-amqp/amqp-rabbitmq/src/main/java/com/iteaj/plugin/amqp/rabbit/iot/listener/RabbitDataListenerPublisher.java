@@ -30,6 +30,7 @@ public class RabbitDataListenerPublisher implements RealtimeInfoListener {
         this.amqpTemplate = amqpTemplate;
     }
 
+
     @Override
     public void onIotEvent(IotEventType eventType, RealtimePayload value) {
         String type = value.getType();

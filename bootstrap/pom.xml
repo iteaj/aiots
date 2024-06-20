@@ -71,11 +71,11 @@
         </dependency>
 
         <!--大华协议提供-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>protocol-dahua</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <artifactId>protocol-dahua</artifactId>-->
+<!--        </dependency>-->
         <!--plc协议提供-->
         <dependency>
             <groupId>com.iteaj</groupId>
@@ -108,6 +108,11 @@
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>modbus-tcp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-le5le</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
