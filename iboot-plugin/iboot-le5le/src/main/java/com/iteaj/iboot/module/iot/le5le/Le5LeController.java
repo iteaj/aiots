@@ -5,10 +5,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.framework.security.Logical;
+import com.iteaj.iboot.module.iot.entity.Le5LeDatasource;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 乐吾乐大屏接口
@@ -54,5 +57,49 @@ public class Le5LeController extends BaseController {
     @GetMapping("get")
     public Result<JSONObject> get(String id) {
         return success(le5LeService.get(id));
+    }
+
+    /**
+     * 获取数据源列表
+     * @param page
+     * @param entity
+     * @return
+     */
+    @GetMapping("listDatasource")
+    public Result<Page<Le5LeDatasource>> listDatasource(Page page, Le5LeDatasource entity) {
+        return success(le5LeService.pageDataSources(page, entity));
+    }
+
+    /**
+     * 增加或者修改数据源
+     * @param entity
+     * @return
+     */
+    @PostMapping("saveOrUpdate")
+    @CheckPermission(value = {"iota:screen:addDatasource", "iota:screen:editDatasource"}, logical = Logical.OR)
+    public Result<Boolean> saveOrUpdate(@RequestBody Le5LeDatasource entity) {
+        return le5LeService.saveOrUpdate(entity);
+    }
+
+    /**
+     * 删除数据源
+     * @param ids
+     * @return
+     */
+    @PostMapping("delDatasource")
+    @CheckPermission("iota:screen:delDatasource")
+    public Result<Boolean> delDatasource(@RequestBody List<Long> ids) {
+        return le5LeService.delDatasource(ids);
+    }
+
+    /**
+     * 同步数据源
+     * @param id
+     * @return
+     */
+    @PostMapping("syncDatasource")
+    @CheckPermission("iota:screen:syncDatasource")
+    public Result<Boolean> syncDatasource(Long id) {
+        return le5LeService.syncDatasource(id);
     }
 }

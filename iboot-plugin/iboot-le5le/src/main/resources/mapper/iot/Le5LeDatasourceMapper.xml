@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.Le5LeDatasourceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.Le5LeDatasource">
+        <result column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="datasource_id" property="datasourceId" />
+        <result column="device_group_id" property="deviceGroupId" />
+        <result column="device_group_name" property="deviceGroupName" />
+        <result column="created_at" property="createdAt" />
+        <result column="update_at" property="updateAt" />
+        <result column="data" property="data" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
+        <result column="shared" property="shared" />
+    </resultMap>
+
+    <select id="detailPage" resultMap="BaseResultMap">
+        select a.*, dg.name device_group_name from iot_le5le_datasource a
+            left join iot_device_group dg on a.device_group_id = dg.id
+        <where>
+            <if test="entity.name != null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+            <if test="entity.type != null and entity.type != ''">
+                and a.type = #{entity.type}
+            </if>
+            <if test="entity.deviceGroupId != null">
+                and a.device_group_id=#{entity.deviceGroupId}
+            </if>
+        </where>
+    </select>
+    <select id="listDatasetByDeviceGroupId" resultType="com.iteaj.iboot.module.iot.entity.Dataset">
+        select concat_ws(':', a.uid, ma.field) id, ma.data_type type, concat(a.name, '(', ma.name, ')') as label from iot_device a
+             left join iot_model_attr ma on ma.product_id=a.product_id
+        where a.device_group_id=13 and ma.data_type != 'json'
+    </select>
+
+</mapper>

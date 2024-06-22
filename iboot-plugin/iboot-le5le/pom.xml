@@ -19,5 +19,9 @@
             <artifactId>hutool-http</artifactId>
             <version>${hutool.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-server</artifactId>
+        </dependency>
     </dependencies>
 </project>
