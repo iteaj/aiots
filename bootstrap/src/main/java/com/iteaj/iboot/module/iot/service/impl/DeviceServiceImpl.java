@@ -163,30 +163,31 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                         });
 
                 // 客户端的网关设备如果产品启用则尝试连接网关
-                if(deviceType == DeviceType.Gateway) {
-                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(productDto.getProtocolCode());
-                    if(entity.getConfig() == null) {
-                        if(supplier != null) {
-                            ParamMeta[] config = supplier.getGatewayConfig();
-                            if(ArrayUtil.isNotEmpty(config)) {
-                                throw new ServiceException("未设置网关配置项");
-                            }
-                        }
-
-                        entity.setConfig(new JSONObject()); // 空配置项
-                    }
-                    if(productDto.getStatus() == FuncStatus.enabled && productDto.getConnectType() == ConnectionType.Client) {
-                        if(supplier != null) {
-                            try {
-                                IotNetworkUtil.networkCtrl(supplier, entity, FuncStatus.enabled);
-                            } catch (ServiceException e) {
-                                throw e;
-                            } catch (Exception e) {
-                                // ...
-                            }
-                        }
-                    }
-                }
+                // 交由客户端自己去连接(2024-06-24)
+//                if(deviceType == DeviceType.Gateway) {
+//                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(productDto.getProtocolCode());
+//                    if(entity.getConfig() == null) {
+//                        if(supplier != null) {
+//                            ParamMeta[] config = supplier.getGatewayConfig();
+//                            if(ArrayUtil.isNotEmpty(config)) {
+//                                throw new ServiceException("未设置网关配置项");
+//                            }
+//                        }
+//
+//                        entity.setConfig(new JSONObject()); // 空配置项
+//                    }
+//                    if(productDto.getStatus() == FuncStatus.enabled && productDto.getConnectType() == ConnectionType.Client) {
+//                        if(supplier != null) {
+//                            try {
+//                                IotNetworkUtil.networkCtrl(supplier, entity, FuncStatus.enabled);
+//                            } catch (ServiceException e) {
+//                                throw e;
+//                            } catch (Exception e) {
+//                                // ...
+//                            }
+//                        }
+//                    }
+//                }
             }
         });
     }
@@ -330,15 +331,42 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
             return BooleanResult.buildFalse("未指定要移除的记录");
         }
 
+        if(idList.size() > 1) {
+            return BooleanResult.buildFalse("不支持批量删除");
+        }
+
         List<RealtimeStatus> statusList = this.listDeviceStatusById(idList);
-        return super.removeByIds(idList).ifPresentAndTrue(item -> {
-            statusList.forEach(status -> {
-                if(status.getType() == DeviceType.Child) {
-                    iotCacheManager.removeByKey(status.getProtocolCode(), status.getDeviceSn(), status.getParentDeviceSn());
-                } else {
-                    iotCacheManager.removeByKey(status.getProtocolCode(), status.getDeviceSn());
-                }
+        if(CollectionUtil.isNotEmpty(statusList)) {
+            return super.removeByIds(idList).ifPresentAndTrue(item -> {
+                statusList.forEach(status -> {
+                    if(status.getType() == DeviceType.Child) {
+                        iotCacheManager.removeByKey(status.getProtocolCode(), status.getDeviceSn(), status.getParentDeviceSn());
+                    } else {
+                        if(status.getType() == DeviceType.Gateway) {
+                            // 获取此网关设备下的所有网关子设备
+                            Map<String, RealtimeStatus> fromCache = this.listChildDeviceStatusFromCache(status.getProtocolCode(), status.getDeviceSn());
+                            if(CollectionUtil.isNotEmpty(fromCache)) {
+                                List<String> uids = fromCache.values().stream()
+                                        .map(device -> device.getUid())
+                                        .collect(Collectors.toList());
+
+                                // 从数据库移除子设备记录
+                                this.remove(Wrappers.<Device>lambdaQuery().in(Device::getUid, uids));
+
+                                // 从缓存移除所有的子设备
+                                fromCache.forEach((key, value) -> {
+                                    iotCacheManager.removeByKey(value.getProtocolCode(), value.getDeviceSn(), value.getParentDeviceSn());
+                                });
+                            }
+                        }
+
+                        IotNetworkUtil.removeClient(status);
+                        iotCacheManager.removeByKey(status.getProtocolCode(), status.getDeviceSn());
+                    }
+                });
             });
-        });
+        } else {
+            return BooleanResult.buildTrue("移除成功");
+        }
     }
 }
