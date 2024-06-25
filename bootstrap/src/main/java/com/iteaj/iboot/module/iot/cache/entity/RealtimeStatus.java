@@ -21,6 +21,8 @@ import static com.iteaj.framework.spi.iot.DeviceKey.DEVICE_SPILT;
 @Accessors(chain = true)
 public class RealtimeStatus implements IotEventPayload {
 
+    private Long id;
+
     /**
      * 设备所属uid
      */

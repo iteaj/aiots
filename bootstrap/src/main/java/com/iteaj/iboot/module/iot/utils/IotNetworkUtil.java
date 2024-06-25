@@ -6,10 +6,13 @@ import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfig;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.FrameworkManager;
+import com.iteaj.iot.client.ClientComponent;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.client.TcpSocketClient;
 import com.iteaj.iot.event.ClientStatus;
@@ -102,4 +105,20 @@ public class IotNetworkUtil {
 
         return null;
     }
+
+    public static void removeClient(RealtimeStatus status) {
+        String protocolCode = status.getProtocolCode();
+        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
+        if(supplier != null && status.getType() == DeviceType.Gateway) {
+            FrameworkComponent component = supplier.getComponent();
+            if(component != null && component instanceof ClientComponent) {
+                IotClient client = ((ClientComponent<?>) component).removeClient(status.getDeviceSn());
+                if(client != null) {
+//                    client.disconnect();
+                }
+            }
+        }
+
+    }
+
 }
