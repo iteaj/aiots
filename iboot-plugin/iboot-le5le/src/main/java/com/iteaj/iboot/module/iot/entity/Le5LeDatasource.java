@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -12,10 +13,10 @@ import java.util.Date;
 
 @Data
 @TableName("iot_le5le_datasource")
-public class Le5LeDatasource implements Entity<Long> {
+public class Le5LeDatasource implements Entity<String> {
 
     @TableId
-    private transient Long id;
+    private String id;
 
     /**
      * 数据源名称
@@ -23,45 +24,51 @@ public class Le5LeDatasource implements Entity<Long> {
     private String name;
 
     /**
-     * 数据源类型(subscribe、dataset、publish)
+     * dataset 数据集
+     * 2d 2d图纸(组态)
+     * 3d 3d图纸
+     * dbs 大屏
+     * 数据源类型(dataset、2d、3d、dbs)
      */
     private String type;
+
+    /**
+     * 封面
+     */
+    private String image;
 
     @TableField(typeHandler = FastjsonTypeHandler.class)
     private JSONObject data;
 
     private Boolean shared;
 
-    /**
-     * 数据源id
-     */
-    private transient String datasourceId;
+    private Integer star;
 
     /**
      * 设备组id
      */
-    private transient Long deviceGroupId;
+    private Long deviceGroupId;
 
     @TableField(exist = false)
-    private transient String deviceGroupName;
+    private String deviceGroupName;
 
     /**
      * 创建时间
      */
-    private transient Date createdAt;
+    private Date createdAt;
 
     /**
      * 更新时间
      */
-    private transient Date updateAt;
+    private Date updateAt;
 
     @Override
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 }

@@ -40,13 +40,21 @@ public class Le5LeController extends BaseController {
     }
 
     /**
-     * 获取大屏列表
+     * 获取列表
      * @param page
      * @return
      */
     @GetMapping("list")
-    public Result<Page> list(Page page) {
-        return success(le5LeService.list(page));
+    public Result<Page> list(Page page, String type) {
+        if("2d".equals(type)) {
+            return success(le5LeService.list2d(page));
+        } else if("3d".equals(type)) {
+            return success(le5LeService.list3d(page));
+        } else if("dbs".equals(type)) {
+            return success(le5LeService.list(page));
+        }
+
+        return fail("未知的类型["+type+"]");
     }
 
     /**
@@ -55,8 +63,19 @@ public class Le5LeController extends BaseController {
      * @return
      */
     @GetMapping("get")
-    public Result<JSONObject> get(String id) {
-        return success(le5LeService.get(id));
+    public Result<JSONObject> get(String id, String type) {
+        return success(le5LeService.get(id, type));
+    }
+
+    /**
+     * 数据同步
+     * @param id
+     * @param type 类型(2d、3d、dbs)
+     * @return
+     */
+    @GetMapping("sync")
+    public Result<Boolean> sync(String id, String type) {
+        return le5LeService.sync(id, type);
     }
 
     /**
@@ -71,12 +90,22 @@ public class Le5LeController extends BaseController {
     }
 
     /**
+     * 获取数据源列表
+     * @param id
+     * @return
+     */
+    @GetMapping("getDatasource")
+    public Result<Le5LeDatasource> getDatasource(String id) {
+        return success(le5LeService.getDatasource(id));
+    }
+
+    /**
      * 增加或者修改数据源
      * @param entity
      * @return
      */
     @PostMapping("saveOrUpdate")
-    @CheckPermission(value = {"iota:screen:addDatasource", "iota:screen:editDatasource"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:screen:addDatasource", "iot:screen:editDatasource"}, logical = Logical.OR)
     public Result<Boolean> saveOrUpdate(@RequestBody Le5LeDatasource entity) {
         return le5LeService.saveOrUpdate(entity);
     }
@@ -87,8 +116,8 @@ public class Le5LeController extends BaseController {
      * @return
      */
     @PostMapping("delDatasource")
-    @CheckPermission("iota:screen:delDatasource")
-    public Result<Boolean> delDatasource(@RequestBody List<Long> ids) {
+    @CheckPermission("iot:screen:delDatasource")
+    public Result<Boolean> delDatasource(@RequestBody List<String> ids) {
         return le5LeService.delDatasource(ids);
     }
 
@@ -98,8 +127,8 @@ public class Le5LeController extends BaseController {
      * @return
      */
     @PostMapping("syncDatasource")
-    @CheckPermission("iota:screen:syncDatasource")
-    public Result<Boolean> syncDatasource(Long id) {
+    @CheckPermission("iot:screen:syncDatasource")
+    public Result<Boolean> syncDatasource(String id) {
         return le5LeService.syncDatasource(id);
     }
 }

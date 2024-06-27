@@ -28,4 +28,31 @@ public class Dataset {
         this.mock = mock;
         this.device = device;
     }
+
+    public void setType(String type) {
+        if(type != null) {
+            switch (type) {
+                case "boolean":
+                    this.type = "boolean";
+                    break;
+                case "int":
+                case "byte":
+                case "long":
+                case "short":
+                    this.type = "integer";
+                    break;
+                case "float":
+                case "double":
+                    this.type = "float";
+                    break;
+                case "array":
+                    this.type = "array";
+                    break;
+                default:
+                    this.type = "string";
+                    break;
+            }
+        }
+        this.type = type;
+    }
 }
