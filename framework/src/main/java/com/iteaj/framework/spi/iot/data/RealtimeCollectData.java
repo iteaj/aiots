@@ -11,7 +11,7 @@ public interface RealtimeCollectData {
     String getUid();
 
     /**
-     * 采集cid
+     * 采集cid(可空)
      * @return
      */
     String getCid();
