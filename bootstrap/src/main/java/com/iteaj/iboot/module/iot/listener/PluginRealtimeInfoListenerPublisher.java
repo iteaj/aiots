@@ -34,8 +34,8 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
     @Override
     public void supplier(CollectDevice device, CollectData data) {
         RealtimePayload payload = new RealtimePayload("data", Arrays.asList(new RealtimeData(data.getSignalId()
-                , device.getUid() + "", device.getDeviceSn(), data.getValue(), data.getAddress(), data.getCollectTime())
-                .setTaskId(data.getCollectTaskId())
+                , device.getUid() + "", device.getDeviceSn(), data.getValue(), data.getField(), data.getAddress()
+                , data.getCollectTime()).setTaskId(data.getCollectTaskId())
                 .setProductCode(device.getProductCode())
                 .setProtocolCode(device.getProtocolCode())));
         IotEvenPublisher.publish(IotEventType.Realtime, payload);
@@ -56,7 +56,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
         List<RealtimeData> collect = supplier.getValues().stream()
                 .map(item -> new RealtimeData(item.getId(), device.getUid()
                     , device.getDeviceSn(), item.getValue() == null ? null : item.getValue().toString()
-                    , item.getSignalOrField(), item.getCollectTime())
+                    , item.getSignalOrField(), item.getAddress(), item.getCollectTime())
                     .setDeviceGroupId(device.getGroupId())
                     .setProductCode(device.getProductCode())
                     .setProtocolCode(device.getProtocolCode())
@@ -83,6 +83,11 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
         private String uid;
 
         /**
+         * cid
+         */
+        private String cid;
+
+        /**
          * 设备编号
          */
         private String deviceSn;
@@ -98,9 +103,14 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
         private Long taskId;
 
         /**
-         * 属性或者点位地址
+         * 字段
          */
-        private String attrOrAddress;
+        private String field;
+
+        /**
+         * 点位地址
+         */
+        private String address;
 
         /**
          * 设备组id
@@ -120,15 +130,15 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
         /**
          * 采集时间
          */
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private Date collectTime;
 
-        public RealtimeData(Long id, String uid, String deviceSn, String value, String attrOrAddress, Date collectTime) {
+        public RealtimeData(Long id, String uid, String deviceSn, String value, String field, String address, Date collectTime) {
             this.id = id;
             this.uid = uid;
+            this.address = address;
             this.deviceSn = deviceSn;
             this.value = value;
-            this.attrOrAddress = attrOrAddress;
+            this.field = field;
             this.collectTime = collectTime;
         }
     }
