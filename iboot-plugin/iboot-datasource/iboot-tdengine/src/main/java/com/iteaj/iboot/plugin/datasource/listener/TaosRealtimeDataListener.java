@@ -22,13 +22,9 @@ public class TaosRealtimeDataListener implements RealtimeInfoListener {
     // 采集数据的数据子表名
     private final static String REALTIME_DATA_TABLE = "iot_data_${uid}";
 
-    private final static List<FieldMeta> dataMetas = Arrays.asList(
-//            new DefaultFieldMeta(0, "");
-    );
 
     public TaosRealtimeDataListener(TaosSqlManager taosSqlManager) {
         this.taosSqlManager = taosSqlManager;
-        taosSqlManager.register(new TaosSqlMeta(REALTIME_DATA_STABLE, REALTIME_DATA_TABLE, dataMetas, true));
     }
 
     @Override
