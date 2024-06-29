@@ -22,13 +22,13 @@ public class CollectData extends BaseEntity {
      * 任务执行标识
      */
     @IotField
-    private Long cid;
+    private String cid;
 
     /**
      * 设备uid
      */
     @IotField
-    private Long uid;
+    private String uid;
 
     /**
      * 信号id

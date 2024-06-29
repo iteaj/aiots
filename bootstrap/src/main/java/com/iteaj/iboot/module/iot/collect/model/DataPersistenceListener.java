@@ -25,12 +25,12 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
             List<CollectData> data = new ArrayList<>();
             supplier.getValues().forEach(value -> {
                 String strValue = value.getValue() == null ? null : value.getValue().toString();
-                data.add(new CollectData(CollectMode.model).setCid(cid)
+                data.add(new CollectData(CollectMode.model).setCid(cid + "")
                         .setReason("").setCreateTime(supplier.getCollectTime())
                         .setSignalId(value.getId()).setValue(strValue)
                         .setCollectTime(value.getCollectTime())
                         .setCollectStatus(value.getStatus())
-                        .setUid(Long.valueOf(device.getUid()))
+                        .setUid(device.getUid())
                         .setField(value.getSignalOrField())
                         .setFieldName(value.getSignalOrField())
                 );
@@ -56,10 +56,10 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
                     supplier.getValues().forEach(value -> {
                         String strValue = value.getValue() == null ? null : value.getValue().toString();
                         CollectData data = new CollectData(CollectMode.model)
-                                .setCid(cid).setStatus(true).setReason("")
+                                .setCid(cid + "").setStatus(true).setReason("")
                                 .setCreateTime(new Date()).setValue(strValue)
                                 .setAddress(value.getAddress())
-                                .setUid(Long.valueOf(item.getDevice().getUid()))
+                                .setUid(item.getDevice().getUid())
                                 .setSignalId(value.getId())
                                 .setCollectStatus(value.getStatus())
                                 .setField(value.getSignalOrField())

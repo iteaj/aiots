@@ -59,12 +59,12 @@ public class CollectActionTask implements Runnable {
                                     ProtocolModel protocol = supplier.getProtocol();
                                     collectDevice.getSignals().forEach(signal -> {
                                         CollectData data = new CollectData(CollectMode.signal)
-                                                .setCid(cid).setReason("")
+                                                .setCid(cid + "").setReason("")
                                                 .setFieldName(signal.getFieldName())
                                                 .setAddress(signal.getAddress())
                                                 .setCollectStatus(CollectStatus.Success)
                                                 .setCreateTime(date)
-                                                .setUid(collectDevice.getUid())
+                                                .setUid(String.valueOf(collectDevice.getUid()))
                                                 .setSignalId(signal.getId())
                                                 .setCollectTaskId(taskDto.getId());
 
