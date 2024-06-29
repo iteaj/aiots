@@ -30,10 +30,6 @@
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>iot-taos</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
             <artifactId>iot-serial</artifactId>
         </dependency>
         <!-- iot end -->
@@ -197,14 +193,14 @@
             <artifactId>amqp-rabbitmq</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${reversion}</version>
+            <artifactId>iboot-tdengine</artifactId>
+        </dependency>
+        <dependency>
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-        </dependency>
-        <dependency>
-            <version>4.3.0</version>
-            <groupId>com.baomidou</groupId>
-            <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
 

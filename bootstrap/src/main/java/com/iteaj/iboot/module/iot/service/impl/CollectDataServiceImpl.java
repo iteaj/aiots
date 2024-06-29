@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, CollectData> implements ICollectDataService {
 
     @Override
-    public PageResult<Page> detailOfPage(Page page, RealtimeCollectData entity) {
+    public PageResult detailOfPage(Page page, RealtimeCollectData entity) {
         return new PageResult<>(this.baseMapper.detailOfPage(page, entity));
     }
 

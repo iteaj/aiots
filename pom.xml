@@ -38,7 +38,7 @@
         <izone.boot.version>1.2.1</izone.boot.version>
         <springboot.version>2.7.2</springboot.version>
         <mybatis.plus.version>3.4.1</mybatis.plus.version>
-        <mybatis.plus.ds.version>3.6.1</mybatis.plus.ds.version>
+        <mybatis.plus.ds.version>4.3.0</mybatis.plus.ds.version>
 
         <!--插件依赖版本-->
         <knife4j.version>4.0.0</knife4j.version>

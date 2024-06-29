@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface RealtimeCollectDataService {
 
-    PageResult<Page> detailOfPage(Page page, RealtimeCollectData entity);
+    PageResult detailOfPage(Page page, RealtimeCollectData entity);
 
     /**
      * 通过条件统计

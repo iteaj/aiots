@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface ICollectDataService extends IBaseService<CollectData>, RealtimeCollectDataService {
 
-    PageResult<Page> detailOfPage(Page page, RealtimeCollectData entity);
+    PageResult detailOfPage(Page page, RealtimeCollectData entity);
 
     /**
      * 统计最近一个月的数据

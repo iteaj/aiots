@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    dynamic:
+      datasource:
+        tdengine:
+          username: root
+          password: taosdata
+          type: com.zaxxer.hikari.HikariDataSource
+          url: jdbc:TAOS://VM-24-7-ubuntu:6030/iot
+          driver-class-name: com.taosdata.jdbc.TSDBDriver

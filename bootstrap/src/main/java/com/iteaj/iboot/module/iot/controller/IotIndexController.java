@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.data.BaseTimeCount;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
@@ -92,8 +93,8 @@ public class IotIndexController extends BaseController {
      * @return
      */
     @GetMapping("countDataWithLastMonth")
-    public Result<List<CountLastTimeDto>> countDataWithLastMonth() {
-        List<CountLastTimeDto> countLastTimeDtos = collectDataService.countLastMonth();
+    public Result<List<BaseTimeCount>> countDataWithLastMonth() {
+        List<BaseTimeCount> countLastTimeDtos = collectDataService.countLastMonth();
         return success(countLastTimeDtos);
     }
 

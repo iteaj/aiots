@@ -37,6 +37,8 @@
         <module>iboot-amqp</module>
         <!--乐吾乐在线大屏(组态、3D)-->
         <module>iboot-le5le</module>
+        <!--数据源-->
+        <module>iboot-datasource</module>
     </modules>
 
     <dependencies>

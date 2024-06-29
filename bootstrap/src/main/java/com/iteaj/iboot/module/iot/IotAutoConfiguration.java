@@ -14,7 +14,6 @@ import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.collect.model.DataPersistenceListener;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.collect.model.RDBMSPersistenceListener;
-import com.iteaj.iboot.module.iot.collect.model.TaosPersistenceListener;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
@@ -22,7 +21,6 @@ import com.iteaj.iboot.module.iot.linkage.*;
 import com.iteaj.iboot.module.iot.linkage.warn.RDBMSPersistenceWarnListener;
 import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
-import com.iteaj.iot.taos.TaosSqlManager;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,16 +83,6 @@ public class IotAutoConfiguration {
     @ConditionalOnMissingBean(DataPersistenceListener.class)
     public RDBMSPersistenceListener rdbmsPersistenceListener(DefaultRdbmsSqlManager rdbmsSqlManager) {
         return new RDBMSPersistenceListener(rdbmsSqlManager);
-    }
-
-    /**
-     * TDengine时序数据库存储
-     * @param taosSqlManager
-     * @return
-     */
-    @Bean
-    public TaosPersistenceListener taosPersistenceListener(TaosSqlManager taosSqlManager) {
-        return new TaosPersistenceListener(taosSqlManager);
     }
 
     /**
