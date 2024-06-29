@@ -6,6 +6,9 @@ import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
+import com.iteaj.framework.spi.iot.data.BaseTimeCount;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.dto.CountLastWeekDto;
 import com.iteaj.iboot.module.iot.dto.CountLastTimeDto;
@@ -24,27 +27,32 @@ import java.util.stream.Collectors;
 public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, CollectData> implements ICollectDataService {
 
     @Override
-    public PageResult<Page<CollectDataDto>> detailOfPage(Page page, CollectDataDto entity) {
+    public PageResult<Page> detailOfPage(Page page, RealtimeCollectData entity) {
         return new PageResult<>(this.baseMapper.detailOfPage(page, entity));
     }
 
     @Override
-    public List<CountLastWeekDto> countLastWeek(Long deviceGroupId) {
-        Map<String, CountLastWeekDto> map = new HashMap<>();
-        List<CountLastWeekDto> dtos = this.getBaseMapper().countLastWeek(deviceGroupId);
+    public List<BaseTimeCount> countByCondition(TimeCountCondition condition) {
+        return null;
+    }
+
+    @Override
+    public List<BaseTimeCount> countLastWeek(Long deviceGroupId) {
+        Map<String, BaseTimeCount> map = new HashMap<>();
+        List<BaseTimeCount> dtos = this.getBaseMapper().countLastWeek(deviceGroupId);
         if(CollectionUtil.isNotEmpty(dtos)) {
-            map = dtos.stream().collect(Collectors.toMap(CountLastWeekDto::getTime, item -> item));
+            map = dtos.stream().collect(Collectors.toMap(BaseTimeCount::getTime, item -> item));
         }
 
-        List<CountLastWeekDto> result = new ArrayList<>();
+        List<BaseTimeCount> result = new ArrayList<>();
         DateTime lastWeek = new DateTime().offset(DateField.DAY_OF_MONTH, -7);
         for (int i = 0; i < 7; i++) {
             String time = lastWeek.toString("yyyy-MM-dd");
-            CountLastWeekDto lastWeekDto = map.get(time);
+            BaseTimeCount lastWeekDto = map.get(time);
             if(lastWeekDto != null) {
                 result.add(lastWeekDto);
             } else {
-                result.add(new CountLastWeekDto().buildZero(time));
+                result.add(new BaseTimeCount().buildZero(time));
             }
 
             lastWeek = lastWeek.offset(DateField.DAY_OF_MONTH, 1);
@@ -54,22 +62,22 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
     }
 
     @Override
-    public List<CountLastTimeDto> countLastMonth() {
-        Map<String, CountLastTimeDto> map = new HashMap<>();
-        List<CountLastTimeDto> dtos = this.getBaseMapper().countLastByDays(29);
+    public List<BaseTimeCount> countLastMonth() {
+        Map<String, BaseTimeCount> map = new HashMap<>();
+        List<BaseTimeCount> dtos = this.getBaseMapper().countLastByDays(29);
         if(CollectionUtil.isNotEmpty(dtos)) {
-            map = dtos.stream().collect(Collectors.toMap(CountLastTimeDto::getTime, item -> item));
+            map = dtos.stream().collect(Collectors.toMap(BaseTimeCount::getTime, item -> item));
         }
 
-        List<CountLastTimeDto> result = new ArrayList<>();
+        List<BaseTimeCount> result = new ArrayList<>();
         DateTime lastWeek = new DateTime().offset(DateField.DAY_OF_MONTH, -29);
         for (int i = 0; i < 30; i++) {
             String time = lastWeek.toString("yyyy-MM-dd");
-            CountLastTimeDto lastWeekDto = map.get(time);
+            BaseTimeCount lastWeekDto = map.get(time);
             if(lastWeekDto != null) {
                 result.add(lastWeekDto);
             } else {
-                result.add(CountLastTimeDto.buildZero(time));
+                result.add(BaseTimeCount.buildZero(time));
             }
 
             lastWeek = lastWeek.offset(DateField.DAY_OF_MONTH, 1);

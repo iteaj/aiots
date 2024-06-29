@@ -65,7 +65,7 @@
         </where>
         order by a.collect_time desc
     </select>
-    <select id="countLastWeek" resultType="com.iteaj.iboot.module.iot.dto.CountLastWeekDto">
+    <select id="countLastWeek" resultType="com.iteaj.framework.spi.iot.data.BaseTimeCount">
         select count(1) value, date_format(a.collect_time, '%Y-%m-%d') time from iot_collect_data a
         left join iot_device d on a.uid = d.uid
         <where>
@@ -76,7 +76,7 @@
         </where>
         group by time
     </select>
-    <select id="countLastByDays" resultType="com.iteaj.iboot.module.iot.dto.CountLastTimeDto">
+    <select id="countLastByDays" resultType="com.iteaj.framework.spi.iot.data.BaseTimeCount">
         select count(1) value, date_format(a.collect_time, '%Y-%m-%d') time from iot_collect_data a
             left join iot_device d on a.uid = d.uid
         where a.collect_time > date_sub(curdate(), interval #{days} day) group by time
