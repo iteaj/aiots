@@ -35,7 +35,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
     public void supplier(CollectDevice device, CollectData data) {
         RealtimePayload payload = new RealtimePayload("data", Arrays.asList(new RealtimeData(data.getSignalId()
                 , device.getUid() + "", device.getDeviceSn(), data.getValue(), data.getField(), data.getAddress()
-                , data.getCollectTime()).setMode("signal")
+                , data.getCollectTime()).setCollectMode("signal")
                 .setStatus(data.getStatus()).setReason(data.getReason())
                 .setTaskId(data.getCollectTaskId())
                 .setProductCode(device.getProductCode())
@@ -50,22 +50,27 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
 
     @Override
     public void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
-        this.supplier(info.getSupplier(), info.getDevice());
+        doPublisher(source.getId(), info.getSupplier(), info.getDevice());
+    }
+
+    private void doPublisher(Long taskId, DataSupplier supplier, RealtimeStatus device) {
+        List<RealtimeData> collect = supplier.getValues().stream()
+                .map(item -> new RealtimeData(item.getId(), device.getUid()
+                        , device.getDeviceSn(), item.getValue(), item.getSignalOrField()
+                        , item.getAddress(), item.getCollectTime())
+                        .setCollectMode("model").setTaskId(taskId)
+                        .setDeviceGroupId(device.getGroupId())
+                        .setProductCode(device.getProductCode())
+                        .setProtocolCode(device.getProtocolCode())
+                        .buildFromStatus(item.getStatus())
+                ).collect(Collectors.toList());
+
+        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data", collect));
     }
 
     @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
-        List<RealtimeData> collect = supplier.getValues().stream()
-                .map(item -> new RealtimeData(item.getId(), device.getUid()
-                    , device.getDeviceSn(), item.getValue() == null ? null : item.getValue().toString()
-                    , item.getSignalOrField(), item.getAddress(), item.getCollectTime())
-                    .setDeviceGroupId(device.getGroupId())
-                    .setProductCode(device.getProductCode())
-                    .setProtocolCode(device.getProtocolCode())
-                    .buildFromStatus(item.getStatus())
-                ).collect(Collectors.toList());
-
-        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data", collect));
+        doPublisher(null, supplier, device);
     }
 
     /**
@@ -117,7 +122,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
         /**
          * 采集值
          */
-        private String value;
+        private Object value;
 
         /**
          * 任务id
@@ -127,7 +132,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
         /**
          * 采集模式
          */
-        private String mode;
+        private String collectMode;
 
         /**
          * 字段
@@ -159,7 +164,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
          */
         private Date collectTime;
 
-        public RealtimeData(Long fieldId, String uid, String deviceSn, String value, String field, String address, Date collectTime) {
+        public RealtimeData(Long fieldId, String uid, String deviceSn, Object value, String field, String address, Date collectTime) {
             this.fieldId = fieldId;
             this.uid = uid;
             this.address = address;
