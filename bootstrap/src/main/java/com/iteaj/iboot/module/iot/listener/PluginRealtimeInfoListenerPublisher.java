@@ -13,9 +13,8 @@ import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
-import com.iteaj.iboot.module.iot.entity.CollectData;
-import com.iteaj.iboot.module.iot.entity.DeviceGroup;
-import com.iteaj.iboot.module.iot.entity.EventSource;
+import com.iteaj.iboot.module.iot.entity.*;
+import com.iteaj.iboot.module.iot.linkage.LinkageActionListener;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
  * 将采集的数据、设备的实时状态、上报的模型属性数据发布出去, 用于给其他插件模块使用
  */
 public class PluginRealtimeInfoListenerPublisher implements SignalCollectListener, EventGroupCollectListener
-        , DeviceStatusListener, ModelAttrListener {
+        , DeviceStatusListener, ModelAttrListener, LinkageActionListener {
 
     @Override
     public void supplier(CollectDevice device, CollectData data) {
@@ -69,6 +68,16 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
         IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data", collect));
     }
 
+    /**
+     * todo 告警触发处理
+     * @param config
+     * @param record
+     * @param status
+     */
+    @Override
+    public void warnTrigger(WarnConfig config, WarnRecord record, RealtimeStatus status) {
+//        LinkageActionListener.super.warnTrigger(config, record, status);
+    }
 
     @Getter
     @Setter

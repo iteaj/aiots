@@ -1,9 +1,9 @@
-package com.iteaj.iboot.plugin.datasource;
+package com.iteaj.iboot.plugin.datasource.tdengine;
 
 import com.baomidou.dynamic.datasource.DynamicRoutingDataSource;
 import com.baomidou.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceAutoConfiguration;
 import com.iteaj.framework.ProfilesInclude;
-import com.iteaj.iboot.plugin.datasource.listener.TaosRealtimeDataListener;
+import com.iteaj.iboot.plugin.datasource.tdengine.listener.TaosRealtimeDataListener;
 import com.iteaj.iot.taos.TaosSqlManager;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
