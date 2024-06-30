@@ -126,9 +126,4 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
     public Long getTaskId() {
         return this.getCollectTaskId();
     }
-
-    @Override
-    public String getMode() {
-        return getCollectMode();
-    }
 }
