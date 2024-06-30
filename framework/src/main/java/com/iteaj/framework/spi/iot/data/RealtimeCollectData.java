@@ -38,7 +38,7 @@ public interface RealtimeCollectData {
      * 采集的值
      * @return
      */
-    String getValue();
+    Object getValue();
 
     /**
      * 采集状态
@@ -62,7 +62,25 @@ public interface RealtimeCollectData {
      * 采集方式(model、signal)
      * @return
      */
-    String getMode();
+    String getCollectMode();
+
+    /**
+     * 协议码
+     * @return
+     */
+    String getProtocolCode();
+
+    /**
+     * 产品码
+     * @return
+     */
+    String getProductCode();
+
+    /**
+     * 设备组
+     * @return
+     */
+    Long getDeviceGroupId();
 
     /**
      * 采集时间
