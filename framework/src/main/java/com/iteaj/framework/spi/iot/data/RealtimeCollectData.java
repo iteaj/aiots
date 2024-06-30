@@ -62,13 +62,7 @@ public interface RealtimeCollectData {
      * 采集方式(model、signal)
      * @return
      */
-    String getCollectMode();
-
-    /**
-     * 创建时间
-     * @return
-     */
-    Date getCreateTime();
+    String getMode();
 
     /**
      * 采集时间

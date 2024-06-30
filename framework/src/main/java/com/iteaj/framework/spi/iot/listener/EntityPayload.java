@@ -1,6 +1,5 @@
 package com.iteaj.framework.spi.iot.listener;
 
-import com.iteaj.framework.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class EntityPayload<T extends Entity> implements IotEventPayload{
+public class EntityPayload<T> implements IotEventPayload{
 
     private T payload;
 

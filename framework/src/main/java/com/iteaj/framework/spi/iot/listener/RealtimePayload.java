@@ -1,11 +1,13 @@
 package com.iteaj.framework.spi.iot.listener;
 
+import java.util.Collection;
+
 /**
  * 实时负载
  * @see IotEventType#Realtime
  * @see RealtimeInfoListener
  */
-public class RealtimePayload extends JsonPayload {
+public class RealtimePayload extends EntityPayload<Collection> {
 
     /**
      * 实时负载类型
@@ -15,8 +17,8 @@ public class RealtimePayload extends JsonPayload {
      */
     private String type;
 
-    public RealtimePayload(String type, Object value) {
-        super(value);
+    public RealtimePayload(String type, Collection values) {
+        super(values);
         this.type = type;
     }
 

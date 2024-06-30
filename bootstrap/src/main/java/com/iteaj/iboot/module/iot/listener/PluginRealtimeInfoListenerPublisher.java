@@ -1,7 +1,8 @@
 package com.iteaj.iboot.module.iot.listener;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.spi.iot.DataSupplier;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
@@ -35,7 +36,9 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
     public void supplier(CollectDevice device, CollectData data) {
         RealtimePayload payload = new RealtimePayload("data", Arrays.asList(new RealtimeData(data.getSignalId()
                 , device.getUid() + "", device.getDeviceSn(), data.getValue(), data.getField(), data.getAddress()
-                , data.getCollectTime()).setTaskId(data.getCollectTaskId())
+                , data.getCollectTime()).setMode("signal")
+                .setStatus(data.getStatus()).setReason(data.getReason())
+                .setTaskId(data.getCollectTaskId())
                 .setProductCode(device.getProductCode())
                 .setProtocolCode(device.getProtocolCode())));
         IotEvenPublisher.publish(IotEventType.Realtime, payload);
@@ -60,27 +63,37 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
                     .setDeviceGroupId(device.getGroupId())
                     .setProductCode(device.getProductCode())
                     .setProtocolCode(device.getProtocolCode())
+                    .buildFromStatus(item.getStatus())
                 ).collect(Collectors.toList());
 
-        RealtimePayload payload = new RealtimePayload("data", collect);
-        IotEvenPublisher.publish(IotEventType.Realtime, payload);
+        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data", collect));
     }
 
 
     @Getter
     @Setter
     @Accessors(chain = true)
-    public class RealtimeData {
+    public class RealtimeData implements RealtimeCollectData {
 
         /**
          * 点位id或者模型属性id
          */
-        private Long id;
+        private Long fieldId;
 
         /**
          * 设备uid
          */
         private String uid;
+
+        /**
+         * 采集状态
+         */
+        private Boolean status;
+
+        /**
+         * 失败原因
+         */
+        private String reason;
 
         /**
          * cid
@@ -101,6 +114,11 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
          * 任务id
          */
         private Long taskId;
+
+        /**
+         * 采集模式
+         */
+        private String mode;
 
         /**
          * 字段
@@ -132,14 +150,25 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
          */
         private Date collectTime;
 
-        public RealtimeData(Long id, String uid, String deviceSn, String value, String field, String address, Date collectTime) {
-            this.id = id;
+        public RealtimeData(Long fieldId, String uid, String deviceSn, String value, String field, String address, Date collectTime) {
+            this.fieldId = fieldId;
             this.uid = uid;
             this.address = address;
             this.deviceSn = deviceSn;
             this.value = value;
             this.field = field;
             this.collectTime = collectTime;
+        }
+
+        public RealtimeData buildFromStatus(CollectStatus status) {
+            if(status == CollectStatus.Success) {
+                this.status = true;
+            } else {
+                this.status = false;
+            }
+
+            this.reason = status.getReason();
+            return this;
         }
     }
 }
