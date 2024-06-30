@@ -3,6 +3,7 @@ package com.iteaj.iboot.plugin.datasource.tdengine.listener;
 import com.iteaj.iot.taos.STable;
 import com.iteaj.iot.tools.annotation.IotField;
 import com.iteaj.iot.tools.annotation.IotTableId;
+import com.iteaj.iot.tools.annotation.IotTag;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -22,7 +23,7 @@ public class TaosRealtimeData {
     /**
      * 设备uid
      */
-    @IotField
+    @IotTag
     private String uid;
 
     /**
@@ -52,14 +53,14 @@ public class TaosRealtimeData {
     /**
      * 采集值
      */
-    @IotField
-    private String value;
+    @IotField("collect_value")
+    private String collectValue;
 
     /**
      * 采集状态
      */
-    @IotField
-    private Boolean status;
+    @IotField("collect_status")
+    private Boolean collectStatus;
 
     /**
      * 采集状态说明
@@ -70,8 +71,8 @@ public class TaosRealtimeData {
     /**
      * 采集方式
      */
-    @IotField
-    private String mode;
+    @IotField("collect_mode")
+    private String collectMode;
 
     /**
      * 采集时间
@@ -88,18 +89,18 @@ public class TaosRealtimeData {
     /**
      * 所属设备组
      */
-    @IotField("device_group_id")
+    @IotTag("device_group_id")
     private Long deviceGroupId;
 
     /**
      * 协议码
      */
-    @IotField("protocol_code")
+    @IotTag("protocol_code")
     private String protocolCode;
 
     /**
      * 产品码
      */
-    @IotField("product_code")
+    @IotTag("product_code")
     private String productCode;
 }

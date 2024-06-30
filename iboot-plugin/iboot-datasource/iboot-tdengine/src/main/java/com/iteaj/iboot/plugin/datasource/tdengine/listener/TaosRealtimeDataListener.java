@@ -24,11 +24,13 @@ public class TaosRealtimeDataListener implements RealtimeInfoListener {
         if(Objects.equals(value.getType(), "data")) {
             List collect = (List) value.getPayload().stream().map(item -> {
                 RealtimeCollectData data = (RealtimeCollectData) item;
+                String collectValue = data.getValue() != null ? data.getValue().toString() : null;
                 return new TaosRealtimeData().setAddress(data.getAddress())
                         .setTaskId(data.getTaskId()).setField(data.getField())
-                        .setReason(data.getReason()).setMode(data.getMode())
-                        .setStatus(data.getStatus()).setValue(data.getValue())
                         .setCollectTime(data.getCollectTime()).setCreateTime(new Date())
+                        .setCollectStatus(data.getStatus()).setCollectValue(collectValue)
+                        .setReason(data.getReason()).setCollectMode(data.getCollectMode())
+                        .setProductCode(data.getProductCode()).setProtocolCode(data.getProtocolCode())
                         .setCid(data.getCid()).setUid(data.getUid()).setFieldId(data.getFieldId());
             }).collect(Collectors.toList());
 
