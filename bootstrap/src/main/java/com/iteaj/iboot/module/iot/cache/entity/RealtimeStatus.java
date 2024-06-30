@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.cache.entity;
 
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.DeviceKey;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
@@ -19,7 +20,7 @@ import static com.iteaj.framework.spi.iot.DeviceKey.DEVICE_SPILT;
  */
 @Data
 @Accessors(chain = true)
-public class RealtimeStatus implements IotEventPayload {
+public class RealtimeStatus implements RealtimeDeviceStatus, IotEventPayload {
 
     private Long id;
 
@@ -124,5 +125,20 @@ public class RealtimeStatus implements IotEventPayload {
         RealtimeStatus other = (RealtimeStatus) o;
         return Objects.equals(this.getProtocolCode(), other.getProtocolCode())
                 && Objects.equals(this.buildDeviceKey(), other.buildDeviceKey());
+    }
+
+    @Override
+    public String getDeviceStatus() {
+        return this.status != null ? this.status.name() : null;
+    }
+
+    @Override
+    public Long getDeviceGroupId() {
+        return this.getGroupId();
+    }
+
+    @Override
+    public String getDeviceType() {
+        return this.type != null ? this.type.name() : null;
     }
 }
