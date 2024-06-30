@@ -119,11 +119,26 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
 
     @Override
     public Long getFieldId() {
-        return this.getSignalId();
+        return getSignalId();
     }
 
     @Override
     public Long getTaskId() {
-        return this.getCollectTaskId();
+        return getCollectTaskId();
+    }
+
+    @Override
+    public String getProtocolCode() {
+        return null;
+    }
+
+    @Override
+    public String getProductCode() {
+        return null;
+    }
+
+    @Override
+    public Long getDeviceGroupId() {
+        return null;
     }
 }
