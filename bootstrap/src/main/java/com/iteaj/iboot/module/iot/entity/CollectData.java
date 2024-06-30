@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.iboot.module.iot.consts.CollectMode;
 import com.iteaj.iot.tools.annotation.IotField;
 import com.iteaj.iot.tools.annotation.IotTable;
@@ -16,7 +17,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @TableName("iot_collect_data")
 @IotTable("iot_collect_data")
-public class CollectData extends BaseEntity {
+public class CollectData extends BaseEntity implements RealtimeCollectData {
 
     /**
      * 任务执行标识
@@ -114,5 +115,30 @@ public class CollectData extends BaseEntity {
         }
 
         return this;
+    }
+
+    @Override
+    public Long getFieldId() {
+        return getSignalId();
+    }
+
+    @Override
+    public Long getTaskId() {
+        return getCollectTaskId();
+    }
+
+    @Override
+    public String getProtocolCode() {
+        return null;
+    }
+
+    @Override
+    public String getProductCode() {
+        return null;
+    }
+
+    @Override
+    public Long getDeviceGroupId() {
+        return null;
     }
 }
