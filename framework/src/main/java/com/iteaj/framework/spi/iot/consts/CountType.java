@@ -2,6 +2,7 @@ package com.iteaj.framework.spi.iot.consts;
 
 public enum CountType {
 
-    data, // 数据
-    warn, // 告警
+    product, // 产品
+    device, // 设备
+    group, // 设备组
 }

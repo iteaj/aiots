@@ -1,7 +1,5 @@
 package com.iteaj.framework.spi.iot.consts;
 
-import com.iteaj.framework.spi.iot.consts.CountType;
-import com.iteaj.framework.spi.iot.consts.TimeCountType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,14 +13,9 @@ import java.util.List;
 public class TimeCountCondition {
 
     /**
-     * 统计类型
-     */
-    private CountType type;
-
-    /**
      * 计算类型
      */
-    private CountCalcType calcType;
+    private CountCalcType calcType = CountCalcType.count;
 
     /**
      * 时间类型
@@ -40,11 +33,10 @@ public class TimeCountCondition {
     /**
      * 业务类型
      */
-    private String serviceType;
+//    private CountType countType;
 
     /**
-     * 待统计的属性列表
-     * -1标识所有
+     * 业务类型值
      */
-    private List<String> attrs;
+    private List<String> value;
 }

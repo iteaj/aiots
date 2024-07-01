@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.service.ICollectDataService;
@@ -22,8 +23,12 @@ public class CollectDataController extends BaseController {
 
     @Autowired
     private IDeviceService deviceService;
-    @Autowired
-    private ICollectDataService collectDataService;
+//    @Autowired
+    private RealtimeCollectDataService collectDataService;
+
+    public CollectDataController(RealtimeCollectDataService collectDataService) {
+        this.collectDataService = collectDataService;
+    }
 
     /**
      * 获取点位数据

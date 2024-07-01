@@ -5,7 +5,9 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.spi.iot.consts.CountType;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.BaseTimeCount;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
@@ -17,10 +19,7 @@ import com.iteaj.iboot.module.iot.mapper.CollectDataMapper;
 import com.iteaj.iboot.module.iot.service.ICollectDataService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +31,17 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
     }
 
     @Override
-    public List<BaseTimeCount> countByCondition(TimeCountCondition condition) {
+    public List<BaseTimeCount> countByTime(TimeCountCondition condition) {
+        validateCondition(condition);
+        Map<String, List<String>> map = new HashMap<>();
+        condition.getValue().forEach(item -> {
+            String[] split = item.split(":");
+            if(split.length != 2) {
+                throw new ServiceException("条件值格式不对["+item+"]");
+            }
+
+            map.put(split[0], Arrays.asList(split[1].split("-")));
+        });
         return null;
     }
 
