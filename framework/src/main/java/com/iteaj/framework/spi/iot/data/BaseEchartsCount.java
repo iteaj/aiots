@@ -9,7 +9,7 @@ public class BaseEchartsCount {
 
     private Object value;
 
-    private String name;
+    private String field;
 
     private String category;
 
