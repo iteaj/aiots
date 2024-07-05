@@ -239,7 +239,8 @@ public class TimeCountCondition {
             }
         } else {
             if(CollectionUtil.isNotEmpty(condition.fields)) {
-                Map<String, List<BaseEchartsCount>> fieldGroupCount = counts.stream().collect(Collectors.groupingBy(BaseEchartsCount::getName));
+                Map<String, List<BaseEchartsCount>> fieldGroupCount = counts.stream()
+                        .collect(Collectors.groupingBy(BaseEchartsCount::getField));
                 condition.fields.forEach(item -> {
                     List<BaseEchartsCount> baseEchartsCounts = fieldGroupCount.get(item);
                     if(baseEchartsCounts == null) {

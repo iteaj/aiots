@@ -83,10 +83,16 @@
     </select>
     <select id="countOfCommonByTime" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
         <if test="calcType == 'count'">
-            select count(1) value, field as name,
+            select count(1) value, field,
         </if>
         <if test="calcType == 'avg'">
-            select avg(value) value, field as name,
+            select avg(value) value, field,
+        </if>
+        <if test="calcType == 'max'">
+            select max(value) value, field,
+        </if>
+        <if test="calcType == 'min'">
+            select min(value) value, field,
         </if>
         <if test="timeType == 'year'">
             date_format(collect_time, '%Y') category
