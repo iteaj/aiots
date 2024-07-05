@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
@@ -27,12 +28,12 @@ public class IotIndexController extends BaseController {
     private final IProductService productService;
     private final IProtocolService protocolService;
     private final IWarnRecordService warnRecordService;
-    private final ICollectDataService collectDataService;
     private final IEventSourceService eventSourceService;
+    private final RealtimeCollectDataService collectDataService;
 
     public IotIndexController(IDeviceService deviceService, IProductService productService
             , IProtocolService protocolService, IWarnRecordService warnRecordService
-            , ICollectDataService collectDataService, IEventSourceService eventSourceService) {
+            , RealtimeCollectDataService collectDataService, IEventSourceService eventSourceService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.protocolService = protocolService;
