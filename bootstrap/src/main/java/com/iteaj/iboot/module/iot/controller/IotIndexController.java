@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.service.*;
@@ -85,8 +86,8 @@ public class IotIndexController extends BaseController {
      * @return
      */
     @GetMapping("countDataWithLastMonth")
-    public Result<List<CountLastTimeDto>> countDataWithLastMonth() {
-        List<CountLastTimeDto> countLastTimeDtos = collectDataService.countLastMonth();
+    public Result<List<BaseEchartsCount>> countDataWithLastMonth() {
+        List<BaseEchartsCount> countLastTimeDtos = collectDataService.countLastMonth();
         return success(countLastTimeDtos);
     }
 }

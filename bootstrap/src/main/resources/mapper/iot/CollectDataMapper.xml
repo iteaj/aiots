@@ -65,11 +65,57 @@
         </where>
         order by a.collect_time desc
     </select>
-
-    <select id="countLastByDays" resultType="com.iteaj.iboot.module.iot.dto.CountLastTimeDto">
-        select count(1) value, date_format(a.collect_time, '%Y-%m-%d') time from iot_collect_data a
+    <select id="countLastWeek" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
+        select count(1) value, date_format(a.collect_time, '%Y-%m-%d') category from iot_collect_data a
+        left join iot_device d on a.uid = d.uid
+        <where>
+            <if test="deviceGroupId != null">
+                and d.device_group_id = #{deviceGroupId}
+            </if>
+            and a.collect_time > date_sub(curdate(), interval 7 day)
+        </where>
+        group by category
+    </select>
+    <select id="countLastByDays" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
+        select count(1) value, date_format(a.collect_time, '%Y-%m-%d') category from iot_collect_data a
             left join iot_device d on a.uid = d.uid
-        where a.collect_time > date_sub(curdate(), interval #{days} day) group by time
+        where a.collect_time > date_sub(curdate(), interval #{days} day) group by category
+    </select>
+    <select id="countOfCommonByTime" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
+        <if test="calcType == 'count'">
+            select count(1) value, field as name,
+        </if>
+        <if test="calcType == 'avg'">
+            select avg(value) value, field as name,
+        </if>
+        <if test="timeType == 'year'">
+            date_format(collect_time, '%Y') category
+        </if>
+        <if test="timeType == 'month'">
+            date_format(collect_time, '%Y-%m') category
+        </if>
+        <if test="timeType == 'day'">
+            date_format(collect_time, '%Y-%m-%d') category
+        </if>
+        <if test="timeType == 'hour'">
+            date_format(collect_time, '%y-%m-%d %H') category
+        </if>
+        from iot_collect_data
+        <where>
+            <if test="uid != null and uid !=''">
+                and uid=#{uid}
+            </if>
+            <if test="productCode != null and productCode !=''">
+                and product_code=#{productCode}
+            </if>
+            <if test="fields != null and fields.size() > 0">
+                and (<foreach collection="fields" item="field" separator=" or ">
+                field = #{field}
+            </foreach>)
+            </if>
+            and UNIX_TIMESTAMP(collect_time) * 1000 between #{startTimestamp} and #{endTimestamp}
+        </where>
+        group by category<if test="fields != null and fields.size() > 0">,field</if>
     </select>
 
 </mapper>
