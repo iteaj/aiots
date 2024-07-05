@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.controller;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.service.*;
@@ -22,11 +23,11 @@ public class IotIndexController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final IProtocolService protocolService;
-    private final ICollectDataService collectDataService;
     private final IEventSourceService eventSourceService;
+    private final RealtimeCollectDataService collectDataService;
 
     public IotIndexController(IDeviceService deviceService, IProductService productService
-            , IProtocolService protocolService, ICollectDataService collectDataService
+            , IProtocolService protocolService, RealtimeCollectDataService collectDataService
             , IEventSourceService eventSourceService) {
         this.deviceService = deviceService;
         this.productService = productService;
