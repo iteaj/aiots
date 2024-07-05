@@ -150,7 +150,8 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
             this.getBaseMapper()
                     .selectList(Wrappers.<Menu>lambdaQuery()
                             .ne(Menu::getStatus, PermStatus.disabled)
-                            .ne(Menu::getType, MenuType.M)).stream()
+                            .ne(Menu::getType, MenuType.M)
+                            .ne(Menu::getType, MenuType.G)).stream()
                     .filter(item -> StringUtils.hasText(item.getPerms()))
                     .map(item -> item.getPerms().split(","))
                     .forEach(item -> permissions.addAll(Arrays.asList(item)));
