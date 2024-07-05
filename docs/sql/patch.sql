@@ -32,3 +32,6 @@ INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, 
 INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1466, '连接', 1453, 60, '#', 'iot', 'A', 'enabled', 'iot:mqtt:connect', '#', '', '2024-06-12 11:14:13', null);
 INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1467, '浏览', 1403, 10, '#', 'iot', 'A', 'enabled', 'iot:device:gateway:view', '#', '', '2024-06-10 15:18:25', null);
 INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1468, '工业网关设备', 1402, 88, '#', 'iot', 'M', 'enabled', null, 'iz-icon-iiot', '', '2024-06-13 00:00:00', '2024-06-13 16:40:39');
+
+-- 2024-07-05
+alter table sys_menu modify type enum('A', 'M', 'V', 'G') not null comment '菜单类型: A.权限、M.菜单、V.视图、G.分组';

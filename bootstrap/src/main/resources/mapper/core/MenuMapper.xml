@@ -30,6 +30,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              left join sys_role_menu rm on a.id = rm.mid
              left join sys_admin_role ar on rm.rid=ar.rid
              left join sys_role r on ar.rid = r.id and r.status = 'enabled'
-        where a.status != 'disabled' and a.type != 'M' and ar.aid=#{adminId} and r.status = 'enabled'
+        where a.status != 'disabled' and a.type != 'M' and a.type != 'G' and ar.aid=#{adminId} and r.status = 'enabled'
     </select>
 </mapper>
