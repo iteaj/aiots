@@ -21,10 +21,7 @@ import java.util.List;
 @RequestMapping("/iot/collectData")
 public class CollectDataController extends BaseController {
 
-    @Autowired
-    private IDeviceService deviceService;
-//    @Autowired
-    private RealtimeCollectDataService collectDataService;
+    private final RealtimeCollectDataService collectDataService;
 
     public CollectDataController(RealtimeCollectDataService collectDataService) {
         this.collectDataService = collectDataService;
