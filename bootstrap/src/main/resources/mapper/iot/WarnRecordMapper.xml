@@ -11,6 +11,9 @@
         <result column="grade" property="grade" />
         <result column="content" property="content" />
         <result column="device_sn" property="deviceSn" />
+        <result column="field" property="field" />
+        <result column="value" property="value" />
+        <result column="product_code" property="productCode" />
         <result column="warn_config_id" property="warnConfigId" />
         <result column="warn_time" property="warnTime" />
         <result column="create_time" property="createTime" />
@@ -62,6 +65,42 @@
             and a.warn_time > date_sub(curdate(), interval 7 day)
         </where>
         group by time
+    </select>
+    <select id="countOfCommonByTime" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
+        <if test="calcType == 'count'">
+            select count(1) value, field as name,
+        </if>
+        <if test="calcType == 'avg'">
+            select avg(value) value, field as name,
+        </if>
+        <if test="timeType == 'year'">
+            date_format(warn_time, '%Y') category
+        </if>
+        <if test="timeType == 'month'">
+            date_format(warn_time, '%Y-%m') category
+        </if>
+        <if test="timeType == 'day'">
+            date_format(warn_time, '%Y-%m-%d') category
+        </if>
+        <if test="timeType == 'hour'">
+            date_format(warn_time, '%y-%m-%d %H') category
+        </if>
+        from iot_warn_record
+        <where>
+            <if test="uid != null and uid !=''">
+                and uid=#{uid}
+            </if>
+            <if test="productCode != null and productCode !=''">
+                and product_code=#{productCode}
+            </if>
+            <if test="fields != null and fields.size() > 0">
+                and (<foreach collection="fields" item="field" separator=" or ">
+                field = #{field}
+            </foreach>)
+            </if>
+            and UNIX_TIMESTAMP(warn_time) * 1000 between #{startTimestamp} and #{endTimestamp}
+        </where>
+        group by category<if test="fields != null and fields.size() > 0">,field</if>
     </select>
 
 </mapper>

@@ -5,21 +5,20 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
-import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.spi.iot.consts.CountType;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
-import com.iteaj.framework.spi.iot.data.BaseTimeCount;
+import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
-import com.iteaj.iboot.module.iot.dto.CollectDataDto;
-import com.iteaj.iboot.module.iot.dto.CountLastWeekDto;
-import com.iteaj.iboot.module.iot.dto.CountLastTimeDto;
+import com.iteaj.framework.spi.iot.data.EchartsCountValue;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.mapper.CollectDataMapper;
 import com.iteaj.iboot.module.iot.service.ICollectDataService;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,37 +30,34 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
     }
 
     @Override
-    public List<BaseTimeCount> countByTime(TimeCountCondition condition) {
-        validateCondition(condition);
-        Map<String, List<String>> map = new HashMap<>();
-        condition.getValue().forEach(item -> {
-            String[] split = item.split(":");
-            if(split.length != 2) {
-                throw new ServiceException("条件值格式不对["+item+"]");
-            }
-
-            map.put(split[0], Arrays.asList(split[1].split("-")));
+    public List<EchartsCountValue> countOfCommonByTime(TimeCountCondition condition) {
+        List<EchartsCountValue> values = new ArrayList<>();
+        condition.buildSqlConditions().forEach(item -> {
+            List<BaseEchartsCount> counts = this.getBaseMapper().countOfCommonByTime(item);
+            List<EchartsCountValue> countValues = condition.buildResult(item, counts);
+            values.addAll(countValues);
         });
-        return null;
+
+        return values;
     }
 
     @Override
-    public List<BaseTimeCount> countLastWeek(Long deviceGroupId) {
-        Map<String, BaseTimeCount> map = new HashMap<>();
-        List<BaseTimeCount> dtos = this.getBaseMapper().countLastWeek(deviceGroupId);
+    public List<BaseEchartsCount> countLastWeek(Long deviceGroupId) {
+        Map<String, BaseEchartsCount> map = new HashMap<>();
+        List<BaseEchartsCount> dtos = this.getBaseMapper().countLastWeek(deviceGroupId);
         if(CollectionUtil.isNotEmpty(dtos)) {
-            map = dtos.stream().collect(Collectors.toMap(BaseTimeCount::getTime, item -> item));
+            map = dtos.stream().collect(Collectors.toMap(BaseEchartsCount::getCategory, item -> item));
         }
 
-        List<BaseTimeCount> result = new ArrayList<>();
+        List<BaseEchartsCount> result = new ArrayList<>();
         DateTime lastWeek = new DateTime().offset(DateField.DAY_OF_MONTH, -7);
         for (int i = 0; i < 7; i++) {
             String time = lastWeek.toString("yyyy-MM-dd");
-            BaseTimeCount lastWeekDto = map.get(time);
+            BaseEchartsCount lastWeekDto = map.get(time);
             if(lastWeekDto != null) {
                 result.add(lastWeekDto);
             } else {
-                result.add(new BaseTimeCount().buildZero(time));
+                result.add(new BaseEchartsCount().buildZero(time));
             }
 
             lastWeek = lastWeek.offset(DateField.DAY_OF_MONTH, 1);
@@ -71,22 +67,22 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
     }
 
     @Override
-    public List<BaseTimeCount> countLastMonth() {
-        Map<String, BaseTimeCount> map = new HashMap<>();
-        List<BaseTimeCount> dtos = this.getBaseMapper().countLastByDays(29);
+    public List<BaseEchartsCount> countLastMonth() {
+        Map<String, BaseEchartsCount> map = new HashMap<>();
+        List<BaseEchartsCount> dtos = this.getBaseMapper().countLastByDays(29);
         if(CollectionUtil.isNotEmpty(dtos)) {
-            map = dtos.stream().collect(Collectors.toMap(BaseTimeCount::getTime, item -> item));
+            map = dtos.stream().collect(Collectors.toMap(BaseEchartsCount::getCategory, item -> item));
         }
 
-        List<BaseTimeCount> result = new ArrayList<>();
+        List<BaseEchartsCount> result = new ArrayList<>();
         DateTime lastWeek = new DateTime().offset(DateField.DAY_OF_MONTH, -29);
         for (int i = 0; i < 30; i++) {
             String time = lastWeek.toString("yyyy-MM-dd");
-            BaseTimeCount lastWeekDto = map.get(time);
+            BaseEchartsCount lastWeekDto = map.get(time);
             if(lastWeekDto != null) {
                 result.add(lastWeekDto);
             } else {
-                result.add(BaseTimeCount.buildZero(time));
+                result.add(BaseEchartsCount.buildZero(time));
             }
 
             lastWeek = lastWeek.offset(DateField.DAY_OF_MONTH, 1);

@@ -228,4 +228,19 @@
             and a.lat is not null
         </where>
     </select>
+
+    <select id="countCommonDeviceStatus" resultType="com.iteaj.iboot.module.iot.dto.DeviceStatusDto">
+        select count(if(a.status='online', 1, null)) onlineNum, count(if(a.status='offline', 1, null)) offlineNum, p.name productName from iot_device a
+            left join iot_product p on a.product_id = p.id
+        <where>
+            <if test="productCodes != null and productCodes.size() > 0">
+                and (<foreach collection="productCodes" separator=" or " item="productCode">
+                p.code = #{productCode}
+            </foreach>)
+            </if>
+        </where>
+        <if test="productCodes != null and productCodes.size() > 0">
+            group by a.product_id
+        </if>
+    </select>
 </mapper>

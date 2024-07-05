@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.spi.iot.data.BaseTimeCount;
+import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Product;
@@ -64,7 +64,7 @@ public class VLScreenController extends BaseController {
      */
     @GetMapping("countDeviceAndProduct")
     public Result<VlsDeviceAndProductDto> countDeviceAndProduct(GroupAndProductParamDto param) {
-        DeviceStatusDto deviceStatus = deviceService.countDeviceStatus(param);
+        DeviceStatusDto deviceStatus = deviceService.countCommonDeviceStatus(param);
         FuncStatusProfileDto productProfileDto = productService.countStatusProfile();
         FuncStatusProfileDto profileDto = linkageService.countStatusProfile(param);
         FuncStatusProfileDto esProfileDto = eventSourceService.countStatusProfile(param);
@@ -107,8 +107,8 @@ public class VLScreenController extends BaseController {
      * @return
      */
     @GetMapping("lastWeekData")
-    public Result<List<BaseTimeCount>> lastWeekData(Long deviceGroupId) {
-        List<BaseTimeCount> dtos = collectDataService.countLastWeek(deviceGroupId);
+    public Result<List<BaseEchartsCount>> lastWeekData(Long deviceGroupId) {
+        List<BaseEchartsCount> dtos = collectDataService.countLastWeek(deviceGroupId);
         return success(dtos);
     }
 

@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.spi.iot.data.WarnData;
 import com.iteaj.iboot.module.iot.dto.CountLastWeekDto;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.framework.IBaseService;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public interface IWarnRecordService extends IBaseService<WarnRecord> {
 
-    PageResult<IPage<WarnRecord>> detailPage(Page page, WarnRecord entity);
+    PageResult<?> detailPage(Page page, WarnData entity);
 
     /**
      * 获取告警记录

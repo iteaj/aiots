@@ -221,7 +221,8 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
         String content = resolverWarnTemplate(warn, device.getDeviceSn(), value);
         WarnRecord warnRecord = new WarnRecord().setDeviceSn(device.getDeviceSn()).
                 setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(grade)
-                .setWarnConfigId(warn.getId()).setContent(content);
+                .setWarnConfigId(warn.getId()).setContent(content).setField(warn.getModelAttrField())
+                .setProductCode(device.getProductCode()).setValue(value != null ? value.toString() : null);
 
         if(grade == WarnGrade.normal) { // 设置告警已经解除
             warnStatus.put(warn.getModelAttrId(), Boolean.TRUE);

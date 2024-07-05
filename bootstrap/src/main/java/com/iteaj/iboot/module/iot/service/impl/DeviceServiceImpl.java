@@ -17,6 +17,8 @@ import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
+import com.iteaj.framework.spi.iot.data.EchartsCountValue;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -315,13 +317,34 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     }
 
     @Override
-    public DeviceStatusDto countDeviceStatus(GroupAndProductParamDto param) {
+    public DeviceStatusDto countCommonDeviceStatus(GroupAndProductParamDto param) {
         return getBaseMapper().countDeviceStatus(param);
     }
 
     @Override
     public List<EMapDeviceDto> listOfEMap(Long productId, Long deviceGroupId) {
         return this.getBaseMapper().listOfEMap(productId, deviceGroupId);
+    }
+
+    @Override
+    public List<EchartsCountValue> countCommonDeviceStatus(StatusCountCondition condition) {
+        List<EchartsCountValue> values = new ArrayList<>();
+        List<DeviceStatusDto> statusDtos = this.getBaseMapper().countCommonDeviceStatus(condition);
+        if(CollectionUtil.isNotEmpty(condition.getProductCodes())) {
+            List<BaseEchartsCount> online = new ArrayList<>();
+            List<BaseEchartsCount> offline = new ArrayList<>();
+            statusDtos.forEach(item -> {
+                online.add(new BaseEchartsCount(item.getProductName(), item.getOnlineNum()));
+                offline.add(new BaseEchartsCount(item.getProductName(), item.getOfflineNum()));
+            });
+            values.add(new EchartsCountValue(null, "在线", online));
+            values.add(new EchartsCountValue(null, "离线", offline));
+        } else {
+            DeviceStatusDto statusDto = statusDtos.get(0);
+            values.add(new EchartsCountValue(null, "在线",Arrays.asList(new BaseEchartsCount("", statusDto.getOnlineNum()))));
+            values.add(new EchartsCountValue(null, "离线",Arrays.asList(new BaseEchartsCount("", statusDto.getOfflineNum()))));
+        }
+        return values;
     }
 
     @Override

@@ -3,10 +3,14 @@ package com.iteaj.iboot.module.iot.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
+import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
+import com.iteaj.framework.spi.iot.data.CollectWarnDataService;
+import com.iteaj.framework.spi.iot.data.EchartsCountValue;
+import com.iteaj.framework.spi.iot.data.WarnData;
 import com.iteaj.iboot.module.iot.dto.CountLastWeekDto;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.mapper.WarnRecordMapper;
@@ -14,10 +18,7 @@ import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -29,12 +30,29 @@ import java.util.stream.Collectors;
  * @since 2024-02-29
  */
 @Service
-public class WarnRecordServiceImpl extends BaseServiceImpl<WarnRecordMapper, WarnRecord> implements IWarnRecordService {
+public class WarnRecordServiceImpl extends BaseServiceImpl<WarnRecordMapper, WarnRecord> implements IWarnRecordService, CollectWarnDataService {
 
     @Override
-    public PageResult<IPage<WarnRecord>> detailPage(Page page, WarnRecord entity) {
+    public PageResult<?> detailPage(Page page, WarnData entity) {
         this.getBaseMapper().detailPage(page, entity);
         return new PageResult<>(page);
+    }
+
+    @Override
+    public BooleanResult batchRemove(List ids) {
+        return this.removeByIds(ids);
+    }
+
+    @Override
+    public List<EchartsCountValue> countOfCommonByTime(TimeCountCondition condition) {
+        List<EchartsCountValue> values = new ArrayList<>();
+        condition.buildSqlConditions().forEach(item -> {
+            List<BaseEchartsCount> counts = this.getBaseMapper().countOfCommonByTime(item);
+            List<EchartsCountValue> countValues = condition.buildResult(item, counts);
+            values.addAll(countValues);
+        });
+
+        return values;
     }
 
     @Override

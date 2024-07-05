@@ -17,6 +17,7 @@ import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
+import com.iteaj.framework.spi.iot.data.CollectWarnDataService;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
@@ -51,12 +52,12 @@ public class PanelsController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final IotCacheManager cacheManager;
-    private final IWarnRecordService warnRecordService;
+    private final CollectWarnDataService warnRecordService;
     private final RealtimeDataService realtimeDataService;
 
     public PanelsController(ISignalService signalService, IDeviceService deviceService
             , IProductService productService, IotCacheManager cacheManager
-            , IWarnRecordService warnRecordService, RealtimeDataService realtimeDataService) {
+            , CollectWarnDataService warnRecordService, RealtimeDataService realtimeDataService) {
         this.signalService = signalService;
         this.deviceService = deviceService;
         this.productService = productService;

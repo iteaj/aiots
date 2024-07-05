@@ -3,9 +3,10 @@ package com.iteaj.iboot.plugin.datasource.tdengine.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
-import com.iteaj.framework.spi.iot.data.BaseTimeCount;
+import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
+import com.iteaj.framework.spi.iot.data.EchartsCountValue;
 
 import java.util.List;
 
@@ -17,17 +18,17 @@ public class TaosDataService implements RealtimeCollectDataService {
     }
 
     @Override
-    public List<BaseTimeCount> countByTime(TimeCountCondition condition) {
+    public List<EchartsCountValue> countOfCommonByTime(TimeCountCondition condition) {
         return null;
     }
 
     @Override
-    public List<BaseTimeCount> countLastMonth() {
+    public List<BaseEchartsCount> countLastMonth() {
         return null;
     }
 
     @Override
-    public List<BaseTimeCount> countLastWeek(Long deviceGroupId) {
+    public List<BaseEchartsCount> countLastWeek(Long deviceGroupId) {
         return null;
     }
 }

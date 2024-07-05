@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.spi.iot.data.WarnData;
 import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,7 +23,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_warn_record")
-public class WarnRecord extends BaseEntity {
+public class WarnRecord extends BaseEntity implements WarnData {
 
     private static final long serialVersionUID = 1L;
 
@@ -52,6 +53,21 @@ public class WarnRecord extends BaseEntity {
     private Date warnTime;
 
     private Date createTime;
+
+    /**
+     * 字段
+     */
+    private String field;
+
+    /**
+     * 告警值
+     */
+    private String value;
+
+    /**
+     * 产品编码
+     */
+    private String productCode;
 
     /**
      * 告警配置等级
@@ -89,5 +105,10 @@ public class WarnRecord extends BaseEntity {
      */
     public String getGradeName() {
         return this.getGrade() != null ? this.getGrade().getDesc() : null;
+    }
+
+    @Override
+    public String getProductCode() {
+        return null;
     }
 }
