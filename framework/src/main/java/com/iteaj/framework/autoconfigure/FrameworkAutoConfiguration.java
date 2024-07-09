@@ -10,8 +10,13 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.task.TaskExecutorBuilder;
+import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -45,6 +50,17 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
     @Bean
     public SpringUtils springUtils() {
         return SpringUtils.getInstance();
+    }
+
+    @Bean
+    public ThreadPoolTaskScheduler taskScheduler(TaskSchedulerBuilder builder) {
+        return builder.build();
+    }
+
+    @Bean
+    @Lazy
+    public ThreadPoolTaskExecutor taskExecutor(TaskExecutorBuilder builder) {
+        return builder.build();
     }
 
     @Override
