@@ -175,11 +175,11 @@
         </dependency>
 
         <!-- 消息源插件(短信, email, 钉钉...) -->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <version>${project.version}</version>-->
-<!--            <artifactId>iboot-message</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>iboot-message</artifactId>
+        </dependency>
 
         <!-- gb28181模块 -->
         <dependency>

@@ -1,6 +1,6 @@
-package com.iteaj.iboot.module.core.mapper;
+package com.iteaj.iboot.plugin.message.mapper;
 
-import com.iteaj.iboot.module.core.entity.MessageSource;
+import com.iteaj.iboot.plugin.message.entity.MessageSource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

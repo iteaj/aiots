@@ -1,22 +1,19 @@
 package com.iteaj.framework.spi.message;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.iteaj.framework.json.StringToMapDeserializer;
 import lombok.Data;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 @Data
 public class SendModel {
 
     /**
      * 接收人(手机号、邮箱、openid)
-     * 如果批量使用逗号隔开
      */
-    private String accept;
+    private List<String> accept;
 
     /**
      * 发送标题
@@ -35,15 +32,15 @@ public class SendModel {
 
     /**
      * 用于发送短信模板
-     * @see #templateName
+     * @see #templateVars
      */
     private String templateId;
 
     /**
-     * 模板名称
+     * 模板变量
      * @see #templateId
      */
     @JsonDeserialize(using = StringToMapDeserializer.class)
-    private Map<String, String> templateName;
+    private LinkedHashMap<String, String> templateVars;
 
 }

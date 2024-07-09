@@ -1,5 +1,6 @@
 package com.iteaj.framework.spi.message;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 
@@ -10,11 +11,11 @@ public class MessageConfig {
 
     private String channelId;
 
-    private ObjectNode config;
+    private JSONObject config;
 
     protected MessageConfig() { }
 
-    public MessageConfig(String type, String channelId, ObjectNode config) {
+    public MessageConfig(String type, String channelId, JSONObject config) {
         this.type = type;
         this.config = config;
         this.channelId = channelId;
@@ -22,6 +23,6 @@ public class MessageConfig {
     }
 
     public String getConfig(String key) {
-        return this.config.get(key).asText();
+        return this.config.getString(key);
     }
 }

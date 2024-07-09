@@ -1,6 +1,6 @@
-package com.iteaj.iboot.module.core.service;
+package com.iteaj.iboot.plugin.message.service;
 
-import com.iteaj.iboot.module.core.entity.MessageSource;
+import com.iteaj.iboot.plugin.message.entity.MessageSource;
 import com.iteaj.framework.IBaseService;
 
 /**

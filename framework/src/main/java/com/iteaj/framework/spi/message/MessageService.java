@@ -1,18 +1,17 @@
 package com.iteaj.framework.spi.message;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.ParamMeta;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public interface MessageService {
 
     String DEFAULT_CHANNEL = "DEFAULT";
 
     String DEFAULT_CHANNEL_NAME = "默认";
-
-    ObjectMapper mapper = new ObjectMapper();
 
     /**
      * 消息类型
@@ -35,6 +34,14 @@ public interface MessageService {
     }
 
     /**
+     * 唯一id
+     * @return
+     */
+    default String getConfigId() {
+        return this.getType() + ":" + this.getChannelId();
+    }
+
+    /**
      * 获取通道名称
      * @return
      */
@@ -51,14 +58,26 @@ public interface MessageService {
 
     /**
      * 发送参数
-     * @param config
      * @param model
      */
-    Optional<Object> send(MessageConfig config, SendModel model);
+    Optional<Object> send(SendModel model);
+
+    /**
+     * 异步发送
+     * @param model
+     * @param callback
+     */
+    void sendAsync(SendModel model, Consumer callback);
 
     /**
      * 移除消息配置
-     * @param config
      */
-    boolean remove(MessageConfig config);
+    boolean remove();
+
+    /**
+     * 构建服务
+     * @param config
+     * @return
+     */
+    MessageService build(JSONObject config);
 }

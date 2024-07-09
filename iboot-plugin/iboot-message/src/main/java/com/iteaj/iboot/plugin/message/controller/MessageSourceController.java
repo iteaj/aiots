@@ -1,24 +1,23 @@
-package com.iteaj.iboot.module.core.controller;
+package com.iteaj.iboot.plugin.message.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.framework.spi.message.MessageConfig;
 import com.iteaj.framework.spi.message.MessageManager;
 import com.iteaj.framework.spi.message.MessageService;
 import com.iteaj.framework.spi.message.SendModel;
-import com.iteaj.iboot.module.core.entity.MessageSource;
-import com.iteaj.iboot.module.core.service.IMessageSourceService;
+import com.iteaj.iboot.plugin.message.entity.MessageSource;
+import com.iteaj.iboot.plugin.message.service.IMessageSourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -75,8 +74,10 @@ public class MessageSourceController extends BaseController {
                 // 移除已经创建的通道配置
                 MessageService service = messageManager.getService(record.getType(), record.getChannel());
                 if(service != null) {
-                    service.remove(new MessageConfig(record.getType()
-                            , record.getChannel(), record.getConfig()));
+                    service.build(entity.getConfig());
+                    messageManager.registerOrUpdateDefault(service);
+                } else {
+                    throw new ServiceException("没有找到对应的通道服务["+record.getChannel()+"]");
                 }
             });
         }
@@ -95,11 +96,7 @@ public class MessageSourceController extends BaseController {
         this.messageSourceService.listByIds(idList).ifPresent(item -> {
             item.forEach(record -> {
                 // 移除已经创建的通道配置
-                MessageService service = messageManager.getService(record.getType(), record.getChannel());
-                if(service != null) {
-                    service.remove(new MessageConfig(record.getType()
-                            , record.getChannel(), record.getConfig()));
-                }
+                messageManager.remove(record.getType(), record.getChannel());
             });
         });
 
@@ -115,9 +112,14 @@ public class MessageSourceController extends BaseController {
     @CheckPermission({"core:messageSource:debug"})
     public Result<Boolean> debug(@PathVariable Long id, @RequestBody SendModel model) {
         this.messageSourceService.getById(id).ifPresent(source -> {
-            MessageService service = this.messageManager.getService(source.getType(), source.getChannel());
+            MessageService service = this.messageManager.getDefault(source.getType());
             if(service != null) {
-                service.send(new MessageConfig(service.getType(), service.getChannelId(), source.getConfig()), model);
+                model.setAccept(Arrays.asList("18059222381", "15959971652"));
+                LinkedHashMap<String, String> hashMap = new LinkedHashMap<>();
+                hashMap.put("device", "ADC3623547A");
+                hashMap.put("value", "36");
+                model.setTemplateVars(hashMap);
+                service.send(model);
             }
         });
 
@@ -134,15 +136,14 @@ public class MessageSourceController extends BaseController {
             return success(Collections.emptyList());
         } else {
             List<IVOption> options = this.messageManager.getTypes().stream().map(type -> {
-                List<MessageService> services = this.messageManager.getServices(type);
-                MessageService messageService = services.get(0);
-
+                Set<MessageService> services = this.messageManager.getServices(type);
+                MessageService messageService = services.stream().findFirst().get();
                 IVOption ivOption = new IVOption(messageService.getName(), messageService.getType());
                 services.forEach(channel -> ivOption.addChildren(channel.getChannelName()
                         , channel.getChannelId(), channel.getConfigParams()));
 
                 return ivOption;
-            }).collect(Collectors.toList());
+            }).distinct().collect(Collectors.toList());
 
             return success(options);
         }
