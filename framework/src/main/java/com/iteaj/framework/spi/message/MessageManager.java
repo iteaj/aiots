@@ -3,7 +3,9 @@ package com.iteaj.framework.spi.message;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 
+import java.io.Serializable;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -11,12 +13,15 @@ import java.util.stream.Collectors;
  */
 public class MessageManager {
 
+    private Function<Serializable, SendTemplate> templateService;
     private Map<String, MessageService> serviceMap = new HashMap<>(16);
 
-    public MessageManager(List<MessageService> services) {
+    public MessageManager(List<MessageService> services, Function<Serializable, SendTemplate> templateService) {
         if(CollectionUtil.isNotEmpty(services)) {
             services.forEach(item -> this.register(item));
         }
+
+        this.templateService = templateService;
     }
 
     /**
@@ -33,13 +38,30 @@ public class MessageManager {
             throw new IllegalArgumentException("参数[type] or [channelId]不能为空");
         }
 
-        String key = service.getType() + ":" + service.getChannelId();
-
+        String key = service.getConfigId();
         if(serviceMap.containsKey(key)) {
             return null;
         } else {
             return serviceMap.put(key, service);
         }
+    }
+
+    /**
+     * 注册或者更新为默认
+     * @param service
+     * @return
+     */
+    public MessageService registerOrUpdateDefault(MessageService service) {
+        if(service == null) {
+            throw new IllegalArgumentException("参数[service]不能为空");
+        }
+
+        if(StrUtil.isBlank(service.getType())) {
+            throw new IllegalArgumentException("参数[type]不能为空");
+        }
+
+        String key = getKey(service.getType(), MessageService.DEFAULT_CHANNEL);
+        return serviceMap.put(key, service);
     }
 
     /**
@@ -49,7 +71,16 @@ public class MessageManager {
      * @return
      */
     public boolean contains(String type, String channelId) {
-        return serviceMap.containsKey(type + ":" + channelId);
+        return serviceMap.containsKey(getKey(type, channelId));
+    }
+
+    /**
+     * 获取指定类型的默认通道服务
+     * @param type
+     * @return
+     */
+    public MessageService getDefault(String type) {
+        return this.serviceMap.get(getKey(type, MessageService.DEFAULT_CHANNEL));
     }
 
     /**
@@ -59,7 +90,16 @@ public class MessageManager {
      * @return
      */
     public MessageService getService(String type, String channelId) {
-        return serviceMap.get(type + ":" + channelId);
+        return serviceMap.get(getKey(type, channelId));
+    }
+
+    /**
+     * 获取发送模板
+     * @param key
+     * @return
+     */
+    public SendTemplate getSendTemplate(Serializable key) {
+        return templateService.apply(key);
     }
 
     /**
@@ -69,7 +109,16 @@ public class MessageManager {
      * @return
      */
     public MessageService remove(String type, String channelId) {
-        return serviceMap.remove(type + ":" + channelId);
+        MessageService remove = serviceMap.remove(getKey(type, channelId));
+        if(remove != null) {
+            remove.remove();
+        }
+
+        return remove;
+    }
+
+    public String getKey(String type, String channelId) {
+        return type + ":" + channelId;
     }
 
     /**
@@ -89,11 +138,11 @@ public class MessageManager {
      * @param type
      * @return
      */
-    public List<MessageService> getServices(String type) {
+    public Set<MessageService> getServices(String type) {
         return this.serviceMap.entrySet().stream()
-                .filter(item -> item.getKey().startsWith(type))
+                .filter(item -> item.getValue().getType().equals(type))
                 .map(item -> item.getValue())
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     /**
