@@ -74,14 +74,13 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
     }
 
     /**
-     * todo 告警触发处理
      * @param config
      * @param record
      * @param status
      */
     @Override
     public void warnTrigger(WarnConfig config, WarnRecord record, RealtimeStatus status) {
-//        LinkageActionListener.super.warnTrigger(config, record, status);
+        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("warn", Arrays.asList(record)));
     }
 
     @Getter
