@@ -31,4 +31,10 @@ public enum WarnGrade {
                 .map(item -> new IVOption(item.desc, item.name()))
                 .collect(Collectors.toList());
     }
+
+
+    @Override
+    public String toString() {
+        return getDesc();
+    }
 }

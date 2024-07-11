@@ -6,6 +6,8 @@ public interface WarnData {
 
     String getUid();
 
+    String getValue();
+
     String getDeviceSn();
 
     String getContent();

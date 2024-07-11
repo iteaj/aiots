@@ -1,6 +1,12 @@
 package com.iteaj.iboot.plugin.message.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.IVOption;
+import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.spi.iot.data.WarnData;
 import com.iteaj.framework.spi.message.SendTemplate;
+import com.iteaj.iboot.plugin.message.dto.WarnMessageTemplate;
 import com.iteaj.iboot.plugin.message.entity.MessageTemplate;
 import com.iteaj.framework.IBaseService;
 
@@ -17,4 +23,12 @@ import java.io.Serializable;
 public interface IMessageTemplateService extends IBaseService<MessageTemplate> {
 
     SendTemplate getTemplateById(Serializable key);
+
+    WarnMessageTemplate getWarnTemplateByWarnConfigId(Long warnConfigId, String uid);
+
+    void sendIotWarnMessage(WarnData warn);
+
+    ListResult<IVOption> listAccepts();
+
+    PageResult<Page<MessageTemplate>> detailPage(Page page, MessageTemplate entity);
 }

@@ -13,6 +13,7 @@
         <result column="model_attr_field" property="modelAttrField" />
         <result column="model_attr_id" property="modelAttrId" />
         <result column="create_time" property="createTime" />
+        <result column="message_template_id" property="messageTemplateId" />
     </resultMap>
 
     <select id="pageDetail" resultMap="BaseResultMap">

@@ -1,7 +1,10 @@
 package com.iteaj.iboot.plugin.message.controller;
 
 import java.util.List;
+
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +21,7 @@ import com.iteaj.framework.BaseController;
  * @since 2024-07-09
  */
 @RestController
-@RequestMapping("/message/messageTemplate")
+@RequestMapping("/core/messageTemplate")
 public class MessageTemplateController extends BaseController {
 
     private final IMessageTemplateService messageTemplateService;
@@ -34,9 +37,19 @@ public class MessageTemplateController extends BaseController {
     */
     @GetMapping("/view")
     @Logger("浏览消息模板功能")
-    @CheckPermission({"message:messageTemplate:view"})
-    public Result<IPage<MessageTemplate>> list(Page<MessageTemplate> page, MessageTemplate entity) {
-        return this.messageTemplateService.page(page, entity);
+    @CheckPermission({"iot:messageTemplate:view"})
+    public Result<Page<MessageTemplate>> list(Page<MessageTemplate> page, MessageTemplate entity) {
+        return this.messageTemplateService.detailPage(page, entity);
+    }
+
+    /**
+     * 获取消息模板列表
+     * @param entity
+     * @return
+     */
+    @GetMapping("list")
+    public Result<List<MessageTemplate>> list(MessageTemplate entity) {
+        return this.messageTemplateService.list(entity);
     }
 
     /**
@@ -44,7 +57,6 @@ public class MessageTemplateController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @CheckPermission({"message:messageTemplate:edit"})
     public Result<MessageTemplate> getById(Long id) {
         return this.messageTemplateService.getById(id);
     }
@@ -55,7 +67,7 @@ public class MessageTemplateController extends BaseController {
     */
     @PostMapping("/saveOrUpdate")
     @Logger("新增或者更新消息模板记录")
-    @CheckPermission(value = {"message:messageTemplate:edit", "message:messageTemplate:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:messageTemplate:edit", "iot:messageTemplate:add"}, logical = Logical.OR)
     public Result<Boolean> saveOrUpdate(@RequestBody MessageTemplate entity) {
         return this.messageTemplateService.saveOrUpdate(entity);
     }
@@ -66,9 +78,19 @@ public class MessageTemplateController extends BaseController {
     */
     @PostMapping("/del")
     @Logger("删除消息模板记录")
-    @CheckPermission({"message:messageTemplate:del"})
+    @CheckPermission({"iot:messageTemplate:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.messageTemplateService.removeByIds(idList);
+    }
+
+    /**
+     * 接收人
+     * @return
+     */
+    @GetMapping("accepts")
+    public Result<List<IVOption>> accepts() {
+        ListResult<IVOption> optionListResult = this.messageTemplateService.listAccepts();
+        return optionListResult;
     }
 }
 

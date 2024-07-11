@@ -47,6 +47,11 @@ public class WarnConfig extends BaseEntity {
     private String template;
 
     /**
+     * 消息模板id
+     */
+    private Long messageTemplateId;
+
+    /**
      * 所属产品
      */
     private Long productId;

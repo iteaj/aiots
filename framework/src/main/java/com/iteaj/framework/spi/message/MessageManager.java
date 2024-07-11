@@ -13,15 +13,12 @@ import java.util.stream.Collectors;
  */
 public class MessageManager {
 
-    private Function<Serializable, SendTemplate> templateService;
     private Map<String, MessageService> serviceMap = new HashMap<>(16);
 
-    public MessageManager(List<MessageService> services, Function<Serializable, SendTemplate> templateService) {
+    public MessageManager(List<MessageService> services) {
         if(CollectionUtil.isNotEmpty(services)) {
             services.forEach(item -> this.register(item));
         }
-
-        this.templateService = templateService;
     }
 
     /**
@@ -91,15 +88,6 @@ public class MessageManager {
      */
     public MessageService getService(String type, String channelId) {
         return serviceMap.get(getKey(type, channelId));
-    }
-
-    /**
-     * 获取发送模板
-     * @param key
-     * @return
-     */
-    public SendTemplate getSendTemplate(Serializable key) {
-        return templateService.apply(key);
     }
 
     /**
