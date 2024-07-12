@@ -89,6 +89,10 @@ public class ShiroAdminRealm extends AuthorizingRealm {
             throw new SecurityException("账户不存在");
         }
 
+        if(!admin.allowLogin()) {
+            throw new SecurityException("账号已被禁用");
+        }
+
         // 密码校验
         String passwordDigest = admin.getPassword().toUpperCase();
         String md5Hex = SecureUtil.md5(password).toUpperCase();

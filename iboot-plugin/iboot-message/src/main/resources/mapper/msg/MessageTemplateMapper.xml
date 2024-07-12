@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.message.mapper.MessageTemplateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.plugin.message.entity.MessageTemplate">
+        <result column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="template_id" property="templateId" />
+        <result column="template_name" property="templateName" />
+        <result column="template_title" property="templateTitle" />
+        <result column="accepts" property="accepts" />
+        <result column="content" property="content" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <resultMap id="TemplateResultMap" type="com.iteaj.framework.spi.message.SendTemplate">
+        <result column="type" property="type" />
+        <result column="template_id" property="templateId" />
+        <result column="template_name" property="name" />
+        <result column="template_title" property="title" />
+        <result column="accepts" property="accepts"
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
+        <result column="content" property="content" />
+    </resultMap>
+
+    <select id="getTemplateById" resultMap="TemplateResultMap">
+        select * from sys_message_template where id=#{id}
+    </select>
+
+</mapper>

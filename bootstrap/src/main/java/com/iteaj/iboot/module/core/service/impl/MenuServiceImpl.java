@@ -72,22 +72,32 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
         List<String> msn = modules.stream()
                 .map(item -> item.getMsn())
                 .collect(Collectors.toList());
-        List<Menu> allMenus = this.getBaseMapper()
-                .selectList(Wrappers.<Menu>lambdaQuery()
-                        .ne(Menu::getType, MenuType.A)
-                        .ne(Menu::getStatus, PermStatus.disabled)
-                        .in(Menu::getMsn, msn)
-                        .orderByAsc(Menu::getSort));
-
-        if(CollectionUtils.isEmpty(allMenus)) {
-            return new ListResult<>(Collections.emptyList());
-        }
 
         if(isSuper) { // 超级管理员拥有所有菜单
+            List<Menu> allMenus = this.getBaseMapper()
+                    .selectList(Wrappers.<Menu>lambdaQuery()
+                            .ne(Menu::getType, MenuType.A)
+                            .ne(Menu::getStatus, PermStatus.disabled)
+                            .in(Menu::getMsn, msn)
+                            .orderByAsc(Menu::getSort));
+
+            if(CollectionUtils.isEmpty(allMenus)) {
+                return new ListResult<>(Collections.emptyList());
+            }
+
             // 转成树结构
             List<Menu> menus = (List<Menu>) TreeUtils.toTrees(allMenus, 0l);
             return new ListResult<>(menus);
         } else { // 普通管理员的菜单列表
+            List<Menu> allMenus = this.getBaseMapper()
+                    .selectList(Wrappers.<Menu>lambdaQuery()
+                            .ne(Menu::getStatus, PermStatus.disabled)
+                            .in(Menu::getMsn, msn));
+
+            if(CollectionUtils.isEmpty(allMenus)) {
+                return new ListResult<>(Collections.emptyList());
+            }
+
             List<String> adminMenuIds = this.getBaseMapper().selectAdminMenus(aid);
             final Collection<Menu> menus = TreeUtils.toAdminMenuTrees(allMenus, adminMenuIds);
             return new ListResult<>(menus.stream().collect(Collectors.toList()));
@@ -140,12 +150,11 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
             this.getBaseMapper()
                     .selectList(Wrappers.<Menu>lambdaQuery()
                             .ne(Menu::getStatus, PermStatus.disabled)
-                            .ne(Menu::getType, MenuType.M)).stream()
+                            .ne(Menu::getType, MenuType.M)
+                            .ne(Menu::getType, MenuType.G)).stream()
                     .filter(item -> StringUtils.hasText(item.getPerms()))
                     .map(item -> item.getPerms().split(","))
                     .forEach(item -> permissions.addAll(Arrays.asList(item)));
-
-            return permissions;
         } else {
             List<String> selectPermissions = this.getBaseMapper().selectPermissions(adminId);
             if(!CollectionUtils.isEmpty(selectPermissions)) {
@@ -155,9 +164,8 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                     }
                 });
             }
-
-            return permissions;
         }
+        return permissions;
 
     }
 

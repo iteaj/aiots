@@ -51,8 +51,14 @@ public class OnlineUserListener implements FrameworkListener<PayloadEvent<Online
                     .setAccount(admin.getAccount())
                     .setAccessIp(payload.getAccessIp())
                     .setExpireTime(payload.getExpireTime());
+            service.getOne(Wrappers.<OnlineUser>lambdaQuery().eq(OnlineUser::getSessionId, onlineUser.getSessionId()))
+                    .ifPresent(user -> {
+                user.setLoginTime(onlineUser.getLoginTime()).setStatus(OnlineStatus.Online);
+                service.updateById(user);
+            }).ifNotPresent(user -> {
+                service.save(onlineUser);
+            });
 
-            service.save(onlineUser);
         } else if(type == OnlineStatus.Offline) { // 用户下线
             service.updateBySessionId(onlineUser.setStatus(type).setUpdateTime(new Date()));
         }

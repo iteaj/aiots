@@ -20,15 +20,17 @@
         <module>bootstrap</module>
         <!--iboot插件模块-->
         <module>iboot-plugin</module>
+        <!--依赖的第三方开源项目-->
+        <module>iboot-tos</module>
     </modules>
     <properties>
-        <reversion>2.0.0</reversion>
+        <reversion>3.0.0</reversion>
         <p6spy.version>3.8.6</p6spy.version>
         <kaptcha.version>2.3.2</kaptcha.version>
         <servlet.version>3.1.0</servlet.version>
 
-        <iot.version>3.1.0</iot.version>
-        <sms4j.version>2.2.0</sms4j.version>
+        <iot.version>3.1.1</iot.version>
+        <sms4j.version>3.2.1</sms4j.version>
         <shiro.version>1.7.1</shiro.version>
         <hutool.version>5.7.18</hutool.version>
         <okhttp3.version>4.5.0</okhttp3.version>
@@ -38,6 +40,7 @@
         <izone.boot.version>1.2.1</izone.boot.version>
         <springboot.version>2.7.2</springboot.version>
         <mybatis.plus.version>3.4.1</mybatis.plus.version>
+        <mybatis.plus.ds.version>3.6.1</mybatis.plus.ds.version>
 
         <!--插件依赖版本-->
         <knife4j.version>4.0.0</knife4j.version>
@@ -70,12 +73,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-to-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!--其他全局类库-->
@@ -127,6 +124,11 @@
                 <groupId>com.iteaj</groupId>
                 <version>${iot.version}</version>
                 <artifactId>iot-server</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <version>${iot.version}</version>
+                <artifactId>iot-client</artifactId>
             </dependency>
             <dependency>
                 <groupId>com.iteaj</groupId>

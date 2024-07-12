@@ -2,7 +2,9 @@ package com.iteaj.iboot.module.iot.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.service.ICollectDataService;
@@ -19,37 +21,35 @@ import java.util.List;
 @RequestMapping("/iot/collectData")
 public class CollectDataController extends BaseController {
 
-    @Autowired
-    private IDeviceService deviceService;
-    @Autowired
-    private ICollectDataService collectDataService;
+    private final RealtimeCollectDataService collectDataService;
+
+    public CollectDataController(RealtimeCollectDataService collectDataService) {
+        this.collectDataService = collectDataService;
+    }
 
     /**
-     * 获取采集数据
+     * 获取点位数据
      * @param page
      * @param entity
      * @return
      */
-    @GetMapping("/view")
-    public Result<Page<CollectDataDto>> view(Page page, CollectDataDto entity) {
+    @Logger("访问点位数据页面")
+    @GetMapping("/signal")
+    public Result<Page<CollectDataDto>> signal(Page page, CollectDataDto entity) {
+        entity.setCollectMode("signal");
         return collectDataService.detailOfPage(page, entity);
     }
 
     /**
-     * 新增或者更新记录
-     * @param id
+     * 获取模型数据
+     * @param page
+     * @param entity
+     * @return
      */
-    @GetMapping("/edit")
-    public Result<CollectData> edit(Long id) {
-        return this.collectDataService.getById(id);
-    }
-
-    /**
-     * 删除指定记录
-     * @param idList
-     */
-    @PostMapping("/del")
-    public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.collectDataService.removeByIds(idList);
+    @Logger("访问模型数据页面")
+    @GetMapping("/model")
+    public Result<Page<CollectDataDto>> model(Page page, CollectDataDto entity) {
+        entity.setCollectMode("model");
+        return collectDataService.detailOfPage(page, entity);
     }
 }

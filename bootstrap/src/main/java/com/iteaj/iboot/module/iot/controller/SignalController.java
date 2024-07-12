@@ -1,27 +1,23 @@
 package com.iteaj.iboot.module.iot.controller;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import cn.afterturn.easypoi.handler.impl.ExcelDataHandlerDefaultImpl;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.framework.spi.excel.ExcelImportParams;
-import com.iteaj.framework.utils.ExcelUtils;
-import com.iteaj.iboot.module.iot.dto.SignalOfModelDto;
-import com.iteaj.iboot.module.iot.entity.DeviceModel;
+import com.iteaj.iboot.module.iot.dto.SignalOfProductDto;
 import com.iteaj.iboot.module.iot.entity.Signal;
-import com.iteaj.iboot.module.iot.service.IDeviceModelService;
 import com.iteaj.iboot.module.iot.service.ISignalService;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 寄存器点位管理
@@ -34,11 +30,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class SignalController extends BaseController {
 
     private final ISignalService signalService;
-    private final IDeviceModelService deviceModelService;
 
-    public SignalController(ISignalService signalService, IDeviceModelService deviceModelService) {
+    public SignalController(ISignalService signalService) {
         this.signalService = signalService;
-        this.deviceModelService = deviceModelService;
     }
 
     /**
@@ -53,14 +47,16 @@ public class SignalController extends BaseController {
     }
 
     /**
-     * 获取指定型号下面的点位列表
-     * @param modelId 型号id
+     * 获取指定产品下面的点位列表
+     * @param name 点位名
+     * @param productIds 产品列表
      */
-    @GetMapping("/listByModel")
-    public Result<List<SignalOfModelDto>> listByModel(Integer modelId) {
-        List<SignalOfModelDto> modelDtos = this.signalService.list(new Signal(modelId))
-                .stream().map(item -> new SignalOfModelDto().setId(item.getId().toString())
-                .setName(item.getName()).setAddress(item.getAddress())
+    @GetMapping("/listByProductIds")
+    public Result<List<SignalOfProductDto>> listByProducts(Long[] productIds, String name) {
+        List<Long> ids = productIds == null ? null : Arrays.asList(productIds);
+        List<SignalOfProductDto> modelDtos = this.signalService.listByProductIds(ids, name)
+                .stream().map(item -> new SignalOfProductDto().setId(item.getId().toString())
+                .setName(item.getName()).setAddress(item.getAddress()).setProductName(item.getProductName())
                 .setFieldName(item.getFieldName())).collect(Collectors.toList());
         return success(modelDtos);
     }
@@ -72,13 +68,14 @@ public class SignalController extends BaseController {
     @GetMapping("/edit")
     @CheckPermission({"iot:signal:edit"})
     public Result<Signal> getById(Long id) {
-        return this.signalService.getById(id);
+        return this.signalService.detailById(id);
     }
 
     /**
     * 新增或者更新记录
     * @param entity
     */
+    @Logger("保存点位信息")
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:signal:edit", "iot:signal:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Signal entity) {
@@ -89,38 +86,11 @@ public class SignalController extends BaseController {
     * 删除指定记录
     * @param idList
     */
+    @Logger("删除点位信息")
     @PostMapping("/del")
     @CheckPermission({"iot:signal:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.signalService.removeByIds(idList);
-    }
-
-    /**
-     * 导入点位
-     * @param file
-     */
-    @Logger("导入点位")
-    @PostMapping("import")
-    public Result<String> excelImport(MultipartFile file) throws IOException {
-        ExcelImportParams excelImportParams = new ExcelImportParams();
-        Map<String, Long> longMap = this.deviceModelService.list().stream()
-                .collect(Collectors.toMap(DeviceModel::getModel, DeviceModel::getId));
-        excelImportParams.setDataHandler(new ExcelDataHandlerDefaultImpl() {
-            @Override
-            public String[] getNeedHandlerFields() {
-                return new String[]{"所属型号"};
-            }
-
-            @Override
-            public Object importHandler(Object obj, String name, Object value) {
-                Long aLong = longMap.get(value);
-                return aLong;
-            }
-        });
-
-        List<Signal> signals = ExcelUtils.importExcel(file, Signal.class, excelImportParams);
-        this.signalService.batchImport(signals);
-        return success("导入成功");
     }
 }
 

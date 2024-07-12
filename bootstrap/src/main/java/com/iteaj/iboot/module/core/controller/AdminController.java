@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -87,6 +88,19 @@ public class AdminController extends BaseController {
     public Result<Boolean> edit(@RequestBody AdminDto admin) {
         this.adminService.updateAdminAndRole(admin);
         return success(true);
+    }
+
+    /**
+     * 获取用户详情
+     * @return
+     */
+    @GetMapping("detail")
+    public Result<AdminDto> detail() {
+        Serializable id = SecurityUtil
+                .getLoginId()
+                .orElse(null);
+
+        return adminService.getAdminCenter(id);
     }
 
     /**
@@ -163,6 +177,18 @@ public class AdminController extends BaseController {
     public Result updatePwd(@RequestBody PasswordDto passwordDto) {
         this.adminService.setAdminPassword(passwordDto
                 .getId(), passwordDto.getPassword());
+        return success("设置成功");
+    }
+
+    /**
+     * 设置用户密码
+     * @return
+     */
+    @Logger("修改当前用户密码")
+    @PostMapping("updateCurrentPwd")
+    public Result updateCurrentPwd(@RequestBody PasswordDto passwordDto) {
+        this.adminService.updatePwdById(passwordDto.getId()
+                , passwordDto.getPassword(), passwordDto.getOldPwd());
         return success("设置成功");
     }
 }

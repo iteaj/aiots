@@ -3,17 +3,18 @@ package com.iteaj.iboot.module.iot.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
-import com.iteaj.iboot.module.iot.collect.CollectActionFactory;
 import com.iteaj.iboot.module.iot.collect.CollectException;
 import com.iteaj.iboot.module.iot.collect.CollectOption;
-import com.iteaj.iboot.module.iot.collect.CollectService;
+import com.iteaj.iboot.module.iot.collect.CollectTaskListenerService;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
+import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.module.iot.entity.CollectTask;
 import com.iteaj.iboot.module.iot.service.ICollectTaskService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,16 +30,14 @@ import java.util.List;
 @RequestMapping("/iot/collectTask")
 public class CollectTaskController extends BaseController {
 
-    private final CollectService collectService;
+    private final CollectTaskListenerService collectTaskListenerService;
     private final ICollectTaskService collectTaskService;
     private final StoreActionFactory storeActionFactory;
-    private final CollectActionFactory collectActionFactory;
-    public CollectTaskController(CollectService collectService, ICollectTaskService collectTaskService
-            , StoreActionFactory storeActionFactory, CollectActionFactory collectActionFactory) {
-        this.collectService = collectService;
+    public CollectTaskController(@Autowired(required = false) CollectTaskListenerService collectTaskListenerService
+            , ICollectTaskService collectTaskService, StoreActionFactory storeActionFactory) {
+        this.collectTaskListenerService = collectTaskListenerService;
         this.collectTaskService = collectTaskService;
         this.storeActionFactory = storeActionFactory;
-        this.collectActionFactory = collectActionFactory;
     }
 
     /**
@@ -46,6 +45,7 @@ public class CollectTaskController extends BaseController {
     * @param page 分页
     * @param entity 搜索条件
     */
+    @Logger("访问采集任务页面")
     @GetMapping("/view")
     @CheckPermission({"iot:collectTask:view"})
     public Result<IPage<CollectTaskDto>> list(Page<CollectTaskDto> page, CollectTaskDto entity) {
@@ -66,6 +66,7 @@ public class CollectTaskController extends BaseController {
     * 新增或者更新记录
     * @param entity
     */
+    @Logger("保存采集任务")
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:collectTask:edit", "iot:collectTask:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody CollectTask entity) {
@@ -86,6 +87,7 @@ public class CollectTaskController extends BaseController {
     * 删除指定记录
     * @param idList
     */
+    @Logger("删除采集任务")
     @PostMapping("/del")
     @CheckPermission({"iot:collectTask:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
@@ -96,11 +98,12 @@ public class CollectTaskController extends BaseController {
      * 切换采集状态
      * @param entity
      */
+    @Logger("切换采集任务状态")
     @PostMapping("/status")
     @CheckPermission({"iot:collectTask:status"})
     public Result<Boolean> status(@RequestBody CollectTask entity) {
         try {
-            collectService.statusSwitch(entity.getId(), entity.getStatus());
+            collectTaskListenerService.statusSwitch(entity.getId(), entity.getStatus());
         } catch (CollectException e) {
             return Result.fail(e.getMessage());
         }
@@ -108,12 +111,13 @@ public class CollectTaskController extends BaseController {
     }
 
     /**
-     * 采集动作
+     * 采集任务列表
+     * @param entity
      * @return
      */
-    @GetMapping("collectActions")
-    public Result<List<CollectOption>> collectActions() {
-        return success(collectActionFactory.options());
+    @GetMapping("/list")
+    public Result<List<CollectTask>> list(CollectTask entity) {
+        return this.collectTaskService.list(entity);
     }
 
     /**

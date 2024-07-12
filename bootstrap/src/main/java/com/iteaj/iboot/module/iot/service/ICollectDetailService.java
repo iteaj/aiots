@@ -11,4 +11,6 @@ public interface ICollectDetailService extends IBaseService<CollectDetail> {
     PageResult<Page<CollectDetail>> detailPage(Page page, CollectDetail entity);
 
     DetailResult<CollectDetail> detailById(Long id);
+
+    boolean hasTaskRunning(Long collectTaskId);
 }

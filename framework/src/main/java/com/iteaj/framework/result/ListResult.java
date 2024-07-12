@@ -38,6 +38,52 @@ public class ListResult<E> extends OptionalResult<List<E>, ListResult<E>> {
         }
     }
 
+    /**
+     * not null 并且 not empty
+     * @param consumer
+     * @return
+     */
+    @Override
+    public ListResult<E> ifPresent(Consumer<List<E>> consumer) {
+        if(!isEmpty()) {
+            consumer.accept(this.getData());
+        }
+
+        return this;
+    }
+
+    /**
+     * 如果数据不存在
+     * @param consumer
+     * @return
+     */
+    @Override
+    public ListResult<E> ifNotPresent(Consumer<List<E>> consumer) {
+        if(this.getData() == null || this.getData().isEmpty()) {
+            consumer.accept(this.getData());
+        }
+
+        return this;
+    }
+
+    @Override
+    public ListResult<E> ifPresentThrow(String msg) throws ServiceException {
+        if(!isEmpty()) {
+            throw new ServiceException(msg);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ListResult<E> ifNotPresentThrow(String msg) throws ServiceException {
+        if(this.getData() == null || this.getData().isEmpty()) {
+            throw new ServiceException(msg);
+        }
+
+        return this;
+    }
+
     public Iterator iterable() {
         return getData() == null ? Collections.emptyIterator() : getData().iterator();
     }
@@ -46,8 +92,8 @@ public class ListResult<E> extends OptionalResult<List<E>, ListResult<E>> {
         return getData() == null ? true : getData().isEmpty();
     }
 
-    public void forEach(Consumer<E> consumer) {
-        this.stream().forEach(consumer);
+    public ListResult<E> forEach(Consumer<E> consumer) {
+        this.stream().forEach(consumer); return this;
     }
 
     public Stream<E> stream() {

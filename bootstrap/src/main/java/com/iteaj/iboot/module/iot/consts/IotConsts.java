@@ -1,5 +1,7 @@
 package com.iteaj.iboot.module.iot.consts;
 
+import java.io.File;
+
 public interface IotConsts {
 
     /*采集动作类型*/
@@ -47,7 +49,6 @@ public interface IotConsts {
      * RDBMS存储
      */
     String STORE_ACTION_RDBMS = "STORE:RDBMS";
-
 
     int FIELD_TYPE_BYTE = 1;
 

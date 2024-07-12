@@ -10,25 +10,26 @@
         <result column="encode" property="encode" />
         <result column="address" property="address" />
         <result column="message" property="message" />
-        <result column="type_id" property="typeId" />
-        <result column="model_id" property="modelId" />
+        <result column="direct" property="direct" />
+        <result column="product_id" property="productId" />
+        <result column="protocol_id" property="protocolId" />
+        <result column="product_name" property="productName" />
+        <result column="direct_name" property="directName" />
         <result column="field_name" property="fieldName" />
-        <result column="field_type" property="fieldType" />
-        <result column="accuracy" property="accuracy" />
         <result column="create_time" property="createTime" />
     </resultMap>
 
     <select id="detailByPage" resultMap="BaseResultMap">
-        select a.id, a.name, a.address, a.model_id, a.field_name, a.field_type, a.create_time
-             , a.message, a.encode, a.type, a.accuracy, idm.type_id from iot_signal a
-            left join iot_device_model idm on a.model_id = idm.id
-            left join iot_device_type idt on idm.type_id=idt.id
+        select a.*, p.name direct_name, idm.name product_name from iot_signal a
+            left join iot_product idm on a.product_id = idm.id
+            left join iot_product_type ipt on ipt.id=idm.product_type_id
+            left join iot_protocol p on idm.protocol_id=p.id and a.direct=p.code
         <where>
-            <if test="entity.typeId!=null">
-                and find_in_set(#{entity.typeId}, idt.path)
+            <if test="entity.productId!=null">
+                and a.product_id=#{entity.productId}
             </if>
-            <if test="entity.modelId!=null">
-                and a.model_id=#{entity.modelId}
+            <if test="entity.productTypeId!=null">
+                and find_in_set(#{entity.productTypeId}, ipt.path)
             </if>
             <if test="entity.name!=null and entity.name != ''">
                 and a.name like '%${entity.name}%'
@@ -42,5 +43,27 @@
 
     <select id="collectByPointGroupId" resultMap="BaseResultMap">
         select * from iot_signal a left join iot_group_point g on g.signal_id=a.id where g.group_id=#{groupId}
+    </select>
+    <select id="listByProductIds" resultMap="BaseResultMap">
+        select a.*, p.name product_name from iot_signal a
+            left join iot_product p on a.product_id=p.id
+        <where>
+            <if test="list != null and list.size() > 0">
+                and a.product_id in (
+                <foreach collection="list" item="id" separator=",">
+                    #{id}
+                </foreach>
+                )
+            </if>
+            <if test="name != null and name != ''">
+                and a.name like '%${name}%'
+            </if>
+        </where>
+    </select>
+    <select id="detailById" resultMap="BaseResultMap">
+        select a.*, p.name direct_name, idm.name product_name, idm.id product_id, p.id protocol_id from iot_signal a
+           left join iot_product idm on a.product_id = idm.id
+           left join iot_protocol p on idm.protocol_id=p.id
+        where a.id=#{id}
     </select>
 </mapper>

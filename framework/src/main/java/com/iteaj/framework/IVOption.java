@@ -1,11 +1,13 @@
 package com.iteaj.framework;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.tree.TreeUtil;
+import com.iteaj.framework.utils.TreeUtils;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * 前端框架ivzone使用的option数据格式
@@ -44,21 +46,48 @@ public class IVOption {
      */
     private Object extra;
 
+    /**
+     * 可选中
+     */
+    private Boolean selectable;
+
+    /**
+     * 复选框是否能被选中
+     */
+    private Boolean checkable;
+
+    /**
+     * 配置项
+     */
+    private Map<String, Object> config;
+
+    public IVOption() {}
+
     public IVOption(String label, Object value) {
-        this.label = label;
-        this.value = value;
+        this(label, value, null);
     }
 
     public IVOption(String label, Object value, Object extra) {
-        this.label = label;
-        this.value = value;
-        this.extra = extra;
+        this(label, value, false, extra);
     }
 
     public IVOption(String label, Object value, boolean disabled) {
+        this(label, value, disabled, null);
+    }
+
+    public IVOption(String label, Object value, boolean disabled, Object extra) {
         this.label = label;
         this.value = value;
+        this.extra = extra;
         this.disabled = disabled;
+    }
+
+    public IVOption addChildren(IVOption child) {
+        if(children == null) {
+            children = new ArrayList<>();
+        }
+
+        children.add(child); return this;
     }
 
     /**
@@ -79,12 +108,7 @@ public class IVOption {
      * @return
      */
     public IVOption addChildren(String label, Object value, Object extra) {
-        if(children == null) {
-            children = new ArrayList<>();
-        }
-
-        children.add(new IVOption(label, value, extra));
-        return this;
+        return addChildren(new IVOption(label, value, extra));
     }
 
     /**
@@ -95,12 +119,46 @@ public class IVOption {
      * @return
      */
     public IVOption addChildren(String label, Object value, boolean disabled) {
-        if(children == null) {
-            children = new ArrayList<>();
+        return addChildren(new IVOption(label, value, disabled));
+    }
+
+    /**
+     * 增加配置项
+     * @param key
+     * @param value
+     * @return
+     */
+    public IVOption addConfig(String key, Object value) {
+        if(getConfig() == null) {
+            this.config = new HashMap<>();
         }
 
-        children.add(new IVOption(label, value, disabled));
+        this.config.put(key, value);
         return this;
+    }
+
+    public static <E extends TreeEntity> List<IVOption> convert(Collection<E> entities, Function<E, IVOption> resolver) {
+        List<IVOption> result = new ArrayList<>();
+        Collection<E> toTrees = TreeUtils.toTrees(entities);
+        toTrees.forEach(item -> {
+            IVOption parent = resolver.apply(item);
+            result.add(parent);
+            doConvert(parent, item.getChildren(), resolver);
+        });
+
+        return result;
+    }
+
+    private static <E extends TreeEntity> void doConvert(IVOption parent, Collection<E> children, Function<E, IVOption> resolver) {
+        if(CollectionUtil.isNotEmpty(children)) {
+            children.forEach(child -> {
+                IVOption apply = resolver.apply(child);
+                parent.addChildren(apply);
+                if(CollectionUtil.isNotEmpty(child.getChildren())) {
+                    doConvert(apply, child.getChildren(), resolver);
+                }
+            });
+        }
     }
 
     @Override

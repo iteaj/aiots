@@ -9,9 +9,10 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
 
 <configuration scan="false" scanPeriod="60 seconds" debug="false">
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <contextName>IBootConfig:Core</contextName>
+    <property name="LOGGER_PATH_ROOT" value="./logs" />
 
-    <contextName>LoggerConfig</contextName>
-    <property name="PATH.ROOT" value="./logs" />
+    <include resource="logback-wvp.xml" />
 
     <!--<property>用来定义变量值，定义的值会被插入到logger上下文中，可以使“${}”来使用变量。-->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -24,7 +25,7 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
     <appender name="FILE_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${PATH.ROOT}/info/%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${LOGGER_PATH_ROOT}/info/%d{yyyy-MM-dd}.log</FileNamePattern>
             <!--日志文件保留天数-->
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
@@ -44,7 +45,7 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
     <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${PATH.ROOT}/error/%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${LOGGER_PATH_ROOT}/error/%d{yyyy-MM-dd}.log</FileNamePattern>
             <!--日志文件保留天数-->
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
@@ -69,7 +70,6 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
     <logger level="debug" name="org.springframework.boot.diagnostics">
         <appender-ref ref="STDOUT" />
     </logger>
-
     <!--开发环境日志输出级别配置-->
     <springProfile name="dev">
         <logger level="debug" name="com.iteaj.framework" additivity="false">

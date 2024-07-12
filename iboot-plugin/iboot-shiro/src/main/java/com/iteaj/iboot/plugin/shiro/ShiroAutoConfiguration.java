@@ -6,6 +6,7 @@ import com.iteaj.framework.security.AuthorizationService;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.security.SecurityInterceptor;
 import com.iteaj.framework.security.SecurityService;
+import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.iboot.plugin.shiro.online.OnlineSessionDAO;
 import com.iteaj.iboot.plugin.shiro.online.ShiroOnlineListener;
 import com.iteaj.iboot.plugin.shiro.redis.ShiroRedisSessionCacheManager;
@@ -163,7 +164,7 @@ public class ShiroAutoConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "framework.cluster", havingValue = "true")
+    @ConditionalOnCluster
     public CacheManager cacheManager() {
         return new ShiroRedisSessionCacheManager();
     }

@@ -7,14 +7,14 @@ import lombok.Data;
 public class CollectDataDto extends CollectData {
 
     /**
-     * 设备类型
+     * 产品类型id
      */
-    private Long deviceTypeId;
+    private Long productTypeId;
 
     /**
-     * 设备型号
+     * 产品id
      */
-    private Long modelId;
+    private Long productId;
 
     /**
      * 设备编号

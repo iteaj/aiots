@@ -10,8 +10,6 @@ import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.ClientMessage;
 import com.iteaj.iot.client.protocol.ClientInitiativeProtocol;
 import com.iteaj.iot.consts.ExecStatus;
-import com.iteaj.iot.format.DataFormat;
-import com.iteaj.iot.format.DataFormatConvert;
 import com.iteaj.iot.modbus.ModbusCommonProtocol;
 import com.iteaj.iot.modbus.Payload;
 import com.iteaj.iot.modbus.ReadPayload;
@@ -24,8 +22,6 @@ import com.iteaj.iot.modbus.server.tcp.ModbusTcpBody;
 import com.iteaj.iot.modbus.server.tcp.ModbusTcpHeader;
 import com.iteaj.iot.serial.SerialConnectProperties;
 import com.iteaj.iot.utils.ByteUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -60,7 +56,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                 }
             }
         } catch (Exception e) {
-            logger.error("调试异常[{}]", e);
+            e.printStackTrace();
             write.write(HttpResult.Fail(e.getMessage()));
         }
     }
@@ -142,7 +138,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
     }
 
     private void modbusRtuHandle(ModbusDebugModel model, DebugWebsocketWrite write) {
-        ModbusRtuClientProtocol protocol;
+        ModbusRtuClientProtocol protocol = null;
         if(StringUtils.hasText(model.getMessage())) {
             try {
                 try {
@@ -158,6 +154,10 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
         } else {
             if(!modbusValidate(model, write)) {
                 return;
+            }
+
+            if(true) {
+                write.write(HttpResult.Fail("暂不支持modbus rtu调试")); return;
             }
 
             String cmd = model.getCmd();
@@ -197,7 +197,10 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
             }
         }
 
-        sendProtocolRequest(model, write, protocol);
+        SerialConnectProperties config = new SerialConnectProperties(model.getDeviceSn(), model.getBaudRate())
+                .config(model.getDataBits(), model.getStopBits(), model.getParity());
+//        protocol.setClientKey(config);
+//        sendProtocolRequest(model, write, protocol);
     }
 
     private int getTypeCoilNum(ModbusDebugModel model) {
@@ -267,7 +270,6 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
 
                     Payload payload = ((ModbusCommonProtocol) protocol).getPayload();
                     if(payload instanceof ReadPayload) {
-                        ((ReadPayload) payload).setConvert(DataFormatConvert.getInstance(model.getDataFormat()));
                         result.setValue(this.parseReadValue(model, payload).toString());
                     } else if(payload instanceof RealCoilPayload) {
                         result.setValue(payload.readStatus(0).getBit());
@@ -282,68 +284,6 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                 }
 
                 return null;
-            });
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-            write.write(HttpResult.Fail(e.getMessage()));
-        }
-    }
-
-    /**
-     * 发送modbus协议
-     * @param model
-     * @param write
-     * @param protocol
-     */
-    private void sendProtocolRequest(ModbusDebugModel model, DebugWebsocketWrite write, ModbusRtuClientProtocol protocol) {
-        try {
-            DebugResult result = new DebugResult(model).setReqTime(System.currentTimeMillis());
-            SerialConnectProperties properties = new SerialConnectProperties(model.getDeviceSn(), model.getBaudRate())
-                    .config(model.getDataBits(), model.getStopBits(), model.getParity());
-
-            protocol.request(properties, protocol1 -> {
-                result.setDeviceSn(model.getDeviceSn());
-                result.setRespTime(System.currentTimeMillis());
-
-                if(protocol.requestMessage().getMessage() != null) {
-                    result.setReqMsg(ByteUtil.bytesToHexByFormat(protocol.requestMessage().getMessage()));
-                }
-
-                ClientMessage clientMessage = protocol.responseMessage();
-                if(clientMessage != null) {
-                    result.setRespMsg(ByteUtil.bytesToHexByFormat(clientMessage.getMessage()));
-                }
-
-                if(protocol.getExecStatus() == ExecStatus.success) {
-                    Message.MessageBody body = clientMessage.getBody();
-                    if(body instanceof ModbusRtuBody) {
-                        if(!((ModbusRtuBody) body).isSuccess()) {
-                            String reason = ((ModbusRtuBody) body).getErrCode().getDesc();
-                            write.write(HttpResult.StatusCode(result, reason, 208));
-                            return;
-                        }
-                    } else if(body instanceof ModbusTcpBody) {
-                        if(!((ModbusTcpBody) body).isSuccess()) {
-                            String reason = ((ModbusTcpBody) body).getErrCode().getDesc();
-                            write.write(HttpResult.StatusCode(result, reason, 208));
-                            return;
-                        }
-                    }
-
-                    Payload payload = ((ModbusCommonProtocol) protocol).getPayload();
-                    if(payload instanceof ReadPayload) {
-                        result.setValue(this.parseReadValue(model, payload).toString());
-                    } else if(payload instanceof RealCoilPayload) {
-                        result.setValue(payload.readStatus(0).getBit());
-                    } else {
-                        result.setValue(model.getWriteValue());
-                    }
-                    write.write(HttpResult.Success(result));
-                } else if(protocol.getExecStatus() == ExecStatus.offline) {
-                    write.write(HttpResult.StatusCode(result, protocol.getExecStatus().desc, 208));
-                } else {
-                    write.write(HttpResult.StatusCode(result, protocol.getExecStatus().desc, 208));
-                }
             });
         } catch (ProtocolException e) {
             e.printStackTrace();
@@ -372,14 +312,13 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
             throw new IllegalArgumentException("为指定要写的值");
         }
 
-        DataFormatConvert convert = DataFormatConvert.getInstance(model.getDataFormat());
         try {
             switch (type) {
-                case "int": return convert.getBytes(Integer.valueOf(model.getWriteValue()));
-                case "float": return convert.getBytes(Float.valueOf(model.getWriteValue()));
-                case "double": return convert.getBytes(Double.valueOf(model.getWriteValue()));
-                case "short": return convert.getBytes(Short.valueOf(model.getWriteValue()));
-                case "long": return convert.getBytes(Long.valueOf(model.getWriteValue()));
+                case "int": return ByteUtil.getBytes(Integer.valueOf(model.getWriteValue()));
+                case "float": return ByteUtil.getBytes(Float.valueOf(model.getWriteValue()));
+                case "double": return ByteUtil.getBytes(Double.valueOf(model.getWriteValue()));
+                case "short": return ByteUtil.getBytesOfReverse(Short.valueOf(model.getWriteValue()));
+                case "long": return ByteUtil.getBytes(Long.valueOf(model.getWriteValue()));
                 case "boolean":
                     return model.getWriteValue().equals("0") ? ModbusCoilStatus.OFF :
                             model.getWriteValue().equals("1") ? ModbusCoilStatus.ON : null;

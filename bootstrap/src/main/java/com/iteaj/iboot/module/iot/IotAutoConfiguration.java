@@ -1,37 +1,45 @@
 package com.iteaj.iboot.module.iot;
 
 import com.iteaj.framework.spi.admin.Module;
-import com.iteaj.iboot.module.iot.collect.CollectActionFactory;
-import com.iteaj.iboot.module.iot.collect.action.*;
-import com.iteaj.iboot.module.iot.collect.store.MqttStoreAction;
+import com.iteaj.framework.spring.condition.ConditionalOnCluster;
+import com.iteaj.framework.spring.condition.ConditionalOnRedis;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.IotLocalCacheManager;
+import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.RedisRealtimeDataService;
+import com.iteaj.iboot.module.iot.collect.CollectDataListener;
+import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
+import com.iteaj.iboot.module.iot.collect.model.DataPersistenceListener;
+import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
+import com.iteaj.iboot.module.iot.collect.model.RDBMSPersistenceListener;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataCacheListener;
 import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
-import com.iteaj.iboot.module.iot.service.ISerialService;
-import com.iteaj.iot.client.mqtt.gateway.MqttGatewayComponent;
-import com.iteaj.iot.client.mqtt.impl.DefaultMqttComponent;
-import com.iteaj.iot.config.ConnectProperties;
-import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientComponent;
-import com.iteaj.iot.modbus.server.dtu.ModbusRtuForDtuServerComponent;
-import com.iteaj.iot.modbus.server.dtu.ModbusTcpForDtuServerComponent;
-import com.iteaj.iot.plc.omron.OmronComponent;
-import com.iteaj.iot.plc.siemens.SiemensS7Component;
-import com.iteaj.iot.serial.SerialComponent;
-import com.iteaj.iot.server.dtu.impl.CommonDtuServerComponent;
+import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
+import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 @Profile("iot")
 @ComponentScan({"com.iteaj.iboot.module.iot"})
 @MapperScan({"com.iteaj.iboot.module.iot.mapper"})
 @AutoConfigureAfter(JdbcTemplateAutoConfiguration.class)
+@EnableConfigurationProperties(IotMsnProperties.class)
+@ImportAutoConfiguration(IotProtocolSupplierAutoConfiguration.class)
 public class IotAutoConfiguration {
 
     /**
@@ -43,141 +51,14 @@ public class IotAutoConfiguration {
         return Module.module("iot", "物联网模块", 55555);
     }
 
-    /**
-     * 启用modbus rtu 组件
-     * @return
-     */
     @Bean
-    public ModbusRtuForDtuServerComponent modbusRtuForDtuServerComponent() {
-        return new ModbusRtuForDtuServerComponent(new ConnectProperties(7058, 90, 0, 0));
-    }
-
-    /**
-     * 启用modbus tcp 组件
-     * @return
-     */
-    @Bean
-    public ModbusTcpForDtuServerComponent modbusTcpForDtuServerComponent() {
-        return new ModbusTcpForDtuServerComponent(new ConnectProperties(7068, 90, 0, 0));
-    }
-
-    /**
-     * modbus tcp client组件
-     * @return
-     */
-    @Bean
-    public ModbusTcpClientComponent modbusTcpClientComponent() {
-        return new ModbusTcpClientComponent();
-    }
-
-    @Bean
-    public ModbusTcpClientCollectAction modbusTcpClientCollectAction() {
-        return new ModbusTcpClientCollectAction();
-    }
-
-    @Bean
-    public ModbusRtuClientCollectAction modbusRtuClientCollectAction(ISerialService serialService) {
-        return new ModbusRtuClientCollectAction(serialService);
-    }
-
-    /**
-     * 通用dtu设备组件
-     * @return
-     */
-    @Bean
-    public CommonDtuServerComponent commonDtuServerComponent() {
-        return new CommonDtuServerComponent(new ConnectProperties(7078, 90, 0, 0));
-    }
-
-    /**
-     * 西门子S7 PLC组件
-     * @return
-     */
-    @Bean
-    public SiemensS7Component siemensS7Component() {
-        return new SiemensS7Component();
-    }
-
-    /**
-     * 欧姆龙PLC组件
-     * @return
-     */
-    @Bean
-    public OmronComponent omronComponent() {
-        return new OmronComponent();
-    }
-
-    @Bean
-    @ConditionalOnBean(OmronComponent.class)
-    public OmronCollectAction omronCollectAction() {
-        return new OmronCollectAction();
-    }
-
-    @Bean
-    @ConditionalOnBean(SiemensS7Component.class)
-    public SiemensCollectAction siemensCollectAction() {
-        return new SiemensCollectAction();
-    }
-
-    /**
-     * 启用串口组件
-     * @return
-     */
-    @Bean
-    public SerialComponent serialComponent() {
-        return SerialComponent.instance();
-    }
-
-    @Bean
-    @ConditionalOnBean(ModbusRtuForDtuServerComponent.class)
-    public ModbusRtuForDTUCollectAction modbusRtuForDTUCollectAction() {
-        return new ModbusRtuForDTUCollectAction();
-    }
-
-    @Bean
-    @ConditionalOnBean(ModbusTcpForDtuServerComponent.class)
-    public ModbusTcpForDTUCollectAction modbusTcpForDTUCollectAction() {
-        return new ModbusTcpForDTUCollectAction();
-    }
-
-    @Bean
-    @ConditionalOnBean(CommonDtuServerComponent.class)
-    public CommonDtuCollectAction commonDtuCollectAction() {
-        return new CommonDtuCollectAction();
-    }
-
-    @Bean
-    public CollectActionFactory collectActionFactory() {
-        return CollectActionFactory.getInstance();
-    }
-
-    @Bean
-    public DefaultRdbmsSqlManager defaultRdbmsSqlManager(DataSource dataSource) {
-        return new DefaultRdbmsSqlManager(dataSource);
-    }
-
-    /**
-     * 关系型数据库采集存储
-     * @return
-     */
-    @Bean
-    @ConditionalOnBean(DefaultRdbmsSqlManager.class)
     public RDBMStoreAction rdbmStoreAction() {
         return new RDBMStoreAction();
     }
 
-    /**
-     * mqtt存储
-     * @return
-     */
     @Bean
-    public MqttGatewayComponent mqttGatewayComponent() {
-        return new MqttGatewayComponent();
-    }
-
-    @Bean
-    public MqttStoreAction mqttStoreAction() {
-        return new MqttStoreAction();
+    public DefaultRdbmsSqlManager rdbmsManager(DataSource dataSource) {
+        return new DefaultRdbmsSqlManager(dataSource);
     }
 
     @Bean
@@ -186,7 +67,89 @@ public class IotAutoConfiguration {
     }
 
     @Bean
-    public DefaultMqttComponent defaultMqttComponent() {
-        return new DefaultMqttComponent();
+    public IotCacheManager iotLocalCacheManager() {
+        return new IotLocalCacheManager();
+    }
+
+    /**
+     * 数据持久化处理
+     * @param rdbmsSqlManager
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean(DataPersistenceListener.class)
+    public RDBMSPersistenceListener rdbmsPersistenceListener(DefaultRdbmsSqlManager rdbmsSqlManager) {
+        return new RDBMSPersistenceListener(rdbmsSqlManager);
+    }
+
+    /**
+     * 实时数据缓存处理
+     * @param realtimeDataService
+     * @return
+     */
+    @Bean
+    public RealtimeDataCacheListener realtimeDataStoreListener(RealtimeDataService realtimeDataService) {
+        return new RealtimeDataCacheListener(realtimeDataService);
+    }
+
+    /**
+     * 将系统的协议实时数据(采集数据、设备上下线、告警)向各个插件模块发布
+     * @return
+     */
+    @Bean
+    public PluginRealtimeInfoListenerPublisher pluginRealtimeInfoListenerPublisher() {
+        return new PluginRealtimeInfoListenerPublisher();
+    }
+
+    @Bean
+    public CollectListenerManager eventGroupCollectManager(@Autowired(required = false) List<CollectDataListener> listeners) {
+        return CollectListenerManager.build(listeners);
+    }
+
+    /**
+     * 设备状态采集
+     * @return
+     */
+    @Bean
+    public DeviceStatusModelApiManager deviceStatusModelApiManager() {
+        return DeviceStatusModelApiManager.getInstance();
+    }
+
+    /**
+     * redis实时数据
+     * @return
+     */
+    @Bean
+    @ConditionalOnRedis
+    @ConditionalOnCluster
+    public RealtimeDataService redisRealtimeDataService() {
+        return new RedisRealtimeDataService();
+    }
+
+    /**
+     * 本地实时数据
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean({RealtimeDataService.class})
+    public RealtimeDataService localRealtimeDataService() {
+        return new HashMapRealtimeDataService();
+    }
+
+    /**
+     * websocket监听实时采集的数据
+     * @return
+     */
+    @Bean
+    public RealtimePushListener collectDataRealtimeListener(RealtimeDataService realtimeDataService) {
+        return new RealtimePushListener(realtimeDataService);
+    }
+
+    @Bean
+    public IBootThreadManger iBootThreadManger(IotMsnProperties properties) {
+        Integer poolSize = properties.getTask().getPoolSize();
+        TaskSchedulerBuilder builder = new TaskSchedulerBuilder(poolSize, false
+                , null, properties.getTask().getThreadNamePrefix(), null);
+        return new IBootThreadManger(builder.build());
     }
 }

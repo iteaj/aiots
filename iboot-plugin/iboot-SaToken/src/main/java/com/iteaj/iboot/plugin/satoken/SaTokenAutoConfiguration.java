@@ -7,21 +7,20 @@ import cn.dev33.satoken.filter.SaServletFilter;
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
+import com.iteaj.framework.ProfilesInclude;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.captcha.CaptchaService;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.*;
+import com.iteaj.framework.spring.condition.ConditionalOnCluster;
+import com.iteaj.framework.spring.condition.ConditionalOnRedis;
 import com.iteaj.iboot.plugin.satoken.impl.SaTokenSecurityService;
 import com.iteaj.iboot.plugin.satoken.impl.StpInterfaceImpl;
 import com.iteaj.iboot.plugin.satoken.listener.SaTokenOnlineListener;
 import eu.bitwalker.useragentutils.UserAgent;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.Ordered;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -34,11 +33,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-public class SaTokenAutoConfiguration implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered, WebMvcConfigurer {
+@ProfilesInclude("satoken")
+public class SaTokenAutoConfiguration implements WebMvcConfigurer {
 
-    @Override
-    public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-        event.getEnvironment().addActiveProfile("satoken");
+    private final List<OrderFilterChainDefinition> definitions;
+
+    public SaTokenAutoConfiguration(List<OrderFilterChainDefinition> definitions) {
+        this.definitions = definitions;
     }
 
     @Bean
@@ -63,12 +64,20 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/**");
+        InterceptorRegistration registration = registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/**");
+        definitions.forEach(item -> {
+            item.getFilterChainMap().forEach((key, value) -> {
+                if("anon".endsWith(value)) {
+                    registration.excludePathPatterns(key);
+                }
+            });
+        });
     }
 
     @Bean
-    @ConditionalOnProperty(value = "framework.cluster", havingValue = "true")
-    @ConditionalOnClass(name = "org.springframework.data.redis.connection.RedisConnectionFactory")
+    @ConditionalOnRedis
+    @ConditionalOnCluster
+//    @ConditionalOnClass(name = "org.springframework.data.redis.connection.RedisConnectionFactory")
     public SaTokenDao saTokenDao() {
         return new SaTokenDaoRedisJackson();
     }
@@ -103,12 +112,8 @@ public class SaTokenAutoConfiguration implements ApplicationListener<Application
                     SaHolder.getResponse()
                             .setStatus(HttpServletResponse.SC_UNAUTHORIZED)
                             .setHeader("Content-Type", "application/json;charset=UTF-8");
-                    return JSONUtil.toJsonStr(Result.fail("未认证"));
+                    return JSONUtil.toJsonStr(Result.fail(HttpServletResponse.SC_UNAUTHORIZED, "未认证"));
                 });
     }
 
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE + 5;
-    }
 }

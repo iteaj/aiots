@@ -133,7 +133,7 @@ public class RoleController extends BaseController {
      */
     @Logger("删除角色记录")
     @PostMapping("/del")
-    @CheckPermission("core:del:view")
+    @CheckPermission("core:role:del")
     public Result del(@RequestBody List<Long> list) {
         this.roleService.delRoleAndPermByIds(list);
         return success();

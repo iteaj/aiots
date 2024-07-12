@@ -1,9 +1,12 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
+import com.iteaj.framework.validate.AllGroup;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,9 +17,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
- * <p>
- * 设备表
- * </p>
+ * 设备管理
  *
  * @author iteaj
  * @since 2022-05-15
@@ -35,15 +36,22 @@ public class Device extends BaseEntity {
     private String ip;
 
     /**
+     * 父网关设备
+     * @see com.iteaj.iboot.module.iot.consts.DeviceType#Child
+     * @see com.iteaj.iboot.module.iot.consts.DeviceType#Gateway
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Long pid;
+
+    /**
      * 设备uid
      */
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long uid;
+    private String uid;
 
     /**
      * 设备名称
      */
-    @NotBlank(message = "设备名称必填")
+    @NotBlank(message = "设备名称必填", groups = AllGroup.class)
     private String name;
 
     /**
@@ -52,19 +60,26 @@ public class Device extends BaseEntity {
     private Integer port;
 
     /**
-     * 所属用户
-     */
-    private Long userId;
-
-    /**
      * 拓展字段
      */
     private String extend;
 
     /**
-     * 设备型号
+     * 所属产品
      */
-    private Integer model;
+    @NotNull(message = "所属产品必填", groups = AllGroup.class)
+    private Long productId;
+
+    /**
+     * 所属组
+     */
+    private Long deviceGroupId;
+
+    /**
+     * 设备类型
+     */
+    @TableField(exist = false)
+    private Long productTypeId;
 
     /**
      * 经度
@@ -99,25 +114,33 @@ public class Device extends BaseEntity {
     /**
      * 设备编号
      */
-    @NotBlank(message = "设备编号必填")
+    @NotBlank(message = "设备编号必填", groups = AllGroup.class)
     private String deviceSn;
+
+    /**
+     * 父设备编号
+     */
+    @TableField(exist = false)
+    private String parentDeviceSn;
+
+    /**
+     * 设备配置
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
 
     /**
      * 状态切换时间
      */
     private Date switchTime;
 
+    /**
+     * 新增时间
+     */
     private Date createTime;
 
     /**
      * 更新时间
      */
     private Date updateTime;
-
-    /**
-     * 设备类型
-     */
-    @NotNull(message = "设备类型必填")
-    private Long deviceTypeId;
-
 }

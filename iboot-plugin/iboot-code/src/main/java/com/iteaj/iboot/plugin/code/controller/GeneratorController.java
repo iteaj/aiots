@@ -13,6 +13,7 @@ import com.iteaj.framework.spi.admin.*;
 import com.iteaj.iboot.plugin.code.LowCodeProperties;
 import com.iteaj.iboot.plugin.code.VelocityReviewTemplateEngine;
 import com.iteaj.iboot.plugin.code.dto.*;
+import com.iteaj.iboot.plugin.code.vue.VelocityVueTemplateEngine;
 import com.iteaj.iboot.plugin.code.vue.VelocityVueTemplateZipEngine;
 import com.iteaj.iboot.plugin.code.utils.LowCodeUtil;
 import com.iteaj.framework.BaseController;
@@ -95,6 +96,7 @@ public class GeneratorController extends BaseController implements InitializingB
         genInit.setMsn(properties.getLpc().getModuleName());
         genInit.setParentPath(properties.getLpc().getParent());
         genInit.setProjectPath(properties.getProjectPath());
+        genInit.setWebProjectPath(properties.getWebProjectPath());
         return success(genInit);
     }
 
@@ -213,6 +215,15 @@ public class GeneratorController extends BaseController implements InitializingB
         // 生成菜单
         if(dto.getMenuId() != null) {
             genMenu(dto, configBuilder);
+        }
+
+        // 生成前端代码
+        if(StringUtils.hasText(dto.getWebOutDir())) {
+            String outDir = dto.getWebOutDir() + File.separator + "src" + File.separator + "views";
+            configBuilder.getGlobalConfig().setOutputDir(outDir);
+            new AutoGenerator()
+                    .setTemplateEngine(new VelocityVueTemplateEngine(properties))
+                    .setConfig(configBuilder).execute();
         }
 
         return success(true);

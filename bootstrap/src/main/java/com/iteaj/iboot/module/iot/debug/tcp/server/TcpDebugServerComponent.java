@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.debug.tcp.server;
 
 import com.iteaj.iboot.module.iot.debug.tcp.server.protocol.DebugProtocol;
+import com.iteaj.iot.AbstractProtocol;
 import com.iteaj.iot.ProtocolType;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.server.component.SimpleChannelDecoderServerComponent;

@@ -1,5 +1,7 @@
 package com.iteaj.framework.result;
 
+import com.iteaj.framework.exception.ServiceException;
+
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -28,6 +30,11 @@ public abstract class OptionalResult<E, _this extends AbstractResult<E>> extends
         return Optional.of(getData());
     }
 
+    /**
+     * 如果数据存在
+     * @param consumer
+     * @return
+     */
     public _this ifPresent(Consumer<E> consumer) {
         if(this.getData() != null) {
             consumer.accept(this.getData());
@@ -36,6 +43,24 @@ public abstract class OptionalResult<E, _this extends AbstractResult<E>> extends
         return (_this) this;
     }
 
+    /**
+     * 如果数据不存在
+     * @param consumer
+     * @return
+     */
+    public _this ifNotPresent(Consumer<E> consumer) {
+        if(this.getData() == null) {
+            consumer.accept(this.getData());
+        }
+
+        return (_this) this;
+    }
+
+    /**
+     * 如果数据存在
+     * @param consumer
+     * @return
+     */
     public _this ifPresent(BiConsumer<E, _this> consumer) {
         if(this.getData() != null) {
             consumer.accept(this.getData(), (_this) this);
@@ -46,6 +71,30 @@ public abstract class OptionalResult<E, _this extends AbstractResult<E>> extends
 
     public Optional<E> ofNullable() {
         return Optional.ofNullable(this.getData());
+    }
+
+    /**
+     * 如果数据存在则抛出异常
+     * @param msg
+     */
+    public _this ifPresentThrow(String msg) throws ServiceException {
+        if(this.getData() != null) {
+            throw new ServiceException(msg);
+        }
+
+        return (_this) this;
+    }
+
+    /**
+     * 如果数据不存在则抛出异常
+     * @param msg
+     */
+    public _this ifNotPresentThrow(String msg) throws ServiceException {
+        if(this.getData() == null) {
+            throw new ServiceException(msg);
+        }
+
+        return (_this) this;
     }
 
     public _this ok() {

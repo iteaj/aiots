@@ -30,30 +30,6 @@ public class AdminCenterController extends BaseController {
     private IAdminService adminService;
 
     /**
-     * 上传用户头像
-     * @param file
-     * @return
-     */
-    @Logger("上传用户头像")
-    @PostMapping("avatar")
-    public Result<String> avatar(MultipartFile file) {
-        return success("");
-    }
-
-    /**
-     * 获取用户详情
-     * @return
-     */
-    @GetMapping("detail")
-    public Result<AdminDto> detail() {
-        Serializable id = SecurityUtil
-                .getLoginId()
-                .orElse(null);
-
-        return adminService.getAdminCenter(id);
-    }
-
-    /**
      * 修改用户
      * @param admin
      * @return

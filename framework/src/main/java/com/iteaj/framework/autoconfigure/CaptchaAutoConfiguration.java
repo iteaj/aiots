@@ -54,7 +54,7 @@ public class CaptchaAutoConfiguration {
     @ResponseBody
     @GetMapping("/code")
     public Result<String> code() {
-        String uuid = IdUtil.fastSimpleUUID();
+        String uuid = IdUtil.getSnowflakeNextIdStr();
         return HttpResult.Success(uuid);
     }
 

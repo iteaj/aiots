@@ -10,6 +10,7 @@ import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.iboot.module.core.enums.Status;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -20,7 +21,7 @@ import java.util.Date;
 @Data
 @TableName("sys_menu")
 @Accessors(chain = true)
-public class Menu extends TreeEntity implements MenuResource {
+public class Menu extends TreeEntity implements MenuResource, Comparable<Menu> {
 
     /**当前树节点的父节点*/
     private Long pid;
@@ -45,7 +46,8 @@ public class Menu extends TreeEntity implements MenuResource {
     private String remark;
     /**菜单类型*/
     private MenuType type;
-
+    /**打开方式*/
+    private String target;
     /**创建时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
@@ -67,4 +69,8 @@ public class Menu extends TreeEntity implements MenuResource {
         return this;
     }
 
+    @Override
+    public int compareTo(@NotNull Menu o) {
+        return this.getSort() - o.getSort();
+    }
 }

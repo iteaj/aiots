@@ -1,10 +1,7 @@
 package com.iteaj.iboot.module.iot.entity;
 
-import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.iteaj.framework.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,20 +28,12 @@ public class Signal extends BaseEntity {
     /**
      * 点位名称
      */
-    @Excel(name = "点位名称", isImportField = "true")
     private String name;
 
     /**
      * 点位地址
      */
-    @Excel(name = "点位地址", isImportField = "true")
     private String address;
-
-    /**
-     * 设备类型
-     */
-    @TableField(exist = false)
-    private Long typeId;
 
     /**
      * 信号类型(1. 点位 2. 自定义报文)
@@ -52,7 +41,7 @@ public class Signal extends BaseEntity {
     private Integer type;
 
     /**
-     * 读取的寄存器(点位)数量
+     * 读取的寄存器数量
      */
     private Integer num;
 
@@ -67,40 +56,45 @@ public class Signal extends BaseEntity {
     private String encode;
 
     /**
-     * 型号id
+     * 所属产品
      */
-    @Excel(name = "所属型号", isImportField = "true")
-    private Integer modelId;
+    private Long productId;
 
     /**
-     * 点位字段名称
+     * 点位字段名称(同一个产品下的字段唯一)
      */
-    @Excel(name = "字段名称", isImportField = "true")
     private String fieldName;
 
     /**
-     * 浮点数精度
+     * 协议指令
      */
-    @Excel(name = "精度", isImportField = "true", replace = {"1位_1", "2位_2", "3位_3", "4位_4", "5位_5", "6位_6"})
-    private Integer accuracy;
-
-    /**
-     * 字段类型(字典 iot_field_type)
-     * @see com.iteaj.iboot.module.iot.consts.IotConsts#FIELD_TYPE_INT
-     * @see com.iteaj.iboot.module.iot.consts.IotConsts#FIELD_TYPE_BYTE
-     * @see com.iteaj.iboot.module.iot.consts.IotConsts#FIELD_TYPE_BOOLEAN
-     * ...
-     */
-    @Excel(name = "字段类型", isImportField = "true", dict = "iot_field_type")
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Integer fieldType;
+    private String direct;
 
     private Date createTime;
 
+    /**
+     * 所属协议
+     */
+    @TableField(exist = false)
+    private Long protocolId;
+
+    /**
+     * 指令名称
+     */
+    @TableField(exist = false)
+    private String directName;
+
+    /**
+     * 产品明此
+     */
+    @TableField(exist = false)
+    private String productName;
+
+    /**
+     * 产品类型id
+     */
+    @TableField(exist = false)
+    private Long productTypeId;
+
     public Signal() { }
-
-    public Signal(Integer modelId) {
-        this.modelId = modelId;
-    }
-
 }

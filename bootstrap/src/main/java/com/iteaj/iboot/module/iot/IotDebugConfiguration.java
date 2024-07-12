@@ -3,11 +3,7 @@ package com.iteaj.iboot.module.iot;
 import com.iteaj.iboot.module.iot.debug.DebugHandle;
 import com.iteaj.iboot.module.iot.debug.DebugHandleFactory;
 import com.iteaj.iboot.module.iot.debug.dtu.DtuDebugHandle;
-import com.iteaj.iboot.module.iot.debug.plc.PlcDebugHandle;
-import com.iteaj.iboot.module.iot.debug.tcp.server.TcpDebugServerComponent;
 import com.iteaj.iboot.module.iot.debug.websocket.WebsocketDebugListener;
-import com.iteaj.iot.config.ConnectProperties;
-import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerComponent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,16 +17,15 @@ import java.util.List;
 @Configuration
 public class IotDebugConfiguration {
 
-    @Bean
-    public TcpDebugServerComponent debugServerComponent() {
-        return new TcpDebugServerComponent(new ConnectProperties(6158));
-    }
+//    @Bean
+//    public TcpDebugServerComponent debugServerComponent() {
+//        return new TcpDebugServerComponent(new ConnectProperties(6158));
+//    }
 
     /**
      * 各种调试用的处理器
      * @see DebugHandle
      * @see DtuDebugHandle dtu调试处理
-     * @see PlcDebugHandle plc调试处理
      * @param handles
      * @return
      */
@@ -46,12 +41,7 @@ public class IotDebugConfiguration {
      * @return
      */
     @Bean
-    public WebsocketDebugListener websocketDebugListener(ThreadPoolTaskScheduler iotTaskExecutor
-            , DebugHandleFactory handleFactory, @Autowired(required = false) DefaultWebSocketServerComponent socketServerComponent) {
-        WebsocketDebugListener debugListener = new WebsocketDebugListener(handleFactory, iotTaskExecutor);
-        if(socketServerComponent != null) {
-            socketServerComponent.setInterceptor(debugListener);
-        }
-        return debugListener;
+    public WebsocketDebugListener websocketDebugListener(ThreadPoolTaskScheduler iotTaskExecutor, DebugHandleFactory handleFactory) {
+        return new WebsocketDebugListener(handleFactory, iotTaskExecutor);
     }
 }
