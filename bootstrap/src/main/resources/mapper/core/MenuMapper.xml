@@ -14,6 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="icon"    column="icon"  />
         <result property="perms"    column="perms"  />
         <result property="remark"    column="remark"  />
+        <result property="target"    column="target"  />
         <result property="createTime"    column="create_time"  />
         <result property="updateTime"    column="update_time"  />
     </resultMap>
