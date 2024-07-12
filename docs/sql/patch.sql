@@ -36,6 +36,6 @@ INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, 
 -- 2024-07-05
 alter table sys_menu modify type enum('A', 'M', 'V', 'G') not null comment '菜单类型: A.权限、M.菜单、V.视图、G.分组';
 
--- 2024-07-2
+-- 2024-07-12
 alter table sys_menu
     add target char(16) default '_self' null comment '打开方式' after remark;
