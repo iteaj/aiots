@@ -1,4 +1,4 @@
-package com.iteaj.plugin.amqp.rabbit.iot.listener;
+package com.iteaj.iboot.plugin.amqp.rabbit.iot.listener;
 
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;

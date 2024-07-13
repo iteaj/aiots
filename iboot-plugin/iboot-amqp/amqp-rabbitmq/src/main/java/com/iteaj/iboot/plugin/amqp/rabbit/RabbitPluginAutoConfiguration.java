@@ -1,16 +1,16 @@
-package com.iteaj.plugin.amqp.rabbit;
+package com.iteaj.iboot.plugin.amqp.rabbit;
 
+import com.iteaj.framework.ProfilesInclude;
 import com.iteaj.framework.json.JacksonUtils;
-import com.iteaj.plugin.amqp.rabbit.iot.listener.RabbitTestHandler;
-import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import com.iteaj.plugin.amqp.rabbit.iot.listener.RabbitDataListenerPublisher;
+import com.iteaj.iboot.plugin.amqp.rabbit.iot.listener.RabbitDataListenerPublisher;
+import com.iteaj.iboot.plugin.amqp.rabbit.iot.listener.RabbitTestHandler;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.boot.autoconfigure.amqp.RabbitTemplateConfigurer;
 import org.springframework.context.annotation.Bean;
 
+@ProfilesInclude("rabbit")
 public class RabbitPluginAutoConfiguration {
 
     /**

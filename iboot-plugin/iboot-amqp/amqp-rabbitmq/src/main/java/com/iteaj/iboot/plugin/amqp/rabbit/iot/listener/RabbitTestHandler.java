@@ -1,10 +1,8 @@
-package com.iteaj.plugin.amqp.rabbit.iot.listener;
+package com.iteaj.iboot.plugin.amqp.rabbit.iot.listener;
 
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.stereotype.Component;
 
 @RabbitListener(queues = {
         RabbitDataListenerPublisher.IOT_QUEUE_REALTIME_STATUS,
