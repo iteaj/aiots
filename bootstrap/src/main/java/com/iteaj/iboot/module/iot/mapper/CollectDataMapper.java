@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
+import com.iteaj.framework.spi.iot.data.CollectDataCondition;
+import com.iteaj.framework.spi.iot.data.CollectTimeValue;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
@@ -34,4 +36,13 @@ public interface CollectDataMapper extends BaseMapper<CollectData> {
      * @param item
      */
     List<BaseEchartsCount> countOfCommonByTime(TimeCountCondition.TimeCountSqlCondition item);
+
+    /**
+     * 通用的时间列表
+     * @param item
+     * @return
+     */
+    List<CollectDataDto> listOfCommonByTime(CollectDataCondition.DataSqlCondition item);
+
+    Page pageOfCommonByTime(Page<CollectDataDto> page, CollectDataCondition.DataSqlCondition condition);
 }

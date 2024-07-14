@@ -87,4 +87,24 @@ public interface RealtimeCollectData {
      * @return
      */
     Date getCollectTime();
+
+    default String getFieldName() {
+        return null;
+    }
+
+    /**
+     * 设备编号
+     * @return
+     */
+    default String getDeviceSn() {
+        return null;
+    }
+
+    /**
+     * 设备名称
+     * @return
+     */
+    default String getDeviceName() {
+        return null;
+    }
 }
