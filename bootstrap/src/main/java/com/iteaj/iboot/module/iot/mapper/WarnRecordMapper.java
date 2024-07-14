@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
+import com.iteaj.framework.spi.iot.data.CollectDataCondition;
 import com.iteaj.framework.spi.iot.data.WarnData;
 import com.iteaj.iboot.module.iot.dto.CountLastWeekDto;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
@@ -33,4 +34,8 @@ public interface WarnRecordMapper extends BaseMapper<WarnRecord> {
     List<CountLastWeekDto> countLastWeek(Long deviceGroupId);
 
     List<BaseEchartsCount> countOfCommonByTime(TimeCountCondition.TimeCountSqlCondition condition);
+
+    List<WarnRecord> listOfCommonByTime(CollectDataCondition.DataSqlCondition item);
+
+    Page pageOfCommonByTime(Page<WarnRecord> page, CollectDataCondition.DataSqlCondition item);
 }

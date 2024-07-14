@@ -20,4 +20,7 @@ public interface WarnData {
 
     String getProductCode();
 
+    default String getDeviceName() {
+        return null;
+    }
 }

@@ -3,10 +3,7 @@ package com.iteaj.iboot.plugin.datasource.tdengine.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
-import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
-import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
-import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
-import com.iteaj.framework.spi.iot.data.EchartsCountValue;
+import com.iteaj.framework.spi.iot.data.*;
 
 import java.util.List;
 
@@ -29,6 +26,11 @@ public class TaosDataService implements RealtimeCollectDataService {
 
     @Override
     public List<BaseEchartsCount> countLastWeek(Long deviceGroupId) {
+        return null;
+    }
+
+    @Override
+    public List<CollectValueItem> listOfCommonByTime(CollectDataCondition condition) {
         return null;
     }
 }

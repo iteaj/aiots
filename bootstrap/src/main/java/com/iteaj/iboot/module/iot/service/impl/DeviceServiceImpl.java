@@ -18,6 +18,7 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
+import com.iteaj.framework.spi.iot.data.CollectValueItem;
 import com.iteaj.framework.spi.iot.data.EchartsCountValue;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
@@ -345,6 +346,19 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
             values.add(new EchartsCountValue(null, "离线",Arrays.asList(new BaseEchartsCount("", statusDto.getOfflineNum()))));
         }
         return values;
+    }
+
+    @Override
+    public CollectValueItem listCommonByStatus(StatusDataCondition condition) {
+        if(condition.getCurrent() != null && condition.getSize() != null) {
+            Page page = new Page(condition.getCurrent(), condition.getSize());
+            this.getBaseMapper().pageCommonByStatus(page, condition);
+            return CollectValueItem.build(null, page.getRecords(), page.getTotal());
+        } else {
+
+            List<DeviceStatusData> dataList = this.getBaseMapper().listCommonByStatus(condition);
+            return CollectValueItem.build(null, dataList);
+        }
     }
 
     @Override

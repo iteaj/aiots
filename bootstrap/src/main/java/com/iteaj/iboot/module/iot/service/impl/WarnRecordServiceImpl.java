@@ -4,13 +4,13 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.spi.iot.consts.CollectSearchType;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
-import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
-import com.iteaj.framework.spi.iot.data.CollectWarnDataService;
-import com.iteaj.framework.spi.iot.data.EchartsCountValue;
-import com.iteaj.framework.spi.iot.data.WarnData;
+import com.iteaj.framework.spi.iot.data.*;
+import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.dto.CountLastWeekDto;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.mapper.WarnRecordMapper;
@@ -51,6 +51,31 @@ public class WarnRecordServiceImpl extends BaseServiceImpl<WarnRecordMapper, War
             List<EchartsCountValue> countValues = condition.buildResult(item, counts);
             values.addAll(countValues);
         });
+
+        return values;
+    }
+
+    @Override
+    public List<CollectValueItem> listOfCommonByTime(CollectDataCondition condition) {
+        List<CollectValueItem> values = new ArrayList<>();
+        if(condition.getSearchType() == CollectSearchType.list) {
+            condition.buildSqlConditions().forEach(item -> {
+                List<WarnRecord> counts = this.getBaseMapper().listOfCommonByTime(item);
+                List<CollectValueItem> valueItems = condition.buildResult(item, counts, 0);
+                values.addAll(valueItems);
+            });
+        } else {
+            condition.buildSqlConditions().forEach(item -> {
+                if(item.getFields().size() > 1) {
+                    throw new ServiceException("分页搜索不支持同时多个字段");
+                }
+
+                Page<WarnRecord> page = new Page<>(condition.getCurrent(), condition.getSize());
+                this.getBaseMapper().pageOfCommonByTime(page, item);
+                List<CollectValueItem> valueItems = condition.buildResult(item, page.getRecords(), page.getTotal());
+                values.addAll(valueItems);
+            });
+        }
 
         return values;
     }

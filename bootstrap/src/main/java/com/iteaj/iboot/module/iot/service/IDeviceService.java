@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.*;
+import com.iteaj.framework.spi.iot.data.CollectValueItem;
 import com.iteaj.framework.spi.iot.data.EchartsCountValue;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.dto.*;
@@ -166,4 +167,11 @@ public interface IDeviceService extends IBaseService<Device> {
      * @return
      */
     List<EchartsCountValue> countCommonDeviceStatus(StatusCountCondition condition);
+
+    /**
+     * 获取设备状态列表
+     * @param condition
+     * @return
+     */
+    CollectValueItem listCommonByStatus(StatusDataCondition condition);
 }

@@ -243,4 +243,28 @@
             group by a.product_id
         </if>
     </select>
+    <select id="pageCommonByStatus" resultType="com.iteaj.iboot.module.iot.dto.DeviceStatusData">
+        select a.id, a.uid, a.device_sn deviceSn, a.name deviceName, a.status, p.name productName, p.code productCode from iot_device a
+            left join iot_product p on a.product_id = p.id
+        <where>
+            <if test="productCodes != null and productCodes.size() > 0">
+                and (<foreach collection="productCodes" separator=" or " item="productCode">
+                p.code = #{productCode}
+            </foreach>)
+            </if>
+        </where>
+        order by a.status desc, a.product_id
+    </select>
+    <select id="listCommonByStatus" resultType="com.iteaj.iboot.module.iot.dto.DeviceStatusData">
+        select a.id, a.uid, a.device_sn deviceSn, a.name deviceName, a.status, p.name productName, p.code productCode from iot_device a
+            left join iot_product p on a.product_id = p.id
+        <where>
+            <if test="productCodes != null and productCodes.size() > 0">
+                and (<foreach collection="productCodes" separator=" or " item="productCode">
+                p.code = #{productCode}
+            </foreach>)
+            </if>
+        </where>
+        order by a.status desc, a.product_id
+    </select>
 </mapper>

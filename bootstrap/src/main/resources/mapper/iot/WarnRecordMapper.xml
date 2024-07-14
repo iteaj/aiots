@@ -108,5 +108,40 @@
         </where>
         group by category<if test="fields != null and fields.size() > 0">,field</if>
     </select>
+    <select id="listOfCommonByTime" resultMap="BaseResultMap">
+        select * from iot_warn_record
+        <where>
+            <if test="uid != null and uid !=''">
+                and uid=#{uid}
+            </if>
+            <if test="productCode != null and productCode !=''">
+                and product_code=#{productCode}
+            </if>
+            <if test="fields != null and fields.size() > 0">
+                and (<foreach collection="fields" item="field" separator=" or ">
+                field = #{field}
+            </foreach>)
+            </if>
+            and UNIX_TIMESTAMP(warn_time) * 1000 between #{startTimestamp} and #{endTimestamp}
+        </where>
+    </select>
+
+    <select id="pageOfCommonByTime" resultMap="BaseResultMap">
+        select * from iot_warn_record
+        <where>
+            <if test="uid != null and uid !=''">
+                and uid=#{uid}
+            </if>
+            <if test="productCode != null and productCode !=''">
+                and product_code=#{productCode}
+            </if>
+            <if test="fields != null and fields.size() > 0">
+                and (<foreach collection="fields" item="field" separator=" or ">
+                field = #{field}
+            </foreach>)
+            </if>
+            and UNIX_TIMESTAMP(warn_time) * 1000 between #{startTimestamp} and #{endTimestamp}
+        </where>
+    </select>
 
 </mapper>

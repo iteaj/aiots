@@ -19,4 +19,11 @@ public interface CollectWarnDataService {
      * @return
      */
     List<EchartsCountValue> countOfCommonByTime(TimeCountCondition condition);
+
+    /**
+     * 通过时间条件获取数据
+     * @param condition
+     * @return
+     */
+    List<CollectValueItem> listOfCommonByTime(CollectDataCondition condition);
 }

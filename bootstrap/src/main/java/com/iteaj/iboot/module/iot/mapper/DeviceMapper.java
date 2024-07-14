@@ -94,4 +94,8 @@ public interface DeviceMapper extends BaseMapper<Device> {
      * @return
      */
     List<DeviceStatusDto> countCommonDeviceStatus(StatusCountCondition condition);
+
+    Page pageCommonByStatus(Page page, StatusDataCondition condition);
+
+    List<DeviceStatusData> listCommonByStatus(StatusDataCondition condition);
 }
