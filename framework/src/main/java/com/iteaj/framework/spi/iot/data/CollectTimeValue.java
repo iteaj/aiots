@@ -6,6 +6,11 @@ import lombok.Data;
 public class CollectTimeValue {
 
     /**
+     * 属性
+     */
+    private String field;
+
+    /**
      * 值
      */
     private String value;
