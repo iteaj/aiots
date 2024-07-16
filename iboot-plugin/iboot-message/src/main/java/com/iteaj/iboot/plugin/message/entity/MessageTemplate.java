@@ -1,8 +1,14 @@
 package com.iteaj.iboot.plugin.message.entity;
 
+import com.alibaba.fastjson.JSONArray;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+import java.util.List;
+
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
+import com.iteaj.iboot.plugin.message.dto.AcceptUser;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -46,7 +52,8 @@ public class MessageTemplate extends BaseEntity {
     /**
      * 接收人列表
      */
-    private String accepts;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray accepts;
 
     /**
      * 发送内容
@@ -60,5 +67,22 @@ public class MessageTemplate extends BaseEntity {
 
     private Date createTime;
 
+    /**
+     * 接收人id
+     */
+    @TableField(exist = false)
+    private String acceptId;
 
+    /**
+     * 接收人名称
+     */
+    @TableField(exist = false)
+    private String acceptNames;
+
+    /**
+     * 接收用户列表
+     * @see #accepts
+     */
+    @TableField(exist = false)
+    private List<AcceptUser> users;
 }
