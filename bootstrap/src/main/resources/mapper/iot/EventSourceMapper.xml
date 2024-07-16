@@ -27,12 +27,7 @@
         <collection property="groups" resultMap="com.iteaj.iboot.module.iot.mapper.DeviceGroupMapper.BaseResultMap" columnPrefix="dg_" />
     </resultMap>
     <delete id="removeAllByIds">
-        delete f,b,c,d,e from iot_event_source f
-            inner join iot_linkage a on f.id=a.event_source_id
-            inner join iot_linkage_condition b on a.id=b.linkage_id
-            inner join iot_linkage_action c on a.id=c.linkage_id
-            inner join iot_linkage_item d on a.id=d.linkage_id
-            inner join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        delete f from iot_event_source f
         where f.id in (
         <foreach collection="list" item="eventSourceId" separator=",">
             #{eventSourceId}
