@@ -39,3 +39,25 @@ alter table sys_menu modify type enum('A', 'M', 'V', 'G') not null comment '菜�
 -- 2024-07-12
 alter table sys_menu
     add target char(16) default '_self' null comment '打开方式' after remark;
+
+-- 2024-07-16
+create table sys_message_template
+(
+    id             bigint auto_increment
+        primary key,
+    type           char(16)                           not null comment '消息类型',
+    template_id    varchar(64)                        null comment '短信模板id',
+    template_name  varchar(64)                        null comment '消息模板名称',
+    template_title varchar(128)                       null comment '模板标题',
+    accepts        json                               null comment '接收人列表',
+    content        varchar(1024)                      null comment '发送内容',
+    remark         varchar(512)                       null comment '备注',
+    create_time    datetime default CURRENT_TIMESTAMP not null
+)
+    comment '消息模板';
+
+create index sys_message_template_template_id_index
+    on sys_message_template (template_id);
+
+create index sys_message_template_type_index
+    on sys_message_template (type);
