@@ -79,7 +79,13 @@ public abstract class Sms4jMessageService extends SmsMessageService {
                 } else {
                     for (int i = 0; i < accepts.size(); i++) {
                         smsBlend.sendMessageAsync(accepts.get(i), model.getTemplateId()
-                                , model.getTemplateVars(), (response) -> callback.accept(response));
+                                , model.getTemplateVars(), (response) -> {
+                            if(!isSuccess(response)) {
+                                logger.error("异步短信发送失败({}) {}", getChannelName(), response.getData());
+                            }
+
+                            callback.accept(response.getData());
+                        });
                     }
                 }
             } else {
@@ -87,22 +93,30 @@ public abstract class Sms4jMessageService extends SmsMessageService {
                     smsResponse = smsBlend.massTexting(accepts, model.getContent().toString());
                 } else {
                     for (int i = 0; i < accepts.size(); i++) {
-                        smsBlend.sendMessageAsync(accepts.get(i), model.getContent().toString(), (response) -> callback.accept(response));
+                        smsBlend.sendMessageAsync(accepts.get(i), model.getContent().toString(), (response) -> {
+                            if(!isSuccess(response)) {
+                                logger.error("异步短信发送失败({}) {}", getChannelName(), response.getData());
+                            }
+
+                            callback.accept(response.getData());
+                        });
                     }
                 }
             }
 
             // 发送失败
-            if(smsResponse != null && !smsResponse.isSuccess()) {
-                throw new ServiceException("发送短信失败: " + smsResponse.getData());
+            if(smsResponse != null && !isSuccess(smsResponse)) {
+                logger.error("短信发送失败({}) {}", getChannelName(), smsResponse.getData());
             }
 
             return smsResponse;
         } catch (Exception e) {
-            throw new ServiceException("发送失败["+getChannelId()+"]", e);
+            throw new ServiceException("短信发送异常["+getChannelId()+"]", e);
         }
 
     }
+
+    protected abstract boolean isSuccess(SmsResponse response);
 
     @Override
     public MessageService build(JSONObject config) {

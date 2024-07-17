@@ -29,4 +29,12 @@ public interface RealtimeCollectDataService {
      * @return
      */
     List<BaseEchartsCount> countLastWeek(Long deviceGroupId);
+
+    /**
+     * 根据条件获取实时值
+     * @see CollectDataCondition#getTimeType()
+     * @param condition
+     * @return
+     */
+    List<CollectValueItem> listOfCommonByTime(CollectDataCondition condition);
 }

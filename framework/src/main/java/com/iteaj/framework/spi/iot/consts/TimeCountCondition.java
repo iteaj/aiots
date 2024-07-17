@@ -5,13 +5,16 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.spi.iot.data.BaseCondition;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.EchartsCountValue;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -19,30 +22,12 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
-public class TimeCountCondition {
+public class TimeCountCondition extends BaseCondition{
 
     /**
      * 计算类型
      */
     private CountCalcType calcType = CountCalcType.count;
-
-    /**
-     * 时间类型
-     * @see #timeRange
-     */
-    private TimeCountType timeType;
-
-    /**
-     * 时间范围(格式 yyyy-MM-dd HH:mm)
-     *
-     * @see #timeType
-     */
-    private List<String> timeRange;
-
-    /**
-     * 业务类型值
-     */
-    private List<String> value;
 
     private List<BaseEchartsCount> timeEmptyValue = new ArrayList<>();
 
@@ -50,10 +35,10 @@ public class TimeCountCondition {
         validateCondition();
         List<TimeCountSqlCondition> conditions = new ArrayList<>();
         String[] resolverTime = resolverTime();
-        List<ValueMeta> resolverValue = resolverValue();
+        List<BaseCondition.ValueMeta> resolverValue = resolverValue(this.getValue());
         if(CollectionUtil.isNotEmpty(resolverValue)) {
             resolverValue.forEach(meta -> {
-                TimeCountSqlCondition condition = new TimeCountSqlCondition(this.timeType
+                TimeCountSqlCondition condition = new TimeCountSqlCondition(this.getTimeType()
                         , this.calcType, resolverTime[0], resolverTime[1]);
                 if(meta.getType().equals("D")) {
                     conditions.add(condition.buildDevice(meta.getValue(), meta.getFields()));
@@ -64,25 +49,10 @@ public class TimeCountCondition {
                 }
             });
         } else {
-            conditions.add(new TimeCountSqlCondition(this.timeType, this.calcType, resolverTime[0], resolverTime[1]));
+            conditions.add(new TimeCountSqlCondition(this.getTimeType(), this.calcType, resolverTime[0], resolverTime[1]));
         }
 
         return conditions;
-    }
-
-
-    private void validateCondition() {
-        if(this.getTimeType() == null) {
-            throw new ServiceException("时间类型未指定[timeType]");
-        }
-
-        if(CollectionUtil.isEmpty(this.getTimeRange())) {
-            throw new ServiceException("未指定时间范围[timeRange]");
-        }
-
-        if(this.getTimeRange().size() != 2) {
-            throw new ServiceException("时间范围格式错误");
-        }
     }
 
     public String[] resolverTime() {
@@ -120,6 +90,7 @@ public class TimeCountCondition {
                 throw new ServiceException("不支持的时间操作符");
             }
         } else {
+            endOffset = endOffset + 1;
             endTime = DateUtil.parse(result[1], "yyyy-MM-dd HH");
         }
 
@@ -160,7 +131,20 @@ public class TimeCountCondition {
                 tempDate = tempDate.offset(DateField.MONTH, 1);
             }
         } else if(timeType == TimeCountType.week) {
-
+            DateTime startDateTime = startTime.offset(DateField.WEEK_OF_MONTH, startOffset)
+                    .setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0)
+                    .setField(DateField.SECOND, 0).setField(DateField.MILLISECOND, 0);
+            result[0] = "" + startDateTime.getTime();
+            DateTime endDateTime = endTime.offset(DateField.WEEK_OF_MONTH, endOffset)
+                    .setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0)
+                    .setField(DateField.SECOND, 0).setField(DateField.MILLISECOND, 0);
+            result[1] = "" + (endDateTime.getTime() - 1);
+            DateTime tempDate = startDateTime;
+            while (tempDate.getTime() <= (endDateTime.getTime() - 1)) {
+                String time = tempDate.toString("yyyy-MM-dd");
+                timeEmptyValue.add(new BaseEchartsCount(time, 0));
+                tempDate = tempDate.offset(DateField.DAY_OF_MONTH, 1);
+            }
         } else if(timeType == TimeCountType.day) {
             DateTime startDateTime = startTime.offset(DateField.DAY_OF_MONTH, startOffset)
                     .setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0)
@@ -196,35 +180,6 @@ public class TimeCountCondition {
         }
 
         return result;
-    }
-
-    public List<ValueMeta> resolverValue() {
-        TimeCountCondition condition = this;
-        List<ValueMeta> metas = new ArrayList<>();
-        if(CollectionUtil.isNotEmpty(condition.getValue())) {
-            condition.getValue().forEach(item -> {
-                String key = item.replaceAll(" ", "");
-                String[] split = key.split(":");
-                if(split.length < 2) {
-                    throw new ServiceException("不支持的格式["+item+"]");
-                }
-
-                String type = split[0].toUpperCase(Locale.ROOT);
-                if(type.equals("D") || type.equals("P")) {
-                    if(split.length == 2) {
-                        metas.add(new ValueMeta(type, split[1]));
-                    } else {
-                        metas.add(new ValueMeta(type, split[1], Arrays.asList(split[2].split(","))));
-                    }
-                } else if(type.equals("F")) {
-                    metas.add(new ValueMeta(Arrays.asList(split[1].split(","))));
-                } else {
-                    throw new ServiceException("不支持的类型["+type+"]");
-                }
-            });
-        }
-
-        return metas;
     }
 
     public List<EchartsCountValue> buildResult(TimeCountSqlCondition condition, List<BaseEchartsCount> counts) {
@@ -272,43 +227,6 @@ public class TimeCountCondition {
         }
 
         return result;
-    }
-
-    @Data
-    public class ValueMeta {
-        /**
-         * 类型
-         * D 设备
-         * P 产品
-         * F 字段
-         */
-        private String type;
-
-        /**
-         * 设备uid, 产品编号
-         */
-        private String value;
-
-        /**
-         * 字段列表
-         */
-        private List<String> fields;
-
-        public ValueMeta(List<String> fields) {
-            this.type = "F";
-            this.fields = fields;
-        }
-
-        public ValueMeta(String type, String value) {
-            this.type = type;
-            this.value = value;
-        }
-
-        public ValueMeta(String type, String value, List<String> fields) {
-            this.type = type;
-            this.value = value;
-            this.fields = fields;
-        }
     }
 
     @Data

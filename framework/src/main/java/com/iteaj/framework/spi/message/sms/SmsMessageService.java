@@ -3,6 +3,8 @@ package com.iteaj.framework.spi.message.sms;
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.message.MessageService;
 import com.iteaj.framework.spi.message.MessageType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 public abstract class SmsMessageService implements MessageService {
 
     private List<ParamMeta> params = new ArrayList<>();
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 
     public SmsMessageService() {
         this.buildConfigParams(this.params);
