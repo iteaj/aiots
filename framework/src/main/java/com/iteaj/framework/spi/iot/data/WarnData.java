@@ -8,6 +8,8 @@ public interface WarnData {
 
     String getValue();
 
+    String getField();
+
     String getDeviceSn();
 
     String getContent();

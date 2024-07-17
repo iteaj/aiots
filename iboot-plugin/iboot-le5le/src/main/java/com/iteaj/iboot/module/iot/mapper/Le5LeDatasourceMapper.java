@@ -15,7 +15,7 @@ public interface Le5LeDatasourceMapper extends BaseMapper<Le5LeDatasource> {
 
     List<Dataset> listPointDatasetByDeviceGroupId(Long deviceGroupId);
 
-    List<Dataset> listChartsDatasetByDeviceGroupId(Long deviceGroupId);
+    List<Dataset> listWarnDatasetByDeviceGroupId(Long deviceGroupId);
 
     List<Dataset> listStatusDatasetByDeviceGroupId(Long deviceGroupId);
 }
