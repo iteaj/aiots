@@ -1,4 +1,4 @@
-## iboot(物联网网关)
+### iboot(物联网网关)
 iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc(欧姆龙、西门子)
 - [演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://iot.iteaj.com/#/login)
 - [项目前端仓库(vue3+antdv3+vite2)](https://gitee.com/iteaj/ivzone)
@@ -9,6 +9,8 @@ QQ1群 - 552167793 (已满)<br>
 ### 商务合作(qq号：97235681)
 ### 未来功能规划
 1. 接入[乐吾乐大屏](https://le5le.com/)，支持组态、3D、大屏在线设计(开发中)
+### 平台架构图
+![平台架构](https://iot.iteaj.com/show/IBoot网络架构图.jpg)
 ### 目前支持哪些协议
 | 协议 | 实现方式 | 是否开源 | 资费 | 说明 |
 |----|------|------|------|----|
