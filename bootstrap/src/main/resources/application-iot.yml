@@ -3,6 +3,7 @@ msn:
   iot:
     task:
       pool-size: 3 # 采集任务线程池
+---
 spring:
   config:
     activate:
