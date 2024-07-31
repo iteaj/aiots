@@ -378,18 +378,27 @@ public class Le5LeService implements InitializingBean {
         return results;
     }
 
-    @Scheduled(cron = "0 0 0/6 * * *")
+    @Scheduled(cron = "0 0 0/1 * * *")
+    public void authScheduled() {
+        this.login("18059222381", "lcjg4OD12aXRlYXp");
+    }
+
+    @Scheduled(cron = "0 0 0/3 * * *")
     public void dataScheduled() {
         Page page = new Page(1, 1000);
         List<JSONObject> records = this.list(page).getRecords();
         if(CollectionUtil.isNotEmpty(records)) {
             records.forEach(item -> {
-                JSONObject detail = this.get(item.getString("id"), "dbs");
-                Le5LeDatasource le5LeDatasource = this.le5LeDatasourceMapper.selectById(item.getString("id"));
-                if(le5LeDatasource != null) {
-                    this.doUpdateDrawing(detail, le5LeDatasource);
-                } else {
-                    this.doCreateDrawing("dbs", detail);
+                try {
+                    JSONObject detail = this.get(item.getString("id"), "dbs");
+                    Le5LeDatasource le5LeDatasource = this.le5LeDatasourceMapper.selectById(item.getString("id"));
+                    if(le5LeDatasource != null) {
+                        this.doUpdateDrawing(detail, le5LeDatasource);
+                    } else {
+                        this.doCreateDrawing("dbs", detail);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         }

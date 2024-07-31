@@ -62,7 +62,7 @@ public class LocalLinkageCacheService implements LinkageCacheService, Applicatio
                 Collection<Map<Long, Set<LinkageItem>>> groupMap = item.values();
                 if(groupMap != null) {
                     Iterator<Map<Long, Set<LinkageItem>>> iterator = groupMap.iterator();
-                    if(iterator.hasNext()) {
+                    while (iterator.hasNext()) {
                         Map<Long, Set<LinkageItem>> next = iterator.next();
                         if(next.containsKey(groupId)) {
                             iterator.remove(); return;
@@ -78,7 +78,7 @@ public class LocalLinkageCacheService implements LinkageCacheService, Applicatio
         Collection<Map<Long, Map<Long, Set<LinkageItem>>>> values = eventSourceMap.values();
         if(CollectionUtil.isNotEmpty(values)) {
             Iterator<Map<Long, Map<Long, Set<LinkageItem>>>> iterator = values.iterator();
-            if(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 Map<Long, Map<Long, Set<LinkageItem>>> next = iterator.next();
                 if(next.containsKey(linkageId)) {
                     iterator.remove(); return;
@@ -89,7 +89,7 @@ public class LocalLinkageCacheService implements LinkageCacheService, Applicatio
         // 移除此联动场景下面的所有联动项
         productFieldMap.values().forEach(linkageItems -> {
             Iterator<LinkageItem> iterator = linkageItems.iterator();
-            if(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 LinkageItem next = iterator.next();
                 if(next.getLinkageId().equals(linkageId)) {
                     iterator.remove();

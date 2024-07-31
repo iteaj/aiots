@@ -37,8 +37,8 @@ public class TDengineAutoConfiguration {
         return new TaosRealtimeDataListener(taosSqlManager);
     }
 
-//    @Bean
-//    @Primary
+    @Bean
+    @Primary
     public TaosDataService taosDataService() {
         return new TaosDataService();
     }

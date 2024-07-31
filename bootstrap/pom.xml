@@ -192,11 +192,11 @@
             <version>${reversion}</version>
             <artifactId>amqp-rabbitmq</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${reversion}</version>
-            <artifactId>iboot-tdengine</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${reversion}</version>-->
+<!--            <artifactId>iboot-tdengine</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
