@@ -40,6 +40,7 @@
         <result property="id" column="id" />
         <result property="uid" column="uid" />
         <result property="deviceSn" column="deviceSn" />
+        <result property="deviceName" column="name" />
         <result property="parentDeviceSn" column="parentDeviceSn" />
         <result property="type" column="type" />
         <result property="status" column="status" />
@@ -146,7 +147,7 @@
 
     <select id="getDeviceCacheById" resultMap="DeviceStatusMap">
         select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
-             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status
+             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
             left join iot_device pd on a.pid = pd.id
             inner join iot_product p on a.product_id = p.id
@@ -154,7 +155,7 @@
     </select>
     <select id="listDeviceStatusById" resultMap="DeviceStatusMap">
         select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
-             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status
+             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
             left join iot_device pd on a.pid = pd.id
             inner join iot_product p on a.product_id = p.id
@@ -167,7 +168,7 @@
 
     <select id="listDeviceCache" resultMap="DeviceStatusMap">
         select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
-             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status
+             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
              left join iot_device pd on a.pid = pd.id
              inner join iot_product p on a.product_id = p.id
@@ -175,7 +176,7 @@
 
     <select id="getDeviceStatus" resultMap="DeviceStatusMap">
         select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
-             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status
+             , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
             left join iot_device pd on a.pid = pd.id
              inner join iot_product p on a.product_id = p.id
@@ -186,7 +187,7 @@
     </select>
     <select id="listDeviceStatus" resultMap="DeviceStatusMap">
         select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
-            , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status
+            , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
             left join iot_device pd on a.pid = pd.id
             inner join iot_product p on a.product_id = p.id
