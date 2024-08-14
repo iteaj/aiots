@@ -31,6 +31,8 @@ import java.util.List;
 public class Le5LeService implements InitializingBean {
 
     private static String token;
+    private static String USERNAME = "18059222381";
+    private static String PASSWORD = "lcjg4OD12aXRlYXp";
     private final Le5LeDatasourceMapper le5LeDatasourceMapper;
     private static final String API_HOST = "https://v.le5le.com/api";
     private static final String ACCOUNT_HOST = "https://account.le5le.com/api";
@@ -188,7 +190,7 @@ public class Le5LeService implements InitializingBean {
 
     protected JSONObject doRequest(String url, JSONObject body, boolean retry) {
         if(token == null) {
-            this.login("18059222381", "lcjg4OD12aXRlYXp");
+            this.login(USERNAME, PASSWORD);
         }
 
         HttpRequest post = HttpUtil.createPost(url);
@@ -201,7 +203,7 @@ public class Le5LeService implements InitializingBean {
                 return response;
             } else if("没有访问权限".equals(error) && !response.containsKey("detail")) {
                 if(!retry) {
-                    this.login("18059222381", "lcjg4OD12aXRlYXp");
+                    this.login(USERNAME, PASSWORD);
                     return doRequest(url, body, true);
                 } else {
                     throw new ServiceException(error);
@@ -380,7 +382,7 @@ public class Le5LeService implements InitializingBean {
 
     @Scheduled(cron = "0 0 0/1 * * *")
     public void authScheduled() {
-        this.login("18059222381", "lcjg4OD12aXRlYXp");
+        this.login(USERNAME, PASSWORD);
     }
 
     @Scheduled(cron = "0 0 0/3 * * *")
