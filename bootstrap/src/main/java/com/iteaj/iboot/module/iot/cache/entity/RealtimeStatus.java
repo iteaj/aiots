@@ -36,6 +36,11 @@ public class RealtimeStatus implements RealtimeDeviceStatus, IotEventPayload {
     private String deviceSn;
 
     /**
+     * 设备名称
+     */
+    private String deviceName;
+
+    /**
      * 父设备编号
      */
     private String parentDeviceSn;
