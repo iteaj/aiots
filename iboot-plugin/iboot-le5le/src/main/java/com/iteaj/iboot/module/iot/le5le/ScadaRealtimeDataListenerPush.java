@@ -1,17 +1,14 @@
 package com.iteaj.iboot.module.iot.le5le;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
-import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
-import com.iteaj.framework.spi.iot.data.WarnData;
+import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.data.*;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 import com.iteaj.iot.CoreConst;
-import com.iteaj.iot.server.manager.TcpDeviceManager;
 import com.iteaj.iot.server.websocket.WebSocketServerListener;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerComponent;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerProtocol;
@@ -25,13 +22,15 @@ import java.util.stream.Collectors;
 @Component
 public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, RealtimeInfoListener {
 
-    private TcpDeviceManager deviceManager;
     private final static String URI = "/ws/iot/scada";
     private final DefaultWebSocketServerComponent webSocketServerComponent;
+    private final IModelAttrRealtimeDataService modelAttrRealtimeDataService;
     private final static AttributeKey<Set<String>> REGISTER = AttributeKey.valueOf("POINT:REGISTER");
 
-    public ScadaRealtimeDataListenerPush(DefaultWebSocketServerComponent webSocketServerComponent) {
+    public ScadaRealtimeDataListenerPush(DefaultWebSocketServerComponent webSocketServerComponent
+            , IModelAttrRealtimeDataService modelAttrRealtimeDataService) {
         this.webSocketServerComponent = webSocketServerComponent;
+        this.modelAttrRealtimeDataService = modelAttrRealtimeDataService;
     }
 
     @Override
@@ -47,12 +46,30 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
             points = Arrays.stream(bindPoints.split(",")).collect(Collectors.toSet());
         }
 
-        if(deviceManager == null) {
-            deviceManager = webSocketServerComponent.getDeviceManager();
-        }
-
-        Channel channel = deviceManager.find(protocol.getEquipCode());
+        Channel channel = webSocketServerComponent.getDeviceManager().find(protocol.getEquipCode());
         channel.attr(REGISTER).set(points);
+
+        JSONArray array = new JSONArray();
+        points.forEach(key -> {
+            String[] split = key.split(":");
+            if(split[0].equals("s")) {
+                modelAttrRealtimeDataService.getRealtimeData(split[1], split[2]);
+            } else if(split[0].equals("w")) {
+
+            } else if(split[0].equals("a")) {
+                ModelAttrRealtimeData realtimeData = modelAttrRealtimeDataService.getRealtimeData(split[1], split[2]);
+                if(realtimeData != null) {
+                    SignalOrFieldValue value = realtimeData.getRealtime() != null ? realtimeData.getRealtime() : realtimeData.getPrev();
+                    if(value != null && value.getValue() != null) {
+                        Map<String, Object> itemValue = new HashMap<>();
+                        itemValue.put("id", key);
+                        itemValue.put("value", value.getValue());
+                        array.add(itemValue);
+                    }
+                }
+            }
+
+        });
     }
 
     @Override
