@@ -4,6 +4,7 @@ import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 
@@ -147,5 +148,10 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
         }
 
         return null;
+    }
+
+    @Override
+    public RealtimeDeviceStatus getDeviceStatus(String uid) {
+        return cacheManager.getByUid(uid);
     }
 }
