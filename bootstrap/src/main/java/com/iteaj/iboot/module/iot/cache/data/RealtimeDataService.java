@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.cache.data;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.data.IModelAttrRealtimeDataService;
 
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * 实时数据服务
  */
-public interface RealtimeDataService {
+public interface RealtimeDataService extends IModelAttrRealtimeDataService {
 
     /**
      * 移除指定协议下得所有数据
