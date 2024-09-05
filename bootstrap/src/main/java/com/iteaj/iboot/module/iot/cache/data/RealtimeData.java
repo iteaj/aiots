@@ -2,13 +2,14 @@ package com.iteaj.iboot.module.iot.cache.data;
 
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
 import lombok.Data;
 
 /**
  * 实时数据
  */
 @Data
-public class RealtimeData {
+public class RealtimeData implements ModelAttrRealtimeData {
 
     /**
      * 上一条记录

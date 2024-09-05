@@ -3,13 +3,21 @@ package com.iteaj.iboot.module.iot.cache.data;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HashMapRealtimeDataService implements RealtimeDataService{
 
-    private Map<String, Map<String, Map<String, RealtimeData>>> realtimeMap = new ConcurrentHashMap(500);
+    private final IotCacheManager cacheManager;
+    private final Map<String, Map<String, Map<String, RealtimeData>>> realtimeMap = new ConcurrentHashMap<>(500);
+
+    public HashMapRealtimeDataService(IotCacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
 
     @Override
     public void remove(String protocolCode) {
@@ -127,5 +135,15 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
         }
 
         return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public ModelAttrRealtimeData getRealtimeData(String uid, String signalOrField) {
+        RealtimeStatus byUid = cacheManager.getByUid(uid);
+        if(byUid != null) {
+            return this.getOfDeviceAndKey(byUid.getProtocolCode(), byUid.buildKey(), signalOrField);
+        }
+
+        return null;
     }
 }

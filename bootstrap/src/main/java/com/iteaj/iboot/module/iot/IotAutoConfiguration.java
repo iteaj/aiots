@@ -145,8 +145,8 @@ public class IotAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({RealtimeDataService.class})
-    public RealtimeDataService localRealtimeDataService() {
-        return new HashMapRealtimeDataService();
+    public RealtimeDataService localRealtimeDataService(IotCacheManager cacheManager) {
+        return new HashMapRealtimeDataService(cacheManager);
     }
 
     /**
