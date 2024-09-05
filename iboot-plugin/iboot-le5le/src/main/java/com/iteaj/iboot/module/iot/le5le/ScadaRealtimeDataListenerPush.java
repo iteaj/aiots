@@ -53,9 +53,15 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
         points.forEach(key -> {
             String[] split = key.split(":");
             if(split[0].equals("s")) {
-                modelAttrRealtimeDataService.getRealtimeData(split[1], split[2]);
+                RealtimeDeviceStatus deviceStatus = modelAttrRealtimeDataService.getDeviceStatus(split[1]);
+                if(deviceStatus != null) {
+                    Map<String, Object> itemValue = new HashMap<>();
+                    itemValue.put("id", key);
+                    itemValue.put("value", deviceStatus.getDeviceStatus());
+                    array.add(itemValue);
+                }
             } else if(split[0].equals("w")) {
-
+                // 告警数据初始化
             } else if(split[0].equals("a")) {
                 ModelAttrRealtimeData realtimeData = modelAttrRealtimeDataService.getRealtimeData(split[1], split[2]);
                 if(realtimeData != null) {
@@ -68,8 +74,11 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
                     }
                 }
             }
-
         });
+
+        if(!array.isEmpty()) {
+            protocol.response(array.toJSONString());
+        }
     }
 
     @Override
@@ -108,15 +117,21 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
                     if(channel.isActive()) { // 连接在线
                         Set<String> strings = channel.attr(REGISTER).get();
                         if(strings != null && !strings.isEmpty()) {
+                            JSONArray result = new JSONArray();
                             array.forEach(item -> {
                                 JSONObject object = (JSONObject) item;
                                 if(strings.contains(object.getString("id"))) {
-                                    DefaultWebSocketServerProtocol.write(channel.attr(CoreConst.EQUIP_CODE).get(), object.toJSONString());
+                                    result.add(object);
                                 }
                             });
+
+                            if(!result.isEmpty()) {
+                                DefaultWebSocketServerProtocol.write(channel.attr(CoreConst.EQUIP_CODE).get(), result.toJSONString());
+                            }
                         }
                     }
                 });
+
             }
         });
     }
