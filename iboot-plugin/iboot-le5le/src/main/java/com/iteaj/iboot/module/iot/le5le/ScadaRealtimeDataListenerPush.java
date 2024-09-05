@@ -86,33 +86,17 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
                 });
             }
 
-            if(array.size() > 0) {
+            if(!array.isEmpty()) {
                 channels.forEach(channel -> {
                     if(channel.isActive()) { // 连接在线
                         Set<String> strings = channel.attr(REGISTER).get();
-                        if(strings != null && strings.size() > 0) {
-                            if(array.size() == 1) {
-                                // 只有一条记录, 直接写出
-                                array.forEach(item -> {
-                                    JSONObject object = (JSONObject) item;
-                                    if(strings.contains(object.getString("id"))) {
-                                        DefaultWebSocketServerProtocol.write(channel.attr(CoreConst.EQUIP_CODE).get(), object.toJSONString());
-                                    }
-                                });
-                            } else { // 有多条记录
-                                List<JSONObject> result = new ArrayList<>();
-                                array.forEach(item -> {
-                                    JSONObject object = (JSONObject) item;
-                                    if(strings.contains(object.getString("id"))) {
-                                        result.add(object);
-                                    }
-                                });
-
-                                // 有数据需要写出
-                                if(result.size() > 0) {
-                                    DefaultWebSocketServerProtocol.write(channel.attr(CoreConst.EQUIP_CODE).get(), JSON.toJSONString(result));
+                        if(strings != null && !strings.isEmpty()) {
+                            array.forEach(item -> {
+                                JSONObject object = (JSONObject) item;
+                                if(strings.contains(object.getString("id"))) {
+                                    DefaultWebSocketServerProtocol.write(channel.attr(CoreConst.EQUIP_CODE).get(), object.toJSONString());
                                 }
-                            }
+                            });
                         }
                     }
                 });
