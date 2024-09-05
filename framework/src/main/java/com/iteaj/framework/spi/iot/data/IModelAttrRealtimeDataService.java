@@ -9,4 +9,11 @@ public interface IModelAttrRealtimeDataService {
      * @return 实时采集数据
      */
     ModelAttrRealtimeData getRealtimeData(String uid, String signalOrField);
+
+    /**
+     * 获取设备的实时状态
+     * @param uid 设备uid
+     * @return 设备实时状态数据
+     */
+    RealtimeDeviceStatus getDeviceStatus(String uid);
 }
