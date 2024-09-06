@@ -396,7 +396,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 if(triggerDevice != null && triggerDevice.getUid().equals(conditionItem.getUid())) {
                     linkageDevice = triggerDevice;
                 } else {
-                    linkageDevice = cacheManager.getByUid(groupId, conditionItem.getUid());
+                    linkageDevice = cacheManager.getByUid(conditionItem.getUid());
                 }
 
                 if(linkageDevice != null) {
