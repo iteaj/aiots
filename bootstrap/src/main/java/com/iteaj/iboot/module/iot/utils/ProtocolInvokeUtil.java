@@ -155,11 +155,13 @@ public class ProtocolInvokeUtil {
             if(DataType.t_json.getValue().equals(item.getDataType())) {
                 item.getDicts().forEach(dict -> {
                     upConfigAttrs.add(new UpModelAttr(dict.getModelAttrId(), dict.getAttrField(), dict.getDictName()
-                            , DataType.build(dict.getDataType()), dict.getAccuracy(), dict.getGain(), dict.getResolver(), dict.getScript()));
+                            , DataType.build(dict.getDataType()), dict.getAccuracy(), dict.getGain(), dict.getResolver()
+                            , dict.getScript(), dict.getPath()));
                 });
             } else {
                 upConfigAttrs.add(new UpModelAttr(item.getModelAttrId(), item.getAttrField(), item.getAttrName()
-                        , DataType.build(item.getDataType()), item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript()));
+                        , DataType.build(item.getDataType()), item.getAccuracy(), item.getGain(), item.getResolver()
+                        , item.getScript(), null));
             }
         });
 

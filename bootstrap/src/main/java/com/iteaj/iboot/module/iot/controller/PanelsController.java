@@ -136,7 +136,7 @@ public class PanelsController extends BaseController {
                                 // 设置各属性的实时值
                                 RealtimeData realtimeData = realtimeDataMap.get(attrValue.getField());
                                 if(realtimeData != null && realtimeData.getRealtime() != null
-                                        && realtimeData.getRealtime().getStatus() == CollectStatus.Success) {
+                                        && realtimeData.getRealtime().getValue() != null) {
                                     attrValue.setValue(realtimeData.getRealtime().getValue().toString());
                                     if(Boolean.TRUE.equals(attrValue.getCtrlStatus())) {
                                         panelsDeviceDto.setCtrlValue(attrValue.getValue());
