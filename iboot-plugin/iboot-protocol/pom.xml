@@ -20,7 +20,6 @@
         <module>protocol-dahua</module>
         <module>protocol-mqtt</module>
         <module>protocol-modbus</module>
-        <module>protocol-dlt645</module>
     </modules>
 
     <profiles>
