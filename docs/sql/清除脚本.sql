@@ -26,3 +26,11 @@ delete from iot_signal where id > 0;
 delete from sys_access_log where id > 0;
 delete from sys_captcha where id > 0;
 delete from sys_online_user where id > 0;
+
+delete from iot_linkage where id > 0;
+delete from iot_linkage_action where id > 0;
+delete from iot_linkage_condition where id > 0;
+delete from iot_linkage_condition_item where id > 0;
+delete from iot_linkage_item where id > 0;
+delete from iot_warn_config where id > 0;
+delete from iot_warn_record where id > 0;
