@@ -3,10 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.iteaj</groupId>
+        <version>${reversion}</version>
         <artifactId>iboot-protocol</artifactId>
-        <version>3.0.0</version>
     </parent>
     <artifactId>protocol-dlt645</artifactId>
-    <name>Archetype - protocol-dlt645</name>
-    <url>http://maven.apache.org</url>
+    <name>iboot:protocol:dlt645</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-server</artifactId>
+        </dependency>
+    </dependencies>
 </project>
