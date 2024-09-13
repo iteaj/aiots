@@ -12,14 +12,9 @@ import java.util.Date;
 public class Dlt645MessageHead extends DefaultMessageHead {
 
     /**
-     * 标识符
-     */
-    private final static byte ID = 0x68;
-
-    /**
      * 数据标识
      */
-    private Integer address;
+    private String address;
 
     /**
      * 数据块数
@@ -31,15 +26,15 @@ public class Dlt645MessageHead extends DefaultMessageHead {
      */
     private Date date;
 
-    public Dlt645MessageHead(String equipCode, ProtocolType type, Integer address) {
+    public Dlt645MessageHead(String equipCode, ProtocolType type, String address) {
         this(equipCode, type, address, null);
     }
 
-    public Dlt645MessageHead(String equipCode, ProtocolType type, Integer address, Byte blocks) {
+    public Dlt645MessageHead(String equipCode, ProtocolType type, String address, Byte blocks) {
         this(equipCode, type, address, blocks, null);
     }
 
-    public Dlt645MessageHead(String equipCode, ProtocolType type, Integer address, Byte blocks, Date date) {
+    public Dlt645MessageHead(String equipCode, ProtocolType type, String address, Byte blocks, Date date) {
         super(equipCode, type);
         this.address = address;
         this.blocks = blocks;

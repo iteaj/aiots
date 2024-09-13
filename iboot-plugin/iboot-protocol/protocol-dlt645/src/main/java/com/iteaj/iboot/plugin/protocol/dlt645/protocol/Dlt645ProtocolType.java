@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.protocol;
 
 import com.iteaj.iot.ProtocolType;
+import lombok.Getter;
 
 public enum Dlt645ProtocolType implements ProtocolType {
 
@@ -42,6 +43,7 @@ public enum Dlt645ProtocolType implements ProtocolType {
     error((byte) 0xD0, "错误"), // 大于D0的值都为错误协议
     ;
 
+    @Getter
     private final byte code;
     private final String desc;
     Dlt645ProtocolType(byte code, final String desc) {
@@ -59,4 +61,5 @@ public enum Dlt645ProtocolType implements ProtocolType {
     public String getDesc() {
         return this.desc;
     }
+
 }
