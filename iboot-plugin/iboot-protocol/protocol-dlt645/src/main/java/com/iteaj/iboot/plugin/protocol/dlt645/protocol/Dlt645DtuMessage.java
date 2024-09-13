@@ -8,7 +8,7 @@ public class Dlt645DtuMessage extends DtuServerMessageAbstract {
         super(message);
     }
 
-    public Dlt645DtuMessage(MessageHead head, MessageBody body) {
+    public Dlt645DtuMessage(Dlt645MessageHead head, Dlt645DtuMessageBody body) {
         super(head, body);
     }
 
