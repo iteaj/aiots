@@ -17,8 +17,8 @@ QQ1群 - 552167793 (已满)<br>
 |  Mqtt  |   系统内置   |   是   |   -   |  支持设备、第三方业务和iboot系统的双向数据对接  |
 |  DTU+Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备以modbus tcp协议对接并通过dtu连接iboot云网关  |
 |  DTU+Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过485和dtu串口以modbus rtu协议对接上传到iboot云网关  |
-|  Modbus Tcp  |   系统内置   |   否   |   -   |  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
-|  Modbus Rtu  |   系统内置   |   否   |   -   |  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
+|  Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
+|  Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
 |  Opc Ua  |   开发中   |   否   |   待定   |  支持iboot网关(上位机)以opcua服务器对接采集和控制设备  |
 ### 项目介绍
 1. ##### 这个项目能用来做什么<br>
