@@ -30,5 +30,15 @@ public abstract class StaticClientProtocolSupplier<C extends NetworkConfigImpl, 
         return client;
     }
 
+    @Override
+    public synchronized K removeClient(Object clientKey) {
+        T component = getComponent();
+        if(component != null) {
+            return (K) component.removeClient(clientKey);
+        }
+
+        return null;
+    }
+
     protected abstract K doCreateClient(C config, T component);
 }
