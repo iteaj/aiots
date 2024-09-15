@@ -10,6 +10,12 @@ import java.io.IOException;
 public interface NetworkConfig {
 
     /**
+     * 返回设备唯一id
+     * @return uid
+     */
+    String getUid();
+
+    /**
      * 主机地址
      * @return
      */

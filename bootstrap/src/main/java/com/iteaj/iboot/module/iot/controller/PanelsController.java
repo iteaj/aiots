@@ -80,6 +80,7 @@ public class PanelsController extends BaseController {
 
         Map<Long, String> productProtocolMap = new HashMap<>();
         Map<Long, List<IVOption>> productOptionsMap = new HashMap<>();
+        Map<Long, Map<String, String>> productAttrDictsMap = new HashMap<>();
         Map<Long, List<PanelsDeviceDto.AttrValue>> productValuesMap = new HashMap<>();
 
         IPage<DeviceDto> data = pageResult.getData();
@@ -94,23 +95,28 @@ public class PanelsController extends BaseController {
                     List<PanelsDeviceDto.AttrValue> values = new ArrayList<>();
                     productProtocolMap.put(productDto.getId(), productDto.getProtocolCode());
                     if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
+                        Map<String, String> attrDictMap = new HashMap<>();
                         productDto.getAttrs().forEach(attr -> {
                             if(attr.getAttrType() != AttrType.W) { // 读和读写
-                                if(DataType.t_json.getValue().equals(attr.getDataType())) {
-
-                                } else {
+                                if(!DataType.t_json.getValue().equals(attr.getDataType())) {
                                     values.add(new PanelsDeviceDto.AttrValue(attr.getField(), attr.getName(), attr.getUnit(), attr.getCtrlStatus()));
                                 }
                             }
+
                             if(attr.getAttrType() != AttrType.R) { // 写或者读写
                                 if(Boolean.TRUE.equals(attr.getCtrlStatus()) && CollectionUtil.isNotEmpty(attr.getDicts())) {
                                     attr.getDicts().forEach(dict -> options.add(new IVOption(dict.getDictName(), dict.getDictValue())));
                                 }
                             }
+
+                            if(CollectionUtil.isNotEmpty(attr.getDicts()) && !DataType.t_json.getValue().equals(attr.getDataType())) {
+                                attr.getDicts().forEach(dict -> attrDictMap.put(attr.getField()+"_"+dict.getDictValue(), dict.getDictName()));
+                            }
                         });
 
                         productValuesMap.put(productDto.getId(), values);
                         productOptionsMap.put(productDto.getId(), options);
+                        productAttrDictsMap.put(productDto.getId(), attrDictMap);
                     }
                 });
 
@@ -118,14 +124,15 @@ public class PanelsController extends BaseController {
                 data.getRecords().forEach(deviceDto -> {
                     deviceDto.setConfig(null);
                     List<IVOption> options = productOptionsMap.get(deviceDto.getProductId());
+                    Map<String, String> dictStringMap = productAttrDictsMap.get(deviceDto.getProductId());
                     List<PanelsDeviceDto.AttrValue> attrValues = productValuesMap.get(deviceDto.getProductId());
+
                     PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(options, Collections.EMPTY_LIST, deviceDto);
                     // 获取每个属性的实时数据
                     if(CollectionUtil.isNotEmpty(attrValues)) {
-                        List<PanelsDeviceDto.AttrValue> copyAttrValues = attrValues.stream().map(item -> {
-                            return new PanelsDeviceDto.AttrValue(item.getField(), item.getName(), item.getUnit(), item.getCtrlStatus());
-                        }).collect(Collectors.toList());
-                        panelsDeviceDto.setValues(copyAttrValues);
+                        List<PanelsDeviceDto.AttrValue> copyAttrValues = attrValues.stream()
+                                .map(item -> new PanelsDeviceDto.AttrValue(item.getField(), item.getName(), item.getUnit(), item.getCtrlStatus()))
+                                .collect(Collectors.toList());
 
                         copyAttrValues.forEach(attrValue -> {
                             String protocolCode = productProtocolMap.get(deviceDto.getProductId());
@@ -137,13 +144,22 @@ public class PanelsController extends BaseController {
                                 RealtimeData realtimeData = realtimeDataMap.get(attrValue.getField());
                                 if(realtimeData != null && realtimeData.getRealtime() != null
                                         && realtimeData.getRealtime().getValue() != null) {
-                                    attrValue.setValue(realtimeData.getRealtime().getValue().toString());
+
+                                    String value = realtimeData.getRealtime().getValue().toString();
+                                    attrValue.setValue(value);
+
+                                    // 将采集到的值转成字典label
+                                    attrValue.setLabel(dictStringMap.get(attrValue.getField() + "_" + value));
+
+                                    // 设置控制属性的值
                                     if(Boolean.TRUE.equals(attrValue.getCtrlStatus())) {
-                                        panelsDeviceDto.setCtrlValue(attrValue.getValue());
+                                        panelsDeviceDto.setCtrlValue(value);
                                     }
                                 }
                             }
                         });
+
+                        panelsDeviceDto.setValues(copyAttrValues);
                     }
 
                     panelsDeviceDtos.add(panelsDeviceDto);
