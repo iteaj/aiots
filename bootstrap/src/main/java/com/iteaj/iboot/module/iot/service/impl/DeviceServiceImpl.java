@@ -351,7 +351,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                                         .collect(Collectors.toList());
 
                                 // 从数据库移除子设备记录
-                                this.remove(Wrappers.<Device>lambdaQuery().in(Device::getUid, uids));
+                                this.remove(Wrappers.<Device>lambdaQuery().eq(Device::getPid, status.getId()));
 
                                 // 从缓存移除所有的子设备
                                 fromCache.forEach((key, value) -> {
