@@ -246,9 +246,9 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                         children.values().forEach(iotCacheManager::removeDevice);
 
                         // 缓存新的子设备
-                        Map<String, RealtimeStatus> childMap = this.listChildDeviceStatusFromCache(newCache.getProtocolCode(), newCache.getDeviceSn());
-                        if(childMap != null) {
-                            childMap.values().forEach(iotCacheManager::cache);
+                        List<RealtimeStatus> childDevices = this.getBaseMapper().listDeviceStatus(newCache.getProtocolCode(), null, newCache.getDeviceSn());
+                        if(childDevices != null) {
+                            childDevices.forEach(iotCacheManager::cache);
                         }
                     }
                 }
