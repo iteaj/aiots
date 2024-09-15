@@ -77,6 +77,18 @@
             <artifactId>protocol-dtu</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--modbus协议提供-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>modbus-rtu</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>modbus-tcp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <scope>provided</scope>
             <groupId>org.springframework.boot</groupId>
