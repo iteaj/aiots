@@ -9,6 +9,7 @@ QQ1群 - 552167793 (已满)<br>
 ### 商务合作(qq号：97235681)
 ### 视频教程
 [Iboot序列教程之Mqtt篇](https://www.bilibili.com/video/BV1k9t5e3EtK/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
+[Iboot序列教程之Modbus篇](https://www.bilibili.com/video/BV1dgtQeNEyP/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
 ### 未来功能规划
 1. 接入[乐吾乐大屏](https://le5le.com/)，支持组态、3D、大屏在线设计(开发中)
 ### 平台架构图
