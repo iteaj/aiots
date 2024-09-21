@@ -26,11 +26,13 @@ public class Dlt645DtuMessage extends DtuServerMessageAbstract {
     @Override
     public void writeBuild() {
         byte[] message;
-        String strMsg = "FEFEFEFE68" + getHead().getEquipCode() + getHead() + "68" + getHead().getAddress() + "%s%s"
+        String strMsg = "68" + getHead().getEquipCode() + "68" + getHead().getAddress() + "%s%s";
+        StringBuilder builder = new StringBuilder().append("68").append(getHead().getEquipCode()).append("68").append(getHead().getType().getCode());
         Dlt645MessageHead head = getHead();
         byte[] deviceSnData = ByteUtil.hexToByte(head.getEquipCode());
         switch (head.getType()) {
             case readReq:
+                builder.append(getHead().getType().getCode());
                 byte[] address = ByteUtil.hexToByte(head.getAddress());
                 if(head.getBlocks() != null && head.getDate() != null) {
                     message = new byte[] {(byte) 0xFE, (byte) 0XFE, (byte) 0XFE, (byte) 0XFE, ID, 0, 0, 0, 0, ID, head.getType().getCode(), 0x0A, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x16};
