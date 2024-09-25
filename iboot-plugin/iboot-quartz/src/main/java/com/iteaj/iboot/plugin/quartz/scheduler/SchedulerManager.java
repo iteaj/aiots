@@ -148,7 +148,7 @@ public class SchedulerManager {
      * @param jobName
      */
     public void removeJob(String jobName) {
-        this.resumeJob(jobName, jobName);
+        this.removeJob(jobName, jobName);
     }
 
     /**
