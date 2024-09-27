@@ -10,6 +10,7 @@ QQ1群 - 552167793 (已满)<br>
 ### 商务合作(qq号：97235681)
 ### 视频教程
 1. [Iboot系统简介](https://www.bilibili.com/video/BV15NtieWE9W/?vd_source=32a176fca70a1cee8222bff9ac0846ab)<br>
+2. [Iboot设备类型介绍](https://www.bilibili.com/video/BV13kx7ebEYM/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
 2. [Iboot序列教程之Mqtt篇](https://www.bilibili.com/video/BV1k9t5e3EtK/?vd_source=32a176fca70a1cee8222bff9ac0846ab)<br>
 3. [Iboot序列教程之Modbus篇](https://www.bilibili.com/video/BV1dgtQeNEyP/?vd_source=32a176fca70a1cee8222bff9ac0846ab) 
 ### 未来功能规划
