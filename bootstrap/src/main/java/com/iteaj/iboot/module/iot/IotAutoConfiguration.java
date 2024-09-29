@@ -11,17 +11,13 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.data.RedisRealtimeDataService;
 import com.iteaj.iboot.module.iot.collect.CollectDataListener;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
-import com.iteaj.iboot.module.iot.collect.model.DataPersistenceListener;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
-import com.iteaj.iboot.module.iot.collect.model.RDBMSPersistenceListener;
-import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.linkage.*;
 import com.iteaj.iboot.module.iot.linkage.warn.RDBMSPersistenceWarnListener;
 import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
-import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -33,8 +29,8 @@ import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 @Profile("iot")
@@ -55,16 +51,6 @@ public class IotAutoConfiguration {
     }
 
     @Bean
-    public RDBMStoreAction rdbmStoreAction() {
-        return new RDBMStoreAction();
-    }
-
-    @Bean
-    public DefaultRdbmsSqlManager rdbmsManager(DataSource dataSource) {
-        return new DefaultRdbmsSqlManager(dataSource);
-    }
-
-    @Bean
     public StoreActionFactory storeActionFactory() {
         return StoreActionFactory.getInstance();
     }
@@ -72,17 +58,6 @@ public class IotAutoConfiguration {
     @Bean
     public IotCacheManager iotLocalCacheManager() {
         return new IotLocalCacheManager();
-    }
-
-    /**
-     * 数据持久化处理
-     * @param rdbmsSqlManager
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean(DataPersistenceListener.class)
-    public RDBMSPersistenceListener rdbmsPersistenceListener(DefaultRdbmsSqlManager rdbmsSqlManager) {
-        return new RDBMSPersistenceListener(rdbmsSqlManager);
     }
 
     /**
@@ -191,10 +166,10 @@ public class IotAutoConfiguration {
     }
 
     @Bean
-    public IBootThreadManger iBootThreadManger(IotMsnProperties properties) {
+    public IBootThreadManger iBootThreadManger(IotMsnProperties properties, ThreadPoolTaskExecutor taskExecutor) {
         Integer poolSize = properties.getTask().getPoolSize();
         TaskSchedulerBuilder builder = new TaskSchedulerBuilder(poolSize, false
                 , null, properties.getTask().getThreadNamePrefix(), null);
-        return new IBootThreadManger(builder.build());
+        return new IBootThreadManger(builder.build(), taskExecutor);
     }
 }

@@ -11,6 +11,7 @@ import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.StatusSwitchListener;
+import com.iteaj.iboot.module.iot.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
@@ -44,11 +45,13 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
     private final static String DEFAULT_MQTT_IMPL = "MQTT_DEFAULT_IMPL";
     private final IotCacheManager cacheManager;
     private final IProductService productService;
+    private final IBootThreadManger threadManger;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<String, Map<String, SubscribeConfig>> productSubscribeApis = new ConcurrentHashMap<>();
 
-    public DefaultMqttHandle(IotCacheManager cacheManager, IProductService productService) {
+    public DefaultMqttHandle(IotCacheManager cacheManager, IProductService productService, IBootThreadManger threadManger) {
         this.cacheManager = cacheManager;
+        this.threadManger = threadManger;
         this.productService = productService;
     }
 
@@ -165,10 +168,13 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
         }).collect(Collectors.toList());
 
         // 发布模型属性的事件
-        DataSupplier dataSupplier = new DataSupplier(DEFAULT_MQTT_IMPL, DeviceKey.build(deviceSnValue, gatewaySnValue));
-        dataSupplier.setValues(fieldValues);
-        CollectListenerManager.getInstance().modelAttrPublish(modelAttrListener -> {
-            modelAttrListener.supplier(dataSupplier, device);
+        threadManger.getTaskExecutor().execute(() -> {
+            DataSupplier dataSupplier = new DataSupplier(DEFAULT_MQTT_IMPL, DeviceKey.build(deviceSnValue, gatewaySnValue));
+            dataSupplier.setValues(fieldValues);
+
+            CollectListenerManager.getInstance().modelAttrPublish(modelAttrListener -> {
+                modelAttrListener.supplier(dataSupplier, device);
+            });
         });
     }
 

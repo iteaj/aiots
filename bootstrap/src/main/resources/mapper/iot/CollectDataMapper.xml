@@ -12,29 +12,28 @@
         <result column="reason" property="reason" />
         <result column="address" property="address" />
         <result column="field" property="field" />
+        <result property="deviceSn" column="device_sn" />
+        <result property="deviceName" column="device_name" />
+        <result column="field_id" property="fieldId" />
         <result column="field_name" property="fieldName" />
         <result column="collect_mode" property="collectMode" />
         <result column="create_time" property="createTime" />
         <result column="collect_time" property="collectTime" />
-        <result column="collect_task_id" property="collectTaskId" />
+        <result column="task_id" property="taskId" />
     </resultMap>
     <resultMap id="DtoResultMap" type="com.iteaj.iboot.module.iot.dto.CollectDataDto" extends="BaseResultMap">
-        <result property="deviceSn" column="device_sn" />
-        <result property="deviceName" column="device_name" />
+        <result property="productId" column="product_id" />
     </resultMap>
 
-    <select id="detailOfPage" resultMap="DtoResultMap">
-        select a.id, a.cid, a.uid, a.signal_id, a.field, a.collect_task_id, a.address, a.value
-             , a.status, a.reason, a.collect_time, a.create_time, d.name device_name, d.device_sn
-             , f.name field_name
-        from iot_collect_data a
+    <select id="detailOfPage" resultMap="BaseResultMap">
+        select a.*, f.name attr_name from iot_collect_data a
             left join iot_device d on a.uid=d.uid
         <choose>
             <when test="entity.collectMode == 'model'">
-                left join iot_model_attr f on f.id = a.signal_id
+                left join iot_model_attr f on f.id = a.task_id
             </when>
             <otherwise>
-                left join iot_signal f on f.id=a.signal_id
+                left join iot_signal f on f.id=a.task_id
             </otherwise>
         </choose>
         <where>
@@ -45,7 +44,7 @@
                 and a.cid=#{entity.cid}
             </if>
             <if test="entity.deviceSn != null and entity.deviceSn != ''">
-                and d.device_sn=#{entity.deviceSn}
+                and a.device_sn=#{entity.deviceSn}
             </if>
             <if test="entity.collectMode != null">
                 and a.collect_mode = #{entity.collectMode}
@@ -53,11 +52,11 @@
             <if test="entity.productId != null">
                 and d.product_id=#{entity.productId}
             </if>
-            <if test="entity.signalId != null">
-                and a.signal_id=#{entity.signalId}
+            <if test="entity.fieldId != null">
+                and a.field_id=#{entity.fieldId}
             </if>
-            <if test="entity.collectTaskId != null">
-                and a.collect_task_id=#{entity.collectTaskId}
+            <if test="entity.taskId != null">
+                and a.task_id=#{entity.taskId}
             </if>
             <if test="entity.status != null">
                 and a.status=#{entity.status}
@@ -67,10 +66,9 @@
     </select>
     <select id="countLastWeek" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
         select count(1) value, date_format(a.collect_time, '%Y-%m-%d') category from iot_collect_data a
-        left join iot_device d on a.uid = d.uid
         <where>
             <if test="deviceGroupId != null">
-                and d.device_group_id = #{deviceGroupId}
+                and a.device_group_id = #{deviceGroupId}
             </if>
             and a.collect_time > date_sub(curdate(), interval 7 day)
         </where>
@@ -78,7 +76,6 @@
     </select>
     <select id="countLastByDays" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
         select count(1) value, date_format(a.collect_time, '%Y-%m-%d') category from iot_collect_data a
-            left join iot_device d on a.uid = d.uid
         where a.collect_time > date_sub(curdate(), interval #{days} day) group by category
     </select>
     <select id="countOfCommonByTime" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">

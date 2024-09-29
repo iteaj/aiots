@@ -7,6 +7,7 @@ import com.iteaj.framework.ProfilesInclude;
 import com.iteaj.iboot.plugin.datasource.tdengine.listener.TaosRealtimeDataListener;
 import com.iteaj.iboot.plugin.datasource.tdengine.service.TaosDataService;
 import com.iteaj.iot.taos.TaosSqlManager;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
@@ -14,11 +15,12 @@ import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 
+import static com.iteaj.iboot.plugin.datasource.tdengine.mapper.TaosCollectDataMapper.DS_NAME;
+
 @ProfilesInclude("tdengine")
+@MapperScan({"com.iteaj.iboot.plugin.datasource.tdengine.mapper"})
 @AutoConfigureAfter(DynamicDataSourceAutoConfiguration.class)
 public class TDengineAutoConfiguration {
-
-    private static final String DS_NAME = "tdengine";
 
     @Bean
     public Object taosDataSource(DynamicRoutingDataSource dataSource) {
