@@ -194,16 +194,16 @@
         </dependency>
 
         <!--多数据源(采集数据)-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>iboot-rdbms</artifactId>-->
-<!--            <version>${reversion}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.iteaj</groupId>
+            <artifactId>iboot-rdbms</artifactId>
             <version>${reversion}</version>
-            <artifactId>iboot-tdengine</artifactId>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${reversion}</version>-->
+<!--            <artifactId>iboot-tdengine</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
