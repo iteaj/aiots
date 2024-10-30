@@ -109,14 +109,8 @@ public class IotNetworkUtil {
     public static void removeClient(RealtimeStatus status) {
         String protocolCode = status.getProtocolCode();
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
-        if(supplier != null && status.getType() == DeviceType.Gateway) {
-            FrameworkComponent component = supplier.getComponent();
-            if(component != null && component instanceof ClientComponent) {
-                IotClient client = ((ClientComponent<?>) component).removeClient(status.getDeviceSn());
-                if(client != null) {
-//                    client.disconnect();
-                }
-            }
+        if(supplier instanceof ClientProtocolSupplier) {
+            ((ClientProtocolSupplier<?, ?, ?>) supplier).removeClient(status.getDeviceSn());
         }
 
     }

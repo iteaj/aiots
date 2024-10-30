@@ -42,7 +42,7 @@ public class CollectGroupTask implements Runnable{
     @Override
     public void run() {
         // 没有任何采集接口, 放弃采集任务
-        if(this.apis == null || this.apis.size() == 0) {
+        if(this.apis == null || this.apis.isEmpty()) {
             logger.warn("放弃采集任务 没有任何采集接口 - 事件源: {} - 设备组: {}", source.getName(), group.getName());
             return;
         }
@@ -50,34 +50,30 @@ public class CollectGroupTask implements Runnable{
         String prevParentDeviceSn = null;
         CollectInfo info = new CollectInfo(source, group);
         Collection<RealtimeStatus> devices = cacheManager.listByGroupId(group.getId());
-        Iterator<RealtimeStatus> iterator = devices.iterator();
-        while (iterator.hasNext()) {
-            RealtimeStatus device = iterator.next();
+        for (RealtimeStatus device : devices) {
             // 当前设备的产品不在事件源包含的产品里面
-            if(device.getProductId() == null || !source.getProductIds().contains(device.getProductId().intValue())) {
+            if (device.getProductId() == null || !source.getProductIds().contains(device.getProductId().intValue())) {
                 continue;
             }
 
-            if(device.getStatus() == DeviceStatus.offline) {
+            if (device.getStatus() == DeviceStatus.offline) {
                 logger.warn("放弃设备采集任务 设备不在线 - 事件源: {} - 设备组: {} - 设备编号: {}"
                         , source.getName(), group.getName(), device.buildDeviceKey());
                 continue;
             }
 
-            Iterator<ModelApi> apiIterator = apis.iterator();
-            while (apiIterator.hasNext()) {
-                ModelApi api = apiIterator.next();
+            for (ModelApi api : apis) {
                 try {
                     // 对此设备同一产品的模型接口进行调用
-                    if(api.getProductId().equals(device.getProductId())) {
-                        if(prevParentDeviceSn != null && ProtocolCodes.isModbus(device.getProtocolCode())) {
+                    if (api.getProductId().equals(device.getProductId())) {
+                        if (prevParentDeviceSn != null && ProtocolCodes.isModbus(device.getProtocolCode())) {
                             // 同一台网关设备的采集时间需要有一定间隔(防止网关设备性能差导致采集失败)
-                            if(prevParentDeviceSn.equals(device.getParentDeviceSn())) {
+                            if (prevParentDeviceSn.equals(device.getParentDeviceSn())) {
                                 Thread.sleep(1000); // 休眠1秒
                             }
                         }
 
-                        doInvoke(info, device, api, 3000l, false);
+                        doInvoke(info, device, api, 3000L, false);
                         prevParentDeviceSn = device.getParentDeviceSn();
                     }
                 } catch (ProtocolInvokeException e) {
@@ -111,7 +107,7 @@ public class CollectGroupTask implements Runnable{
                 }
             } else {
                 if(result.getStatus() == ExecStatus.timeout && !retry) {
-                    this.doInvoke(info, device, api, 6000l, true);
+                    this.doInvoke(info, device, api, 6000L, true);
                 } else {
                     if(retry) {
                         logger.warn("接口采集重试失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()

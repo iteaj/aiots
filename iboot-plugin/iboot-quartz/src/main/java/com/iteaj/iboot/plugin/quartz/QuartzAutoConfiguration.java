@@ -6,6 +6,9 @@ import com.iteaj.iboot.plugin.quartz.scheduler.SchedulerManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.quartz.Scheduler;
 import org.quartz.spi.JobFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
@@ -23,8 +26,9 @@ import javax.sql.DataSource;
 @EnableScheduling
 @ComponentScan({"com.iteaj.iboot.plugin.quartz"})
 @MapperScan({"com.iteaj.iboot.plugin.quartz.mapper"})
-public class QuartzAutoConfiguration {
+public class QuartzAutoConfiguration implements BeanFactoryPostProcessor {
 
+    private final SpringSupportJob supportJob = new SpringSupportJob();
     private final static String DEFAULT_JOB_GROUP_NAME = "JOB:GROUP:IBOOT";
     private final static String DEFAULT_TRIGGER_GROUP_NAME = "TRIGGER:GROUP:IBOOT";
 
@@ -67,6 +71,11 @@ public class QuartzAutoConfiguration {
 
     @Bean
     public JobFactory jobFactory() {
-        return new SpringSupportJob();
+        return supportJob;
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        beanFactory.addBeanPostProcessor(supportJob);
     }
 }

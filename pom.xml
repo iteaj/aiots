@@ -121,6 +121,11 @@
             <dependency>
                 <groupId>com.iteaj</groupId>
                 <version>${iot.version}</version>
+                <artifactId>iot-core</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <version>${iot.version}</version>
                 <artifactId>iot-server</artifactId>
             </dependency>
             <dependency>

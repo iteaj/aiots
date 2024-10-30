@@ -16,13 +16,4 @@ public class CollectDataDto extends CollectData {
      */
     private Long productId;
 
-    /**
-     * 设备编号
-     */
-    private String deviceSn;
-
-    /**
-     * 设备名称
-     */
-    private String deviceName;
 }

@@ -1,7 +1,9 @@
 package com.iteaj.iboot.module.iot.mqtt;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
@@ -9,6 +11,7 @@ import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.StatusSwitchListener;
+import com.iteaj.iboot.module.iot.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
@@ -28,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -39,13 +43,15 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
     private final static String deviceSn = "deviceSn";
     private final static String gatewaySn = "gatewaySn";
     private final static String DEFAULT_MQTT_IMPL = "MQTT_DEFAULT_IMPL";
-    private IotCacheManager cacheManager;
-    private IProductService productService;
-    private Logger logger = LoggerFactory.getLogger(getClass());
-    private Map<String, Map<String, SubscribeConfig>> productSubscribeApis = new ConcurrentHashMap<>();
+    private final IotCacheManager cacheManager;
+    private final IProductService productService;
+    private final IBootThreadManger threadManger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Map<String, Map<String, SubscribeConfig>> productSubscribeApis = new ConcurrentHashMap<>();
 
-    public DefaultMqttHandle(IotCacheManager cacheManager, IProductService productService) {
+    public DefaultMqttHandle(IotCacheManager cacheManager, IProductService productService, IBootThreadManger threadManger) {
         this.cacheManager = cacheManager;
+        this.threadManger = threadManger;
         this.productService = productService;
     }
 
@@ -148,17 +154,27 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
             , String gatewaySnValue, String deviceSnValue, RealtimeStatus device) {
         Date date = new Date();
         byte[] message = protocol.requestMessage().getMessage();
-        JSONObject jsonObject = JSONObject.parseObject(new String(message, Charset.forName("utf-8")));
+        JSONObject jsonObject = JSONObject.parseObject(new String(message, StandardCharsets.UTF_8));
         List<SignalOrFieldValue> fieldValues = dicts.stream().map(item -> {
-            Object value = DataValueResolverFactory.resolver(item, jsonObject.get(item.getField()));
+            Object fieldValue;
+            if(StrUtil.isBlank(item.getPath())) {
+                fieldValue = jsonObject.get(item.getField());
+            } else {
+                fieldValue = JSONPath.eval(jsonObject, item.getPath());
+            }
+
+            Object value = DataValueResolverFactory.resolver(item, fieldValue);
             return new SignalOrFieldValue(item.getId(), item.getField(), date, value);
         }).collect(Collectors.toList());
 
         // 发布模型属性的事件
-        DataSupplier dataSupplier = new DataSupplier(DEFAULT_MQTT_IMPL, DeviceKey.build(deviceSnValue, gatewaySnValue));
-        dataSupplier.setValues(fieldValues);
-        CollectListenerManager.getInstance().modelAttrPublish(modelAttrListener -> {
-            modelAttrListener.supplier(dataSupplier, device);
+        threadManger.getTaskExecutor().execute(() -> {
+            DataSupplier dataSupplier = new DataSupplier(DEFAULT_MQTT_IMPL, DeviceKey.build(deviceSnValue, gatewaySnValue));
+            dataSupplier.setValues(fieldValues);
+
+            CollectListenerManager.getInstance().modelAttrPublish(modelAttrListener -> {
+                modelAttrListener.supplier(dataSupplier, device);
+            });
         });
     }
 
@@ -208,11 +224,12 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                                 } else {
                                     attrs = config.getDicts().stream().map(item -> new UpModelAttr(Long.valueOf(item.getDictValue())
                                             , item.getAttrField(), item.getDictName(), DataType.build(item.getDataType())
-                                            , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript())).collect(Collectors.toList());
+                                            , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript()
+                                            , item.getPath())).collect(Collectors.toList());
                                 }
 
                             } else {
-                                isWill = Boolean.valueOf(config.getValue());
+                                isWill = Boolean.parseBoolean(config.getValue());
                             }
                         }
 
@@ -246,16 +263,16 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
     }
 
     @Getter
-    public class SubscribeConfig {
+    public static class SubscribeConfig {
         /**
          * 是否遗嘱
          */
-        private boolean isWill;
+        private final boolean isWill;
 
         /**
          * 属性配置
          */
-        private List<UpModelAttr> attrs;
+        private final List<UpModelAttr> attrs;
 
         public SubscribeConfig(boolean isWill, List<UpModelAttr> attrs) {
             this.isWill = isWill;

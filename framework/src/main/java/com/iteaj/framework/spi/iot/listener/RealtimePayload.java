@@ -14,6 +14,7 @@ public class RealtimePayload extends EntityPayload<Collection> {
      * warn 实时告警
      * status 实时设备在线状态
      * data 实时采集的数据
+     * data_full 完整的采集数据
      */
     private String type;
 

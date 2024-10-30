@@ -1,17 +1,14 @@
 package com.iteaj.iboot.module.iot.le5le;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
-import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
-import com.iteaj.framework.spi.iot.data.WarnData;
+import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.data.*;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 import com.iteaj.iot.CoreConst;
-import com.iteaj.iot.server.manager.TcpDeviceManager;
 import com.iteaj.iot.server.websocket.WebSocketServerListener;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerComponent;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerProtocol;
@@ -25,13 +22,15 @@ import java.util.stream.Collectors;
 @Component
 public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, RealtimeInfoListener {
 
-    private TcpDeviceManager deviceManager;
     private final static String URI = "/ws/iot/scada";
     private final DefaultWebSocketServerComponent webSocketServerComponent;
+    private final IModelAttrRealtimeDataService modelAttrRealtimeDataService;
     private final static AttributeKey<Set<String>> REGISTER = AttributeKey.valueOf("POINT:REGISTER");
 
-    public ScadaRealtimeDataListenerPush(DefaultWebSocketServerComponent webSocketServerComponent) {
+    public ScadaRealtimeDataListenerPush(DefaultWebSocketServerComponent webSocketServerComponent
+            , IModelAttrRealtimeDataService modelAttrRealtimeDataService) {
         this.webSocketServerComponent = webSocketServerComponent;
+        this.modelAttrRealtimeDataService = modelAttrRealtimeDataService;
     }
 
     @Override
@@ -47,12 +46,39 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
             points = Arrays.stream(bindPoints.split(",")).collect(Collectors.toSet());
         }
 
-        if(deviceManager == null) {
-            deviceManager = webSocketServerComponent.getDeviceManager();
-        }
-
-        Channel channel = deviceManager.find(protocol.getEquipCode());
+        Channel channel = webSocketServerComponent.getDeviceManager().find(protocol.getEquipCode());
         channel.attr(REGISTER).set(points);
+
+        JSONArray array = new JSONArray();
+        points.forEach(key -> {
+            String[] split = key.split(":");
+            if(split[0].equals("s")) {
+                RealtimeDeviceStatus deviceStatus = modelAttrRealtimeDataService.getDeviceStatus(split[1]);
+                if(deviceStatus != null) {
+                    Map<String, Object> itemValue = new HashMap<>();
+                    itemValue.put("id", key);
+                    itemValue.put("value", deviceStatus.getDeviceStatus());
+                    array.add(itemValue);
+                }
+            } else if(split[0].equals("w")) {
+                // 告警数据初始化
+            } else if(split[0].equals("a")) {
+                ModelAttrRealtimeData realtimeData = modelAttrRealtimeDataService.getRealtimeData(split[1], split[2]);
+                if(realtimeData != null) {
+                    SignalOrFieldValue value = realtimeData.getRealtime() != null ? realtimeData.getRealtime() : realtimeData.getPrev();
+                    if(value != null && value.getValue() != null) {
+                        Map<String, Object> itemValue = new HashMap<>();
+                        itemValue.put("id", key);
+                        itemValue.put("value", value.getValue());
+                        array.add(itemValue);
+                    }
+                }
+            }
+        });
+
+        if(!array.isEmpty()) {
+            protocol.response(array.toJSONString());
+        }
     }
 
     @Override
@@ -86,36 +112,26 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
                 });
             }
 
-            if(array.size() > 0) {
+            if(!array.isEmpty()) {
                 channels.forEach(channel -> {
                     if(channel.isActive()) { // 连接在线
                         Set<String> strings = channel.attr(REGISTER).get();
-                        if(strings != null && strings.size() > 0) {
-                            if(array.size() == 1) {
-                                // 只有一条记录, 直接写出
-                                array.forEach(item -> {
-                                    JSONObject object = (JSONObject) item;
-                                    if(strings.contains(object.getString("id"))) {
-                                        DefaultWebSocketServerProtocol.write(channel.attr(CoreConst.EQUIP_CODE).get(), object.toJSONString());
-                                    }
-                                });
-                            } else { // 有多条记录
-                                List<JSONObject> result = new ArrayList<>();
-                                array.forEach(item -> {
-                                    JSONObject object = (JSONObject) item;
-                                    if(strings.contains(object.getString("id"))) {
-                                        result.add(object);
-                                    }
-                                });
-
-                                // 有数据需要写出
-                                if(result.size() > 0) {
-                                    DefaultWebSocketServerProtocol.write(channel.attr(CoreConst.EQUIP_CODE).get(), JSON.toJSONString(result));
+                        if(strings != null && !strings.isEmpty()) {
+                            JSONArray result = new JSONArray();
+                            array.forEach(item -> {
+                                JSONObject object = (JSONObject) item;
+                                if(strings.contains(object.getString("id"))) {
+                                    result.add(object);
                                 }
+                            });
+
+                            if(!result.isEmpty()) {
+                                DefaultWebSocketServerProtocol.write(channel.attr(CoreConst.EQUIP_CODE).get(), result.toJSONString());
                             }
                         }
                     }
                 });
+
             }
         });
     }

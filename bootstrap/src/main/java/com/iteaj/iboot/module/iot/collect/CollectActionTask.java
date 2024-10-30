@@ -15,7 +15,6 @@ import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.store.StoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.consts.CollectMode;
-import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.dto.CollectTaskDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iot.consts.ExecStatus;
@@ -65,8 +64,8 @@ public class CollectActionTask implements Runnable {
                                                 .setCollectStatus(CollectStatus.Success)
                                                 .setCreateTime(date)
                                                 .setUid(String.valueOf(collectDevice.getUid()))
-                                                .setSignalId(signal.getId())
-                                                .setCollectTaskId(taskDto.getId());
+                                                .setFieldId(signal.getId())
+                                                .setTaskId(taskDto.getId());
 
                                         try {
                                             AbstractProtocolModelApi modelApi = protocol.getApi(signal.getDirect());

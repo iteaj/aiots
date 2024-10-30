@@ -21,14 +21,16 @@ public class TaosRealtimeDataListener implements RealtimeInfoListener {
 
     @Override
     public void onIotEvent(IotEventType eventType, RealtimePayload value) {
-        if(Objects.equals(value.getType(), "data")) {
+        if(Objects.equals(value.getType(), "data_full")) {
             List collect = (List) value.getPayload().stream().map(item -> {
                 RealtimeCollectData data = (RealtimeCollectData) item;
                 String collectValue = data.getValue() != null ? data.getValue().toString() : null;
                 return new TaosRealtimeData().setAddress(data.getAddress())
                         .setTaskId(data.getTaskId()).setField(data.getField())
                         .setCollectTime(data.getCollectTime()).setCreateTime(new Date())
-                        .setCollectStatus(data.getStatus()).setCollectValue(collectValue)
+                        .setStatus(data.getStatus()).setValue(collectValue)
+                        .setDeviceSn(data.getDeviceSn()).setDeviceGroupId(data.getDeviceGroupId())
+                        .setDeviceName(data.getDeviceName()).setFieldName(data.getFieldName())
                         .setReason(data.getReason()).setCollectMode(data.getCollectMode())
                         .setProductCode(data.getProductCode()).setProtocolCode(data.getProtocolCode())
                         .setCid(data.getCid()).setUid(data.getUid()).setFieldId(data.getFieldId());

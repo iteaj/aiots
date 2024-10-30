@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.datasource.tdengine.listener;
 
+import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.iot.taos.STable;
 import com.iteaj.iot.tools.annotation.IotField;
 import com.iteaj.iot.tools.annotation.IotTableId;
@@ -9,10 +10,12 @@ import lombok.experimental.Accessors;
 
 import java.util.Date;
 
+import static com.iteaj.framework.spi.iot.data.RealtimeCollectData.COLLECT_TABLE_NAME;
+
 @Data
-@STable(value = "iot_data", table = "iot_data_${uid}", using = true)
+@STable(value = COLLECT_TABLE_NAME, table = "iot_data_${uid}", using = true)
 @Accessors(chain = true)
-public class TaosRealtimeData {
+public class TaosRealtimeData implements RealtimeCollectData {
 
     /**
      * 任务执行标识
@@ -54,13 +57,13 @@ public class TaosRealtimeData {
      * 采集值
      */
     @IotField("collect_value")
-    private String collectValue;
+    private String value;
 
     /**
      * 采集状态
      */
     @IotField("collect_status")
-    private Boolean collectStatus;
+    private Boolean status;
 
     /**
      * 采集状态说明
@@ -87,6 +90,24 @@ public class TaosRealtimeData {
     private Date createTime;
 
     /**
+     * 设备名称
+     */
+    @IotField("device_name")
+    private String deviceName;
+
+    /**
+     * 设备编号
+     */
+    @IotField("device_sn")
+    private String deviceSn;
+
+    /**
+     * 字段名称
+     */
+    @IotField("field_name")
+    private String fieldName;
+
+    /**
      * 所属设备组
      */
     @IotTag("device_group_id")
@@ -103,4 +124,6 @@ public class TaosRealtimeData {
      */
     @IotTag("product_code")
     private String productCode;
+
+
 }

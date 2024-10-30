@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
@@ -35,7 +36,7 @@ public class CollectDataController extends BaseController {
      */
     @Logger("访问点位数据页面")
     @GetMapping("/signal")
-    public Result<Page<CollectDataDto>> signal(Page page, CollectDataDto entity) {
+    public Result<Page<RealtimeCollectData>> signal(Page page, CollectDataDto entity) {
         entity.setCollectMode("signal");
         return collectDataService.detailOfPage(page, entity);
     }
@@ -48,7 +49,7 @@ public class CollectDataController extends BaseController {
      */
     @Logger("访问模型数据页面")
     @GetMapping("/model")
-    public Result<Page<CollectDataDto>> model(Page page, CollectDataDto entity) {
+    public Result<Page<RealtimeCollectData>> model(Page page, CollectDataDto entity) {
         entity.setCollectMode("model");
         return collectDataService.detailOfPage(page, entity);
     }

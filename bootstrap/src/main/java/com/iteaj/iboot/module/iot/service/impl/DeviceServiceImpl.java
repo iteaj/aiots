@@ -14,8 +14,10 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.ServerProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.CollectValueItem;
@@ -33,6 +35,7 @@ import com.iteaj.iboot.module.iot.mapper.DeviceMapper;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
+import com.iteaj.iot.client.IotClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -128,6 +131,12 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     public BooleanResult save(Device entity) {
         validate(entity, null);
         entity.setUid(String.valueOf(IdWorker.getId()));
+
+        // 将uid写入配置, 作为设备的唯一键
+        if(entity.getConfig() != null) {
+            entity.getConfig().put("uid", entity.getUid());
+        }
+
         return super.save(entity).ifPresentAndTrue(item -> {
             RealtimeStatus status = this.getDeviceStatusFromCache(entity.getId());
             iotCacheManager.cache(status);
@@ -207,16 +216,45 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
         return super.updateById(entity).ifPresentAndTrue(item -> {
             RealtimeStatus newCache = this.getDeviceStatusFromCache(entity.getId());
-            iotCacheManager.update(oldCache, newCache);
-                // 切换了网关或者切换了产品清除实时数据
-                if(!oldCache.getProductId().equals(entity.getProductId()) || // 切换产品
-                        (newCache.getType() == DeviceType.Child && !oldCache.getParentDeviceSn().equals(entity.getParentDeviceSn()))) { // 切换网关
-                    try {
-                        realtimeDataService.remove(oldCache.getProtocolCode(), oldCache.buildKey());
-                    } catch (Exception e) {
-                        //
+
+            // 切换了网关或者切换了产品清除实时数据
+            if(!oldCache.getProductId().equals(entity.getProductId()) || // 切换产品
+                    (newCache.getType() == DeviceType.Child && !oldCache.getParentDeviceSn().equals(entity.getParentDeviceSn()))) { // 切换网关
+                try {
+                    realtimeDataService.remove(oldCache.getProtocolCode(), oldCache.buildKey());
+                } catch (Exception e) {
+                    //
+                }
+            }
+
+            // 网关设备如果修改了设备编号
+            if(oldCache.getType() == DeviceType.Gateway && !oldCache.getDeviceSn().equals(newCache.getDeviceSn())) {
+                DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(oldCache.getProtocolCode());
+                // 客户端网关则需要移除客户端
+                if(supplier instanceof ClientProtocolSupplier) {
+                    IotClient iotClient = ((ClientProtocolSupplier) supplier).removeClient(oldCache.getDeviceSn());
+                    if(iotClient != null) {
+                        iotClient.disconnect();
+                    }
+                } else if(supplier instanceof ServerProtocolSupplier){ // 服务端网关则需要重新加载子设备
+                    // 关闭连接
+                    ((ServerProtocolSupplier<?, ?>) supplier).close(oldCache.getDeviceSn());
+
+                    Map<String, RealtimeStatus> children = iotCacheManager.listForParent(oldCache.getProtocolCode(), oldCache.getDeviceSn());
+                    if(children != null) {
+                        // 移除所有旧的设备
+                        children.values().forEach(iotCacheManager::removeDevice);
+
+                        // 缓存新的子设备
+                        List<RealtimeStatus> childDevices = this.getBaseMapper().listDeviceStatus(newCache.getProtocolCode(), null, newCache.getDeviceSn());
+                        if(childDevices != null) {
+                            childDevices.forEach(iotCacheManager::cache);
+                        }
                     }
                 }
+            }
+
+            iotCacheManager.update(oldCache, newCache);
         });
     }
 
@@ -374,21 +412,24 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
         List<RealtimeStatus> statusList = this.listDeviceStatusById(idList);
         if(CollectionUtil.isNotEmpty(statusList)) {
+            statusList.forEach(item -> {
+                if(item.getType() == DeviceType.Gateway) {
+                    this.getOne(Wrappers.<Device>lambdaQuery().eq(Device::getPid, item.getId()).last("limit 1")).ifPresentThrow("请选删除子设备");
+                }
+            });
+
             return super.removeByIds(idList).ifPresentAndTrue(item -> {
                 statusList.forEach(status -> {
                     if(status.getType() == DeviceType.Child) {
                         iotCacheManager.removeByKey(status.getProtocolCode(), status.getDeviceSn(), status.getParentDeviceSn());
                     } else {
                         if(status.getType() == DeviceType.Gateway) {
+
                             // 获取此网关设备下的所有网关子设备
                             Map<String, RealtimeStatus> fromCache = this.listChildDeviceStatusFromCache(status.getProtocolCode(), status.getDeviceSn());
                             if(CollectionUtil.isNotEmpty(fromCache)) {
-                                List<String> uids = fromCache.values().stream()
-                                        .map(device -> device.getUid())
-                                        .collect(Collectors.toList());
-
                                 // 从数据库移除子设备记录
-                                this.remove(Wrappers.<Device>lambdaQuery().in(Device::getUid, uids));
+                                this.remove(Wrappers.<Device>lambdaQuery().eq(Device::getPid, status.getId()));
 
                                 // 从缓存移除所有的子设备
                                 fromCache.forEach((key, value) -> {
