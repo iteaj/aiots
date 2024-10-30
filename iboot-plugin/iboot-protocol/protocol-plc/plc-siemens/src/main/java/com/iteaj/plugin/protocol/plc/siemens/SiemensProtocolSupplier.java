@@ -80,11 +80,11 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Siemens
             throw new ProtocolSupplierException("调用参数不存在");
         }
 
-        if(protocol instanceof OmronTcpProtocol) {
-            ExecStatus execStatus = ((OmronTcpProtocol) protocol).getExecStatus();
-            WriteAddress writeAddress = ((OmronTcpProtocol) protocol).getWriteAddress();
+        if(protocol instanceof SiemensS7Protocol) {
+            ExecStatus execStatus = ((SiemensS7Protocol) protocol).getExecStatus();
+            WriteAddress writeAddress = ((SiemensS7Protocol) protocol).getWriteAddress();
             if(writeAddress == null) {
-                ReadAddress readAddress = ((OmronTcpProtocol) protocol).getBatchAddress().get(0);
+                ReadAddress readAddress = ((SiemensS7Protocol) protocol).getBatchAddress().get(0);
                 param.listUpAttrs().stream().findFirst().ifPresent(upModelAttr -> {
                     if(execStatus == ExecStatus.success) {
                         Object collectValue = dataResolver(upModelAttr, value);
