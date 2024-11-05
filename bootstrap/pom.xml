@@ -194,16 +194,16 @@
         </dependency>
 
         <!--多数据源(采集数据)-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>iboot-rdbms</artifactId>-->
-<!--            <version>${reversion}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.iteaj</groupId>
+            <artifactId>iboot-rdbms</artifactId>
             <version>${reversion}</version>
-            <artifactId>iboot-tdengine</artifactId>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${reversion}</version>-->
+<!--            <artifactId>iboot-tdengine</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
@@ -252,7 +252,7 @@
                 <executions>
                     <execution>
                         <!--如果不需要在执行编译时启动smart-doc，则将phase注释掉-->
-<!--                        <phase>compile</phase>-->
+                        <phase>compile</phase>
                         <goals>
                             <!--smart-doc提供了html、openapi、markdown等goal，可按需配置-->
                             <goal>html</goal>
