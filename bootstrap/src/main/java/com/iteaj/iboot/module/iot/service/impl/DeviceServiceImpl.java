@@ -14,10 +14,7 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
-import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.framework.spi.iot.ServerProtocolSupplier;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.CollectValueItem;
@@ -40,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -176,30 +174,36 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
                 // 客户端的网关设备如果产品启用则尝试连接网关
                 // 交由客户端自己去连接(2024-06-24)
-//                if(deviceType == DeviceType.Gateway) {
-//                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(productDto.getProtocolCode());
-//                    if(entity.getConfig() == null) {
-//                        if(supplier != null) {
-//                            ParamMeta[] config = supplier.getGatewayConfig();
-//                            if(ArrayUtil.isNotEmpty(config)) {
-//                                throw new ServiceException("未设置网关配置项");
-//                            }
-//                        }
-//
-//                        entity.setConfig(new JSONObject()); // 空配置项
-//                    }
-//                    if(productDto.getStatus() == FuncStatus.enabled && productDto.getConnectType() == ConnectionType.Client) {
-//                        if(supplier != null) {
-//                            try {
-//                                IotNetworkUtil.networkCtrl(supplier, entity, FuncStatus.enabled);
-//                            } catch (ServiceException e) {
-//                                throw e;
-//                            } catch (Exception e) {
-//                                // ...
-//                            }
-//                        }
-//                    }
-//                }
+                if(deviceType == DeviceType.Gateway) {
+                    if(oldStatus != null) { // 属于更新操作
+                        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(productDto.getProtocolCode());
+                        if(supplier instanceof ClientProtocolSupplier) {
+                            if(oldStatus.getStatus() == DeviceStatus.online) {
+                                // 修改了设备编号
+                                if (!oldStatus.getDeviceSn().equals(entity.getDeviceSn())) {
+                                    throw new ServiceException("请先断开连接");
+                                }
+
+                                // 修改了网关配置
+                                if (oldStatus.getConfig() != null) {
+                                    oldStatus.getConfig().forEach((key, value) -> {
+                                        Object newValue = entity.getConfig().get(key);
+                                        if (newValue != null) {
+                                            if (value == null) {
+                                                throw new ServiceException("请先断开连接");
+                                            } else if (!newValue.equals(value)) {
+                                                throw new ServiceException("请先断开连接");
+                                            }
+                                        }
+                                    });
+                                }
+                            } else { // 更新操作直接移除客户端
+                                ((ClientProtocolSupplier) supplier).removeClient(oldStatus.getDeviceSn());
+                            }
+                        }
+                    }
+
+                }
             }
         });
     }
@@ -227,19 +231,10 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                 }
             }
 
-            // 网关设备如果修改了设备编号
-            if(oldCache.getType() == DeviceType.Gateway && !oldCache.getDeviceSn().equals(newCache.getDeviceSn())) {
-                DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(oldCache.getProtocolCode());
-                // 客户端网关则需要移除客户端
-                if(supplier instanceof ClientProtocolSupplier) {
-                    IotClient iotClient = ((ClientProtocolSupplier) supplier).removeClient(oldCache.getDeviceSn());
-                    if(iotClient != null) {
-                        iotClient.disconnect();
-                    }
-                } else if(supplier instanceof ServerProtocolSupplier){ // 服务端网关则需要重新加载子设备
-                    // 关闭连接
-                    ((ServerProtocolSupplier<?, ?>) supplier).close(oldCache.getDeviceSn());
-
+            // 网关设备处理
+            if(oldCache.getType() == DeviceType.Gateway) {
+                // 网关设备如果修改了设备编号
+                if(!oldCache.getDeviceSn().equals(newCache.getDeviceSn())) {
                     Map<String, RealtimeStatus> children = iotCacheManager.listForParent(oldCache.getProtocolCode(), oldCache.getDeviceSn());
                     if(children != null) {
                         // 移除所有旧的设备
