@@ -229,8 +229,8 @@
                 </executions>
             </plugin>
             <plugin>
-                <version>2.7.7</version>
-                <groupId>com.github.shalousun</groupId>
+                <version>3.0.4</version>
+                <groupId>com.ly.smart-doc</groupId>
                 <artifactId>smart-doc-maven-plugin</artifactId>
                 <configuration>
                     <!--指生成文档的使用的配置文件,配置文件放在自己的项目中-->
