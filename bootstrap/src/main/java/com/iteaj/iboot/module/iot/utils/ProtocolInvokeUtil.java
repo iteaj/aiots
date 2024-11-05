@@ -29,6 +29,8 @@ import java.util.function.Consumer;
 
 public class ProtocolInvokeUtil {
 
+    private static IotCacheManager cacheManager;
+
     public static void invoke(ModelApi api, RealtimeStatus device, Consumer<InvokeResult> result) {
         invoke(api, device, ProtocolModelApiInvokeParam.DEFAULT_TIMEOUT, result);
     }
@@ -55,11 +57,6 @@ public class ProtocolInvokeUtil {
                     });
                 }
 
-                // 设置默认超时时间
-                if(param.getTimeout() == null || param.getTimeout() <= 0) {
-                    param.setTimeout(ProtocolModelApiInvokeParam.DEFAULT_TIMEOUT);
-                }
-
                 // 组装调用参数
                 initInvokeConfig(param, device);
 
@@ -76,13 +73,22 @@ public class ProtocolInvokeUtil {
                 .setParentDeviceSn(device.getParentDeviceSn())
                 .addDeviceConfig(device.getConfig());
 
+        // 设置默认超时时间
+        if(param.getTimeout() == null || param.getTimeout() <= 0) {
+            param.setTimeout(ProtocolModelApiInvokeParam.DEFAULT_TIMEOUT);
+        }
+
         if(device.getType() == DeviceType.Child) {
-            IotCacheManager cacheManager = SpringUtils.getBean(IotCacheManager.class);
+            IotCacheManager cacheManager = getCacheManager();
             RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
             if(parent != null) {
                 param.addParentDeviceConfig(parent.getConfig());
             }
         }
+    }
+
+    private static IotCacheManager getCacheManager() {
+        return cacheManager != null ? cacheManager : (cacheManager = SpringUtils.getBean(IotCacheManager.class));
     }
 
     public static void invoke(ModelApi api, RealtimeStatus device, long timeout, Consumer<InvokeResult> result) {
