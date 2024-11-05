@@ -43,7 +43,7 @@
         <mybatis.plus.ds.version>3.6.1</mybatis.plus.ds.version>
 
         <!--插件依赖版本-->
-        <knife4j.version>4.0.0</knife4j.version>
+        <knife4j.version>4.3.0</knife4j.version>
         <SaToken.version>1.35.0.RC</SaToken.version>
 
         <maven.compiler.source>8</maven.compiler.source>

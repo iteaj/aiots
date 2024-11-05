@@ -3,7 +3,7 @@ knife4j:
   disk:
     enable: true
     routes:
-      - name: iboot
+      - name: 创源物联网关
         order: 1
-        debugUrl: http://192.168.20.168:8085
+        debugUrl: http://127.0.0.1:8085
         location: classpath:/static/doc/openapi.json
