@@ -38,6 +38,14 @@ public class BooleanResult extends OptionalResult<Boolean, BooleanResult> {
         return this;
     }
 
+    public BooleanResult ifPresentAndFalse(Consumer<BooleanResult> consumer) throws ServiceException {
+        if(this.getData() != null && !this.getData()) {
+            consumer.accept(this);
+        }
+
+        return this;
+    }
+
     /**
      * 如果数据存在则抛出异常
      * @param msg

@@ -4,6 +4,8 @@ import java.util.Date;
 
 public interface RealtimeCollectData {
 
+    String COLLECT_TABLE_NAME = "iot_collect_data";
+
     /**
      * 设备uid
      * @return

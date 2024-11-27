@@ -1,7 +1,6 @@
 package com.iteaj.iboot.module.iot.collect.websocket;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
@@ -128,7 +127,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     public void supplier(CollectDevice device, CollectData data) {
         try {
             Map<String, SignalOrFieldValue> valueMap = new HashMap<>();
-            valueMap.put(data.getAddress(), SignalOrFieldValue.build(data.getSignalId()
+            valueMap.put(data.getAddress(), SignalOrFieldValue.build(data.getFieldId()
                     , data.getAddress(), data.getCollectTime(), data.getValue()).builder(data.getCollectStatus()));
             String deviceUid = device.getUid().toString();
             String jsonString = JSONObject.toJSONString(PushData.buildSignal(deviceUid, valueMap));

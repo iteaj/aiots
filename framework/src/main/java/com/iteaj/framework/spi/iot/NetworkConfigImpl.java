@@ -11,6 +11,11 @@ import lombok.Setter;
 public abstract class NetworkConfigImpl implements NetworkConfig {
 
     /**
+     * 设备唯一id
+     */
+    private String uid;
+
+    /**
      * 主机地址
      */
     private String host;

@@ -70,7 +70,14 @@ public class DeviceCtrlController extends BaseController {
             try {
                 RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
                 if(realtimeStatus.getStatus() == DeviceStatus.offline) {
-                    item.success(InvokeResult.fail("设备不在线", null)); return;
+                    if(realtimeStatus.getType() == DeviceType.Direct) {
+                        item.success(InvokeResult.fail("设备不在线["+realtimeStatus.getDeviceName()+"]", null)); return;
+                    } else if(realtimeStatus.getType() == DeviceType.Child) {
+                        RealtimeStatus parent = cacheManager.get(supplier.getProtocol().getCode(), param.getParentDeviceSn());
+                        if(parent != null && parent.getStatus() == DeviceStatus.offline) {
+                            item.success(InvokeResult.fail("网关设备不在线["+parent.getDeviceName()+"]", null)); return;
+                        }
+                    }
                 }
 
                 ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, realtimeStatus, result -> {
@@ -102,14 +109,15 @@ public class DeviceCtrlController extends BaseController {
     public Mono<Result<DebugRespDto>> debug(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
         // 获取协议模型接口
         Object[] objects = this.getProtocolModelApi(modelApiCode, param);
-
+        ModelApi modelApi = (ModelApi) objects[1];
         DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
+
         DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
         return Mono.<InvokeResult>create(item -> {
             // 调用接口
             try {
-                RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
-                ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, device, result -> {
+                RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
+                ProtocolInvokeUtil.invoke(supplier, modelApi, param, realtimeStatus, result -> {
                     item.success(result);
                     debugRespDto.setRespTime(System.currentTimeMillis());
                 });

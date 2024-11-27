@@ -7,6 +7,7 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.IotListener;
+import com.iteaj.iboot.module.iot.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -30,12 +31,15 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
     private final IotCacheManager cacheManager;
     private final IDeviceService deviceService;
     private final FrameworkProperties properties;
+    private final IBootThreadManger bootThreadManger;
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public DeviceStatusListener(IotCacheManager cacheManager, IDeviceService deviceService, FrameworkProperties properties) {
+    public DeviceStatusListener(IotCacheManager cacheManager, IDeviceService deviceService
+            , FrameworkProperties properties, IBootThreadManger bootThreadManger) {
         this.cacheManager = cacheManager;
         this.deviceService = deviceService;
         this.properties = properties;
+        this.bootThreadManger = bootThreadManger;
     }
 
     @Override
@@ -89,7 +93,8 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
 
     @Override
     public void onIotEvent(IotEventType eventType, RealtimeStatus value) {
-        deviceService.updateDeviceStatus(value);
+        bootThreadManger.getDeviceStatusScheduler()
+                .execute(() -> deviceService.updateDeviceStatus(value));
     }
 
     @Override

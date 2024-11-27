@@ -158,11 +158,11 @@ public class DeviceController extends BaseController {
             FuncStatus funcStatus = status == DeviceStatus.online ? FuncStatus.enabled : FuncStatus.disabled;
             Object networkCtrl = IotNetworkUtil.networkCtrl(entity.getProtocolCode(), entity, funcStatus);
             if(networkCtrl instanceof ChannelFuture) {
-                ((ChannelFuture) networkCtrl).await(8, TimeUnit.SECONDS);
+                ((ChannelFuture) networkCtrl).get(10, TimeUnit.SECONDS);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
-            return fail(e.getMessage());
+            return fail("连接失败");
         }
 
         return success("切换状态成功");
