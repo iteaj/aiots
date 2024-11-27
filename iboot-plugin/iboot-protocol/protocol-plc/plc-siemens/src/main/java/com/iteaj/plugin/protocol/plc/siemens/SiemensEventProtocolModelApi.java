@@ -6,9 +6,8 @@ import com.iteaj.framework.spi.iot.protocol.NotIotClientException;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.IotClient;
-import com.iteaj.iot.plc.omron.OmronConnectProperties;
-import com.iteaj.iot.plc.omron.OmronMessage;
-import com.iteaj.iot.plc.omron.OmronTcpProtocol;
+import com.iteaj.iot.plc.siemens.SiemensS7Message;
+import com.iteaj.iot.plc.siemens.SiemensS7Protocol;
 import com.iteaj.plugin.protocol.plc.AbstractPlcEventProtocolModelApi;
 
 public class SiemensEventProtocolModelApi extends AbstractPlcEventProtocolModelApi {
@@ -19,11 +18,11 @@ public class SiemensEventProtocolModelApi extends AbstractPlcEventProtocolModelA
 
     @Override
     protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
-        IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), OmronMessage.class);
+        IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), SiemensS7Message.class);
         if(client == null) {
             throw new NotIotClientException("获取不到欧姆龙客户端["+arg.getParentDeviceSn()+"]");
         }
 
-        return new OmronTcpProtocol((OmronConnectProperties) client.getConfig());
+        return new SiemensS7Protocol(client.getConfig());
     }
 }
