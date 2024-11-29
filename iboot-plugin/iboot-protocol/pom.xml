@@ -21,6 +21,7 @@
         <module>protocol-mqtt</module>
         <module>protocol-modbus</module>
         <module>protocol-dlt645</module>
+        <module>protocol-opcua</module>
     </modules>
 
     <profiles>

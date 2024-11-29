@@ -25,7 +25,7 @@ public class Dlt645DtuMessage extends DtuServerMessageAbstract {
 
     @Override
     public void writeBuild() {
-        byte[] message;
+        byte[] message = null;
         String strMsg = "68" + getHead().getEquipCode() + "68" + getHead().getAddress() + "%s%s";
         StringBuilder builder = new StringBuilder().append("68").append(getHead().getEquipCode()).append("68").append(getHead().getType().getCode());
         Dlt645MessageHead head = getHead();
@@ -37,9 +37,9 @@ public class Dlt645DtuMessage extends DtuServerMessageAbstract {
                 if(head.getBlocks() != null && head.getDate() != null) {
                     message = new byte[] {(byte) 0xFE, (byte) 0XFE, (byte) 0XFE, (byte) 0XFE, ID, 0, 0, 0, 0, ID, head.getType().getCode(), 0x0A, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x16};
                 } else if(head.getBlocks() != null) {
-                    message = new byte[] {ID, 0, 0, 0, 0, ID, head.getType().getCode(), 0x05, 0, 0, 0, 0, 0, 0, 0x16};
+//                    message = new byte[] {ID, 0, 0, 0, 0, ID, head.getType().getCode(), 0x05, 0, 0, 0, 0, 0, 0, 0x16};
                 } else {
-                    message = new byte[] {ID, 0, 0, 0, 0, ID, head.getType().getCode(), 0x05, 0, 0, 0, 0, 0, 0x16};
+//                    message = new byte[] {ID, 0, 0, 0, 0, ID, head.getType().getCode(), 0x05, 0, 0, 0, 0, 0, 0x16};
                 }
 
                 System.arraycopy(deviceSnData, 0, message, 1, 4);
