@@ -14,6 +14,8 @@ public enum ProtocolCodes {
     PLC_SIEMENS_S7("PLC_SIEMENS_S7"),
 
     MQTT_DEFAULT_IMPL("MQTT_DEFAULT_IMPL"),
+
+    OPCUA_DEFAULT_IMPL("OPCUA_DEFAULT_IMPL"),
     ;
 
     private String value;

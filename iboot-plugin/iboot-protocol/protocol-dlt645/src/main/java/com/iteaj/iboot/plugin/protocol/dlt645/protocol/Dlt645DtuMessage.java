@@ -35,7 +35,7 @@ public class Dlt645DtuMessage extends DtuServerMessageAbstract {
                 builder.append(getHead().getType().getCode());
                 byte[] address = ByteUtil.hexToByte(head.getAddress());
                 if(head.getBlocks() != null && head.getDate() != null) {
-                    message = new byte[] {(byte) 0xFE, (byte) 0XFE, (byte) 0XFE, (byte) 0XFE, ID, 0, 0, 0, 0, ID, head.getType().getCode(), 0x0A, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x16};
+//                    message = new byte[] {(byte) 0xFE, (byte) 0XFE, (byte) 0XFE, (byte) 0XFE, ID, 0, 0, 0, 0, ID, head.getType().getCode(), 0x0A, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x16};
                 } else if(head.getBlocks() != null) {
 //                    message = new byte[] {ID, 0, 0, 0, 0, ID, head.getType().getCode(), 0x05, 0, 0, 0, 0, 0, 0, 0x16};
                 } else {
