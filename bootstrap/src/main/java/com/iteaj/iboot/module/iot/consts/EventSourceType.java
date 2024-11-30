@@ -16,7 +16,7 @@ public enum EventSourceType {
     /**
      * 定时源
      */
-    period("定时触发")
+//    period("定时触发")
     ;
 
     private String desc;
