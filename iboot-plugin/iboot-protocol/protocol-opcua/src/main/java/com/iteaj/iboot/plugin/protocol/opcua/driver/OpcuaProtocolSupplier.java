@@ -6,10 +6,8 @@ import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.iboot.plugin.protocol.opcua.network.OpcuaClient;
 import com.iteaj.iboot.plugin.protocol.opcua.network.OpcuaComponent;
-import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.Protocol;
-import com.iteaj.iot.client.ClientComponent;
-import com.iteaj.iot.client.IotClient;
+import com.iteaj.iot.client.ClientConnectProperties;
 
 public class OpcuaProtocolSupplier extends StaticClientProtocolSupplier<NetworkConfigImpl, OpcuaComponent, OpcuaClient> {
 
@@ -45,11 +43,12 @@ public class OpcuaProtocolSupplier extends StaticClientProtocolSupplier<NetworkC
 
     @Override
     protected OpcuaClient doCreateClient(NetworkConfigImpl config, OpcuaComponent component) {
-        return null;
+        ClientConnectProperties properties = new ClientConnectProperties(config.getHost(), config.getPort(), config.getDeviceSn());
+        return new OpcuaClient(component, properties);
     }
 
     @Override
     protected OpcuaComponent doCreateComponent(NetworkConfigImpl config) {
-        return null;
+        return new OpcuaComponent();
     }
 }

@@ -1,8 +1,11 @@
 package com.iteaj.iboot.plugin.protocol.opcua.network;
 
+import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.TcpSocketClient;
 import com.iteaj.iot.client.component.TcpClientComponent;
+import com.iteaj.iot.event.ClientStatus;
+import com.iteaj.iot.event.StatusEvent;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInboundHandler;
@@ -23,7 +26,9 @@ public class OpcuaClient extends TcpSocketClient {
     @Override
     public void init(Object config) {
         try {
-            plcConnection = (DefaultNettyPlcConnection) driverManager.getConnection("");
+            ClientConnectProperties properties = getConfig();
+            plcConnection = (DefaultNettyPlcConnection) driverManager
+                    .getConnection(String.format("opcua://%s:%d", properties.getHost(), properties.getPort()));
         } catch (PlcConnectionException e) {
             throw new RuntimeException(e);
         }
@@ -31,12 +36,41 @@ public class OpcuaClient extends TcpSocketClient {
 
     @Override
     public ChannelFuture connect() {
-        return super.connect();
+        try {
+            plcConnection.connect();
+            finishedConnect(getChannel().newSucceededFuture());
+        } catch (PlcConnectionException e) {
+            return getChannel().newFailedFuture(e);
+        }
+
+        return getChannel().newSucceededFuture();
+    }
+
+    @Override
+    public ChannelFuture close() {
+        return disconnect().addListener(future -> {
+            if (future.isSuccess()) {
+                getClientComponent().removeClient(getConfig());
+            }
+        });
+    }
+
+    @Override
+    public ChannelFuture disconnect() {
+        try {
+            plcConnection.close();
+        } catch (PlcConnectionException e) {
+            return getChannel().newFailedFuture(e);
+        }
+
+        // 发布客户端上线事件
+        FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.offline, getClientComponent()));
+        return getChannel().newSucceededFuture();
     }
 
     @Override
     protected ChannelInboundHandler createProtocolDecoder() {
-        return null;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

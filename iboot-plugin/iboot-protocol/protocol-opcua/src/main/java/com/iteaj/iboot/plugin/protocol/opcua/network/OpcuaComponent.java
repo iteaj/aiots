@@ -15,17 +15,17 @@ public class OpcuaComponent extends TcpClientComponent<OpcuaMessage> {
     }
 
     @Override
-    public TcpSocketClient createNewClient(ClientConnectProperties config) {
-        return null;
+    public OpcuaClient createNewClient(ClientConnectProperties config) {
+        return new OpcuaClient(this, config);
     }
 
     @Override
     public String getName() {
-        return "";
+        return "OPCUA";
     }
 
     @Override
     public String getDesc() {
-        return "";
+        return "Opcua网络组件";
     }
 }
