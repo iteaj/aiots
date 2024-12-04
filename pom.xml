@@ -27,7 +27,7 @@
         <kaptcha.version>2.3.2</kaptcha.version>
         <servlet.version>3.1.0</servlet.version>
 
-        <iot.version>3.1.1</iot.version>
+        <iot.version>3.1.3</iot.version>
         <sms4j.version>3.2.1</sms4j.version>
         <shiro.version>1.7.1</shiro.version>
         <hutool.version>5.7.18</hutool.version>
