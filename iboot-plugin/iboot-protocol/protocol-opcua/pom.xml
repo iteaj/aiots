@@ -14,11 +14,16 @@
 
     <dependencies>
         <dependency>
-            <version>0.10.0</version>
-            <groupId>org.apache.plc4x</groupId>
-            <artifactId>plc4j-driver-opcua</artifactId>
+            <groupId>org.eclipse.milo</groupId>
+            <artifactId>sdk-client</artifactId>
+            <version>0.6.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>iot-client</artifactId>
