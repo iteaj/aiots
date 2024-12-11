@@ -40,11 +40,11 @@ public class OpcuaClientConfig extends ClientConnectProperties {
         this.endpointUrl = String.format("opc.tcp://%s:%d", remoteHost, remotePort);
     }
 
-    public OpcUaClientConfigBuilder getBuilder() {
-        if(builder == null) {
-            builder = new OpcUaClientConfigBuilder();
-        }
+    public OpcUaClientConfigBuilder builder() {
+        return this.builder = new OpcUaClientConfigBuilder();
+    }
 
+    public OpcUaClientConfigBuilder getBuilder() {
         return builder;
     }
 

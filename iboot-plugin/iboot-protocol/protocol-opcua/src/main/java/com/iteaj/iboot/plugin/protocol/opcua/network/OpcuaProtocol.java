@@ -69,6 +69,9 @@ public abstract class OpcuaProtocol extends ClientInitiativeProtocol<OpcuaMessag
         }
 
         IotClient client = clientComponent.getClient(clientKey);
+        if(client == null) {
+            throw new OpcuaException("客户端不存在["+clientKey+"]");
+        }
 
         /**
          * 执行指令并且获取返回值

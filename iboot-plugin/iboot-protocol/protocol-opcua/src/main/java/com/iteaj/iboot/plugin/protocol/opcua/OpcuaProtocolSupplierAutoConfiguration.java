@@ -28,26 +28,26 @@ public class OpcuaProtocolSupplierAutoConfiguration implements InitializingBean 
     @Override
     public void afterPropertiesSet() throws Exception {
         // 获取端点描述列表
-        List<EndpointDescription> endpoints = DiscoveryClient.getEndpoints("opc.tcp://192.168.0.107:49320").get();
-
-        // 根据安全策略选择合适的端点
-        EndpointDescription endpoint = endpoints.stream()
-                .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri()))
-                .findFirst()
-                .orElseThrow(() -> new Exception("没有找到匹配安全策略的端点"));
-
-        // 创建 OPC UA 客户端配置
-        NioEventLoopGroup workerGroup = (NioEventLoopGroup) IotThreadManager.instance().getWorkerGroup();
-        OpcUaClientConfig config = OpcUaClientConfig.builder()
-                .setEndpoint(endpoint)
-                .setEventLoop(workerGroup)
-                .setIdentityProvider(new UsernameProvider("iteaj", "123456"))
-                .setRequestTimeout(UInteger.valueOf(5000))
-                .build();
-
-        UaClient uaClient = OpcUaClient.create(config).connect().get();
-        DataValue dataValue = uaClient.getAddressSpace().getVariableNode(NodeId.parse("ns=2;s=通道 1.设备 1.标记 1")).readValue();
-        System.out.printf(dataValue.toString());
+//        List<EndpointDescription> endpoints = DiscoveryClient.getEndpoints("opc.tcp://192.168.0.107:49320").get();
+//
+//        // 根据安全策略选择合适的端点
+//        EndpointDescription endpoint = endpoints.stream()
+//                .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri()))
+//                .findFirst()
+//                .orElseThrow(() -> new Exception("没有找到匹配安全策略的端点"));
+//
+//        // 创建 OPC UA 客户端配置
+//        NioEventLoopGroup workerGroup = (NioEventLoopGroup) IotThreadManager.instance().getWorkerGroup();
+//        OpcUaClientConfig config = OpcUaClientConfig.builder()
+//                .setEndpoint(endpoint)
+//                .setEventLoop(workerGroup)
+//                .setIdentityProvider(new UsernameProvider("iteaj", "123456"))
+//                .setRequestTimeout(UInteger.valueOf(5000))
+//                .build();
+//
+//        UaClient uaClient = OpcUaClient.create(config).connect().get();
+//        DataValue dataValue = uaClient.getAddressSpace().getVariableNode(NodeId.parse("ns=2;s=通道 1.设备 1.标记 1")).readValue();
+//        System.out.printf(dataValue.toString());
 //        u
     }
 }

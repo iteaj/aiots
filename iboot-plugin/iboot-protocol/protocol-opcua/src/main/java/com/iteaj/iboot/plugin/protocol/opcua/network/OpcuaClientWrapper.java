@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.protocol.opcua.network;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.client.TcpSocketClient;
@@ -16,21 +17,19 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.UaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfig;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
-import org.eclipse.milo.opcua.sdk.client.nodes.UaVariableNode;
-import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
+import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
 import org.eclipse.milo.opcua.stack.client.transport.AbstractTransport;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
-import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
-import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
+import org.eclipse.milo.opcua.stack.core.types.builtin.*;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -59,8 +58,13 @@ public class OpcuaClientWrapper extends TcpSocketClient {
                         .findFirst()
                         .orElseThrow(() -> new Exception("没有找到匹配安全策略的端点"));
 
-                builder.setConnectTimeout(UInteger.valueOf(properties.getConnectTimeout()))
-                        .setEndpoint(endpoint);
+                builder.setEndpoint(endpoint)
+                    .setConnectTimeout(UInteger.valueOf(properties.getConnectTimeout()))
+                    .setApplicationName(new LocalizedText(Locale.CHINA.getLanguage(), "IBOOT"));
+
+                if(StrUtil.isNotBlank(properties.getUsername())) {
+                    builder.setIdentityProvider(new UsernameProvider(properties.getUsername(), properties.getPassword()));
+                }
             }
 
             OpcUaClientConfig clientConfig = builder.setEventLoop(workerGroup).build();
@@ -79,15 +83,11 @@ public class OpcuaClientWrapper extends TcpSocketClient {
     public ChannelFuture connect() {
         OpcuaClientConfig config = getConfig();
         try {
-            opcUaClient.connect().whenComplete(((uaClient, throwable) -> {
-                if(throwable != null) {
-                    reconnection();
-                }
-            })).get(config.getConnectTimeout(), TimeUnit.MICROSECONDS);
+            opcUaClient.connect().get(config.getConnectTimeout(), TimeUnit.MILLISECONDS);
             ChannelFuture channelFuture = getChannel().newSucceededFuture();
             finishedConnect(channelFuture); return channelFuture;
         } catch (Exception e) {
-            if(e.getCause() instanceof TimeoutException) {
+            if(e instanceof TimeoutException) {
                 throw new OpcuaException("连接超时("+config.getConnectTimeout()+"ms)", e);
             }
 
@@ -171,23 +171,41 @@ public class OpcuaClientWrapper extends TcpSocketClient {
     }
 
     public void write(NodeId nodeId, Object value) {
+        StatusCode statusCode = null;
         try {
+            getOpcUaClient().connect().get();
             Variant variant = new Variant(value);
             DataValue dataValue = new DataValue(variant);
-            getOpcUaClient().writeValue(nodeId, dataValue).get();
+            getOpcUaClient().getAddressSpace().getVariableNode(nodeId).writeValue(dataValue);
+//            statusCode = getOpcUaClient().writeValue(nodeId, dataValue).get();
         } catch (Exception e) {
+            if(e instanceof UaException) {
+                throw new OpcuaException(((UaException) e).getStatusCode().toString(), e);
+            }
+
+            Throwable cause = e.getCause();
+            if(cause instanceof UaException) {
+                throw new OpcuaException(((UaException) cause).getStatusCode().toString(), e);
+            }
+
             throw new OpcuaException("写入值失败", e);
+        }
+
+        if(statusCode.isBad()) {
+            throw new OpcuaException(statusCode.toString());
         }
     }
 
-    public void write(List<NodeWrapper> nodes) {
+    public List<StatusCode> write(List<NodeWrapper> nodes) {
         try {
             if(CollectionUtil.isEmpty(nodes)) {
                 List<NodeId> nodeIds = nodes.stream().map(NodeWrapper::getNodeId).collect(Collectors.toList());
                 List<DataValue> values = nodes.stream().map(NodeWrapper::getValue).collect(Collectors.toList());
 
-                getOpcUaClient().writeValues(nodeIds, values).get();
+                return getOpcUaClient().writeValues(nodeIds, values).get();
             }
+
+            return Collections.emptyList();
         } catch (Exception e) {
             throw new OpcuaException("写入值失败", e);
         }
@@ -208,7 +226,7 @@ public class OpcuaClientWrapper extends TcpSocketClient {
         try {
             return transport.channel().get();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
