@@ -17,6 +17,7 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.UaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfig;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
+import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
 import org.eclipse.milo.opcua.stack.client.transport.AbstractTransport;
@@ -64,13 +65,15 @@ public class OpcuaClientWrapper extends TcpSocketClient {
 
                 if(StrUtil.isNotBlank(properties.getUsername())) {
                     builder.setIdentityProvider(new UsernameProvider(properties.getUsername(), properties.getPassword()));
+                } else {
+                    builder.setIdentityProvider(AnonymousProvider.INSTANCE);
                 }
             }
 
             OpcUaClientConfig clientConfig = builder.setEventLoop(workerGroup).build();
             opcUaClient = OpcUaClient.create(clientConfig);
         } catch (Exception e) {
-            throw new OpcuaException(e);
+            throw new OpcuaException("OpcUa客户端初始化失败", e);
         }
     }
 
@@ -173,11 +176,9 @@ public class OpcuaClientWrapper extends TcpSocketClient {
     public void write(NodeId nodeId, Object value) {
         StatusCode statusCode = null;
         try {
-            getOpcUaClient().connect().get();
             Variant variant = new Variant(value);
-            DataValue dataValue = new DataValue(variant);
-            getOpcUaClient().getAddressSpace().getVariableNode(nodeId).writeValue(dataValue);
-//            statusCode = getOpcUaClient().writeValue(nodeId, dataValue).get();
+            DataValue dataValue = DataValue.newValue().setValue(variant).build();
+            getOpcUaClient().writeValue(nodeId, dataValue).get();
         } catch (Exception e) {
             if(e instanceof UaException) {
                 throw new OpcuaException(((UaException) e).getStatusCode().toString(), e);
@@ -207,6 +208,11 @@ public class OpcuaClientWrapper extends TcpSocketClient {
 
             return Collections.emptyList();
         } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof UaException) {
+                throw new OpcuaException(((UaException) cause).getStatusCode().toString(), e);
+            }
+
             throw new OpcuaException("写入值失败", e);
         }
     }

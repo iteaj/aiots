@@ -1,6 +1,5 @@
 package com.iteaj.iboot.plugin.protocol.opcua.network;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
@@ -21,13 +20,24 @@ public class NodeWrapper {
      */
     private DataValue value;
 
-    public NodeWrapper(final String address, final Object value) {
+    protected NodeWrapper(final String address) {
         this.nodeId = NodeId.parse(address);
-        this.value = new DataValue(new Variant(value));
     }
 
-    public NodeWrapper(NodeId nodeId, DataValue value) {
+    protected NodeWrapper(final String address, final Object value) {
+        this(NodeId.parse(address), new Variant(value));
+    }
+
+    public NodeWrapper(NodeId nodeId, Variant value) {
         this.nodeId = nodeId;
-        this.value = value;
+        this.value = DataValue.newValue().setValue(value).build();
+    }
+
+    public static NodeWrapper readBuild(final String address) {
+        return new NodeWrapper(address);
+    }
+
+    public static NodeWrapper writeBuild(final String address, final Object value) {
+        return new NodeWrapper(address, value);
     }
 }
