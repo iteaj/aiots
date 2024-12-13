@@ -56,8 +56,7 @@ public class OpcuaClientWrapper extends TcpSocketClient {
                 // 根据安全策略选择合适的端点
                 EndpointDescription endpoint = endpoints.stream()
                         .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri()))
-                        .findFirst()
-                        .orElseThrow(() -> new Exception("没有找到匹配安全策略的端点"));
+                        .findFirst().orElseThrow(() -> new Exception("没有找到匹配安全策略的端点"));
 
                 builder.setEndpoint(endpoint)
                     .setConnectTimeout(UInteger.valueOf(properties.getConnectTimeout()))
