@@ -403,6 +403,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                     RealtimeData data = realtimeDataService.getOfDeviceAndKey(linkageDevice.getProtocolCode(), linkageDevice.buildKey(), conditionItem.getTypeValue());
                     if(calcCondition(conditionItem, conditionCalc, data, linkageDevice)) {
                         validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(linkageDevice, data.getRealtime()));
+                        return true;
                     }
                 } else {
                     logger.error("条件项校验失败 校验设备不存在 - 触发组id: {} - 联动条件设备uid: {}", groupId, conditionItem.getUid());
