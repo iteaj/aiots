@@ -1,5 +1,8 @@
 package com.iteaj.iboot.plugin.protocol.opcua.driver;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
@@ -9,7 +12,10 @@ import com.iteaj.iboot.plugin.protocol.opcua.network.OpcuaException;
 import com.iteaj.iboot.plugin.protocol.opcua.network.OpcuaProtocol;
 import com.iteaj.iboot.plugin.protocol.opcua.network.OpcuaVariableProtocol;
 import com.iteaj.iot.Protocol;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 
+import java.util.Date;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class OpcuaProtocolFuncModelApi extends AbstractFuncProtocolModelApi {
@@ -28,7 +34,49 @@ public class OpcuaProtocolFuncModelApi extends AbstractFuncProtocolModelApi {
         String address = arg.getString("address");
         OpcuaProtocol.OpcuaProtocolType type = OpcuaProtocol.OpcuaProtocolType.valueOf(getCode());
         if(type == OpcuaProtocol.OpcuaProtocolType.WRITE) {
-            String value = arg.getString("value");
+            Object value = arg.getString("value");
+            if(value == null) {
+                throw new ProtocolInvokeException("未指定写入值");
+            }
+
+            String dataType = arg.getString("dataType");
+            if(dataType == null) {
+                throw new ProtocolInvokeException("未指定数据类型");
+            }
+            switch (dataType) {
+                case "byte":
+                    value = Byte.valueOf(value.toString());
+                    break;
+                case "short":
+                    value = Short.valueOf(value.toString());
+                    break;
+                case "int":
+                    value = Integer.valueOf(value.toString());
+                    break;
+                case "long":
+                    value = Long.valueOf(value.toString());
+                    break;
+                case "float":
+                    value = Float.valueOf(value.toString());
+                    break;
+                case "double":
+                    value = Double.valueOf(value.toString());
+                    break;
+                case "boolean":
+                    value = Boolean.valueOf(value.toString());
+                    break;
+                case "date":
+                    String date = value.toString().toLowerCase().trim();
+                    if(Objects.equals(date, "{now}")) {
+                        value = DateTime.now();
+                    } else {
+                        Date datetime = DateUtil.parse(value.toString(), DatePattern.NORM_DATETIME_FORMAT);
+                        value = new DateTime(datetime);
+                    }
+                    break;
+                default: value = value.toString();
+            }
+
             protocol = OpcuaVariableProtocol.write(address, value);
         } else if(type == OpcuaProtocol.OpcuaProtocolType.EXEC_METHOD) {
             //
@@ -43,6 +91,7 @@ public class OpcuaProtocolFuncModelApi extends AbstractFuncProtocolModelApi {
             try {
                 OpcuaProtocol opcuaProtocol = (OpcuaProtocol) protocol;
                 opcuaProtocol.request(arg.getParentDeviceSn());
+                result.accept(InvokeResult.success(protocol));
             } catch (OpcuaException e) {
                 result.accept(InvokeResult.fail(e.getMessage(), protocol));
             } catch (Exception e) {

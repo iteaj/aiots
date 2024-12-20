@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.opcua.network;
 
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.ProtocolType;
@@ -8,6 +9,7 @@ import com.iteaj.iot.client.component.SingleTcpClientComponent;
 import com.iteaj.iot.client.protocol.ClientInitiativeProtocol;
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.milo.opcua.stack.core.UaRuntimeException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
@@ -76,7 +78,11 @@ public abstract class OpcuaProtocol extends ClientInitiativeProtocol<OpcuaMessag
         /**
          * 执行指令并且获取返回值
          */
-        this.value = doInvoke((OpcuaClientWrapper) client, NodeId.parse(getAddress()));
+        try {
+            this.value = doInvoke((OpcuaClientWrapper) client, NodeId.parse(getAddress()));
+        } catch (UaRuntimeException e) {
+            throw new ProtocolInvokeException("地址格式错误["+getAddress()+"] 格式 ns=命名索引;s=标签地址");
+        }
     }
 
     protected abstract Object doInvoke(OpcuaClientWrapper client, NodeId nodeId) throws OpcuaException;

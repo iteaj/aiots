@@ -173,11 +173,11 @@ public class OpcuaClientWrapper extends TcpSocketClient {
     }
 
     public void write(NodeId nodeId, Object value) {
-        StatusCode statusCode = null;
+        StatusCode statusCode;
         try {
             Variant variant = new Variant(value);
             DataValue dataValue = DataValue.newValue().setValue(variant).build();
-            getOpcUaClient().writeValue(nodeId, dataValue).get();
+            statusCode = getOpcUaClient().writeValue(nodeId, dataValue).get();
         } catch (Exception e) {
             if(e instanceof UaException) {
                 throw new OpcuaException(((UaException) e).getStatusCode().toString(), e);
