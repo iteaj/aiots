@@ -23,6 +23,7 @@
         <module>plc-omron</module>
         <!--西门子plc-->
         <module>plc-siemens</module>
+        <module>plc-core</module>
     </modules>
 
     <dependencies>
