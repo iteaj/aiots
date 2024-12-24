@@ -8,7 +8,7 @@ import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.plc.siemens.SiemensS7Message;
 import com.iteaj.iot.plc.siemens.SiemensS7Protocol;
-import com.iteaj.plugin.protocol.plc.AbstractPlcEventProtocolModelApi;
+import com.iteaj.plugin.protocol.plc.driver.AbstractPlcEventProtocolModelApi;
 
 public class SiemensEventProtocolModelApi extends AbstractPlcEventProtocolModelApi {
 

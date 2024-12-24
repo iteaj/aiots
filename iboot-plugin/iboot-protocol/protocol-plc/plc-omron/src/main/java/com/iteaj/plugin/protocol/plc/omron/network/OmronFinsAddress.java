@@ -1,9 +1,8 @@
-package com.iteaj.plugin.protocol.plc.core.address;
+package com.iteaj.plugin.protocol.plc.omron.network;
 
+import com.iteaj.plugin.protocol.plc.core.address.DeviceAddressDataBase;
 import com.iteaj.plugin.protocol.plc.core.types.PlcHelper;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
-import com.iteaj.plugin.protocol.plc.core.profinet.Omron.OmronFinsDataType;
-import com.iteaj.plugin.protocol.plc.core.profinet.Omron.OmronPlcType;
 import com.iteaj.plugin.protocol.plc.core.StringResources;
 
 /**

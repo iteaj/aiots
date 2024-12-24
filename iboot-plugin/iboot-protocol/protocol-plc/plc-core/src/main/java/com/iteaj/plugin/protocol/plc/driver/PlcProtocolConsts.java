@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc;
+package com.iteaj.plugin.protocol.plc.driver;
 
 public interface PlcProtocolConsts {
 

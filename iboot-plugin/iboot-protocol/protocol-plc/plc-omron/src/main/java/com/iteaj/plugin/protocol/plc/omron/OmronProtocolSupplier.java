@@ -15,20 +15,19 @@ import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.plc.ReadAddress;
 import com.iteaj.iot.plc.WriteAddress;
-import com.iteaj.iot.plc.omron.*;
-import com.iteaj.plugin.protocol.plc.AbstractPlcEventProtocolModelApi;
-import com.iteaj.plugin.protocol.plc.AbstractPlcFuncProtocolModelApi;
-import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
+import com.iteaj.plugin.protocol.plc.adapt.PlcConnectProperties;
+import com.iteaj.plugin.protocol.plc.driver.AbstractPlcEventProtocolModelApi;
+import com.iteaj.plugin.protocol.plc.driver.AbstractPlcFuncProtocolModelApi;
+import com.iteaj.plugin.protocol.plc.driver.AbstractPlcProtocolSupplier;
+import com.iteaj.plugin.protocol.plc.omron.network.OmronComponent;
+import com.iteaj.plugin.protocol.plc.omron.network.OmronFinsClient;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 /**
  * 欧姆龙协议提供
  */
 @Component
-public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, OmronComponent, OmronTcpClient> {
+public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, OmronComponent, OmronFinsClient> {
 
     private DefaultProtocolModel protocolModel = new DefaultProtocolModel("PLC_OMRON_TCP"
             , CtrlMode.POINT, TransportProtocol.TCP, getModelApis(), getModelAttrs());
@@ -92,17 +91,12 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
 
     @Override
     public OmronComponent doCreateComponent(NetworkConfigImpl.TcpNetworkConfig config) {
-        FrameworkComponent component = FrameworkManager.getComponent(OmronMessage.class);
-        if(component == null) {
-            component = new OmronComponent();
-        }
-
-        return (OmronComponent) component;
+        return new OmronComponent();
     }
 
     @Override
     protected ClientConnectProperties createPlcConnectProperties(NetworkConfigImpl.TcpNetworkConfig config) {
-        return new OmronConnectProperties(config.getHost(), config.getPort());
+        return new PlcConnectProperties(config.getHost(), config.getPort());
     }
 
     @Override

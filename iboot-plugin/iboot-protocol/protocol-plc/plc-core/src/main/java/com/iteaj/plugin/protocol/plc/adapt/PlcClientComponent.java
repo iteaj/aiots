@@ -11,7 +11,7 @@ import com.iteaj.iot.codec.filter.Interceptor;
 
 import java.util.List;
 
-public abstract class PlcClientComponent extends SimpleMultiClientManager implements ClientComponent<PlcClientMessage> {
+public abstract class PlcClientComponent<M extends PlcClientMessage> extends SimpleMultiClientManager implements ClientComponent<M> {
 
     /**
      * 是否启用

@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc;
+package com.iteaj.plugin.protocol.plc.driver;
 
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;

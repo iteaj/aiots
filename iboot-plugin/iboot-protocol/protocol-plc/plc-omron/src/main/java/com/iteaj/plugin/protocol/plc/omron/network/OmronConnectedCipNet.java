@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Omron;
+package com.iteaj.plugin.protocol.plc.omron.network;
 
 
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;

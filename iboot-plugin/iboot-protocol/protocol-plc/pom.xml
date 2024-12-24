@@ -31,6 +31,12 @@
             <groupId>com.iteaj</groupId>
             <artifactId>iot-plc</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>plc-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>

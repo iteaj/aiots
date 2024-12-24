@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Omron;
+package com.iteaj.plugin.protocol.plc.omron.network;
 
 import com.iteaj.plugin.protocol.plc.core.types.Encoding;
 
@@ -9,17 +9,13 @@ public class OmronCpuUnitData {
     /**
      * 实例化一个默认的对象
      */
-    public OmronCpuUnitData( )
-    {
-
-    }
+    public OmronCpuUnitData() { }
 
     /**
      * 根据原始的数据来实例化相关的CPU单元信息
      * @param data 原始字节数
      */
-    public OmronCpuUnitData( byte[] data )
-    {
+    public OmronCpuUnitData( byte[] data ) {
         Model   = Encoding.ASCII.GetString( data, 0, 20 ).trim( );
         Version = Encoding.ASCII.GetString( data, 20, 10 ).trim( );
         LargestEMNumber = data[41] & 0xff;

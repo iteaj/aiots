@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc;
+package com.iteaj.plugin.protocol.plc.driver;
 
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.FuncType;
@@ -6,11 +6,9 @@ import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractFuncProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.plc.PlcClientProtocol;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class AbstractPlcFuncProtocolModelApi extends AbstractFuncProtocolModelApi {

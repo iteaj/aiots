@@ -3,19 +3,13 @@ package com.iteaj.plugin.protocol.plc.omron;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.FuncType;
-import com.iteaj.framework.spi.iot.protocol.InvokeResult;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.IotClient;
-import com.iteaj.iot.plc.PlcClientProtocol;
 import com.iteaj.iot.plc.omron.OmronConnectProperties;
 import com.iteaj.iot.plc.omron.OmronMessage;
 import com.iteaj.iot.plc.omron.OmronTcpProtocol;
-import com.iteaj.plugin.protocol.plc.AbstractPlcFuncProtocolModelApi;
-
-import java.util.Map;
-import java.util.function.Consumer;
+import com.iteaj.plugin.protocol.plc.driver.AbstractPlcFuncProtocolModelApi;
 
 public class OmronFuncProtocolModelApi extends AbstractPlcFuncProtocolModelApi {
 

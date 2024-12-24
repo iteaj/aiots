@@ -1,8 +1,7 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Omron;
+package com.iteaj.plugin.protocol.plc.omron.network;
 
 
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
-import com.iteaj.plugin.protocol.plc.core.address.OmronFinsAddress;
 import com.iteaj.plugin.protocol.plc.core.net.IReadWriteDevice;
 import com.iteaj.plugin.protocol.plc.core.net.ReadWriteNetHelper;
 import com.iteaj.plugin.protocol.plc.core.types.*;

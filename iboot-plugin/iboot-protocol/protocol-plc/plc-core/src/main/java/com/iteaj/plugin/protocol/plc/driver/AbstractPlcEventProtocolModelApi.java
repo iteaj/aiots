@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc;
+package com.iteaj.plugin.protocol.plc.driver;
 
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;

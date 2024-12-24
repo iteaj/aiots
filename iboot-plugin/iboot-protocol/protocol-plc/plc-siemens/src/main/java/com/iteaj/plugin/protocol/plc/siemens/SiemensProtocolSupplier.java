@@ -16,17 +16,13 @@ import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.plc.ReadAddress;
 import com.iteaj.iot.plc.WriteAddress;
-import com.iteaj.iot.plc.omron.OmronTcpProtocol;
 import com.iteaj.iot.plc.siemens.*;
-import com.iteaj.plugin.protocol.plc.AbstractPlcEventProtocolModelApi;
-import com.iteaj.plugin.protocol.plc.AbstractPlcFuncProtocolModelApi;
-import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
+import com.iteaj.plugin.protocol.plc.driver.AbstractPlcEventProtocolModelApi;
+import com.iteaj.plugin.protocol.plc.driver.AbstractPlcFuncProtocolModelApi;
+import com.iteaj.plugin.protocol.plc.driver.AbstractPlcProtocolSupplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 /**
  * 西门子PLC协议提供
