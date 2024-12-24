@@ -7,7 +7,7 @@ import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractEventProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iot.Protocol;
-import com.iteaj.iot.plc.PlcClientProtocol;
+import com.iteaj.plugin.protocol.plc.adapt.PlcProtocolAbstract;
 
 import java.util.function.Consumer;
 
@@ -19,7 +19,7 @@ public abstract class AbstractPlcEventProtocolModelApi extends AbstractEventProt
 
     @Override
     protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
-        PlcClientProtocol plcClientProtocol = (PlcClientProtocol) protocol;
+        PlcProtocolAbstract plcClientProtocol = (PlcProtocolAbstract) protocol;
         try {
             Object value;
             String address = arg.getString(PointProtocolConfig.POINT_ADDRESS);

@@ -1,5 +1,6 @@
 package com.iteaj.plugin.protocol.plc.core.net.NetworkBase;
 
+import com.iteaj.plugin.protocol.plc.adapt.PlcProtocolAbstract;
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
 import com.iteaj.plugin.protocol.plc.core.message.INetMessage;
 import com.iteaj.plugin.protocol.plc.core.net.StateOne.AlienSession;
@@ -554,6 +555,11 @@ public class NetworkDoubleBase extends NetworkBase {
     public OperateResultExOne<byte[]> ReadFromCoreServer(Socket socket, byte[] send, boolean hasResponseData, boolean usePackAndUnpack ) {
 
         byte[] sendValue = usePackAndUnpack ? PackCommandWithHeader(send) : send;
+        PlcProtocolAbstract plcProtocolAbstract = PlcProtocolAbstract.get();
+        if(plcProtocolAbstract != null) {
+            plcProtocolAbstract.setRequestMessage(plcProtocolAbstract.build(sendValue));
+        }
+
         ILogNet logNet = LogNet;
         if (logNet != null) logNet.WriteDebug(this.toString(), StringResources.Language.Send() + " : " +
                 (LogMsgFormatBinary ? SoftBasic.ByteToHexString(sendValue, ' ') : SoftBasic.GetAsciiStringRender(sendValue)));
@@ -596,6 +602,9 @@ public class NetworkDoubleBase extends NetworkBase {
             }
 
             if (!resultReceive.IsSuccess) return OperateResultExOne.CreateFailedResult(resultReceive);
+            if(plcProtocolAbstract != null) {
+                plcProtocolAbstract.setResponseMessage(plcProtocolAbstract.build(resultReceive.Content));
+            }
 
             if (logNet != null) logNet.WriteDebug(this.toString(), StringResources.Language.Receive() + " : " +
                     (LogMsgFormatBinary ? SoftBasic.ByteToHexString(resultReceive.Content, ' ') : SoftBasic.GetAsciiStringRender(resultReceive.Content)));

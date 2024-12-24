@@ -1,20 +1,11 @@
-package com.iteaj.plugin.protocol.plc.omron;
+package com.iteaj.plugin.protocol.plc.omron.driver;
 
 import com.iteaj.framework.ParamMeta;
-import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
-import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
-import com.iteaj.framework.spi.iot.protocol.ProtocolSupplierException;
-import com.iteaj.iot.FrameworkComponent;
-import com.iteaj.iot.FrameworkManager;
-import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.ClientConnectProperties;
-import com.iteaj.iot.consts.ExecStatus;
-import com.iteaj.iot.plc.ReadAddress;
-import com.iteaj.iot.plc.WriteAddress;
 import com.iteaj.plugin.protocol.plc.adapt.PlcConnectProperties;
 import com.iteaj.plugin.protocol.plc.driver.AbstractPlcEventProtocolModelApi;
 import com.iteaj.plugin.protocol.plc.driver.AbstractPlcFuncProtocolModelApi;
@@ -61,32 +52,6 @@ public class OmronProtocolSupplier extends AbstractPlcProtocolSupplier<NetworkCo
     @Override
     public ParamMeta[] getGatewayConfig() {
         return gatewayConfig;
-    }
-
-    @Override
-    public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
-        DataSupplier dataSupplier = new DataSupplier(getProtocol().getCode(), param.buildKey());
-        if(param == null) {
-            throw new ProtocolSupplierException("调用参数不存在");
-        }
-
-        if(protocol instanceof OmronTcpProtocol) {
-            ExecStatus execStatus = ((OmronTcpProtocol) protocol).getExecStatus();
-            WriteAddress writeAddress = ((OmronTcpProtocol) protocol).getWriteAddress();
-            if(writeAddress == null) {
-                ReadAddress readAddress = ((OmronTcpProtocol) protocol).getBatchAddress().get(0);
-                param.listUpAttrs().stream().findFirst().ifPresent(upModelAttr -> {
-                    if(execStatus == ExecStatus.success) {
-                        Object collectValue = dataResolver(upModelAttr, value);
-                        dataSupplier.addValue(upModelAttr.getId(), readAddress.getAddress(), upModelAttr.getField(), collectValue);
-                    } else {
-                        dataSupplier.addValue(upModelAttr.getId(), readAddress.getAddress(), upModelAttr.getField(), CollectStatus.from(execStatus));
-                    }
-                });
-            }
-        }
-
-        return dataSupplier;
     }
 
     @Override

@@ -187,7 +187,8 @@ public class OmronFinsNetHelper {
                     (response[10] == 0x07 & response[11] == 0x01) ||
                     (response[10] == 0x09 & response[11] == 0x20) ||
                     (response[10] == 0x21 & response[11] == 0x02) ||
-                    (response[10] == 0x22 & response[11] == 0x02)) {
+                    (response[10] == 0x22 & response[11] == 0x02) ||
+                    response.length > 14) {
                 // C0 00 02 00 00 00 00 01 00 00 01 01 21 08
                 // Read 操作
                 try {

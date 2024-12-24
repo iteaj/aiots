@@ -1,6 +1,5 @@
 package com.iteaj.plugin.protocol.plc.adapt;
 
-import com.iteaj.iot.client.ClientComponent;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.plugin.protocol.plc.core.log.core.ILogNet;
 import com.iteaj.plugin.protocol.plc.core.net.IReadWriteNet;
@@ -8,17 +7,20 @@ import com.iteaj.plugin.protocol.plc.core.net.NetworkBase.NetworkDoubleBase;
 import com.iteaj.plugin.protocol.plc.core.types.IDataTransfer;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResult;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 
 public abstract class PlcClientAdapter implements IotClient, IReadWriteNet {
 
     private IReadWriteNet readWriteNet;
-    private ClientComponent clientComponent;
+    private PlcClientComponent clientComponent;
     private NetworkDoubleBase networkDoubleBase;
     private PlcConnectProperties connectProperties;
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public PlcClientAdapter(ClientComponent clientComponent, PlcConnectProperties connectProperties) {
+    public PlcClientAdapter(PlcClientComponent clientComponent, PlcConnectProperties connectProperties) {
         this.clientComponent = clientComponent;
         this.connectProperties = connectProperties;
     }
@@ -31,14 +33,24 @@ public abstract class PlcClientAdapter implements IotClient, IReadWriteNet {
     @Override
     public void init(Object config) {
         this.networkDoubleBase = doInit(getConfig());
+        if(this.networkDoubleBase instanceof IReadWriteNet) {
+            this.readWriteNet = (IReadWriteNet) this.networkDoubleBase;
+        }
     }
 
     protected abstract NetworkDoubleBase doInit(PlcConnectProperties config);
 
     @Override
     public Boolean connect() {
-        this.networkDoubleBase.ConnectServer();
-        return true;
+        OperateResult operateResult = this.networkDoubleBase.ConnectServer();
+        PlcClientComponent clientComponent = getClientComponent();
+        if(operateResult.IsSuccess) {
+            logger.info("连接PLC成功({})", clientComponent.getProtocolType().getDesc());
+        } else {
+            logger.error("连接PLC失败({}) ", clientComponent.getProtocolType().getDesc(), operateResult.Message);
+        }
+
+        return operateResult.IsSuccess;
     }
 
     @Override
@@ -59,7 +71,7 @@ public abstract class PlcClientAdapter implements IotClient, IReadWriteNet {
     }
 
     @Override
-    public ClientComponent getClientComponent() {
+    public PlcClientComponent getClientComponent() {
         return this.clientComponent;
     }
 

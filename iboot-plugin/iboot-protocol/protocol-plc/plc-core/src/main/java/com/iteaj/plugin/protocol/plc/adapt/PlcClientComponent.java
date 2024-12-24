@@ -23,13 +23,18 @@ public abstract class PlcClientComponent<M extends PlcClientMessage> extends Sim
      */
     private long startTime;
 
+    private PlcProtocolType protocolType;
+
     private PlcClientAdapter clientAdapter;
 
     private PlcConnectProperties properties;
 
-    public PlcClientComponent() { }
+    public PlcClientComponent(PlcProtocolType protocolType) {
+        this.protocolType = protocolType;
+    }
 
-    public PlcClientComponent(PlcConnectProperties properties) {
+    public PlcClientComponent(PlcProtocolType protocolType, PlcConnectProperties properties) {
+        this.protocolType = protocolType;
         this.properties = properties;
     }
 
@@ -98,5 +103,13 @@ public abstract class PlcClientComponent<M extends PlcClientMessage> extends Sim
     @Override
     public IotProtocolFactory protocolFactory() {
         return null;
+    }
+
+    public PlcProtocolType getProtocolType() {
+        return protocolType;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 }

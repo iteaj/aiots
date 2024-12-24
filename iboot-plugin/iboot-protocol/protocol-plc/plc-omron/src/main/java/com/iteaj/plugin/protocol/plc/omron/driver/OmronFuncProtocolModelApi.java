@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.omron;
+package com.iteaj.plugin.protocol.plc.omron.driver;
 
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;

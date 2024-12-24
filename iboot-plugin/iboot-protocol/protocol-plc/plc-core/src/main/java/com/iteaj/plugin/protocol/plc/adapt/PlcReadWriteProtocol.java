@@ -19,7 +19,8 @@ public interface PlcReadWriteProtocol extends Protocol {
      * @param address 数据地址
      */
     default Boolean readBool(String address) {
-        return this.readBool(address, (short) 1)[0];
+        boolean[] booleans = this.readBool(address, (short) 1);
+        return booleans != null ? booleans[0] : null;
     }
 
     /**
@@ -34,7 +35,8 @@ public interface PlcReadWriteProtocol extends Protocol {
      * @param address 起始地址
      */
     default Short readInt16(String address) {
-        return this.readInt16(address, (short) 1)[0];
+        short[] shorts = this.readInt16(address, (short) 1);
+        return shorts != null ? shorts[0] : null;
     }
 
     /**
@@ -49,7 +51,8 @@ public interface PlcReadWriteProtocol extends Protocol {
      * @param address 起始地址
      */
     default Integer readUInt16(String address) {
-        return this.readUInt16(address, (short) 1)[0];
+        int[] ints = this.readUInt16(address, (short) 1);
+        return ints != null ? ints[0] : null;
     }
 
     /**
@@ -64,7 +67,8 @@ public interface PlcReadWriteProtocol extends Protocol {
      * @param address 起始地址
      */
     default Integer readInt32(String address) {
-        return this.readInt32(address, (short) 1)[0];
+        int[] ints = this.readInt32(address, (short) 1);
+        return ints != null ? ints[0] : null;
     }
 
     /**
@@ -79,7 +83,8 @@ public interface PlcReadWriteProtocol extends Protocol {
      * @param address 起始地址
      */
     default Long readUInt32(String address) {
-        return this.readUInt32(address, (short) 1)[0];
+        long[] longs = this.readUInt32(address, (short) 1);
+        return longs != null ? longs[0] : null;
     }
 
     /**
@@ -94,7 +99,8 @@ public interface PlcReadWriteProtocol extends Protocol {
      * @param address 起始地址
      */
     default Long readInt64(String address) {
-        return this.readInt64(address, (short) 1)[0];
+        long[] longs = this.readInt64(address, (short) 1);
+        return longs != null ? longs[0] : null;
     }
 
     /**
@@ -109,7 +115,8 @@ public interface PlcReadWriteProtocol extends Protocol {
      * @param address 起始地址
      */
     default Float readFloat(String address) {
-        return this.readFloat(address, (short) 1)[0];
+        float[] floats = this.readFloat(address, (short) 1);
+        return floats != null ? floats[0] : null;
     }
 
     /**
@@ -124,7 +131,8 @@ public interface PlcReadWriteProtocol extends Protocol {
      * @param address 起始地址
      */
     default Double readDouble(String address) {
-        return this.readDouble(address, (short) 1)[0];
+        double[] doubles = this.readDouble(address, (short) 1);
+        return doubles != null ? doubles[0] : null;
     }
 
     /**

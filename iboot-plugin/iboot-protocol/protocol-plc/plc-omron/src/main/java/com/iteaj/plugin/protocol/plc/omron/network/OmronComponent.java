@@ -4,8 +4,17 @@ import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.plugin.protocol.plc.adapt.PlcClientAdapter;
 import com.iteaj.plugin.protocol.plc.adapt.PlcClientComponent;
 import com.iteaj.plugin.protocol.plc.adapt.PlcConnectProperties;
+import com.iteaj.plugin.protocol.plc.adapt.PlcProtocolType;
 
 public class OmronComponent extends PlcClientComponent<OmronMessage> {
+
+    public OmronComponent() {
+        this(null);
+    }
+
+    public OmronComponent(PlcConnectProperties properties) {
+        super(PlcProtocolType.Omron, properties);
+    }
 
     @Override
     public PlcClientAdapter createNewClient(ClientConnectProperties config) {

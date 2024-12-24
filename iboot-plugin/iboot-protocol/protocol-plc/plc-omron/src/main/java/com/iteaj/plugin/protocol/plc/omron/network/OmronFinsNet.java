@@ -36,9 +36,14 @@ public class OmronFinsNet extends NetworkDeviceBase implements IOmronFins {
      * @param port PLC的端口
      */
     public OmronFinsNet(String ipAddress, int port) {
+        this(ipAddress, port, OmronPlcType.CSCJ);
+    }
+
+    public OmronFinsNet(String ipAddress, int port, OmronPlcType plcType) {
         this();
         setIpAddress(ipAddress);
-        setPort(port);;
+        setPort(port);
+        this.plcType = plcType;
     }
 
     @Override

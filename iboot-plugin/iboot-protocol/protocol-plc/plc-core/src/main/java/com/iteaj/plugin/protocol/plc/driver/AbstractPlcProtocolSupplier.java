@@ -1,20 +1,29 @@
 package com.iteaj.plugin.protocol.plc.driver;
 
 import cn.hutool.core.util.StrUtil;
+import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.NetworkConfigImpl;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.StaticClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.framework.spi.iot.protocol.ProtocolSupplierException;
+import com.iteaj.iot.Protocol;
+import com.iteaj.iot.client.ClientComponent;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.client.component.SocketClientComponent;
+import com.iteaj.iot.consts.ExecStatus;
+import com.iteaj.iot.plc.ReadAddress;
+import com.iteaj.iot.plc.WriteAddress;
+import com.iteaj.plugin.protocol.plc.adapt.PlcProtocolAbstract;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl.TcpNetworkConfig, T extends SocketClientComponent, K extends IotClient>
+public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl.TcpNetworkConfig, T extends ClientComponent, K extends IotClient>
         extends StaticClientProtocolSupplier<C, T, K> {
 
     private Map<String, ProtocolModelAttr> modelAttrs = new LinkedHashMap<>();
@@ -116,6 +125,31 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl.Tc
         }
 
         return (K) component.createNewClient(connectProperties);
+    }
+
+    @Override
+    public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
+        DataSupplier dataSupplier = new DataSupplier(getProtocol().getCode(), param.buildKey());
+        if(param == null) {
+            throw new ProtocolSupplierException("调用参数不存在");
+        }
+
+        if(protocol instanceof PlcProtocolAbstract) {
+            PlcProtocolAbstract<?> plcProtocol = (PlcProtocolAbstract<?>) protocol;
+            ExecStatus execStatus = plcProtocol.getExecStatus();
+            if(!plcProtocol.isWrite()) {
+                param.listUpAttrs().stream().findFirst().ifPresent(upModelAttr -> {
+                    if(execStatus == ExecStatus.success) {
+                        Object collectValue = dataResolver(upModelAttr, value);
+                        dataSupplier.addValue(upModelAttr.getId(), plcProtocol.getAddress(), upModelAttr.getField(), collectValue);
+                    } else {
+                        dataSupplier.addValue(upModelAttr.getId(), plcProtocol.getAddress(), upModelAttr.getField(), CollectStatus.from(execStatus));
+                    }
+                });
+            }
+        }
+
+        return dataSupplier;
     }
 
     protected abstract ClientConnectProperties createPlcConnectProperties(C config);
