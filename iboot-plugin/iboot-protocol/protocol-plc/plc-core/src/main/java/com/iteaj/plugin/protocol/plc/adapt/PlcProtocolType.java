@@ -5,6 +5,7 @@ import com.iteaj.iot.ProtocolType;
 public enum PlcProtocolType implements ProtocolType {
     Omron("欧姆龙PLC"),
     Siemens("西门子S7系列PLC"),
+    Melsec("三菱系列PLC"),
     ;
 
     private String desc;

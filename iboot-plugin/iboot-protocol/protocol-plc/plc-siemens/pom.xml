@@ -13,14 +13,6 @@
     <artifactId>plc-siemens</artifactId>
     <description>iot模块西门子plc协议提供</description>
 
-    <dependencies>
-        <dependency>
-            <version>3.0.0</version>
-            <groupId>com.iteaj</groupId>
-            <artifactId>plc-common</artifactId>
-        </dependency>
-    </dependencies>
-
     <profiles>
       <profile>
         <id>rdc</id>

@@ -24,6 +24,7 @@
         <!--西门子plc-->
         <module>plc-siemens</module>
         <module>plc-core</module>
+        <module>plc-melsec</module>
     </modules>
 
     <dependencies>
