@@ -24,6 +24,9 @@ public abstract class AbstractPlcEventProtocolModelApi extends AbstractEventProt
             Object value;
             String address = arg.getString(PointProtocolConfig.POINT_ADDRESS);
             switch (this.getCode()) {
+                case PlcProtocolConsts.PLC_READ_BYTE:
+                    value =plcClientProtocol.readByte(address);
+                    break;
                 case PlcProtocolConsts.PLC_READ_BOOL:
                     value = plcClientProtocol.readBool(address);
                     break;
@@ -51,6 +54,12 @@ public abstract class AbstractPlcEventProtocolModelApi extends AbstractEventProt
                 case PlcProtocolConsts.PLC_READ_STRING:
                     short length = arg.getShort(PointProtocolConfig.POINT_NUMBER);
                     value = plcClientProtocol.readString(address, length);
+                    break;
+                case PlcProtocolConsts.PLC_READ_DATE:
+                    value = plcClientProtocol.readDate(address);
+                    break;
+                case PlcProtocolConsts.PLC_READ_DTL_DATETIME:
+                    value = plcClientProtocol.readDltDatetime(address);
                     break;
                 default: throw new ServiceException("未知指令["+this.getCode()+"]");
             }

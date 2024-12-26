@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Siemens;
+package com.iteaj.plugin.protocol.plc.siemens.network;
 
 /**
  * 西门子的PLC类型，目前支持的访问类型

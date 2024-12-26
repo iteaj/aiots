@@ -1,5 +1,7 @@
 package com.iteaj.plugin.protocol.plc.driver;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
@@ -24,6 +26,9 @@ public abstract class AbstractPlcFuncProtocolModelApi extends AbstractFuncProtoc
             String value = arg.getString(PlcProtocolConsts.PLC_VALUE);
             String address = arg.getString(PointProtocolConfig.POINT_ADDRESS);
             switch (this.getCode()) {
+                case PlcProtocolConsts.PLC_WRITE_BYTE:
+                    clientProtocol.write(address, Byte.valueOf(value));
+                    break;
                 case PlcProtocolConsts.PLC_WRITE_BOOL:
                     clientProtocol.write(address, Boolean.valueOf(value));
                     break;
@@ -45,10 +50,17 @@ public abstract class AbstractPlcFuncProtocolModelApi extends AbstractFuncProtoc
                 case PlcProtocolConsts.PLC_WRITE_STRING:
                     clientProtocol.write(address, value);
                     break;
+                case PlcProtocolConsts.PLC_WRITE_DATE:
+                    clientProtocol.writeDate(address, DateUtil.parse(value, DatePattern.NORM_DATE_PATTERN));
+                    break;
+                case PlcProtocolConsts.PLC_WRITE_DTL_DATETIME:
+                    clientProtocol.writeDltDatetime(address, DateUtil.parse(value, DatePattern.NORM_DATETIME_PATTERN));
+                    break;
             }
 
             result.accept(InvokeResult.status(clientProtocol.getExecStatus(), clientProtocol));
         } catch (Exception e) {
+            e.printStackTrace();
             result.accept(InvokeResult.fail(e.getMessage(), clientProtocol));
         }
     }

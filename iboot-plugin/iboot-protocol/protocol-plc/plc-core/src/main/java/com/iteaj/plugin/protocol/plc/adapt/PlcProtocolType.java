@@ -3,7 +3,9 @@ package com.iteaj.plugin.protocol.plc.adapt;
 import com.iteaj.iot.ProtocolType;
 
 public enum PlcProtocolType implements ProtocolType {
-    Omron("欧姆龙PLC");
+    Omron("欧姆龙PLC"),
+    Siemens("西门子S7系列PLC"),
+    ;
 
     private String desc;
 

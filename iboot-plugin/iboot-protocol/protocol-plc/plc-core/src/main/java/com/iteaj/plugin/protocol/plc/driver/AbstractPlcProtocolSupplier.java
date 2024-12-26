@@ -69,7 +69,7 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl.Tc
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
 //                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_NUMBER, "要读取的double值数量", 2))
                 .addUpConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "读取的double值", 1)));
-        this.modelApis.put("readString", createPlcEventProtocolModelApi(PlcProtocolConsts.PLC_READ_STRING, "读取string值", "读取string值")
+        this.modelApis.put("readString", createPlcEventProtocolModelApi(PlcProtocolConsts.PLC_READ_STRING, "读取string值", "使用UTF8编码")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_NUMBER, "读取的寄存器数量", 2))
                 .addUpConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "读取的string值", 1)));
@@ -99,9 +99,9 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl.Tc
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_VALUE, "要写入的double值", 2))
                 .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
-        this.modelApis.put("writeString", createPlcFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_STRING, "写string值", FuncType.W, "写string值")
+        this.modelApis.put("writeString", createPlcFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_STRING, "写string值", FuncType.W, "使用UTF8编码")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
-                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_VALUE, "要写入的string值", 2))
+                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_VALUE, "使用UTF8编码", 2))
                 .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
     }
 

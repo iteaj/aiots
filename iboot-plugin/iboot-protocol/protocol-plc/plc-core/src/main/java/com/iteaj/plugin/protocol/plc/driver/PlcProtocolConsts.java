@@ -15,15 +15,20 @@ public interface PlcProtocolConsts {
 
     String PLC_WRITE_STATUS = "status";
 
+    String PLC_WRITE_BYTE = "writeByte";
     String PLC_WRITE_BOOL = "writeBool";
+    String PLC_WRITE_DATE = "writeDate";
     String PLC_WRITE_INT16 = "writeInt16";
     String PLC_WRITE_INT32 = "writeInt32";
     String PLC_WRITE_INT64 = "writeInt64";
     String PLC_WRITE_FLOAT = "writeFloat";
     String PLC_WRITE_DOUBLE = "writeDouble";
     String PLC_WRITE_STRING = "writeString";
+    String PLC_WRITE_DTL_DATETIME = "writeDatetime";
 
+    String PLC_READ_BYTE = "readByte";
     String PLC_READ_BOOL = "readBool";
+    String PLC_READ_DATE = "readDate";
     String PLC_READ_INT16 = "readInt16";
     String PLC_READ_UINT16 = "readUInt16";
     String PLC_READ_INT32 = "readInt32";
@@ -32,4 +37,5 @@ public interface PlcProtocolConsts {
     String PLC_READ_FLOAT = "readFloat";
     String PLC_READ_DOUBLE = "readDouble";
     String PLC_READ_STRING = "readString";
+    String PLC_READ_DTL_DATETIME = "readDtlDatetime";
 }

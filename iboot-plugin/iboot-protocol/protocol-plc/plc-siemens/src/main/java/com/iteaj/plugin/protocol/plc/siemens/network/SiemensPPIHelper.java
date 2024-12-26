@@ -1,7 +1,6 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Siemens.Helper;
+package com.iteaj.plugin.protocol.plc.siemens.network;
 
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
-import com.iteaj.plugin.protocol.plc.core.address.S7AddressData;
 import com.iteaj.plugin.protocol.plc.core.net.IReadWriteDevice;
 import com.iteaj.plugin.protocol.plc.core.types.*;
 import com.iteaj.plugin.protocol.plc.core.StringResources;

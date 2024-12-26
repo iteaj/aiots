@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.siemens;
+package com.iteaj.plugin.protocol.plc.siemens.driver;
 
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
@@ -6,9 +6,10 @@ import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.IotClient;
-import com.iteaj.iot.plc.siemens.SiemensS7Message;
-import com.iteaj.iot.plc.siemens.SiemensS7Protocol;
 import com.iteaj.plugin.protocol.plc.driver.AbstractPlcFuncProtocolModelApi;
+import com.iteaj.plugin.protocol.plc.siemens.network.SiemensMessage;
+import com.iteaj.plugin.protocol.plc.siemens.network.SiemensS7Client;
+import com.iteaj.plugin.protocol.plc.siemens.network.SiemensS7Protocol;
 
 public class SiemensFuncProtocolModelApi extends AbstractPlcFuncProtocolModelApi {
 
@@ -18,11 +19,11 @@ public class SiemensFuncProtocolModelApi extends AbstractPlcFuncProtocolModelApi
 
     @Override
     protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
-        IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), SiemensS7Message.class);
+        IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), SiemensMessage.class);
         if(client == null) {
-            throw new ServiceException("欧姆龙客户端[deviceSn="+arg.getParentDeviceSn()+"]不在线");
+            throw new ServiceException("西门子客户端["+arg.getParentDeviceSn()+"]不存在");
         }
 
-        return new SiemensS7Protocol(client.getConfig());
+        return new SiemensS7Protocol((SiemensS7Client) client);
     }
 }

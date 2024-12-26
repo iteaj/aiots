@@ -1,5 +1,6 @@
-package com.iteaj.plugin.protocol.plc.core.address;
+package com.iteaj.plugin.protocol.plc.siemens.network;
 
+import com.iteaj.plugin.protocol.plc.core.address.DeviceAddressDataBase;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
 import com.iteaj.plugin.protocol.plc.core.StringResources;
 

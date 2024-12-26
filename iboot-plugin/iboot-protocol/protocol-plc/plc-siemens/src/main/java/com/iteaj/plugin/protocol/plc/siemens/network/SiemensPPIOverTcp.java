@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Siemens;
+package com.iteaj.plugin.protocol.plc.siemens.network;
 
 import com.iteaj.plugin.protocol.plc.core.message.INetMessage;
 import com.iteaj.plugin.protocol.plc.core.net.IReadWriteDevice;
@@ -7,7 +7,6 @@ import com.iteaj.plugin.protocol.plc.core.transfer.ReverseBytesTransform;
 import com.iteaj.plugin.protocol.plc.core.types.MemoryStream;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResult;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
-import com.iteaj.plugin.protocol.plc.core.profinet.Siemens.Helper.SiemensPPIHelper;
 import com.iteaj.plugin.protocol.plc.core.StringResources;
 
 import java.net.Socket;

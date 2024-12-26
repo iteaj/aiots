@@ -7,6 +7,8 @@ import com.iteaj.plugin.protocol.plc.core.types.OperateResult;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
 
 import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.Locale;
 
 public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends AbstractClientProtocol<M> implements PlcReadWriteProtocol {
 
@@ -69,10 +71,12 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
     @Override
     public AbstractClientProtocol buildResponseMessage() {
         threadLocal.remove();
-        if(!this.result.IsSuccess) {
+        if(this.result != null && !this.result.IsSuccess) {
             this.setReason(this.result.Message);
             this.setExecStatus(ExecStatus.fail);
+            throw new PlcProtocolException(this.getReason());
         }
+
         return this;
     }
 
@@ -86,7 +90,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<byte[]> read = getIotClient().Read(address, length);
+            OperateResultExOne<byte[]> read = getIotClient().Read(getAddress(), length);
             this.result = read;
             if(read.IsSuccess) {
                 return read.Content;
@@ -98,12 +102,88 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         return null;
     }
 
+    public Byte readByte(String address) {
+        this.setAddress(address);
+        try {
+            buildRequestMessage();
+            this.result = doReadByte(getAddress());
+            if(this.result.IsSuccess) {
+                return ((OperateResultExOne<Byte>) this.result).Content;
+            }
+        } finally {
+            buildResponseMessage();
+        }
+
+        return null;
+    }
+
+    protected OperateResultExOne<Byte> doReadByte(String address) {
+        throw new UnsupportedOperationException(protocolType()+"不支持读字节操作");
+    }
+
+    public Date readDate(String address) {
+        this.setAddress(address);
+        try {
+            buildRequestMessage();
+            this.result = doReadDate(getAddress());
+            if(this.result.IsSuccess) {
+                return ((OperateResultExOne<Date>) this.result).Content;
+            }
+
+            return null;
+        } finally {
+            buildResponseMessage();
+        }
+    }
+
+    protected OperateResultExOne<Date> doReadDate(String address) {
+        throw new UnsupportedOperationException(protocolType()+"不支持读日期操作");
+    }
+
+    public Date readDatetime(String address) {
+        this.setAddress(address);
+        try {
+            buildRequestMessage();
+            this.result = doReadDatetime(getAddress());
+            if(this.result.IsSuccess) {
+                return ((OperateResultExOne<Date>) this.result).Content;
+            }
+
+            return null;
+        } finally {
+            buildResponseMessage();
+        }
+    }
+
+    protected OperateResultExOne<Date> doReadDatetime(String address) {
+        throw new UnsupportedOperationException(protocolType()+"不支持读日期操作");
+    }
+
+    public Date readDltDatetime(String address) {
+        this.setAddress(address);
+        try {
+            buildRequestMessage();
+            this.result = doReadDltDatetime(getAddress());
+            if(this.result.IsSuccess) {
+                return ((OperateResultExOne<Date>) this.result).Content;
+            }
+
+            return null;
+        } finally {
+            buildResponseMessage();
+        }
+    }
+
+    protected OperateResultExOne<Date> doReadDltDatetime(String address) {
+        throw new UnsupportedOperationException(protocolType()+"不支持读Dlt日期操作");
+    }
+
     @Override
     public boolean[] readBool(String address, short length) {
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<boolean[]> result = getIotClient().ReadBool(address, length);
+            OperateResultExOne<boolean[]> result = getIotClient().ReadBool(getAddress(), length);
             this.result = result;
             if(result.IsSuccess) {
                 return result.Content;
@@ -120,7 +200,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<short[]> result = getIotClient().ReadInt16(address, length);
+            OperateResultExOne<short[]> result = getIotClient().ReadInt16(getAddress(), length);
             this.result = result;
             if(result.IsSuccess) {
                 return result.Content;
@@ -137,7 +217,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<int[]> result = getIotClient().ReadUInt16(address, length);
+            OperateResultExOne<int[]> result = getIotClient().ReadUInt16(getAddress(), length);
             this.result = result;
             if(result.IsSuccess) {
                 return result.Content;
@@ -154,7 +234,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<int[]> result = getIotClient().ReadInt32(address, length);
+            OperateResultExOne<int[]> result = getIotClient().ReadInt32(getAddress(), length);
             this.result = result;
             if(result.IsSuccess) {
                 return result.Content;
@@ -171,7 +251,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<long[]> result = getIotClient().ReadUInt32(address, length);
+            OperateResultExOne<long[]> result = getIotClient().ReadUInt32(getAddress(), length);
             this.result = result;
             if(result.IsSuccess) {
                 return result.Content;
@@ -188,7 +268,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<long[]> result = getIotClient().ReadInt64(address, length);
+            OperateResultExOne<long[]> result = getIotClient().ReadInt64(getAddress(), length);
             this.result = result;
             if(result.IsSuccess) {
                 return result.Content;
@@ -205,7 +285,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<float[]> result = getIotClient().ReadFloat(address, length);
+            OperateResultExOne<float[]> result = getIotClient().ReadFloat(getAddress(), length);
             this.result = result;
             if(result.IsSuccess) {
                 return result.Content;
@@ -222,7 +302,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<double[]> result = getIotClient().ReadDouble(address, length);
+            OperateResultExOne<double[]> result = getIotClient().ReadDouble(getAddress(), length);
             this.result = result;
             if(result.IsSuccess) {
                 return result.Content;
@@ -239,7 +319,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            OperateResultExOne<String> result = getIotClient().ReadString(address, length, Charset.forName(encoding));
+            OperateResultExOne<String> result = getIotClient().ReadString(getAddress(), length, Charset.forName(encoding));
             this.result = result;
             if(result.IsSuccess) {
                 return result.Content;
@@ -251,12 +331,54 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         return null;
     }
 
+    public void writeByte(String address, byte value) {
+        this.setAddress(address);
+        try {
+            this.buildRequestMessage();
+            this.result = doWriteByte(getAddress(), value);
+        } finally {
+            this.buildResponseMessage();
+        }
+    }
+
+    private OperateResult doWriteByte(String address, byte value) {
+        throw new UnsupportedOperationException(protocolType()+"不支持写字节操作");
+    }
+
+    public void writeDate(String address, Date date) {
+        this.setAddress(address);
+        try {
+            this.buildRequestMessage();
+            this.result = doWriteDate(getAddress(), date);
+        } finally {
+            this.buildResponseMessage();
+        }
+    }
+
+    protected OperateResult doWriteDate(String address, Date date) {
+        throw new UnsupportedOperationException(protocolType()+"不支持写日期操作");
+    }
+
+    public void writeDltDatetime(String address, Date date) {
+        this.setAddress(address);
+        try {
+            this.buildRequestMessage();
+            this.result = doWriteDltDatetime(getAddress(), date);
+        } finally {
+            this.buildResponseMessage();
+        }
+    }
+
+    protected OperateResult doWriteDltDatetime(String address, Date date) {
+        throw new UnsupportedOperationException(protocolType()+"不支持写Dlt日期操作");
+    }
+
     @Override
     public void write(String address, byte[] value) {
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, value);
+            this.result = getIotClient().Write(getAddress(), value);
         } finally {
             this.buildResponseMessage();
         }
@@ -267,7 +389,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, value);
+            this.result = getIotClient().Write(getAddress(), value);
         } finally {
             this.buildResponseMessage();
         }
@@ -278,7 +400,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, value);
+            this.result = getIotClient().Write(getAddress(), value);
         } finally {
             this.buildResponseMessage();
         }
@@ -289,7 +411,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, values);
+            this.result = getIotClient().Write(getAddress(), values);
         } finally {
             this.buildResponseMessage();
         }
@@ -300,7 +422,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, value);
+            this.result = getIotClient().Write(getAddress(), value);
         } finally {
             this.buildResponseMessage();
         }
@@ -311,7 +433,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, values);
+            this.result = getIotClient().Write(getAddress(), values);
         } finally {
             this.buildResponseMessage();
         }
@@ -322,7 +444,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, value);
+            this.result = getIotClient().Write(getAddress(), value);
         } finally {
             this.buildResponseMessage();
         }
@@ -333,7 +455,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, values);
+            this.result = getIotClient().Write(getAddress(), values);
         } finally {
             this.buildResponseMessage();
         }
@@ -344,7 +466,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, value);
+            this.result = getIotClient().Write(getAddress(), value);
         } finally {
             this.buildResponseMessage();
         }
@@ -355,7 +477,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, values);
+            this.result = getIotClient().Write(getAddress(), values);
         } finally {
             this.buildResponseMessage();
         }
@@ -366,7 +488,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, value);
+            this.result = getIotClient().Write(getAddress(), value);
         } finally {
             this.buildResponseMessage();
         }
@@ -377,7 +499,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, values);
+            this.result = getIotClient().Write(getAddress(), values);
         } finally {
             this.buildResponseMessage();
         }
@@ -388,7 +510,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, value);
+            this.result = getIotClient().Write(getAddress(), value);
         } finally {
             this.buildResponseMessage();
         }
@@ -399,7 +521,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         this.setAddress(address);
         try {
             this.buildRequestMessage();
-            this.result = getIotClient().Write(address, value, Charset.forName(encoding));
+            this.result = getIotClient().Write(getAddress(), value, Charset.forName(encoding));
         } finally {
             this.buildResponseMessage();
         }
@@ -410,6 +532,6 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this.address = address != null ? address.toUpperCase(Locale.ROOT) : null;
     }
 }

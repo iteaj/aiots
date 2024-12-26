@@ -1,7 +1,6 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Siemens;
+package com.iteaj.plugin.protocol.plc.siemens.network;
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBuffer;
-import com.iteaj.plugin.protocol.plc.core.address.S7AddressData;
 import com.iteaj.plugin.protocol.plc.core.message.INetMessage;
 import com.iteaj.plugin.protocol.plc.core.message.S7Message;
 import com.iteaj.plugin.protocol.plc.core.net.NetworkBase.NetworkDataServerBase;
@@ -12,7 +11,6 @@ import com.iteaj.plugin.protocol.plc.core.types.Array;
 import com.iteaj.plugin.protocol.plc.core.types.BitConverter;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResult;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
-import com.iteaj.plugin.protocol.plc.core.profinet.Siemens.Helper.SiemensS7Helper;
 import com.iteaj.plugin.protocol.plc.core.StringResources;
 import com.iteaj.plugin.protocol.plc.core.Utilities;
 

@@ -40,6 +40,10 @@ public abstract class PlcClientAdapter implements IotClient, IReadWriteNet {
 
     protected abstract NetworkDoubleBase doInit(PlcConnectProperties config);
 
+    public IReadWriteNet getReadWriteNet() {
+        return readWriteNet;
+    }
+
     @Override
     public Boolean connect() {
         OperateResult operateResult = this.networkDoubleBase.ConnectServer();
@@ -47,7 +51,8 @@ public abstract class PlcClientAdapter implements IotClient, IReadWriteNet {
         if(operateResult.IsSuccess) {
             logger.info("连接PLC成功({})", clientComponent.getProtocolType().getDesc());
         } else {
-            logger.error("连接PLC失败({}) ", clientComponent.getProtocolType().getDesc(), operateResult.Message);
+            logger.error("连接PLC失败({}) {}", clientComponent.getProtocolType().getDesc()
+                    , operateResult.Message, new PlcProtocolException(operateResult.Message));
         }
 
         return operateResult.IsSuccess;

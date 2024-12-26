@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Siemens;
+package com.iteaj.plugin.protocol.plc.siemens.network;
 
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
 import com.iteaj.plugin.protocol.plc.core.message.FetchWriteMessage;

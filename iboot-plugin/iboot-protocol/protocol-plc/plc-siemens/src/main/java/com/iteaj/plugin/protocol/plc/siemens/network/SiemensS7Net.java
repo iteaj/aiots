@@ -1,8 +1,7 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Siemens;
+package com.iteaj.plugin.protocol.plc.siemens.network;
 
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
 import com.iteaj.plugin.protocol.plc.core.basic.SoftIncrementCount;
-import com.iteaj.plugin.protocol.plc.core.address.S7AddressData;
 import com.iteaj.plugin.protocol.plc.core.message.INetMessage;
 import com.iteaj.plugin.protocol.plc.core.message.S7Message;
 import com.iteaj.plugin.protocol.plc.core.net.NetworkBase.NetworkDeviceBase;
@@ -19,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 西门子的数据交互类，采用s7协议实现，地址支持I,Q,M,DB，AI,AQ，举例：I100,Q0,M100,DB1.0,AI0,AQ16，支持单个位的读写，暂时不支持批量位写入操作
@@ -41,6 +41,18 @@ public class SiemensS7Net extends NetworkDeviceBase {
      */
     public SiemensS7Net(SiemensPLCS siemens, String ipAddress) {
         Initialization(siemens, ipAddress);
+    }
+
+    /**
+     * 实例化一个西门子的S7协议的通讯对象并指定Ip地址
+     *
+     * @param siemens   指定西门子的型号
+     * @param ipAddress Ip地址
+     * @param port 端口
+     */
+    public SiemensS7Net(SiemensPLCS siemens, String ipAddress, Integer port) {
+        Initialization(siemens, ipAddress);
+        this.setPort(port);
     }
 
     @Override
@@ -754,6 +766,10 @@ public class SiemensS7Net extends NetworkDeviceBase {
         try {
             Calendar c = Calendar.getInstance();
             c.set(1990,Calendar.JANUARY, 1);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+            c.set(Calendar.HOUR_OF_DAY, 0);
             c.add(Calendar.DATE, read.Content);
             return OperateResultExOne.CreateSuccessResult(c.getTime());
         } catch (Exception ex) {
@@ -771,8 +787,11 @@ public class SiemensS7Net extends NetworkDeviceBase {
     public OperateResult WriteDate( String address, Date dateTime ) {
         Calendar c = Calendar.getInstance();
         c.set(1990, Calendar.JANUARY, 1);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MILLISECOND, 0);
         long tick = dateTime.getTime() - c.getTime().getTime();
-
         return Write(address, (short) (tick / (24 * 60 * 60 * 1000)));
     }
 
