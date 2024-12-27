@@ -12,6 +12,7 @@ public enum ProtocolCodes {
 
     PLC_OMRON_TCP("PLC_OMRON_TCP"),
     PLC_SIEMENS_S7("PLC_SIEMENS_S7"),
+    PLC_MELSEC("PLC_MELSEC"),
 
     MQTT_DEFAULT_IMPL("MQTT_DEFAULT_IMPL"),
 

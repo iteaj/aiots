@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MelsecProtocolSupplier extends AbstractPlcProtocolSupplier<MelsecProtocolSupplier.MelsecNetworkConfig, MelsecComponent, MelsecClient> {
 
-    private DefaultProtocolModel protocolModel = new DefaultProtocolModel("PLC_MELSEC"
+    private DefaultProtocolModel protocolModel = new DefaultProtocolModel(ProtocolCodes.PLC_MELSEC.getValue()
             , CtrlMode.POINT, TransportProtocol.TCP, getModelApis(), getModelAttrs());
 
     private ParamMeta[] gatewayConfig = new ParamMeta[]{
