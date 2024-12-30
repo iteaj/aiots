@@ -56,10 +56,10 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Siemens
 //                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_NUMBER, "要读取的float值数量", 2))
                 .addUpConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "日期格式(yyyy-MM-dd HH:mm:ss)", 1)));
 
-        this.getModelApis().put("writeByte", createPlcEventProtocolModelApi(PlcProtocolConsts.PLC_WRITE_BYTE, "读取字节值", "读取字节值")
+        this.getModelApis().put("writeByte", createPlcFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_BYTE, "写byte值", FuncType.W, "写取字节值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
 //                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_NUMBER, "要读取的float值数量", 2))
-                .addUpConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "读取的字节值", 1)));
+                .addUpConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "写入的字节值", 1)));
 
         this.getModelApis().put("writeDate", createPlcFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_DATE, "写日期值", FuncType.W, "写日期值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
@@ -67,7 +67,7 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Siemens
 
         this.getModelApis().put("writeDatetime", createPlcFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_DTL_DATETIME, "写DTL时间值", FuncType.W, "写DTL时间值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
-                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_VALUE, "时间格式(yyyy-MM-dd HH:mm:ss)", 2)));
+                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_VALUE, "时间格式(yyyy-MM-dd HH:mm:ss)", 3)));
     }
 
     @Override
