@@ -14,10 +14,7 @@ import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.ClientComponent;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.IotClient;
-import com.iteaj.iot.client.component.SocketClientComponent;
 import com.iteaj.iot.consts.ExecStatus;
-import com.iteaj.iot.plc.ReadAddress;
-import com.iteaj.iot.plc.WriteAddress;
 import com.iteaj.plugin.protocol.plc.adapt.PlcProtocolAbstract;
 
 import java.util.LinkedHashMap;

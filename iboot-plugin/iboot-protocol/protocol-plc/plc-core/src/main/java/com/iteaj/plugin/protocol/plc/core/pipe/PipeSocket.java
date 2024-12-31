@@ -1,5 +1,8 @@
 package com.iteaj.plugin.protocol.plc.core.pipe;
 
+import com.iteaj.iot.event.ClientStatus;
+import com.iteaj.plugin.protocol.plc.adapt.PlcClientAdapter;
+import com.iteaj.plugin.protocol.plc.adapt.PlcProtocolAbstract;
 import com.iteaj.plugin.protocol.plc.core.net.NetSupport;
 import com.iteaj.plugin.protocol.plc.core.types.PlcHelper;
 
@@ -110,6 +113,15 @@ public class PipeSocket extends PipeBase{
      */
     public void setIsSocketError(boolean value){
         this.isSocketError = value;
+        if(value) {
+            PlcProtocolAbstract protocol = PlcProtocolAbstract.get();
+            if(protocol != null) {
+                PlcClientAdapter iotClient = protocol.getIotClient();
+                if(iotClient != null && iotClient.getStatus().equals("connected")) {
+                    iotClient.publishEvent(ClientStatus.offline).reconnect();
+                }
+            }
+        }
     }
 
     /**

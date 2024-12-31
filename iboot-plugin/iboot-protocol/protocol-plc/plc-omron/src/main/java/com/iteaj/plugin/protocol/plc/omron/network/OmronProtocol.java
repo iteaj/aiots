@@ -4,9 +4,9 @@ import com.iteaj.plugin.protocol.plc.adapt.PlcClientAdapter;
 import com.iteaj.plugin.protocol.plc.adapt.PlcProtocolAbstract;
 import com.iteaj.plugin.protocol.plc.adapt.PlcProtocolType;
 
-public class OmromProtocol extends PlcProtocolAbstract<OmronMessage> {
+public class OmronProtocol extends PlcProtocolAbstract<OmronMessage> {
 
-    public OmromProtocol(PlcClientAdapter client) {
+    public OmronProtocol(PlcClientAdapter client) {
         super(PlcProtocolType.Omron, client);
     }
 

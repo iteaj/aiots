@@ -1,9 +1,6 @@
 package com.iteaj.plugin.protocol.plc.adapt;
 
 import com.iteaj.iot.Protocol;
-import com.iteaj.iot.plc.ReadAddress;
-
-import java.util.List;
 
 public interface PlcReadWriteProtocol extends Protocol {
 

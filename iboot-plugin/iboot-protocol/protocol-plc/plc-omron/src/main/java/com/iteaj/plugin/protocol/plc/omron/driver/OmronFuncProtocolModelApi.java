@@ -6,10 +6,10 @@ import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.IotClient;
-import com.iteaj.iot.plc.omron.OmronConnectProperties;
-import com.iteaj.iot.plc.omron.OmronMessage;
-import com.iteaj.iot.plc.omron.OmronTcpProtocol;
+import com.iteaj.plugin.protocol.plc.adapt.PlcClientAdapter;
 import com.iteaj.plugin.protocol.plc.driver.AbstractPlcFuncProtocolModelApi;
+import com.iteaj.plugin.protocol.plc.omron.network.OmronMessage;
+import com.iteaj.plugin.protocol.plc.omron.network.OmronProtocol;
 
 public class OmronFuncProtocolModelApi extends AbstractPlcFuncProtocolModelApi {
 
@@ -24,6 +24,6 @@ public class OmronFuncProtocolModelApi extends AbstractPlcFuncProtocolModelApi {
             throw new ServiceException("欧姆龙客户端[deviceSn="+arg.getParentDeviceSn()+"]不在线");
         }
 
-        return new OmronTcpProtocol((OmronConnectProperties) client.getConfig());
+        return new OmronProtocol((PlcClientAdapter) client);
     }
 }

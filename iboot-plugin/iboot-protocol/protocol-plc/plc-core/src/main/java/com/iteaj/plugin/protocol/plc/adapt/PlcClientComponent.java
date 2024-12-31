@@ -96,6 +96,11 @@ public abstract class PlcClientComponent<M extends PlcClientMessage> extends Sim
     }
 
     @Override
+    public boolean isExists(String key) {
+        return super.isExists(key);
+    }
+
+    @Override
     public Interceptor getInterceptor() {
         return null;
     }

@@ -122,7 +122,7 @@ public class OpcuaClientWrapper extends TcpSocketClient {
             return getChannel().newFailedFuture(e);
         }
 
-        // 发布客户端上线事件
+        // 发布客户端离线事件
         FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.offline, getClientComponent()));
         return channelPromise;
     }
