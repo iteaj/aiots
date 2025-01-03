@@ -51,7 +51,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
 
     @Override
     public void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
-        doPublisher(source.getId(), info.getSupplier(), info.getDevice());
+        doPublisher(source.getId(), info.getSupplier(), info.getDevice(), "data");
     }
 
     @Override
@@ -93,7 +93,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
         }
     }
 
-    private void doPublisher(Long taskId, DataSupplier supplier, RealtimeStatus device) {
+    private void doPublisher(Long taskId, DataSupplier supplier, RealtimeStatus device, String type) {
         List<DefaultRealtimeData> collect = supplier.getValues().stream()
                 .map(item -> new DefaultRealtimeData()
                         .setFieldId(item.getId())
@@ -107,16 +107,17 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
                         .setProtocolCode(device.getProtocolCode())
                         .setDeviceSn(device.getDeviceSn())
                         .setDeviceName(device.getDeviceName())
+                        .setCreateTime(new Date())
                         .setValue(item.getValue() == null ? null : item.getValue().toString())
                         .buildFromStatus(item.getStatus())
                 ).collect(Collectors.toList());
 
-        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data", collect));
+        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload(type, collect));
     }
 
     @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
-        doPublisher(null, supplier, device);
+        doPublisher(null, supplier, device, "data_full");
     }
 
     /**
