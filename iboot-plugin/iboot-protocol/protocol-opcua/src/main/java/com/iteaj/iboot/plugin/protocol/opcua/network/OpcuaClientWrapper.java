@@ -2,11 +2,15 @@ package com.iteaj.iboot.plugin.protocol.opcua.network;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.digitalpetri.netty.fsm.ChannelFsm;
+import com.digitalpetri.netty.fsm.Event;
+import com.digitalpetri.netty.fsm.State;
 import com.iteaj.iot.FrameworkManager;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.client.TcpSocketClient;
 import com.iteaj.iot.client.component.TcpClientComponent;
 import com.iteaj.iot.event.ClientStatus;
+import com.iteaj.iot.event.IotEvent;
 import com.iteaj.iot.event.StatusEvent;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -21,6 +25,8 @@ import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
 import org.eclipse.milo.opcua.stack.client.transport.AbstractTransport;
+import org.eclipse.milo.opcua.stack.client.transport.UaTransport;
+import org.eclipse.milo.opcua.stack.client.transport.tcp.OpcTcpTransport;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.*;
@@ -35,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-public class OpcuaClientWrapper extends TcpSocketClient {
+public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.TransitionListener {
 
     private UaClient opcUaClient;
 
@@ -72,7 +78,8 @@ public class OpcuaClientWrapper extends TcpSocketClient {
             OpcUaClientConfig clientConfig = builder.setEventLoop(workerGroup).build();
             opcUaClient = OpcUaClient.create(clientConfig);
         } catch (Exception e) {
-            throw new OpcuaException("OpcUa客户端初始化失败", e);
+            reconnection();
+            logger.error("OpcUa客户端初始化失败", e);
         }
     }
 
@@ -82,10 +89,30 @@ public class OpcuaClientWrapper extends TcpSocketClient {
     }
 
     @Override
+    public synchronized void reconnection() {
+        long reconnect = getConfig().getReconnect();
+        if(opcUaClient == null) {
+            IotThreadManager.instance().getExecutorService().schedule(() -> {
+                if(getClientComponent().getClient(getConfig()) != null) {
+                    this.init(null); // 重新初始化
+                    if(this.getOpcUaClient() != null) {
+                        this.connect(); // 连接
+                    }
+                }
+            }, reconnect, TimeUnit.SECONDS);
+        }
+    }
+
+    @Override
     public ChannelFuture connect() {
         OpcuaClientConfig config = getConfig();
         try {
             opcUaClient.connect().get(config.getConnectTimeout(), TimeUnit.MILLISECONDS);
+            UaTransport transport = getOpcUaClient().getStackClient().getTransport();
+            if(transport instanceof OpcTcpTransport) {
+                ((OpcTcpTransport) transport).channelFsm().addTransitionListener(this);
+            }
+
             ChannelFuture channelFuture = getChannel().newSucceededFuture();
             finishedConnect(channelFuture); return channelFuture;
         } catch (Exception e) {
@@ -237,5 +264,14 @@ public class OpcuaClientWrapper extends TcpSocketClient {
 
     protected OpcUaClient getOpcUaClient() {
         return (OpcUaClient) opcUaClient;
+    }
+
+    @Override
+    public void onStateTransition(State state, State state1, Event event) {
+        if(event instanceof Event.ChannelInactive) {
+            FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.offline, getClientComponent()));
+        } else if(event instanceof Event.ConnectSuccess) {
+            FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.online, getClientComponent()));
+        }
     }
 }
