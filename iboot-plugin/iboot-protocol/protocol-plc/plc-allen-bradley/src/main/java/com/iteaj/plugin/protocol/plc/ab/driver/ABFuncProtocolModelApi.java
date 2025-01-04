@@ -19,7 +19,7 @@ public class ABFuncProtocolModelApi extends AbstractPlcFuncProtocolModelApi {
     protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
         IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), ABMessage.class);
         if(client == null) {
-            throw new ServiceException("欧姆龙客户端[deviceSn="+arg.getParentDeviceSn()+"]不在线");
+            throw new ServiceException("获取不到罗克韦尔客户端[deviceSn="+arg.getParentDeviceSn()+"]");
         }
 
         return new ABProtocol((PlcClientAdapter) client);
