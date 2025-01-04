@@ -7,6 +7,8 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
@@ -14,9 +16,11 @@ import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.plugin.protocol.plc.AbstractPlcProtocolSupplier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * plc设备管理
@@ -28,11 +32,9 @@ import java.util.List;
 @RequestMapping("/iot/plc")
 public class DevicePlcController extends BaseController {
 
+    private static String[] plcCodes;
     private final IDeviceService deviceService;
     private final IProductService productService;
-    private final static String[] plcCodes = {ProtocolCodes.PLC_SIEMENS_S7.getValue()
-            , ProtocolCodes.PLC_OMRON_TCP.getValue(), ProtocolCodes.PLC_MELSEC.getValue()
-            , ProtocolCodes.PLC_INOVANCE.getValue(), ProtocolCodes.PLC_PANASONIC.getValue()};
 
     public DevicePlcController(IDeviceService deviceService, IProductService productService) {
         this.deviceService = deviceService;
@@ -110,6 +112,12 @@ public class DevicePlcController extends BaseController {
      */
     @GetMapping("/products")
     public Result<List<Product>> products(DeviceType deviceType) {
+        if(plcCodes == null) {
+            plcCodes = ProtocolSupplierManager.suppliers().stream()
+                    .filter(item -> item instanceof AbstractPlcProtocolSupplier)
+                    .map(item -> item.getProtocol().getCode())
+                    .toArray((num) -> new String[num]);
+        }
         return this.productService.listOfProtocolCodes(deviceType, plcCodes, null);
     }
 }
