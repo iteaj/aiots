@@ -1,14 +1,13 @@
-package com.iteaj.plugin.protocol.plc.core.net.NetworkBase;
+package com.iteaj.plugin.protocol.plc.ab.profinet;
 
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
 import com.iteaj.plugin.protocol.plc.core.basic.SoftIncrementCount;
 import com.iteaj.plugin.protocol.plc.core.message.AllenBradleyMessage;
 import com.iteaj.plugin.protocol.plc.core.message.INetMessage;
+import com.iteaj.plugin.protocol.plc.core.net.NetworkBase.NetworkDeviceBase;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResult;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExThree;
-import com.iteaj.plugin.protocol.plc.core.profinet.AllenBradley.AllenBradleyDF1Serial;
-import com.iteaj.plugin.protocol.plc.core.profinet.AllenBradley.AllenBradleyHelper;
 import com.iteaj.plugin.protocol.plc.core.StringResources;
 import com.iteaj.plugin.protocol.plc.core.Utilities;
 
@@ -20,7 +19,7 @@ import java.util.Random;
 /**
  * 基于连接的CIP协议的基类
  */
-public class NetworkConnectedCip extends NetworkDeviceBase{
+public class NetworkConnectedCip extends NetworkDeviceBase {
 
     @Override
     protected INetMessage GetNewNetMessage() {

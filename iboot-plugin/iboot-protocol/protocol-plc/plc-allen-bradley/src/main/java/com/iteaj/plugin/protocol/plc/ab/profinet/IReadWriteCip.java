@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.AllenBradley;
+package com.iteaj.plugin.protocol.plc.ab.profinet;
 
 import com.iteaj.plugin.protocol.plc.core.net.IReadWriteNet;
 import com.iteaj.plugin.protocol.plc.core.transfer.IByteTransform;

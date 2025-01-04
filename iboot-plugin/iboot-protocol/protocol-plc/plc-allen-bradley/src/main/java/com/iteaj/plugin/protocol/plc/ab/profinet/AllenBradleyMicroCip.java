@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.AllenBradley;
+package com.iteaj.plugin.protocol.plc.ab.profinet;
 
 /**
  * AB PLC的cip通信实现类，适用Micro800系列控制系统<br />

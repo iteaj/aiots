@@ -1,8 +1,7 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.AllenBradley;
+package com.iteaj.plugin.protocol.plc.ab.profinet;
 
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
 import com.iteaj.plugin.protocol.plc.core.basic.SoftIncrementCount;
-import com.iteaj.plugin.protocol.plc.core.net.NetworkBase.NetworkConnectedCip;
 import com.iteaj.plugin.protocol.plc.core.transfer.RegularByteTransform;
 import com.iteaj.plugin.protocol.plc.core.types.*;
 import com.iteaj.plugin.protocol.plc.core.Utilities;
@@ -65,7 +64,7 @@ public class AllenBradleyPcccNet extends NetworkConnectedCip {
         if (!check.IsSuccess) return OperateResultExOne.CreateFailedResult( check );
 
         // 提取数据 -> Extracting data
-        OperateResultExThree<byte[], Short, Boolean> extra = ExtractActualData( read.Content, true );
+        OperateResultExThree<byte[], Short, Boolean> extra = NetworkConnectedCip.ExtractActualData( read.Content, true );
         if (!extra.IsSuccess) return OperateResultExOne.CreateFailedResult( extra );
 
         return OperateResultExOne.CreateSuccessResult( extra.Content1 );
@@ -89,7 +88,7 @@ public class AllenBradleyPcccNet extends NetworkConnectedCip {
         if (!check.IsSuccess) return OperateResultExOne.CreateFailedResult( check );
 
         // 提取数据 -> Extracting data
-        OperateResultExThree<byte[], Short, Boolean> extra = ExtractActualData( read.Content, true );
+        OperateResultExThree<byte[], Short, Boolean> extra = NetworkConnectedCip.ExtractActualData( read.Content, true );
         if (!extra.IsSuccess) return OperateResultExOne.CreateFailedResult( extra );
 
         return OperateResult.CreateSuccessResult( );
@@ -132,7 +131,7 @@ public class AllenBradleyPcccNet extends NetworkConnectedCip {
         if (!check.IsSuccess) return OperateResultExOne.CreateFailedResult( check );
 
         // 提取数据 -> Extracting data
-        OperateResultExThree<byte[], Short, Boolean> extra = ExtractActualData( read.Content, true );
+        OperateResultExThree<byte[], Short, Boolean> extra = NetworkConnectedCip.ExtractActualData( read.Content, true );
         if (!extra.IsSuccess) return OperateResultExOne.CreateFailedResult( extra );
 
         return OperateResult.CreateSuccessResult( );

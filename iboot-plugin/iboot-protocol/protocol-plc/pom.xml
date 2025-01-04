@@ -23,6 +23,7 @@
         <module>plc-siemens</module>
         <!--三菱plc-->
         <module>plc-melsec</module>
+        <module>plc-allen-bradley</module>
     </modules>
 
 

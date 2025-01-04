@@ -1,5 +1,6 @@
-package com.iteaj.plugin.protocol.plc.core.address;
+package com.iteaj.plugin.protocol.plc.ab.profinet;
 
+import com.iteaj.plugin.protocol.plc.core.address.DeviceAddressDataBase;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
 
 public class AllenBradleySLCAddress extends DeviceAddressDataBase {

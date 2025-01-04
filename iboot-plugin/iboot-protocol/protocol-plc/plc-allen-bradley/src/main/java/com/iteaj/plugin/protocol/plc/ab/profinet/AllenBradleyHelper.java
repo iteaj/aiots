@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.AllenBradley;
+package com.iteaj.plugin.protocol.plc.ab.profinet;
 
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
 import com.iteaj.plugin.protocol.plc.core.net.IReadWriteDevice;
