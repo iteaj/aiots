@@ -92,6 +92,16 @@
             <artifactId>plc-melsec</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>plc-inovance</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>plc-panasonic</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--mqtt协议提供-->
         <dependency>
             <groupId>com.iteaj</groupId>

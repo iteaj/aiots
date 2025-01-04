@@ -2,7 +2,8 @@ package com.iteaj.plugin.protocol.plc.melsec.network;
 
 import com.iteaj.plugin.protocol.plc.core.StringResources;
 import com.iteaj.plugin.protocol.plc.core.address.DeviceAddressDataBase;
-import com.iteaj.plugin.protocol.plc.core.profinet.Panasonic.PanasonicHelper;
+//import com.iteaj.plugin.protocol.plc.core.profinet.Panasonic.PanasonicHelper;
+import com.iteaj.plugin.protocol.plc.core.address.DeviceAddressUtil;
 import com.iteaj.plugin.protocol.plc.core.types.Convert;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExTwo;
@@ -475,7 +476,7 @@ public class McAddressData extends DeviceAddressDataBase {
             switch (address.charAt(0)) {
                 case 'R':
                 case 'r': {
-                    int add = PanasonicHelper.CalculateComplexAddress(address.substring(1));
+                    int add = DeviceAddressUtil.CalculateComplexAddress(address.substring(1));
                     if (add < 14400) {
                         addressData.McDataType = MelsecMcDataType.Panasonic_R;
                         addressData.setAddressStart(add);
@@ -488,13 +489,13 @@ public class McAddressData extends DeviceAddressDataBase {
                 case 'X':
                 case 'x': {
                     addressData.McDataType = MelsecMcDataType.Panasonic_X;
-                    addressData.setAddressStart(PanasonicHelper.CalculateComplexAddress(address.substring(1)));
+                    addressData.setAddressStart(DeviceAddressUtil.CalculateComplexAddress(address.substring(1)));
                     break;
                 }
                 case 'Y':
                 case 'y': {
                     addressData.McDataType = MelsecMcDataType.Panasonic_Y;
-                    addressData.setAddressStart(PanasonicHelper.CalculateComplexAddress(address.substring(1)));
+                    addressData.setAddressStart(DeviceAddressUtil.CalculateComplexAddress(address.substring(1)));
                     break;
                 }
                 case 'L':
@@ -505,7 +506,7 @@ public class McAddressData extends DeviceAddressDataBase {
                         break;
                     } else {
                         addressData.McDataType = MelsecMcDataType.Panasonic_L;
-                        addressData.setAddressStart(PanasonicHelper.CalculateComplexAddress(address.substring(1)));
+                        addressData.setAddressStart(DeviceAddressUtil.CalculateComplexAddress(address.substring(1)));
                     }
                     break;
                 }

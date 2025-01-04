@@ -31,7 +31,7 @@ public class DevicePlcController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final static String[] plcCodes = {ProtocolCodes.PLC_SIEMENS_S7.getValue()
-            , ProtocolCodes.PLC_OMRON_TCP.getValue(), ProtocolCodes.PLC_MELSEC.getValue()};
+            , ProtocolCodes.PLC_OMRON_TCP.getValue(), ProtocolCodes.PLC_MELSEC.getValue(), Pro};
 
     public DevicePlcController(IDeviceService deviceService, IProductService productService) {
         this.deviceService = deviceService;

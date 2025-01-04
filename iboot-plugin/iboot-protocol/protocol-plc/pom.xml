@@ -23,7 +23,12 @@
         <module>plc-siemens</module>
         <!--三菱plc-->
         <module>plc-melsec</module>
+        <!--罗克韦尔plc-->
         <module>plc-allen-bradley</module>
+        <!--松下plc-->
+        <module>plc-panasonic</module>
+        <!--汇川plc-->
+        <module>plc-inovance</module>
     </modules>
 
 

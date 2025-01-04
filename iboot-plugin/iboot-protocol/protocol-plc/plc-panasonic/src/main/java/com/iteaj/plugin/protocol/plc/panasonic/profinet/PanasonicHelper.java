@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Panasonic;
+package com.iteaj.plugin.protocol.plc.panasonic.profinet;
 
 import com.iteaj.plugin.protocol.plc.core.basic.SoftBasic;
 import com.iteaj.plugin.protocol.plc.core.types.Encoding;

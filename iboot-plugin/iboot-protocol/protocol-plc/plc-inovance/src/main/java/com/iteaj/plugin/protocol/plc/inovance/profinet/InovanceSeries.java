@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Inovance;
+package com.iteaj.plugin.protocol.plc.inovance.profinet;
 
 /**
  * 汇川的系列枚举信息

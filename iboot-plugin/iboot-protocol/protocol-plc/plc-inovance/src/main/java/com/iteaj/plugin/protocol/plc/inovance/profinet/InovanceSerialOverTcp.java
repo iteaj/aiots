@@ -1,4 +1,4 @@
-package com.iteaj.plugin.protocol.plc.core.profinet.Inovance;
+package com.iteaj.plugin.protocol.plc.inovance.profinet;
 
 import com.iteaj.plugin.protocol.plc.core.transfer.DataFormat;
 import com.iteaj.plugin.protocol.plc.core.types.OperateResultExOne;
