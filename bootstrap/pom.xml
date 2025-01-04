@@ -99,8 +99,13 @@
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>plc-panasonic</artifactId>
             <version>${project.version}</version>
+            <artifactId>plc-panasonic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>plc-allen-bradley</artifactId>
         </dependency>
         <!--mqtt协议提供-->
         <dependency>
