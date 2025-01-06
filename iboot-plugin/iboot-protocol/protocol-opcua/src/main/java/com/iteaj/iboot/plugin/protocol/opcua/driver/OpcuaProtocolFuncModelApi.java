@@ -2,6 +2,7 @@ package com.iteaj.iboot.plugin.protocol.opcua.driver;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.FuncType;
@@ -15,6 +16,7 @@ import com.iteaj.iot.Protocol;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -31,7 +33,19 @@ public class OpcuaProtocolFuncModelApi extends AbstractFuncProtocolModelApi {
     @Override
     protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
         Protocol protocol = null;
+        Integer ns = arg.getDeviceConfig("ns");
+        String tag = arg.getDeviceConfig("tag");
         String address = arg.getString("address");
+        if(StrUtil.isBlank(address)) {
+            throw new ProtocolInvokeException("地址不能为空");
+        }
+
+        if(address.contains("{") && address.contains("}")) {
+            HashMap<Object, Object> params = new HashMap<>();
+            params.put("ns", ns); params.put("tag", tag);
+            address = StrUtil.format(address, params);
+        }
+
         OpcuaProtocol.OpcuaProtocolType type = OpcuaProtocol.OpcuaProtocolType.valueOf(getCode());
         if(type == OpcuaProtocol.OpcuaProtocolType.WRITE) {
             Object value = arg.getString("value");
