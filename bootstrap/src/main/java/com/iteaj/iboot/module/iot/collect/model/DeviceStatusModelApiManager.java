@@ -168,7 +168,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
             }
 
             // 调用状态协议
-            doInvoke(api, device, 3000l, false);
+            doInvoke(api, device, 3000l);
         } catch (Exception e) {
             invokeException(api, device, e);
         }
@@ -184,7 +184,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
         logger.error("采集在线状态异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
     }
 
-    private void doInvoke(ModelApi api, RealtimeStatus device, long timeout, boolean retry) {
+    private void doInvoke(ModelApi api, RealtimeStatus device, long timeout) {
         ProtocolInvokeUtil.invoke(api, device, timeout, result -> {
             if(result.getStatus() == ExecStatus.success) {
                 // 如果现在的状态和上一次的状态不一致则更新状态
@@ -193,23 +193,14 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                     IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
                 }
             } else {
-                // 如果执行超时则重新尝试一次
-                if(result.getStatus() == ExecStatus.timeout && !retry) {
-                    this.doInvoke(api, device, 5000l, true);
-                } else {
-                    // 如果现在的状态和上一次的状态不一致则更新状态
-                    if(DeviceStatus.offline != device.getStatus()) {
-                        device.setStatus(DeviceStatus.offline);
-                        IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
-                    }
+                // 如果现在的状态和上一次的状态不一致则更新状态
+                if(DeviceStatus.offline != device.getStatus()) {
+                    device.setStatus(DeviceStatus.offline);
+                    IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                }
 
-                    if(logger.isWarnEnabled()) {
-                        if(retry) {
-                            logger.warn("采集在线状态重试失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
-                        } else {
-                            logger.warn("采集在线状态失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
-                        }
-                    }
+                if(logger.isWarnEnabled()) {
+                    logger.warn("采集在线状态失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                 }
             }
         });
