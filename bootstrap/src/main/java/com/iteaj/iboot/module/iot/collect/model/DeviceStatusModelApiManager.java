@@ -186,26 +186,11 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
 
     private void doInvoke(ModelApi api, RealtimeStatus device, long timeout, boolean retry) {
         ProtocolInvokeUtil.invoke(api, device, timeout, result -> {
-            DeviceStatus realtimeStatus;
             if(result.getStatus() == ExecStatus.success) {
-                boolean status = true;
-//                    Object value = result.getValue();
-//                    if(value instanceof Boolean) { // 如果是布尔值必须等于true
-//                        status = Boolean.TRUE.equals(value);
-//                    } else if(value instanceof Number){ // 如果是数值必须大于0
-//                        Double aDouble = Double.valueOf(value.toString());
-//                        status = aDouble != 0.0;
-//                    }
-
-                realtimeStatus = status == true ? DeviceStatus.online : DeviceStatus.offline;
                 // 如果现在的状态和上一次的状态不一致则更新状态
-                if(realtimeStatus != device.getStatus()) {
-                    device.setStatus(realtimeStatus);
+                if(DeviceStatus.online != device.getStatus()) {
+                    device.setStatus(DeviceStatus.online);
                     IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
-                }
-
-                if(logger.isDebugEnabled() && !status) {
-                    logger.warn("采集在线状态失败 采集值为{}(布尔值为true、数值须大于0、其他类型) - 设备编号: {} - 接口: {}/{}", result.getValue(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                 }
             } else {
                 // 如果执行超时则重新尝试一次
@@ -238,9 +223,9 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
         modelApiService.listAsStatusModelApi().forEach(api -> this.register(api));
 
         /**
-         * 30秒执行一次
+         * 10分钟执行一次
          */
         bootThreadManger.getDeviceStatusScheduler()
-                .scheduleWithFixedDelay(this, 15, 35, TimeUnit.SECONDS);
+                .scheduleWithFixedDelay(this, 30, 10 * 60, TimeUnit.SECONDS);
     }
 }

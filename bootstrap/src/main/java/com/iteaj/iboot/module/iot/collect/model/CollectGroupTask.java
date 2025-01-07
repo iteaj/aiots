@@ -7,11 +7,14 @@ import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -56,10 +59,19 @@ public class CollectGroupTask implements Runnable{
                 continue;
             }
 
-            if (device.getStatus() == DeviceStatus.offline) {
-                logger.warn("放弃设备采集任务 设备不在线 - 事件源: {} - 设备组: {} - 设备编号: {}"
-                        , source.getName(), group.getName(), device.buildDeviceKey());
-                continue;
+            if (device.getType() == DeviceType.Child) {
+                RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
+                if(parent == null) {
+                    logger.warn("放弃设备采集任务 父设备不存在({}) - 事件源: {} - 设备组: {} - 设备编号: {}"
+                            , device.getParentDeviceSn(), source.getName(), group.getName(), device.buildDeviceKey());
+                    continue;
+                }
+
+                if(parent.getStatus() == DeviceStatus.offline) {
+                    logger.warn("放弃设备采集任务 父设备不在线({}) - 事件源: {} - 设备组: {} - 设备编号: {}"
+                            , device.getParentDeviceSn(), source.getName(), group.getName(), device.buildDeviceKey());
+                    continue;
+                }
             }
 
             for (ModelApi api : apis) {
@@ -125,6 +137,16 @@ public class CollectGroupTask implements Runnable{
     }
 
     private void dataPublish(CollectInfo info, RealtimeStatus device, ModelApi api, InvokeResult result) {
+        /**
+         * 动态更新设备的状态
+         * @see DeviceStatusModelApiManager#doInvoke(ModelApi, RealtimeStatus, long, boolean)
+         */
+        DeviceStatus status = result.getStatus() == ExecStatus.success ? DeviceStatus.online : DeviceStatus.offline;
+        if(device.getStatus() != status) {
+            device.setStatus(status);
+            IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+        }
+
         ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
             CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
 
