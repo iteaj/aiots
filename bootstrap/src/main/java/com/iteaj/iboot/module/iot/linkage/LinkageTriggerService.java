@@ -253,27 +253,38 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     }
 
     private void doInvokeAction(LinkageActionExecDto linkageAction, ModelApi api, RealtimeStatus device) {
-        if (device.getStatus() == DeviceStatus.online) {
-            try {
-                ProtocolModelApiInvokeParam param = createInvokeParam(linkageAction, device);
-                ProtocolInvokeUtil.invoke(api, param, device, (result) -> {
-                    if(result.getStatus() != ExecStatus.success) {
-                        logger.warn("执行联动动作失败 {} - 接口: {}/{} - 设备: {}"
-                                , result.getStatus(), api.getName(), api.getCode(), device.buildKey());
-                    }
-
-                    CollectListenerManager.getInstance().publish(item -> {
-                        if(item instanceof LinkageActionListener) {
-                            ((LinkageActionListener) item).apiInvoke(api, device, result);
-                        }
-                    });
-                });
-            } catch (Exception e) {
-                logger.error("执行联动动作失败 调用物模型接口异常 - 接口: {}/{} - 设备: {}", api.getName(), api.getCode(), device.buildKey(), e);
+        if(device.getType() == DeviceType.Child) { // 获取网关设备并且校验网关设备是否在线
+            RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
+            if(parent == null || parent.getStatus() == DeviceStatus.offline) {
+                logger.error("执行联动动作失败 父网关设备不存在或不在线({}) - 接口: {}/{} - 设备: {}"
+                        , device.getParentDeviceSn(), api.getName(), api.getCode(), device.buildKey());
+                return;
             }
-        } else {
-            logger.warn("执行联动动作失败 设备不在线 - 接口: {}/{} - 设备: {}", api.getName(), api.getCode(), device.buildKey());
+        } else if(device.getType() == DeviceType.Direct) {
+            if(device.getStatus() == DeviceStatus.offline) {
+                logger.error("执行联动动作失败 设备不在线 - 接口: {}/{} - 设备: {}", api.getName(), api.getCode(), device.buildKey());
+                return;
+            }
         }
+
+        try {
+            ProtocolModelApiInvokeParam param = createInvokeParam(linkageAction, device);
+            ProtocolInvokeUtil.invoke(api, param, device, (result) -> {
+                if(result.getStatus() != ExecStatus.success) {
+                    logger.warn("执行联动动作失败 {} - 接口: {}/{} - 设备: {}"
+                            , result.getStatus(), api.getName(), api.getCode(), device.buildKey());
+                }
+
+                CollectListenerManager.getInstance().publish(item -> {
+                    if(item instanceof LinkageActionListener) {
+                        ((LinkageActionListener) item).apiInvoke(api, device, result);
+                    }
+                });
+            });
+        } catch (Exception e) {
+            logger.error("执行联动动作失败 调用物模型接口异常 - 接口: {}/{} - 设备: {}", api.getName(), api.getCode(), device.buildKey(), e);
+        }
+
     }
 
     private ProtocolModelApiInvokeParam createInvokeParam(LinkageActionExecDto linkageAction, RealtimeStatus device) {
