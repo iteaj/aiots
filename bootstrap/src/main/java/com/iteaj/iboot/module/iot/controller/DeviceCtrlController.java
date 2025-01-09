@@ -188,4 +188,18 @@ public class DeviceCtrlController extends BaseController {
 
         return new Object[]{protocolModelApi, modelApi, product, protocolSupplier};
     }
+
+    /**
+     * 指令列表
+     * @param uid
+     * @return
+     */
+    @GetMapping("commands")
+    public Result commands(String uid) {
+        Device device = this.deviceService.getByUid(uid)
+                .ifNotPresentThrow("设备不存在[" + uid + "]").getData();
+
+        return success();
+//        productService.
+    }
 }
