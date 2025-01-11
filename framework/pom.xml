@@ -90,6 +90,12 @@
             <artifactId>easypoi-base</artifactId>
             <version>${excelpoi.version}</version>
         </dependency>
+
+        <dependency>
+            <version>31.0.1-jre</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
