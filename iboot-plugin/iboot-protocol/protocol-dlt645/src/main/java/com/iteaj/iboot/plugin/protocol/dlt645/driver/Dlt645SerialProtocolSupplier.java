@@ -10,6 +10,7 @@ import com.iteaj.iboot.plugin.protocol.dlt645.network.serial.Dlt645SerialCompone
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.serial.SerialClient;
 import com.iteaj.iot.serial.SerialConnectProperties;
+import org.jetbrains.annotations.NotNull;
 
 public class Dlt645SerialProtocolSupplier extends StaticClientProtocolSupplier<NetworkConfigImpl.SerialConfig, Dlt645SerialComponent, SerialClient> implements Dlt645ProtocolSupplier {
 
@@ -60,7 +61,7 @@ public class Dlt645SerialProtocolSupplier extends StaticClientProtocolSupplier<N
             });
         }
 
-        return null;
+        return supplier;
     }
 
     @Override
@@ -73,5 +74,11 @@ public class Dlt645SerialProtocolSupplier extends StaticClientProtocolSupplier<N
     @Override
     protected Dlt645SerialComponent doCreateComponent(NetworkConfigImpl.SerialConfig config) {
         return new Dlt645SerialComponent();
+    }
+
+    @NotNull
+    @Override
+    public Dlt645ProtocolEventModelApi createModelApi(String name, String desc, String remark) {
+        return new Dlt645SerialProtocolEventModelApi(name, desc, remark);
     }
 }

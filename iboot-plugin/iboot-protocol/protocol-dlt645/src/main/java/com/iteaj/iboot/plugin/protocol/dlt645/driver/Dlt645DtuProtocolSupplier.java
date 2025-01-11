@@ -18,6 +18,7 @@ import com.iteaj.iot.server.dtu.DtuMessageAware;
 import com.iteaj.iot.server.dtu.DtuMessageType;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 public class Dlt645DtuProtocolSupplier extends StaticServerProtocolSupplier<Dlt645DtuProtocolSupplier.DtuNetworkConfig, Dlt645DtuComponent> implements Dlt645ProtocolSupplier {
 
@@ -94,7 +95,13 @@ public class Dlt645DtuProtocolSupplier extends StaticServerProtocolSupplier<Dlt6
             });
         }
 
-        return null;
+        return supplier;
+    }
+
+    @NotNull
+    @Override
+    public Dlt645ProtocolEventModelApi createModelApi(String name, String desc, String remark) {
+        return new Dlt645DtuProtocolEventModelApi(name, desc, remark);
     }
 
     @Getter

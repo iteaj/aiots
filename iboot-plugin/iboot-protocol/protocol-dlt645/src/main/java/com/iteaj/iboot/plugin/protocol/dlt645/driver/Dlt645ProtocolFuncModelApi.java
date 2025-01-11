@@ -7,7 +7,7 @@ import com.iteaj.iot.Protocol;
 
 import java.util.function.Consumer;
 
-public class Dlt645ProtocolFuncModelApi extends AbstractFuncProtocolModelApi {
+public abstract class Dlt645ProtocolFuncModelApi extends AbstractFuncProtocolModelApi {
 
     public Dlt645ProtocolFuncModelApi(String code, String name) {
         super(code, name);
