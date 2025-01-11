@@ -1,4 +1,4 @@
-package com.iteaj.iboot.plugin.protocol.dlt645.protocol;
+package com.iteaj.iboot.plugin.protocol.dlt645.network.dtu;
 
 import com.iteaj.iot.server.dtu.DefaultDtuMessageAware;
 import com.iteaj.iot.server.dtu.DtuMessageType;

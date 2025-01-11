@@ -6,13 +6,11 @@ import com.iteaj.framework.spi.iot.NetworkConfigImpl;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
 import com.iteaj.framework.spi.iot.consts.*;
-import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
-import com.iteaj.iboot.plugin.protocol.dlt645.protocol.Dlt645DtuComponent;
-import com.iteaj.iboot.plugin.protocol.dlt645.protocol.Dlt645DtuMessage;
-import com.iteaj.iboot.plugin.protocol.dlt645.protocol.Dlt645DtuMessageAware;
-import com.iteaj.iboot.plugin.protocol.dlt645.protocol.Dlt645DtuProtocol;
+import com.iteaj.iboot.plugin.protocol.dlt645.network.dtu.Dlt645DtuComponent;
+import com.iteaj.iboot.plugin.protocol.dlt645.network.dtu.Dlt645DtuMessage;
+import com.iteaj.iboot.plugin.protocol.dlt645.network.dtu.Dlt645DtuMessageAware;
+import com.iteaj.iboot.plugin.protocol.dlt645.network.dtu.Dlt645DtuProtocol;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.server.dtu.DefaultDtuMessageAware;
@@ -21,12 +19,7 @@ import com.iteaj.iot.server.dtu.DtuMessageType;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Dlt645DtuProtocolSupplier extends StaticServerProtocolSupplier<Dlt645DtuProtocolSupplier.DtuNetworkConfig, Dlt645DtuComponent> {
-
-    private final ProtocolModel model = new DefaultProtocolModel("DTU:DLT645", CtrlMode.POINT, TransportProtocol.TCP)
-            .addModelAttr(new ProtocolModelAttr("", "", DataType.t_any, AttrType.R))
-            .addModelApi(new Dlt645ProtocolEventModelApi("", "", ""))
-            .addModelApi(new Dlt645ProtocolFuncModelApi("", "", ""));
+public class Dlt645DtuProtocolSupplier extends StaticServerProtocolSupplier<Dlt645DtuProtocolSupplier.DtuNetworkConfig, Dlt645DtuComponent> implements Dlt645ProtocolSupplier {
 
     @Override
     protected void doRefresh(Dlt645DtuComponent component, DtuNetworkConfig config) {
@@ -61,7 +54,7 @@ public class Dlt645DtuProtocolSupplier extends StaticServerProtocolSupplier<Dlt6
 
     @Override
     public String getDesc() {
-        return "Dlt645协议提供";
+        return "基于DTU设备的Dlt645协议驱动";
     }
 
     @Override
@@ -71,7 +64,7 @@ public class Dlt645DtuProtocolSupplier extends StaticServerProtocolSupplier<Dlt6
 
     @Override
     public ProtocolModel getProtocol() {
-        return model;
+        return createProtocolModel(ProtocolCodes.DTU_DLT645.getValue(), TransportProtocol.TCP);
     }
 
     @Override

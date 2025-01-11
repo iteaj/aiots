@@ -14,5 +14,13 @@
             <groupId>com.iteaj</groupId>
             <artifactId>iot-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-serial</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -1,7 +1,7 @@
 package com.iteaj.iboot.plugin.protocol.dlt645;
 
 import com.iteaj.iboot.plugin.protocol.dlt645.driver.Dlt645DtuProtocolSupplier;
-import com.iteaj.iboot.plugin.protocol.dlt645.protocol.Dlt645DtuComponent;
+import com.iteaj.iboot.plugin.protocol.dlt645.network.dtu.Dlt645DtuComponent;
 import com.iteaj.iot.config.ConnectProperties;
 import org.springframework.context.annotation.Bean;
 
