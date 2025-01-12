@@ -137,7 +137,7 @@ public class DeviceController extends BaseController {
      * @return
      */
     @PostMapping("connect/{status}")
-    @CheckPermission(value = {"iot:modbus:connect", "iot:mqtt:connect", "iot:device:gateway:connect"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:modbus:connect", "iot:mqtt:connect", "iot:device:gateway:connect", "iot:plc:connect", "iot:dlt645:connect", "iot:opcua:connect"}, logical = Logical.OR)
     public Result connect(@RequestBody Device device, @PathVariable DeviceStatus status) {
         if(status == null) {
             return fail("未指定连接状态");

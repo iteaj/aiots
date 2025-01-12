@@ -13,6 +13,7 @@ import java.util.List;
 
 public class Dlt645SerialComponent implements ClientComponent<Dlt645SerialMessage> {
 
+    private boolean start;
     private SerialComponent serialComponent;
     private static final String DESC = "基于串口+Dlt645协议客户端实现";
 
@@ -67,7 +68,7 @@ public class Dlt645SerialComponent implements ClientComponent<Dlt645SerialMessag
 
     @Override
     public boolean isStart() {
-        return serialComponent.isStart();
+        return this.start;
     }
 
     @Override
@@ -77,12 +78,17 @@ public class Dlt645SerialComponent implements ClientComponent<Dlt645SerialMessag
 
     @Override
     public void start(Object config) {
-        serialComponent.start(config);
+        if(!isStart()) {
+            this.start = true;
+            this.serialComponent.start(config);
+        }
     }
 
     @Override
     public void close() {
-        serialComponent.close();
+        if(isStart()) {
+            this.start = false;
+        }
     }
 
     @Override

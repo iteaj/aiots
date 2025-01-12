@@ -66,7 +66,7 @@ public class Dlt645SerialProtocolSupplier extends StaticClientProtocolSupplier<N
 
     @Override
     protected SerialClient doCreateClient(NetworkConfigImpl.SerialConfig config, Dlt645SerialComponent component) {
-        SerialConnectProperties serialConnectProperties = new SerialConnectProperties(config.getCom())
+        SerialConnectProperties serialConnectProperties = new SerialConnectProperties(config.getDeviceSn())
                 .config(config.getBaudRate(), config.getDataBits(), config.getStopBits(), config.getParity());
         return component.createNewClient(serialConnectProperties);
     }

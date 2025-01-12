@@ -2,6 +2,7 @@ package com.iteaj.iboot.plugin.protocol.dlt645.network;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.iteaj.iot.FrameworkException;
 import com.iteaj.iot.ProtocolType;
 import com.iteaj.iot.message.DefaultMessageHead;
 import com.iteaj.iot.utils.ByteUtil;
@@ -21,7 +22,7 @@ public class Dlt645MessageHead extends DefaultMessageHead {
     /**
      * 使用前导码
      */
-    private boolean prefix;
+    private int prefix;
 
     /**
      * 帧标识符
@@ -29,10 +30,10 @@ public class Dlt645MessageHead extends DefaultMessageHead {
     private final static byte ID = 0x68;
 
     public Dlt645MessageHead(String equipCode, String address, ProtocolType type) {
-        this(equipCode, address, type, false);
+        this(equipCode, address, type, 0);
     }
 
-    public Dlt645MessageHead(String equipCode, String address, ProtocolType type, boolean prefix) {
+    public Dlt645MessageHead(String equipCode, String address, ProtocolType type, int prefix) {
         super(equipCode, type);
         this.prefix = prefix;
         this.address = address;
@@ -45,16 +46,50 @@ public class Dlt645MessageHead extends DefaultMessageHead {
     public byte[] build() {
         byte[] message;
          byte[] addressMsg = getAddressMsg();
-        if(prefix) {
-            message = new byte[] {
-                (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE // 前缀
-                , ID // 帧标识符
-                , 0, 0, 0, 0, 0, 0 // 地址
-                , ID // 帧标识符
-                , getType().getCode() // 控制码
-            };
+        if(prefix > 0) {
+            if(prefix == 1) {
+                message = new byte[] {
+                        (byte) 0xFE // 前缀
+                        , ID // 帧标识符
+                        , 0, 0, 0, 0, 0, 0 // 地址
+                        , ID // 帧标识符
+                        , getType().getCode() // 控制码
+                };
 
-            System.arraycopy(addressMsg, 0, message, 5, 6);
+                System.arraycopy(addressMsg, 0, message, 2, 6);
+            } else if(prefix == 2) {
+                message = new byte[] {
+                        (byte) 0xFE, (byte) 0xFE// 前缀
+                        , ID // 帧标识符
+                        , 0, 0, 0, 0, 0, 0 // 地址
+                        , ID // 帧标识符
+                        , getType().getCode() // 控制码
+                };
+
+                System.arraycopy(addressMsg, 0, message, 3, 6);
+            } else if(prefix == 3) {
+                message = new byte[] {
+                        (byte) 0xFE, (byte) 0xFE, (byte) 0xFE // 前缀
+                        , ID // 帧标识符
+                        , 0, 0, 0, 0, 0, 0 // 地址
+                        , ID // 帧标识符
+                        , getType().getCode() // 控制码
+                };
+
+                System.arraycopy(addressMsg, 0, message, 4, 6);
+            } else if(prefix == 4) {
+                message = new byte[] {
+                        (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE // 前缀
+                        , ID // 帧标识符
+                        , 0, 0, 0, 0, 0, 0 // 地址
+                        , ID // 帧标识符
+                        , getType().getCode() // 控制码
+                };
+
+                System.arraycopy(addressMsg, 0, message, 5, 6);
+            } else {
+                throw new FrameworkException("不支持的前导码个数["+prefix+"]");
+            }
         } else {
             message = new byte[] {
                 ID // 帧标识符
@@ -95,7 +130,7 @@ public class Dlt645MessageHead extends DefaultMessageHead {
         return address;
     }
 
-    public boolean isPrefix() {
+    public int getPrefix() {
         return prefix;
     }
 }

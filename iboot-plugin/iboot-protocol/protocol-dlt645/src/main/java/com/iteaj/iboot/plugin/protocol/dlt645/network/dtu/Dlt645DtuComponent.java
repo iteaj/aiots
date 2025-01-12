@@ -34,7 +34,12 @@ public class Dlt645DtuComponent extends DtuDecoderServerComponent<Dlt645DtuMessa
 
     @Override
     public String getDesc() {
-        return "Dlt645电力协议";
+        return "基于DTU网关实现的Dlt645电力协议";
+    }
+
+    @Override
+    public Dlt645DtuMessage createMessage(byte[] message) {
+        return new Dlt645DtuMessage(message);
     }
 
     @Override

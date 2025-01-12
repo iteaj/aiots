@@ -19,12 +19,12 @@ public class Dlt645DtuMessageBody implements Message.MessageBody {
         this.data = resolverDate(data);
     }
 
-    public byte[] build(byte[] headMsg) {
+    public byte[] build(byte[] headMsg, int prefix) {
         byte[] result = new byte[headMsg.length + this.getLength()];
         System.arraycopy(headMsg, 0, result, 0, headMsg.length);
         System.arraycopy(this.getMessage(), 0, result, headMsg.length, getLength());
         int sum = 0;
-        for (int i = 0; i < result.length - 2; i++) {
+        for (int i = prefix; i < result.length - 2; i++) {
             sum += result[i];
         }
 

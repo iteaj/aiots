@@ -1,5 +1,7 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.network.serial;
 
+import cn.hutool.core.util.ArrayUtil;
+import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645Util;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645DtuMessageBody;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645MessageHead;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645Protocol;
@@ -9,6 +11,7 @@ import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.serial.SerialClient;
+import com.iteaj.iot.utils.ByteUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -44,12 +47,30 @@ public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> 
 
     @Override
     public AbstractProtocol buildResponseMessage() {
+        if(this.getExecStatus() == ExecStatus.success) {
+            byte[] message = responseMessage().getMessage();
+            Dlt645MessageHead responseHead = responseMessage().getHead();
+            boolean validate = Dlt645Util.validate(message, responseHead.getPrefix());
+            if(!validate) {
+                this.setReason("报文校验失败");
+                this.setExecStatus(ExecStatus.fail);
+            }
+
+            byte[] bytes = Dlt645Util.getData(message, responseHead.getPrefix());
+
+            String hexValue = ByteUtil.bytesToHex(bytes);
+            this.value = hexValue;
+        }
         return null;
     }
 
     @Override
     public void buildDlt645RequestMessage(Dlt645MessageHead dlt645MessageHead, Dlt645DtuMessageBody dlt645DtuMessageBody) {
         this.setRequestMessage(new Dlt645SerialMessage(dlt645MessageHead, dlt645DtuMessageBody));
+    }
+
+    public Dlt645SerialProtocol request(SerialClient iotClient) throws ProtocolException {
+        return request(iotClient, null);
     }
 
     public Dlt645SerialProtocol request(SerialClient iotClient, Consumer<Dlt645SerialProtocol> consumer) throws ProtocolException {
@@ -73,10 +94,15 @@ public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> 
             }
 
             if(this.getExecStatus() == ExecStatus.success && buffer.readableBytes() > 0) {
+                int prefix = buffer.bytesBefore((byte) 0x68);
                 byte[] bytes = new byte[buffer.readableBytes()];
                 buffer.readBytes(bytes);
                 this.responseMessage = new Dlt645SerialMessage(bytes);
-                this.responseMessage().doBuild(bytes);
+                Dlt645SerialMessage requestMessage = requestMessage();
+                Dlt645MessageHead requestHead = requestMessage.getHead();
+                Dlt645MessageHead responseHead = new Dlt645MessageHead(requestHead.getEquipCode()
+                        , requestHead.getAddress(), requestHead.getType(), prefix);
+                this.responseMessage().setHead(responseHead);
             }
 
             buffer.release();
@@ -106,30 +132,33 @@ public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> 
                 this.setReason("响应报文数据错误");
                 return -1;
             }
-        } else {
-            Integer totalLength = null;
-            int first = buffer.getByte(0) & 0xFF;
-            readableBytes = buffer.readableBytes();
-            if(first == 0xFE) { // 以0xFE开头
-                if(readableBytes >= 14) { // 第十四个字节为长度字节
-                    byte length = buffer.getByte(13);
-                    totalLength = length + 14 + 2;
-                }
-            } else { // 以0x68开头
-                if(readableBytes >= 10) { // 第十个字节为长度字节
-                    byte length = buffer.getByte(9);
-                    totalLength = length + 10 + 2;
+        }
+
+        Integer totalLength = null;
+        int first = buffer.getByte(0) & 0xFF;
+        readableBytes = buffer.readableBytes();
+        if(first == 0xFE) { // 以0xFE开头
+            int prefix = buffer.bytesBefore((byte) 0x68);
+            if(prefix >= 0) {
+                if(readableBytes >= 10 + prefix) { // 第prefix + 10个字节为长度字节
+                    byte length = buffer.getByte(10 + prefix - 1);
+                    totalLength = length + 10 + prefix + 2;
                 }
             }
+        } else { // 以0x68开头
+            if(readableBytes >= 10) { // 第十个字节为长度字节
+                byte length = buffer.getByte(9);
+                totalLength = length + 10 + 2;
+            }
+        }
 
-            if(totalLength != null) {
-                if(readableBytes == totalLength) { // 读完
-                    return -1;
-                } else if(readableBytes < totalLength){ // 读取剩余的数据
-                    byte[] remain = new byte[totalLength - readableBytes];
-                    client.read(remain);
-                    buffer.writeBytes(remain);
-                }
+        if(totalLength != null) {
+            if(readableBytes == totalLength) { // 读完
+                return -1;
+            } else if(readableBytes < totalLength){ // 读取剩余的数据
+                byte[] remain = new byte[totalLength - readableBytes];
+                client.read(remain);
+                buffer.writeBytes(remain);
             }
         }
 

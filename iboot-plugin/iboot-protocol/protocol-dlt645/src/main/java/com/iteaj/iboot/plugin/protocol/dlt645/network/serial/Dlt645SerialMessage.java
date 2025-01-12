@@ -16,6 +16,22 @@ public class Dlt645SerialMessage extends ClientMessage {
 
     @Override
     protected MessageHead doBuild(byte[] message) {
+
         return null;
+    }
+
+    @Override
+    public void writeBuild() {
+        this.setMessage(getBody().build(getHead().build(), getHead().getPrefix()));
+    }
+
+    @Override
+    public Dlt645MessageHead getHead() {
+        return (Dlt645MessageHead) super.getHead();
+    }
+
+    @Override
+    public Dlt645DtuMessageBody getBody() {
+        return (Dlt645DtuMessageBody) super.getBody();
     }
 }

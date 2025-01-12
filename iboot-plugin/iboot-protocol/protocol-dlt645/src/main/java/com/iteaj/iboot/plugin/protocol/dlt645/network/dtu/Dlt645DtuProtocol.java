@@ -1,11 +1,14 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.network.dtu;
 
+import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645Util;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645DtuMessageBody;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645MessageHead;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645Protocol;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645ProtocolType;
 import com.iteaj.iot.ProtocolType;
+import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.server.protocol.ServerInitiativeSyncProtocol;
+import com.iteaj.iot.utils.ByteUtil;
 
 import java.io.IOException;
 import java.util.Date;
@@ -28,7 +31,19 @@ public class Dlt645DtuProtocol extends ServerInitiativeSyncProtocol<Dlt645DtuMes
 
     @Override
     protected void doBuildResponseMessage(Dlt645DtuMessage message) {
-
+        Dlt645MessageHead head = requestMessage().getHead();
+        message.getHead().setAddress(head.getAddress());
+        message.getHead().setType(head.getType());
+        if(getExecStatus() == ExecStatus.success) {
+            boolean validate = Dlt645Util.validate(message.getMessage(), message.getHead().getPrefix());
+            if(validate) {
+                byte[] bytes = Dlt645Util.getData(message.getMessage(), message.getHead().getPrefix());
+                this.value = ByteUtil.bytesToHex(bytes);
+            } else {
+                setExecStatus(ExecStatus.fail);
+                setReason("报文校验失败");
+            }
+        }
     }
 
     public Object getValue() {

@@ -32,6 +32,6 @@ public class Dlt645DtuMessage extends DtuServerMessageAbstract implements Dlt645
 
     @Override
     public void writeBuild() {
-        this.setMessage(getBody().build(getHead().build()));
+        this.setMessage(getBody().build(getHead().build(), getHead().getPrefix()));
     }
 }

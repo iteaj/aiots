@@ -82,64 +82,64 @@
             <artifactId>plc-siemens</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>plc-omron</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>plc-melsec</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>plc-inovance</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>plc-panasonic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>plc-allen-bradley</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>plc-omron</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>plc-melsec</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>plc-inovance</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <artifactId>plc-panasonic</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <artifactId>plc-allen-bradley</artifactId>-->
+<!--        </dependency>-->
         <!--mqtt协议提供-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>protocol-mqtt</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>protocol-mqtt</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
         <!--dtu网关+modbus协议提供-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>protocol-dtu</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>protocol-dtu</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
         <!--modbus协议提供-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>modbus-rtu</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>modbus-tcp</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>modbus-rtu</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>modbus-tcp</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <version>${project.version}</version>
             <artifactId>protocol-dlt645</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>protocol-opcua</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <artifactId>protocol-opcua</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>iboot-le5le</artifactId>
