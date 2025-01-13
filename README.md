@@ -1,5 +1,5 @@
 ### iboot(物联网网关)
-iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc(欧姆龙、西门子)
+iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc、dlt645、opcua
 - [系统部署教程](https://gitee.com/iteaj/iboot/blob/develop/docs/%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B.MD)
 - [项目前端仓库(vue3+antdv3+vite2)](https://gitee.com/iteaj/ivzone)
 - [演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://iot.iteaj.com/#/login)
@@ -25,7 +25,13 @@ QQ1群 - 552167793 (已满)<br>
 |  DTU+Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过485和dtu串口以modbus rtu协议对接上传到iboot云网关  |
 |  Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
 |  Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
-|  Opc Ua  |   开发中   |   否   |   待定   |  支持iboot网关(上位机)以opcua服务器对接采集和控制设备  |
+|  Opc Ua  |   系统内置   |   否   |   -   |  支持iboot网关(上位机)以opcua服务器对接采集和控制设备  |
+|  dlt645  |   系统内置   |   否   |   -   |  支持iboot网关(上位机)以串口或者dtu方式采集电表数据  |
+|  西门子S7  |   系统内置   |   否   |   -   |  支持iboot网关(上位机)以串口或者dtu方式采集电表数据  |
+|  欧姆龙  |   系统内置   |   否   |   -   |  支持iboot网关(上位机)以串口或者dtu方式采集电表数据  |
+|  三菱  |   系统内置   |   否   |   -   |  支持iboot网关(上位机)以串口或者dtu方式采集电表数据  |
+|  汇川  |   系统内置   |   否   |   -   |  支持iboot网关(上位机)以串口或者dtu方式采集电表数据  |
+|  dlt645  |   系统内置   |   否   |   -   |  支持iboot网关(上位机)以串口或者dtu方式采集电表数据  |
 ### 项目介绍
 1. ##### 这个项目能用来做什么<br>
       iboot是一款通用的物联网关平台，用来连接业务系统和物联网设备的网关；对南向主要用于采集和控制设备对北向主要是提供接口给第三方业务平台操作设备，使得对物联网不熟的个人开发者或者公司可以更加关注业务需求，将设备相关部分交由iboot物联网关
