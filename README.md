@@ -13,10 +13,8 @@ QQ1群 - 552167793 (已满)<br>
 2. [Iboot设备类型介绍](https://www.bilibili.com/video/BV13kx7ebEYM/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
 2. [Iboot序列教程之Mqtt篇](https://www.bilibili.com/video/BV1k9t5e3EtK/?vd_source=32a176fca70a1cee8222bff9ac0846ab)<br>
 3. [Iboot序列教程之Modbus篇](https://www.bilibili.com/video/BV1dgtQeNEyP/?vd_source=32a176fca70a1cee8222bff9ac0846ab) 
-### 平台架构图
-![平台架构](https://iot.iteaj.com/show/IBoot网络架构图.jpg)
-### 目前支持哪些协议
-| 协议 | 实现方式 | 开源 | 其他 | 说明 |
+### 已实现的协议驱动
+| 协议 | 实现方式 | 开源 |其他| 说明 |
 |----|--------|-----|-------|------------|
 |  Mqtt  |   系统内置   |   是   |-|  支持设备、第三方业务和iboot系统的双向数据对接  |
 |  DTU+Modbus Tcp  |   系统内置   |   是   |-|  支持设备以modbus tcp协议对接并通过dtu连接iboot云网关  |
@@ -31,6 +29,8 @@ QQ1群 - 552167793 (已满)<br>
 |  汇川  |   系统内置   |   否   |-|  以Modbus Tcp方式实现  |
 |  松下  |   系统内置   |   否   |-|  松下PLC  |
 |  罗克韦尔  |   系统内置   |   否   |-|  以CIP协议实现，适用1756，1769等型号  |
+### 平台架构图
+![平台架构](https://iot.iteaj.com/show/IBoot网络架构图.jpg)
 ### 项目介绍
 1. ##### 这个项目能用来做什么<br>
       iboot是一款通用的物联网关平台，用来连接业务系统和物联网设备的网关；对南向主要用于采集和控制设备对北向主要是提供接口给第三方业务平台操作设备，使得对物联网不熟的个人开发者或者公司可以更加关注业务需求，将设备相关部分交由iboot物联网关
