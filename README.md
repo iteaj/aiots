@@ -1,5 +1,5 @@
 ### iboot(物联网网关)
-iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc、dlt645、opcua
+iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc、dlt645-2007、opcua，实现的plc包括西门子、欧姆龙、三菱、松下、汇川、罗克韦尔
 - [系统部署教程](https://gitee.com/iteaj/iboot/blob/develop/docs/%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B.MD)
 - [项目前端仓库(vue3+antdv3+vite2)](https://gitee.com/iteaj/ivzone)
 - [演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://iot.iteaj.com/#/login)
@@ -13,8 +13,6 @@ QQ1群 - 552167793 (已满)<br>
 2. [Iboot设备类型介绍](https://www.bilibili.com/video/BV13kx7ebEYM/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
 2. [Iboot序列教程之Mqtt篇](https://www.bilibili.com/video/BV1k9t5e3EtK/?vd_source=32a176fca70a1cee8222bff9ac0846ab)<br>
 3. [Iboot序列教程之Modbus篇](https://www.bilibili.com/video/BV1dgtQeNEyP/?vd_source=32a176fca70a1cee8222bff9ac0846ab) 
-### 未来功能规划
-1. Opc Ua驱动
 ### 平台架构图
 ![平台架构](https://iot.iteaj.com/show/IBoot网络架构图.jpg)
 ### 目前支持哪些协议
