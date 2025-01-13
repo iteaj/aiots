@@ -34,6 +34,8 @@ public abstract class Dlt645ProtocolEventModelApi extends AbstractEventProtocolM
         switch (type) {
             case readReq:
                 return dlt645Protocol.readBuild(deviceSn, address, data);
+            case readMAReq:
+                return dlt645Protocol.readMABuild(deviceSn);
             default:
                 throw new ProtocolInvokeException("不支持的指令["+type+"]");
         }

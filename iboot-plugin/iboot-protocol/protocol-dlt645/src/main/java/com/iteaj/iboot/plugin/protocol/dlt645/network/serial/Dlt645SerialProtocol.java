@@ -1,6 +1,5 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.network.serial;
 
-import cn.hutool.core.util.ArrayUtil;
 import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645Util;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645DtuMessageBody;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645MessageHead;
@@ -50,16 +49,19 @@ public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> 
         if(this.getExecStatus() == ExecStatus.success) {
             byte[] message = responseMessage().getMessage();
             Dlt645MessageHead responseHead = responseMessage().getHead();
-            boolean validate = Dlt645Util.validate(message, responseHead.getPrefix());
-            if(!validate) {
-                this.setReason("报文校验失败");
+            String reason = Dlt645Util.validate(message, responseHead.getPrefix());
+            if(reason != null) {
+                this.setReason(reason);
                 this.setExecStatus(ExecStatus.fail);
+            } else {
+                byte[] bytes = Dlt645Util.getData(message, responseHead.getPrefix(), protocolType());
+                if(bytes != null) {
+                    String hexValue = ByteUtil.bytesToHex(bytes);
+                    this.value = hexValue;
+                }
             }
-
-            byte[] bytes = Dlt645Util.getData(message, responseHead.getPrefix());
-
-            String hexValue = ByteUtil.bytesToHex(bytes);
-            this.value = hexValue;
+        } else {
+            this.setReason(getExecStatus().desc);
         }
         return null;
     }
@@ -84,8 +86,12 @@ public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> 
             // 写新的报文
             byte[] message = this.requestMessage().getMessage();
             iotClient.write(message);
-            long currentTimeMillis = System.currentTimeMillis();
+            // 以下协议不需要应答
+            if(protocolType() == Dlt645ProtocolType.rts || protocolType() == Dlt645ProtocolType.ffCmd) {
+                return this;
+            }
 
+            long currentTimeMillis = System.currentTimeMillis();
             ByteBuf buffer = Unpooled.buffer(256);
             while (readBytes(iotClient, buffer) != -1) {
                 if(System.currentTimeMillis() - currentTimeMillis > config.getReaderIdleTime() * 1000) {
@@ -129,7 +135,7 @@ public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> 
         if(readableBytes == 0) { // 先校验是否是错误报文
             if(message[0] != (byte) 0xFE && message[0] != (byte) 0x68) {
                 this.setExecStatus(ExecStatus.fail);
-                this.setReason("响应报文数据错误");
+                this.setReason("响应报文数据格式错误");
                 return -1;
             }
         }

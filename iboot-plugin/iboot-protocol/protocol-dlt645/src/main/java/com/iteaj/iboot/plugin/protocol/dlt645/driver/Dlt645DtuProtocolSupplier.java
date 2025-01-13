@@ -98,9 +98,14 @@ public class Dlt645DtuProtocolSupplier extends StaticServerProtocolSupplier<Dlt6
         return supplier;
     }
 
+    @Override
+    public Dlt645ProtocolFuncModelApi createFuncModelApi(String name, String desc, String remark) {
+        return new Dlt645DtuProtocolFuncModelApi(name, desc, remark);
+    }
+
     @NotNull
     @Override
-    public Dlt645ProtocolEventModelApi createModelApi(String name, String desc, String remark) {
+    public Dlt645ProtocolEventModelApi createEventModelApi(String name, String desc, String remark) {
         return new Dlt645DtuProtocolEventModelApi(name, desc, remark);
     }
 

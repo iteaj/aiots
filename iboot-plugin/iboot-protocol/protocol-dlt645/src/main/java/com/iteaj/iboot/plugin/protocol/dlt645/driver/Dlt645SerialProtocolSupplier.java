@@ -76,9 +76,14 @@ public class Dlt645SerialProtocolSupplier extends StaticClientProtocolSupplier<N
         return new Dlt645SerialComponent();
     }
 
+    @Override
+    public Dlt645ProtocolFuncModelApi createFuncModelApi(String name, String desc, String remark) {
+        return new Dlt645SerialProtocolFuncModelApi(name, desc, remark);
+    }
+
     @NotNull
     @Override
-    public Dlt645ProtocolEventModelApi createModelApi(String name, String desc, String remark) {
+    public Dlt645ProtocolEventModelApi createEventModelApi(String name, String desc, String remark) {
         return new Dlt645SerialProtocolEventModelApi(name, desc, remark);
     }
 }

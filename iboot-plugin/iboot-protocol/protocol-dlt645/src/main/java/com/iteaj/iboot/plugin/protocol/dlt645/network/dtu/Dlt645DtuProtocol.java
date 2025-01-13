@@ -35,14 +35,18 @@ public class Dlt645DtuProtocol extends ServerInitiativeSyncProtocol<Dlt645DtuMes
         message.getHead().setAddress(head.getAddress());
         message.getHead().setType(head.getType());
         if(getExecStatus() == ExecStatus.success) {
-            boolean validate = Dlt645Util.validate(message.getMessage(), message.getHead().getPrefix());
-            if(validate) {
-                byte[] bytes = Dlt645Util.getData(message.getMessage(), message.getHead().getPrefix());
-                this.value = ByteUtil.bytesToHex(bytes);
+            String reason = Dlt645Util.validate(message.getMessage(), message.getHead().getPrefix());
+            if(reason == null) {
+                byte[] bytes = Dlt645Util.getData(message.getMessage(), message.getHead().getPrefix(), protocolType());
+                if(bytes != null) {
+                    this.value = ByteUtil.bytesToHex(bytes);
+                }
             } else {
                 setExecStatus(ExecStatus.fail);
-                setReason("报文校验失败");
+                setReason(reason);
             }
+        } else {
+            setReason(getExecStatus().desc);
         }
     }
 
@@ -60,7 +64,7 @@ public class Dlt645DtuProtocol extends ServerInitiativeSyncProtocol<Dlt645DtuMes
     }
 
     @Override
-    public ProtocolType protocolType() {
+    public Dlt645ProtocolType protocolType() {
         return this.protocolType;
     }
 }

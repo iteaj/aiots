@@ -16,12 +16,13 @@ public enum Dlt645ProtocolType implements ProtocolType {
     writeReq((byte) 0x14, "写数据"),
     writeMAReq((byte) 0x15, "写通讯地址"),
     fCmd((byte) 0x16, "冻结命令"),
+    ffCmd((byte) 0x16, "广播冻结命令"),
     mcr((byte) 0x17, "修改通讯速率"),
     mpd((byte) 0x18, "修改密码"),
     rmd((byte) 0x19, "最大需量清零"),
     rem((byte) 0x1A, "电表清零"),
     rec((byte) 0x1B, "事件清零"),
-
+    ctrl((byte) 0x1C, "控制设备"),
 
     /**
      * 响应
