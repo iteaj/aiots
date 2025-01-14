@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.network.dtu;
 
+import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645DataItem;
 import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645Util;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645DtuMessageBody;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645MessageHead;
@@ -37,9 +38,25 @@ public class Dlt645DtuProtocol extends ServerInitiativeSyncProtocol<Dlt645DtuMes
         if(getExecStatus() == ExecStatus.success) {
             String reason = Dlt645Util.validate(message.getMessage(), message.getHead().getPrefix());
             if(reason == null) {
-                byte[] bytes = Dlt645Util.getData(message.getMessage(), message.getHead().getPrefix(), protocolType());
+                int prefix = message.getHead().getPrefix();
+                Dlt645ProtocolType protocolType = protocolType();
+                byte[] bytes = Dlt645Util.getData(message.getMessage(), prefix, protocolType);
                 if(bytes != null) {
                     this.value = ByteUtil.bytesToHex(bytes);
+                    String hexValue = ByteUtil.bytesToHex(bytes);
+                    if(this.protocolType == Dlt645ProtocolType.readReq) {
+                        int item = message.getMessage()[prefix + 13] - 0x33;
+                        int childItem = message.getMessage()[prefix + 12] - 0x33;
+                        if(item == 2) {
+                            Dlt645DataItem dataItem = Dlt645DataItem.valueOf(childItem);
+                            if(dataItem != null) {
+                                this.value = Long.valueOf(hexValue) * dataItem.getResolution();
+                                return;
+                            }
+                        }
+                    }
+
+                    this.value = hexValue;
                 }
             } else {
                 setExecStatus(ExecStatus.fail);

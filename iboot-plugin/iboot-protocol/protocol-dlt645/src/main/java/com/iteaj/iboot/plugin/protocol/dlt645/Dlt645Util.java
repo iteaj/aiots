@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.protocol.dlt645;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645ProtocolType;
 import com.iteaj.iot.utils.ByteUtil;
 
@@ -43,5 +44,50 @@ public class Dlt645Util {
         }
 
         return reverse;
+    }
+
+    public static String reverse(String data) {
+        byte[] bytes = ByteUtil.hexToByte(data);
+        byte[] reverse = ArrayUtil.reverse(bytes);
+        return ByteUtil.bytesToHex(reverse);
+    }
+
+    public static String resolverDate(String date) {
+        byte[] result = new byte[6];
+        byte[] bytes = ByteUtil.hexToByte(date);
+        result[0] = (byte) (bytes[5] + 0x33);
+        result[1] = (byte) (bytes[4] + 0x33);
+        result[2] = (byte) (bytes[3] + 0x33);
+        result[3] = (byte) (bytes[2] + 0x33);
+        result[4] = (byte) (bytes[1] + 0x33);
+        result[5] = (byte) (bytes[0] + 0x33);
+        return ByteUtil.bytesToHex(result);
+    }
+
+    public static String resolverData(String data) {
+        if(StrUtil.isBlank(data)) {
+            throw new NullPointerException("数据标识必填");
+        }
+
+        if(data.length() != 8) {
+            throw new IllegalArgumentException("数据标识长度必须等于8");
+        }
+
+        byte[] result = new byte[4];
+        byte[] bytes = ByteUtil.hexToByte(data);
+        result[0] = (byte) (bytes[3] + 0x33);
+        result[1] = (byte) (bytes[2] + 0x33);
+        result[2] = (byte) (bytes[1] + 0x33);
+        result[3] = (byte) (bytes[0] + 0x33);
+        return ByteUtil.bytesToHex(result);
+    }
+
+    public static String resolverCommonData(String data) {
+        byte[] bytes = ByteUtil.hexToByte(data);
+        byte[] result = new byte[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            result[i] = (byte) (bytes[bytes.length - i - 1] + 0x33);
+        }
+        return ByteUtil.bytesToHex(result);
     }
 }

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.network.serial;
 
+import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645DataItem;
 import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645Util;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645DtuMessageBody;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645MessageHead;
@@ -54,16 +55,30 @@ public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> 
                 this.setReason(reason);
                 this.setExecStatus(ExecStatus.fail);
             } else {
-                byte[] bytes = Dlt645Util.getData(message, responseHead.getPrefix(), protocolType());
+                int prefix = responseHead.getPrefix();
+                Dlt645ProtocolType protocolType = protocolType();
+                byte[] bytes = Dlt645Util.getData(message, prefix, protocolType);
                 if(bytes != null) {
                     String hexValue = ByteUtil.bytesToHex(bytes);
+                    if(protocolType == Dlt645ProtocolType.readReq) {
+                        int item = message[prefix + 13] - 0x33;
+                        int childItem = message[prefix + 12] - 0x33;
+                        if(item == 2) {
+                            Dlt645DataItem dataItem = Dlt645DataItem.valueOf(childItem);
+                            if(dataItem != null) {
+                                this.value = Long.valueOf(hexValue) * dataItem.getResolution();
+                                return this;
+                            }
+                        }
+                    }
+
                     this.value = hexValue;
                 }
             }
         } else {
             this.setReason(getExecStatus().desc);
         }
-        return null;
+        return this;
     }
 
     @Override

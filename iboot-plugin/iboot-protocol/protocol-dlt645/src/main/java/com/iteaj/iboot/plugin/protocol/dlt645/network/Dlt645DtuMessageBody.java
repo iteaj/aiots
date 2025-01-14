@@ -2,6 +2,7 @@ package com.iteaj.iboot.plugin.protocol.dlt645.network;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645Util;
 import com.iteaj.iot.Message;
 import com.iteaj.iot.utils.ByteUtil;
 import lombok.Getter;
@@ -44,11 +45,11 @@ public class Dlt645DtuMessageBody implements Message.MessageBody {
     protected Dlt645DtuMessageBody read(String data, Byte blocks, String date) {
         String strMsg;
         if(blocks != null && StrUtil.isNotBlank(date)) {
-            strMsg = "0A" + resolverData(data) + ByteUtil.bytesToHex(new byte[]{(byte) (blocks + 0x33)}) + resolverDate(date) + suffix;
+            strMsg = "0A" + Dlt645Util.resolverData(data) + ByteUtil.bytesToHex(new byte[]{(byte) (blocks + 0x33)}) + Dlt645Util.resolverDate(date) + suffix;
         } else if(blocks != null) {
-            strMsg = "05" + resolverData(data) + ByteUtil.bytesToHex(new byte[]{(byte) (blocks + 0x33)}) + suffix;
+            strMsg = "05" + Dlt645Util.resolverData(data) + ByteUtil.bytesToHex(new byte[]{(byte) (blocks + 0x33)}) + suffix;
         } else {
-            strMsg = "04" + resolverData(data) + suffix;
+            strMsg = "04" + Dlt645Util.resolverData(data) + suffix;
         }
 
         this.message = ByteUtil.hexToByte(strMsg);
@@ -86,7 +87,7 @@ public class Dlt645DtuMessageBody implements Message.MessageBody {
      */
     public Dlt645DtuMessageBody rts(Date time) {
         String timeStr = DateUtil.format(time, "yyMMddHHmmss");
-        String strMsg = "06" + resolverDate(timeStr) + suffix;
+        String strMsg = "06" + Dlt645Util.resolverDate(timeStr) + suffix;
         this.message = ByteUtil.hexToByte(strMsg);
         return this;
     }
@@ -98,7 +99,7 @@ public class Dlt645DtuMessageBody implements Message.MessageBody {
      */
     public Dlt645DtuMessageBody fCmd(Date timeValue) {
         String timeStr = DateUtil.format(timeValue, "MMddHHmm");
-        String strMsg = "04" + resolverCommonData(timeStr) + suffix;
+        String strMsg = "04" + Dlt645Util.resolverCommonData(timeStr) + suffix;
         this.message = ByteUtil.hexToByte(strMsg);
         return this;
     }
@@ -122,7 +123,7 @@ public class Dlt645DtuMessageBody implements Message.MessageBody {
             throw new IllegalArgumentException("电表编号必须12位, 不足12位的前面补零");
         }
 
-        String strMsg = "06" + resolverCommonData(address) + suffix;
+        String strMsg = "06" + Dlt645Util.resolverCommonData(address) + suffix;
         this.message = ByteUtil.hexToByte(strMsg);
         return this;
     }
@@ -153,7 +154,7 @@ public class Dlt645DtuMessageBody implements Message.MessageBody {
     public Dlt645DtuMessageBody writeCtrl(String code, String perm, String pwd, String cmd, Date time) {
         this.message = new byte[19];
         this.message[0] = 16; // 长度
-        String data = perm + pwd + code + cmd + "00" + DateUtil.format(time, "ssmmHHddMMyy");
+        String data = perm + Dlt645Util.reverse(pwd) + Dlt645Util.reverse(code) + cmd + "00" + DateUtil.format(time, "ssmmHHddMMyy");
         byte[] bytes = ByteUtil.hexToByte(data);
         for (int i = 0; i < bytes.length; i++) {
             message[i + 1] = (byte) (bytes[i] + 0x33);
@@ -163,44 +164,6 @@ public class Dlt645DtuMessageBody implements Message.MessageBody {
         return this;
     }
 
-    private String resolverDate(String date) {
-        byte[] result = new byte[6];
-        byte[] bytes = ByteUtil.hexToByte(date);
-        result[0] = (byte) (bytes[5] + 0x33);
-        result[1] = (byte) (bytes[4] + 0x33);
-        result[2] = (byte) (bytes[3] + 0x33);
-        result[3] = (byte) (bytes[2] + 0x33);
-        result[4] = (byte) (bytes[1] + 0x33);
-        result[5] = (byte) (bytes[0] + 0x33);
-        return ByteUtil.bytesToHex(result);
-    }
-
-    private String resolverData(String data) {
-        if(StrUtil.isBlank(data)) {
-            throw new NullPointerException("数据标识必填");
-        }
-
-        if(data.length() != 8) {
-            throw new IllegalArgumentException("数据标识长度必须等于8");
-        }
-
-        byte[] result = new byte[4];
-        byte[] bytes = ByteUtil.hexToByte(data);
-        result[0] = (byte) (bytes[3] + 0x33);
-        result[1] = (byte) (bytes[2] + 0x33);
-        result[2] = (byte) (bytes[1] + 0x33);
-        result[3] = (byte) (bytes[0] + 0x33);
-        return ByteUtil.bytesToHex(result);
-    }
-
-    protected String resolverCommonData(String data) {
-        byte[] bytes = ByteUtil.hexToByte(data);
-        byte[] result = new byte[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            result[i] = (byte) (bytes[bytes.length - i - 1] + 0x33);
-        }
-        return ByteUtil.bytesToHex(result);
-    }
 
     @Override
     public byte[] getMessage() {
