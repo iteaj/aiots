@@ -57,27 +57,12 @@ public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> 
             } else {
                 int prefix = responseHead.getPrefix();
                 Dlt645ProtocolType protocolType = protocolType();
-                byte[] bytes = Dlt645Util.getData(message, prefix, protocolType);
-                if(bytes != null) {
-                    String hexValue = ByteUtil.bytesToHex(bytes);
-                    if(protocolType == Dlt645ProtocolType.readReq) {
-                        int item = message[prefix + 13] - 0x33;
-                        int childItem = message[prefix + 12] - 0x33;
-                        if(item == 2) {
-                            Dlt645DataItem dataItem = Dlt645DataItem.valueOf(childItem);
-                            if(dataItem != null) {
-                                this.value = Long.valueOf(hexValue) * dataItem.getResolution();
-                                return this;
-                            }
-                        }
-                    }
-
-                    this.value = hexValue;
-                }
+                this.value = Dlt645Util.getData(message, prefix, protocolType);
             }
         } else {
             this.setReason(getExecStatus().desc);
         }
+
         return this;
     }
 

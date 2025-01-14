@@ -10,7 +10,9 @@ public class Dlt645Util {
     public static String validate(byte[] message, int prefix) {
         int respCode = (message[prefix + 8] & 0xFF);
         if(respCode >= 0xD0) {
-            return "从站异常应答";
+            int errCode = message[prefix + 10] & 0xFF;
+            Dlt645ErrCode code = Dlt645ErrCode.valueOf(errCode);
+            return code.getDesc() + "[0x"+Integer.toHexString(errCode).toUpperCase()+"]";
         }
 
         int sum = 0;
@@ -26,7 +28,7 @@ public class Dlt645Util {
         }
     }
 
-    public static byte[] getData(byte[] message, int prefix, Dlt645ProtocolType type) {
+    public static Object getData(byte[] message, int prefix, Dlt645ProtocolType type) {
         byte[] bytes;
         if(type == Dlt645ProtocolType.readReq) {
             bytes = ByteUtil.subBytes(message, 14 + prefix, message.length - 2);
@@ -43,7 +45,32 @@ public class Dlt645Util {
             reverse[i] = (byte) (reverse[i] - 0x33);
         }
 
-        return reverse;
+        String hexValue = ByteUtil.bytesToHex(reverse);
+        if(type == Dlt645ProtocolType.readReq) {
+            int item = message[prefix + 13] - 0x33;
+            int childItem = message[prefix + 12] - 0x33;
+            if(item == 0) {
+                return Long.valueOf(hexValue) * 0.01;
+            } else if(item == 2) {
+                Dlt645DataItem dataItem = Dlt645DataItem.valueOf(childItem);
+                if(dataItem != null) {
+                    return Long.valueOf(hexValue) * dataItem.getResolution();
+                }
+            } else if(item == 5) {
+                if(hexValue.length() % 8 == 0) {
+                    StringBuilder sb = new StringBuilder();
+                    int num = hexValue.length() / 8;
+                    for (int i = 0; i < num; i++) {
+                        String valueItem = hexValue.substring(i * 8, i * 8 + 8);
+                        sb.append(Long.valueOf(valueItem) * 0.01).append(',');
+                    }
+
+                    return sb.deleteCharAt(sb.length() - 1).toString();
+                }
+            }
+        }
+
+        return hexValue;
     }
 
     public static String reverse(String data) {
