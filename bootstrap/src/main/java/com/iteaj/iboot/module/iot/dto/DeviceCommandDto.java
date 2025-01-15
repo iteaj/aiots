@@ -1,0 +1,30 @@
+package com.iteaj.iboot.module.iot.dto;
+
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
+import lombok.Data;
+import lombok.experimental.Accessors;
+
+@Data
+@Accessors(chain = true)
+public class DeviceCommandDto {
+
+    private String uid;
+
+    private String code;
+
+    private String apiName;
+
+    private String commandName;
+
+    private String commandValue;
+
+    private ProtocolApiType apiType;
+
+    public String getCommandValue() {
+        return String.format("api=%s;uid=%s%s", code, uid, commandValue == null ? "" : ";" + commandValue);
+    }
+
+    public String getApiTypeName() {
+        return apiType != null ? apiType.getDesc() : null;
+    }
+}

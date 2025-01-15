@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
@@ -9,6 +10,7 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
@@ -18,6 +20,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.DebugRespDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -27,10 +30,13 @@ import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.consts.ExecStatus;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 设备指令接口管理
@@ -195,11 +201,98 @@ public class DeviceCtrlController extends BaseController {
      * @return
      */
     @GetMapping("commands")
-    public Result commands(String uid) {
+    public Result<List<DeviceCommandDto>> commands(String uid) {
         Device device = this.deviceService.getByUid(uid)
                 .ifNotPresentThrow("设备不存在[" + uid + "]").getData();
 
-        return success();
-//        productService.
+        List<DeviceCommandDto> result = new ArrayList<>();
+        productService.debugById(device.getProductId())
+                .ifNotPresentThrow("此设备数据不完整["+device.getName()+"]")
+                .ifPresent(productDto -> {
+                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                        productDto.getFuncApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.addAll(api.resolverCommand(device.getUid(), productDto.getAttrs())));
+                    }
+
+                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                        productDto.getEventApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.addAll(api.resolverCommand(device.getUid(), productDto.getAttrs())));
+                    }
+                });
+
+        return success(result);
+    }
+
+    /**
+     * 调用指令
+     * @param cmdCode 指令码
+     * @return
+     */
+    @Logger("模型接口调用")
+    @PostMapping("/command/invoke")
+    public Mono<Result> invoke(String cmdCode) {
+        if(StrUtil.isBlank(cmdCode)) {
+            return Mono.create((t) -> t.success(fail("未指定指令码")));
+        }
+
+        if(!cmdCode.startsWith("api") || !cmdCode.contains("uid")) {
+            return Mono.create((t) -> t.success(fail("指令码格式错误")));
+        }
+
+        String[] cmdItem = cmdCode.split(";");
+        if(cmdItem.length < 2) {
+            return Mono.create((t) -> t.success(fail("指令码格式错误")));
+        }
+
+        String uid = cmdItem[1].split("=")[1];
+        String modelApiCode = cmdItem[0].split("=")[1];
+
+        JSONObject params = resolveParams(cmdItem);
+        ProtocolModelApiInvokeParam param = new ProtocolModelApiInvokeParam(uid, params);
+        Object[] objects = this.getProtocolModelApi(modelApiCode, param);
+        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
+
+        return Mono.<InvokeResult>create(item -> {
+            try {
+                RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
+                if(realtimeStatus.getStatus() == DeviceStatus.offline) {
+                    if(realtimeStatus.getType() == DeviceType.Direct) {
+                        item.success(InvokeResult.fail("设备不在线["+realtimeStatus.getDeviceName()+"]", null)); return;
+                    } else if(realtimeStatus.getType() == DeviceType.Child) {
+                        RealtimeStatus parent = cacheManager.get(supplier.getProtocol().getCode(), param.getParentDeviceSn());
+                        if(parent != null && parent.getStatus() == DeviceStatus.offline) {
+                            item.success(InvokeResult.fail("网关设备不在线["+parent.getDeviceName()+"]", null)); return;
+                        }
+                    }
+                }
+
+                ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, realtimeStatus, result -> {
+                    item.success(result);
+                });
+            } catch (ProtocolInvokeException e) {
+                e.printStackTrace();
+                item.success(InvokeResult.fail(e.getMessage(), null));
+            }
+        }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
+            if(item.getStatus() == ExecStatus.success) {
+                return success(item.getValue());
+            } else {
+                return fail(item.getReason());
+            }
+        });
+    }
+
+    private JSONObject resolveParams(String[] cmdItem) {
+        JSONObject result = new JSONObject();
+        if(cmdItem.length > 2) {
+            for (int i = 2; i < cmdItem.length; i++) {
+                String[] item = cmdItem[i].split("=");
+                result.put(item[0], item[1]);
+            }
+        }
+
+        return result;
     }
 }

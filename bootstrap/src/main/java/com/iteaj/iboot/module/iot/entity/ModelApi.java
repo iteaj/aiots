@@ -18,6 +18,7 @@ import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -203,6 +204,53 @@ public class ModelApi extends BaseEntity {
         }
 
         return Collections.EMPTY_LIST;
+    }
+
+    public List<DeviceCommandDto> resolverCommand(String uid, List<ModelAttr> attrs) {
+        if(!CollectionUtils.isEmpty(downConfig)) {
+            List<ModelApiConfig> configs = downConfig.stream()
+                    .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
+                    .collect(Collectors.toList());
+
+            if(!CollectionUtils.isEmpty(configs)) {
+                if(CollectionUtils.isEmpty(attrs)) {
+                    throw new ServiceException("参数错误[物模型属性为空]");
+                }
+
+                Map<Long, ModelAttr> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttr::getId, item -> item));
+                List<List<ModelAttrDict>> collect = configs.stream()
+                        .map(item -> item.getDicts())
+                        .collect(Collectors.toList());
+
+                // 计算笛卡尔积
+                return cartesianProduct(collect, attrMap).stream().map(item -> {
+                    StringBuilder valueSb = new StringBuilder();
+                    item.forEach(dict -> {
+                        ModelAttr modelAttr = attrMap.get(dict.getModelAttrId());
+                        if(modelAttr != null) {
+                            valueSb.append(modelAttr.getField()).append("=").append(dict.getDictValue()).append(";");
+                        }
+                    });
+
+                    valueSb.deleteCharAt(valueSb.length() - 1);
+
+                    return new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                            .setCommandValue(valueSb.toString()).setCommandName(getRemark()).setCode(getCode());
+                }).collect(Collectors.toList());
+            } else {
+                StringBuilder valueSb = new StringBuilder();
+                downConfig.forEach(config -> {
+                    valueSb.append(config.getProtocolAttrField()).append('=').append(config.getValue()).append(';');
+                });
+                valueSb.deleteCharAt(valueSb.length() - 1);
+
+                return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                        .setCommandValue(valueSb.toString()).setCommandName(getRemark()).setCode(getCode()));
+            }
+        } else {
+            return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                    .setCommandValue(null).setCommandName(getRemark()).setCode(getCode()));
+        }
     }
 
     private List<List<ModelAttrDict>> cartesianProduct(List<List<ModelAttrDict>> lists, Map<Long, ModelAttr> attrMap) {
