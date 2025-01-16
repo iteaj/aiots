@@ -14,6 +14,8 @@ public class DeviceCommandDto {
 
     private String apiName;
 
+    private String remark;
+
     private String commandName;
 
     private String commandValue;
