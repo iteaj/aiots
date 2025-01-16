@@ -227,17 +227,19 @@ public class DeviceCtrlController extends BaseController {
 
     /**
      * 调用指令
-     * @param cmdCode 指令码
+     * @param uid 设备uid(可空)
+     * @param cmdCode 指令码(必填)
      * @return
      */
     @Logger("模型接口调用")
     @PostMapping("/command/invoke")
-    public Mono<Result> invoke(String cmdCode) {
+    public Mono<Result> invoke(String cmdCode, String uid) {
         if(StrUtil.isBlank(cmdCode)) {
             return Mono.create((t) -> t.success(fail("未指定指令码")));
         }
 
-        if(!cmdCode.startsWith("api") || !cmdCode.contains("uid")) {
+        boolean isUidBlank = StrUtil.isBlank(uid);
+        if(!cmdCode.startsWith("api") || (isUidBlank && !cmdCode.contains("uid"))) {
             return Mono.create((t) -> t.success(fail("指令码格式错误")));
         }
 
@@ -246,10 +248,10 @@ public class DeviceCtrlController extends BaseController {
             return Mono.create((t) -> t.success(fail("指令码格式错误")));
         }
 
-        String uid = cmdItem[1].split("=")[1];
         String modelApiCode = cmdItem[0].split("=")[1];
+        uid = isUidBlank ? cmdItem[1].split("=")[1] : uid;
 
-        JSONObject params = resolveParams(cmdItem);
+        JSONObject params = resolveParams(cmdItem, isUidBlank);
         ProtocolModelApiInvokeParam param = new ProtocolModelApiInvokeParam(uid, params);
         Object[] objects = this.getProtocolModelApi(modelApiCode, param);
         DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
@@ -284,10 +286,11 @@ public class DeviceCtrlController extends BaseController {
         });
     }
 
-    private JSONObject resolveParams(String[] cmdItem) {
+    private JSONObject resolveParams(String[] cmdItem, boolean isUidBlank) {
+        int length = isUidBlank ? 2 : 1;
         JSONObject result = new JSONObject();
-        if(cmdItem.length > 2) {
-            for (int i = 2; i < cmdItem.length; i++) {
+        if(cmdItem.length > length) {
+            for (int i = length; i < cmdItem.length; i++) {
                 String[] item = cmdItem[i].split("=");
                 result.put(item[0], item[1]);
             }
