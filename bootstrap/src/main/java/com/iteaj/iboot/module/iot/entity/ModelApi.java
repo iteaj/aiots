@@ -222,34 +222,51 @@ public class ModelApi extends BaseEntity {
                         .map(item -> item.getDicts())
                         .collect(Collectors.toList());
 
+                StringBuilder configValue = new StringBuilder(), configName = new StringBuilder();
+                downConfig.stream().filter(item -> item.getModelAttrId() == null).forEach(item -> {
+                    configName.append(item.getProtocolAttrName()).append("->").append(item.getValue()).append(';');
+                    configValue.append(item.getProtocolAttrField()).append('=').append(item.getValue()).append(';');
+                });
+
                 // 计算笛卡尔积
                 return cartesianProduct(collect, attrMap).stream().map(item -> {
-                    StringBuilder valueSb = new StringBuilder();
+                    StringBuilder sb = new StringBuilder(configName.toString());
+                    StringBuilder valueSb = new StringBuilder(configValue.toString());
                     item.forEach(dict -> {
                         ModelAttr modelAttr = attrMap.get(dict.getModelAttrId());
                         if(modelAttr != null) {
-                            valueSb.append(modelAttr.getField()).append("=").append(dict.getDictValue()).append(";");
+                            sb.append(modelAttr.getName()).append("->").append(dict.getDictName()).append(";");
+                            downConfig.forEach(config -> {
+                                if(config.getModelAttrId() != null && config.getModelAttrId().equals(modelAttr.getId())) {
+                                    valueSb.append(config.getProtocolAttrField()).append("=").append(dict.getDictValue()).append(";");
+                                }
+                            });
                         }
                     });
 
+                    sb.deleteCharAt(sb.length() - 1);
                     valueSb.deleteCharAt(valueSb.length() - 1);
 
                     return new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
-                            .setCommandValue(valueSb.toString()).setCommandName(getRemark()).setCode(getCode());
+                            .setCommandValue(valueSb.toString()).setRemark(getRemark()).setCommandName(sb.toString()).setCode(getCode());
                 }).collect(Collectors.toList());
             } else {
+                StringBuilder sb = new StringBuilder();
                 StringBuilder valueSb = new StringBuilder();
                 downConfig.forEach(config -> {
+                    sb.append(config.getProtocolAttrName()).append("->").append(config.getValue()).append(';');
                     valueSb.append(config.getProtocolAttrField()).append('=').append(config.getValue()).append(';');
                 });
+
+                sb.deleteCharAt(sb.length() - 1);
                 valueSb.deleteCharAt(valueSb.length() - 1);
 
                 return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
-                        .setCommandValue(valueSb.toString()).setCommandName(getRemark()).setCode(getCode()));
+                        .setCommandValue(valueSb.toString()).setCommandName(sb.toString()).setRemark(getRemark()).setCode(getCode()));
             }
         } else {
             return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
-                    .setCommandValue(null).setCommandName(getRemark()).setCode(getCode()));
+                    .setCommandValue(null).setCommandName("-").setRemark(getRemark()).setCode(getCode()));
         }
     }
 
