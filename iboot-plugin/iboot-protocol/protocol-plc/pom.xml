@@ -14,30 +14,31 @@
     <artifactId>protocol-plc</artifactId>
     <description>iot模块提供 plc协议</description>
 
-    <properties></properties>
-
     <modules>
         <!--plc公共部分-->
-        <module>plc-common</module>
+        <module>plc-core</module>
         <!--欧姆龙plc-->
         <module>plc-omron</module>
         <!--西门子plc-->
         <module>plc-siemens</module>
+        <!--三菱plc-->
+        <module>plc-melsec</module>
+        <!--罗克韦尔plc-->
+        <module>plc-allen-bradley</module>
+        <!--松下plc-->
+        <module>plc-panasonic</module>
+        <!--汇川plc-->
+        <module>plc-inovance</module>
     </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>iot-plc</artifactId>
-        </dependency>
-    </dependencies>
+
 
     <profiles>
       <profile>
         <id>rdc</id>
         <properties>
           <altReleaseDeploymentRepository>
-            repo-protocol::default::https://packages.aliyun.com/5ec0fe1bd1d1abe63b55bc6a/maven/protocol-common
+            repo-protocol::default::https://packages.aliyun.com/5ec0fe1bd1d1abe63b55bc6a/maven/protocol-core
           </altReleaseDeploymentRepository>
         </properties>
       </profile>

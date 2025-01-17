@@ -1,0 +1,24 @@
+package com.iteaj.plugin.protocol.plc.melsec.network;
+
+import com.iteaj.iot.ProtocolType;
+
+public enum MelsecProtocolType implements ProtocolType {
+    Qna3E("Qna兼容3E帧"),
+    A1E("A兼容1E帧");
+
+    private String desc;
+
+    MelsecProtocolType(String desc) {
+        this.desc = desc;
+    }
+
+    @Override
+    public Enum getType() {
+        return this;
+    }
+
+    @Override
+    public String getDesc() {
+        return this.desc;
+    }
+}

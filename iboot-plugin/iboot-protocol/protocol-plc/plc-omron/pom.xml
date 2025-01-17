@@ -15,9 +15,9 @@
 
     <dependencies>
         <dependency>
-            <version>3.0.0</version>
             <groupId>com.iteaj</groupId>
-            <artifactId>plc-common</artifactId>
+            <artifactId>plc-core</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
