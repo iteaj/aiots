@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
 import com.iteaj.framework.result.HttpResult;
+import com.iteaj.framework.spi.open.OpenApiUtil;
 import com.iteaj.iboot.plugin.oauth2.entity.Oauth2App;
 import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -58,6 +59,7 @@ public class OpenApiFilter extends OncePerRequestFilter {
             final String secretStr = String.format("%s&%s&%s", timestamp, clientId, oauth2App.getClientSecret());
             final String md5 = SecureUtil.md5(secretStr);
             if(Objects.equals(secret, md5)) {
+                OpenApiUtil.buildOpenRequest(request);
                 filterChain.doFilter(request, response);
             } else {
                 write(response, HttpResult.Fail("密文校验失败"));
