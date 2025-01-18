@@ -1,9 +1,11 @@
 package com.iteaj.iboot.plugin.oauth2.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseController;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
@@ -21,7 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/oauth2/app")
-public class Oauth2AppController {
+public class Oauth2AppController extends BaseController {
 
     private final Oauth2AppService oauth2AppService;
 
@@ -39,7 +41,7 @@ public class Oauth2AppController {
     @GetMapping("view")
     @CheckPermission(value = {"oauth2:app:view"})
     public Result<IPage<Oauth2App>> view(Page page, Oauth2App app) {
-        page.addOrder(OrderItem.desc("createTime"));
+        page.addOrder(OrderItem.desc("create_time"));
         return oauth2AppService.page(page, app);
     }
 
@@ -78,13 +80,17 @@ public class Oauth2AppController {
 
     /**
      * 删除应用记录
-     * @param list
+     * @param clientId
      * @return
      */
     @Logger("删除应用记录")
     @PostMapping("/del")
     @CheckPermission("core:config:del")
-    public Result<Boolean> del(@RequestBody List<Long> list) {
-        return this.oauth2AppService.removeByIds(list);
+    public Result<Boolean> del(String clientId) {
+        if(StrUtil.isBlank(clientId)) {
+            return fail("未指定要删除的客户端id");
+        }
+
+        return this.oauth2AppService.removeByClientId(clientId);
     }
 }
