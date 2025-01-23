@@ -1,3 +1,4 @@
+-- 2024-10-18更新
 alter table iot_collect_data
     modify cid bigint null comment '任务执行标识';
 
@@ -29,3 +30,11 @@ drop index iot_collect_data_signal_id_index on iot_collect_data;
 
 create index iot_collect_data_field_id_index
     on iot_collect_data (field_id);
+
+-- 2025-01-18更新
+alter table oauth2_app
+    add status boolean default true null comment '应用状态' after contract_scope;
+alter table oauth2_app
+    add remark varchar(256) null comment '备注' after client_name;
+create index oauth2_app_client_id_index
+    on oauth2_app (client_id);

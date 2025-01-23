@@ -9,16 +9,20 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.DataValueResolverFactory;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -162,6 +166,34 @@ public class ProductController extends BaseController {
     @GetMapping("resolvers")
     public Result<List<IVOption>> resolvers() {
         return success(DataValueResolverFactory.options());
+    }
+
+    /**
+     * 指令列表
+     * @param productId
+     * @return
+     */
+    @GetMapping("commands")
+    public Result<List<DeviceCommandDto>> commands(Long productId) {
+
+        List<DeviceCommandDto> result = new ArrayList<>();
+        productService.debugById(productId)
+            .ifNotPresentThrow("产品不存在")
+            .ifPresent(productDto -> {
+                if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                    productDto.getFuncApis().stream()
+                            .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                            .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+                }
+
+                if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                    productDto.getEventApis().stream()
+                            .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                            .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+                }
+            });
+
+        return success(result);
     }
 }
 

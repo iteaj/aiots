@@ -13,6 +13,7 @@ import com.iteaj.framework.captcha.CaptchaService;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.*;
+import com.iteaj.framework.spi.open.OpenApiUtil;
 import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.framework.spring.condition.ConditionalOnRedis;
 import com.iteaj.iboot.plugin.satoken.impl.SaTokenSecurityService;
@@ -87,13 +88,17 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
         SaServletFilter servletFilter = new SaServletFilter() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-                HttpServletRequest servletRequest = (HttpServletRequest) request;
+                if(OpenApiUtil.isOpenRequest(request)) {
+                    chain.doFilter(request, response);
+                } else {
+                    HttpServletRequest servletRequest = (HttpServletRequest) request;
 
-                // 解析浏览器的UserAgent并将放入request中
-                UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
-                servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
+                    // 解析浏览器的UserAgent并将放入request中
+                    UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
+                    servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
 
-                super.doFilter(request, response, chain);
+                    super.doFilter(request, response, chain);
+                }
             }
         };
         definitions.forEach(item -> {
