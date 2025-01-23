@@ -4,30 +4,46 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
+import com.iteaj.framework.Entity;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.plugin.oauth2.entity.Oauth2App;
 import com.iteaj.iboot.plugin.oauth2.mapper.Oauth2AppMapper;
 import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import static com.iteaj.iboot.plugin.oauth2.service.impl.Oauth2AppServiceImpl.cacheName;
+
 @Service
-@CacheConfig(cacheNames = {"IBOOT_CACHE_OATH2_APP"})
+@CacheConfig(cacheNames = {cacheName})
 public class Oauth2AppServiceImpl extends BaseServiceImpl<Oauth2AppMapper, Oauth2App> implements Oauth2AppService {
 
-    @Override
-    @Cacheable(key = "#clientId")
-    public DetailResult<Oauth2App> getByClientId(String clientId) {
-        return this.getOne(Wrappers.<Oauth2App>lambdaQuery()
-                .eq(Oauth2App::getClientId, clientId));
+    private final Cache cache;
+    public static final String cacheName = "IBOOT_CACHE_OATH2_APP";
+
+    public Oauth2AppServiceImpl(CacheManager cacheManager) {
+        this.cache = cacheManager.getCache(cacheName);
     }
 
     @Override
-    @CacheEvict(key = "#clientId")
+    public DetailResult<Oauth2App> getByClientId(String clientId) {
+        final Cache.ValueWrapper valueWrapper = cache.get(clientId);
+        if(valueWrapper != null) {
+            return new DetailResult((Entity) valueWrapper.get());
+        }
+
+        final DetailResult<Oauth2App> one = this.getOne(Wrappers.<Oauth2App>lambdaQuery()
+                .eq(Oauth2App::getClientId, clientId));
+
+        return one.ifPresent(entity -> cache.put(clientId, entity));
+    }
+
+    @Override
     public BooleanResult removeByClientId(String clientId) {
+        cache.evict(clientId);
         return this.remove(Wrappers.<Oauth2App>lambdaQuery().eq(Oauth2App::getClientId, clientId));
     }
 
@@ -41,13 +57,14 @@ public class Oauth2AppServiceImpl extends BaseServiceImpl<Oauth2AppMapper, Oauth
         String appSecure = SecureUtil.sha1(appId + salt);
         entity.setClientId(appId);
         entity.setClientSecret(appSecure);
-        return super.save(entity);
+        return super.save(entity)
+                .ifPresentAndTrue(status -> cache.put(entity.getClientId(), entity));
     }
 
     @Override
-    @CacheEvict(key = "#entity.clientId")
     public BooleanResult updateById(Oauth2App entity) {
-        return super.updateById(entity);
+        return super.updateById(entity)
+                .ifPresentAndTrue(status -> cache.put(entity.getClientId(), entity));
     }
 
 }
