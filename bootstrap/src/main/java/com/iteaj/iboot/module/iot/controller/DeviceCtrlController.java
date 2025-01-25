@@ -19,6 +19,7 @@ import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.CmdInvokeDto;
 import com.iteaj.iboot.module.iot.dto.DebugRespDto;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
@@ -227,17 +228,18 @@ public class DeviceCtrlController extends BaseController {
 
     /**
      * 调用指令
-     * @param uid 设备uid(可空)
-     * @param cmdCode 指令码(必填)
+     * @param cmd 调用参数
      * @return
      */
     @Logger("模型接口调用")
     @PostMapping("/command/invoke")
-    public Mono<Result> invoke(String cmdCode, String uid) {
+    public Mono<Result> invoke(@RequestBody CmdInvokeDto cmd) {
+        String cmdCode = cmd.getCode();
         if(StrUtil.isBlank(cmdCode)) {
             return Mono.create((t) -> t.success(fail("未指定指令码")));
         }
 
+        String uid = cmd.getUid();
         boolean isUidBlank = !cmdCode.contains("uid=");
         if(!cmdCode.startsWith("api") || (isUidBlank && StrUtil.isBlank(uid))) {
             return Mono.create((t) -> t.success(fail("指令码格式错误")));
