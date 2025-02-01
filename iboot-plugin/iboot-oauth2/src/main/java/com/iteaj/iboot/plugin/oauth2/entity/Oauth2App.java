@@ -18,6 +18,11 @@ public class Oauth2App extends BaseEntity {
     private String clientId;
 
     /**
+     * 管理员账号
+     */
+    private String adminAccount;
+
+    /**
      * 应用密钥
      */
     private String clientSecret;

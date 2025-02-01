@@ -21,6 +21,7 @@ import com.iteaj.iboot.plugin.satoken.impl.StpInterfaceImpl;
 import com.iteaj.iboot.plugin.satoken.listener.SaTokenOnlineListener;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -85,33 +86,7 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public SaServletFilter getSaServletFilter(List<OrderFilterChainDefinition> definitions) {
-        SaServletFilter servletFilter = new SaServletFilter() {
-            @Override
-            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-                if(OpenApiUtil.isOpenRequest(request)) {
-                    chain.doFilter(request, response);
-                } else {
-                    HttpServletRequest servletRequest = (HttpServletRequest) request;
-
-                    // 解析浏览器的UserAgent并将放入request中
-                    UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
-                    servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
-
-                    super.doFilter(request, response, chain);
-                }
-            }
-        };
-        definitions.forEach(item -> {
-            item.getFilterChainMap().forEach((key, value) -> {
-                if("anon".endsWith(value)) {
-                    servletFilter.addExclude(key);
-                } else {
-                    servletFilter.addInclude(key);
-                }
-            });
-        });
-
-        return servletFilter
+        return new OrderServletFilter(definitions)
                 .setAuth(obj -> StpUtil.checkLogin())
                 .setError(e -> {
                     SaHolder.getResponse()
@@ -121,4 +96,40 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
                 });
     }
 
+    public static class OrderServletFilter extends SaServletFilter implements Ordered {
+
+        public OrderServletFilter(List<OrderFilterChainDefinition> definitions) {
+            if(definitions != null) {
+                definitions.forEach(item -> {
+                    item.getFilterChainMap().forEach((key, value) -> {
+                        if("anon".endsWith(value)) {
+                            this.addExclude(key);
+                        } else {
+                            this.addInclude(key);
+                        }
+                    });
+                });
+            }
+        }
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+            if(OpenApiUtil.isOpenRequest(request)) {
+                chain.doFilter(request, response);
+            } else {
+                HttpServletRequest servletRequest = (HttpServletRequest) request;
+
+                // 解析浏览器的UserAgent并将放入request中
+                UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
+                servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
+
+                super.doFilter(request, response, chain);
+            }
+        }
+
+        @Override
+        public int getOrder() {
+            return 8888;
+        }
+    }
 }

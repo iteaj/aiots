@@ -1,9 +1,12 @@
 package com.iteaj.iboot.plugin.oauth2.sa;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
 import com.iteaj.framework.result.HttpResult;
+import com.iteaj.framework.security.OpenToken;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.open.OpenApiUtil;
 import com.iteaj.iboot.plugin.oauth2.entity.Oauth2App;
 import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
@@ -19,7 +22,6 @@ import java.util.Objects;
 
 public class OpenApiFilter extends OncePerRequestFilter {
 
-    private final static String clientId = "appid";
     private final Oauth2AppService oauth2AppService;
 
     public OpenApiFilter(Oauth2AppService oauth2AppService) {
@@ -30,7 +32,8 @@ public class OpenApiFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String clientId = request.getHeader("clientId");
         final String secret = request.getHeader("secret");
-        if(clientId == null || secret == null) {
+        final String timestamp = request.getHeader("timestamp");
+        if(clientId == null || secret == null || timestamp == null) {
             return true;
         }
 
@@ -60,6 +63,12 @@ public class OpenApiFilter extends OncePerRequestFilter {
             final String md5 = SecureUtil.md5(secretStr);
             if(Objects.equals(secret, md5)) {
                 OpenApiUtil.buildOpenRequest(request);
+                StpUtil.getStpLogic().setTokenValueToStorage(clientId);
+
+                if(!SecurityUtil.isLogin()) { // 登录
+                    SecurityUtil.login(new OpenToken(clientId, oauth2App.getAdminAccount()), request, response);
+                }
+
                 filterChain.doFilter(request, response);
             } else {
                 write(response, HttpResult.Fail("密文校验失败"));
