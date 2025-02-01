@@ -20,6 +20,6 @@
     </resultMap>
 
     <select id="listAdminAccount" resultType="com.iteaj.framework.IVOption">
-        select * from sys_admin where status = 'enabled'
+        select name label, account value from sys_admin where status = 'enabled'
     </select>
 </mapper>

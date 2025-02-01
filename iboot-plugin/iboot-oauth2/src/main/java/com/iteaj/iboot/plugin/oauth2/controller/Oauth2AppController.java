@@ -18,6 +18,7 @@ import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 子应用管理
@@ -86,7 +87,7 @@ public class Oauth2AppController extends BaseController {
      */
     @Logger("删除应用记录")
     @PostMapping("/del")
-    @CheckPermission("core:config:del")
+    @CheckPermission("oauth2:app:del")
     public Result<Boolean> del(String clientId) {
         if(StrUtil.isBlank(clientId)) {
             return fail("未指定要删除的客户端id");
@@ -103,5 +104,27 @@ public class Oauth2AppController extends BaseController {
     public Result<List<IVOption>> adminAccounts() {
         List<IVOption> options = this.oauth2AppService.listAdminAccount();
         return success(options);
+    }
+
+    /**
+     * 更新应用状态(status和clientId必填)
+     * @param app 应用
+     * @return 更新状态
+     */
+    @Logger("更新应用状态")
+    @PostMapping("status")
+    @CheckPermission("oauth2:app:status")
+    public Result status(@RequestBody Oauth2App app) {
+        if(app.getStatus() == null) {
+            return fail("未指定状态");
+        }
+
+        Oauth2App data = this.oauth2AppService.getByClientId(app.getClientId()).ifNotPresentThrow("应用不存在").getData();
+        if(!Objects.equals(data.getStatus(), app.getStatus())) {
+            data.setStatus(app.getStatus());
+            this.oauth2AppService.updateById(data);
+        }
+
+        return success("更新成功");
     }
 }

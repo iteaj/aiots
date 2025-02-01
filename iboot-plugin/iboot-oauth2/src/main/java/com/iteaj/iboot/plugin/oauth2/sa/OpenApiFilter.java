@@ -30,7 +30,8 @@ public class OpenApiFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String clientId = request.getHeader("clientId");
         final String secret = request.getHeader("secret");
-        if(clientId == null || secret == null) {
+        final String timestamp = request.getHeader("timestamp");
+        if(clientId == null || secret == null || timestamp == null) {
             return true;
         }
 
