@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
@@ -92,5 +93,15 @@ public class Oauth2AppController extends BaseController {
         }
 
         return this.oauth2AppService.removeByClientId(clientId);
+    }
+
+    /**
+     * 管理员账号列表
+     * @return 管理员账号列表
+     */
+    @GetMapping("adminAccounts")
+    public Result<List<IVOption>> adminAccounts() {
+        List<IVOption> options = this.oauth2AppService.listAdminAccount();
+        return success(options);
     }
 }

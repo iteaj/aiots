@@ -5,6 +5,7 @@ import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.Entity;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.iboot.plugin.oauth2.entity.Oauth2App;
@@ -14,6 +15,9 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
 
 import static com.iteaj.iboot.plugin.oauth2.service.impl.Oauth2AppServiceImpl.cacheName;
 
@@ -45,6 +49,11 @@ public class Oauth2AppServiceImpl extends BaseServiceImpl<Oauth2AppMapper, Oauth
     public BooleanResult removeByClientId(String clientId) {
         cache.evict(clientId);
         return this.remove(Wrappers.<Oauth2App>lambdaQuery().eq(Oauth2App::getClientId, clientId));
+    }
+
+    @Override
+    public List<IVOption> listAdminAccount() {
+        return this.getBaseMapper().listAdminAccount();
     }
 
     @Override
