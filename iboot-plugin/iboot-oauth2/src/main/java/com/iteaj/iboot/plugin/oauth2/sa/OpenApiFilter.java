@@ -8,6 +8,7 @@ import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.security.OpenToken;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.open.OpenApiUtil;
+import com.iteaj.framework.web.WebUtils;
 import com.iteaj.iboot.plugin.oauth2.entity.Oauth2App;
 import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -57,6 +58,24 @@ public class OpenApiFilter extends OncePerRequestFilter {
             if(!oauth2App.getStatus()) {
                 write(response, HttpResult.Fail("此客户端已禁用"));
                 return;
+            }
+
+            String allowUrl = oauth2App.getAllowUrl();
+            if(StrUtil.isNotBlank(allowUrl)) {
+                String[] split = allowUrl.split("\n");
+                if(split.length > 0) {
+                    boolean allow = false;
+                    String remoteHost = WebUtils.getIpAddress(request);
+                    for (String s : split) {
+                        if (Objects.equals(StrUtil.trim(s), remoteHost)) {
+                            allow = true; break;
+                        }
+                    }
+
+                    if(!allow) {
+                        write(response, HttpResult.Fail("不支持的主机"));
+                    }
+                }
             }
 
             final String secretStr = String.format("%s&%s&%s", timestamp, clientId, oauth2App.getClientSecret());
