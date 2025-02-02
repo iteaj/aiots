@@ -127,7 +127,6 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
         return getBaseMapper().listBindAdminOfRole(roleId);
     }
 
-
     @Override
     public List<String> getPermissions(Serializable userId) {
         Cache cache = cacheManager.getCache(IBOOT_CACHE_KEY_PERMS);
