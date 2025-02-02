@@ -7,13 +7,12 @@ import com.iteaj.framework.consts.PermStatus;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
-import com.iteaj.framework.security.AuthorizationService;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.admin.MenuType;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.utils.TreeUtils;
-import com.iteaj.iboot.module.core.mapper.IMenuDao;
 import com.iteaj.iboot.module.core.entity.Menu;
+import com.iteaj.iboot.module.core.mapper.IMenuDao;
 import com.iteaj.iboot.module.core.service.IMenuService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -24,10 +23,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService, AuthorizationService {
+public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService {
 
     private final List<Module> modules;
-
     public MenuServiceImpl(List<Module> modules) {
         this.modules = modules;
     }
@@ -169,8 +167,4 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
     }
 
-    @Override
-    public List<String> getPermissions(Serializable userId) {
-        return selectPermissions(Long.valueOf(userId.toString()));
-    }
 }

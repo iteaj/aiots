@@ -11,4 +11,6 @@ public interface CacheKeys {
      * 字段缓存
      */
     String IBOOT_CACHE_DICT = "IBOOT:DICT";
+
+    String IBOOT_CACHE_KEY_PERMS = "IBOOT:CACHE:PERMS";
 }

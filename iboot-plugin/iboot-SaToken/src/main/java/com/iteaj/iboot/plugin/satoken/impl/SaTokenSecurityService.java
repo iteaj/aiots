@@ -173,8 +173,7 @@ public class SaTokenSecurityService implements SecurityService {
 
         return new SaLoginModel()
                 .setTokenSignTag(byAccount)
-                .setToken(token.getToken())
-                .setIsLastingCookie(token.isRememberMe());
+                .setToken(token.getToken());
     }
 
     private SaLoginModel createLoginModel(SecurityToken token) {
