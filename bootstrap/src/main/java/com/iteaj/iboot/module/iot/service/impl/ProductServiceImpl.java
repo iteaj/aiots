@@ -22,6 +22,7 @@ import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.iboot.common.CacheKeys;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.*;
@@ -34,6 +35,9 @@ import com.iteaj.iboot.module.iot.mapper.ProductMapper;
 import com.iteaj.iboot.module.iot.service.*;
 import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -41,6 +45,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -52,20 +57,23 @@ import java.util.stream.Collectors;
  * @since 2022-07-22
  */
 @Service
+@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_PRODUCT})
 public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> implements IProductService {
 
+    private final CacheManager cacheManager;
+    private final IotCacheManager iotCacheManager;
     private final IProtocolService protocolService;
     private final IModelApiService modelApiService;
     private final IModelAttrService modelAttrService;
-    private final IotCacheManager iotCacheManager;
 
     public ProductServiceImpl(IProtocolService protocolService
             , IModelApiService modelApiService, IModelAttrService modelAttrService
-            , IotCacheManager iotCacheManager) {
+            , IotCacheManager iotCacheManager, CacheManager cacheManager) {
         this.protocolService = protocolService;
         this.modelApiService = modelApiService;
         this.modelAttrService = modelAttrService;
         this.iotCacheManager = iotCacheManager;
+        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -111,6 +119,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         // 如果修改了协议需要删除所有物模型数据
         this.getById(entity.getId()).ifPresent(product -> {
             if(!product.getProtocolId().equals(entity.getProtocolId())) {
+                // 移除缓存里面的无模型信息
+                modelApiService.list(Wrappers.<ModelApi>lambdaQuery().eq(ModelApi::getProductId, product.getId()))
+                        .forEach(modelApi -> Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API)).evict(modelApi.getCode()));
+
                 // 移除所有物模型信息
                 this.removeModel(entity.getId());
 
@@ -126,7 +138,8 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             throw new ServiceException("网关子设备产品需绑定父产品");
         }
 
-        return super.updateById(entity);
+        return super.updateById(entity).ifPresentAndTrue(item -> cacheManager
+                .getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT).evict(entity.getId()));
     }
 
     private void saveProtocolToModel(Product entity) {
@@ -192,8 +205,14 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             }
         });
 
-        return super.removeByIds(idList)
-                .ifPresent(item -> idList.forEach(id -> this.removeModel((Long) id)));
+        return super.removeByIds(idList).ifPresent(item -> idList.forEach(id -> {
+            // 先移除缓存
+            modelApiService.list(Wrappers.<ModelApi>lambdaQuery().eq(ModelApi::getProductId, id))
+                    .forEach(modelApi -> Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API)).evict(modelApi.getCode()));
+
+            // 移除所有物模型配置
+            this.removeModel((Long) id);
+        }));
     }
 
     @Override
@@ -288,7 +307,18 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
     @Override
     public DetailResult<ProductDto> detailById(Long id) {
-        return new DetailResult<>(getBaseMapper().detailById(id));
+        Cache cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT);
+        Cache.ValueWrapper valueWrapper = cache.get(id);
+        if(valueWrapper != null) {
+            return new DetailResult<>((ProductDto) valueWrapper.get());
+        }
+
+        ProductDto productDto = getBaseMapper().detailById(id);
+        if(productDto == null) {
+            cache.put(id, productDto);
+        }
+
+        return new DetailResult<>(productDto);
     }
 
     @Override
