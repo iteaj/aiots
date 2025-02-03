@@ -12,12 +12,16 @@ import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.iboot.common.CacheKeys;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 import com.iteaj.iboot.module.iot.mapper.ModelApiMapper;
 import com.iteaj.iboot.module.iot.service.IModelApiConfigService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -36,11 +40,14 @@ import java.util.List;
  * @since 2023-09-12
  */
 @Service
+@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_MODEL_API})
 public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelApi> implements IModelApiService {
 
+    private final CacheManager cacheManager;
     private final IModelApiConfigService modelApiConfigService;
 
-    public ModelApiServiceImpl(IModelApiConfigService modelApiConfigService) {
+    public ModelApiServiceImpl(CacheManager cacheManager, IModelApiConfigService modelApiConfigService) {
+        this.cacheManager = cacheManager;
         this.modelApiConfigService = modelApiConfigService;
     }
 
@@ -125,7 +132,8 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
             this.modelApiConfigService.updateBatchById(entity.getUpConfig());
         }
 
-        return super.updateById(entity);
+        return super.updateById(entity).ifPresentAndTrue(item -> cacheManager
+                .getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API).evict(entity.getCode()));
     }
 
     @Override
@@ -139,6 +147,8 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
             modelApiConfigService.remove(Wrappers.<ModelApiConfig>lambdaQuery()
                     .eq(ModelApiConfig::getApiCode, item.getCode())
                     .eq(ModelApiConfig::getProductId, item.getProductId()));
+
+            cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API).evict(item.getCode());
         });
         return super.removeByIds(idList);
     }
@@ -209,6 +219,17 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
 
     @Override
     public DetailResult<ModelApi> detailByCode(String modelApiCode) {
-        return new DetailResult<>(this.getBaseMapper().detailByCode(modelApiCode));
+        Cache cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API);
+        Cache.ValueWrapper valueWrapper = cache.get(modelApiCode);
+        if(valueWrapper != null) {
+            return new DetailResult<>((ModelApi) valueWrapper.get());
+        }
+
+        ModelApi modelApi = this.getBaseMapper().detailByCode(modelApiCode);
+        if(modelApi != null) {
+            cache.put(modelApiCode, modelApi);
+        }
+
+        return new DetailResult<>(modelApi);
     }
 }
