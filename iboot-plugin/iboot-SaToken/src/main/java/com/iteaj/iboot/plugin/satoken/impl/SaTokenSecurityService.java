@@ -4,6 +4,7 @@ import cn.dev33.satoken.session.TokenSign;
 import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
@@ -124,6 +125,58 @@ public class SaTokenSecurityService implements SecurityService {
 
     @Override
     public void login(SecurityToken token, HttpServletRequest request, HttpServletResponse response) throws SecurityException {
+        SaLoginModel saLoginModel;
+        if(token instanceof OpenToken) {
+            saLoginModel = createOpenLoginModel((OpenToken) token);
+        } else {
+            saLoginModel = createLoginModel(token);
+        }
+
+
+        // 如果配置了token写到header
+        FrameworkProperties.Session session = properties.getWeb().getSession();
+        if(session.isWriteHeader()) {
+            saLoginModel.setIsWriteHeader(true);
+        }
+
+        UserAgent agent = (UserAgent) request.getAttribute(CoreConst.WEB_USER_AGENT);
+        if(agent != null) {
+            try {
+                // 如果配置了自动选择token, app请求必须将token写到header
+                if(session.isAutomaticToken() && agent.getBrowser().getBrowserType() == BrowserType.APP) {
+                    saLoginModel.setIsWriteHeader(true);
+                }
+
+                saLoginModel.setDevice(agent.getOperatingSystem().getDeviceType().getName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        Object byAccount = saLoginModel.getTokenSignTag();
+        StpUtil.login(((Entity) byAccount).getId(), saLoginModel);
+    }
+
+    private SaLoginModel createOpenLoginModel(OpenToken token) {
+        if(StrUtil.isBlank(token.getToken())) {
+            throw new SecurityException("未指定token");
+        }
+
+        AuthenticationUser byAccount = this.authenticationService.getByAccount(token.getAccount());
+        if(byAccount == null) {
+            throw new SecurityException("账号不存在");
+        }
+
+        if(!byAccount.allowLogin()) {
+            throw new SecurityException("账号已被禁用");
+        }
+
+        return new SaLoginModel()
+                .setTokenSignTag(byAccount)
+                .setToken(token.getToken());
+    }
+
+    private SaLoginModel createLoginModel(SecurityToken token) {
         String code = token.getCode();
         if(code == null) {
             throw new SecurityException("校验码校验失败");
@@ -153,32 +206,9 @@ public class SaTokenSecurityService implements SecurityService {
             throw new SecurityException("密码不匹配");
         }
 
-        UserAgent agent = (UserAgent) request.getAttribute(CoreConst.WEB_USER_AGENT);
-
-        SaLoginModel saLoginModel = new SaLoginModel()
+        return new SaLoginModel()
                 .setTokenSignTag(byAccount)
                 .setIsLastingCookie(token.isRememberMe());
-
-        // 如果配置了token写到header
-        FrameworkProperties.Session session = properties.getWeb().getSession();
-        if(session.isWriteHeader()) {
-            saLoginModel.setIsWriteHeader(true);
-        }
-
-        if(agent != null) {
-            try {
-                // 如果配置了自动选择token, app请求必须将token写到header
-                if(session.isAutomaticToken() && agent.getBrowser().getBrowserType() == BrowserType.APP) {
-                    saLoginModel.setIsWriteHeader(true);
-                }
-
-                saLoginModel.setDevice(agent.getOperatingSystem().getDeviceType().getName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        StpUtil.login(((Entity) byAccount).getId(), saLoginModel);
     }
 
     @Override

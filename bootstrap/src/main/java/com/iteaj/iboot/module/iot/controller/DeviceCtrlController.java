@@ -6,6 +6,8 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
@@ -68,6 +70,7 @@ public class DeviceCtrlController extends BaseController {
      * @return
      */
     @Logger("模型接口调用")
+    @CheckPermission(value = {"iot:model:invoke", "iot:open:invoke"}, logical = Logical.OR)
     @PostMapping("/ctrl/{modelApiCode}")
     public Mono<Result> ctrl(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
         Object[] objects = this.getProtocolModelApi(modelApiCode, param);
@@ -112,6 +115,7 @@ public class DeviceCtrlController extends BaseController {
      * @return
      */
     @Logger("模型接口调试")
+    @CheckPermission(value = {"iot:model:debug", "iot:open:debug"}, logical = Logical.OR)
     @PostMapping("/debug/{modelApiCode}")
     public Mono<Result<DebugRespDto>> debug(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
         // 获取协议模型接口
@@ -197,11 +201,12 @@ public class DeviceCtrlController extends BaseController {
     }
 
     /**
-     * 指令列表
+     * 指令集列表
      * @param uid
      * @return
      */
     @GetMapping("commands")
+    @CheckPermission("iot:cmd:list")
     public Result<List<DeviceCommandDto>> commands(String uid) {
         Device device = this.deviceService.getByUid(uid)
                 .ifNotPresentThrow("设备不存在[" + uid + "]").getData();
@@ -231,7 +236,8 @@ public class DeviceCtrlController extends BaseController {
      * @param cmd 调用参数
      * @return
      */
-    @Logger("模型接口调用")
+    @Logger("指令接口调用")
+    @CheckPermission({"iot:cmd:invoke"})
     @PostMapping("/command/invoke")
     public Mono<Result> invoke(@RequestBody CmdInvokeDto cmd) {
         String cmdCode = cmd.getCode();

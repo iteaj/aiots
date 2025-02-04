@@ -27,8 +27,8 @@ public class Oauth2AutoConfiguration implements Plugin {
     public FilterRegistrationBean openApiFilter(Oauth2AppService oauth2AppService) {
         FilterRegistrationBean<Filter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new OpenApiFilter(oauth2AppService));
+        registrationBean.setOrder(105); // 此值必须大于-105且小于SaServletFilter的order值
         registrationBean.addUrlPatterns("/*");
-        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE + 888888);
         return registrationBean;
     }
 
