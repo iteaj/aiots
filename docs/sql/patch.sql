@@ -54,6 +54,12 @@ INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, rema
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('修改', @pid, 15, '#', 'iot', 'A', 'enabled', 'oauth2:app:edit', '#', '', '_self', '2025-01-18 00:00:00', '2025-01-18 10:55:20');
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('删除', @pid, 20, '#', 'iot', 'A', 'enabled', 'oauth2:app:del', '#', '', '_self', '2025-01-18 00:00:00', '2025-01-18 10:55:32');
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('状态', @pid, 25, '#', 'iot', 'A', 'enabled', 'oauth2:app:status', '#', '', '_self', '2025-01-18 00:00:00', '2025-01-18 10:55:32');
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('模型接口调用', @pid, 30, '#', 'iot', 'A', 'enabled', 'iot:model:invoke', '#', '', '_self', now(), '2025-01-18 10:55:32');
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('模型接口调试', @pid, 35, '#', 'iot', 'A', 'enabled', 'iot:model:debug', '#', '', '_self', now(), '2025-01-18 10:55:32');
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('指令集调用', @pid, 40, '#', 'iot', 'A', 'enabled', 'iot:cmd:invoke', '#', '', '_self', now(), '2025-01-18 10:55:32');
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('指令集列表', @pid, 45, '#', 'iot', 'A', 'enabled', 'iot:cmd:list', '#', '', '_self', now(), '2025-01-18 10:55:32');
+
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('模型接口调试', 1255, 10, '#', 'iot', 'A', 'enabled', 'iot:model:debug', '#', '', '_self', now(), '2025-01-18 10:55:32');
 
 -- opcua菜单
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('OpcUa网关设备', 1468, 68, '/iot/driver/opcua', 'iot', 'V', 'enabled', 'iot:opcua:view', '#', '', '_self', '2024-12-16 00:00:00', '2024-12-16 15:33:17');
