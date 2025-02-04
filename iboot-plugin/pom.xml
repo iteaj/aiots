@@ -39,6 +39,8 @@
         <module>iboot-le5le</module>
         <!--数据源-->
         <module>iboot-datasource</module>
+        <!--北向接入-->
+        <module>iboot-open</module>
     </modules>
 
     <dependencies>
