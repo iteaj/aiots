@@ -81,7 +81,7 @@ public class LocalLinkageCacheService implements LinkageCacheService, Applicatio
             while (iterator.hasNext()) {
                 Map<Long, Map<Long, Set<LinkageItem>>> next = iterator.next();
                 if(next.containsKey(linkageId)) {
-                    iterator.remove(); return;
+                    iterator.remove();
                 }
             }
         }
