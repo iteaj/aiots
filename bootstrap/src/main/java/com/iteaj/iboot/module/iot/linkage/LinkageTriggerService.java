@@ -217,6 +217,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             }
 
             warnInfo.setStatus(true); // 已经解除告警
+            return;
         } else if(grade != WarnGrade.status){ // 状态告警不涉及模型属性
             if(warnInfo == null) {
                 warnStatus.put(warn.getModelAttrId(), warnInfo = new WarnInfo()); // 持续告警中
@@ -551,8 +552,8 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
          * @param frequency
          * @return
          */
-        public boolean isExpire(int frequency) {
-            if(frequency <= 0) {
+        public boolean isExpire(Integer frequency) {
+            if(frequency == null || frequency <= 0) {
                 return true; // 小于等于0的值代表实时告警
             }
 
@@ -568,8 +569,11 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
          * @return
          */
         public void trigger() {
+            if(this.isFirst()) {
+                this.firstOfMs = System.currentTimeMillis();
+            }
+
             this.times ++;
-            this.firstOfMs = System.currentTimeMillis();
         }
     }
 }
