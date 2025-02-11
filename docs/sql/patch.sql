@@ -79,3 +79,17 @@ INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, rema
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('浏览', @pid, 46, '#', 'iot', 'A', 'enabled', 'iot:dlt645:view', '#', '', '_self', '2025-01-11 00:00:00', '2025-01-11 21:11:28');
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('子设备', @pid, 58, '#', 'iot', 'A', 'enabled', 'iot:dlt645:child', '#', '', '_self', '2025-01-11 21:11:55', null);
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('连接', @pid, 68, '', 'iot', 'A', 'enabled', 'iot:dlt645:connect', '#', '', '_self', '2025-01-11 21:12:13', null);
+
+create table iot_northward
+(
+    id          bigint auto_increment primary key,
+    name        varchar(64)            null comment '名称',
+    type        varchar(36)            null comment '接入类型',
+    status      boolean                not null default false comment '状态',
+    config      json                   not null comment '接入配置',
+    create_time datetime default NOW() null comment '创建时间'
+) comment '北向接入';
+
+-- 2025-2-9
+alter table iot_warn_config
+    add frequency int null default 0 comment '告警频率' after template;

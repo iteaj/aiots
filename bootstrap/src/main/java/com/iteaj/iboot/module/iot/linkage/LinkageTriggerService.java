@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_OFFLINE;
@@ -40,7 +41,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     private final RealtimeDataService realtimeDataService;
     private final LinkageCacheService linkageCacheService;
     private Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
-    private final Map<Long, Boolean> warnStatus = new ConcurrentHashMap<>(512);
+    private final Map<Long, WarnInfo> warnStatus = new ConcurrentHashMap<>(512);
 
     public LinkageTriggerService(IotCacheManager cacheManager, RealtimeDataService realtimeDataService
             , LinkageCacheService linkageCacheService) {
@@ -207,33 +208,41 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
     private void doHandleWarn(WarnConfig warn, RealtimeStatus device, Object value) {
         WarnGrade grade = warn.getGrade();
+        WarnInfo warnInfo = warnStatus.get(warn.getModelAttrId());
         // 属于解除告警并且已经执行一次
         if(grade == WarnGrade.normal) {
-            Boolean aBoolean = warnStatus.get(warn.getModelAttrId());
-            // 1. 等于null说明是第一次触发解除 2.等于true说明告警已经解除 这两种情况都不需要再发送告警
-            if(aBoolean == null || Boolean.TRUE.equals(aBoolean)) {
+            // 等于null说明是第一次触发解除
+            if(warnInfo == null) {
                 return;
             }
+
+            warnInfo.setStatus(true); // 已经解除告警
+            return;
         } else if(grade != WarnGrade.status){ // 状态告警不涉及模型属性
-            warnStatus.put(warn.getModelAttrId(), Boolean.FALSE); // 持续告警中
-        }
-
-        Date date = new Date();
-        String content = resolverWarnTemplate(warn, device.getDeviceSn(), value, date);
-        WarnRecord warnRecord = new WarnRecord().setDeviceSn(device.getDeviceSn()).
-                setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(grade)
-                .setWarnConfigId(warn.getId()).setContent(content).setField(warn.getModelAttrField())
-                .setProductCode(device.getProductCode()).setValue(value != null ? value.toString() : null);
-
-        if(grade == WarnGrade.normal) { // 设置告警已经解除
-            warnStatus.put(warn.getModelAttrId(), Boolean.TRUE);
-        }
-
-        CollectListenerManager.getInstance().publish(listener -> {
-            if(listener instanceof LinkageActionListener) {
-                ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, device);
+            if(warnInfo == null) {
+                warnStatus.put(warn.getModelAttrId(), warnInfo = new WarnInfo()); // 持续告警中
             }
-        });
+        }
+
+        // 如果是第一次告警或者超出了频率范围就发送告警
+        if(warnInfo == null || warnInfo.isFirst() || warnInfo.isExpire(warn.getFrequency())) {
+            if(warnInfo != null) {
+                warnInfo.trigger();
+            }
+
+            Date date = new Date();
+            String content = resolverWarnTemplate(warn, device.getDeviceSn(), value, date);
+            WarnRecord warnRecord = new WarnRecord().setDeviceSn(device.getDeviceSn()).
+                    setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(grade)
+                    .setWarnConfigId(warn.getId()).setContent(content).setField(warn.getModelAttrField())
+                    .setProductCode(device.getProductCode()).setValue(value != null ? value.toString() : null);
+
+            CollectListenerManager.getInstance().publish(listener -> {
+                if(listener instanceof LinkageActionListener) {
+                    ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, device);
+                }
+            });
+        }
     }
 
     /**
@@ -500,5 +509,71 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     @Override
     public void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
 
+    }
+
+    public class WarnInfo {
+
+        /**
+         * 第一次告警的毫秒数
+         */
+        private long firstOfMs;
+
+        /**
+         * 解除状态(true 解除, false 未解除)
+         */
+        private boolean status;
+
+        /**
+         * 发送次数
+         */
+        private int times;
+
+        public WarnInfo() {
+            this.times = 0;
+            this.status = false;
+            this.firstOfMs = System.currentTimeMillis();
+        }
+
+        public boolean isStatus() {
+            return status;
+        }
+
+        public void setStatus(boolean status) {
+            this.times = 0;
+            this.status = status;
+        }
+
+        public boolean isFirst() {
+            return this.times == 0;
+        }
+
+        /**
+         * 是否超出频率范围
+         * @param frequency
+         * @return
+         */
+        public boolean isExpire(Integer frequency) {
+            if(frequency == null || frequency <= 0) {
+                return true; // 小于等于0的值代表实时告警
+            }
+
+            if(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - firstOfMs) > frequency) {
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * 触发告警信息
+         * @return
+         */
+        public void trigger() {
+            if(this.isFirst()) {
+                this.firstOfMs = System.currentTimeMillis();
+            }
+
+            this.times ++;
+        }
     }
 }

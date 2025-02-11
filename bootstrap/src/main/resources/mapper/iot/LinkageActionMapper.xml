@@ -37,7 +37,7 @@
     <select id="listExecByLinkageItemId" resultMap="ExecResultMap">
         select a.*, if(a.type='model', ma.name, c.name) linked_name, p.name product_name, d.name device_name, p.code product_code
              , ma.id model_api_id, c.id warn_id, c.name warn_name, c.product_id warn_product_id, c.model_attr_field warn_model_attr_field
-             , c.grade warn_grade, c.template warn_template, c.model_attr_id warn_model_attr_id from iot_linkage_action a
+             , c.grade warn_grade, c.template warn_template, c.model_attr_id warn_model_attr_id, c.frequency warn_frequency from iot_linkage_action a
            left join iot_product p on a.product_id=p.id
            left join iot_device d on a.uid=d.uid
            left join iot_model_api ma on ma.id=a.linked_id and a.type='model'
