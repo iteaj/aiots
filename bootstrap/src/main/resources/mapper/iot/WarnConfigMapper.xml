@@ -9,6 +9,7 @@
         <result column="grade" property="grade" />
         <result column="remark" property="remark" />
         <result column="template" property="template" />
+        <result column="frequency" property="frequency" />
         <result column="product_id" property="productId" />
         <result column="model_attr_field" property="modelAttrField" />
         <result column="model_attr_id" property="modelAttrId" />

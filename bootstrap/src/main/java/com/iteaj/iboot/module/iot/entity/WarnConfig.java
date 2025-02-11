@@ -47,6 +47,12 @@ public class WarnConfig extends BaseEntity {
     private String template;
 
     /**
+     * 告警频率(秒)
+     * 小于这个时间范围内只告警一次, 大于这个范围重新告警
+     */
+    private Integer frequency;
+
+    /**
      * 消息模板id
      */
     private Long messageTemplateId;

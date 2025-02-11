@@ -89,3 +89,7 @@ create table iot_northward
     config      json                   not null comment '接入配置',
     create_time datetime default NOW() null comment '创建时间'
 ) comment '北向接入';
+
+-- 2025-2-9
+alter table iot_warn_config
+    add frequency int null default 0 comment '告警频率' after template;
