@@ -83,11 +83,7 @@ public class IotNetworkUtil {
             }
         } else if(status == FuncStatus.disabled) {
             if(client instanceof TcpSocketClient) {
-                if(((TcpSocketClient) client).isConnect()) {
-                    return client.close(); // 断开连接并且移除客户端
-                } else {// 如果客户端不在线直接移除客户端
-                    client.getClientComponent().removeClient(client.getConfig());
-                }
+                return client.close(); // 断开连接并且移除客户端
             } else {
                 Object close = client.close();
                 if(close instanceof Boolean) {
