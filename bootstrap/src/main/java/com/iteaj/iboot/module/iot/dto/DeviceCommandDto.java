@@ -25,10 +25,10 @@ public class DeviceCommandDto {
 
     public String getCommandValue() {
         if(StrUtil.isBlank(this.getUid())) {
-            return String.format("api=%s%s", code, commandValue == null ? "" : ";" + commandValue);
+            return String.format("api->%s%s", code, commandValue == null ? "" : "&" + commandValue);
         }
 
-        return String.format("api=%s;uid=%s%s", code, uid, commandValue == null ? "" : ";" + commandValue);
+        return String.format("api->%s&uid->%s%s", code, uid, commandValue == null ? "" : "&" + commandValue);
     }
 
     public String getApiTypeName() {

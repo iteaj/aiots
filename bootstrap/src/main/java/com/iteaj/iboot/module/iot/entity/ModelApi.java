@@ -225,7 +225,7 @@ public class ModelApi extends BaseEntity {
                 StringBuilder configValue = new StringBuilder(), configName = new StringBuilder();
                 downConfig.stream().filter(item -> item.getModelAttrId() == null).forEach(item -> {
                     configName.append(item.getProtocolAttrName()).append("->").append(item.getValue()).append(';');
-                    configValue.append(item.getProtocolAttrField()).append('=').append(item.getValue()).append(';');
+                    configValue.append(item.getProtocolAttrField()).append("->").append(item.getValue()).append('&');
                 });
 
                 // 计算笛卡尔积
@@ -238,7 +238,7 @@ public class ModelApi extends BaseEntity {
                             sb.append(modelAttr.getName()).append("->").append(dict.getDictName()).append(";");
                             downConfig.forEach(config -> {
                                 if(config.getModelAttrId() != null && config.getModelAttrId().equals(modelAttr.getId())) {
-                                    valueSb.append(config.getProtocolAttrField()).append("=").append(dict.getDictValue()).append(";");
+                                    valueSb.append(config.getProtocolAttrField()).append("->").append(dict.getDictValue()).append("&");
                                 }
                             });
                         }
@@ -255,7 +255,7 @@ public class ModelApi extends BaseEntity {
                 StringBuilder valueSb = new StringBuilder();
                 downConfig.forEach(config -> {
                     sb.append(config.getProtocolAttrName()).append("->").append(config.getValue()).append(';');
-                    valueSb.append(config.getProtocolAttrField()).append('=').append(config.getValue()).append(';');
+                    valueSb.append(config.getProtocolAttrField()).append("->").append(config.getValue()).append('&');
                 });
 
                 sb.deleteCharAt(sb.length() - 1);
