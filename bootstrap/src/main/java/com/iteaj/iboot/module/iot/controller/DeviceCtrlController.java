@@ -246,18 +246,18 @@ public class DeviceCtrlController extends BaseController {
         }
 
         String uid = cmd.getUid();
-        boolean isUidBlank = !cmdCode.contains("uid=");
+        boolean isUidBlank = !cmdCode.contains("uid->");
         if(!cmdCode.startsWith("api") || (isUidBlank && StrUtil.isBlank(uid))) {
             return Mono.create((t) -> t.success(fail("指令码格式错误")));
         }
 
-        String[] cmdItem = cmdCode.split(";");
+        String[] cmdItem = cmdCode.split("&");
         if(cmdItem.length < 2) {
             return Mono.create((t) -> t.success(fail("指令码格式错误")));
         }
 
-        String modelApiCode = cmdItem[0].split("=")[1];
-        uid = isUidBlank ? uid : cmdItem[1].split("=")[1];
+        String modelApiCode = cmdItem[0].split("->")[1];
+        uid = isUidBlank ? uid : cmdItem[1].split("->")[1];
 
         JSONObject params = resolveParams(cmdItem, isUidBlank);
         ProtocolModelApiInvokeParam param = new ProtocolModelApiInvokeParam(uid, params);
@@ -299,7 +299,7 @@ public class DeviceCtrlController extends BaseController {
         JSONObject result = new JSONObject();
         if(cmdItem.length > length) {
             for (int i = length; i < cmdItem.length; i++) {
-                String[] item = cmdItem[i].split("=");
+                String[] item = cmdItem[i].split("->");
                 result.put(item[0], item[1]);
             }
         }
