@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot;
 
+import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.framework.spring.condition.ConditionalOnRedis;
@@ -29,6 +30,7 @@ import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.List;
@@ -48,6 +50,13 @@ public class IotAutoConfiguration {
     @Bean
     public Module iotModule() {
         return Module.module("iot", "物联网模块", 55555);
+    }
+
+    @Bean
+    @Order(value = 18)
+    public OrderFilterChainDefinition iotFilterChainDefinition() {
+        return new OrderFilterChainDefinition()
+                .addAnon("/iot/le5le/attr");
     }
 
     @Bean

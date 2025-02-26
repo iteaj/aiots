@@ -287,7 +287,7 @@ public class DeviceCtrlController extends BaseController {
             }
         }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
             if(item.getStatus() == ExecStatus.success) {
-                return success(item.getValue());
+                return success(item.getValue(), "执行指令成功");
             } else {
                 return fail(item.getReason());
             }
