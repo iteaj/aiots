@@ -76,6 +76,11 @@
             <if test="entity.code != null and entity.code != ''">
                 and a.code like '%${entity.code}%'
             </if>
+            <if test="entity.deviceTypes != null and entity.deviceTypes.size() > 0">
+                and a.device_type in (<foreach collection="entity.deviceTypes" item="deviceType" separator=",">
+                #{deviceType}
+            </foreach>)
+            </if>
         </where>
         order by a.device_type desc, a.create_time desc
     </select>

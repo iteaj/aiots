@@ -18,6 +18,7 @@ import lombok.experimental.Accessors;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -138,6 +139,12 @@ public class Product extends BaseEntity {
      */
     @TableField(exist = false)
     private ConnectionType connectType;
+
+    /**
+     * 设备类型列表
+     */
+    @TableField(exist = false)
+    private List<DeviceType> deviceTypes;
 
     /**
      * 网关连接类型
