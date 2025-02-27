@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.iboot.plugin.iot.mapper.Le5LeDatasourceMapper">
+<mapper namespace="com.iteaj.iboot.plugin.le5le.mapper.Le5LeDatasourceMapper">
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource">
@@ -48,6 +48,18 @@
     <select id="listStatusDatasetByDeviceGroupId" resultType="com.iteaj.iboot.plugin.le5le.entity.Dataset">
         select concat_ws(':', 's', a.uid) id, 'string' type, concat('[状态]', a.name) as label
         from iot_device a where a.device_group_id=#{deviceGroupId}
+    </select>
+
+    <select id="pageDateSet" resultType="com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource">
+        select a.*, a.name deviceGroupName, a.id deviceGroupId, 'dataset' as type from iot_device_group a
+        <where>
+            <if test="entity.name != null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+            <if test="entity.deviceGroupId != null">
+                and a.id=#{entity.deviceGroupId}
+            </if>
+        </where>
     </select>
 
 </mapper>

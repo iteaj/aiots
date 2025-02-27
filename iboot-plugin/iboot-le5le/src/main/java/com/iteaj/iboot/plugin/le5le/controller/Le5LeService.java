@@ -11,7 +11,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.iboot.plugin.le5le.Le5leProperties;
 import com.iteaj.iboot.plugin.le5le.entity.Dataset;
+import com.iteaj.iboot.plugin.le5le.entity.Dataset2d;
 import com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource;
 import com.iteaj.iboot.plugin.le5le.mapper.Le5LeDatasourceMapper;
 import lombok.AllArgsConstructor;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -37,6 +40,8 @@ public class Le5LeService implements InitializingBean {
     private static final String API_HOST = "https://v.le5le.com/api";
     private static final String ACCOUNT_HOST = "https://account.le5le.com/api";
     private static Logger logger = LoggerFactory.getLogger(Le5LeService.class);
+
+    private final Le5leProperties le5leProperties;
 
     public String login(String username, String password) {
         JSONObject jsonObject = new JSONObject();
@@ -404,5 +409,41 @@ public class Le5LeService implements InitializingBean {
                 }
             });
         }
+    }
+
+    public Page<Le5LeDatasource> pageDateSet(Page page, Le5LeDatasource entity) {
+        return this.le5LeDatasourceMapper.pageDateSet(page, entity);
+    }
+
+    public List<Dataset2d> list2dDatasetByDeviceGroupId(Long deviceGroupId) {
+        List<Dataset2d> results = new ArrayList<>();
+        List<Dataset> datasets = this.le5LeDatasourceMapper.listPointDatasetByDeviceGroupId(deviceGroupId);
+        List<Dataset> warnDatasets = this.le5LeDatasourceMapper.listWarnDatasetByDeviceGroupId(deviceGroupId);
+        List<Dataset> statusDatasets = this.le5LeDatasourceMapper.listStatusDatasetByDeviceGroupId(deviceGroupId);
+        // 实时属性数据
+        if(CollectionUtil.isNotEmpty(datasets)) {
+            final List<Dataset2d> dataset2ds = datasets.stream()
+                    .map(item -> new Dataset2d(item.getId(), item.getLabel()))
+                    .collect(Collectors.toList());
+            results.add(new Dataset2d( "group_attr_" + deviceGroupId, "属性数据", dataset2ds));
+        }
+
+        // 属性告警
+        if(CollectionUtil.isNotEmpty(warnDatasets)) {
+            final List<Dataset2d> dataset2ds = warnDatasets.stream()
+                    .map(item -> new Dataset2d(item.getId(), item.getLabel()))
+                    .collect(Collectors.toList());
+            results.add(new Dataset2d( "group_warn_" + deviceGroupId, "告警数据", dataset2ds));
+        }
+
+        // 设备状态
+        if(CollectionUtil.isNotEmpty(statusDatasets)) {
+            final List<Dataset2d> dataset2ds = statusDatasets.stream()
+                    .map(item -> new Dataset2d(item.getId(), item.getLabel()))
+                    .collect(Collectors.toList());
+            results.add(new Dataset2d( "group_status_" + deviceGroupId, "设备状态", dataset2ds));
+        }
+
+        return results;
     }
 }

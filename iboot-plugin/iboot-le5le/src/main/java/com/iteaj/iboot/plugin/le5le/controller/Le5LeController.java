@@ -86,7 +86,7 @@ public class Le5LeController extends BaseController {
      */
     @GetMapping("listDatasource")
     public Result<Page<Le5LeDatasource>> listDatasource(Page page, Le5LeDatasource entity) {
-        return success(le5LeService.pageDataSources(page, entity));
+        return success(le5LeService.pageDateSet(page, entity));
     }
 
     /**

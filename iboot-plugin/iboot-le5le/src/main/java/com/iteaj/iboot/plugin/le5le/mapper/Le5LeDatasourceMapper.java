@@ -18,4 +18,6 @@ public interface Le5LeDatasourceMapper extends BaseMapper<Le5LeDatasource> {
     List<Dataset> listWarnDatasetByDeviceGroupId(Long deviceGroupId);
 
     List<Dataset> listStatusDatasetByDeviceGroupId(Long deviceGroupId);
+
+    Page<Le5LeDatasource> pageDateSet(Page page, Le5LeDatasource entity);
 }
