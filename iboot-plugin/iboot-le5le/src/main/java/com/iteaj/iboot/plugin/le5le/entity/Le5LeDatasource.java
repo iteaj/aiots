@@ -1,7 +1,6 @@
-package com.iteaj.iboot.module.iot.entity;
+package com.iteaj.iboot.plugin.le5le.entity;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

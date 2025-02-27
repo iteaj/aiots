@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.le5le;
+package com.iteaj.iboot.plugin.le5le.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -11,9 +11,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.iboot.module.iot.entity.Dataset;
-import com.iteaj.iboot.module.iot.entity.Le5LeDatasource;
-import com.iteaj.iboot.module.iot.mapper.Le5LeDatasourceMapper;
+import com.iteaj.iboot.plugin.le5le.entity.Dataset;
+import com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource;
+import com.iteaj.iboot.plugin.le5le.mapper.Le5LeDatasourceMapper;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

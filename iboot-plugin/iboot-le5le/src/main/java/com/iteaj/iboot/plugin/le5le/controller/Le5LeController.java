@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.le5le;
+package com.iteaj.iboot.plugin.le5le.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -7,7 +7,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.iboot.module.iot.entity.Le5LeDatasource;
+import com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

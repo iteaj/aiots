@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.entity;
+package com.iteaj.iboot.plugin.le5le.entity;
 
 import lombok.Data;
 

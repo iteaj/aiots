@@ -1,5 +1,6 @@
 package com.iteaj.framework.security;
 
+import com.iteaj.framework.spi.open.OpenApiUtil;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -15,6 +16,10 @@ public class SecurityInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if(handler instanceof HandlerMethod) {
             Method method = ((HandlerMethod) handler).getMethod();
+
+            if(OpenApiUtil.isPassRequest(request)) {
+                return true;
+            }
 
             // 开始做权限校验
             CheckPermission permission = method.getAnnotation(CheckPermission.class);

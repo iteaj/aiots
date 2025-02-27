@@ -1,9 +1,9 @@
-package com.iteaj.iboot.module.iot.mapper;
+package com.iteaj.iboot.plugin.le5le.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.iteaj.iboot.module.iot.entity.Dataset;
-import com.iteaj.iboot.module.iot.entity.Le5LeDatasource;
+import com.iteaj.iboot.plugin.le5le.entity.Dataset;
+import com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
