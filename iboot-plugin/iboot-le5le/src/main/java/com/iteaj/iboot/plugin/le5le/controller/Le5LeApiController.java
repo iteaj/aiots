@@ -9,11 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 乐吾乐大屏接口
@@ -27,7 +23,7 @@ public class Le5LeApiController extends BaseController {
     private final Le5LeService le5LeService;
 
     /**
-     * 获取组态大屏的组属性绑定
+     * 获取组态大屏的组属性
      * @param groupId
      * @return
      */
@@ -38,14 +34,13 @@ public class Le5LeApiController extends BaseController {
     }
 
     /**
-     * 获取2d图纸的组属性绑定
-     * @param groupId
+     * 获取2d图纸的组属性
      * @return
      */
     @ResponseBody
     @GetMapping("2d")
-    public List<Dataset2d> attr2d(Long groupId) {
-        return le5LeService.list2dDatasetByDeviceGroupId(groupId);
+    public List<Dataset2d> attr2d() {
+        return le5LeService.list2dDataset();
     }
 
     /**
@@ -59,16 +54,28 @@ public class Le5LeApiController extends BaseController {
         return "forward:/iot/instruct/command/invoke";
     }
 
+    /**
+     * 属性统计
+     * @return
+     */
     @PostMapping("data")
     public String data() {
         return "forward:/iot/common/count/data";
     }
 
+    /**
+     * 告警统计
+     * @return
+     */
     @PostMapping("warn")
     public String warn() {
         return "forward:/iot/common/count/warn";
     }
 
+    /**
+     * 设备状态统计
+     * @return
+     */
     @PostMapping("status")
     public String status() {
         return "forward:/iot/common/count/status";

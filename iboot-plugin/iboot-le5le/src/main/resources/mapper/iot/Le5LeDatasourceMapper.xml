@@ -62,4 +62,8 @@
         </where>
     </select>
 
+    <select id="listDeviceGroup" resultType="com.iteaj.iboot.plugin.le5le.entity.Dataset2d">
+        select id, name from iot_device_group
+    </select>
+
 </mapper>

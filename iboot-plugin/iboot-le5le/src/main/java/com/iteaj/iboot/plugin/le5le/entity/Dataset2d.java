@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,5 +25,13 @@ public class Dataset2d {
     public Dataset2d(String id, String name, List<Dataset2d> children) {
         this(id, name);
         this.children = children;
+    }
+
+    public Dataset2d addChildren(Dataset2d child) {
+        if(this.children == null) {
+            children = new ArrayList<>();
+        }
+        children.add(child);
+        return this;
     }
 }

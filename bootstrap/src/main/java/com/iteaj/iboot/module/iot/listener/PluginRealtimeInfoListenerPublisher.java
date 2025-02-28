@@ -64,10 +64,9 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
                 DataSupplier supplier = item.getSupplier();
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
                     supplier.getValues().forEach(value -> {
-                        String strValue = value.getValue() == null ? null : value.getValue().toString();
                         DefaultRealtimeData data = new DefaultRealtimeData()
                                 .setCid(cid.toString()).setUid(device.getUid())
-                                .setCreateTime(new Date()).setValue(strValue)
+                                .setCreateTime(new Date()).setValue(value.getValue())
                                 .setAddress(value.getAddress())
                                 .setFieldId(value.getId())
                                 .setCollectMode(CollectMode.model.name())
@@ -108,7 +107,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
                         .setDeviceSn(device.getDeviceSn())
                         .setDeviceName(device.getDeviceName())
                         .setCreateTime(new Date())
-                        .setValue(item.getValue() == null ? null : item.getValue().toString())
+                        .setValue(item.getValue())
                         .buildFromStatus(item.getStatus())
                 ).collect(Collectors.toList());
 

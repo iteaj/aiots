@@ -415,33 +415,45 @@ public class Le5LeService implements InitializingBean {
         return this.le5LeDatasourceMapper.pageDateSet(page, entity);
     }
 
-    public List<Dataset2d> list2dDatasetByDeviceGroupId(Long deviceGroupId) {
+    public List<Dataset2d> list2dDataset() {
         List<Dataset2d> results = new ArrayList<>();
-        List<Dataset> datasets = this.le5LeDatasourceMapper.listPointDatasetByDeviceGroupId(deviceGroupId);
-        List<Dataset> warnDatasets = this.le5LeDatasourceMapper.listWarnDatasetByDeviceGroupId(deviceGroupId);
-        List<Dataset> statusDatasets = this.le5LeDatasourceMapper.listStatusDatasetByDeviceGroupId(deviceGroupId);
-        // 实时属性数据
-        if(CollectionUtil.isNotEmpty(datasets)) {
-            final List<Dataset2d> dataset2ds = datasets.stream()
-                    .map(item -> new Dataset2d(item.getId(), item.getLabel()))
-                    .collect(Collectors.toList());
-            results.add(new Dataset2d( "group_attr_" + deviceGroupId, "属性数据", dataset2ds));
-        }
+        List<Dataset2d> deviceGroups = this.le5LeDatasourceMapper.listDeviceGroup();
+        if(CollectionUtil.isNotEmpty(deviceGroups)) {
+            deviceGroups.forEach(deviceGroup -> {
+                final Long deviceGroupId = Long.valueOf(deviceGroup.getId());
 
-        // 属性告警
-        if(CollectionUtil.isNotEmpty(warnDatasets)) {
-            final List<Dataset2d> dataset2ds = warnDatasets.stream()
-                    .map(item -> new Dataset2d(item.getId(), item.getLabel()))
-                    .collect(Collectors.toList());
-            results.add(new Dataset2d( "group_warn_" + deviceGroupId, "告警数据", dataset2ds));
-        }
+                List<Dataset> datasets = this.le5LeDatasourceMapper.listPointDatasetByDeviceGroupId(deviceGroupId);
+                List<Dataset> warnDatasets = this.le5LeDatasourceMapper.listWarnDatasetByDeviceGroupId(deviceGroupId);
+                List<Dataset> statusDatasets = this.le5LeDatasourceMapper.listStatusDatasetByDeviceGroupId(deviceGroupId);
+                // 实时属性数据
+                if(CollectionUtil.isNotEmpty(datasets)) {
+                    final List<Dataset2d> dataset2ds = datasets.stream()
+                            .map(item -> new Dataset2d(item.getId(), item.getLabel()))
+                            .collect(Collectors.toList());
+                    deviceGroup.addChildren(new Dataset2d( "group_attr_" + deviceGroupId, "属性数据", dataset2ds));
+                }
 
-        // 设备状态
-        if(CollectionUtil.isNotEmpty(statusDatasets)) {
-            final List<Dataset2d> dataset2ds = statusDatasets.stream()
-                    .map(item -> new Dataset2d(item.getId(), item.getLabel()))
-                    .collect(Collectors.toList());
-            results.add(new Dataset2d( "group_status_" + deviceGroupId, "设备状态", dataset2ds));
+                // 属性告警
+                if(CollectionUtil.isNotEmpty(warnDatasets)) {
+                    final List<Dataset2d> dataset2ds = warnDatasets.stream()
+                            .map(item -> new Dataset2d(item.getId(), item.getLabel()))
+                            .collect(Collectors.toList());
+                    deviceGroup.addChildren(new Dataset2d( "group_warn_" + deviceGroupId, "告警数据", dataset2ds));
+                }
+
+                // 设备状态
+                if(CollectionUtil.isNotEmpty(statusDatasets)) {
+                    final List<Dataset2d> dataset2ds = statusDatasets.stream()
+                            .map(item -> new Dataset2d(item.getId(), item.getLabel()))
+                            .collect(Collectors.toList());
+                    deviceGroup.addChildren(new Dataset2d( "group_status_" + deviceGroupId, "设备状态", dataset2ds));
+                }
+
+                if(deviceGroup.getChildren() != null) {
+                    results.add(deviceGroup);
+                }
+            });
+
         }
 
         return results;
