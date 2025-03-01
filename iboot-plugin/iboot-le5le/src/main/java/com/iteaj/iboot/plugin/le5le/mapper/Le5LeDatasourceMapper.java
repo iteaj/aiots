@@ -23,4 +23,6 @@ public interface Le5LeDatasourceMapper extends BaseMapper<Le5LeDatasource> {
     Page<Le5LeDatasource> pageDateSet(Page page, Le5LeDatasource entity);
 
     List<Dataset2d> listDeviceGroup();
+
+    Le5LeDatasource getById(String id);
 }

@@ -1,7 +1,9 @@
 package com.iteaj.iboot.plugin.le5le.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -23,19 +25,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @Component
 @AllArgsConstructor
 public class Le5LeService implements InitializingBean {
 
     private static String token;
-    private static String USERNAME = "18059222381";
-    private static String PASSWORD = "lcjg4OD12aXRlYXp";
+    private static String USERNAME = "13783598587";
+    private static String PASSWORD = "4MDI1OA10QWEwMjU";
     private final Le5LeDatasourceMapper le5LeDatasourceMapper;
     private static final String API_HOST = "https://v.le5le.com/api";
     private static final String ACCOUNT_HOST = "https://account.le5le.com/api";
@@ -457,5 +466,53 @@ public class Le5LeService implements InitializingBean {
         }
 
         return results;
+    }
+
+    public BooleanResult offlineInstall(MultipartFile file, Le5LeDatasource entity) {
+        final String deployDir = le5leProperties.getDeployDir();
+        if(StrUtil.isBlank(deployDir)) {
+            return BooleanResult.buildFalse("未指定安装目录");
+        }
+
+        final JSONObject data = entity.getData();
+        if(data == null || StrUtil.isBlank(data.getString("path"))) {
+            return BooleanResult.buildFalse("请求参数不完整");
+        }
+
+        final File root = new File(deployDir);
+        if(!root.exists()) {
+            root.mkdirs();
+        }
+
+        if(!root.isDirectory()) {
+            return BooleanResult.buildFalse("安装路径不是目录");
+        }
+
+        Le5LeDatasource oriEntity = null;
+        if(StrUtil.isNotBlank(entity.getId())) {
+            oriEntity = this.le5LeDatasourceMapper.getById(entity.getId());
+        }
+
+        if(oriEntity != null) {
+            final String child = oriEntity.getData().getString("path"); // 安装子目录
+            final File oriDeployDir = new File(root, child);
+            if(oriDeployDir.exists() && oriDeployDir.isDirectory()) {
+                final boolean del = FileUtil.del(oriDeployDir);
+                if(!del) {
+                    return BooleanResult.buildFalse("移除目录失败");
+                }
+            }
+        }
+
+        final File zipFile = new File(root, data.getString("path") + File.separator + "source.zip");
+        try {
+            FileUtil.writeFromStream(file.getInputStream(), zipFile);
+        } catch (IOException e) {
+            logger.error("安装离线部署包失败", e);
+            return BooleanResult.buildFalse("写文件失败");
+        }
+
+        ZipUtil.unzip(zipFile, Charset.forName("utf-8"));
+        return BooleanResult.buildTrue("安装成功");
     }
 }

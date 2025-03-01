@@ -18,4 +18,9 @@ public class Le5leProperties {
      * 账号地址
      */
     private String accountUrl;
+
+    /**
+     * 发布目录
+     */
+    private String deployDir;
 }

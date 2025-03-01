@@ -10,6 +10,7 @@ import com.iteaj.framework.security.Logical;
 import com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -76,6 +77,18 @@ public class Le5LeController extends BaseController {
     @GetMapping("sync")
     public Result<Boolean> sync(String id, String type) {
         return le5LeService.sync(id, type);
+    }
+
+    /**
+     * 离线部署
+     * @param file
+     * @param entity 安装路径
+     * @return
+     */
+    @GetMapping("offlineInstall")
+    public Result<Boolean> offlineInstall(MultipartFile file, Le5LeDatasource entity) {
+        le5LeService.offlineInstall(file, entity);
+        return success();
     }
 
     /**

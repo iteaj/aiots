@@ -51,7 +51,7 @@
     </select>
 
     <select id="pageDateSet" resultType="com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource">
-        select a.*, a.name deviceGroupName, a.id deviceGroupId, 'dataset' as type from iot_device_group a
+        select a.id, a.name, a.name deviceGroupName, a.id deviceGroupId, 'dataset' as type from iot_device_group a
         <where>
             <if test="entity.name != null and entity.name != ''">
                 and a.name like '%${entity.name}%'
@@ -64,6 +64,9 @@
 
     <select id="listDeviceGroup" resultType="com.iteaj.iboot.plugin.le5le.entity.Dataset2d">
         select id, name from iot_device_group
+    </select>
+    <select id="getById" resultType="com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource">
+        select * from iot_le5le_datasource where id=#{id}
     </select>
 
 </mapper>
