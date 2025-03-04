@@ -58,7 +58,7 @@ public class Le5LeController extends BaseController {
 
     @GetMapping("datasources")
     public Result<List<Le5LeDatasource>> datasources(Le5LeDatasource entity) {
-        return this.le5LeService.listLe5LeDatasource(entity);
+        return le5LeService.listLe5LeDatasource(entity);
     }
 
     /**

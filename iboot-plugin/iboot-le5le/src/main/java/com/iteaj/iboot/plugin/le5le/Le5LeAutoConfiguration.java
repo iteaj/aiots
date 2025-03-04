@@ -35,8 +35,7 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
         return new OrderFilterChainDefinition()
                 .addAnon("/iot/le5le/api/**")
                 .addAnon("/scada/**")
-                .addAnon("/view")
-                .addAnon("/view/js/2d-components.js");
+                .addAnon("/view/**");
     }
 
     @Override
@@ -54,22 +53,26 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(new HandlerInterceptor() {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-                final String requestURI = request.getRequestURI();
+                String requestURI = request.getRequestURI();
                 if(requestURI.contains("/view")) {
                     final String referer = request.getHeader("referer");
                     if(requestURI.contains("/view") && "2d".equals(request.getParameter("data"))) {
                         response.sendRedirect(referer + "?data=2d"); return false;
-                    } else if(requestURI.contains("/view/js/2d-components.js")) {
+                    } else if(requestURI.contains("/view/js") || requestURI.contains("/view/css")) {
                         final String[] split = referer.split("/");
-                        final String[] result = new String[split.length - 4];
+                        final String[] result = new String[split.length - 5];
                         System.arraycopy(split, 3, result, 0, result.length);
-                        final String url = "/" + Arrays.stream(result).collect(Collectors.joining("/")) + "/js/2d-components.js";
-                        response.sendRedirect(url); return false;
+
+                        requestURI = requestURI.substring(request.getContextPath().length());
+                        final String url = "/" + Arrays.stream(result).collect(Collectors.joining("/")) + requestURI;
+                        request.getRequestDispatcher(url).forward(request, response); return false;
                     }
+                } else if(requestURI.contains("/iot/le5le/api")) {
+
                 }
 
                 return true;
             }
-        }).addPathPatterns("/view/**");
+        }).addPathPatterns("/view/**", "/iot/le5le/api/attr", "/iot/le5le/api/2d");
     }
 }

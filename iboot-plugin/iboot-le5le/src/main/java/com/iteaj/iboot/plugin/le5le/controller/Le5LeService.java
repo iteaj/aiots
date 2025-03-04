@@ -395,25 +395,39 @@ public class Le5LeService implements InitializingBean {
 
     public List<Dataset> listDatasetByDeviceGroupId(Long deviceGroupId) {
         List<Dataset> results = new ArrayList<>();
-        List<Dataset> datasets = this.le5LeDatasourceMapper.listPointDatasetByDeviceGroupId(deviceGroupId);
-        List<Dataset> warnDatasets = this.le5LeDatasourceMapper.listWarnDatasetByDeviceGroupId(deviceGroupId);
-        List<Dataset> statusDatasets = this.le5LeDatasourceMapper.listStatusDatasetByDeviceGroupId(deviceGroupId);
+        if(deviceGroupId != null) {
+            fetchResult(results, deviceGroupId);
+        } else {
+            List<Dataset2d> deviceGroups = this.le5LeDatasourceMapper.listDeviceGroup();
+            if(CollectionUtil.isNotEmpty(deviceGroups)) {
+                deviceGroups.forEach(item -> {
+                    fetchResult(results, Long.valueOf(item.getId()));
+                });
+            }
+        }
+
+        return results;
+    }
+
+    private void fetchResult(List<Dataset> results, Long groupId) {
+        List<Dataset> datasets = this.le5LeDatasourceMapper.listPointDatasetByDeviceGroupId(groupId);
+        List<Dataset> warnDatasets = this.le5LeDatasourceMapper.listWarnDatasetByDeviceGroupId(groupId);
+        List<Dataset> statusDatasets = this.le5LeDatasourceMapper.listStatusDatasetByDeviceGroupId(groupId);
+
         // 实时属性数据
-        if(CollectionUtil.isNotEmpty(datasets)) {
+        if (CollectionUtil.isNotEmpty(datasets)) {
             results.addAll(datasets);
         }
 
         // 属性告警
-        if(CollectionUtil.isNotEmpty(warnDatasets)) {
+        if (CollectionUtil.isNotEmpty(warnDatasets)) {
             results.addAll(warnDatasets);
         }
 
         // 设备状态
-        if(CollectionUtil.isNotEmpty(statusDatasets)) {
+        if (CollectionUtil.isNotEmpty(statusDatasets)) {
             results.addAll(statusDatasets);
         }
-
-        return results;
     }
 
     @Scheduled(cron = "0 0 0/1 * * *")
