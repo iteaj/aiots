@@ -23,11 +23,10 @@ public class Le5LeDatasource implements Entity<String> {
     private String name;
 
     /**
-     * dataset 数据集
      * 2d 2d图纸(组态)
      * 3d 3d图纸
-     * dbs 大屏
-     * 数据源类型(dataset、2d、3d、dbs)
+     * v 大屏
+     * 数据源类型(dataset、2d、3d、v)
      */
     private String type;
 
@@ -61,6 +60,12 @@ public class Le5LeDatasource implements Entity<String> {
      */
     private Date updateAt;
 
+    /**
+     * 上传路径
+     */
+    @TableField(exist = false)
+    private String path;
+
     @Override
     public String getId() {
         return id;
@@ -69,5 +74,21 @@ public class Le5LeDatasource implements Entity<String> {
     @Override
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getPath() {
+        if(this.getData() != null) {
+            return this.getData().getString("path");
+        }
+
+        return null;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+        if(this.getData() == null && path != null) {
+            this.data = new JSONObject();
+            this.data.put("path", path);
+        }
     }
 }

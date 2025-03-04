@@ -1,7 +1,13 @@
 package com.iteaj.iboot.plugin.le5le.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.format.DateParser;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import cn.hutool.http.HttpRequest;
@@ -13,6 +19,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.ListResult;
+import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.plugin.le5le.Le5leProperties;
 import com.iteaj.iboot.plugin.le5le.entity.Dataset;
 import com.iteaj.iboot.plugin.le5le.entity.Dataset2d;
@@ -25,17 +33,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 @Component
@@ -303,21 +315,31 @@ public class Le5LeService implements InitializingBean {
 
     }
 
+    @Transactional
     public BooleanResult delDatasource(List<String> ids) {
-        List<Le5LeDatasource> le5LeDatasources = le5LeDatasourceMapper.selectBatchIds(ids);
-        if(CollectionUtil.isNotEmpty(le5LeDatasources)) {
-            le5LeDatasources.forEach(item -> {
-                JSONObject params = new JSONObject();
-                params.put("id", item.getId());
-                this.apiRequest("/api/data/datasource/delete", params);
-            });
-
-            return new BooleanResult(le5LeDatasourceMapper.deleteBatchIds(ids) > 0);
+        if(CollectionUtil.isEmpty(ids) || ids.size() > 1) {
+            return BooleanResult.buildFalse("未指定要删除的记录或不支持批量删除");
         }
 
-        return BooleanResult.buildTrue("删除成功");
+        final Le5LeDatasource byId = le5LeDatasourceMapper.getById(ids.get(0));
+        if(byId == null) {
+            return BooleanResult.buildTrue("删除成功");
+        }
+
+        return new BooleanResult(le5LeDatasourceMapper.deleteById(ids.get(0)) > 0).ifPresentAndTrue(status -> {
+            final String deployDir = le5leProperties.getDeployDir();
+            if(StrUtil.isBlank(deployDir)) {
+                return;
+            }
+
+            final File installDir = new File(deployDir + File.separator + byId.getPath());
+            if(installDir.exists() && installDir.isDirectory()) {
+                FileUtil.del(installDir);
+            }
+        });
     }
 
+    @Deprecated
     public BooleanResult syncDatasource(String id) {
         Le5LeDatasource le5LeDatasource = le5LeDatasourceMapper.selectById(id);
         if(le5LeDatasource == null) {
@@ -399,27 +421,6 @@ public class Le5LeService implements InitializingBean {
         this.login(USERNAME, PASSWORD);
     }
 
-    @Scheduled(cron = "0 0 0/3 * * *")
-    public void dataScheduled() {
-        Page page = new Page(1, 1000);
-        List<JSONObject> records = this.list(page).getRecords();
-        if(CollectionUtil.isNotEmpty(records)) {
-            records.forEach(item -> {
-                try {
-                    JSONObject detail = this.get(item.getString("id"), "dbs");
-                    Le5LeDatasource le5LeDatasource = this.le5LeDatasourceMapper.selectById(item.getString("id"));
-                    if(le5LeDatasource != null) {
-                        this.doUpdateDrawing(detail, le5LeDatasource);
-                    } else {
-                        this.doCreateDrawing("dbs", detail);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-    }
-
     public Page<Le5LeDatasource> pageDateSet(Page page, Le5LeDatasource entity) {
         return this.le5LeDatasourceMapper.pageDateSet(page, entity);
     }
@@ -474,45 +475,123 @@ public class Le5LeService implements InitializingBean {
             return BooleanResult.buildFalse("未指定安装目录");
         }
 
-        final JSONObject data = entity.getData();
-        if(data == null || StrUtil.isBlank(data.getString("path"))) {
+        if(StrUtil.isBlank(entity.getPath())) {
             return BooleanResult.buildFalse("请求参数不完整");
         }
 
-        final File root = new File(deployDir);
-        if(!root.exists()) {
-            root.mkdirs();
-        }
-
-        if(!root.isDirectory()) {
-            return BooleanResult.buildFalse("安装路径不是目录");
-        }
-
+        final String pathCondition = String.format("where JSON_EXTRACT(data, '$.path')='%s'", entity.getPath());
+        final Le5LeDatasource byPath = this.le5LeDatasourceMapper
+                .selectOne(Wrappers.<Le5LeDatasource>lambdaQuery().last(pathCondition));
         Le5LeDatasource oriEntity = null;
-        if(StrUtil.isNotBlank(entity.getId())) {
+        if(StrUtil.isNotBlank(entity.getId())) { // 更新操作
             oriEntity = this.le5LeDatasourceMapper.getById(entity.getId());
-        }
+            if(oriEntity == null) {
+                return BooleanResult.buildFalse("更新记录不存在");
+            }
 
-        if(oriEntity != null) {
-            final String child = oriEntity.getData().getString("path"); // 安装子目录
-            final File oriDeployDir = new File(root, child);
-            if(oriDeployDir.exists() && oriDeployDir.isDirectory()) {
-                final boolean del = FileUtil.del(oriDeployDir);
-                if(!del) {
-                    return BooleanResult.buildFalse("移除目录失败");
-                }
+            if(!byPath.getId().equals(oriEntity.getId())) {
+                return BooleanResult.buildFalse("路径[" + entity.getPath() + "]已用于["+byPath.getName()+"]");
+            }
+        } else {
+            if(file == null) { // 新增操作文件必填
+                return BooleanResult.buildFalse("未选择要上传的文件");
+            }
+
+            if(byPath != null) {
+                return BooleanResult.buildFalse("路径[" + entity.getPath() + "]已用于["+byPath.getName()+"]");
             }
         }
 
-        final File zipFile = new File(root, data.getString("path") + File.separator + "source.zip");
-        try {
-            FileUtil.writeFromStream(file.getInputStream(), zipFile);
-        } catch (IOException e) {
-            logger.error("安装离线部署包失败", e);
-            return BooleanResult.buildFalse("写文件失败");
+        if(file != null) {
+
+            final File root = new File(deployDir);
+            if(!root.exists()) {
+                root.mkdirs();
+            }
+
+            if(!root.isDirectory()) {
+                return BooleanResult.buildFalse("安装路径不是目录");
+            }
+
+            if(oriEntity != null) {
+                final String child = oriEntity.getData().getString("path"); // 安装子目录
+                final File oriDeployDir = new File(root, child);
+                if(oriDeployDir.exists() && oriDeployDir.isDirectory()) {
+                    final boolean del = FileUtil.del(oriDeployDir);
+                    if(!del) {
+                        return BooleanResult.buildFalse("移除目录失败");
+                    }
+                }
+            }
+
+            final File zipFile = new File(root, entity.getPath() + File.separator + "source.zip");
+            try {
+                FileUtil.writeFromStream(file.getInputStream(), zipFile);
+            } catch (IOException e) {
+                logger.error("安装离线部署包失败", e);
+                return BooleanResult.buildFalse("写文件失败");
+            }
+
+            entity.setType("v"); // 大屏组态
+            ZipUtil.unzip(zipFile, zipFile.getParentFile(), CharsetUtil.CHARSET_GBK);
+            if(!FileUtil.exist(new File(zipFile.getParentFile(), "view"))) {
+                final File[] children = FileUtil.ls(zipFile.getParent());
+                for (int i = 0; i < children.length; i++) {
+                    final File child = children[i];
+                    if(child.isDirectory()) {
+                        final File view = new File(child, "view");
+                        if(view.exists() && view.isDirectory()) {
+                            FileUtil.move(view, zipFile.getParentFile(), true);
+                            FileUtil.del(view.getParentFile());
+                        }
+                    }
+                }
+            }
+            File jsonFile = new File(zipFile.getParentFile(), "/view/projects/v");
+            if(!jsonFile.exists()) {
+                entity.setType("2d"); // 2d图纸
+                jsonFile = new File(zipFile.getParentFile(), "/view/projects/2d");
+            }
+
+            if(!jsonFile.exists()) {
+                FileUtil.del(zipFile.getParentFile());
+                return BooleanResult.buildFalse("非法的离线部署包");
+            }
+
+            String jsonStr = FileUtil.readUtf8String(jsonFile);
+//            if(jsonStr.contains("/view?data=2d")) {
+//                final String replace = String.format("/scada/%s/view/index.html?data=2d", entity.getPath());
+//                jsonStr = jsonStr.replaceAll("/view?data=2d", replace);
+//            }
+            final JSONObject json = JSONObject.parseObject(jsonStr);
+            entity.setName(json.getString("name"));
+            DateTime createdAt = resolverDate(json.getString("createdAt"));
+            entity.setCreatedAt(createdAt);
+            entity.setUpdateAt(resolverDate(json.getString("updatedAt")));
         }
 
-        ZipUtil.unzip(zipFile, Charset.forName("utf-8"));
+        if(oriEntity != null) {
+            this.le5LeDatasourceMapper.updateById(entity);
+        } else {
+            entity.setId(UUID.randomUUID(true).toString());
+            this.le5LeDatasourceMapper.insert(entity);
+        }
         return BooleanResult.buildTrue("安装成功");
+    }
+
+    private DateTime resolverDate(String datetime) {
+        if(StrUtil.isBlank(datetime)) {
+            return new DateTime();
+        }
+
+        if(datetime.contains("+")) {
+            return DateUtil.parse(datetime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        }
+
+        return DateUtil.parse(datetime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
+
+    public Result<List<Le5LeDatasource>> listLe5LeDatasource(Le5LeDatasource entity) {
+        return new ListResult<>(this.le5LeDatasourceMapper.selectList(Wrappers.lambdaQuery(entity)));
     }
 }

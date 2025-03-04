@@ -7,17 +7,69 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @ProfilesInclude("le5le")
 @ComponentScan({"com.iteaj.iboot.plugin.le5le"})
 @MapperScan({"com.iteaj.iboot.plugin.le5le.mapper"})
 @EnableConfigurationProperties(Le5leProperties.class)
-public class Le5LeAutoConfiguration {
+public class Le5LeAutoConfiguration implements WebMvcConfigurer {
+
+    private final Le5leProperties properties;
+
+    public Le5LeAutoConfiguration(Le5leProperties properties) {
+        this.properties = properties;
+    }
 
     @Bean
     @Order(value = 18)
     public OrderFilterChainDefinition le5leFilterChainDefinition() {
         return new OrderFilterChainDefinition()
-                .addAnon("/iot/le5le/api/**");
+                .addAnon("/iot/le5le/api/**")
+                .addAnon("/scada/**")
+                .addAnon("/view")
+                .addAnon("/view/js/2d-components.js");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String locations = properties.getDeployDir().endsWith("/")
+                ? properties.getDeployDir() : properties.getDeployDir() + "/";
+
+        // 配置静态资源的访问路径和存放位置
+        registry.addResourceHandler("/scada/**")
+                .addResourceLocations("file:"+locations);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new HandlerInterceptor() {
+            @Override
+            public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+                final String requestURI = request.getRequestURI();
+                if(requestURI.contains("/view")) {
+                    final String referer = request.getHeader("referer");
+                    if(requestURI.contains("/view") && "2d".equals(request.getParameter("data"))) {
+                        response.sendRedirect(referer + "?data=2d"); return false;
+                    } else if(requestURI.contains("/view/js/2d-components.js")) {
+                        final String[] split = referer.split("/");
+                        final String[] result = new String[split.length - 4];
+                        System.arraycopy(split, 3, result, 0, result.length);
+                        final String url = "/" + Arrays.stream(result).collect(Collectors.joining("/")) + "/js/2d-components.js";
+                        response.sendRedirect(url); return false;
+                    }
+                }
+
+                return true;
+            }
+        }).addPathPatterns("/view/**");
     }
 }
