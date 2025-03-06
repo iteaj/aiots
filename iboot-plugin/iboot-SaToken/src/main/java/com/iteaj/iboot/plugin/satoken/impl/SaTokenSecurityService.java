@@ -172,6 +172,7 @@ public class SaTokenSecurityService implements SecurityService {
         }
 
         return new SaLoginModel()
+                .setDevice("open:" + byAccount.getAccount())
                 .setTokenSignTag(byAccount)
                 .setToken(token.getToken());
     }

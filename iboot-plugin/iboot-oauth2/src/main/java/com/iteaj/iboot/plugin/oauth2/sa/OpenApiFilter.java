@@ -1,11 +1,14 @@
 package com.iteaj.iboot.plugin.oauth2.sa;
 
+import cn.dev33.satoken.session.SaSession;
+import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.security.OpenToken;
+import com.iteaj.framework.security.SecurityException;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.open.OpenApiUtil;
 import com.iteaj.framework.web.WebUtils;
@@ -85,7 +88,28 @@ public class OpenApiFilter extends OncePerRequestFilter {
                 StpUtil.getStpLogic().setTokenValueToStorage(clientId);
 
                 if(!SecurityUtil.isLogin()) { // 登录
-                    SecurityUtil.login(new OpenToken(clientId, oauth2App.getAdminAccount()), request, response);
+                    try {
+                        SecurityUtil.login(new OpenToken(clientId, oauth2App.getAdminAccount()), request, response);
+                    } catch (SecurityException e) {
+                        write(response, HttpResult.Fail(e.getMessage()));
+                        return;
+                    }
+                } else {
+                    final SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+                    final String[] split = tokenInfo.getLoginDevice().split(":");
+                    // 修改了账号, 以新账号重新登录
+                    if(!oauth2App.getAdminAccount().equals(split[1])) {
+                        // 注销当前账号
+                        SecurityUtil.logout(request, response);
+
+                        // 重新登入
+                        try {
+                            SecurityUtil.login(new OpenToken(clientId, oauth2App.getAdminAccount()), request, response);
+                        } catch (SecurityException e) {
+                            write(response, HttpResult.Fail(e.getMessage()));
+                            return;
+                        }
+                    }
                 }
 
                 filterChain.doFilter(request, response);
