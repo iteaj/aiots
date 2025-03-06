@@ -33,7 +33,6 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
     @Order(value = 18)
     public OrderFilterChainDefinition le5leFilterChainDefinition() {
         return new OrderFilterChainDefinition()
-                .addAnon("/iot/le5le/api/**")
                 .addAnon("/scada/**")
                 .addAnon("/view/**");
     }
@@ -67,12 +66,10 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
                         final String url = "/" + Arrays.stream(result).collect(Collectors.joining("/")) + requestURI;
                         request.getRequestDispatcher(url).forward(request, response); return false;
                     }
-                } else if(requestURI.contains("/iot/le5le/api")) {
-
                 }
 
                 return true;
             }
-        }).addPathPatterns("/view/**", "/iot/le5le/api/attr", "/iot/le5le/api/2d");
+        }).addPathPatterns("/view/**");
     }
 }
