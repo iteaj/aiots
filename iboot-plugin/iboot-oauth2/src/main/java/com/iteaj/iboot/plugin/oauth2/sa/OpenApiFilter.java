@@ -99,11 +99,11 @@ public class OpenApiFilter extends OncePerRequestFilter {
                     final String[] split = tokenInfo.getLoginDevice().split(":");
                     // 修改了账号, 以新账号重新登录
                     if(!oauth2App.getAdminAccount().equals(split[1])) {
-                        // 注销当前账号
-                        SecurityUtil.logout(request, response);
-
-                        // 重新登入
                         try {
+                            // 注销当前账号
+                            SecurityUtil.logout(request, response);
+
+                            // 重新登入
                             SecurityUtil.login(new OpenToken(clientId, oauth2App.getAdminAccount()), request, response);
                         } catch (SecurityException e) {
                             write(response, HttpResult.Fail(e.getMessage()));
