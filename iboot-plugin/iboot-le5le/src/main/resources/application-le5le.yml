@@ -1,0 +1,28 @@
+plugin:
+  le5le:
+    apiUrl: https://v.le5le.com/api
+    accountUrl: https://account.le5le.com/api
+---
+spring:
+  config:
+    activate:
+      on-profile: dev #开发环境
+plugin:
+  le5le:
+    deployDir: ${user.home}${file.separator}iboot${file.separator}le5le
+---
+spring:
+  config:
+    activate:
+      on-profile: test #测试环境
+plugin:
+  le5le:
+    deployDir: ${user.dir}${file.separator}iboot${file.separator}le5le
+---
+spring:
+  config:
+    activate:
+      on-profile: prod #正式环境
+plugin:
+  le5le:
+    deployDir: ${user.dir}${file.separator}iboot${file.separator}le5le

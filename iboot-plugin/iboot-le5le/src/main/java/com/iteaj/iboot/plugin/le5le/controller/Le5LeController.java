@@ -1,5 +1,6 @@
-package com.iteaj.iboot.module.iot.le5le;
+package com.iteaj.iboot.plugin.le5le.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -7,10 +8,12 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.iboot.module.iot.entity.Le5LeDatasource;
+import com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,38 +26,39 @@ public class Le5LeController extends BaseController {
 
     private final Le5LeService le5LeService;
 
-    @GetMapping("fields")
-    public JSONArray fields() {
-        JSONArray objects = new JSONArray();
-        JSONObject product1 = new JSONObject();
-        product1.put("id", "product1");
-        product1.put("name", "断路器");
-        JSONArray children = new JSONArray();
-        product1.put("children", children);
-        JSONObject breaker1 = new JSONObject();
-        breaker1.put("id", "product1-breaker1");
-        breaker1.put("name", "1号设备");
-        children.add(breaker1);
-        objects.add(product1);
-        return objects;
-    }
-
     /**
      * 获取列表
-     * @param page
      * @return
      */
     @GetMapping("list")
-    public Result<Page> list(Page page, String type) {
+    public Result<List> list(String type) {
+        List result = new ArrayList();
+        final Page page = new Page<>(1, 1000);
+
         if("2d".equals(type)) {
-            return success(le5LeService.list2d(page));
+            return success(le5LeService.list2d(page).getRecords());
         } else if("3d".equals(type)) {
-            return success(le5LeService.list3d(page));
-        } else if("dbs".equals(type)) {
-            return success(le5LeService.list(page));
+            return success(le5LeService.list3d(page).getRecords());
+        } else if("v".equals(type)) {
+            return success(le5LeService.list(page).getRecords());
+        } else {
+            final Page pageV = le5LeService.list(page);
+            if(CollectionUtil.isNotEmpty(pageV.getRecords())) {
+                result.addAll(page.getRecords());
+            }
+
+            final Page page2d = le5LeService.list2d(page);
+            if(CollectionUtil.isNotEmpty(page2d.getRecords())) {
+                result.addAll(page.getRecords());
+            }
         }
 
-        return fail("未知的类型["+type+"]");
+        return success(result);
+    }
+
+    @GetMapping("datasources")
+    public Result<List<Le5LeDatasource>> datasources(Le5LeDatasource entity) {
+        return le5LeService.listLe5LeDatasource(entity);
     }
 
     /**
@@ -79,6 +83,17 @@ public class Le5LeController extends BaseController {
     }
 
     /**
+     * 离线部署
+     * @param file
+     * @param entity 安装路径
+     * @return
+     */
+    @PostMapping("offlineInstall")
+    public Result<Boolean> offlineInstall(MultipartFile file, Le5LeDatasource entity) {
+        return le5LeService.offlineInstall(file, entity);
+    }
+
+    /**
      * 获取数据源列表
      * @param page
      * @param entity
@@ -86,7 +101,7 @@ public class Le5LeController extends BaseController {
      */
     @GetMapping("listDatasource")
     public Result<Page<Le5LeDatasource>> listDatasource(Page page, Le5LeDatasource entity) {
-        return success(le5LeService.pageDataSources(page, entity));
+        return success(le5LeService.pageDateSet(page, entity));
     }
 
     /**
@@ -126,6 +141,7 @@ public class Le5LeController extends BaseController {
      * @param id
      * @return
      */
+    @Deprecated
     @PostMapping("syncDatasource")
     @CheckPermission("iot:screen:syncDatasource")
     public Result<Boolean> syncDatasource(String id) {

@@ -55,7 +55,7 @@ public class DefaultRealtimeData implements RealtimeCollectData {
      * 采集值
      */
     @IotField
-    private String value;
+    private Object value;
 
     /**
      * 采集状态

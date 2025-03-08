@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.le5le;
+package com.iteaj.iboot.plugin.le5le;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;

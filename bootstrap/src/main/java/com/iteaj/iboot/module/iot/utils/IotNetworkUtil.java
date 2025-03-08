@@ -110,7 +110,10 @@ public class IotNetworkUtil {
         String protocolCode = status.getProtocolCode();
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
         if(supplier instanceof ClientProtocolSupplier) {
-            ((ClientProtocolSupplier<?, ?, ?>) supplier).removeClient(status.getDeviceSn());
+            final IotClient client = ((ClientProtocolSupplier<?, ?, ?>) supplier).removeClient(status.getDeviceSn());
+            if(client != null) {
+                client.close();
+            }
         }
 
     }

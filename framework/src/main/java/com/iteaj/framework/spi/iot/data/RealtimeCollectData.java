@@ -90,6 +90,14 @@ public interface RealtimeCollectData {
      */
     Date getCollectTime();
 
+    /**
+     * 原值对象
+     * @return
+     */
+    default Object getOriValue() {
+        return getValue();
+    }
+
     default String getFieldName() {
         return null;
     }

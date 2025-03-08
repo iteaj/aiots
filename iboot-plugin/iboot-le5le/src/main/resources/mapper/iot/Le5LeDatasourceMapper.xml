@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.iteaj.iboot.module.iot.mapper.Le5LeDatasourceMapper">
+<mapper namespace="com.iteaj.iboot.plugin.le5le.mapper.Le5LeDatasourceMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.Le5LeDatasource">
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource">
         <result column="id" property="id" />
         <result column="star" property="star" />
         <result column="name" property="name" />
@@ -32,22 +32,41 @@
             </if>
         </where>
     </select>
-    <select id="listPointDatasetByDeviceGroupId" resultType="com.iteaj.iboot.module.iot.entity.Dataset">
+    <select id="listPointDatasetByDeviceGroupId" resultType="com.iteaj.iboot.plugin.le5le.entity.Dataset">
         select concat_ws(':', 'a', a.uid, ma.field) id, ma.data_type type, concat('[属性]', a.name, '(', ma.name, ')') as label from iot_device a
              left join iot_model_attr ma on ma.product_id=a.product_id
         where a.device_group_id=#{deviceGroupId} and ma.data_type != 'json'
     </select>
 
-    <select id="listWarnDatasetByDeviceGroupId" resultType="com.iteaj.iboot.module.iot.entity.Dataset">
+    <select id="listWarnDatasetByDeviceGroupId" resultType="com.iteaj.iboot.plugin.le5le.entity.Dataset">
         select concat_ws(':', 'w', a.uid, ma.field) id, 'string' type, concat('[告警]', a.name, '(', ma.name, ')') as label from iot_device a
             left join iot_model_attr ma on ma.product_id=a.product_id
             left join iot_warn_config wc on wc.model_attr_id=ma.id and wc.grade != 'status'
         where ma.id is not null and a.device_group_id=#{deviceGroupId} and ma.data_type != 'json'
     </select>
 
-    <select id="listStatusDatasetByDeviceGroupId" resultType="com.iteaj.iboot.module.iot.entity.Dataset">
+    <select id="listStatusDatasetByDeviceGroupId" resultType="com.iteaj.iboot.plugin.le5le.entity.Dataset">
         select concat_ws(':', 's', a.uid) id, 'string' type, concat('[状态]', a.name) as label
         from iot_device a where a.device_group_id=#{deviceGroupId}
+    </select>
+
+    <select id="pageDateSet" resultType="com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource">
+        select a.id, a.name, a.name deviceGroupName, a.id deviceGroupId, 'dataset' as type from iot_device_group a
+        <where>
+            <if test="entity.name != null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+            <if test="entity.deviceGroupId != null">
+                and a.id=#{entity.deviceGroupId}
+            </if>
+        </where>
+    </select>
+
+    <select id="listDeviceGroup" resultType="com.iteaj.iboot.plugin.le5le.entity.Dataset2d">
+        select id, name from iot_device_group
+    </select>
+    <select id="getById" resultType="com.iteaj.iboot.plugin.le5le.entity.Le5LeDatasource">
+        select * from iot_le5le_datasource where id=#{id}
     </select>
 
 </mapper>
