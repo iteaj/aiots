@@ -13,6 +13,7 @@ import cn.hutool.core.util.ZipUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -96,7 +97,12 @@ public class Le5LeService implements InitializingBean {
         jsonObject.put("pageSize", page.getSize());
         JSONObject response = accountRequest("/data/v/list", jsonObject);
         page.setTotal(response.getInteger("total"));
-        page.setRecords(response.getJSONArray("list"));
+        final JSONArray list = response.getJSONArray("list");
+        if(list != null) {
+            list.forEach(item -> ((JSONObject) item).put("type", "v"));
+        }
+
+        page.setRecords(list);
         return page;
     }
 
@@ -168,7 +174,11 @@ public class Le5LeService implements InitializingBean {
         jsonObject.put("pageSize", page.getSize());
         JSONObject response = accountRequest("/data/2d/list", jsonObject);
         page.setTotal(response.getInteger("total"));
-        page.setRecords(response.getJSONArray("list"));
+        final JSONArray list = response.getJSONArray("list");
+        if(list != null) {
+            list.forEach(item -> ((JSONObject) item).put("type", "2d"));
+        }
+        page.setRecords(list);
         return page;
     }
 
@@ -183,7 +193,11 @@ public class Le5LeService implements InitializingBean {
         jsonObject.put("pageSize", page.getSize());
         JSONObject response = accountRequest("/data/3d/list", jsonObject);
         page.setTotal(response.getInteger("total"));
-        page.setRecords(response.getJSONArray("list"));
+        final JSONArray list = response.getJSONArray("list");
+        if(list != null) {
+            list.forEach(item -> ((JSONObject) item).put("type", "3d"));
+        }
+        page.setRecords(list);
         return page;
     }
 
@@ -198,7 +212,12 @@ public class Le5LeService implements InitializingBean {
         jsonObject.put("pageSize", page.getSize());
         JSONObject response = accountRequest("/data/v.component/list", jsonObject);
         page.setTotal(response.getInteger("total"));
-        page.setRecords(response.getJSONArray("list"));
+        final JSONArray list = response.getJSONArray("list");
+        if(list != null) {
+            list.forEach(item -> ((JSONObject) item).put("type", "v"));
+        }
+
+        page.setRecords(list);
         return page;
     }
 
