@@ -63,10 +63,10 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
                             final String forwardUri = scadaUrl.substring(requestURI.indexOf(contextPath) + contextPath.length());
 
                             request.getRequestDispatcher(forwardUri + "?" + request.getQueryString()).forward(request, response); return false;
-                        } else if(requestURI.contains(".js") || requestURI.contains(".css")) {
-                            final String forwardUri = scadaUrl.substring(scadaUrl.indexOf("/scada"), scadaUrl.indexOf("/view/index"));
+                        } else if(requestURI.contains(".js") || requestURI.contains(".css") || requestURI.contains("projects")) {
+                            final String forwardUri = scadaUrl.substring(scadaUrl.indexOf("/scada"), scadaUrl.indexOf("/view"));
 
-                            requestURI = requestURI.substring(contextPath.length() + contextPath.length());
+                            requestURI = requestURI.substring(contextPath.length());
                             final String url = forwardUri + requestURI;
                             request.getRequestDispatcher(url).forward(request, response); return false;
                         }
