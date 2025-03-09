@@ -60,7 +60,9 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
                     final String scadaUrl = getScadaUrlCookie(request);
                     if(scadaUrl != null) {
                         if(requestURI.contains("/view") && request.getParameter("data") != null) {
-                            response.sendRedirect(scadaUrl + "?" + request.getQueryString()); return false;
+                            final String forwardUri = scadaUrl.substring(requestURI.indexOf(contextPath) + contextPath.length());
+
+                            request.getRequestDispatcher(forwardUri + "?" + request.getQueryString()).forward(request, response); return false;
                         } else if(requestURI.contains("/view/js") || requestURI.contains("/view/css")) {
                             final String forwardUri = scadaUrl.substring(scadaUrl.indexOf("/scada"), scadaUrl.indexOf("/view/index"));
 
@@ -68,6 +70,12 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
                             final String url = forwardUri + requestURI;
                             request.getRequestDispatcher(url).forward(request, response); return false;
                         }
+                    }
+                } else if(requestURI.startsWith(contextPath + "/scada")) {
+                    if(requestURI.contains("/view/index.html")) {
+                        final Cookie cookie = new Cookie("scada_url", requestURI);
+                        cookie.setPath("/view");
+                        response.addCookie(cookie);
                     }
                 }
 
@@ -86,6 +94,6 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
                 }
                 return null;
             }
-        }).addPathPatterns("/view/**");
+        }).addPathPatterns("/view/**", "/scada/*/view/index.html");
     }
 }
