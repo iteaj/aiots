@@ -12,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class Le5LeAutoConfiguration implements WebMvcConfigurer {
 
     private final Le5leProperties properties;
+    private static final String SCADA_URL = "scada_url";
 
     public Le5LeAutoConfiguration(Le5leProperties properties) {
         this.properties = properties;
@@ -52,24 +54,42 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(new HandlerInterceptor() {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+                final String contextPath = request.getContextPath();
                 String requestURI = request.getRequestURI();
-                if(requestURI.contains("/view")) {
-                    final String referer = request.getHeader("referer");
-                    if(requestURI.contains("/view") && "2d".equals(request.getParameter("data"))) {
-                        response.sendRedirect(referer + "?data=2d"); return false;
+                if(requestURI.startsWith(contextPath + "/view")) {
+                    final String scadaUrl = getScadaUrlCookie(request);
+                    if(requestURI.contains("/view") && request.getParameter("data") != null) {
+                        response.sendRedirect(scadaUrl + "?" + request.getQueryString()); return false;
                     } else if(requestURI.contains("/view/js") || requestURI.contains("/view/css")) {
-                        final String[] split = referer.split("/");
-                        final String[] result = new String[split.length - 5];
-                        System.arraycopy(split, 3, result, 0, result.length);
+                        final String forwardUri = scadaUrl.substring(contextPath.length(), scadaUrl.indexOf("/view/index"));
 
-                        requestURI = requestURI.substring(request.getContextPath().length());
-                        final String url = "/" + Arrays.stream(result).collect(Collectors.joining("/")) + requestURI;
+                        requestURI = requestURI.substring(contextPath.length());
+                        final String url = forwardUri + requestURI;
                         request.getRequestDispatcher(url).forward(request, response); return false;
+                    }
+                } else if(requestURI.startsWith(contextPath + "/scada")) {
+                    if(requestURI.contains("/view/index")) {
+                        final Cookie cookie = new Cookie(SCADA_URL, requestURI);
+                        cookie.setPath("/view");
+                        response.addCookie(cookie);
                     }
                 }
 
                 return true;
             }
-        }).addPathPatterns("/view/**");
+
+            private String getScadaUrlCookie(HttpServletRequest request) {
+                final Cookie[] cookies = request.getCookies();
+                if(cookies != null && cookies.length > 0) {
+                    for (int i = 0; i < cookies.length; i++) {
+                        final Cookie cookie = cookies[i];
+                        if(cookie.getName().equals(SCADA_URL)) {
+                            return cookie.getValue();
+                        }
+                    }
+                }
+                return "";
+            }
+        }).addPathPatterns("/view/**", "/scada/*/view/index.html");
     }
 }
