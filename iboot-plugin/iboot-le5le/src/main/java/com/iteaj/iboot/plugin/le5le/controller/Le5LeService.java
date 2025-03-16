@@ -56,8 +56,8 @@ import java.util.zip.ZipInputStream;
 public class Le5LeService implements InitializingBean {
 
     private static String token;
-    private static String USERNAME = "13783598587";
-    private static String PASSWORD = "4MDI1OA10QWEwMjU";
+    private static String USERNAME = "18059222381";
+    private static String PASSWORD = "lcjg4OD12aXRlYXp";
     private final Le5LeDatasourceMapper le5LeDatasourceMapper;
     private static final String API_HOST = "https://v.le5le.com/api";
     private static final String ACCOUNT_HOST = "https://account.le5le.com/api";

@@ -191,11 +191,11 @@
             <version>${project.version}</version>
             <artifactId>iboot-gb28181</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${reversion}</version>
-            <artifactId>amqp-rabbitmq</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${reversion}</version>-->
+<!--            <artifactId>amqp-rabbitmq</artifactId>-->
+<!--        </dependency>-->
 
         <!--多数据源(采集数据)-->
         <dependency>

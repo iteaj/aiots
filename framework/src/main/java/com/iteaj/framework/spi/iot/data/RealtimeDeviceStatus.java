@@ -1,5 +1,7 @@
 package com.iteaj.framework.spi.iot.data;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.util.Date;
 
 public interface RealtimeDeviceStatus {
@@ -63,4 +65,10 @@ public interface RealtimeDeviceStatus {
      * @return
      */
     String getParentDeviceSn();
+
+    /**
+     * 设备配置
+     * @return
+     */
+    JSONObject getConfig();
 }

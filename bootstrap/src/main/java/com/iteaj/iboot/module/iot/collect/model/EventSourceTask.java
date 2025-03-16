@@ -21,9 +21,8 @@ public class EventSourceTask implements Runnable {
     @Override
     public void run() {
         if(CollectionUtil.isNotEmpty(sourceDto.getGroups())) {
-            sourceDto.getGroups().forEach(group -> {
-                executor.execute(new CollectGroupTask(group, sourceDto, cacheManager));
-            });
+            sourceDto.getGroups().forEach(group -> executor
+                    .execute(new BatchGroupTask(group, sourceDto, cacheManager)));
         }
     }
 }
