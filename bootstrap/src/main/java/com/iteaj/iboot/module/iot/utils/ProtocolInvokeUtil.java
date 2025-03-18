@@ -87,6 +87,30 @@ public class ProtocolInvokeUtil {
         }
     }
 
+    /**
+     * 创建调用参数
+     * @param device 设备
+     * @param parent 父设备(非必填)
+     * @return
+     */
+    public static ProtocolModelApiInvokeParam createModelApiInvokeParam(RealtimeStatus device, RealtimeStatus parent) {
+        final ProtocolModelApiInvokeParam apiInvokeParam = new ProtocolModelApiInvokeParam(device.getUid());
+        apiInvokeParam.setDeviceSn(device.getDeviceSn())
+                .setParentDeviceSn(device.getParentDeviceSn())
+                .addDeviceConfig(device.getConfig());
+
+        // 设置默认超时时间
+        if(apiInvokeParam.getTimeout() == null || apiInvokeParam.getTimeout() <= 0) {
+            apiInvokeParam.setTimeout(ProtocolModelApiInvokeParam.DEFAULT_TIMEOUT);
+        }
+
+        if(parent != null) {
+            apiInvokeParam.addParentDeviceConfig(parent.getConfig());
+        }
+
+        return apiInvokeParam;
+    }
+
     private static IotCacheManager getCacheManager() {
         return cacheManager != null ? cacheManager : (cacheManager = SpringUtils.getBean(IotCacheManager.class));
     }

@@ -37,7 +37,7 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Siemens
             ParamMeta.buildRequiredSelect("model", "型号", "S1200", null
                     , new IVOption("S200", "S200"), new IVOption("S200Smart", "S200Smart")
                     , new IVOption("S300", "S300"), new IVOption("S400", "S400")
-                    , new IVOption("S1200", "S200"), new IVOption("S1500", "S1500")),
+                    , new IVOption("S1200", "S1200"), new IVOption("S1500", "S1500")),
     };
 
     public SiemensProtocolSupplier() {

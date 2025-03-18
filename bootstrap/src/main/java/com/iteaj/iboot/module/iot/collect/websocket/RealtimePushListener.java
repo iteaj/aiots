@@ -103,7 +103,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
                 doPush(device.getDevice().getUid(), jsonString, TYPE_DATA);
             }
         } catch (Exception e) {
-            logger.error("实时推送模型数据异常 {} - 设备: {}", e.getMessage(), device.getDevice().buildDeviceKey(), e);
+            logger.error("实时推送模型数据异常 模型属性重复 - 设备: {}", e.getMessage(), device.getDevice().buildDeviceKey(), e);
         }
     }
 

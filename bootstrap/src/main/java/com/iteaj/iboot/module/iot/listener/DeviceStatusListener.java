@@ -52,7 +52,7 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
                 device.setStatus(DeviceStatus.online);
                 deviceService.updateDeviceStatus(device);
             } else {
-                logger.warn("更新设备状态失败 设备不存在 - 设备编号: {}", source);
+                logger.warn("更新设备状态失败 设备不存在 - 设备编号: {} - 协议/驱动: {}", source, supplier.getDesc());
             }
         } else {
             logger.warn("更新设备状态失败 协议不存在 - 设备编号: {} - 协议类: {}", source, component.getMessageClass().getSimpleName());
