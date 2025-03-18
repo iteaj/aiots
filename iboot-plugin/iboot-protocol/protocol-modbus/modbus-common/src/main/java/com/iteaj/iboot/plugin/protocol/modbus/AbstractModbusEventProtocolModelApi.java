@@ -127,7 +127,13 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
 
         // 批量长度切割
         collect.forEach((direct, sortPoints) -> {
-            final List<List<BatchOfPoint>> splitNumAddress = BatchUtils.splitNumAddress(sortPoints, 110);
+            final List<List<BatchOfPoint>> splitNumAddress;
+            if(direct.equals("Read03") || direct.equals("Read04")) {
+                splitNumAddress = BatchUtils.splitNumAddress(sortPoints, 110);
+            } else {
+                splitNumAddress = BatchUtils.splitNumAddress(sortPoints, 1800);
+            }
+
             result.put(direct, splitNumAddress);
         });
 
@@ -181,7 +187,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                                         final Object pointValue = resolverValue(payload, Integer.valueOf(strNum), address, dataType);
                                         dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), pointValue);
                                     } else {
-                                        int readNum = address == startAddress ? 1 : address - startAddress;
+                                        int readNum = address - startAddress;
                                         final ModbusBitStatus status = payload.readStatus(readNum);
                                         dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), status == ModbusBitStatus.ON ? true : false);
                                     }
