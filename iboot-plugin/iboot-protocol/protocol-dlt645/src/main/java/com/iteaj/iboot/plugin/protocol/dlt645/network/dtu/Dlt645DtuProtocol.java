@@ -1,18 +1,14 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.network.dtu;
 
-import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645DataItem;
 import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645Util;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645DtuMessageBody;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645MessageHead;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645Protocol;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645ProtocolType;
-import com.iteaj.iot.ProtocolType;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.server.protocol.ServerInitiativeSyncProtocol;
-import com.iteaj.iot.utils.ByteUtil;
 
 import java.io.IOException;
-import java.util.Date;
 
 public class Dlt645DtuProtocol extends ServerInitiativeSyncProtocol<Dlt645DtuMessage> implements Dlt645Protocol {
 
@@ -32,13 +28,14 @@ public class Dlt645DtuProtocol extends ServerInitiativeSyncProtocol<Dlt645DtuMes
 
     @Override
     protected void doBuildResponseMessage(Dlt645DtuMessage message) {
-        Dlt645MessageHead head = requestMessage().getHead();
-        message.getHead().setAddress(head.getAddress());
-        message.getHead().setType(head.getType());
+        Dlt645MessageHead reqHead = (Dlt645MessageHead) requestMessage().getHead();
         if(getExecStatus() == ExecStatus.success) {
-            String reason = Dlt645Util.validate(message.getMessage(), message.getHead().getPrefix());
+            final Dlt645MessageHead responseHead = (Dlt645MessageHead) message.getHead();
+            responseHead.setAddress(reqHead.getAddress());
+            responseHead.setType(reqHead.getType());
+            String reason = Dlt645Util.validate(message.getMessage(), responseHead.getPrefix());
             if(reason == null) {
-                int prefix = message.getHead().getPrefix();
+                int prefix = responseHead.getPrefix();
                 Dlt645ProtocolType protocolType = protocolType();
                 this.value = Dlt645Util.getData(message.getMessage(), prefix, protocolType);
             } else {

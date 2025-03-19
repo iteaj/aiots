@@ -63,4 +63,14 @@ public enum Dlt645ProtocolType implements ProtocolType {
         return this.desc;
     }
 
+    public static Dlt645ProtocolType valueOf(byte code) {
+        final Dlt645ProtocolType[] values = Dlt645ProtocolType.values();
+        for (int i = 0; i < values.length; i++) {
+            if(values[i].getCode() == code) {
+                return values[i];
+            }
+        }
+
+        return error;
+    }
 }

@@ -29,6 +29,10 @@ public class Dlt645MessageHead extends DefaultMessageHead {
      */
     private final static byte ID = 0x68;
 
+    public Dlt645MessageHead(String equipCode) {
+        super(equipCode, null);
+    }
+
     public Dlt645MessageHead(String equipCode, String address, ProtocolType type) {
         this(equipCode, address, type, 0);
     }

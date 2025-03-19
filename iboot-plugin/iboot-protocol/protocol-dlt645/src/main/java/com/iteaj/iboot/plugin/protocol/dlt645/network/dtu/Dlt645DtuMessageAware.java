@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.network.dtu;
 
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645MessageHead;
+import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645ProtocolType;
 import com.iteaj.iot.server.dtu.DefaultDtuMessageAware;
 import com.iteaj.iot.server.dtu.DtuCommonProtocolType;
 import com.iteaj.iot.server.dtu.DtuMessageType;
@@ -34,7 +35,8 @@ public class Dlt645DtuMessageAware extends DefaultDtuMessageAware<Dlt645DtuMessa
         msg.readBytes(fullMessage);
 
         Dlt645DtuMessage responseMessage = createMessage(fullMessage);
-        responseMessage.setHead(new Dlt645MessageHead(equipCode, null, null, prefix));
+        final Dlt645ProtocolType protocolType = Dlt645ProtocolType.valueOf((byte) (8 + prefix));
+        responseMessage.setHead(new Dlt645MessageHead(equipCode, null, protocolType, prefix));
         return responseMessage;
     }
 }
