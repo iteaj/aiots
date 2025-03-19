@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS iot CACHEMODEL 'last_row' KEEP 365;
 use iot;
 DROP STABLE IF EXISTS iot_collect_data;
 create STABLE iot_collect_data (
-    collect_time timestamp,
+    create_time timestamp,
     cid varchar(36),
     field_id bigint,
     field nchar(36),
@@ -15,7 +15,7 @@ create STABLE iot_collect_data (
     collect_status bool,
     reason nchar(128),
     collect_mode varchar(16),
-    create_time timestamp
+    collect_time timestamp
 ) tags (
     uid varchar(36),
     device_group_id bigint,

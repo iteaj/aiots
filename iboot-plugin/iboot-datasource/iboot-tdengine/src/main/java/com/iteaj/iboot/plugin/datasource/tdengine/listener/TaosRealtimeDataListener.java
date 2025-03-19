@@ -6,9 +6,9 @@ import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 import com.iteaj.iot.taos.TaosSqlManager;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class TaosRealtimeDataListener implements RealtimeInfoListener {
@@ -22,12 +22,13 @@ public class TaosRealtimeDataListener implements RealtimeInfoListener {
     @Override
     public void onIotEvent(IotEventType eventType, RealtimePayload value) {
         if(Objects.equals(value.getType(), "data_full")) {
+            AtomicLong timeMillis = new AtomicLong(System.currentTimeMillis());
             List collect = (List) value.getPayload().stream().map(item -> {
                 RealtimeCollectData data = (RealtimeCollectData) item;
                 String collectValue = data.getValue() != null ? data.getValue().toString() : null;
                 return new TaosRealtimeData().setAddress(data.getAddress())
                         .setTaskId(data.getTaskId()).setField(data.getField())
-                        .setCollectTime(data.getCollectTime()).setCreateTime(new Date())
+                        .setCollectTime(data.getCollectTime()).setCreateTime(timeMillis.getAndIncrement())
                         .setStatus(data.getStatus()).setValue(collectValue)
                         .setDeviceSn(data.getDeviceSn()).setDeviceGroupId(data.getDeviceGroupId())
                         .setDeviceName(data.getDeviceName()).setFieldName(data.getFieldName())
