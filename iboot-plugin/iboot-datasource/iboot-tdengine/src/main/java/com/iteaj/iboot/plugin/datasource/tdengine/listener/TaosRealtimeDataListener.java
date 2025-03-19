@@ -28,7 +28,8 @@ public class TaosRealtimeDataListener implements RealtimeInfoListener {
                 String collectValue = data.getValue() != null ? data.getValue().toString() : null;
                 return new TaosRealtimeData().setAddress(data.getAddress())
                         .setTaskId(data.getTaskId()).setField(data.getField())
-                        .setCollectTime(data.getCollectTime()).setCreateTime(timeMillis.getAndIncrement())
+                        .setCollectTime(data.getCollectTime())
+                        .setCreateTime(timeMillis.getAndIncrement())
                         .setStatus(data.getStatus()).setValue(collectValue)
                         .setDeviceSn(data.getDeviceSn()).setDeviceGroupId(data.getDeviceGroupId())
                         .setDeviceName(data.getDeviceName()).setFieldName(data.getFieldName())
