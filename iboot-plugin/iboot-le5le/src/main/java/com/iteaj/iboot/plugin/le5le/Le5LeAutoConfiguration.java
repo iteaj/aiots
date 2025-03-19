@@ -36,7 +36,8 @@ public class Le5LeAutoConfiguration implements WebMvcConfigurer {
     public OrderFilterChainDefinition le5leFilterChainDefinition() {
         return new OrderFilterChainDefinition()
                 .addAnon("/scada/**")
-                .addAnon("/view/**");
+                .addAnon("/view/**")
+                .addAnon("/iot/le5le/api/**");
     }
 
     @Override
