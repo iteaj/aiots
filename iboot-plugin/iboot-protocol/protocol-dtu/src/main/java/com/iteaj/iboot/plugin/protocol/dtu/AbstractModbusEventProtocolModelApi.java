@@ -155,6 +155,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
             final int childSn = Integer.parseInt(arg.getDeviceSn());
             String deviceSn = StrUtil.isNotBlank(arg.getParentDeviceSn()) ? arg.getParentDeviceSn() : arg.getDeviceSn();
             DataSupplier dataSupplier = new DataSupplier(getProtocolModel().getCode(), arg.buildKey());
+            final BatchResult batchResult = new BatchResult(dataSupplier);
             points.forEach((direct, value) -> {
                 final ModbusCode code = ModbusCode.valueOf(direct);
                 value.forEach(splitPoints -> {
@@ -186,6 +187,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                     arg.addConfig("isBatch", Boolean.TRUE);
                     doInvoke(protocol, arg, (result) -> {
                         try {
+                            batchResult.setStatus(result.getStatus());
                             if(result.getStatus() == ExecStatus.success) {
                                 final Payload payload = protocol.getPayload();
                                 final int startAddress = Integer.parseInt(splitPoints.get(0).getAddress());
@@ -207,6 +209,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                                     dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), CollectStatus.from(result.getStatus()));
                                 });
                             }
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -214,7 +217,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 });
             });
 
-            consumer.accept(new BatchResult(dataSupplier));
+            consumer.accept(batchResult);
         } catch (NumberFormatException e) {
             consumer.accept(new BatchResult("解析设备编号失败["+e.getMessage()+"]", ExecStatus.fail));
         } catch (Exception e) {

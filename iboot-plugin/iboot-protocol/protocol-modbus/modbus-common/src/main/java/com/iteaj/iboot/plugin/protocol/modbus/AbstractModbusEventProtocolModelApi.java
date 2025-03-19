@@ -145,6 +145,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
         try {
             final int deviceSn = Integer.parseInt(arg.getDeviceSn());
             DataSupplier dataSupplier = new DataSupplier(getProtocolModel().getCode(), arg.buildKey());
+            final BatchResult batchResult = new BatchResult(dataSupplier);
             points.forEach((direct, value) -> {
                 final ModbusCode code = ModbusCode.valueOf(direct);
                 value.forEach(splitPoints -> {
@@ -176,6 +177,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                     arg.addConfig("isBatch", Boolean.TRUE);
                     doInvoke(protocol, arg, (result) -> {
                         try {
+                            batchResult.setStatus(result.getStatus());
                             if(result.getStatus() == ExecStatus.success) {
                                 final Payload payload = protocol.getPayload();
                                 final int startAddress = Integer.parseInt(splitPoints.get(0).getAddress());
@@ -204,7 +206,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 });
             });
 
-            consumer.accept(new BatchResult(dataSupplier));
+            consumer.accept(batchResult);
         } catch (NumberFormatException e) {
             consumer.accept(new BatchResult("解析设备编号失败["+e.getMessage()+"]", ExecStatus.fail));
         } catch (Exception e) {
