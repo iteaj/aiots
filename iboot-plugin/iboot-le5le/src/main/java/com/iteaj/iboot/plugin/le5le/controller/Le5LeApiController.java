@@ -59,7 +59,8 @@ public class Le5LeApiController extends BaseController {
      * @return
      */
     @PostMapping("data")
-    public String data() {
+    public String data(HttpServletRequest request) {
+        OpenApiUtil.buildPassRequest(request);
         return "forward:/iot/common/count/data";
     }
 
@@ -68,7 +69,8 @@ public class Le5LeApiController extends BaseController {
      * @return
      */
     @PostMapping("warn")
-    public String warn() {
+    public String warn(HttpServletRequest request) {
+        OpenApiUtil.buildPassRequest(request);
         return "forward:/iot/common/count/warn";
     }
 
@@ -77,7 +79,8 @@ public class Le5LeApiController extends BaseController {
      * @return
      */
     @PostMapping("status")
-    public String status() {
+    public String status(HttpServletRequest request) {
+        OpenApiUtil.buildPassRequest(request);
         return "forward:/iot/common/count/status";
     }
 }
