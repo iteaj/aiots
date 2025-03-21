@@ -35,8 +35,7 @@ public class Dlt645DtuMessageAware extends DefaultDtuMessageAware<Dlt645DtuMessa
         msg.readBytes(fullMessage);
 
         Dlt645DtuMessage responseMessage = createMessage(fullMessage);
-        final Dlt645ProtocolType protocolType = Dlt645ProtocolType.valueOf((byte) (8 + prefix));
-        responseMessage.setHead(new Dlt645MessageHead(equipCode, null, protocolType, prefix));
+        responseMessage.setHead(new Dlt645MessageHead(equipCode, null, null, prefix));
         return responseMessage;
     }
 }

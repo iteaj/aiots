@@ -18,7 +18,7 @@ public class Dlt645DtuMessage extends DtuServerMessageAbstract {
 
     @Override
     protected MessageHead doBuild(byte[] message, String equipCode) {
-        return new Dlt645MessageHead(equipCode);
+        return getHead().setMessageId(getChannelId());
     }
 
     @Override

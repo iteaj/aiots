@@ -44,6 +44,6 @@ public class Dlt645DtuComponent extends DtuDecoderServerComponent<Dlt645DtuMessa
 
     @Override
     public AbstractProtocol doGetProtocol(Dlt645DtuMessage message) {
-        return null;
+        return remove(message.getChannelId());
     }
 }
