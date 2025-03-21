@@ -80,14 +80,14 @@ public class TaosRealtimeData implements RealtimeCollectData {
     /**
      * 采集时间
      */
-    @IotTableId(value = "collect_time", type = 93)
+    @IotField(value = "collect_time", type = 93)
     private Date collectTime;
 
     /**
      * 创建时间
      */
-    @IotField(value = "create_time", type = 93)
-    private Date createTime;
+    @IotTableId(value = "create_time")
+    private Long createTime;
 
     /**
      * 设备名称
