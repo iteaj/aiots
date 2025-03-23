@@ -29,13 +29,14 @@ public abstract class Dlt645ProtocolEventModelApi extends AbstractEventProtocolM
         String deviceSn = arg.getParentDeviceSn();
         String data = arg.getString("data");
 
+        final Integer prefix = arg.getDeviceConfig("prefix");
         Dlt645ProtocolType type = Dlt645ProtocolType.valueOf(getCode());
         Dlt645Protocol dlt645Protocol = this.createProtocol(type);
         switch (type) {
             case readReq:
-                return dlt645Protocol.readBuild(deviceSn, address, data);
+                return dlt645Protocol.readBuild(deviceSn, address, data).build(prefix);
             case readMAReq:
-                return dlt645Protocol.readMABuild(deviceSn);
+                return dlt645Protocol.readMABuild(deviceSn).build(prefix);
             default:
                 throw new ProtocolInvokeException("不支持的指令["+type+"]");
         }

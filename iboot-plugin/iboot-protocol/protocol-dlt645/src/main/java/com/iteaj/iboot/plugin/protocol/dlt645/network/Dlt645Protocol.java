@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.network;
 
+import com.iteaj.iot.Message;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.consts.ExecStatus;
 
@@ -139,4 +140,17 @@ public interface Dlt645Protocol extends Protocol {
         return this;
     }
 
+    /**
+     * 构建协议
+     * @param prefix
+     * @return
+     */
+    default Dlt645Protocol build(Integer prefix) {
+        if(prefix != null && (prefix > 0 && prefix <= 4)) {
+            final Message requestMessage = requestMessage();
+            final Dlt645MessageHead head = (Dlt645MessageHead) requestMessage.getHead();
+            head.setPrefix(prefix);
+        }
+        return this;
+    }
 }

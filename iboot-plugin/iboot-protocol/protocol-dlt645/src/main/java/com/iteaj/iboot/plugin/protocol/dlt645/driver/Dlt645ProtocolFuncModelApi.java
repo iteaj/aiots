@@ -35,6 +35,7 @@ public abstract class Dlt645ProtocolFuncModelApi extends AbstractFuncProtocolMod
         String address = arg.getDeviceSn();
         String deviceSn = arg.getParentDeviceSn();
 
+        final Integer prefix = arg.getDeviceConfig("prefix");
         Dlt645ProtocolType type = Dlt645ProtocolType.valueOf(getCode());
         Dlt645Protocol dlt645Protocol = this.createProtocol(type);
         if(type == Dlt645ProtocolType.rmd) {
@@ -52,7 +53,7 @@ public abstract class Dlt645ProtocolFuncModelApi extends AbstractFuncProtocolMod
                 timeValue = DateUtil.parse(time, "yy-MM-dd HH:mm:ss");
             }
 
-            return dlt645Protocol.rtsBuild(deviceSn, timeValue);
+            return dlt645Protocol.rtsBuild(deviceSn, timeValue).build(prefix);
         } else if(type == Dlt645ProtocolType.writeMAReq) { // 写电表地址
             String newAddress = arg.getString("deviceSn"); //新的电表地址
             return dlt645Protocol.writeMABuild(deviceSn, address, newAddress);
@@ -70,10 +71,10 @@ public abstract class Dlt645ProtocolFuncModelApi extends AbstractFuncProtocolMod
                 address = "999999999999";
             }
 
-            return dlt645Protocol.fCmdBuild(deviceSn, address, timeValue);
+            return dlt645Protocol.fCmdBuild(deviceSn, address, timeValue).build(prefix);
         } else if(type == Dlt645ProtocolType.mcr) {
             String rate = arg.getString("rate");
-            return dlt645Protocol.mcrBuild(deviceSn, address, rate);
+            return dlt645Protocol.mcrBuild(deviceSn, address, rate).build(prefix);
         } else if(type == Dlt645ProtocolType.ctrl) {
             String perm = "04"; //arg.getString("perm");
             String pwd = arg.getString("pwd");
@@ -94,7 +95,7 @@ public abstract class Dlt645ProtocolFuncModelApi extends AbstractFuncProtocolMod
             }
 
             Date date = DateUtil.parse(expire, "yy-MM-dd HH:mm:ss");
-            return dlt645Protocol.ctrlBuild(deviceSn, address, code, perm, pwd, cmd, date);
+            return dlt645Protocol.ctrlBuild(deviceSn, address, code, perm, pwd, cmd, date).build(prefix);
         }
 
         return null;
