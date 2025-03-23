@@ -16,7 +16,13 @@ public class MelsecClient extends PlcClientAdapter {
         MelsecConnectProperties melsec = (MelsecConnectProperties) config;
         if(melsec.getProtocolType() == MelsecProtocolType.A1E) {
             return new MelsecA1ENet(config.getHost(), config.getPort());
-        } else {
+        } else if(melsec.getProtocolType() == MelsecProtocolType.Qna3E_R) {
+            return new MelsecMcRNet(config.getHost(), config.getPort());
+        } else if(melsec.getProtocolType() == MelsecProtocolType.FxLinks) {
+            return new MelsecFxLinksOverTcp(config.getHost(), config.getPort());
+        } else if(melsec.getProtocolType() == MelsecProtocolType.FxSerial) {
+            return new MelsecFxSerialOverTcp(config.getHost(), config.getPort());
+        }else {
             return new MelsecMcNet(config.getHost(), config.getPort());
         }
     }
