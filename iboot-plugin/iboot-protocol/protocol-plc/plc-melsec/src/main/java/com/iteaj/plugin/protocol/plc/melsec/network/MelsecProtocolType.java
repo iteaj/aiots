@@ -3,6 +3,7 @@ package com.iteaj.plugin.protocol.plc.melsec.network;
 import com.iteaj.iot.ProtocolType;
 
 public enum MelsecProtocolType implements ProtocolType {
+    Qna3C("Qna兼容3C帧"),
     Qna3E("Qna兼容3E帧"),
     Qna3E_R("Qna兼容3E帧(R序列)"),
     FxLinks("FxLinks"),

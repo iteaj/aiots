@@ -33,6 +33,7 @@ public class MelsecProtocolSupplier extends AbstractPlcProtocolSupplier<MelsecPr
 //            ParamMeta.buildRequiredNumber("readIdle", "读空闲(秒)", 600, "多长时间没有读到数据自动断开"),
 
             ParamMeta.buildRequiredSelect("protocolType", "协议", "Qna3E", null
+                    , new IVOption("Qna3C", "Qna3C")
                     , new IVOption("Qna3E(MC)", "Qna3E")
                     , new IVOption("Qna3E(MC)-R序列", "Qna3E_R")
                     , new IVOption("FxLinks(Fx3U、3G、3S序列等)", "FxLinks")
