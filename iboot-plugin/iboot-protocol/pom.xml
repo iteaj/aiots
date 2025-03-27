@@ -22,6 +22,8 @@
         <module>protocol-modbus</module>
         <module>protocol-dlt645</module>
         <module>protocol-opcua</module>
+        <module>protocol-iec104</module>
+        <module>protocol-iec61850</module>
     </modules>
 
     <profiles>
