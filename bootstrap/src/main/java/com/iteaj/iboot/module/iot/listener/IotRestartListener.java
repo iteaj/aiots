@@ -89,6 +89,11 @@ public class IotRestartListener implements ApplicationReadyListener {
     protected void initProduct() {
         // 启动所有已经启用的设备
         productService.listOfDetail(new Product().setStatus(FuncStatus.enabled)).forEach(item -> {
+            if(item.getGatewayStatus() == GatewayStatus.stop) {
+                logger.warn("<<< 启动产品[{}]失败, 网关[{}]未启用", item.getName(), item.getGatewayName());
+                return;
+            }
+
             if(item.getDeviceType() == DeviceType.Gateway) { // 启用边缘网关下面所有的设备
                 DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
                 if(supplier == null) {
