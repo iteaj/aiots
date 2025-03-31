@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot;
 import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.framework.spring.condition.ConditionalOnRedis;
+import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.IotLocalCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
@@ -165,11 +166,4 @@ public class IotAutoConfiguration {
         return ConditionalsManager.build(calcs);
     }
 
-    @Bean
-    public IBootThreadManger iBootThreadManger(IotMsnProperties properties, ThreadPoolTaskExecutor taskExecutor) {
-        Integer poolSize = properties.getTask().getPoolSize();
-        TaskSchedulerBuilder builder = new TaskSchedulerBuilder(poolSize, false
-                , null, properties.getTask().getThreadNamePrefix(), null);
-        return new IBootThreadManger(builder.build(), taskExecutor);
-    }
 }

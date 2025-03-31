@@ -130,11 +130,12 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
         validate(entity, null);
         entity.setUid(String.valueOf(IdWorker.getId()));
 
-        // 将uid写入配置, 作为设备的唯一键
-        if(entity.getConfig() != null) {
-            entity.getConfig().put("uid", entity.getUid());
+        if(entity.getConfig() == null) {
+            entity.setConfig(new JSONObject());
         }
 
+        // 将uid写入配置, 作为设备的唯一键
+        entity.getConfig().put("uid", entity.getUid());
         return super.save(entity).ifPresentAndTrue(item -> {
             RealtimeStatus status = this.getDeviceStatusFromCache(entity.getId());
             iotCacheManager.cache(status);
