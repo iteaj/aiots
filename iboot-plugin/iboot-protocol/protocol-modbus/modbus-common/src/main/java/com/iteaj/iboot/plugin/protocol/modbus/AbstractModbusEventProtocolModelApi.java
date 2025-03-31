@@ -187,7 +187,8 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                                         final String dataType = endPoint.getDownConfig(AbstractModbusProtocolSupplier.dataType);
                                         final String strNum = point.getDownConfig(PointProtocolConfig.POINT_NUMBER);
                                         final Object pointValue = resolverValue(payload, Integer.valueOf(strNum), address, dataType);
-                                        dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), pointValue);
+                                        final Object resolverValue = DataValueResolverFactory.resolver(point.getModelAttr(), pointValue);
+                                        dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), resolverValue);
                                     } else {
                                         int readNum = address - startAddress;
                                         final ModbusBitStatus status = payload.readStatus(readNum);

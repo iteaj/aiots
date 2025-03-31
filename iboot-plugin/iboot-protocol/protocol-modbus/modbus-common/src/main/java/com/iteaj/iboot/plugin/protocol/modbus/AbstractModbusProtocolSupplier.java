@@ -34,6 +34,9 @@ public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl
                     , new IVOption("BADC", "BADC")
                     , new IVOption("CDAB", "CDAB")
                     , new IVOption("DCBA", "DCBA")),
+            ParamMeta.buildRequiredSelect("isBatch", "是否批量", "true", "此设备的点位是否批量采集"
+                    , new IVOption("是", "true")
+                    , new IVOption("否", "false")),
     };
     static {
         readOptions.add(new ProtocolModelApiConfigOption("readShort", "short", "占1个寄存器"));
