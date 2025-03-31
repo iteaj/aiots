@@ -29,16 +29,16 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
     @Override
     public void onIotEvent(IotEventType eventType, RealtimePayload value) {
         final String type = value.getType();
-        if("data".equals(type)) { // 实时推送
-            List<Northward> northwards = northwardService.listByType("mqtt");
+        if("data".equals(type) || "status".equals(type)) { // 实时推送
+            List<Northward> northwards = northwardService.listByType("mqtt_publish");
             if(CollectionUtil.isNotEmpty(northwards)) {
                 final MqttGatewayHead gatewayHead = new MqttGatewayHead("");
                 final DefaultMessageBody messageBody = new DefaultMessageBody();
                 final MqttGatewayMessage gatewayMessage = new MqttGatewayMessage(gatewayHead, messageBody, null, null);
 
-                northwards.forEach(item -> {
-                    new MqttGatewayProtocol(gatewayMessage).request();
-                });
+//                northwards.forEach(item -> {
+//                    new MqttGatewayProtocol(gatewayMessage).request();
+//                });
             }
         }
     }

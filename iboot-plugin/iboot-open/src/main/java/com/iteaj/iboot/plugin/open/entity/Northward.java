@@ -33,7 +33,7 @@ public class Northward extends BaseEntity {
     private String name;
 
     /**
-     * mqtt、
+     * mqtt_publish、
      * 接入类型
      */
     private String type;

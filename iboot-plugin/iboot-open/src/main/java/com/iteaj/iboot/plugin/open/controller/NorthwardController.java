@@ -29,14 +29,13 @@ public class NorthwardController extends BaseController {
 
     /**
     * 列表查询
-    * @param page 分页
     * @param entity 搜索条件
     */
     @GetMapping("/view")
     @Logger("浏览北向接入功能")
     @CheckPermission({"open:northward:view"})
-    public Result<IPage<Northward>> list(Page<Northward> page, Northward entity) {
-        return this.northwardService.page(page, entity);
+    public Result<List<Northward>> list(Northward entity) {
+        return this.northwardService.list(entity);
     }
 
     /**
@@ -50,25 +49,25 @@ public class NorthwardController extends BaseController {
     }
 
     /**
-    * 新增或者更新记录
+    * 更新记录
     * @param entity
     */
-    @PostMapping("/saveOrUpdate")
-    @Logger("新增或者更新北向接入记录")
-    @CheckPermission(value = {"open:northward:edit", "open:northward:add"}, logical = Logical.OR)
-    public Result<Boolean> saveOrUpdate(@RequestBody Northward entity) {
-        return this.northwardService.saveOrUpdate(entity);
+    @PostMapping("/update")
+    @Logger("更新北向接入记录")
+    @CheckPermission(value = {"open:northward:edit"})
+    public Result<Boolean> update(@RequestBody Northward entity) {
+        return this.northwardService.updateById(entity);
     }
 
-    /**
-    * 删除指定记录
-    * @param idList
-    */
-    @PostMapping("/del")
-    @Logger("删除北向接入记录")
-    @CheckPermission({"open:northward:del"})
-    public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.northwardService.removeByIds(idList);
-    }
+//    /**
+//    * 删除指定记录
+//    * @param idList
+//    */
+//    @PostMapping("/del")
+//    @Logger("删除北向接入记录")
+//    @CheckPermission({"open:northward:del"})
+//    public Result<Boolean> remove(@RequestBody List<Long> idList) {
+//        return this.northwardService.removeByIds(idList);
+//    }
 }
 
