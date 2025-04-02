@@ -17,7 +17,8 @@ public class OpenAutoConfiguration {
     }
 
     @Bean
-    public MqttGatewayPublishListener mqttGatewayPublishListener(INorthwardService northwardService) {
-        return new MqttGatewayPublishListener(northwardService);
+    public MqttGatewayPublishListener mqttGatewayPublishListener(INorthwardService northwardService
+            , MqttGatewayComponent mqttGatewayComponent) {
+        return new MqttGatewayPublishListener(northwardService, mqttGatewayComponent);
     }
 }
