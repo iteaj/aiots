@@ -1,7 +1,6 @@
 package com.iteaj.iboot.plugin.open.listener;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
@@ -16,6 +15,7 @@ import com.iteaj.iot.client.mqtt.gateway.*;
 import com.iteaj.iot.message.DefaultMessageBody;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLOutput;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,6 +41,7 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
         if("data".equals(type) || "status".equals(type)) { // 实时推送
             List<Northward> northwards = northwardService.listByType("mqtt_publish");
             if(CollectionUtil.isNotEmpty(northwards)) {
+
                 final MqttGatewayHead gatewayHead = new MqttGatewayHead("MqttGatewayPublishListener");
                 final byte[] message = createMqttBodyMessage(type, value.getPayload());
                 final DefaultMessageBody messageBody = new DefaultMessageBody(message);
