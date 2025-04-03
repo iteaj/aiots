@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,6 +50,11 @@ public class DebugTree {
     private Boolean isLeaf;
 
     /**
+     * 是否存在产品
+     */
+    private boolean product;
+
+    /**
      * 设备状态
      */
     private DeviceStatus status;
@@ -57,6 +63,9 @@ public class DebugTree {
      * 子数据
      */
     private List<DebugTree> children;
+
+    @JsonIgnore
+    private DebugTree parent;
 
     public DebugTree() { }
 
@@ -79,7 +88,7 @@ public class DebugTree {
     }
 
     public static DebugTree buildProductType(Long id, Long pid, String name) {
-        return new DebugTree(id, pid, "productType", name).setIsLeaf(false);
+        return new DebugTree(id, pid, "productType", name).setIsLeaf(true);
     }
 
     public static DebugTree buildDevice(Long id, Long pid, String name, DeviceStatus status) {
@@ -91,7 +100,18 @@ public class DebugTree {
             this.children = new ArrayList<>();
         }
 
-        this.children.add(tree);
+        this.children.add(tree.setParent(this));
+        if(tree.getType().equals("product")) {
+            buildProductTree(this);
+        }
         return this;
+    }
+
+    private void buildProductTree(DebugTree debugTree) {
+        debugTree.setProduct(true);
+        debugTree.setIsLeaf(false);
+        if(debugTree.getParent() != null) {
+            buildProductTree(debugTree.getParent());
+        }
     }
 }
