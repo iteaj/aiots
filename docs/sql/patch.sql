@@ -93,3 +93,13 @@ create table iot_northward
 -- 2025-2-9
 alter table iot_warn_config
     add frequency int null default 0 comment '告警频率' after template;
+
+-- 2025-04-03
+create table iot_script(
+    id bigint auto_increment,
+    type char(16) not null comment '脚本类型',
+    language char(16) not null comment '脚本语言',
+    script text null comment '脚本',
+    remark varchar(1024) default '' null comment '备注',
+    constraint iot_script_pk primary key (id)
+) comment '脚本引擎';
