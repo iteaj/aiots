@@ -98,8 +98,10 @@ alter table iot_warn_config
 create table iot_script(
     id bigint auto_increment,
     type char(16) not null comment '脚本类型',
+    name varchar(64) not null comment '名称',
     language char(16) not null comment '脚本语言',
     script text null comment '脚本',
     remark varchar(1024) default '' null comment '备注',
-    constraint iot_script_pk primary key (id)
+    constraint iot_script_pk primary key (id),
+    constraint iot_script_name_unique unique key (name)
 ) comment '脚本引擎';

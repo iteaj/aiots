@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.script.mapper.ScriptMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.plugin.script.entity.Script">
+        <result column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="name" property="name" />
+        <result column="language" property="language" />
+        <result column="script" property="script" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+</mapper>

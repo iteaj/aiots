@@ -5,5 +5,5 @@ package com.iteaj.framework.spi.iot.listener.filter;
  */
 public interface ListenerEvalScriptService {
 
-    ScriptConfig getScript(String name);
+    EvalScript getScript(String name);
 }

@@ -3,36 +3,18 @@ package com.iteaj.framework.spi.iot.listener.filter;
 /**
  * 脚本内容
  */
-public class EvalScript {
+public interface EvalScript {
 
     /**
      * 脚本语言
+     * @return
      */
-    private String language;
+    String getLanguage();
 
     /**
-     * 脚本内容
+     * 脚本
+     * @return
      */
-    private String script;
+    String getScript();
 
-    public EvalScript(String language, String script) {
-        this.language = language;
-        this.script = script;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    public String getScript() {
-        return script;
-    }
-
-    public void setScript(String script) {
-        this.script = script;
-    }
 }

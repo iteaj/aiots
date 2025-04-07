@@ -15,6 +15,8 @@ public class ScriptConfig {
      */
     private String script;
 
+    public ScriptConfig() { }
+
     public ScriptConfig(String language, String script) {
         this.language = language;
         this.script = script;

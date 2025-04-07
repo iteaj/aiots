@@ -8,6 +8,8 @@ import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.spi.iot.listener.IotAsyncListener;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
+import com.iteaj.framework.spi.iot.listener.filter.RealtimeListenerFilter;
+import com.iteaj.framework.spi.iot.listener.filter.ScriptConfig;
 import com.iteaj.iboot.plugin.open.entity.Northward;
 import com.iteaj.iboot.plugin.open.service.INorthwardService;
 import com.iteaj.iot.client.mqtt.MqttClient;
@@ -15,11 +17,10 @@ import com.iteaj.iot.client.mqtt.gateway.*;
 import com.iteaj.iot.message.DefaultMessageBody;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLOutput;
 import java.util.Collection;
 import java.util.List;
 
-public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayload> {
+public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayload>, RealtimeListenerFilter {
 
     private final INorthwardService northwardService;
     private final MqttGatewayComponent mqttGatewayComponent;
@@ -121,5 +122,20 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
         } else {
             return (MqttGatewayConnectProperties) client.getConfig();
         }
+    }
+
+    @Override
+    public String getFilterName() {
+        return null;
+    }
+
+    @Override
+    public RealtimePayload filter(RealtimePayload param) {
+        return null;
+    }
+
+    @Override
+    public List<ScriptConfig> getScripts() {
+        return null;
     }
 }
