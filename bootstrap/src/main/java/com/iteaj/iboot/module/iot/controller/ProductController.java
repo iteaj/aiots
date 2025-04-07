@@ -177,7 +177,7 @@ public class ProductController extends BaseController {
     public Result<List<DeviceCommandDto>> commands(Long productId) {
 
         List<DeviceCommandDto> result = new ArrayList<>();
-        productService.debugById(productId)
+        productService.joinDetailById(productId)
             .ifNotPresentThrow("产品不存在")
             .ifPresent(productDto -> {
                 if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {

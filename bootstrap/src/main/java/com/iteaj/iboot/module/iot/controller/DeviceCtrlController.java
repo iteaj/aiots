@@ -212,7 +212,7 @@ public class DeviceCtrlController extends BaseController {
                 .ifNotPresentThrow("设备不存在[" + uid + "]").getData();
 
         List<DeviceCommandDto> result = new ArrayList<>();
-        productService.debugById(device.getProductId())
+        productService.joinDetailById(device.getProductId())
                 .ifNotPresentThrow("此设备数据不完整["+device.getName()+"]")
                 .ifPresent(productDto -> {
                     if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {

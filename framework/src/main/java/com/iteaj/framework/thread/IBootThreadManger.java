@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot;
+package com.iteaj.framework.thread;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.Getter;
@@ -15,13 +15,30 @@ import java.util.concurrent.ScheduledExecutorService;
 @Setter
 public class IBootThreadManger implements DisposableBean, InitializingBean {
 
+    private static IBootThreadManger instance;
     private final ThreadPoolTaskScheduler scheduler;
     private final ThreadPoolTaskExecutor taskExecutor;
     private ScheduledExecutorService deviceStatusScheduler;
 
-    public IBootThreadManger(ThreadPoolTaskScheduler scheduler, ThreadPoolTaskExecutor taskExecutor) {
+    protected IBootThreadManger(ThreadPoolTaskScheduler scheduler, ThreadPoolTaskExecutor taskExecutor) {
         this.scheduler = scheduler;
         this.taskExecutor = taskExecutor;
+    }
+
+    public static IBootThreadManger getInstance() {
+        if(instance == null) {
+            throw new IllegalStateException("未初始化");
+        }
+
+        return instance;
+    }
+
+    public static IBootThreadManger build(ThreadPoolTaskScheduler scheduler, ThreadPoolTaskExecutor taskExecutor) {
+        if(instance == null) {
+            instance = new IBootThreadManger(scheduler, taskExecutor);
+        }
+
+        return instance;
     }
 
     @Override

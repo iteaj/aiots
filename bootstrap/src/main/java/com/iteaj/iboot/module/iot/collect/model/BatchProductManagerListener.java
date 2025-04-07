@@ -15,7 +15,7 @@ import java.util.Map;
 @Component
 public class BatchProductManagerListener implements StatusSwitchListener {
 
-    public static final Map<String, List<List<BatchOfPoint>>> NULL_POINTS = new HashMap<>();
+    public static final Map<String, List<List<BatchOfPoint>>> NOT_BATCH_POINTS = new HashMap<>();
     private static Map<Long, Map<String, List<List<BatchOfPoint>>>> productModelApis = new HashMap<>(16);
 
     @Override

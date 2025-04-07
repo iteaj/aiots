@@ -26,6 +26,11 @@ public class BatchOfPoint {
     private String address;
 
     /**
+     * 上行模型属性
+     */
+    private UpModelAttr modelAttr;
+
+    /**
      * 下行配置
      */
     private Map<String, String> downConfig = new HashMap<>();
@@ -78,5 +83,13 @@ public class BatchOfPoint {
     public BatchOfPoint addDownConfig(String key, String value) {
         downConfig.put(key, value);
         return this;
+    }
+
+    public UpModelAttr getModelAttr() {
+        return modelAttr;
+    }
+
+    public void setModelAttr(UpModelAttr modelAttr) {
+        this.modelAttr = modelAttr;
     }
 }

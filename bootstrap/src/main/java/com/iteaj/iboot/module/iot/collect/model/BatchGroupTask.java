@@ -1,8 +1,10 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iteaj.iboot.module.iot.collect.model.BatchProductManagerListener.NULL_POINTS;
+import static com.iteaj.iboot.module.iot.collect.model.BatchProductManagerListener.NOT_BATCH_POINTS;
 
 /**
  * 批量采集任务
@@ -55,6 +57,10 @@ public class BatchGroupTask implements Runnable{
                             if(upConfig.getProtocolAttrField().equals(PointProtocolConfig.POINT_VALUE)) {
                                 point.setAttrId(upConfig.getModelAttrId());
                                 point.setAttrField(upConfig.getAttrField());
+                                final UpModelAttr upModelAttr = new UpModelAttr(upConfig.getModelAttrId(), upConfig.getAttrField(), upConfig.getAttrName()
+                                        , DataType.build(upConfig.getDataType()), upConfig.getAccuracy(), upConfig.getGain()
+                                        , upConfig.getResolver(), upConfig.getScript(), null);
+                                point.setModelAttr(upModelAttr);
                             }
                         });
 
@@ -79,7 +85,6 @@ public class BatchGroupTask implements Runnable{
             return;
         }
 
-        String prevParentDeviceSn = null;
         CollectInfo info = new CollectInfo(source, group);
         Collection<RealtimeStatus> devices = cacheManager.listByGroupId(group.getId());
         for (RealtimeStatus device : devices) {
@@ -110,33 +115,13 @@ public class BatchGroupTask implements Runnable{
                 }
             }
 
-            Map<String, List<List<BatchOfPoint>>> batchOfPoints = BatchProductManagerListener.getPoints(device.getProductId());
-            if(batchOfPoints == null) {
-                final DeviceProtocolSupplier supplier = ProtocolSupplierManager.getInstance().get(device.getProtocolCode());
-                if(supplier instanceof BatchProtocolSupplier) {
-                    final BatchEventModelApi batchEventModelApi = ((BatchProtocolSupplier) supplier).getBatchEventModelApi();
-                    final List<BatchOfPoint> modelApiToPoints = resolveModelApiToPoints(device.getProductId());
-                    batchOfPoints = batchEventModelApi.resolver(modelApiToPoints);
-                    BatchProductManagerListener.register(device.getProductId(), batchOfPoints);
-                } else {
-                    BatchProductManagerListener.register(device.getProductId(), batchOfPoints = NULL_POINTS);
-                }
-            }
-
-            if(batchOfPoints == NULL_POINTS) {
+            Map<String, List<List<BatchOfPoint>>> batchOfPoints = resolverBatchInfo(device);
+            if(batchOfPoints == NOT_BATCH_POINTS) { // 非批量采集
                 for (ModelApi api : source.getApis()) {
                     try {
                         // 对此设备同一产品的模型接口进行调用
                         if (api.getProductId().equals(device.getProductId())) {
-                            if (prevParentDeviceSn != null && ProtocolCodes.isModbus(device.getProtocolCode())) {
-                                // 同一台网关设备的采集时间需要有一定间隔(防止网关设备性能差导致采集失败)
-                                if (prevParentDeviceSn.equals(device.getParentDeviceSn())) {
-                                    Thread.sleep(1000); // 休眠1秒
-                                }
-                            }
-
                             doInvoke(info, device, api, 3000L, false);
-                            prevParentDeviceSn = device.getParentDeviceSn();
                         }
                     } catch (ProtocolInvokeException e) {
                         logger.error("接口采集执行异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
@@ -165,6 +150,31 @@ public class BatchGroupTask implements Runnable{
                 logger.error("采集事件完成发布异常 {} - 事件源: {} - 设备组: {}", e.getMessage(), source.getName(), group.getName(), e);
             }
         });
+    }
+
+    private Map<String, List<List<BatchOfPoint>>> resolverBatchInfo(RealtimeStatus device) {
+        Map<String, List<List<BatchOfPoint>>> batchOfPoints = NOT_BATCH_POINTS;
+        if(isBatch(device)) { // 此设备是否支持批量
+            batchOfPoints = BatchProductManagerListener.getPoints(device.getProductId());
+            if(batchOfPoints == null) {
+                final DeviceProtocolSupplier supplier = ProtocolSupplierManager.getInstance().get(device.getProtocolCode());
+                if(supplier instanceof BatchProtocolSupplier) {
+                    final BatchEventModelApi batchEventModelApi = ((BatchProtocolSupplier) supplier).getBatchEventModelApi();
+                    final List<BatchOfPoint> modelApiToPoints = resolveModelApiToPoints(device.getProductId());
+                    batchOfPoints = batchEventModelApi.resolver(modelApiToPoints);
+                    BatchProductManagerListener.register(device.getProductId(), batchOfPoints);
+                } else { // 非批量
+                    BatchProductManagerListener.register(device.getProductId(), batchOfPoints = NOT_BATCH_POINTS);
+                }
+            }
+        }
+
+        return batchOfPoints;
+    }
+
+    private boolean isBatch(RealtimeStatus device) {
+        final JSONObject config = device.getConfig();
+        return config != null && Boolean.TRUE.equals(config.getBoolean("isBatch"));
     }
 
     private void doInvoke(CollectInfo info, RealtimeStatus device, ModelApi api, long timeout, boolean retry) {

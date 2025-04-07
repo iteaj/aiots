@@ -37,10 +37,12 @@
         <module>iboot-amqp</module>
         <!--乐吾乐在线大屏(组态、3D)-->
         <module>iboot-le5le</module>
-        <!--数据源-->
+        <!--多数据源-->
         <module>iboot-datasource</module>
         <!--北向接入-->
         <module>iboot-open</module>
+        <!--脚本插件-->
+        <module>iboot-script</module>
     </modules>
 
     <dependencies>

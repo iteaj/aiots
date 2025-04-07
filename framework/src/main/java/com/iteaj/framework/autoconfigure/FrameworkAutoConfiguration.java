@@ -5,6 +5,8 @@ import com.iteaj.framework.spi.event.EventUtils;
 import com.iteaj.framework.spi.file.LocalUploadService;
 import com.iteaj.framework.spi.file.UploadService;
 import com.iteaj.framework.spring.SpringUtils;
+import com.iteaj.framework.thread.IBootThreadManger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -12,6 +14,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 /**
@@ -48,6 +51,19 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
     @Bean
     public ThreadPoolTaskScheduler taskScheduler(TaskSchedulerBuilder builder) {
         return builder.build();
+    }
+
+    @Bean
+    public IBootThreadManger iBootThreadManger(FrameworkProperties properties
+            , ThreadPoolTaskExecutor taskExecutor, @Autowired(required = false) ThreadPoolTaskScheduler taskScheduler) {
+        if(properties.getTask() != null) { // 单独配置了采集任务调度器
+            Integer poolSize = properties.getTask().getPoolSize();
+            TaskSchedulerBuilder builder = new TaskSchedulerBuilder(poolSize, false
+                    , null, properties.getTask().getThreadNamePrefix(), null);
+            taskScheduler = builder.build();
+        }
+
+        return IBootThreadManger.build(taskScheduler, taskExecutor);
     }
 
     @Override

@@ -26,15 +26,6 @@ public interface IotListener<V> extends EventListener, Ordered, Comparable<IotLi
      */
     void onIotEvent(IotEventType eventType, V value);
 
-    /**
-     * 监听事件
-     * @param eventType
-     * @param value
-     */
-    default void onIotEvent(IotEventType eventType, V value, Consumer callback) {
-
-    }
-
     @Override
     default int getOrder() {
         return 168000;
