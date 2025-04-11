@@ -55,20 +55,10 @@ public class ScriptController extends BaseController {
     */
     @PostMapping("/saveOrUpdate")
     @Logger("新增或者更新脚本引擎记录")
-    @CheckPermission(value = {"iot:script:edit", "iot:script:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:script:edit", "iot:script:filter:edit"}, logical = Logical.OR)
     public Result<Boolean> saveOrUpdate(@RequestBody Script entity) {
         return this.scriptService.saveOrUpdate(entity);
     }
 
-    /**
-    * 删除指定记录
-    * @param idList
-    */
-    @PostMapping("/del")
-    @Logger("删除脚本引擎记录")
-    @CheckPermission({"iot:script:del"})
-    public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.scriptService.removeByIds(idList);
-    }
 }
 

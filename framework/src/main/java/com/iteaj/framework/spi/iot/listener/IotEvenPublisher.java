@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi.iot.listener;
 
+import com.iteaj.framework.spi.iot.listener.filter.ListenerEvalFilter;
 import com.iteaj.framework.thread.IBootThreadManger;
-import com.iteaj.iot.IotThreadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class IotEvenPublisher {
             if(item instanceof IotAsyncListener) {
                 IBootThreadManger.getInstance().getTaskExecutor().execute(() -> {
                     try {
-                        item.onIotEvent(type, value);
+                        doPublish(type, value, item);
                     } catch (Exception e) {
                         logger.error("<<< IOT异步事件发布异常({}) {} - 发布值: {} - 监听对象: {}"
                                 , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
@@ -47,13 +47,26 @@ public class IotEvenPublisher {
                 });
             } else {
                 try {
-                    item.onIotEvent(type, value);
+                    doPublish(type, value, item);
                 } catch (Exception e) {
                     logger.error("<<< IOT事件发布异常({}) {} - 发布值: {} - 监听对象: {}"
                             , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
                 }
             }
         });
+    }
+
+    private static void doPublish(IotEventType type, IotEventPayload value, IotListener item) {
+        if(item instanceof ListenerEvalFilter) {
+            final long l = System.currentTimeMillis();
+            final Object filter = ((ListenerEvalFilter) item).filter(value);
+            System.out.println("----- 时间 " + (System.currentTimeMillis() - l));
+            if(filter != null) {
+                item.onIotEvent(type, filter);
+            }
+        } else {
+            item.onIotEvent(type, value);
+        }
     }
 
     /**
@@ -66,7 +79,14 @@ public class IotEvenPublisher {
         listeners.stream().filter(item -> item instanceof IotAsyncListener && item.isEventMatcher(type)).forEach(item -> {
             IBootThreadManger.getInstance().getTaskExecutor().execute(() -> {
                 try {
-                    ((IotAsyncListener)item).onIotEvent(type, value, callback);
+                    if(item instanceof ListenerEvalFilter) {
+                        final Object filter = ((ListenerEvalFilter) item).filter(value);
+                        if(filter != null) {
+                            ((IotAsyncListener)item).onIotEvent(type, filter, callback);
+                        }
+                    } else {
+                        ((IotAsyncListener)item).onIotEvent(type, value, callback);
+                    }
                 } catch (Exception e) {
                     if(callback != null) {
                         callback.accept(e);

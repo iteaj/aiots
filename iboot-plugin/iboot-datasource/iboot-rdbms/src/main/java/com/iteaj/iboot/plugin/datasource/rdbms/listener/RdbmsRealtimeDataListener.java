@@ -1,9 +1,11 @@
 package com.iteaj.iboot.plugin.datasource.rdbms.listener;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.spi.iot.data.DefaultRealtimeData;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
+import com.iteaj.framework.spi.iot.listener.filter.RealtimeListenerFilter;
 import com.iteaj.framework.spi.iot.table.TableMetaResolver;
 import com.iteaj.iot.tools.db.FieldMeta;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
@@ -14,7 +16,7 @@ import java.util.Objects;
 
 import static com.iteaj.framework.spi.iot.data.RealtimeCollectData.COLLECT_TABLE_NAME;
 
-public class RdbmsRealtimeDataListener implements RealtimeInfoListener {
+public class RdbmsRealtimeDataListener implements RealtimeInfoListener, RealtimeListenerFilter {
 
     private static final RdbmsMeta rdbmsMeta;
     private final DefaultRdbmsSqlManager rdbmsSqlManager;
@@ -31,9 +33,21 @@ public class RdbmsRealtimeDataListener implements RealtimeInfoListener {
 
     @Override
     public void onIotEvent(IotEventType eventType, RealtimePayload value) {
-        if(Objects.equals(value.getType(), "data_full")) {
+        if(isFilter(value.getType(), value)) {
             List collect = (List) value.getPayload();
-            rdbmsSqlManager.batchInsert(COLLECT_TABLE_NAME, collect);
+            if(CollectionUtil.isNotEmpty(collect)) {
+                rdbmsSqlManager.batchInsert(COLLECT_TABLE_NAME, collect);
+            }
         }
+    }
+
+    @Override
+    public String getFilterName() {
+        return FILTER_DATABASE;
+    }
+
+    @Override
+    public boolean isFilter(String type, RealtimePayload payload) {
+        return Objects.equals(type, "data_full");
     }
 }

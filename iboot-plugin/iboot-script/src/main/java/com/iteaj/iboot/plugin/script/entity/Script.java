@@ -1,13 +1,20 @@
 package com.iteaj.iboot.plugin.script.entity;
 
 import com.alibaba.fastjson.JSONArray;
-import com.iteaj.framework.BaseEntity;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.iteaj.framework.spi.iot.listener.filter.EvalScript;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.iteaj.framework.BaseEntity;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
+import com.iteaj.framework.script.ScriptComplete;
+import com.iteaj.framework.spi.iot.listener.filter.FunctionScript;
 import com.iteaj.framework.spi.iot.listener.filter.ScriptConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * <p>
@@ -21,7 +28,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_script")
-public class Script extends BaseEntity {
+public class Script extends BaseEntity implements FunctionScript {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,8 +43,15 @@ public class Script extends BaseEntity {
     private String name;
 
     /**
+     * 使用语言
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String language;
+
+    /**
      * 脚本
      */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
     private JSONArray script;
 
     /**
@@ -45,5 +59,24 @@ public class Script extends BaseEntity {
      */
     private String remark;
 
+    @JsonIgnore
+    @TableField(exist = false)
+    private List<ScriptConfig> configs;
 
+    /**
+     * 脚本提示内容
+     */
+    @TableField(exist = false)
+    private List<ScriptComplete> completes;
+
+    public static final String TYPE_FILTER = "filter";
+
+    public Script setScript(JSONArray script) {
+        this.script = script;
+        if(script != null) {
+            this.configs = script.toJavaList(ScriptConfig.class);
+        }
+
+        return this;
+    }
 }

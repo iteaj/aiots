@@ -8,7 +8,7 @@
         <result column="type" property="type" />
         <result column="name" property="name" />
         <result column="language" property="language" />
-        <result column="script" property="script" />
+        <result column="script" property="script" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="remark" property="remark" />
     </resultMap>
 
