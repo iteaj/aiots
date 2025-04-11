@@ -37,7 +37,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
                 "* @return boolean\r\n" +
                 "*/\r\n" +
                 "function filter(data, methods) {\r\n" +
-                "   return true;" +
+                "    return true;" +
                 "\r\n}"));
     }
 
