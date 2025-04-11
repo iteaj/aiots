@@ -58,9 +58,9 @@ public class IotEvenPublisher {
 
     private static void doPublish(IotEventType type, IotEventPayload value, IotListener item) {
         if(item instanceof ListenerEvalFilter) {
-            final long l = System.currentTimeMillis();
+//            final long l = System.currentTimeMillis();
             final Object filter = ((ListenerEvalFilter) item).filter(value);
-            System.out.println("----- 时间 " + (System.currentTimeMillis() - l));
+//            System.out.println("----- 时间 " + (System.currentTimeMillis() - l));
             if(filter != null) {
                 item.onIotEvent(type, filter);
             }

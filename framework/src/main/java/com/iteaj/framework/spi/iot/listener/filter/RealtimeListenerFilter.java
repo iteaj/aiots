@@ -31,6 +31,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
         return Arrays.asList(new ScriptConfig(ScriptLanguage.javascript.getName(),
                 "/**\r\n" +
                 "* 数据过滤\r\n" +
+                "* 支持ECMAScript 5.1规范\r\n" +
                 "* @param data 采集的数据或设备的状态数据\r\n" +
                 "* @param methods 过滤器提供的方法\r\n" +
                 "* @return boolean\r\n" +
