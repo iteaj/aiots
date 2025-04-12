@@ -70,6 +70,7 @@ public class Script extends BaseEntity implements FunctionScript {
     private List<ScriptComplete> completes;
 
     public static final String TYPE_FILTER = "filter";
+    public static final String TYPE_MODEL_ATTR = "model_attr";
 
     public Script setScript(JSONArray script) {
         this.script = script;
