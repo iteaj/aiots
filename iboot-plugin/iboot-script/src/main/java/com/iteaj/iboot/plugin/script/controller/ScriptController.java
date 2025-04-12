@@ -1,9 +1,14 @@
 package com.iteaj.iboot.plugin.script.controller;
 
 import java.util.List;
+import java.util.Objects;
+
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.DataValueResolverFactory;
+import com.iteaj.iboot.plugin.script.model.ScriptModelAttrResolver;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -19,7 +24,7 @@ import com.iteaj.framework.BaseController;
  */
 @RestController
 @RequestMapping("/iot/script")
-public class ScriptController extends BaseController {
+public class ScriptController extends BaseController implements InitializingBean {
 
     private final IScriptService scriptService;
 
@@ -44,7 +49,6 @@ public class ScriptController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @CheckPermission({"iot:script:edit"})
     public Result<Script> getById(Long id) {
         return this.scriptService.getById(id);
     }
@@ -60,5 +64,17 @@ public class ScriptController extends BaseController {
         return this.scriptService.saveOrUpdate(entity);
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        scriptService.listByType(Script.TYPE_MODEL_ATTR).ifPresent(scripts -> {
+           scripts.forEach(item -> {
+               item.getConfigs().forEach(config -> {
+                   if(Objects.equals(config.getLanguage(), item.getLanguage())) {
+                       DataValueResolverFactory.register(item.getName(), new ScriptModelAttrResolver(item.getName(), config));
+                   }
+               });
+           });
+        });
+    }
 }
 

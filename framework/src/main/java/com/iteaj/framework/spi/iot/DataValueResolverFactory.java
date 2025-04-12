@@ -32,6 +32,10 @@ public class DataValueResolverFactory {
         resolverMap.putIfAbsent(key, resolver);
     }
 
+    public static DataValueResolver remove(String key) {
+        return resolverMap.remove(key);
+    }
+
     public static DataValueResolver update(String key, DataValueResolver resolver) {
         if(Objects.equals(DEFAULT_KEY, key)) {
             throw new ServiceException("不支持替换默认解析器");

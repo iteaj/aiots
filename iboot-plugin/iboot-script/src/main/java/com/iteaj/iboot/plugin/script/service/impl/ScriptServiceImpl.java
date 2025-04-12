@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.script.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.ListResult;
@@ -58,11 +59,23 @@ public class ScriptServiceImpl extends BaseServiceImpl<ScriptMapper, Script> imp
 
     @Override
     public BooleanResult save(Script entity) {
+        if(StrUtil.isBlank(entity.getName())) {
+            return BooleanResult.buildFalse("脚本名字必填");
+        }
+        this.getOne(Wrappers.<Script>lambdaQuery()
+                .eq(Script::getType, entity.getType())
+                .eq(Script::getName, entity.getName()))
+                .ifPresentThrow("此脚本已经存在["+entity.getName()+"]");
         return super.save(entity).ifPresentAndTrue(status -> cache.evict(entity.getName()));
     }
 
     @Override
     public BooleanResult updateById(Script entity) {
+        this.getOne(Wrappers.<Script>lambdaQuery()
+                .eq(Script::getType, entity.getType())
+                .eq(Script::getName, entity.getName())
+                .ne(Script::getId, entity.getId()))
+                .ifPresentThrow("此脚本已经存在["+entity.getName()+"]");
         return super.updateById(entity).ifPresentAndTrue(status -> cache.evict(entity.getName()));
     }
 

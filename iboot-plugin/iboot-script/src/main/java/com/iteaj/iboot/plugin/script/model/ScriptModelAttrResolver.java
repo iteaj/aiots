@@ -4,6 +4,7 @@ import com.iteaj.framework.script.ScriptContext;
 import com.iteaj.framework.script.ScriptInterface;
 import com.iteaj.framework.script.ScriptManager;
 import com.iteaj.framework.spi.iot.DataValueResolver;
+import com.iteaj.framework.spi.iot.DataValueResolverFactory;
 import com.iteaj.framework.spi.iot.UpModelAttr;
 import com.iteaj.framework.spi.iot.listener.filter.ListenerEvalFilter;
 import com.iteaj.framework.spi.iot.listener.filter.ListenerScriptFilter;
@@ -32,13 +33,14 @@ public class ScriptModelAttrResolver implements DataValueResolver {
     @Override
     public Object resolver(UpModelAttr attr, Object value) {
         if(this.scriptInterface != null) {
-            final Object exec = scriptInterface.exec(new ScriptContext(script.getScript())
+            final Object exec = scriptInterface.exec(ScriptContext.build(script.getScript(), "resolver(value, model);")
                     .addParam("value", value).addParam("model", attr)
                     .addParam("console", ListenerScriptFilter.LOGGER_PROVIDE));
 
             return exec;
         }
 
-        return value;
+        // 使用默认解析器解析
+        return DataValueResolverFactory.getDefault().resolver(attr, value);
     }
 }
