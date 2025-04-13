@@ -9,7 +9,6 @@ import com.iteaj.framework.spi.iot.listener.IotAsyncListener;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 import com.iteaj.framework.spi.iot.listener.filter.RealtimeListenerFilter;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptConfig;
 import com.iteaj.iboot.plugin.open.entity.Northward;
 import com.iteaj.iboot.plugin.open.service.INorthwardService;
 import com.iteaj.iot.client.mqtt.MqttClient;
@@ -37,9 +36,9 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
     }
 
     @Override
-    public void onIotEvent(IotEventType eventType, RealtimePayload value) {
+    public void doIotEvent(IotEventType eventType, RealtimePayload value) {
         final String type = value.getType();
-        if("data".equals(type) || "status".equals(type)) { // 实时推送
+        if(isFilter(type, value)) { // 实时推送
             List<Northward> northwards = northwardService.listByType("mqtt_publish");
             if(CollectionUtil.isNotEmpty(northwards)) {
 
@@ -126,16 +125,11 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
 
     @Override
     public String getFilterName() {
-        return null;
+        return FILTER_MQTT_FORWARD;
     }
 
     @Override
-    public RealtimePayload filter(RealtimePayload param) {
-        return null;
-    }
-
-    @Override
-    public List<ScriptConfig> getScripts() {
-        return null;
+    public boolean isFilter(String type, RealtimePayload payload) {
+        return "data".equals(type) || "status".equals(type);
     }
 }

@@ -1,9 +1,14 @@
 package com.iteaj.iboot.plugin.script.controller;
 
 import java.util.List;
+import java.util.Objects;
+
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.DataValueResolverFactory;
+import com.iteaj.iboot.plugin.script.model.ScriptModelAttrResolver;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -44,7 +49,6 @@ public class ScriptController extends BaseController {
     * @param id 记录id
     */
     @GetMapping("/edit")
-    @CheckPermission({"iot:script:edit"})
     public Result<Script> getById(Long id) {
         return this.scriptService.getById(id);
     }
@@ -55,20 +59,10 @@ public class ScriptController extends BaseController {
     */
     @PostMapping("/saveOrUpdate")
     @Logger("新增或者更新脚本引擎记录")
-    @CheckPermission(value = {"iot:script:edit", "iot:script:add"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:script:edit", "iot:script:filter:edit"}, logical = Logical.OR)
     public Result<Boolean> saveOrUpdate(@RequestBody Script entity) {
         return this.scriptService.saveOrUpdate(entity);
     }
 
-    /**
-    * 删除指定记录
-    * @param idList
-    */
-    @PostMapping("/del")
-    @Logger("删除脚本引擎记录")
-    @CheckPermission({"iot:script:del"})
-    public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.scriptService.removeByIds(idList);
-    }
 }
 

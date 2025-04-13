@@ -95,13 +95,13 @@ alter table iot_warn_config
     add frequency int null default 0 comment '告警频率' after template;
 
 -- 2025-04-03
-create table iot_script(
-    id bigint auto_increment,
-    type char(16) not null comment '脚本类型',
-    name varchar(64) not null comment '名称',
-    language char(16) not null comment '脚本语言',
-    script text null comment '脚本',
+create table iboot3.iot_script(
+    id     bigint auto_increment primary key,
+    type   char(16)                 not null comment '脚本类型',
+    name   varchar(64)              null comment '名称',
+    script json                     null comment '脚本',
     remark varchar(1024) default '' null comment '备注',
-    constraint iot_script_pk primary key (id),
-    constraint iot_script_name_unique unique key (name)
+    language char(36) null comment '语言',
+    constraint iot_script_name_uindex unique (name)
 ) comment '脚本引擎';
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('数据过滤', 1421, 168, '/iot/script/filter', 'iot', 'V', 'enabled', 'iot:script:filter:view', '#', '', '_self', '2025-04-11 00:00:00', '2025-04-11 20:42:12');
