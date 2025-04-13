@@ -24,7 +24,7 @@ import com.iteaj.framework.BaseController;
  */
 @RestController
 @RequestMapping("/iot/script")
-public class ScriptController extends BaseController implements InitializingBean {
+public class ScriptController extends BaseController {
 
     private final IScriptService scriptService;
 
@@ -64,17 +64,5 @@ public class ScriptController extends BaseController implements InitializingBean
         return this.scriptService.saveOrUpdate(entity);
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        scriptService.listByType(Script.TYPE_MODEL_ATTR).ifPresent(scripts -> {
-           scripts.forEach(item -> {
-               item.getConfigs().forEach(config -> {
-                   if(Objects.equals(config.getLanguage(), item.getLanguage())) {
-                       DataValueResolverFactory.register(item.getName(), new ScriptModelAttrResolver(item.getName(), config));
-                   }
-               });
-           });
-        });
-    }
 }
 

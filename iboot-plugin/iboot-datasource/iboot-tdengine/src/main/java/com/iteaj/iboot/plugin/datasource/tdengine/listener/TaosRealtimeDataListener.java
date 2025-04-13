@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public class TaosRealtimeDataListener implements RealtimeInfoListener, RealtimeListenerFilter {
+public class TaosRealtimeDataListener implements RealtimeListenerFilter {
 
     private final TaosSqlManager taosSqlManager;
 
@@ -22,7 +22,7 @@ public class TaosRealtimeDataListener implements RealtimeInfoListener, RealtimeL
     }
 
     @Override
-    public void onIotEvent(IotEventType eventType, RealtimePayload value) {
+    public void doIotEvent(IotEventType eventType, RealtimePayload value) {
         if(isFilter(value.getType(), value)) {
             if(CollectionUtil.isNotEmpty(value.getPayload())) {
                 AtomicLong timeMillis = new AtomicLong(System.currentTimeMillis());

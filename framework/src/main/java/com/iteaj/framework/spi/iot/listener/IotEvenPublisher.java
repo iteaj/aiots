@@ -57,16 +57,7 @@ public class IotEvenPublisher {
     }
 
     private static void doPublish(IotEventType type, IotEventPayload value, IotListener item) {
-        if(item instanceof ListenerEvalFilter) {
-//            final long l = System.currentTimeMillis();
-            final Object filter = ((ListenerEvalFilter) item).filter(value);
-//            System.out.println("----- 时间 " + (System.currentTimeMillis() - l));
-            if(filter != null) {
-                item.onIotEvent(type, filter);
-            }
-        } else {
-            item.onIotEvent(type, value);
-        }
+        item.onIotEvent(type, value);
     }
 
     /**
@@ -79,14 +70,7 @@ public class IotEvenPublisher {
         listeners.stream().filter(item -> item instanceof IotAsyncListener && item.isEventMatcher(type)).forEach(item -> {
             IBootThreadManger.getInstance().getTaskExecutor().execute(() -> {
                 try {
-                    if(item instanceof ListenerEvalFilter) {
-                        final Object filter = ((ListenerEvalFilter) item).filter(value);
-                        if(filter != null) {
-                            ((IotAsyncListener)item).onIotEvent(type, filter, callback);
-                        }
-                    } else {
-                        ((IotAsyncListener)item).onIotEvent(type, value, callback);
-                    }
+                    ((IotAsyncListener) item).onIotEvent(type, value, callback);
                 } catch (Exception e) {
                     if(callback != null) {
                         callback.accept(e);

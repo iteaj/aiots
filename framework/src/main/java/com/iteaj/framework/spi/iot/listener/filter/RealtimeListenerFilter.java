@@ -4,6 +4,8 @@ import com.iteaj.framework.script.ScriptComplete;
 import com.iteaj.framework.script.ScriptConfigService;
 import com.iteaj.framework.script.ScriptContext;
 import com.iteaj.framework.script.ScriptManager;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 
 import java.util.ArrayList;
@@ -13,13 +15,13 @@ import java.util.List;
 /**
  * 实时数据监听的过滤
  */
-public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePayload> {
+public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePayload>, RealtimeInfoListener {
 
     String FILTER_DATABASE = "数据入库";
     String FILTER_MQTT_FORWARD = "MQTT转发";
 
+    ValueConvertProvide convertProvide = new ValueConvertProvide();
     RealtimeMethodProvide methodProvide = new RealtimeMethodProvide();
-
 
     @Override
     default String getScriptRemark() {
@@ -42,6 +44,11 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
     }
 
     @Override
+    default void onIotEvent(IotEventType eventType, RealtimePayload value) {
+        ListenerScriptFilter.super.onIotEvent(eventType, value);
+    }
+
+    @Override
     default RealtimePayload filter(RealtimePayload param) {
         if(isFilter(param.getType(), param)) {
             final ScriptConfig scriptConfig = ScriptConfigService.instance.getScriptConfig(getFilterName());
@@ -59,6 +66,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
                         payload.add(item);
                     }
                 });
+
                 return new RealtimePayload(param.getType(), payload);
             }
         }
