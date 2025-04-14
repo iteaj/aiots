@@ -19,6 +19,7 @@ import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.linkage.LinkageActionListener;
 import com.iteaj.iot.utils.UniqueIdGen;
 import org.springframework.beans.BeanUtils;
+import org.springframework.core.Ordered;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -129,4 +130,8 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
         IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("warn", Arrays.asList(record)));
     }
 
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE - 15000;
+    }
 }
