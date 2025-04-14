@@ -11,6 +11,7 @@ import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
+import org.springframework.core.Ordered;
 
 public class RealtimeDataCacheListener implements EventGroupCollectListener, SignalCollectListener, ModelAttrListener {
 
@@ -37,5 +38,10 @@ public class RealtimeDataCacheListener implements EventGroupCollectListener, Sig
         realtimeDataService.put(device.getProtocolCode(), device.buildKey()
                 , SignalOrFieldValue.build(data.getFieldId(), data.getAddress(), data.getCollectTime()
                         , data.getValue(), data.getAddress()).builder(data.getCollectStatus()));
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE + 518;
     }
 }

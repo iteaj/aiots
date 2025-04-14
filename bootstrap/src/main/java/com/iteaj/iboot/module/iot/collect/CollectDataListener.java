@@ -1,5 +1,11 @@
 package com.iteaj.iboot.module.iot.collect;
 
-public interface CollectDataListener {
-    
+import org.springframework.core.Ordered;
+
+public interface CollectDataListener extends Ordered {
+
+    @Override
+    default int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE + 5168;
+    }
 }
