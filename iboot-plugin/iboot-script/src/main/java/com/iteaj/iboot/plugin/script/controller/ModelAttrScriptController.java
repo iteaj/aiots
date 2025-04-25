@@ -112,7 +112,7 @@ public class ModelAttrScriptController extends BaseController implements Initial
             return fail("未指定要删除的记录");
         }
 
-        if(ids.size() > 0) {
+        if(ids.size() > 1) {
             return fail("不支持批量删除");
         }
 
