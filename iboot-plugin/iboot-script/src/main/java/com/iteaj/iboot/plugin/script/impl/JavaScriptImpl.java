@@ -3,7 +3,7 @@ package com.iteaj.iboot.plugin.script.impl;
 import com.iteaj.framework.script.ScriptContext;
 import com.iteaj.framework.script.ScriptExecException;
 import com.iteaj.framework.script.ScriptInterface;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptLanguage;
+import com.iteaj.framework.script.ScriptLanguage;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -29,7 +29,7 @@ public class JavaScriptImpl implements ScriptInterface {
 
             return engine.eval(context.getScript());
         } catch (ScriptException e) {
-            throw new ScriptExecException(e.getMessage(), e);
+            throw new ScriptExecException("脚本执行异常[JavaScript]", e);
         }
     }
 }

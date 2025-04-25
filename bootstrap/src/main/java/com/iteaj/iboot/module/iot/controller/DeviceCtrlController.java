@@ -132,7 +132,7 @@ public class DeviceCtrlController extends BaseController {
                     item.success(result);
                     debugRespDto.setRespTime(System.currentTimeMillis());
                 });
-            } catch (ProtocolInvokeException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 item.success(InvokeResult.fail(e.getMessage(), null));
             }

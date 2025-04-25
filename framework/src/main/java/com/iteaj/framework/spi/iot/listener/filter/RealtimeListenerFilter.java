@@ -1,9 +1,6 @@
 package com.iteaj.framework.spi.iot.listener.filter;
 
-import com.iteaj.framework.script.ScriptComplete;
-import com.iteaj.framework.script.ScriptConfigService;
-import com.iteaj.framework.script.ScriptContext;
-import com.iteaj.framework.script.ScriptManager;
+import com.iteaj.framework.script.*;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
@@ -58,8 +55,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
                     // 执行脚本
                     final Object result = ScriptManager.exec(ScriptLanguage.javascript.getName()
                             , ScriptContext.build(scriptConfig.getScript(), "filter(data, methods)")
-                                    .addParam("data", item).addParam("methods", methodProvide)
-                                    .addParam("console", LOGGER_PROVIDE));
+                                    .addParam("data", item).addParam("methods", methodProvide));
 
                     // 校验执行结果, 是否被过滤
                     if(Boolean.TRUE.equals(result)) {

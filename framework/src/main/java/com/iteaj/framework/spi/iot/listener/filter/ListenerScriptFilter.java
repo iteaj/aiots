@@ -1,13 +1,12 @@
 package com.iteaj.framework.spi.iot.listener.filter;
 
 import com.iteaj.framework.script.ScriptComplete;
+import com.iteaj.framework.script.ScriptConfig;
 import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 
 import java.util.List;
 
 public interface ListenerScriptFilter<T extends IotEventPayload> extends ListenerEvalFilter<T>{
-
-    LoggerMethodProvide LOGGER_PROVIDE = new LoggerMethodProvide();
 
     /**
      * 返回脚本备注

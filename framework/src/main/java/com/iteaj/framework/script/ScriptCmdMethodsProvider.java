@@ -1,0 +1,184 @@
+package com.iteaj.framework.script;
+
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class ScriptCmdMethodsProvider extends ValueConvertProvide {
+
+    public static ScriptCmdMethodsProvider INSTANCE = new ScriptCmdMethodsProvider();
+
+    public static List<ScriptComplete> completes = Arrays.asList(
+            new ScriptComplete("methods.writeValue(data, null)", "将值写入",1),
+            new ScriptComplete("methods.getUid(data)", "获取执行设备的uid",2),
+            new ScriptComplete("methods.toHex(value)", "将基础类型值转成16进制",2),
+            new ScriptComplete("methods.toBytes(value)", "将基础类型值转成字节数组",2),
+            new ScriptComplete("methods.getInt(data, key)", "获取执行参数",3),
+            new ScriptComplete("methods.getLong(data, key)", "获取执行参数",3),
+            new ScriptComplete("methods.getDouble(data, key)", "获取执行参数",3),
+            new ScriptComplete("methods.getBoolean(data, key)", "获取执行参数",3),
+            new ScriptComplete("methods.getString(data, key)", "获取执行参数",3),
+            new ScriptComplete("methods.getApiCode(data)", "获取调用的接口码",2),
+            new ScriptComplete("methods.getProductCode(data)", "获取执行设备的产品码",2),
+            new ScriptComplete("methods.getProtocolCode(data)", "获取执行设备的协议码",2),
+            new ScriptComplete("methods.getDeviceStatus(data)", "获取执行设备的状态(online/offline)",2),
+            new ScriptComplete("methods.getDeviceGroupId(data)", "获取执行设备的所属组",2),
+            new ScriptComplete("methods.getDeviceSn(data)", "获取执行设备的设备编号",2),
+            new ScriptComplete("methods.getParentDeviceSn(data)", "获取执行设备的父设备编号",2),
+            new ScriptComplete("methods.getDeviceConfig(data, key)", "获取设备的配置项",2),
+            new ScriptComplete("console.log('')", "打印调试日志(支持{}占位符)",4),
+            new ScriptComplete("console.info('')", "打印信息日志(支持{}占位符)",4),
+            new ScriptComplete("console.warn('')", "打印告警日志(支持{}占位符)",4),
+            new ScriptComplete("console.error('')", "打印错误日志(支持{}占位符)",4)
+    );
+
+    /**
+     * 写值
+     * @param data
+     * @param value
+     */
+    public void writeValue(ProtocolModelApiInvokeParam data, Object value) {
+        final String protocolAttrField = data.getConfig("protocolAttrField");
+        data.addParam(protocolAttrField, value);
+    }
+
+
+
+    /**
+     * 返回调用的接口码
+     * @param data
+     * @return
+     */
+    public String getApiCode(ProtocolModelApiInvokeParam data) {
+        return data.getApiCode();
+    }
+
+    /**
+     * 获取设备所属产品
+     * @param data
+     * @return
+     */
+    public String getProductCode(ProtocolModelApiInvokeParam data) {
+        final RealtimeDeviceStatus device = data.getDevice();
+        return device == null ? null : device.getProductCode();
+    }
+
+    /**
+     * 获取设备所属协议
+     * @param data
+     * @return
+     */
+    public String getProtocolCode(ProtocolModelApiInvokeParam data) {
+        final RealtimeDeviceStatus device = data.getDevice();
+        return device == null ? null : device.getProtocolCode();
+    }
+
+    /**
+     * 获取设备在线状态
+     * @param data
+     * @return
+     */
+    public String getDeviceStatus(ProtocolModelApiInvokeParam data) {
+        final RealtimeDeviceStatus device = data.getDevice();
+        return device == null ? null : device.getDeviceStatus();
+    }
+
+    /**
+     * 获取设备所属组
+     * @param data
+     * @return
+     */
+    public Long getDeviceGroupId(ProtocolModelApiInvokeParam data) {
+        final RealtimeDeviceStatus device = data.getDevice();
+        return device == null ? null : device.getDeviceGroupId();
+    }
+
+    /**
+     * 获取设备编号
+     * @param data
+     * @return
+     */
+    public String getDeviceSn(ProtocolModelApiInvokeParam data) {
+        return data.getDeviceSn();
+    }
+
+    /**
+     * 获取父设备编号
+     * @param data
+     * @return
+     */
+    public String getParentDeviceSn(ProtocolModelApiInvokeParam data) {
+        return data.getParentDeviceSn();
+    }
+
+    /**
+     * 获取调用设备的uid
+     * @param data
+     * @return
+     */
+    public String getUid(ProtocolModelApiInvokeParam data) {
+        return data.getUid();
+    }
+
+    /**
+     * 获取指令参数
+     * @param data
+     * @param key
+     * @return
+     */
+    public String getString(ProtocolModelApiInvokeParam data, String key) {
+        return data.getString(key);
+    }
+
+    /**
+     * 获取指令参数
+     * @param data
+     * @param key
+     * @return
+     */
+    public Integer getInt(ProtocolModelApiInvokeParam data, String key) {
+        return data.getInteger(key);
+    }
+
+    /**
+     * 获取指令参数
+     * @param data
+     * @param key
+     * @return
+     */
+    public Double getDouble(ProtocolModelApiInvokeParam data, String key) {
+        return data.getDouble(key);
+    }
+
+    /**
+     * 获取指令参数
+     * @param data
+     * @param key
+     * @return
+     */
+    public Boolean getBoolean(ProtocolModelApiInvokeParam data, String key) {
+        return data.getBoolean(key);
+    }
+
+    /**
+     * 获取调用设备的配置项
+     * @param data
+     * @param key
+     * @return
+     */
+    public String getDeviceConfig(ProtocolModelApiInvokeParam data, String key) {
+        return data.getDeviceConfig(key);
+    }
+
+    /**
+     * 获取调用设备父设备的配置项
+     * @param data
+     * @param key
+     * @return
+     */
+    public String getParentConfig(ProtocolModelApiInvokeParam data, String key) {
+        return data.getParentDeviceConfig(key);
+    }
+}

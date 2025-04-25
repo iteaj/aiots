@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.script.ScriptComplete;
-import com.iteaj.framework.spi.iot.listener.filter.FunctionScript;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptConfig;
+import com.iteaj.framework.script.FunctionScript;
+import com.iteaj.framework.script.ScriptConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -70,6 +70,7 @@ public class Script extends BaseEntity implements FunctionScript {
     private List<ScriptComplete> completes;
 
     public static final String TYPE_FILTER = "filter";
+    public static final String TYPE_MODEL_API = "model_api";
     public static final String TYPE_MODEL_ATTR = "model_attr";
 
     public Script setScript(JSONArray script) {

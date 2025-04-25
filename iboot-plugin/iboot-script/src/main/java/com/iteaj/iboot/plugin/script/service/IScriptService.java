@@ -15,4 +15,13 @@ import com.iteaj.framework.IBaseService;
 public interface IScriptService extends IBaseService<Script> {
 
     ListResult<Script> listByType(String type);
+
+    /**
+     * 是否被关联
+     * @param name
+     * @return
+     */
+    Boolean isJoinModelApi(String name);
+
+    Boolean isJoinModelAttr(String key);
 }

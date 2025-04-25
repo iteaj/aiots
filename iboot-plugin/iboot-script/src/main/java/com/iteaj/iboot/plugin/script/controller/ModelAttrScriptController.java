@@ -7,8 +7,8 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.script.ScriptComplete;
 import com.iteaj.framework.spi.iot.DataValueResolverFactory;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptConfig;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptLanguage;
+import com.iteaj.framework.script.ScriptConfig;
+import com.iteaj.framework.script.ScriptLanguage;
 import com.iteaj.iboot.plugin.script.entity.Script;
 import com.iteaj.iboot.plugin.script.model.ScriptModelAttrResolver;
 import com.iteaj.iboot.plugin.script.service.IScriptService;
@@ -34,13 +34,14 @@ public class ModelAttrScriptController extends BaseController implements Initial
     private final List<ScriptConfig> configs = Arrays.asList(
             new ScriptConfig(ScriptLanguage.javascript.getName(), "" +
                     "/**\r\n" +
+                    "* 支持ECMAScript 5.1规范\r\n" +
                     "* @param value 采集的值\r\n" +
                     "* @param model 模型属性配置\r\n" +
                     "* @param methods 常用方法\r\n" +
                     "* @return Object 解析后的值\r\n" +
                     "*/\r\n" +
                     "function resolver(value, model, methods) {\r\n" +
-                    "   return value;\r\n" +
+                    "    return value;\r\n" +
                     "}\r\n" +
                     "")
     );
@@ -111,12 +112,16 @@ public class ModelAttrScriptController extends BaseController implements Initial
             return fail("未指定要删除的记录");
         }
 
-        this.scriptService.listByIds(ids).ifPresent(scripts -> {
-            this.scriptService.removeByIds(ids);
-            scripts.forEach(script -> DataValueResolverFactory.remove(KEY_PREFIX + script.getId()));
-        });
+        if(ids.size() > 0) {
+            return fail("不支持批量删除");
+        }
 
-        return success("删除成功");
+        final Script data = this.scriptService.getById(ids.get(0)).ifNotPresentThrow("记录不存在").getData();
+        Boolean isJoin = this.scriptService.isJoinModelAttr(KEY_PREFIX + data.getId());
+
+        return Boolean.TRUE.equals(isJoin) ? fail("此脚本已被使用, 请先删除关联") :
+                this.scriptService.removeById(data.getId()).ifPresent((status) ->
+                        DataValueResolverFactory.remove(KEY_PREFIX + data.getId()));
     }
 
     @Override

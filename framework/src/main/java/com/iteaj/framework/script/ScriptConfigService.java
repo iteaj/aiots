@@ -1,16 +1,14 @@
 package com.iteaj.framework.script;
 
-import com.iteaj.framework.spi.iot.listener.filter.FunctionScript;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptConfig;
-
-import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * 执行脚本服务
  */
 public interface ScriptConfigService {
+
+    List<FunctionScript> getScriptByType(String type);
 
     /**
      * 获取指定名称的脚本配置
@@ -52,12 +50,13 @@ public interface ScriptConfigService {
         private ScriptConfigService proxy;
 
         @Override
-        public FunctionScript getScript(String name) {
-            if(proxy == null) {
-                return null;
-            }
+        public List<FunctionScript> getScriptByType(String type) {
+            return proxy == null ? null : proxy.getScriptByType(type);
+        }
 
-            return proxy.getScript(name);
+        @Override
+        public FunctionScript getScript(String name) {
+            return proxy == null ? null : proxy.getScript(name);
         }
 
         public ScriptConfigService getProxy() {

@@ -13,4 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ScriptMapper extends BaseMapper<Script> {
 
+    Boolean isJoinModelApi(String name);
+
+    Boolean isJoinModelAttr(String key);
 }

@@ -10,7 +10,7 @@ import com.iteaj.framework.spi.iot.DataValueResolverFactory;
 import com.iteaj.framework.spi.iot.UpModelAttr;
 import com.iteaj.framework.spi.iot.listener.filter.ListenerScriptFilter;
 import com.iteaj.framework.spi.iot.listener.filter.RealtimeListenerFilter;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptConfig;
+import com.iteaj.framework.script.ScriptConfig;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 /**
@@ -38,7 +38,6 @@ public class ScriptModelAttrResolver implements DataValueResolver {
         if(this.scriptInterface != null) {
             final Object exec = scriptInterface.exec(ScriptContext.build(script.getScript(), "resolver(value, model, methods);")
                     .addParam("value", value).addParam("model", attr)
-                    .addParam("console", ListenerScriptFilter.LOGGER_PROVIDE)
                     .addParam("methods", RealtimeListenerFilter.convertProvide));
 
             return doResolver(exec);

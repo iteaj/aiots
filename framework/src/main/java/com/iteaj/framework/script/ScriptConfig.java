@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.iot.listener.filter;
+package com.iteaj.framework.script;
 
 /**
  * 脚本配置

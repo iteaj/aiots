@@ -9,14 +9,13 @@ public class ScriptContext {
 
     private Map<String, Object> params;
 
-    public ScriptContext() { }
-
-    public ScriptContext(String script) {
+    protected ScriptContext(String script) {
         this.script = script;
     }
 
     public static ScriptContext build(String script, String invoke) {
-        return new ScriptContext(script + "\r\n" + invoke);
+        return new ScriptContext(script + "\r\n" + invoke)
+                .addParam("console", LoggerMethodProvide.INSTANCE);
     }
 
     public String getScript() {
