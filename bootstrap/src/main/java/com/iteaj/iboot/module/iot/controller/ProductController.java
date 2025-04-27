@@ -184,7 +184,7 @@ public class ProductController extends BaseController {
         final List<FunctionScript> modelApiScripts = scriptConfigService.getScriptByType("model_api");
         if(modelApiScripts != null) {
             final List<IVOption> ivOptions = modelApiScripts.stream()
-                    .map(item -> new IVOption(item.getName(), item.getName()))
+                    .map(item -> new IVOption(item.getName(), item.getKey()))
                     .collect(Collectors.toList());
             return success(ivOptions);
         }

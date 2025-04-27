@@ -2,7 +2,7 @@ package com.iteaj.framework.script;
 
 import com.iteaj.iot.utils.ByteUtil;
 
-public class ValueConvertProvide {
+public class ValueConvertProvide implements JavaScriptValueProvide{
 
     public byte[] toBytes(Object value) {
         if(value instanceof Number) {

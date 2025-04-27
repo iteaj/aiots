@@ -9,6 +9,7 @@ import com.iteaj.framework.script.ScriptComplete;
 import com.iteaj.framework.spi.iot.DataValueResolverFactory;
 import com.iteaj.framework.script.ScriptConfig;
 import com.iteaj.framework.script.ScriptLanguage;
+import com.iteaj.iboot.plugin.script.entity.BindDto;
 import com.iteaj.iboot.plugin.script.entity.Script;
 import com.iteaj.iboot.plugin.script.model.ScriptModelAttrResolver;
 import com.iteaj.iboot.plugin.script.service.IScriptService;
@@ -78,6 +79,16 @@ public class ModelAttrScriptController extends BaseController implements Initial
     }
 
     /**
+     * 已绑定的属性列表
+     * @param id
+     * @return
+     */
+    @GetMapping("binds")
+    public Result<List<BindDto>> binds(Long id) {
+        return scriptService.bindAttrs(id);
+    }
+
+    /**
      * 更新或者保存记录
      * @param entity
      * @return
@@ -86,12 +97,12 @@ public class ModelAttrScriptController extends BaseController implements Initial
     public Result saveOrUpdate(@RequestBody Script entity) {
         entity.setType(Script.TYPE_MODEL_ATTR);
         return this.scriptService.saveOrUpdate(entity).ifPresentAndTrue(status -> {
-            final String key = KEY_PREFIX + entity.getId();
+            final String key = entity.getKey();
             if(StrUtil.isNotBlank(entity.getLanguage())) {
                 if(entity.getConfigs() != null) {
                     entity.getConfigs().forEach(item -> {
                         if(Objects.equals(item.getLanguage(), entity.getLanguage())) {
-                            DataValueResolverFactory.update(key, new ScriptModelAttrResolver(entity.getName(), item));
+                            DataValueResolverFactory.update(key, new ScriptModelAttrResolver(key, entity.getName(), item));
                         }
                     });
                 }
@@ -117,11 +128,11 @@ public class ModelAttrScriptController extends BaseController implements Initial
         }
 
         final Script data = this.scriptService.getById(ids.get(0)).ifNotPresentThrow("记录不存在").getData();
-        Boolean isJoin = this.scriptService.isJoinModelAttr(KEY_PREFIX + data.getId());
+        Boolean isJoin = this.scriptService.isJoinModelAttr(data.getKey());
 
         return Boolean.TRUE.equals(isJoin) ? fail("此脚本已被使用, 请先删除关联") :
                 this.scriptService.removeById(data.getId()).ifPresent((status) ->
-                        DataValueResolverFactory.remove(KEY_PREFIX + data.getId()));
+                        DataValueResolverFactory.remove(data.getKey()));
     }
 
     @Override
@@ -130,7 +141,7 @@ public class ModelAttrScriptController extends BaseController implements Initial
             scripts.forEach(item -> {
                 item.getConfigs().forEach(config -> {
                     if(Objects.equals(config.getLanguage(), item.getLanguage())) {
-                        DataValueResolverFactory.register(KEY_PREFIX + item.getId(), new ScriptModelAttrResolver(item.getName(), config));
+                        DataValueResolverFactory.register(item.getKey(), new ScriptModelAttrResolver(item.getKey(), item.getName(), config));
                     }
                 });
             });

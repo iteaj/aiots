@@ -2,6 +2,7 @@ package com.iteaj.framework.script;
 
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,7 @@ public class ScriptCmdMethodsProvider extends ValueConvertProvide {
             new ScriptComplete("methods.getApiCode(data)", "获取调用的接口码",2),
             new ScriptComplete("methods.getProductCode(data)", "获取执行设备的产品码",2),
             new ScriptComplete("methods.getProtocolCode(data)", "获取执行设备的协议码",2),
+            new ScriptComplete("methods.getProtocolAttr(data)", "获取此脚本绑定的协议属性",1),
             new ScriptComplete("methods.getDeviceStatus(data)", "获取执行设备的状态(online/offline)",2),
             new ScriptComplete("methods.getDeviceGroupId(data)", "获取执行设备的所属组",2),
             new ScriptComplete("methods.getDeviceSn(data)", "获取执行设备的设备编号",2),
@@ -41,10 +43,21 @@ public class ScriptCmdMethodsProvider extends ValueConvertProvide {
      */
     public void writeValue(ProtocolModelApiInvokeParam data, Object value) {
         final String protocolAttrField = data.getConfig("protocolAttrField");
+        if(isJSValue(value)) {
+            value = jsMirrorToString((ScriptObjectMirror) value);
+        }
+
         data.addParam(protocolAttrField, value);
     }
 
-
+    /**
+     * 获取此脚本绑定的字段
+     * @param data
+     * @return
+     */
+    public String getProtocolAttr(ProtocolModelApiInvokeParam data) {
+        return data.getConfig("protocolAttrField");
+    }
 
     /**
      * 返回调用的接口码

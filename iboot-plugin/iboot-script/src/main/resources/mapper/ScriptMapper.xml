@@ -10,6 +10,8 @@
         <result column="language" property="language" />
         <result column="script" property="script" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
     </resultMap>
 
     <select id="isJoinModelApi" resultType="java.lang.Boolean">
@@ -18,5 +20,16 @@
     <select id="isJoinModelAttr" resultType="java.lang.Boolean">
         select count(id) > 0 from iot_model_attr where resolver=#{key} limit 1
     </select>
+    <select id="bindApis" resultType="com.iteaj.iboot.plugin.script.entity.BindDto">
+        select b.name, a.api_code apiCode, a.protocol_attr_name attrName, p.name productName, p.code productCode from iot_model_api_config a
+            left join iot_model_api b on a.api_code=b.code
+            left join iot_product p on p.id = a.product_id
+        where value=concat('#', #{key})
+    </select>
 
+    <select id="bindAttrs" resultType="com.iteaj.iboot.plugin.script.entity.BindDto">
+        select a.name, a.field attrName, p.name productName, p.code productCode from iot_model_attr a
+              left join iot_product p on p.id = a.product_id
+        where a.resolver=#{key}
+    </select>
 </mapper>

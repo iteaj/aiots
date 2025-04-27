@@ -8,6 +8,12 @@ import java.util.List;
 public interface FunctionScript {
 
     /**
+     * 获取脚本key
+     * @return
+     */
+    String getKey();
+
+    /**
      * 功能类型
      * @return
      */

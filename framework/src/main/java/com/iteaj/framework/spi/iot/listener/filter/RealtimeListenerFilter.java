@@ -54,7 +54,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
                 param.getPayload().forEach(item -> {
                     // 执行脚本
                     final Object result = ScriptManager.exec(ScriptLanguage.javascript.getName()
-                            , ScriptContext.build(scriptConfig.getScript(), "filter(data, methods)")
+                            , ScriptContext.build(getFilterName(), scriptConfig.getScript(), "filter(data, methods)")
                                     .addParam("data", item).addParam("methods", methodProvide));
 
                     // 校验执行结果, 是否被过滤

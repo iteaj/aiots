@@ -8,36 +8,45 @@ import java.util.Objects;
  */
 public interface ScriptConfigService {
 
+    /**
+     * 获取指定名称的脚本配置
+     * @param key
+     * @return
+     */
+    FunctionScript getScript(String key);
+
     List<FunctionScript> getScriptByType(String type);
 
     /**
-     * 获取指定名称的脚本配置
-     * @param name
+     * 获取选中脚本配置
+     * @param key
      * @return
      */
-    FunctionScript getScript(String name);
+    default ScriptConfig getScriptConfig(String key) {
+        final FunctionScript script = this.getScript(key);
+        return getScriptConfig(script);
+    }
 
     /**
      * 获取选中脚本配置
-     * @param name
+     * @param script
      * @return
      */
-    default ScriptConfig getScriptConfig(String name) {
-        final FunctionScript script = this.getScript(name);
+    default ScriptConfig getScriptConfig(FunctionScript script) {
         return (script != null && script.getLanguage() != null && script.getConfigs() != null) ?
                 script.getConfigs().stream()
-                .filter(item -> Objects.equals(item.getLanguage(), script.getLanguage()))
-                .findFirst().orElse(null) : null;
+                        .filter(item -> Objects.equals(item.getLanguage(), script.getLanguage()))
+                        .findFirst().orElse(null) : null;
     }
 
     /**
      * 获取指定语言的脚本配置
-     * @param name
+     * @param key
      * @param language
      * @return
      */
-    default ScriptConfig getScriptConfig(String name, String language) {
-        final FunctionScript script = this.getScript(name);
+    default ScriptConfig getScriptConfig(String key, String language) {
+        final FunctionScript script = this.getScript(key);
         return script != null && script.getConfigs() != null ? script.getConfigs().stream()
                 .filter(item -> item.getLanguage().equals(language))
                 .findFirst().orElse(null) : null;
@@ -55,8 +64,8 @@ public interface ScriptConfigService {
         }
 
         @Override
-        public FunctionScript getScript(String name) {
-            return proxy == null ? null : proxy.getScript(name);
+        public FunctionScript getScript(String key) {
+            return proxy == null ? null : proxy.getScript(key);
         }
 
         public ScriptConfigService getProxy() {

@@ -9,6 +9,7 @@ import com.iteaj.framework.script.ScriptComplete;
 import com.iteaj.framework.script.ScriptConfig;
 import com.iteaj.framework.script.ScriptLanguage;
 import com.iteaj.framework.spi.iot.DataValueResolverFactory;
+import com.iteaj.iboot.plugin.script.entity.BindDto;
 import com.iteaj.iboot.plugin.script.entity.Script;
 import com.iteaj.iboot.plugin.script.service.IScriptService;
 import org.springframework.web.bind.annotation.*;
@@ -74,6 +75,16 @@ public class ModelApiScriptController extends BaseController {
     }
 
     /**
+     * 已绑定的接口列表
+     * @param id
+     * @return
+     */
+    @GetMapping("binds")
+    public Result<List<BindDto>> binds(Long id) {
+        return scriptService.bindApis(id);
+    }
+
+    /**
      * 更新或者保存记录
      * @param entity
      * @return
@@ -99,7 +110,7 @@ public class ModelApiScriptController extends BaseController {
         }
 
         final Script script = this.scriptService.getById(ids.get(0)).ifNotPresentThrow("记录不存在").getData();
-        Boolean isJoin = this.scriptService.isJoinModelApi(script.getName());
+        Boolean isJoin = this.scriptService.isJoinModelApi(script.getKey());
         return Boolean.FALSE.equals(isJoin) ? this.scriptService.removeById(script.getId()) : fail("此脚本已被使用, 请先删除关联");
     }
 

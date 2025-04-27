@@ -1,17 +1,16 @@
 package com.iteaj.iboot.plugin.script.impl;
 
+import com.iteaj.framework.script.*;
 import com.iteaj.framework.script.ScriptContext;
-import com.iteaj.framework.script.ScriptExecException;
-import com.iteaj.framework.script.ScriptInterface;
-import com.iteaj.framework.script.ScriptLanguage;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import javax.script.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class JavaScriptImpl implements ScriptInterface {
+public class JavaScriptImpl implements ScriptInterface<CompiledScript> {
 
-    private static ScriptEngineManager manager = new ScriptEngineManager();
+    private Map<String, CompiledScript> scriptMap = new HashMap<>();
+    private ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
 
     @Override
     public ScriptLanguage getLanguage() {
@@ -19,15 +18,34 @@ public class JavaScriptImpl implements ScriptInterface {
     }
 
     @Override
+    public CompiledScript compile(String script) {
+        try {
+            return ((Compilable) engine).compile(script);
+        } catch (ScriptException e) {
+            throw new ScriptExecException("编译失败", e);
+        }
+    }
+
+    @Override
     public Object exec(ScriptContext context) {
         // 获取 JavaScript 脚本引擎
-        ScriptEngine engine = manager.getEngineByName("JavaScript");
         try {
+            final Bindings bindings = engine.createBindings();
             if(context.getParams() != null) {
-                context.getParams().forEach((key, value) -> engine.put(key, value));
+                context.getParams().forEach((key, value) -> bindings.put(key, value));
             }
 
-            return engine.eval(context.getScript());
+            CompiledScript compiledScript = (CompiledScript) ScriptManager.getCompilable(context.getKey());
+            if(compiledScript == null) {
+                synchronized (this) {
+                    compiledScript = (CompiledScript) ScriptManager.getCompilable(context.getKey());
+                    if(compiledScript == null) {
+                        ScriptManager.register(context.getKey(), compiledScript = this.compile(context.getScript()));
+                    }
+                }
+            }
+
+            return compiledScript.eval(bindings);
         } catch (ScriptException e) {
             throw new ScriptExecException("脚本执行异常[JavaScript]", e);
         }

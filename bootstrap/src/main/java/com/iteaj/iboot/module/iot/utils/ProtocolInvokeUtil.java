@@ -76,7 +76,9 @@ public class ProtocolInvokeUtil {
                 param.addParam(item.getProtocolAttrField(), item.getAttrDefaultValue());
             } else if(trimValue.startsWith("#")) {
                 param.addConfig("protocolAttrField", item.getProtocolAttrField());
+                final long l = System.currentTimeMillis();
                 invokeScript(param, trimValue.substring(1));
+                System.out.println(System.currentTimeMillis() - l);
             } else {
                 param.addParam(item.getProtocolAttrField(), item.getValue());
             }
@@ -96,7 +98,7 @@ public class ProtocolInvokeUtil {
 
         final ScriptConfig scriptConfig = script.getConfigs().stream().filter(config -> Objects.equals(config.getLanguage()
                 , script.getLanguage())).findFirst().orElseThrow(() -> new ServiceException("未找到脚本实现[" + script.getLanguage() + "]"));
-        ScriptManager.exec(script.getLanguage(), ScriptContext.build(scriptConfig.getScript(), "write(data, methods)")
+        ScriptManager.exec(script.getLanguage(), ScriptContext.build(script.getKey(), scriptConfig.getScript(), "write(data, methods)")
                 .addParam("data", param).addParam("methods", ScriptCmdMethodsProvider.INSTANCE));
 
     }
