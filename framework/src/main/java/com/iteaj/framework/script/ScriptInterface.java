@@ -1,5 +1,7 @@
 package com.iteaj.framework.script;
 
+import java.util.Map;
+
 public interface ScriptInterface<T> {
 
     ScriptLanguage getLanguage();
@@ -10,6 +12,8 @@ public interface ScriptInterface<T> {
      * @return
      */
     T compile(String script);
+
+    Object exec(String script, Map<String, Object> params);
 
     Object exec(ScriptContext context) throws ScriptExecException;
 }

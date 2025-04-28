@@ -12,7 +12,7 @@ public class ScriptCmdMethodsProvider extends ValueConvertProvide {
     public static ScriptCmdMethodsProvider INSTANCE = new ScriptCmdMethodsProvider();
 
     public static List<ScriptComplete> completes = Arrays.asList(
-            new ScriptComplete("methods.writeValue(data, null)", "将值写入",1),
+            new ScriptComplete("methods.writeValue(data, null)", "写值(只支持基础数据类型)",1),
             new ScriptComplete("methods.getUid(data)", "获取执行设备的uid",2),
             new ScriptComplete("methods.toHex(value)", "将基础类型值转成16进制",2),
             new ScriptComplete("methods.toBytes(value)", "将基础类型值转成字节数组",2),
@@ -44,7 +44,7 @@ public class ScriptCmdMethodsProvider extends ValueConvertProvide {
     public void writeValue(ProtocolModelApiInvokeParam data, Object value) {
         final String protocolAttrField = data.getConfig("protocolAttrField");
         if(isJSValue(value)) {
-            value = jsMirrorToString((ScriptObjectMirror) value);
+            throw new ScriptExecException("只支持写基础数据类型");
         }
 
         data.addParam(protocolAttrField, value);

@@ -161,7 +161,7 @@ public class ProtocolModelApiInvokeParam {
     }
 
     public String getApiCode() {
-        return this.getString(INVOKE_API_CODE);
+        return this.getConfig(INVOKE_API_CODE);
     }
 
     public ProtocolModelApiInvokeParam addApiCode(String apiCode) {

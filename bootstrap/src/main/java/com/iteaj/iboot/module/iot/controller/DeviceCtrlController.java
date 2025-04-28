@@ -8,10 +8,7 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.ProtocolInvokeException;
-import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
@@ -162,20 +159,23 @@ public class DeviceCtrlController extends BaseController {
             throw new ServiceException("请先启用产品["+product.getName()+"]");
         }
 
-        Device device = deviceService.getByUid(param.getUid())
-                .ifNotPresentThrow("查找不到设备[uid=" + param.getUid() + "]").getData();
+        final RealtimeStatus device = cacheManager.getByUid(param.getUid());
+        if(device == null) {
+            throw new ServiceException("设备不存在["+param.getUid()+"]");
+        }
+
         param.setDeviceSn(device.getDeviceSn()).addDeviceConfig(device.getConfig());
         // 网关子设备需要取网关设备
         if(product.getDeviceType() == DeviceType.Child) {
-            if(device.getPid() == null) {
-                throw new ServiceException("此网关子设备没有关联父网关设备");
-            }
-
             if(StrUtil.isBlank(device.getParentDeviceSn())) {
                 throw new ServiceException("查找不到绑定的父网关设备");
             }
 
             param.setParentDeviceSn(device.getParentDeviceSn());
+            RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
+            if(parent != null) {
+                param.addParentDeviceConfig(parent.getConfig());
+            }
         }
 
         DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
@@ -187,14 +187,6 @@ public class DeviceCtrlController extends BaseController {
         AbstractProtocolModelApi protocolModelApi = protocolSupplier.getProtocol().getApi(modelApi.getDirect());
         if(protocolModelApi == null) {
             throw new ServiceException("没有找到接口[apiCode="+modelApi.getDirect()+"]");
-        }
-
-        // 设置父网关设备配置
-        if(product.getDeviceType() == DeviceType.Child) {
-            RealtimeStatus parent = cacheManager.get(protocolSupplier.getProtocol().getCode(), device.getParentDeviceSn());
-            if(parent != null) {
-                param.addParentDeviceConfig(parent.getConfig());
-            }
         }
 
         return new Object[]{protocolModelApi, modelApi, product, protocolSupplier};
@@ -240,28 +232,15 @@ public class DeviceCtrlController extends BaseController {
     @CheckPermission({"iot:cmd:invoke"})
     @PostMapping("/command/invoke")
     public Mono<Result> invoke(@RequestBody CmdInvokeDto cmd) {
-        String cmdCode = cmd.getCode();
-        if(StrUtil.isBlank(cmdCode)) {
-            return Mono.create((t) -> t.success(fail("未指定指令码")));
+
+        ProtocolModelApiInvokeParam param;
+        try {
+            param = IotUtil.createParamByCmdCode(cmd.getCode(), cmd.getUid());
+        } catch (Exception e) {
+            return Mono.create((t) -> t.success(fail(e.getMessage())));
         }
 
-        String uid = cmd.getUid();
-        boolean isUidBlank = !cmdCode.contains("uid->");
-        if(!cmdCode.startsWith("api") || (isUidBlank && StrUtil.isBlank(uid))) {
-            return Mono.create((t) -> t.success(fail("指令码格式错误")));
-        }
-
-        String[] cmdItem = cmdCode.split("&");
-        if(cmdItem.length < 2) {
-            return Mono.create((t) -> t.success(fail("指令码格式错误")));
-        }
-
-        String modelApiCode = cmdItem[0].split("->")[1];
-        uid = isUidBlank ? uid : cmdItem[1].split("->")[1];
-
-        JSONObject params = resolveParams(cmdItem, isUidBlank);
-        ProtocolModelApiInvokeParam param = new ProtocolModelApiInvokeParam(uid, params);
-        Object[] objects = this.getProtocolModelApi(modelApiCode, param);
+        Object[] objects = this.getProtocolModelApi(param.getApiCode(), param);
         DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
 
         return Mono.<InvokeResult>create(item -> {
@@ -292,18 +271,5 @@ public class DeviceCtrlController extends BaseController {
                 return fail(item.getReason());
             }
         });
-    }
-
-    private JSONObject resolveParams(String[] cmdItem, boolean isUidBlank) {
-        int length = isUidBlank ? 1 : 2;
-        JSONObject result = new JSONObject();
-        if(cmdItem.length > length) {
-            for (int i = length; i < cmdItem.length; i++) {
-                String[] item = cmdItem[i].split("->");
-                result.put(item[0], item[1]);
-            }
-        }
-
-        return result;
     }
 }

@@ -27,7 +27,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
 
     @Override
     default List<ScriptConfig> getScripts() {
-        return Arrays.asList(new ScriptConfig(ScriptLanguage.javascript.getName(),
+        return Arrays.asList(new ScriptConfig(ScriptLanguage.javascript.getName(), "filter(data, methods);",
                 "/**\r\n" +
                 "* 数据过滤\r\n" +
                 "* 支持ECMAScript 5.1规范\r\n" +

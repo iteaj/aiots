@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.script.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.script.*;
 import com.iteaj.framework.script.ScriptContext;
 
@@ -9,8 +10,7 @@ import java.util.Map;
 
 public class JavaScriptImpl implements ScriptInterface<CompiledScript> {
 
-    private Map<String, CompiledScript> scriptMap = new HashMap<>();
-    private ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+    ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
 
     @Override
     public ScriptLanguage getLanguage() {
@@ -27,6 +27,20 @@ public class JavaScriptImpl implements ScriptInterface<CompiledScript> {
     }
 
     @Override
+    public Object exec(String script, Map<String, Object> params) {
+        try {
+            final Bindings bindings = engine.createBindings();
+            if(CollectionUtil.isNotEmpty(params)) {
+                params.forEach((key, value) -> bindings.put(key, value));
+            }
+
+            return engine.eval(script);
+        } catch (ScriptException e) {
+            throw new ScriptExecException("脚本执行异常[JavaScript]", e);
+        }
+    }
+
+    @Override
     public Object exec(ScriptContext context) {
         // 获取 JavaScript 脚本引擎
         try {
@@ -36,18 +50,13 @@ public class JavaScriptImpl implements ScriptInterface<CompiledScript> {
             }
 
             CompiledScript compiledScript = (CompiledScript) ScriptManager.getCompilable(context.getKey());
-            if(compiledScript == null) {
-                synchronized (this) {
-                    compiledScript = (CompiledScript) ScriptManager.getCompilable(context.getKey());
-                    if(compiledScript == null) {
-                        ScriptManager.register(context.getKey(), compiledScript = this.compile(context.getScript()));
-                    }
-                }
+            if(compiledScript != null) {
+                return compiledScript.eval(bindings);
             }
 
-            return compiledScript.eval(bindings);
+            return engine.eval(context.getScript(), bindings);
         } catch (ScriptException e) {
-            throw new ScriptExecException("脚本执行异常[JavaScript]", e);
+            throw new ScriptExecException("脚本[JavaScript]执行异常["+context.getKey()+"]", e);
         }
     }
 }

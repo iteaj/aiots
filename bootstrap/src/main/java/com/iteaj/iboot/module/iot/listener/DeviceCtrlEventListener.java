@@ -1,0 +1,77 @@
+package com.iteaj.iboot.module.iot.listener;
+
+import com.iteaj.framework.exception.FrameworkException;
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.spi.iot.IotUtil;
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.listener.CmdInvokeListener;
+import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.service.IModelApiService;
+import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
+import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
+import org.springframework.stereotype.Component;
+
+/**
+ * 设备指令控制监听实现
+ */
+@Component
+public class DeviceCtrlEventListener implements CmdInvokeListener {
+
+    private final IotCacheManager cacheManager;
+    private final IProductService productService;
+    private final IModelApiService modelApiService;
+
+    public DeviceCtrlEventListener(IotCacheManager cacheManager
+            , IProductService productService, IModelApiService modelApiService) {
+        this.cacheManager = cacheManager;
+        this.productService = productService;
+        this.modelApiService = modelApiService;
+    }
+
+    @Override
+    public void onIotEvent(IotEventType eventType, CmdInvokePayload value) {
+        final ProtocolModelApiInvokeParam invokeParam = IotUtil.createParamByCmdCode(value.getCmd(), value.getUid());
+        RealtimeStatus device = cacheManager.getByUid(value.getUid());
+        if(device == null) {
+            throw new ServiceException("设备不存在["+value.getUid()+"]");
+        }
+
+        //查找对应的物模型api
+        ModelApi modelApi = modelApiService.detailByCode(invokeParam.getApiCode())
+                .ifNotPresentThrow("接口代码不存在[apiCode=" + invokeParam.getApiCode() + "]")
+                .getData();
+
+        ProductDto product = this.productService.detailById(modelApi.getProductId())
+                .ifNotPresentThrow("未找到所属产品").getData();
+
+        if(product.getStatus() == FuncStatus.disabled) {
+            throw new ServiceException("产品未启用["+product.getName()+"]");
+        }
+
+        if(device.getStatus() == DeviceStatus.offline) {
+            if(device.getType() == DeviceType.Direct) {
+                throw new ServiceException("设备不在线["+device.getDeviceName()+"]");
+            } else if(device.getType() == DeviceType.Child) {
+                RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
+                if(parent != null && parent.getStatus() == DeviceStatus.offline) {
+                    throw new ServiceException("网关设备不在线["+parent.getDeviceName()+"]");
+                }
+            }
+        }
+
+        ProtocolInvokeUtil.invoke(modelApi, invokeParam, device, (result) -> {
+            value.setResult(result);
+        });
+    }
+}

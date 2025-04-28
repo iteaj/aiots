@@ -83,8 +83,10 @@ public class Script extends BaseEntity implements FunctionScript {
     private List<ScriptComplete> completes;
 
     public static final String TYPE_FILTER = "filter";
+    public static final String TYPE_LINKAGE = "linkage";
     public static final String TYPE_MODEL_API = "model_api";
     public static final String TYPE_MODEL_ATTR = "model_attr";
+    // 其他地方有引用 {@code ProtocolInvokeUtil#buildDownConfig}
     public static final String KEY_PREFIX = "script:";
     public Script setScript(JSONArray script) {
         this.script = script;

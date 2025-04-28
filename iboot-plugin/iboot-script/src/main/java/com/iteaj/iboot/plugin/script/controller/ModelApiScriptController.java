@@ -29,7 +29,7 @@ public class ModelApiScriptController extends BaseController {
     private final IScriptService scriptService;
     private List<ScriptComplete> completes = Arrays.asList();
     private final List<ScriptConfig> configs = Arrays.asList(
-            new ScriptConfig(ScriptLanguage.javascript.getName(), "" +
+            new ScriptConfig(ScriptLanguage.javascript.getName(), "write(data, methods)", "" +
                     "/**\r\n" +
                     "* 写值\r\n" +
                     "* 支持ECMAScript 5.1规范\r\n" +
@@ -48,7 +48,7 @@ public class ModelApiScriptController extends BaseController {
     }
 
     /**
-     * 自动不全列表
+     * 自动补全列表
      * @return
      */
     @GetMapping("completes")

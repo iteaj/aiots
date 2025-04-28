@@ -74,31 +74,28 @@ public class ProtocolInvokeUtil {
                 }
 
                 param.addParam(item.getProtocolAttrField(), item.getAttrDefaultValue());
-            } else if(trimValue.startsWith("#")) {
+            } else if(trimValue.startsWith("#")) { // 功能脚本引用
                 param.addConfig("protocolAttrField", item.getProtocolAttrField());
-                final long l = System.currentTimeMillis();
                 invokeScript(param, trimValue.substring(1));
-                System.out.println(System.currentTimeMillis() - l);
             } else {
                 param.addParam(item.getProtocolAttrField(), item.getValue());
             }
+        } else if(attrValue.startsWith("#script:")) { // 功能脚本引用
+            param.addConfig("protocolAttrField", item.getProtocolAttrField());
+            invokeScript(param, attrValue.substring(1));
         }
     }
 
     @Nullable
     public static void invokeScript(ProtocolModelApiInvokeParam param, String scriptName) {
         final FunctionScript script = ScriptConfigService.instance.getScript(scriptName);
-        if(script == null) {
-            throw new ServiceException("未找到功能脚本["+scriptName+"]");
+
+        final ScriptConfig scriptConfig = ScriptConfigService.instance.getScriptConfig(script);
+        if(scriptConfig == null) {
+            throw new ServiceException("未找到脚本实现[" + scriptName + "->" + script.getLanguage() + "]");
         }
 
-        if(script.getLanguage() == null) {
-            throw new ServiceException("未启用此功能脚本["+scriptName+"]");
-        }
-
-        final ScriptConfig scriptConfig = script.getConfigs().stream().filter(config -> Objects.equals(config.getLanguage()
-                , script.getLanguage())).findFirst().orElseThrow(() -> new ServiceException("未找到脚本实现[" + script.getLanguage() + "]"));
-        ScriptManager.exec(script.getLanguage(), ScriptContext.build(script.getKey(), scriptConfig.getScript(), "write(data, methods)")
+        ScriptManager.exec(script.getLanguage(), ScriptContext.build(script.getKey(), scriptConfig.getScript(), scriptConfig.getInvoke())
                 .addParam("data", param).addParam("methods", ScriptCmdMethodsProvider.INSTANCE));
 
     }

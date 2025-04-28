@@ -25,10 +25,14 @@ public interface JavaScriptValueProvide {
     }
 
     default String jsMirrorToString(ScriptObjectMirror value) {
-        if(isJSArray(value)) {
-            return jsArrayToString(value);
-        } else {
-            return jsObjectToString(value);
+        if(!value.isEmpty()) {
+            if(isJSArray(value)) {
+                return jsArrayToString(value);
+            } else {
+                return jsObjectToString(value);
+            }
         }
+
+        return null;
     }
 }

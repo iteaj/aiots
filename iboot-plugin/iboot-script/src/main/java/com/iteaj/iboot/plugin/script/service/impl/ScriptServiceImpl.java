@@ -9,6 +9,7 @@ import com.iteaj.framework.script.*;
 import com.iteaj.iboot.plugin.script.entity.BindDto;
 import com.iteaj.iboot.plugin.script.entity.Script;
 import com.iteaj.iboot.plugin.script.mapper.ScriptMapper;
+import com.iteaj.iboot.plugin.script.model.LinkageScriptRealtimeListener;
 import com.iteaj.iboot.plugin.script.service.IScriptService;
 import com.iteaj.framework.BaseServiceImpl;
 import org.springframework.beans.factory.InitializingBean;
@@ -98,6 +99,16 @@ public class ScriptServiceImpl extends BaseServiceImpl<ScriptMapper, Script> imp
             data = this.getOne(Wrappers.<Script>lambdaQuery().eq(Script::getName, key)).getData();
         }
 
+        if(data != null) {
+            final ScriptConfig scriptConfig = getScriptConfig(data);
+            if(scriptConfig != null) {
+                // 进行脚本编译并注册
+                ScriptManager.register(key, scriptConfig);
+            } else {
+                data = null; // 没有选中使用的语言相当于禁用
+            }
+        }
+
         cache.put(key, data);
         return data;
     }
@@ -114,9 +125,10 @@ public class ScriptServiceImpl extends BaseServiceImpl<ScriptMapper, Script> imp
                 .eq(Script::getName, entity.getName()))
                 .ifPresentThrow("此脚本已经存在["+entity.getName()+"]");
 
+        entity.setUpdateTime(new Date());
         return super.save(entity).ifPresentAndTrue(status -> {
-            registerCompilable(entity);
             removeCache(entity);
+            registerCompilable(entity);
         });
     }
 
@@ -130,19 +142,31 @@ public class ScriptServiceImpl extends BaseServiceImpl<ScriptMapper, Script> imp
 
     private void registerCompilable(Script entity) {
         final ScriptConfig scriptConfig = this.getScriptConfig(entity);
-        if (scriptConfig != null) {
+        if (scriptConfig != null) { // 有选中语言
             try {
                 if(entity.getType().equals(Script.TYPE_FILTER)) {
-                    ScriptManager.register(scriptConfig.getLanguage(), entity.getName(), scriptConfig.getScript());
+                    ScriptManager.register(entity.getName(), scriptConfig);
                 } else {
                     if(entity.getId() == null) {
                         throw new ServiceException("创建脚本Key失败");
                     }
 
-                    ScriptManager.register(scriptConfig.getLanguage(), entity.getKey(), scriptConfig.getScript());
+                    ScriptManager.register(entity.getKey(), scriptConfig);
+                    if(entity.getType().equals(Script.TYPE_LINKAGE)) {
+                        LinkageScriptRealtimeListener.register(entity.getKey(), scriptConfig);
+                    }
                 }
             } catch (ScriptExecException e) {
                 throw new ServiceException(e.getMessage(), e);
+            }
+        } else { // 禁用
+            if(entity.getType().equals(Script.TYPE_FILTER)) {
+                ScriptManager.removeCompilable(entity.getName());
+            } else {
+                ScriptManager.removeCompilable(entity.getKey());
+                if(entity.getType().equals(Script.TYPE_LINKAGE)) {
+                    LinkageScriptRealtimeListener.remove(entity.getKey());
+                }
             }
         }
     }
@@ -150,8 +174,6 @@ public class ScriptServiceImpl extends BaseServiceImpl<ScriptMapper, Script> imp
     @Override
     @Transactional
     public BooleanResult updateById(Script entity) {
-        registerCompilable(entity);
-
         this.getOne(Wrappers.<Script>lambdaQuery()
                 .eq(Script::getType, entity.getType())
                 .eq(Script::getName, entity.getName())
@@ -161,14 +183,18 @@ public class ScriptServiceImpl extends BaseServiceImpl<ScriptMapper, Script> imp
         entity.setUpdateTime(new Date());
         return super.updateById(entity).ifPresentAndTrue(status -> {
             removeCache(entity);
+            registerCompilable(entity);
         });
     }
 
     @Override
     @Transactional
     public BooleanResult removeById(Serializable id) {
-        return super.removeById(id).ifPresentAndTrue((status) ->
-                ScriptManager.removeCompilable(Script.KEY_PREFIX + id));
+        final Script script = this.getById(id).ifNotPresentThrow("记录不存在").getData();
+        return super.removeById(id).ifPresentAndTrue((status) -> {
+            removeCache(script);
+            ScriptManager.removeCompilable(script.getKey());
+        });
     }
 
     @Override

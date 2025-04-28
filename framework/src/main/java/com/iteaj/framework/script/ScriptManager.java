@@ -25,10 +25,10 @@ public class ScriptManager {
         compiledScriptMap.put(key, compilable);
     }
 
-    public static void register(String language, String key, String script) {
-        final ScriptInterface scriptInterface = get(language);
+    public static void register(String key, ScriptConfig script) {
+        final ScriptInterface scriptInterface = get(script.getLanguage());
         if(scriptInterface != null) {
-            final Object compile = scriptInterface.compile(script);
+            final Object compile = scriptInterface.compile(script.getScript() + "\r\n" + script.getInvoke());
             if(compile != null) {
                 register(key, compile);
             }
@@ -38,6 +38,11 @@ public class ScriptManager {
     public static Object exec(String language, ScriptContext context) {
         final ScriptInterface scriptInterface = interfaceMap.get(language);
         return scriptInterface != null ? scriptInterface.exec(context) : null;
+    }
+
+    public static Object exec(String language, String script, Map<String, Object> params) {
+        final ScriptInterface scriptInterface = interfaceMap.get(language);
+        return scriptInterface != null ? scriptInterface.exec(script, params) : null;
     }
 
     public static ScriptInterface get(String language) {
