@@ -74,7 +74,7 @@ public class ProtocolInvokeUtil {
                 }
 
                 param.addParam(item.getProtocolAttrField(), item.getAttrDefaultValue());
-            } else if(trimValue.startsWith("#")) { // 功能脚本引用
+            } else if(trimValue.startsWith("#script:")) { // 功能脚本引用
                 param.addConfig("protocolAttrField", item.getProtocolAttrField());
                 invokeScript(param, trimValue.substring(1));
             } else {
