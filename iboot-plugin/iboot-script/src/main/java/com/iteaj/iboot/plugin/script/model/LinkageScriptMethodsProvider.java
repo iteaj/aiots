@@ -7,12 +7,18 @@ import com.iteaj.framework.script.ScriptExecException;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
-import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
+import com.iteaj.framework.spi.iot.data.WarnData;
+import com.iteaj.framework.spi.iot.listener.ScriptInvokePayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 import com.iteaj.framework.spi.iot.listener.filter.RealtimeMethodProvide;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -20,8 +26,13 @@ import java.util.concurrent.TimeUnit;
 public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
 
     public static List<ScriptComplete> completes = Arrays.asList(
-            new ScriptComplete("methods.cmd(cmdCode)", "执行指令(设备指令集指令)",1),
-            new ScriptComplete("methods.cmd(cmdCode, uid)", "执行指令(产品指令集指令)",1),
+            new ScriptComplete("methods.invoke(cmd)", "执行指令(设备指令集指令)",1),
+            new ScriptComplete("methods.invoke(cmd, uid)", "执行指令(产品指令集指令)",1),
+            new ScriptComplete("methods.warn(warnMsgId, uid, field, value, content)", "发送告警",1),
+            new ScriptComplete("methods.statusWarn(warnMsgId, uid, field, value, content)", "发送状态告警",1),
+            new ScriptComplete("methods.fatalWarn(warnMsgId, uid, field, value, content)", "发送严重告警",1),
+            new ScriptComplete("methods.urgentWarn(warnMsgId, uid, field, value, content)", "发送紧急告警",1),
+            new ScriptComplete("methods.noticeWarn(warnMsgId, uid, field, value, content)", "发送通知",1),
             new ScriptComplete("methods.getUid(data)", "当前触发的设备",1),
             new ScriptComplete("methods.getValue(uid, field)", "获取指定字段的最新值",1),
             new ScriptComplete("methods.getPrevValue(uid, field)", "获取指定字段的上一个值",1),
@@ -42,15 +53,15 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
 
     protected LinkageScriptMethodsProvider() {}
 
-    public void cmd(String cmdCode) {
+    public void invoke(String cmdCode) {
         if(StrUtil.isBlank(cmdCode)) {
             throw new ScriptExecException("指令参数必填");
         }
 
-        IotEvenPublisher.publish(IotEventType.CmdInvoke, new CmdInvokePayload(null, cmdCode));
+        IotEvenPublisher.publish(IotEventType.ScriptInvoke, ScriptInvokePayload.build(null, cmdCode));
     }
 
-    public void cmd(String cmdCode, String uid) {
+    public void invoke(String cmdCode, String uid) {
         if(StrUtil.isBlank(cmdCode)) {
             throw new ScriptExecException("指令参数必填");
         }
@@ -59,7 +70,40 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
             throw new ScriptExecException("设备uid必填");
         }
 
-        IotEvenPublisher.publish(IotEventType.CmdInvoke, new CmdInvokePayload(uid, cmdCode));
+        IotEvenPublisher.publish(IotEventType.ScriptInvoke, ScriptInvokePayload.build(uid, cmdCode));
+    }
+
+    public void warn(Long warnMsgId, String uid, String field, String value, String content) {
+        this.doWarn(warnMsgId, uid, field, value, "warn", content);
+    }
+
+    public void fatalWarn(Long warnMsgId, String uid, String field, String value, String content) {
+        this.doWarn(warnMsgId, uid, field, value, "fatal", content);
+    }
+
+    public void urgentWarn(Long warnMsgId, String uid, String field, String value, String content) {
+        this.doWarn(warnMsgId, uid, field, value, "urgent", content);
+    }
+
+    public void noticeWarn(Long warnMsgId, String uid, String field, String value, String content) {
+        this.doWarn(warnMsgId, uid, field, value, "notice", content);
+    }
+
+    public void statusWarn(Long warnMsgId, String uid, String field, String value, String content) {
+        this.doWarn(warnMsgId, uid, field, value, "status", content);
+    }
+
+    public void doWarn(Long warnMsgId, String uid, String field, String value, Object grade, String content) {
+        final RealtimeDeviceStatus device = getRealtimeDataService().getDeviceStatus(uid);
+        if(device == null) {
+            throw new ScriptExecException("设备不存在["+uid+"]");
+        }
+
+        final Warn warn = new Warn(device).setField(field).setValue(value)
+                .setContent(content).setWarnMsgId(warnMsgId).setGrade(grade);
+
+        // 以脚本方式触发的告警
+        IotEvenPublisher.publish(IotEventType.ScriptInvoke, ScriptInvokePayload.build(warn));
     }
 
     public Object getValue(String uid, String field) {
@@ -134,5 +178,77 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         }
 
         throw new ServiceException("非实时数据, 无法对比");
+    }
+
+    @Setter
+    @Accessors(chain = true)
+    public class Warn implements WarnData {
+
+        private String value;
+        private String field;
+        private String content;
+        private Date warnTime;
+        private Object grade;
+        /**
+         * 告警模板id
+         */
+        private Long warnMsgId;
+        private RealtimeDeviceStatus device;
+
+        public Warn(RealtimeDeviceStatus device) {
+            this.device = device;
+            this.warnTime = new Date();
+        }
+
+        @Override
+        public String getUid() {
+            return device.getUid();
+        }
+
+        @Override
+        public String getValue() {
+            return this.value;
+        }
+
+        @Override
+        public String getField() {
+            return this.field;
+        }
+
+        @Override
+        public String getDeviceSn() {
+            return device.getDeviceSn();
+        }
+
+        @Override
+        public String getContent() {
+            return this.content;
+        }
+
+        @Override
+        public Date getWarnTime() {
+            return this.warnTime;
+        }
+
+        @Override
+        public Object getGrade() {
+            return this.grade;
+        }
+
+        @Override
+        public Long getWarnConfigId() {
+            return this.warnMsgId;
+        }
+
+        @Override
+        public String getProductCode() {
+            return device.getProductCode();
+        }
+
+        @Override
+        public String getDeviceName() {
+            return device.getDeviceName();
+        }
+
     }
 }

@@ -28,17 +28,20 @@ public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotA
     @Override
     public void onIotEvent(IotEventType eventType, RealtimePayload value) {
         final String type = value.getType();
-        if(!keyAttrMaps.isEmpty() && CollectionUtil.isNotEmpty(value.getPayload())) {
-            final boolean data = Objects.equals(type, "data");
-            final boolean status = Objects.equals(type, "status");
-            if((status || data)) {
-                keyAttrMaps.forEach((key, attrs) -> {
-                    if(status) {
-                        statusHandle(key, value.getPayload(), attrs);
-                    } else {
-                        dataHandle(key, value.getPayload(), attrs);
-                    }
-                });
+        // 监听实时数据和状态数据
+        if(Objects.equals("data", type) || Objects.equals("status", type)) {
+            if(!keyAttrMaps.isEmpty() && CollectionUtil.isNotEmpty(value.getPayload())) {
+                final boolean data = Objects.equals(type, "data");
+                final boolean status = Objects.equals(type, "status");
+                if((status || data)) {
+                    keyAttrMaps.forEach((key, attrs) -> {
+                        if(status) {
+                            statusHandle(key, value.getPayload(), attrs);
+                        } else {
+                            dataHandle(key, value.getPayload(), attrs);
+                        }
+                    });
+                }
             }
         }
     }

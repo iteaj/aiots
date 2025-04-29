@@ -200,5 +200,6 @@ public class ScriptServiceImpl extends BaseServiceImpl<ScriptMapper, Script> imp
     @Override
     public void afterPropertiesSet() throws Exception {
         ((ScriptConfigService.ScriptConfigServiceProxy) ScriptConfigService.instance).setProxy(this);
+        this.listByType(Script.TYPE_LINKAGE).forEach(script -> registerCompilable(script));
     }
 }

@@ -22,7 +22,7 @@ public class JavaScriptImpl implements ScriptInterface<CompiledScript> {
         try {
             return ((Compilable) engine).compile(script);
         } catch (ScriptException e) {
-            throw new ScriptExecException("编译失败", e);
+            throw new ScriptExecException("编译失败["+e.getMessage()+"]", e);
         }
     }
 

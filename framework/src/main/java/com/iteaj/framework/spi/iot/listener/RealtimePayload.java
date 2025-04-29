@@ -12,6 +12,7 @@ public class RealtimePayload extends EntityPayload<Collection> {
     /**
      * 实时负载类型
      * warn 实时告警
+     * script_warn 脚本告警
      * status 实时设备在线状态
      * data 实时采集的数据
      * data_full 完整的采集数据
