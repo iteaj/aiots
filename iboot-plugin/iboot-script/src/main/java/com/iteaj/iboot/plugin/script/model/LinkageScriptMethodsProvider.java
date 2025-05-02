@@ -18,12 +18,13 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
 
     private final static String Split = ":";
-    private Map<String, Long> interval = new HashMap<>();
+    private Map<String, Long> interval = new ConcurrentHashMap<>();
 
     public static List<ScriptComplete> completes = Arrays.asList(
             new ScriptComplete("methods.invoke(cmd)", "执行指令(设备指令集指令)",1),
