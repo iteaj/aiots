@@ -30,7 +30,6 @@ public class WarnSendMsgListener implements IotListener<Object> {
             }
         } else if(value instanceof ScriptInvokePayload && ((ScriptInvokePayload) value).isWarn()) {
             templateService.sendWarnMessage(((ScriptInvokePayload) value).getData());
-            System.out.println(value);
         }
     }
 

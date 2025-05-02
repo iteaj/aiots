@@ -140,7 +140,7 @@ public class MessageTemplateServiceImpl extends BaseServiceImpl<MessageTemplateM
         final WarnMessageTemplate template = this.getBaseMapper().getWarnTemplateByWarnTempId(warn.getWarnConfigId(), warn.getUid());
         if(template != null && CollectionUtil.isNotEmpty(template.getUsers())) {
             template.setContent(warn.getContent());
-            template.setTemplateTitle(String.format("设备[%s]触发告警(%s)", warn.getDeviceName(), warn.getGrade()));
+            template.setTemplateTitle(String.format("%s设备触发告警[%s]", warn.getDeviceName(), warn.getGrade()));
             doSendWarnMsg(warn, template);
         }
     }

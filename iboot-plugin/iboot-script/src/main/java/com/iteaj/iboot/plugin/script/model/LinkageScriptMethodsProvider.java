@@ -35,7 +35,7 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
             new ScriptComplete("methods.urgentWarn(msgTempId, uid, field, value, content)", "发送紧急告警",1),
             new ScriptComplete("methods.noticeWarn(msgTempId, uid, field, value, content)", "发送告警通知",1),
             new ScriptComplete("methods.normalWarn(msgTempId, uid, field, value, content)", "发送告警解除",1),
-            new ScriptComplete("methods.isGtPrevInterval(uid, field, time)", "距离上一次告警时间是否大于指定时间(秒)",1),
+            new ScriptComplete("methods.isGtPrevWarnInterval(uid, field, time)", "距离上一次告警时间是否大于指定时间(秒)",1),
             new ScriptComplete("methods.getUid(data)", "当前触发的设备",1),
             new ScriptComplete("methods.getValue(uid, field)", "获取指定字段的最新值",1),
             new ScriptComplete("methods.getPrevValue(uid, field)", "获取指定字段的上一个值",1),
@@ -107,13 +107,13 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
      * @param time 时间(秒)
      * @return
      */
-    public boolean isWarnGtPrevInterval(String uid, String field, Integer time) {
+    public boolean isGtPrevWarnInterval(String uid, String field, Integer time) {
         if(StrUtil.isBlank(uid) || StrUtil.isBlank(field) || time == null || time <= 0) {
-            throw new ScriptExecException("函数[isWarnGtPrevInterval]入参错误");
+            throw new ScriptExecException("函数[isGtPrevWarnInterval]入参错误");
         }
 
         final Long warnTime = interval.get(uid + Split + field);
-        if(warnTime == null) {
+        if(warnTime == null) { // 第一次触发告警返回true
             return true;
         }
 
