@@ -184,7 +184,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                                 splitPoints.forEach(point -> {
                                     final int address = Integer.parseInt(point.getAddress());
                                     if(payload instanceof ReadPayload) {
-                                        final String dataType = endPoint.getDownConfig(AbstractModbusProtocolSupplier.dataType);
+                                        final String dataType = point.getDownConfig(AbstractModbusProtocolSupplier.dataType);
                                         final String strNum = point.getDownConfig(PointProtocolConfig.POINT_NUMBER);
                                         final Object pointValue = resolverValue(payload, Integer.valueOf(strNum), address, dataType);
                                         final Object resolverValue = DataValueResolverFactory.resolver(point.getModelAttr(), pointValue);

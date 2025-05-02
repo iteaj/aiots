@@ -20,9 +20,9 @@ import java.util.*;
  */
 public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotAsyncListener<RealtimePayload> {
 
-    private static String SPEC = ":";
-    private static String ALL_FIELD = ":*";
-    private static String STATUS = ":#status";
+    private final static String SPEC = ":";
+    private final static String ALL_FIELD = ":*";
+    private final static String STATUS = ":#status";
     public static Map<String, Set<String>> keyAttrMaps = new HashMap<>();
 
     @Override
@@ -35,10 +35,14 @@ public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotA
                 final boolean status = Objects.equals(type, "status");
                 if((status || data)) {
                     keyAttrMaps.forEach((key, attrs) -> {
-                        if(status) {
-                            statusHandle(key, value.getPayload(), attrs);
-                        } else {
-                            dataHandle(key, value.getPayload(), attrs);
+                        try {
+                            if(status) {
+                                statusHandle(key, value.getPayload(), attrs);
+                            } else {
+                                dataHandle(key, value.getPayload(), attrs);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     });
                 }

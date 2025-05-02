@@ -17,22 +17,24 @@ import com.iteaj.framework.spi.iot.listener.filter.RealtimeMethodProvide;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
+
+    private final static String Split = ":";
+    private Map<String, Long> interval = new HashMap<>();
 
     public static List<ScriptComplete> completes = Arrays.asList(
             new ScriptComplete("methods.invoke(cmd)", "执行指令(设备指令集指令)",1),
             new ScriptComplete("methods.invoke(cmd, uid)", "执行指令(产品指令集指令)",1),
             new ScriptComplete("methods.warn(warnMsgId, uid, field, value, content)", "发送告警",1),
-            new ScriptComplete("methods.statusWarn(warnMsgId, uid, field, value, content)", "发送状态告警",1),
-            new ScriptComplete("methods.fatalWarn(warnMsgId, uid, field, value, content)", "发送严重告警",1),
-            new ScriptComplete("methods.urgentWarn(warnMsgId, uid, field, value, content)", "发送紧急告警",1),
-            new ScriptComplete("methods.noticeWarn(warnMsgId, uid, field, value, content)", "发送通知",1),
+            new ScriptComplete("methods.statusWarn(msgTempId, uid, field, value, content)", "发送状态告警",1),
+            new ScriptComplete("methods.fatalWarn(msgTempId, uid, field, value, content)", "发送严重告警",1),
+            new ScriptComplete("methods.urgentWarn(msgTempId, uid, field, value, content)", "发送紧急告警",1),
+            new ScriptComplete("methods.noticeWarn(msgTempId, uid, field, value, content)", "发送告警通知",1),
+            new ScriptComplete("methods.normalWarn(msgTempId, uid, field, value, content)", "发送告警解除",1),
+            new ScriptComplete("methods.isGtPrevInterval(uid, field, time)", "距离上一次告警时间是否大于指定时间(秒)",1),
             new ScriptComplete("methods.getUid(data)", "当前触发的设备",1),
             new ScriptComplete("methods.getValue(uid, field)", "获取指定字段的最新值",1),
             new ScriptComplete("methods.getPrevValue(uid, field)", "获取指定字段的上一个值",1),
@@ -74,33 +76,76 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
     }
 
     public void warn(Long warnMsgId, String uid, String field, String value, String content) {
-        this.doWarn(warnMsgId, uid, field, value, "warn", content);
+        this.doWarn(warnMsgId, uid, field, value, "告警", content);
     }
 
     public void fatalWarn(Long warnMsgId, String uid, String field, String value, String content) {
-        this.doWarn(warnMsgId, uid, field, value, "fatal", content);
+        this.doWarn(warnMsgId, uid, field, value, "严重", content);
     }
 
     public void urgentWarn(Long warnMsgId, String uid, String field, String value, String content) {
-        this.doWarn(warnMsgId, uid, field, value, "urgent", content);
+        this.doWarn(warnMsgId, uid, field, value, "紧急", content);
     }
 
     public void noticeWarn(Long warnMsgId, String uid, String field, String value, String content) {
-        this.doWarn(warnMsgId, uid, field, value, "notice", content);
+        this.doWarn(warnMsgId, uid, field, value, "通知", content);
+    }
+
+    public void normalWarn(Long warnMsgId, String uid, String field, String value, String content) {
+        this.doWarn(warnMsgId, uid, field, value, "解除", content);
     }
 
     public void statusWarn(Long warnMsgId, String uid, String field, String value, String content) {
-        this.doWarn(warnMsgId, uid, field, value, "status", content);
+        this.doWarn(warnMsgId, uid, field, value, "状态", content);
+    }
+
+    /**
+     * 距离上一次告警时间是否大于指定时间
+     * @param uid 设备uid
+     * @param field 模型属性
+     * @param time 时间(秒)
+     * @return
+     */
+    public boolean isWarnGtPrevInterval(String uid, String field, Integer time) {
+        if(StrUtil.isBlank(uid) || StrUtil.isBlank(field) || time == null || time <= 0) {
+            throw new ScriptExecException("函数[isWarnGtPrevInterval]入参错误");
+        }
+
+        final Long warnTime = interval.get(uid + Split + field);
+        if(warnTime == null) {
+            return true;
+        }
+
+        return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - warnTime) > time;
     }
 
     public void doWarn(Long warnMsgId, String uid, String field, String value, Object grade, String content) {
+        if(warnMsgId == null || StrUtil.isBlank(uid) || StrUtil.isBlank(field)) {
+            throw new ScriptExecException("发送告警["+grade+"]入参错误");
+        }
+
         final RealtimeDeviceStatus device = getRealtimeDataService().getDeviceStatus(uid);
         if(device == null) {
-            throw new ScriptExecException("设备不存在["+uid+"]");
+            throw new ScriptExecException("告警失败 设备不存在["+uid+"]");
         }
+
+        content = content != null ? content : String.format("设备[%s]触发[%s]告警, 告警值[%s=%s]"
+                , device.getDeviceName(), grade, field, value);
 
         final Warn warn = new Warn(device).setField(field).setValue(value)
                 .setContent(content).setWarnMsgId(warnMsgId).setGrade(grade);
+
+
+        final String key = uid + Split + field;
+        if(Objects.equals("解除", grade)) {
+            if(interval.containsKey(key)) {
+                interval.remove(key);
+            } else {
+                return; // 之前没有发送过告警, 不发送解除告警
+            }
+        } else if(!Objects.equals("状态", grade)) {
+            interval.put(key, System.currentTimeMillis());
+        }
 
         // 以脚本方式触发的告警
         IotEvenPublisher.publish(IotEventType.ScriptInvoke, ScriptInvokePayload.build(warn));
