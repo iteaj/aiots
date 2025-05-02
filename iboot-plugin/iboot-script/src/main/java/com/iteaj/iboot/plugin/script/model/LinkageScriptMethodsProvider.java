@@ -30,7 +30,7 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
             new ScriptComplete("methods.invoke(cmd)", "执行指令(设备指令集指令)",1),
             new ScriptComplete("methods.invoke(cmd, uid)", "执行指令(产品指令集指令)",1),
             new ScriptComplete("methods.warn(warnMsgId, uid, field, value, content)", "发送告警",1),
-            new ScriptComplete("methods.statusWarn(msgTempId, uid, field, value, content)", "发送状态告警",1),
+            new ScriptComplete("methods.statusWarn(msgTempId, uid, content)", "发送状态告警",1),
             new ScriptComplete("methods.fatalWarn(msgTempId, uid, field, value, content)", "发送严重告警",1),
             new ScriptComplete("methods.urgentWarn(msgTempId, uid, field, value, content)", "发送紧急告警",1),
             new ScriptComplete("methods.noticeWarn(msgTempId, uid, field, value, content)", "发送告警通知",1),
@@ -96,8 +96,8 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         this.doWarn(warnMsgId, uid, field, value, "解除", content);
     }
 
-    public void statusWarn(Long warnMsgId, String uid, String field, String value, String content) {
-        this.doWarn(warnMsgId, uid, field, value, "状态", content);
+    public void statusWarn(Long warnMsgId, String uid, String content) {
+        this.doWarn(warnMsgId, uid, "status", null, "状态", content);
     }
 
     /**
