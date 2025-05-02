@@ -7,8 +7,9 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.script.ScriptComplete;
 import com.iteaj.framework.spi.iot.DataValueResolverFactory;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptConfig;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptLanguage;
+import com.iteaj.framework.script.ScriptConfig;
+import com.iteaj.framework.script.ScriptLanguage;
+import com.iteaj.iboot.plugin.script.entity.BindDto;
 import com.iteaj.iboot.plugin.script.entity.Script;
 import com.iteaj.iboot.plugin.script.model.ScriptModelAttrResolver;
 import com.iteaj.iboot.plugin.script.service.IScriptService;
@@ -29,18 +30,18 @@ import java.util.Objects;
 public class ModelAttrScriptController extends BaseController implements InitializingBean {
 
     private final IScriptService scriptService;
-    private final static String KEY_PREFIX = "ATTR:";
     private List<ScriptComplete> completes = Arrays.asList();
     private final List<ScriptConfig> configs = Arrays.asList(
-            new ScriptConfig(ScriptLanguage.javascript.getName(), "" +
+            new ScriptConfig(ScriptLanguage.javascript.getName(), "resolver(value, model, methods)", "" +
                     "/**\r\n" +
+                    "* 支持ECMAScript 5.1规范\r\n" +
                     "* @param value 采集的值\r\n" +
                     "* @param model 模型属性配置\r\n" +
                     "* @param methods 常用方法\r\n" +
                     "* @return Object 解析后的值\r\n" +
                     "*/\r\n" +
                     "function resolver(value, model, methods) {\r\n" +
-                    "   return value;\r\n" +
+                    "    return value;\r\n" +
                     "}\r\n" +
                     "")
     );
@@ -50,7 +51,7 @@ public class ModelAttrScriptController extends BaseController implements Initial
     }
 
     /**
-     * 自动不全列表
+     * 自动补全列表
      * @return
      */
     @GetMapping("completes")
@@ -77,6 +78,16 @@ public class ModelAttrScriptController extends BaseController implements Initial
     }
 
     /**
+     * 已绑定的属性列表
+     * @param id
+     * @return
+     */
+    @GetMapping("binds")
+    public Result<List<BindDto>> binds(Long id) {
+        return scriptService.bindAttrs(id);
+    }
+
+    /**
      * 更新或者保存记录
      * @param entity
      * @return
@@ -85,12 +96,12 @@ public class ModelAttrScriptController extends BaseController implements Initial
     public Result saveOrUpdate(@RequestBody Script entity) {
         entity.setType(Script.TYPE_MODEL_ATTR);
         return this.scriptService.saveOrUpdate(entity).ifPresentAndTrue(status -> {
-            final String key = KEY_PREFIX + entity.getId();
+            final String key = entity.getKey();
             if(StrUtil.isNotBlank(entity.getLanguage())) {
                 if(entity.getConfigs() != null) {
                     entity.getConfigs().forEach(item -> {
                         if(Objects.equals(item.getLanguage(), entity.getLanguage())) {
-                            DataValueResolverFactory.update(key, new ScriptModelAttrResolver(entity.getName(), item));
+                            DataValueResolverFactory.update(key, new ScriptModelAttrResolver(key, entity.getName(), item));
                         }
                     });
                 }
@@ -111,12 +122,16 @@ public class ModelAttrScriptController extends BaseController implements Initial
             return fail("未指定要删除的记录");
         }
 
-        this.scriptService.listByIds(ids).ifPresent(scripts -> {
-            this.scriptService.removeByIds(ids);
-            scripts.forEach(script -> DataValueResolverFactory.remove(KEY_PREFIX + script.getId()));
-        });
+        if(ids.size() > 1) {
+            return fail("不支持批量删除");
+        }
 
-        return success("删除成功");
+        final Script data = this.scriptService.getById(ids.get(0)).ifNotPresentThrow("记录不存在").getData();
+        Boolean isJoin = this.scriptService.isJoinModelAttr(data.getKey());
+
+        return Boolean.TRUE.equals(isJoin) ? fail("此脚本已被使用, 请先删除关联") :
+                this.scriptService.removeById(data.getId()).ifPresent((status) ->
+                        DataValueResolverFactory.remove(data.getKey()));
     }
 
     @Override
@@ -125,7 +140,7 @@ public class ModelAttrScriptController extends BaseController implements Initial
             scripts.forEach(item -> {
                 item.getConfigs().forEach(config -> {
                     if(Objects.equals(config.getLanguage(), item.getLanguage())) {
-                        DataValueResolverFactory.register(KEY_PREFIX + item.getId(), new ScriptModelAttrResolver(item.getName(), config));
+                        DataValueResolverFactory.register(item.getKey(), new ScriptModelAttrResolver(item.getKey(), item.getName(), config));
                     }
                 });
             });

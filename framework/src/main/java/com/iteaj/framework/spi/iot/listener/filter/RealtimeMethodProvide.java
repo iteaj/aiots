@@ -1,5 +1,7 @@
 package com.iteaj.framework.spi.iot.listener.filter;
 
+import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.script.JavaScriptValueProvide;
 import com.iteaj.framework.script.ScriptComplete;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.data.*;
@@ -10,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class RealtimeMethodProvide {
+public class RealtimeMethodProvide implements JavaScriptValueProvide {
 
     private IModelAttrRealtimeDataService realtimeDataService;
     public static List<ScriptComplete> completes = Arrays.asList(
@@ -21,7 +23,7 @@ public class RealtimeMethodProvide {
             new ScriptComplete("methods.isGeIntervalChange(data, 0)", "改变值的采集间隔是否>=指定值(秒)",2),
             new ScriptComplete("methods.isProtocol(data, '')", "是否为指定协议(protocolCode)",2),
             new ScriptComplete("methods.isRealtimeData(data)", "是否为实时数据",2),
-            new ScriptComplete("methods.isRealtimeStatus(data)", "是否为设备状态",2),
+            new ScriptComplete("methods.isRealtimeStatus(data)", "是否为状态数据",2),
             new ScriptComplete("data.getUid()", "获取设备uid",3),
             new ScriptComplete("data.getValue()", "获取点位数据",3),
             new ScriptComplete("data.getField()", "获取点位属性",3),
@@ -40,7 +42,7 @@ public class RealtimeMethodProvide {
             return Objects.equals(getStatus(data).getProductCode(), productCode);
         }
 
-        return false;
+        throw new ServiceException("非实时数据, 无法对比");
     }
 
     public RealtimeCollectData getData(Object data) {
@@ -63,7 +65,7 @@ public class RealtimeMethodProvide {
             }
         }
 
-        return true;
+        throw new ServiceException("非实时数据, 无法对比");
     }
 
     public boolean isGeInterval(Object data, Integer time) {
@@ -80,7 +82,7 @@ public class RealtimeMethodProvide {
             }
         }
 
-        return false;
+        throw new ServiceException("非实时数据, 无法对比");
     }
 
     public boolean isGeIntervalChange(Object data, Integer time) {
@@ -97,7 +99,7 @@ public class RealtimeMethodProvide {
             }
         }
 
-        return false;
+        throw new ServiceException("非实时数据, 无法对比");
     }
 
     public boolean isRealtimeData(Object data) {

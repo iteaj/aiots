@@ -1,10 +1,6 @@
 package com.iteaj.framework.script;
 
-import com.iteaj.framework.spi.iot.listener.filter.FunctionScript;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptConfig;
-
-import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -14,32 +10,43 @@ public interface ScriptConfigService {
 
     /**
      * 获取指定名称的脚本配置
-     * @param name
+     * @param key
      * @return
      */
-    FunctionScript getScript(String name);
+    FunctionScript getScript(String key);
+
+    List<FunctionScript> getScriptByType(String type);
 
     /**
      * 获取选中脚本配置
-     * @param name
+     * @param key
      * @return
      */
-    default ScriptConfig getScriptConfig(String name) {
-        final FunctionScript script = this.getScript(name);
+    default ScriptConfig getScriptConfig(String key) {
+        final FunctionScript script = this.getScript(key);
+        return getScriptConfig(script);
+    }
+
+    /**
+     * 获取选中脚本配置
+     * @param script
+     * @return
+     */
+    default ScriptConfig getScriptConfig(FunctionScript script) {
         return (script != null && script.getLanguage() != null && script.getConfigs() != null) ?
                 script.getConfigs().stream()
-                .filter(item -> Objects.equals(item.getLanguage(), script.getLanguage()))
-                .findFirst().orElse(null) : null;
+                        .filter(item -> Objects.equals(item.getLanguage(), script.getLanguage()))
+                        .findFirst().orElse(null) : null;
     }
 
     /**
      * 获取指定语言的脚本配置
-     * @param name
+     * @param key
      * @param language
      * @return
      */
-    default ScriptConfig getScriptConfig(String name, String language) {
-        final FunctionScript script = this.getScript(name);
+    default ScriptConfig getScriptConfig(String key, String language) {
+        final FunctionScript script = this.getScript(key);
         return script != null && script.getConfigs() != null ? script.getConfigs().stream()
                 .filter(item -> item.getLanguage().equals(language))
                 .findFirst().orElse(null) : null;
@@ -52,12 +59,13 @@ public interface ScriptConfigService {
         private ScriptConfigService proxy;
 
         @Override
-        public FunctionScript getScript(String name) {
-            if(proxy == null) {
-                return null;
-            }
+        public List<FunctionScript> getScriptByType(String type) {
+            return proxy == null ? null : proxy.getScriptByType(type);
+        }
 
-            return proxy.getScript(name);
+        @Override
+        public FunctionScript getScript(String key) {
+            return proxy == null ? null : proxy.getScript(key);
         }
 
         public ScriptConfigService getProxy() {

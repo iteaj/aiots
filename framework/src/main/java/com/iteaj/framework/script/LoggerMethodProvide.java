@@ -1,11 +1,14 @@
-package com.iteaj.framework.spi.iot.listener.filter;
+package com.iteaj.framework.script;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LoggerMethodProvide {
 
+    public static LoggerMethodProvide INSTANCE = new LoggerMethodProvide();
     private Logger logger = LoggerFactory.getLogger("scriptLogger");
+
+    protected LoggerMethodProvide() { }
 
     public void log(String msg, String... params) {
         logger.debug(msg, params);

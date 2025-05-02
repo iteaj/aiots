@@ -15,6 +15,7 @@ public interface PlcProtocolConsts {
 
     String PLC_WRITE_STATUS = "status";
 
+    String PLC_WRITE_HEX = "writeHex";
     String PLC_WRITE_BYTE = "writeByte";
     String PLC_WRITE_BOOL = "writeBool";
     String PLC_WRITE_DATE = "writeDate";

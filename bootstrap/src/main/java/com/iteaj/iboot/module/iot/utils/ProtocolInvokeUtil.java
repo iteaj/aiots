@@ -1,26 +1,24 @@
 package com.iteaj.iboot.module.iot.utils;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.script.*;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.UpModelAttr;
-import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.DataType;
-import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spring.SpringUtils;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
-import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
+import com.iteaj.framework.script.ScriptCmdMethodsProvider;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,18 +45,16 @@ public class ProtocolInvokeUtil {
                     throw new ServiceException("设备主动触发的协议不允许调用");
                 }
 
+                // 组装调用参数
+                initInvokeConfig(param, device, api);
+
                 if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
                     buildUpConfigAttrs(api, param);
                 }
-                if(CollectionUtil.isNotEmpty(api.getDownConfig())) {
-                    api.getDownConfig().forEach(item -> {
-                        // 如果是点位采集
-                        resolverPointModelAttr(api, supplier, param, item);
-                    });
-                }
 
-                // 组装调用参数
-                initInvokeConfig(param, device);
+                if(CollectionUtil.isNotEmpty(api.getDownConfig())) {
+                    api.getDownConfig().forEach(item -> buildDownConfig(device, api, param, item));
+                }
 
                 // 发起调用
                 modelApi.invoke(param, result);
@@ -68,10 +64,46 @@ public class ProtocolInvokeUtil {
         }
     }
 
-    private static void initInvokeConfig(ProtocolModelApiInvokeParam param, RealtimeStatus device) {
-        param.setDeviceSn(device.getDeviceSn())
+    private static void buildDownConfig(RealtimeStatus device, ModelApi api, ProtocolModelApiInvokeParam param, ModelApiConfig item) {
+        final String attrValue = param.getString(item.getProtocolAttrField());
+        if(attrValue == null) { // 已经包含了要写的值
+            final String trimValue = item.getValue().trim();
+            if(trimValue.startsWith("@") && item.getModelAttrId() != null) {
+                if(item.getAttrDefaultValue() == null) {
+                    throw new ServiceException("协议/字段["+api.getName()+" / "+item.getAttrField()+"]没有默认值");
+                }
+
+                param.addParam(item.getProtocolAttrField(), item.getAttrDefaultValue());
+            } else if(trimValue.startsWith("#script:")) { // 功能脚本引用
+                param.addConfig("protocolAttrField", item.getProtocolAttrField());
+                invokeScript(param, trimValue.substring(1));
+            } else {
+                param.addParam(item.getProtocolAttrField(), item.getValue());
+            }
+        } else if(attrValue.startsWith("#script:")) { // 功能脚本引用
+            param.addConfig("protocolAttrField", item.getProtocolAttrField());
+            invokeScript(param, attrValue.substring(1));
+        }
+    }
+
+    @Nullable
+    public static void invokeScript(ProtocolModelApiInvokeParam param, String scriptName) {
+        final FunctionScript script = ScriptConfigService.instance.getScript(scriptName);
+
+        final ScriptConfig scriptConfig = ScriptConfigService.instance.getScriptConfig(script);
+        if(scriptConfig == null) {
+            throw new ServiceException("未找到脚本实现[" + scriptName + "->" + script.getLanguage() + "]");
+        }
+
+        ScriptManager.exec(script.getLanguage(), ScriptContext.build(script.getKey(), scriptConfig.getScript(), scriptConfig.getInvoke())
+                .addParam("data", param).addParam("methods", ScriptCmdMethodsProvider.INSTANCE));
+
+    }
+
+    private static void initInvokeConfig(ProtocolModelApiInvokeParam param, RealtimeStatus device, ModelApi api) {
+        param.addDevice(device).setDeviceSn(device.getDeviceSn())
                 .setParentDeviceSn(device.getParentDeviceSn())
-                .addDeviceConfig(device.getConfig());
+                .addDeviceConfig(device.getConfig()).addApiCode(api.getCode());
 
         // 设置默认超时时间
         if(param.getTimeout() == null || param.getTimeout() <= 0) {
@@ -124,57 +156,26 @@ public class ProtocolInvokeUtil {
                     throw new ServiceException("设备主动触发的协议不允许调用");
                 }
 
-                JSONObject param = new JSONObject();
-                ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(device.getUid(), param);
-                invokeParam.setTimeout(timeout > 0 ? timeout : ProtocolModelApiInvokeParam.DEFAULT_TIMEOUT);
+                ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(device.getUid());
+                invokeParam.setTimeout(timeout);
+
+                // 组装调用参数
+                initInvokeConfig(invokeParam, device, api);
 
                 if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
                     buildUpConfigAttrs(api, invokeParam);
                 }
 
                 if(CollectionUtil.isNotEmpty(api.getDownConfig())) {
-                    api.getDownConfig().forEach(item -> {
-                        if(item.getValue().startsWith("@") && item.getModelAttrId() != null) {
-                            if(item.getAttrDefaultValue() == null) {
-                                throw new ServiceException("协议/字段["+api.getName()+" / "+item.getAttrField()+"]没有默认值");
-                            }
-
-                            param.put(item.getProtocolAttrField(), item.getAttrDefaultValue());
-                        } else {
-                            param.put(item.getProtocolAttrField(), item.getValue());
-                        }
-
-                        // 如果是点位采集
-                        resolverPointModelAttr(api, supplier, invokeParam, item);
-                    });
+                    api.getDownConfig().forEach(item -> buildDownConfig(device, api, invokeParam, item));
                 } else {
                     // 允许没有下行配置的接口
                 }
-
-                // 组装调用参数
-                initInvokeConfig(invokeParam, device);
 
                 // 发起调用
                 modelApi.invoke(invokeParam, result);
             } else {
                 throw new ServiceException("没有找到协议指令[direct="+api.getDirect()+"]");
-            }
-        }
-    }
-
-    private static void resolverPointModelAttr(ModelApi api, DeviceProtocolSupplier supplier, ProtocolModelApiInvokeParam invokeParam, ModelApiConfig item) {
-        if (supplier.getProtocol().getCtrlMode() == CtrlMode.POINT) {
-            if (Objects.equals(item.getProtocolAttrField(), PointProtocolConfig.POINT_ADDRESS)) {
-                for (int i = 0; i < api.getUpConfig().size(); i++) {
-                    ModelApiConfig apiConfig = api.getUpConfig().get(i); // 获取此点位地址绑定的物模型属性
-                    if (Objects.equals(apiConfig.getProtocolAttrField(), PointProtocolConfig.POINT_VALUE)) {
-                        if (apiConfig.getModelAttrId() != null && apiConfig.getAttrField() != null) {
-                            invokeParam.addConfig(PointProtocolConfig.POINT_FIELD_KEY + item.getValue(), apiConfig.getAttrField());
-                        } else {
-                            throw new ServiceException("上行配置[protocolAttrName=" + apiConfig.getProtocolAttrName() + "]未指定物模型属性");
-                        }
-                    }
-                }
             }
         }
     }

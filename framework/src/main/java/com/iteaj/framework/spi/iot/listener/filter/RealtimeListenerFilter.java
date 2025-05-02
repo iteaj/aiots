@@ -1,9 +1,6 @@
 package com.iteaj.framework.spi.iot.listener.filter;
 
-import com.iteaj.framework.script.ScriptComplete;
-import com.iteaj.framework.script.ScriptConfigService;
-import com.iteaj.framework.script.ScriptContext;
-import com.iteaj.framework.script.ScriptManager;
+import com.iteaj.framework.script.*;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
@@ -30,7 +27,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
 
     @Override
     default List<ScriptConfig> getScripts() {
-        return Arrays.asList(new ScriptConfig(ScriptLanguage.javascript.getName(),
+        return Arrays.asList(new ScriptConfig(ScriptLanguage.javascript.getName(), "filter(data, methods);",
                 "/**\r\n" +
                 "* 数据过滤\r\n" +
                 "* 支持ECMAScript 5.1规范\r\n" +
@@ -57,9 +54,8 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
                 param.getPayload().forEach(item -> {
                     // 执行脚本
                     final Object result = ScriptManager.exec(ScriptLanguage.javascript.getName()
-                            , ScriptContext.build(scriptConfig.getScript(), "filter(data, methods)")
-                                    .addParam("data", item).addParam("methods", methodProvide)
-                                    .addParam("console", LOGGER_PROVIDE));
+                            , ScriptContext.build(getFilterName(), scriptConfig.getScript(), "filter(data, methods)")
+                                    .addParam("data", item).addParam("methods", methodProvide));
 
                     // 校验执行结果, 是否被过滤
                     if(Boolean.TRUE.equals(result)) {

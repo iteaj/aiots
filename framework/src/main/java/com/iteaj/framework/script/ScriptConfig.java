@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.iot.listener.filter;
+package com.iteaj.framework.script;
 
 /**
  * 脚本配置
@@ -15,11 +15,17 @@ public class ScriptConfig {
      */
     private String script;
 
+    /**
+     * 执行方法
+     */
+    private String invoke;
+
     public ScriptConfig() { }
 
-    public ScriptConfig(String language, String script) {
+    public ScriptConfig(String language, String invoke, String script) {
         this.language = language;
         this.script = script;
+        this.invoke = invoke;
     }
 
     public String getLanguage() {
@@ -36,5 +42,13 @@ public class ScriptConfig {
 
     public void setScript(String script) {
         this.script = script;
+    }
+
+    public String getInvoke() {
+        return invoke;
+    }
+
+    public void setInvoke(String invoke) {
+        this.invoke = invoke;
     }
 }
