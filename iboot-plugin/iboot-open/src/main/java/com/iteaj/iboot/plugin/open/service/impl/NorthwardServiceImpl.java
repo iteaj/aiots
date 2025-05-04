@@ -43,9 +43,9 @@ public class NorthwardServiceImpl extends BaseServiceImpl<NorthwardMapper, North
             return (List<Northward>) valueWrapper.get();
         }
 
-        return this.list(Wrappers.<Northward>lambdaQuery().eq(Northward::getType, type))
-                .ifPresent(item -> cache.put(type, item))
-                .getData();
+        List<Northward> northwards = this.list(Wrappers.<Northward>lambdaQuery().eq(Northward::getType, type)).getData();
+        cache.put(type, northwards);
+        return northwards;
     }
 
     @Override
