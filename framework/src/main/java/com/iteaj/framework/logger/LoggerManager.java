@@ -41,7 +41,7 @@ public final class LoggerManager {
 
     public static List<IVOption> filterOptions() {
         final List<IVOption> options = new ArrayList<>();
-        filters.forEach((key, value) -> options.add(new IVOption(value.name(), key)));
+        filters.forEach((key, value) -> options.add(new IVOption(value.name(), key).setChildren(value.subOptions())));
         return options;
     }
 
