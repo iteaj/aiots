@@ -17,8 +17,7 @@ public class ScriptContext {
     }
 
     public static ScriptContext build(String key, String script, String invoke) {
-        return new ScriptContext(key, script + "\r\n" + invoke)
-                .addParam("console", LoggerMethodProvide.INSTANCE);
+        return new ScriptContext(key, script + "\r\n" + invoke);
     }
 
     public String getScript() {

@@ -11,6 +11,7 @@ import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
+import com.iteaj.iboot.module.iot.utils.IotLogger;
 import org.springframework.core.Ordered;
 
 public class RealtimeDataCacheListener implements EventGroupCollectListener, SignalCollectListener, ModelAttrListener {
@@ -25,6 +26,8 @@ public class RealtimeDataCacheListener implements EventGroupCollectListener, Sig
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
         if(supplier != null) {
             realtimeDataService.put(supplier);
+            IotLogger.debug(IotLogger.REPORT_NAME, supplier.getProtocolCode(), device.getUid()
+                    , "<<< 接收到设备上报数据 设备编号: {}", supplier.getKey().getKey());
         }
     }
 

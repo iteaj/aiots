@@ -17,8 +17,8 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
     String FILTER_DATABASE = "数据入库";
     String FILTER_MQTT_FORWARD = "MQTT转发";
 
-    ValueConvertProvide convertProvide = new ValueConvertProvide();
-    RealtimeMethodProvide methodProvide = new RealtimeMethodProvide();
+    ValueConvertProvide convertProvide = ValueConvertProvide.INSTANCE;
+    RealtimeMethodProvide methodProvide = RealtimeMethodProvide.INSTANCE;
 
     @Override
     default String getScriptRemark() {

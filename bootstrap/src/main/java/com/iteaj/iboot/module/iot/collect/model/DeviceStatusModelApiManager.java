@@ -11,6 +11,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
+import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
 import org.slf4j.Logger;
@@ -156,11 +157,8 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                 RealtimeStatus realtimeStatus = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
                 // 父设备不存在或者不在线则不采集子设备状态
                 if(realtimeStatus == null || realtimeStatus.getStatus() == DeviceStatus.offline) {
-                    if(logger.isDebugEnabled()) {
-                        logger.debug("放弃子设备状态接口调用 网关设备不在线 - 网关编号: {} - 设备编号: {} - 接口: {}/{}"
-                                , device.getParentDeviceSn(), device.getDeviceSn(), api.getCode(), api.getDirect());
-                    }
-
+                    IotLogger.debug(IotLogger.NAME, "采集状态", device.getUid(), "放弃状态接口调用 网关设备不在线 - 网关编号: {} - 设备编号: {} - 接口: {}/{}"
+                            , device.getParentDeviceSn(), device.getDeviceSn(), api.getCode(), api.getDirect());
                     return;
                 }
             }
@@ -179,7 +177,8 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
             IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
         }
 
-        logger.error("采集在线状态异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+        IotLogger.error(IotLogger.NAME, "采集状态", device.getUid(), "采集状态异常 {} - 设备编号: {} - 接口: {}/{}"
+                , e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
     }
 
     private void doInvoke(ModelApi api, RealtimeStatus device, long timeout) {
@@ -197,9 +196,8 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                     IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
                 }
 
-                if(logger.isWarnEnabled()) {
-                    logger.warn("采集在线状态失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
-                }
+                IotLogger.warn(IotLogger.NAME, "采集状态", device.getUid(), "采集状态失败 {} - 设备编号: {} - 接口: {}/{}"
+                        , result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
             }
         });
     }
@@ -209,7 +207,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
         this.cacheManager = context.getBean(IotCacheManager.class);
         this.bootThreadManger = context.getBean(IBootThreadManger.class);
         IModelApiService modelApiService = context.getBean(IModelApiService.class);
-        modelApiService.listAsStatusModelApi().forEach(api -> this.register(api));
+        modelApiService.listAsStatusModelApi().forEach(this::register);
 
         /**
          * 10分钟执行一次

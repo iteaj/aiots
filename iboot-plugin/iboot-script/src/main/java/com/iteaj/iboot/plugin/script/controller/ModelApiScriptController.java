@@ -27,7 +27,6 @@ import java.util.List;
 public class ModelApiScriptController extends BaseController {
 
     private final IScriptService scriptService;
-    private List<ScriptComplete> completes = Arrays.asList();
     private final List<ScriptConfig> configs = Arrays.asList(
             new ScriptConfig(ScriptLanguage.javascript.getName(), "write(data, methods)", "" +
                     "/**\r\n" +

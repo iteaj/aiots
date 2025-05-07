@@ -1,5 +1,6 @@
 package com.iteaj.framework.autoconfigure;
 
+import com.iteaj.framework.FrameworkController;
 import com.iteaj.framework.exception.FrameworkException;
 import com.iteaj.framework.exception.IBootControllerAdvice;
 import com.iteaj.framework.logger.LoggerInterceptor;
@@ -63,6 +64,11 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
         }
 
         return definition.addAnon("/static/**");
+    }
+
+    @Bean
+    public FrameworkController frameworkController() {
+        return new FrameworkController();
     }
 
     /**

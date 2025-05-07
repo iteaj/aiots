@@ -53,10 +53,11 @@ public class LoggerInterceptor implements HandlerInterceptor {
                         .setErrMsg(ex.getMessage());
             }
 
-            /**
-             * 发布日志记录事件
-             */
-            EventUtils.publish(new PayloadEvent(SecurityUtil.getLoginUser(), attribute));
+            try {
+                EventUtils.publish(new PayloadEvent(SecurityUtil.getLoginUser(), attribute));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }

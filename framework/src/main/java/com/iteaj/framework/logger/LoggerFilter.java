@@ -1,10 +1,10 @@
 package com.iteaj.framework.logger;
 
-public interface LoggerFilter<T> {
+public interface LoggerFilter {
 
     String type();
 
     String name();
 
-    boolean filter(T logger);
+    boolean filter(PushParams params);
 }
