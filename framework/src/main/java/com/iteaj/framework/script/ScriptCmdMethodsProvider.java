@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ScriptCmdMethodsProvider extends ValueConvertProvide {
 
-    private final static String NAME = "功能解析";
+    public final static String NAME = "功能解析";
     public static ScriptCmdMethodsProvider INSTANCE = new ScriptCmdMethodsProvider();
 
     public static List<ScriptComplete> completes;

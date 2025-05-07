@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class RealtimeMethodProvide implements JavaScriptValueProvide, LoggerMethodProvide {
 
     public static List<ScriptComplete> completes;
-    private final static String NAME = "数据过滤";
+    public final static String NAME = "数据过滤";
     private IModelAttrRealtimeDataService realtimeDataService;
     public static RealtimeMethodProvide INSTANCE = new RealtimeMethodProvide();
 

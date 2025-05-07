@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ValueConvertProvide implements JavaScriptValueProvide, LoggerMethodProvide{
 
-    private final static String NAME = "属性解析器";
+    public final static String NAME = "属性解析器";
     public static ValueConvertProvide INSTANCE = new ValueConvertProvide();
     protected ValueConvertProvide() {}
     public static List<ScriptComplete> VALUE_CONVERT_COMPLETES = Arrays.asList(
