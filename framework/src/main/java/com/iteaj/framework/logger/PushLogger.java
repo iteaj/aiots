@@ -12,25 +12,25 @@ public class PushLogger {
 
     public static void debug(String type, String subType, String msg, Object... args) {
         if (logger.isDebugEnabled()) {
-            logger.debug(MARKER, "[{}][{}] " + msg, buildArgs(type, subType, args));
+            logger.debug(MARKER, "[{}][{}] ==> " + msg, buildArgs(type, subType, args));
         }
     }
 
     public static void info(String type, String subType, String msg, Object... args) {
         if (logger.isInfoEnabled()) {
-            logger.info(MARKER, "[{}][{}] " + msg, buildArgs(type, subType, args));
+            logger.info(MARKER, "[{}][{}] ==> " + msg, buildArgs(type, subType, args));
         }
     }
 
     public static void warn(String type, String subType, String msg, Object... args) {
         if (logger.isWarnEnabled()) {
-            logger.warn(MARKER, "[{}][{}] " + msg, buildArgs(type, subType, args));
+            logger.warn(MARKER, "[{}][{}] ==> " + msg, buildArgs(type, subType, args));
         }
     }
 
     public static void error(String type, String subType, String msg, Object... args) {
         if (logger.isErrorEnabled()) {
-            logger.error(MARKER, "[{}][{}] " + msg, buildArgs(type, subType, args));
+            logger.error(MARKER, "[{}][{}] ==> " + msg, buildArgs(type, subType, args));
         }
     }
 

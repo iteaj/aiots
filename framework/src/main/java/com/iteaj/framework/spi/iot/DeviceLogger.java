@@ -12,25 +12,25 @@ public class DeviceLogger {
 
     public static void debug(String type, String subType, String uid, String msg, Object... args) {
         if (logger.isDebugEnabled()) {
-            logger.debug(MARKER, "[{}] [{}] [{}] " + msg, buildArgs(type, subType, uid, args));
+            logger.debug(MARKER, "[{}] [{}] [{}] ==> " + msg, buildArgs(type, subType, uid, args));
         }
     }
 
     public static void info(String type, String subType, String uid, String msg, Object... args) {
         if (logger.isInfoEnabled()) {
-            logger.info(MARKER, "[{}] [{}] [{}] " + msg, buildArgs(type, subType, uid, args));
+            logger.info(MARKER, "[{}] [{}] [{}] ==> " + msg, buildArgs(type, subType, uid, args));
         }
     }
 
     public static void warn(String type, String subType, String uid, String msg, Object... args) {
         if (logger.isWarnEnabled()) {
-            logger.warn(MARKER, "[{}] [{}] [{}] " + msg, buildArgs(type, subType, uid, args));
+            logger.warn(MARKER, "[{}] [{}] [{}] ==> " + msg, buildArgs(type, subType, uid, args));
         }
     }
 
     public static void error(String type, String subType, String uid, String msg, Object... args) {
         if (logger.isErrorEnabled()) {
-            logger.error(MARKER, "[{}] [{}] [{}] " + msg, buildArgs(type, subType, uid, args));
+            logger.error(MARKER, "[{}] [{}] [{}] ==> " + msg, buildArgs(type, subType, uid, args));
         }
     }
 
