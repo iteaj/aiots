@@ -16,10 +16,12 @@ import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
+import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.server.websocket.WebSocketChannelMatcher;
 import com.iteaj.iot.server.websocket.WebSocketServerListener;
@@ -78,6 +80,8 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
         if(CollectionUtil.isNotEmpty(devices)) {
             devices.forEach(device -> {
                 try {
+                    IotLogger.info(device.getStatus(), device.getUid(), "设备{} - 设备编号: {}"
+                            , device.getStatus() == DeviceStatus.online ? "上线" : "离线", device.getDeviceSn());
                     String jsonString = JSONObject.toJSONString(PushData.buildStatus(device));
                     doPush(device.getUid(), jsonString, TYPE_STATUS);
                 } catch (Exception e) {
