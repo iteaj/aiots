@@ -41,13 +41,13 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
                 .setValue(data.getValue()).setCreateTime(data.getCreateTime()).setDeviceGroupId(data.getDeviceGroupId())
                 .setProductCode(data.getProductCode()).setProtocolCode(data.getProtocolCode()).setFieldName(data.getFieldName());
 
-        RealtimePayload payload = new RealtimePayload("data", Collections.singletonList(realtimeData));
+        RealtimePayload payload = new RealtimePayload("data", data.getUid(), Collections.singletonList(realtimeData));
         IotEvenPublisher.publish(IotEventType.Realtime, payload);
     }
 
     @Override
     public void supplier(Collection<RealtimeStatus> devices) {
-        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("status", devices));
+        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("status", "batch", devices));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
             });
 
             if(!collectData.isEmpty()) {
-                IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data_full", collectData));
+                IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data_full", "batch", collectData));
             }
         }
     }
@@ -112,12 +112,12 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
                         .buildFromStatus(item.getStatus())
                 ).collect(Collectors.toList());
 
-        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload(type, collect));
+        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload(type, device.getUid(), collect));
     }
 
     @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
-        doPublisher(null, supplier, device, "data_full");
+        doPublisher(null, supplier, device, "data_active");
     }
 
     /**
@@ -127,7 +127,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
      */
     @Override
     public void warnTrigger(WarnConfig config, WarnRecord record, RealtimeStatus status) {
-        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("warn", Arrays.asList(record)));
+        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("warn", status.getUid(), Arrays.asList(record)));
     }
 
     @Override

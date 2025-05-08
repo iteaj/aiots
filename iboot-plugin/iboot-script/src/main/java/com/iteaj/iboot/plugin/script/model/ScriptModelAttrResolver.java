@@ -41,7 +41,9 @@ public class ScriptModelAttrResolver implements DataValueResolver {
                     .addParam("value", value).addParam("model", attr)
                     .addParam("methods", RealtimeListenerFilter.convertProvide));
 
-            return doResolver(exec);
+            Object resolver = doResolver(exec);
+            RealtimeListenerFilter.convertProvide.debug(attr.getField(), "执行属性解析脚本 脚本: {}/{} - 解析值: {} - 完成值: {}", name, script.getLanguage(), value, resolver);
+            return resolver;
         }
 
         // 使用默认解析器解析

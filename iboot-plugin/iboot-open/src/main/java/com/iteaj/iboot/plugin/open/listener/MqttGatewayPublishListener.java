@@ -130,6 +130,6 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
 
     @Override
     public boolean isFilter(String type, RealtimePayload payload) {
-        return "data".equals(type) || "status".equals(type);
+        return payload.isData() || payload.isStatus() || payload.isDataActive();
     }
 }

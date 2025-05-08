@@ -27,25 +27,22 @@ public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotA
 
     @Override
     public void onIotEvent(IotEventType eventType, RealtimePayload value) {
-        final String type = value.getType();
         // 监听实时数据和状态数据
-        if(Objects.equals("data", type) || Objects.equals("status", type)) {
+        if(value.isData() || value.isStatus() || value.isDataActive()) {
             if(!keyAttrMaps.isEmpty() && CollectionUtil.isNotEmpty(value.getPayload())) {
-                final boolean data = Objects.equals(type, "data");
-                final boolean status = Objects.equals(type, "status");
-                if((status || data)) {
-                    keyAttrMaps.forEach((key, attrs) -> {
-                        try {
-                            if(status) {
-                                statusHandle(key, value.getPayload(), attrs);
-                            } else {
-                                dataHandle(key, value.getPayload(), attrs);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                keyAttrMaps.forEach((key, attrs) -> {
+                    try {
+                        if(value.isStatus()) {
+                            statusHandle(key, value.getPayload(), attrs);
+                        } else {
+                            dataHandle(key, value.getPayload(), attrs);
                         }
-                    });
-                }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            } else {
+                LinkageScriptMethodsProvider.INSTANCE.debug(value.getUid(), "没有配置联动脚本");
             }
         }
     }
@@ -57,12 +54,16 @@ public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotA
 
         // 所有产品字段都处理
         if(attrs.contains(value.getProductCode() + ALL_FIELD)) {
+            LinkageScriptMethodsProvider.INSTANCE.debug(value.getUid()
+                    , "开始执行联动脚本 属性触发 - 脚本: {}/{} - matcher: [*]", key, scriptConfig.getLanguage());
             ScriptManager.exec(scriptConfig.getLanguage(), ScriptContext.build(key, scriptConfig.getScript(), scriptConfig.getInvoke())
                     .addParam("data", value).addParam("methods", LinkageScriptMethodsProvider.INSTANCE));
         } else { // 只处理指定字段
             payload.forEach(realtime -> {
                 RealtimeCollectData data = (RealtimeCollectData) realtime;
                 if(attrs.contains(data.getProductCode() + SPEC + data.getField())) {
+                    LinkageScriptMethodsProvider.INSTANCE.debug(data.getUid()
+                            , "开始执行联动脚本 属性触发 - 脚本: {}/{} - matcher: [{}]", key, scriptConfig.getLanguage(), data.getField());
                     ScriptManager.exec(scriptConfig.getLanguage(), ScriptContext.build(key, scriptConfig.getScript(), scriptConfig.getInvoke())
                             .addParam("data", data).addParam("methods", LinkageScriptMethodsProvider.INSTANCE));
                 }
@@ -71,15 +72,16 @@ public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotA
     }
 
     private void statusHandle(String key, Collection payload, Set<String> attrs) {
-        final Object[] values = payload.toArray();
-        RealtimeDeviceStatus status = (RealtimeDeviceStatus) values[0];
-        if(attrs.contains(status.getProductCode()+STATUS)) {
-            final ScriptConfig scriptConfig = ScriptConfigService.instance.getScriptConfig(key);
-            payload.forEach(data -> {
+        payload.forEach(data -> {
+            RealtimeDeviceStatus deviceStatus = (RealtimeDeviceStatus) data;
+            if(attrs.contains(deviceStatus.getProductCode() + STATUS)) {
+                final ScriptConfig scriptConfig = ScriptConfigService.instance.getScriptConfig(key);
+                LinkageScriptMethodsProvider.INSTANCE.debug(deviceStatus.getUid()
+                        , "开始执行联动脚本 状态触发 - 脚本: {}/{} - matcher: [#status]", key, scriptConfig.getLanguage());
                 ScriptManager.exec(scriptConfig.getLanguage(), ScriptContext.build(key, scriptConfig.getScript(), scriptConfig.getInvoke())
                         .addParam("data", data).addParam("methods", LinkageScriptMethodsProvider.INSTANCE));
-            });
-        }
+            }
+        });
     }
 
     public static Set<String> remove(String key) {

@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.iot.listener.filter;
 
 import com.iteaj.framework.script.*;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
@@ -57,13 +58,19 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
                             , ScriptContext.build(getFilterName(), scriptConfig.getScript(), "filter(data, methods)")
                                     .addParam("data", item).addParam("methods", methodProvide));
 
+                    RealtimeCollectData data = (RealtimeCollectData) item;
+                    RealtimeListenerFilter.convertProvide.debug(param.getUid(), "执行过滤脚本 脚本: {}/{} - 解析属性: {}={} - 过滤: {}"
+                            , getFilterName(), scriptConfig.getLanguage(), data.getField(), data.getValue(), result);
+
                     // 校验执行结果, 是否被过滤
                     if(Boolean.TRUE.equals(result)) {
                         payload.add(item);
                     }
                 });
 
-                return new RealtimePayload(param.getType(), payload);
+                return new RealtimePayload(param.getType(), param.getUid(), payload);
+            } else {
+                RealtimeListenerFilter.convertProvide.debug(param.getUid(), "过滤脚本已被禁用 脚本: {}", getFilterName());
             }
         }
 

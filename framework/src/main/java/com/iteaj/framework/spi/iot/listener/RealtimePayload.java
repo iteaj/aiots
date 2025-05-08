@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.iot.listener;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * 实时负载
@@ -9,19 +10,41 @@ import java.util.Collection;
  */
 public class RealtimePayload extends EntityPayload<Collection> {
 
+    String uid;
+
     /**
      * 实时负载类型
      * warn 实时告警
-     * script_warn 脚本告警
      * status 实时设备在线状态
      * data 实时采集的数据
      * data_full 完整的采集数据
+     * data_active 设备主动上报
      */
     private String type;
 
-    public RealtimePayload(String type, Collection values) {
+    public RealtimePayload(String type, String uid, Collection values) {
         super(values);
         this.type = type;
+    }
+
+    public boolean isWarn() {
+        return Objects.equals(getType(), "warn");
+    }
+
+    public boolean isData() {
+        return Objects.equals(getType(), "data");
+    }
+
+    public boolean isStatus() {
+        return Objects.equals(getType(), "status");
+    }
+
+    public boolean isDataFull() {
+        return Objects.equals(getType(), "data_full");
+    }
+
+    public boolean isDataActive() {
+        return Objects.equals(getType(), "data_active");
     }
 
     public String getType() {
@@ -30,5 +53,13 @@ public class RealtimePayload extends EntityPayload<Collection> {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }
