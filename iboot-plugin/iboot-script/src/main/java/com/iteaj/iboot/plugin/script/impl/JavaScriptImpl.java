@@ -1,17 +1,16 @@
 package com.iteaj.iboot.plugin.script.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.iteaj.framework.script.*;
 import com.iteaj.framework.script.ScriptContext;
-import com.iteaj.framework.script.ScriptExecException;
-import com.iteaj.framework.script.ScriptInterface;
-import com.iteaj.framework.spi.iot.listener.filter.ScriptLanguage;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import javax.script.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class JavaScriptImpl implements ScriptInterface {
+public class JavaScriptImpl implements ScriptInterface<CompiledScript> {
 
-    private static ScriptEngineManager manager = new ScriptEngineManager();
+    ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
 
     @Override
     public ScriptLanguage getLanguage() {
@@ -19,17 +18,45 @@ public class JavaScriptImpl implements ScriptInterface {
     }
 
     @Override
-    public Object exec(ScriptContext context) {
-        // 获取 JavaScript 脚本引擎
-        ScriptEngine engine = manager.getEngineByName("JavaScript");
+    public CompiledScript compile(String script) {
         try {
-            if(context.getParams() != null) {
-                context.getParams().forEach((key, value) -> engine.put(key, value));
+            return ((Compilable) engine).compile(script);
+        } catch (ScriptException e) {
+            throw new ScriptExecException("编译失败["+e.getMessage()+"]", e);
+        }
+    }
+
+    @Override
+    public Object exec(String script, Map<String, Object> params) {
+        try {
+            final Bindings bindings = engine.createBindings();
+            if(CollectionUtil.isNotEmpty(params)) {
+                params.forEach((key, value) -> bindings.put(key, value));
             }
 
-            return engine.eval(context.getScript());
+            return engine.eval(script);
         } catch (ScriptException e) {
-            throw new ScriptExecException(e.getMessage(), e);
+            throw new ScriptExecException("脚本执行异常[JavaScript]", e);
+        }
+    }
+
+    @Override
+    public Object exec(ScriptContext context) {
+        // 获取 JavaScript 脚本引擎
+        try {
+            final Bindings bindings = engine.createBindings();
+            if(context.getParams() != null) {
+                context.getParams().forEach((key, value) -> bindings.put(key, value));
+            }
+
+            CompiledScript compiledScript = (CompiledScript) ScriptManager.getCompilable(context.getKey());
+            if(compiledScript != null) {
+                return compiledScript.eval(bindings);
+            }
+
+            return engine.eval(context.getScript(), bindings);
+        } catch (ScriptException e) {
+            throw new ScriptExecException("脚本[JavaScript]执行异常["+context.getKey()+"]", e);
         }
     }
 }

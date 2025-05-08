@@ -1,9 +1,8 @@
 package com.iteaj.framework.spi.iot.listener.filter;
 
-import com.iteaj.framework.script.ScriptComplete;
-import com.iteaj.framework.script.ScriptConfigService;
-import com.iteaj.framework.script.ScriptContext;
-import com.iteaj.framework.script.ScriptManager;
+import com.iteaj.framework.script.*;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
@@ -20,8 +19,8 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
     String FILTER_DATABASE = "数据入库";
     String FILTER_MQTT_FORWARD = "MQTT转发";
 
-    ValueConvertProvide convertProvide = new ValueConvertProvide();
-    RealtimeMethodProvide methodProvide = new RealtimeMethodProvide();
+    ValueConvertProvide convertProvide = ValueConvertProvide.INSTANCE;
+    RealtimeMethodProvide methodProvide = RealtimeMethodProvide.INSTANCE;
 
     @Override
     default String getScriptRemark() {
@@ -30,7 +29,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
 
     @Override
     default List<ScriptConfig> getScripts() {
-        return Arrays.asList(new ScriptConfig(ScriptLanguage.javascript.getName(),
+        return Arrays.asList(new ScriptConfig(ScriptLanguage.javascript.getName(), "filter(data, methods);",
                 "/**\r\n" +
                 "* 数据过滤\r\n" +
                 "* 支持ECMAScript 5.1规范\r\n" +
@@ -57,9 +56,18 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
                 param.getPayload().forEach(item -> {
                     // 执行脚本
                     final Object result = ScriptManager.exec(ScriptLanguage.javascript.getName()
-                            , ScriptContext.build(scriptConfig.getScript(), "filter(data, methods)")
-                                    .addParam("data", item).addParam("methods", methodProvide)
-                                    .addParam("console", LOGGER_PROVIDE));
+                            , ScriptContext.build(getFilterName(), scriptConfig.getScript(), "filter(data, methods)")
+                                    .addParam("data", item).addParam("methods", methodProvide));
+
+                    if(item instanceof RealtimeCollectData) {
+                        RealtimeCollectData data = (RealtimeCollectData) item;
+                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 模型属性: {}={} - 过滤状态: {}"
+                                , getFilterName(), scriptConfig.getLanguage(), data.getField(), data.getValue(), result);
+                    } else if(item instanceof RealtimeDeviceStatus) {
+                        RealtimeDeviceStatus data = (RealtimeDeviceStatus) item;
+                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 设备状态: {} - 过滤状态: {}"
+                                , getFilterName(), scriptConfig.getLanguage(), data.getDeviceStatus(), result);
+                    }
 
                     // 校验执行结果, 是否被过滤
                     if(Boolean.TRUE.equals(result)) {
@@ -67,7 +75,9 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
                     }
                 });
 
-                return new RealtimePayload(param.getType(), payload);
+                return new RealtimePayload(param.getType(), param.getUid(), payload);
+            } else {
+                RealtimeListenerFilter.methodProvide.debug(param.getUid(), "{}过滤脚本处于禁用状态 - 数据类型: {}", getFilterName(), param.getType());
             }
         }
 

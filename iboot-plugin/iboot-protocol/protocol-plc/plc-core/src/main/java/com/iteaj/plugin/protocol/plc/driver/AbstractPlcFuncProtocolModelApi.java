@@ -9,6 +9,7 @@ import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractFuncProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iot.Protocol;
+import com.iteaj.iot.utils.ByteUtil;
 import com.iteaj.plugin.protocol.plc.adapt.PlcProtocolAbstract;
 
 import java.util.function.Consumer;
@@ -46,6 +47,9 @@ public abstract class AbstractPlcFuncProtocolModelApi extends AbstractFuncProtoc
                     break;
                 case PlcProtocolConsts.PLC_WRITE_DOUBLE:
                     clientProtocol.write(address, Double.valueOf(value));
+                    break;
+                case PlcProtocolConsts.PLC_WRITE_HEX:
+                    clientProtocol.write(address, ByteUtil.hexToByte(value));
                     break;
                 case PlcProtocolConsts.PLC_WRITE_STRING:
                     clientProtocol.write(address, value);

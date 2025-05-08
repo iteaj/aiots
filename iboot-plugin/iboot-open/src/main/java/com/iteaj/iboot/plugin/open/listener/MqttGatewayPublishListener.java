@@ -43,7 +43,7 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
             if(CollectionUtil.isNotEmpty(northwards)) {
 
                 final MqttGatewayHead gatewayHead = new MqttGatewayHead("MqttGatewayPublishListener");
-                final byte[] message = createMqttBodyMessage(type, value.getPayload());
+                final byte[] message = createMqttBodyMessage(value);
                 final DefaultMessageBody messageBody = new DefaultMessageBody(message);
 
                 northwards.forEach(item -> {
@@ -59,13 +59,13 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
         }
     }
 
-    private byte[] createMqttBodyMessage(String type, Collection payload) {
+    private byte[] createMqttBodyMessage(RealtimePayload payload) {
         JSONObject body = new JSONObject();
-        body.put("type", type);
-        if(type.equals("status")) {
-            body.put("data", createStatusData(payload));
+        body.put("type", payload.getType());
+        if(payload.isStatus()) {
+            body.put("data", createStatusData(payload.getPayload()));
         } else {
-            body.put("data", createRealtimeData(payload, body));
+            body.put("data", createRealtimeData(payload.getPayload(), body));
         }
 
         return body.toJSONString().getBytes(StandardCharsets.UTF_8);
@@ -130,6 +130,6 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
 
     @Override
     public boolean isFilter(String type, RealtimePayload payload) {
-        return "data".equals(type) || "status".equals(type);
+        return payload.isData() || payload.isStatus() || payload.isDataActive();
     }
 }

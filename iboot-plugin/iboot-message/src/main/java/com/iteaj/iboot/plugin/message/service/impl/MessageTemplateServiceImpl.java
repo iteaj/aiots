@@ -59,66 +59,69 @@ public class MessageTemplateServiceImpl extends BaseServiceImpl<MessageTemplateM
         executor.execute(() -> {
             WarnMessageTemplate template = this.getWarnTemplateByWarnConfigId(warn.getWarnConfigId(), warn.getUid());
             if(template != null && CollectionUtil.isNotEmpty(template.getUsers())) {
-
-                List<String> phones = template.getUsers().stream()
-                        .filter(item -> StrUtil.isNotBlank(item.getPhone()))
-                        .map(item -> item.getPhone()).distinct()
-                        .collect(Collectors.toList());
-                MessageService service = messageManager.getDefault(MessageType.Sms.name());
-                if(CollectionUtil.isNotEmpty(phones) && service != null) {
-                    try {
-                        SendModel sendModel = new SendModel();
-                        sendModel.setAccept(phones);
-                        sendModel.setContent(template.getContent());
-                        sendModel.setTitle(template.getTemplateTitle());
-                        sendModel.setTemplateId(template.getTemplateId());
-                        LinkedHashMap<String, String> hashMap = new LinkedHashMap<>();
-                        hashMap.put("value", warn.getValue());
-                        hashMap.put("deviceSn", warn.getDeviceSn());
-                        hashMap.put("deviceName", template.getDeviceName());
-                        hashMap.put("grade", warn.getGrade().toString());
-                        hashMap.put("warnTime", DateUtil.format(warn.getWarnTime(), "yy-MM-dd HH:mm:ss"));
-                        sendModel.setTemplateVars(hashMap);
-                        service.send(sendModel);
-                    } catch (Exception e) {
-                        logger.error("<<<告警短信发送异常", e);
-                    }
-                }
-
-                List<String> emails = template.getUsers().stream()
-                        .filter(item -> StrUtil.isNotBlank(item.getEmail()))
-                        .map(item -> item.getEmail()).distinct()
-                        .collect(Collectors.toList());
-                MessageService emailService = messageManager.getDefault(MessageType.Email.name());
-                if(emailService != null && !CollectionUtil.isEmpty(emails)) {
-                    SendModel sendModel = new SendModel();
-                    sendModel.setAccept(emails);
-                    sendModel.setTitle(template.getTemplateTitle());
-
-                    try {
-                        // 使用自定义内容发送
-                        if(StrUtil.isNotBlank(template.getContent())) {
-                            LinkedHashMap<String, String> hashMap = new LinkedHashMap<>();
-                            hashMap.put("value", warn.getValue());
-                            hashMap.put("deviceSn", warn.getDeviceSn());
-                            hashMap.put("grade", warn.getGrade().toString());
-                            hashMap.put("deviceName", template.getDeviceName());
-                            hashMap.put("warnTime", DateUtil.format(warn.getWarnTime(), "yy-MM-dd HH:mm:ss"));
-
-                            String content = StrFormatter.format(template.getContent(), hashMap);
-                            sendModel.setContent(content);
-                        } else {
-                            // 使用告警内容发送
-                            sendModel.setContent(warn.getContent());
-                        }
-
-                        emailService.send(sendModel);
-                    } catch (Exception e) {
-                        logger.error("<<<告警邮件发送异常", e);
-                    }
-                }
+                doSendWarnMsg(warn, template);
             }
         });
+    }
+
+    private void doSendWarnMsg(WarnData warn, WarnMessageTemplate template) {
+        List<String> phones = template.getUsers().stream()
+                .filter(item -> StrUtil.isNotBlank(item.getPhone()))
+                .map(item -> item.getPhone()).distinct()
+                .collect(Collectors.toList());
+        MessageService service = messageManager.getDefault(MessageType.Sms.name());
+        if(CollectionUtil.isNotEmpty(phones) && service != null) {
+            try {
+                SendModel sendModel = new SendModel();
+                sendModel.setAccept(phones);
+                sendModel.setContent(template.getContent());
+                sendModel.setTitle(template.getTemplateTitle());
+                sendModel.setTemplateId(template.getTemplateId());
+                LinkedHashMap<String, String> hashMap = new LinkedHashMap<>();
+                hashMap.put("value", warn.getValue());
+                hashMap.put("deviceSn", warn.getDeviceSn());
+                hashMap.put("deviceName", template.getDeviceName());
+                hashMap.put("grade", warn.getGrade().toString());
+                hashMap.put("warnTime", DateUtil.format(warn.getWarnTime(), "yy-MM-dd HH:mm:ss"));
+                sendModel.setTemplateVars(hashMap);
+                service.send(sendModel);
+            } catch (Exception e) {
+                logger.error("<<<告警短信发送异常", e);
+            }
+        }
+
+        List<String> emails = template.getUsers().stream()
+                .filter(item -> StrUtil.isNotBlank(item.getEmail()))
+                .map(item -> item.getEmail()).distinct()
+                .collect(Collectors.toList());
+        MessageService emailService = messageManager.getDefault(MessageType.Email.name());
+        if(emailService != null && !CollectionUtil.isEmpty(emails)) {
+            SendModel sendModel = new SendModel();
+            sendModel.setAccept(emails);
+            sendModel.setTitle(template.getTemplateTitle());
+
+            try {
+                // 使用自定义内容发送
+                if(StrUtil.isNotBlank(template.getContent())) {
+                    LinkedHashMap<String, String> hashMap = new LinkedHashMap<>();
+                    hashMap.put("value", warn.getValue());
+                    hashMap.put("deviceSn", warn.getDeviceSn());
+                    hashMap.put("grade", warn.getGrade().toString());
+                    hashMap.put("deviceName", template.getDeviceName());
+                    hashMap.put("warnTime", DateUtil.format(warn.getWarnTime(), "yy-MM-dd HH:mm:ss"));
+
+                    String content = StrFormatter.format(template.getContent(), hashMap);
+                    sendModel.setContent(content);
+                } else {
+                    // 使用告警内容发送
+                    sendModel.setContent(warn.getContent());
+                }
+
+                emailService.send(sendModel);
+            } catch (Exception e) {
+                logger.error("<<<告警邮件发送异常", e);
+            }
+        }
     }
 
     @Override
@@ -130,5 +133,15 @@ public class MessageTemplateServiceImpl extends BaseServiceImpl<MessageTemplateM
     public PageResult<Page<MessageTemplate>> detailPage(Page page, MessageTemplate entity) {
         this.getBaseMapper().detailPage(page, entity);
         return new PageResult<>(page);
+    }
+
+    @Override
+    public void sendWarnMessage(WarnData warn) {
+        final WarnMessageTemplate template = this.getBaseMapper().getWarnTemplateByWarnTempId(warn.getWarnConfigId(), warn.getUid());
+        if(template != null && CollectionUtil.isNotEmpty(template.getUsers())) {
+            template.setContent(warn.getContent());
+            template.setTemplateTitle(String.format("%s设备触发告警[%s]", warn.getDeviceName(), warn.getGrade()));
+            doSendWarnMsg(warn, template);
+        }
     }
 }

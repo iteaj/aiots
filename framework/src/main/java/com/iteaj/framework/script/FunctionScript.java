@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.iot.listener.filter;
+package com.iteaj.framework.script;
 
 import java.util.List;
 
@@ -6,6 +6,12 @@ import java.util.List;
  * 功能脚本
  */
 public interface FunctionScript {
+
+    /**
+     * 获取脚本key
+     * @return
+     */
+    String getKey();
 
     /**
      * 功能类型

@@ -2,12 +2,11 @@ package com.iteaj.iboot.plugin.message.listener;
 
 import com.iteaj.framework.spi.iot.data.WarnData;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
-import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
+import com.iteaj.framework.spi.iot.listener.IotListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
-import com.iteaj.iboot.plugin.message.entity.MessageTemplate;
+import com.iteaj.framework.spi.iot.listener.ScriptInvokePayload;
 import com.iteaj.iboot.plugin.message.service.IMessageTemplateService;
 import lombok.AllArgsConstructor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,18 +14,28 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @AllArgsConstructor
-public class WarnSendMsgListener implements RealtimeInfoListener {
+public class WarnSendMsgListener implements IotListener<Object> {
 
     private final IMessageTemplateService templateService;
 
     @Override
-    public void onIotEvent(IotEventType eventType, RealtimePayload value) {
-        if(value.getType().equals("warn")) {
-            value.getPayload().forEach(warn -> {
-                if(warn instanceof WarnData) {
-                    templateService.sendIotWarnMessage((WarnData) warn);
-                }
-            });
+    public void onIotEvent(IotEventType eventType, Object value) {
+        if(value instanceof RealtimePayload) {
+            if(((RealtimePayload) value).isWarn()) {
+                ((RealtimePayload) value).getPayload().forEach(warn -> {
+                    if(warn instanceof WarnData) {
+                        templateService.sendIotWarnMessage((WarnData) warn);
+                    }
+                });
+            }
+        } else if(value instanceof ScriptInvokePayload && ((ScriptInvokePayload) value).isWarn()) {
+            templateService.sendWarnMessage(((ScriptInvokePayload) value).getData());
         }
     }
+
+    @Override
+    public boolean isEventMatcher(IotEventType eventType) {
+        return eventType == IotEventType.Realtime || eventType == IotEventType.ScriptInvoke;
+    }
+
 }

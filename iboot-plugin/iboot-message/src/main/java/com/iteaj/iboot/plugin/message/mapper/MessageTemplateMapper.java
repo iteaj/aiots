@@ -22,6 +22,8 @@ public interface MessageTemplateMapper extends BaseMapper<MessageTemplate> {
 
     SendTemplate getTemplateById(Serializable id);
 
+    WarnMessageTemplate getWarnTemplateByWarnTempId(Long warnTempId, String uid);
+
     WarnMessageTemplate getWarnTemplateByWarnConfigId(Long warnConfigId, String uid);
 
     List<IVOption> listAccepts();

@@ -30,16 +30,15 @@ public class RabbitDataListenerPublisher implements RealtimeInfoListener {
 
     @Override
     public void onIotEvent(IotEventType eventType, RealtimePayload value) {
-        String type = value.getType();
-        if(type.equals("data")) {
+        if(value.isData() || value.isDataActive()) {
             value.getPayload().forEach(info -> {
                 amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_DATA, info);
             });
-        } else if(type.equals("status")) {
+        } else if(value.isStatus()) {
             value.getPayload().forEach(info -> {
                 amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_STATUS, info);
             });
-        } else if(type.equals("warn")) {
+        } else if(value.isWarn()) {
             value.getPayload().forEach(info -> {
                 amqpTemplate.convertAndSend(IOT_EXCHANGE, IOT_ROUTING_REALTIME_WARN, info);
             });

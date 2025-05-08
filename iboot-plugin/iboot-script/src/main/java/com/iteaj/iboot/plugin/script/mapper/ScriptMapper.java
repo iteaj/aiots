@@ -1,7 +1,10 @@
 package com.iteaj.iboot.plugin.script.mapper;
 
+import com.iteaj.iboot.plugin.script.entity.BindDto;
 import com.iteaj.iboot.plugin.script.entity.Script;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ScriptMapper extends BaseMapper<Script> {
 
+    Boolean isJoinModelApi(String name);
+
+    Boolean isJoinModelAttr(String key);
+
+    List<BindDto> bindApis(String key);
+
+    List<BindDto> bindAttrs(String key);
 }

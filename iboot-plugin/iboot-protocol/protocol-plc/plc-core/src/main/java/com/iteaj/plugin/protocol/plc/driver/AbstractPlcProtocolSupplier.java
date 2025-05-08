@@ -96,6 +96,10 @@ public abstract class AbstractPlcProtocolSupplier<C extends NetworkConfigImpl.Tc
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_VALUE, "要写入的double值", 2))
                 .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
+        this.modelApis.put("writeHex", createPlcFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_HEX, "写Hex值", FuncType.W, "写十六进制值")
+                .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
+                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_VALUE, "要写入的十六进制值", 2))
+                .addUpConfig(ProtocolModelApiConfig.upStatusBuild(PlcProtocolConsts.PLC_WRITE_STATUS, "状态")));
         this.modelApis.put("writeString", createPlcFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_STRING, "写string值", FuncType.W, "使用UTF8编码")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_VALUE, "使用UTF8编码", 2))

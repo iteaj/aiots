@@ -1,6 +1,5 @@
 package com.iteaj.framework.spi.iot.listener;
 
-import com.iteaj.framework.spi.iot.listener.filter.ListenerEvalFilter;
 import com.iteaj.framework.thread.IBootThreadManger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -31,4 +31,6 @@ public interface IMessageTemplateService extends IBaseService<MessageTemplate> {
     ListResult<IVOption> listAccepts();
 
     PageResult<Page<MessageTemplate>> detailPage(Page page, MessageTemplate entity);
+
+    void sendWarnMessage(WarnData value);
 }

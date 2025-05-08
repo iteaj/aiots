@@ -7,6 +7,8 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.script.FunctionScript;
+import com.iteaj.framework.script.ScriptConfigService;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.DataValueResolverFactory;
@@ -18,11 +20,13 @@ import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,10 +42,13 @@ public class ProductController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IProductService productService;
+    private final ScriptConfigService scriptConfigService;
 
-    public ProductController(IDeviceService deviceService, IProductService productService) {
+    public ProductController(IDeviceService deviceService, IProductService productService
+            , @Autowired(required = false) ScriptConfigService scriptConfigService) {
         this.deviceService = deviceService;
         this.productService = productService;
+        this.scriptConfigService = scriptConfigService;
     }
 
     /**
@@ -166,6 +173,23 @@ public class ProductController extends BaseController {
     @GetMapping("resolvers")
     public Result<List<IVOption>> resolvers() {
         return success(DataValueResolverFactory.options());
+    }
+
+    /**
+     * 脚本列表
+     * @return
+     */
+    @GetMapping("scripts")
+    public Result<List<IVOption>> scripts() {
+        final List<FunctionScript> modelApiScripts = scriptConfigService.getScriptByType("model_api");
+        if(modelApiScripts != null) {
+            final List<IVOption> ivOptions = modelApiScripts.stream()
+                    .map(item -> new IVOption(item.getName(), item.getKey()))
+                    .collect(Collectors.toList());
+            return success(ivOptions);
+        }
+
+        return success(Collections.EMPTY_LIST);
     }
 
     /**
