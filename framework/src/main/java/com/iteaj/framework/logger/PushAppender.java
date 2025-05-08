@@ -24,7 +24,7 @@ public class PushAppender extends AppenderBase<ILoggingEvent> {
     @Override
     protected void append(ILoggingEvent iLoggingEvent) {
         Marker marker = iLoggingEvent.getMarker();
-        if(marker != null) {
+        if(marker == MARKER) {
             Object[] args = iLoggingEvent.getArgumentArray();
             // 日志级别
             Level level = converLevel(iLoggingEvent.getLevel());
@@ -45,7 +45,7 @@ public class PushAppender extends AppenderBase<ILoggingEvent> {
     private static List<String> getStacktrace(ILoggingEvent iLoggingEvent) {
         List<String> stacktrace = new ArrayList<>();
         if(iLoggingEvent.getThrowableProxy() != null) {
-            stacktrace.add(iLoggingEvent.getThrowableProxy().getClassName() + ":  " + iLoggingEvent.getThrowableProxy().getMessage());
+            stacktrace.add(iLoggingEvent.getThrowableProxy().getClassName() + " : " + iLoggingEvent.getThrowableProxy().getMessage());
             StackTraceElementProxy[] proxyArray = iLoggingEvent.getThrowableProxy().getStackTraceElementProxyArray();
             if(proxyArray != null) {
                 int length = Math.min(proxyArray.length, 10);

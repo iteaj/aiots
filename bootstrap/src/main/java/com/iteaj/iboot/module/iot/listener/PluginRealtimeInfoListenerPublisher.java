@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 public class PluginRealtimeInfoListenerPublisher implements SignalCollectListener, EventGroupCollectListener
         , DeviceStatusListener, ModelAttrListener, LinkageActionListener {
 
+    private final static String BATCH = "batch";
+
     @Override
     public void supplier(CollectDevice device, CollectData data) {
         DefaultRealtimeData realtimeData = new DefaultRealtimeData();
@@ -47,7 +49,12 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
 
     @Override
     public void supplier(Collection<RealtimeStatus> devices) {
-        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("status", "batch", devices));
+        String uid = BATCH;
+        if(devices.size() == 1 && devices instanceof List) {
+            uid = ((List<RealtimeStatus>) devices).get(0).getUid();
+        }
+
+        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("status", uid, devices));
     }
 
     @Override
@@ -88,7 +95,12 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
             });
 
             if(!collectData.isEmpty()) {
-                IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data_full", "batch", collectData));
+                String uid = BATCH;
+                if(collectData.size() == 1) {
+                    uid = collectData.get(0).getUid();
+                }
+
+                IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data_full", uid, collectData));
             }
         }
     }

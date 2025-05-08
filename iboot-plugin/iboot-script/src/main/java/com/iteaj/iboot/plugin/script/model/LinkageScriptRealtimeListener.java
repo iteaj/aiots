@@ -64,8 +64,13 @@ public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotA
                 if(attrs.contains(data.getProductCode() + SPEC + data.getField())) {
                     LinkageScriptMethodsProvider.INSTANCE.debug(data.getUid()
                             , "开始执行联动脚本 属性触发 - 脚本: {}/{} - matcher: [{}]", key, scriptConfig.getLanguage(), data.getField());
-                    ScriptManager.exec(scriptConfig.getLanguage(), ScriptContext.build(key, scriptConfig.getScript(), scriptConfig.getInvoke())
-                            .addParam("data", data).addParam("methods", LinkageScriptMethodsProvider.INSTANCE));
+                    try {
+                        ScriptManager.exec(scriptConfig.getLanguage(), ScriptContext.build(key, scriptConfig.getScript(), scriptConfig.getInvoke())
+                                .addParam("data", data).addParam("methods", LinkageScriptMethodsProvider.INSTANCE));
+                    } catch (Exception e) {
+                        LinkageScriptMethodsProvider.INSTANCE.error(data.getUid()
+                                , "执行联动脚本异常 属性触发 - 脚本: {}/{} - matcher: [{}]", key, scriptConfig.getLanguage(), data.getField(), e);
+                    }
                 }
             });
         }
@@ -78,8 +83,13 @@ public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotA
                 final ScriptConfig scriptConfig = ScriptConfigService.instance.getScriptConfig(key);
                 LinkageScriptMethodsProvider.INSTANCE.debug(deviceStatus.getUid()
                         , "开始执行联动脚本 状态触发 - 脚本: {}/{} - matcher: [#status]", key, scriptConfig.getLanguage());
-                ScriptManager.exec(scriptConfig.getLanguage(), ScriptContext.build(key, scriptConfig.getScript(), scriptConfig.getInvoke())
-                        .addParam("data", data).addParam("methods", LinkageScriptMethodsProvider.INSTANCE));
+                try {
+                    ScriptManager.exec(scriptConfig.getLanguage(), ScriptContext.build(key, scriptConfig.getScript(), scriptConfig.getInvoke())
+                            .addParam("data", data).addParam("methods", LinkageScriptMethodsProvider.INSTANCE));
+                } catch (Exception e) {
+                    LinkageScriptMethodsProvider.INSTANCE.error(deviceStatus.getUid()
+                            , "执行联动脚本异常 状态触发 - 脚本: {}/{} - matcher: [#status]", key, scriptConfig.getLanguage(), e);
+                }
             }
         });
     }

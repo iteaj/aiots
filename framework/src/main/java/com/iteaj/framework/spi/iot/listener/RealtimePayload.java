@@ -24,6 +24,7 @@ public class RealtimePayload extends EntityPayload<Collection> {
 
     public RealtimePayload(String type, String uid, Collection values) {
         super(values);
+        this.uid = uid;
         this.type = type;
     }
 

@@ -7,6 +7,7 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class ScriptCmdMethodsProvider extends ValueConvertProvide {
 
@@ -19,6 +20,9 @@ public class ScriptCmdMethodsProvider extends ValueConvertProvide {
         completes = new ArrayList<>(Arrays.asList(
                 new ScriptComplete("methods.writeValue(data, null)", "写值(只支持基础数据类型)",1),
                 new ScriptComplete("methods.getUid(data)", "获取执行设备的uid",2),
+                new ScriptComplete("methods.isUid(data, uid)", "执行设备是否为指定设备(uid)",2),
+                new ScriptComplete("methods.isProduct(data, productCode)", "执行设备是否为指定产品(productCode)",2),
+                new ScriptComplete("methods.isProtocol(data, protocolCode)", "执行设备是否为指定协议(protocolCode)",2),
                 new ScriptComplete("methods.getInt(data, key)", "获取执行参数",3),
                 new ScriptComplete("methods.getLong(data, key)", "获取执行参数",3),
                 new ScriptComplete("methods.getDouble(data, key)", "获取执行参数",3),
@@ -41,6 +45,21 @@ public class ScriptCmdMethodsProvider extends ValueConvertProvide {
     @Override
     public String getSubType() {
         return NAME;
+    }
+
+    public boolean isUid(ProtocolModelApiInvokeParam data, String uid) {
+        final RealtimeDeviceStatus device = data.getDevice();
+        return Objects.equals(device.getUid(), uid);
+    }
+
+    public boolean isProduct(ProtocolModelApiInvokeParam data, String productCode) {
+        final RealtimeDeviceStatus device = data.getDevice();
+        return Objects.equals(device.getProductCode(), productCode);
+    }
+
+    public boolean isProtocol(ProtocolModelApiInvokeParam data, String protocolCode) {
+        final RealtimeDeviceStatus device = data.getDevice();
+        return Objects.equals(device.getProtocolCode(), protocolCode);
     }
 
     /**

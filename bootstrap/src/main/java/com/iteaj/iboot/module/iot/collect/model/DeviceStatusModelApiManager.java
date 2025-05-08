@@ -157,7 +157,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                 RealtimeStatus realtimeStatus = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
                 // 父设备不存在或者不在线则不采集子设备状态
                 if(realtimeStatus == null || realtimeStatus.getStatus() == DeviceStatus.offline) {
-                    IotLogger.debug(IotLogger.NAME, "采集状态", device.getUid(), "放弃状态接口调用 网关设备不在线 - 网关编号: {} - 设备编号: {} - 接口: {}/{}"
+                    IotLogger.warn(IotLogger.NAME, "采集状态", device.getUid(), "放弃状态接口调用 网关设备不在线 - 网关编号: {} - 设备编号: {} - 接口: {}/{}"
                             , device.getParentDeviceSn(), device.getDeviceSn(), api.getCode(), api.getDirect());
                     return;
                 }
