@@ -60,14 +60,6 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity>
         return this.mapperClass;
     }
 
-    protected Class<M> currentMapperClass() {
-        return getMapperClass();
-    }
-
-    protected Class<T> currentModelClass() {
-        return getEntityClass();
-    }
-
     /**
      * 批量插入
      *
@@ -90,7 +82,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity>
      * @since 3.4.0
      */
     protected String getSqlStatement(SqlMethod sqlMethod) {
-        return SqlHelper.getSqlStatement(mapperClass, sqlMethod);
+        return SqlHelper.getSqlStatement(getMapperClass(), sqlMethod);
     }
 
     /**
@@ -103,7 +95,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity>
     @Override
     public BooleanResult saveOrUpdate(T entity) {
         if (null != entity) {
-            TableInfo tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
+            TableInfo tableInfo = TableInfoHelper.getTableInfo(this.getEntityClass());
             Assert.notNull(tableInfo, "error: can not execute. because can not find cache of TableInfo for entity!");
             String keyProperty = tableInfo.getKeyProperty();
             Assert.notEmpty(keyProperty, "error: can not execute. because can not find column for id from entity!");
@@ -116,11 +108,11 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public BooleanResult saveOrUpdateBatch(Collection<T> entityList, int batchSize) {
-        TableInfo tableInfo = TableInfoHelper.getTableInfo(entityClass);
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(getEntityClass());
         Assert.notNull(tableInfo, "error: can not execute. because can not find cache of TableInfo for entity!");
         String keyProperty = tableInfo.getKeyProperty();
         Assert.notEmpty(keyProperty, "error: can not execute. because can not find column for id from entity!");
-        return new BooleanResult(SqlHelper.saveOrUpdateBatch(this.entityClass, this.mapperClass, this.log, entityList, batchSize, (sqlSession, entity) -> {
+        return new BooleanResult(SqlHelper.saveOrUpdateBatch(this.getEntityClass(), this.getMapperClass(), this.log, entityList, batchSize, (sqlSession, entity) -> {
             Object idVal = ReflectionKit.getFieldValue(entity, keyProperty);
             return StringUtils.checkValNull(idVal)
                     || CollectionUtils.isEmpty(sqlSession.selectList(getSqlStatement(SqlMethod.SELECT_BY_ID), entity));
@@ -169,7 +161,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity>
      */
     @Deprecated
     protected boolean executeBatch(Consumer<SqlSession> consumer) {
-        return SqlHelper.executeBatch(this.entityClass, this.log, consumer);
+        return SqlHelper.executeBatch(this.getEntityClass(), this.log, consumer);
     }
 
     /**
@@ -183,7 +175,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity>
      * @since 3.3.1
      */
     protected <E> boolean executeBatch(Collection<E> list, int batchSize, BiConsumer<SqlSession, E> consumer) {
-        return SqlHelper.executeBatch(this.entityClass, this.log, list, batchSize, consumer);
+        return SqlHelper.executeBatch(this.getEntityClass(), this.log, list, batchSize, consumer);
     }
 
     /**

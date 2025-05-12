@@ -78,7 +78,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
 
                 return new RealtimePayload(param.getType(), param.getUid(), payload);
             } else {
-                RealtimeListenerFilter.methodProvide.debug(param.getUid(), "{}过滤脚本处于禁用状态 - 数据类型: {}", getFilterName(), param.getType());
+                RealtimeListenerFilter.methodProvide.debug(param.getUid(), "{}过滤脚本处于禁用状态 - 类型: {}", getFilterName(), param.getType());
             }
         }
 
