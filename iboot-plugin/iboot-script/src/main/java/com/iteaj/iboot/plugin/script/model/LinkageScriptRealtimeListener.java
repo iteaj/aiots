@@ -2,7 +2,9 @@ package com.iteaj.iboot.plugin.script.model;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.script.*;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
@@ -11,8 +13,10 @@ import com.iteaj.framework.spi.iot.listener.IotAsyncListener;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import com.oracle.truffle.polyglot.*;
+import org.graalvm.polyglot.Value;
 
+import javax.script.Bindings;
 import java.util.*;
 
 /**
@@ -100,13 +104,11 @@ public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotA
 
     public static void register(String key, ScriptConfig script) {
         final Object exec = ScriptManager.exec(script.getLanguage(), script.getScript()+"\r\nmatcher();", null);
-        if(exec instanceof ScriptObjectMirror) {
+        if(exec instanceof Map) {
             Set<String> attrSet = new HashSet<>();
-            final JSONObject o = (JSONObject) JSONObject.toJSON(exec);
-            o.forEach((productCode, attrsJson) -> {
-                final JSONObject attrs = (JSONObject) attrsJson;
-                if(attrsJson != null && !attrs.isEmpty()) {
-                    attrs.values().forEach(field -> {
+            ((Map)exec).forEach((productCode, attrsJson) -> {
+                if(attrsJson instanceof JSONArray) {
+                    ((JSONArray) attrsJson).forEach(field -> {
                         if(StrUtil.isNotBlank((String) field)) {
                             attrSet.add(productCode + SPEC + field);
                         }

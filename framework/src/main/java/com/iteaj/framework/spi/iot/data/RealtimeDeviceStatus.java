@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.iot.data;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.Date;
 

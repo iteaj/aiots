@@ -1,7 +1,7 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.DataType;

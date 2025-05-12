@@ -1,76 +1,60 @@
 package com.iteaj.iboot.plugin.code.vue;
 
-import com.baomidou.mybatisplus.generator.InjectionConfig;
-import com.baomidou.mybatisplus.generator.config.ConstVal;
-import com.baomidou.mybatisplus.generator.config.FileOutConfig;
-import com.baomidou.mybatisplus.generator.config.IFileCreate;
+import com.baomidou.mybatisplus.generator.config.InjectionConfig;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
+import com.baomidou.mybatisplus.generator.config.builder.CustomFile;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
-import com.baomidou.mybatisplus.generator.config.rules.FileType;
 import com.iteaj.iboot.plugin.code.LowCodeProperties;
 import com.iteaj.iboot.plugin.code.utils.LowCodeUtil;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class VueInjectionConfig extends InjectionConfig {
 
-    private LowCodeProperties properties;
+    protected String vueOutputDir;
+    protected ConfigBuilder builder;
+    protected LowCodeProperties properties;
 
-    public VueInjectionConfig(ConfigBuilder builder, LowCodeProperties properties) {
-        setConfig(builder);
+    public VueInjectionConfig(LowCodeProperties properties, ConfigBuilder builder) {
+        this(null, builder, properties);
+    }
+
+    public VueInjectionConfig(String vueOutputDir, ConfigBuilder builder, LowCodeProperties properties) {
+        this.vueOutputDir = vueOutputDir;
+        this.builder = builder;
         this.properties = properties;
+        getCustomFiles().add(buildCustomFile());
     }
 
     @Override
-    public void initMap() {
-        this.setMap(new HashMap<>());
-    }
-
-    @Override
-    public void initTableMap(TableInfo tableInfo) {
-        this.setMap(new HashMap<>()); // 清空上一张表信息的所有配置
+    public void beforeOutputFile(TableInfo tableInfo, Map<String, Object> objectMap) {
+        super.beforeOutputFile(tableInfo, objectMap);
         List<VueFieldInfo> vueFields = tableInfo.getFields().stream()
                 .map(item -> {
                     if(item.isKeyIdentityFlag()) {
-                        getMap().put("rowKey", item.getPropertyName());
+                        objectMap.put("rowKey", item.getPropertyName()); return null;
                     }
                     return new VueFieldInfo(item).build(properties);
-                }).filter(item -> item != null).collect(Collectors.toList());
-        getMap().put("vueFields", vueFields);
-        getMap().put("moduleName", LowCodeUtil.getModuleName(tableInfo.getComment()));
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        objectMap.put("vueFields", vueFields);
+        objectMap.put("moduleName", LowCodeUtil.getModuleName(tableInfo.getComment()));
+        objectMap.put("serviceName", LowCodeUtil.firstLowerServiceName(tableInfo.getServiceName()));
     }
 
-    @Override
-    public List<FileOutConfig> getFileOutConfigList() {
-        return Arrays.asList(new FileOutConfig() {
-
-            @Override
-            public String getTemplatePath() {
-                return "/templates/ivzone.vue.vm";
-            }
-
-            @Override
-            public String outputFile(TableInfo tableInfo) {
-                String moduleName = getConfig().getPackageInfo().get(ConstVal.MODULE_NAME);
-                String entityName = tableInfo.getEntityPath();
-                return moduleName + "/" + entityName + "/index.vue";
-            }
-        });
+    protected CustomFile buildCustomFile() {
+        vueOutputDir = vueOutputDir == null ? builder.getPackageConfig().getModuleName()
+                : vueOutputDir + File.separator + builder.getPackageConfig().getModuleName();
+        return new CustomFile.Builder()
+                .fileName("index.vue")
+                .templatePath("/templates/ivzone.vue.vm")
+                .filePath(vueOutputDir)
+                .formatNameFunction(info -> LowCodeUtil.firstLowerServiceName(info.getEntityName()) + File.separator)
+                .build();
     }
 
-    @Override
-    public IFileCreate getFileCreate() {
-        return (configBuilder, fileType, filePath) -> {
-            // 只生成前端代码
-            if(fileType != FileType.OTHER) {
-                return false;
-            } else {
-                // 只生成.vue结尾的文件
-                return filePath.endsWith(".vue");
-            }
-        };
-    }
 }

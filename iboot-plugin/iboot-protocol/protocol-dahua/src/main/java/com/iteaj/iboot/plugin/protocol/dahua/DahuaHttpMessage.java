@@ -1,6 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.dahua;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.iot.client.http.HttpClientMessage;
 import com.iteaj.iot.client.http.HttpMethod;
 import okhttp3.RequestBody;

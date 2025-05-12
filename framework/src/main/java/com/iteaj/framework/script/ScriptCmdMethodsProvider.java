@@ -2,7 +2,6 @@ package com.iteaj.framework.script;
 
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 import java.util.ArrayList;
 import java.util.Arrays;

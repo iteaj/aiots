@@ -2,10 +2,9 @@ package com.iteaj.iboot.module.iot.entity;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -14,18 +13,18 @@ import java.util.stream.Collectors;
 
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.springframework.util.CollectionUtils;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * <p>
@@ -119,8 +118,8 @@ public class ModelApi extends BaseEntity {
     /**
      * 指令参数
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private ObjectNode directParams;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject directParams;
 
     /**
      * 上行接口配置

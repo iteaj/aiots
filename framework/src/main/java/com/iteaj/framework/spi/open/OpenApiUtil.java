@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.open;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 public class OpenApiUtil {
 

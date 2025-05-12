@@ -1,9 +1,0 @@
-knife4j:
-  enable-aggregation: true
-  disk:
-    enable: true
-    routes:
-      - name: iboot
-        order: 1
-        debugUrl: http://192.168.20.168:8085
-        location: classpath:/static/doc/openapi.json

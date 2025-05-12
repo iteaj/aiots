@@ -3,7 +3,6 @@ package com.iteaj.iboot.module.core.entity;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.TreeEntity;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -55,11 +54,9 @@ public class Org extends TreeEntity {
     private Integer level;
 
     /**创建时间*/
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createTime;
 
     /**更新时间*/
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateTime;
 
 }

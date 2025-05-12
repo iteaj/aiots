@@ -1,7 +1,8 @@
 package com.iteaj.iboot.plugin.quartz.service.impl;
 
 import cn.hutool.core.lang.UUID;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
@@ -54,9 +55,9 @@ public class JobTaskServiceImpl extends BaseServiceImpl<JobTaskMapper, JobTask> 
             } else if(args.startsWith("'") || args.startsWith("\"")) {
                 dataMap.put("params", args.substring(1, args.length() - 1));
             } else if(args.startsWith("{")) {
-                dataMap.put("params", JSONObject.parseObject(args));
+                dataMap.put("params", JSON.parseObject(args));
             } else if(args.startsWith("[")) {
-                dataMap.put("params", JSONObject.parseArray(args));
+                dataMap.put("params", JSON.parseArray(args));
             } else {
                 dataMap.put("params", args);
             }

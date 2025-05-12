@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.linkage.calc;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.iteaj.iboot.module.iot.linkage.ConditionCalc;
 
 import java.util.Set;
@@ -26,7 +26,7 @@ public class INConditionCalc implements ConditionCalc {
     @Override
     public boolean calc(Object value, Object condition) {
         JSONArray array = JSONArray.parseArray(condition.toString());
-        Set<String> collect = array.stream().map(item -> String.valueOf(item)).collect(Collectors.toSet());
+        Set<String> collect = array.stream().map(String::valueOf).collect(Collectors.toSet());
         return collect.contains(value.toString());
     }
 }

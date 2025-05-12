@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -51,6 +51,5 @@ public class CollectEntity {
      * 采集时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date collectTime;
 }

@@ -22,27 +22,26 @@
         <module>iboot-plugin</module>
     </modules>
     <properties>
-        <reversion>3.0.0</reversion>
+        <reversion>3.1.0</reversion>
         <p6spy.version>3.8.6</p6spy.version>
         <kaptcha.version>2.3.2</kaptcha.version>
         <servlet.version>3.1.0</servlet.version>
 
-        <iot.version>3.1.8</iot.version>
+        <iot.version>3.2.0</iot.version>
         <sms4j.version>3.2.1</sms4j.version>
-        <shiro.version>1.7.1</shiro.version>
-        <hutool.version>5.7.18</hutool.version>
+        <hutool.version>5.8.37</hutool.version>
         <okhttp3.version>4.5.0</okhttp3.version>
         <excelpoi.version>4.3.0</excelpoi.version>
-        <fastjson.version>1.2.78</fastjson.version>
+        <fastjson.version>2.0.57</fastjson.version>
         <JustAuth.version>1.16.5</JustAuth.version>
         <izone.boot.version>1.2.1</izone.boot.version>
-        <springboot.version>2.7.2</springboot.version>
+        <springboot.version>3.3.3</springboot.version>
         <mybatis.plus.version>3.5.7</mybatis.plus.version>
         <mybatis.plus.ds.version>4.3.0</mybatis.plus.ds.version>
 
         <!--插件依赖版本-->
-        <knife4j.version>4.0.0</knife4j.version>
-        <SaToken.version>1.35.0.RC</SaToken.version>
+        <knife4j.version>4.5.0</knife4j.version>
+        <SaToken.version>1.39.0</SaToken.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -62,11 +61,11 @@
     </developers>
 
     <dependencies>
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-jwt</artifactId>
-            <version>${hutool.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>cn.hutool</groupId>-->
+<!--            <artifactId>hutool-jwt</artifactId>-->
+<!--            <version>${hutool.version}</version>-->
+<!--        </dependency>-->
         <!--spring boot-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -80,24 +79,9 @@
             <artifactId>mybatis-plus-extension</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-json</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-web</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.baomidou</groupId>
             <version>${mybatis.plus.version}</version>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-        </dependency>
-        <dependency>
-            <artifactId>kaptcha</artifactId>
-            <version>${kaptcha.version}</version>
-            <groupId>com.github.penggle</groupId>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -150,11 +134,6 @@
             </dependency>
             <dependency>
                 <groupId>com.iteaj</groupId>
-                <artifactId>iot-plc</artifactId>
-                <version>${iot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.iteaj</groupId>
                 <version>${iot.version}</version>
                 <artifactId>iot-serial</artifactId>
             </dependency>
@@ -170,18 +149,6 @@
                 <artifactId>mybatis-plus-generator</artifactId>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.shiro</groupId>
-                <version>${shiro.version}</version>
-                <artifactId>shiro-spring</artifactId>
-            </dependency>
-
-            <dependency>
-                <version>${knife4j.version}</version>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-aggregation-spring-boot-starter</artifactId>
-            </dependency>
-
             <!-- SaToken 认证授权框架 -->
             <dependency>
                 <groupId>cn.dev33</groupId>
@@ -191,13 +158,23 @@
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <version>${SaToken.version}</version>
-                <artifactId>sa-token-spring-boot-starter</artifactId>
+                <artifactId>sa-token-spring-boot3-starter</artifactId>
             </dependency>
             <!-- Sa-Token 整合 Redis （使用 jackson 序列化方式） -->
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <version>${SaToken.version}</version>
-                <artifactId>sa-token-redis-jackson</artifactId>
+                <artifactId>sa-token-redis-fastjson2</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-data-redis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.alibaba.fastjson2</groupId>
+                        <artifactId>fastjson2</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>me.zhyd.oauth</groupId>
@@ -240,6 +217,39 @@
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
                         <artifactId>log4j-to-slf4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <version>${springboot.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-json</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <version>${springboot.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-webflux</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-json</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <artifactId>kaptcha</artifactId>
+                <version>${kaptcha.version}</version>
+                <groupId>com.github.penggle</groupId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>javax.servlet-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

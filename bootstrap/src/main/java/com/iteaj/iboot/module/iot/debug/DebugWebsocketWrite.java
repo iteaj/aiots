@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.debug;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerProtocol;
 

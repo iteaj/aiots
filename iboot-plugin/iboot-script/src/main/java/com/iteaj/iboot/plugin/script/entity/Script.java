@@ -1,11 +1,11 @@
 package com.iteaj.iboot.plugin.script.entity;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.script.ScriptComplete;
@@ -72,7 +72,7 @@ public class Script extends BaseEntity implements FunctionScript {
      */
     private Date updateTime;
 
-    @JsonIgnore
+    @JSONField(serialize = false)
     @TableField(exist = false)
     private List<ScriptConfig> configs;
 

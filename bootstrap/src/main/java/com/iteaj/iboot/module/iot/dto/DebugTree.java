@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,7 +64,7 @@ public class DebugTree {
      */
     private List<DebugTree> children;
 
-    @JsonIgnore
+    @JSONField(serialize = false)
     private DebugTree parent;
 
     public DebugTree() { }

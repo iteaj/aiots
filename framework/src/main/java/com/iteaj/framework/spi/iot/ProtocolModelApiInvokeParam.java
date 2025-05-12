@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.iot;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApi;

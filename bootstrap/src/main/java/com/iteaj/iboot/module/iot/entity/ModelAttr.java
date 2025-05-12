@@ -8,12 +8,12 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.validate.AllGroup;
 import com.iteaj.iboot.module.iot.consts.AttrOrigin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 

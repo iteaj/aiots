@@ -3,6 +3,8 @@ package com.iteaj.framework.exception;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
@@ -11,8 +13,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 @RestControllerAdvice

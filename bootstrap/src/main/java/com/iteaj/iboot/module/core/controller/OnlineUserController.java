@@ -16,8 +16,6 @@ import com.iteaj.iboot.module.core.service.IOnlineUserService;
 import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

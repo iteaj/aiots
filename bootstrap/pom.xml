@@ -45,7 +45,10 @@
             <version>${hutool.version}</version>
             <artifactId>hutool-cron</artifactId>
         </dependency>
-
+        <dependency>
+            <artifactId>kaptcha</artifactId>
+            <groupId>com.github.penggle</groupId>
+        </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -173,14 +176,7 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Shiro权限认证插件(和SaToken二选其一)-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>iboot-shiro</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
-
-        <!-- SaToken权限认证插件(和Shiro二选其一)-->
+        <!-- SaToken权限认证插件-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <version>${project.version}</version>
@@ -200,13 +196,6 @@
 <!--            <artifactId>iboot-quartz</artifactId>-->
 <!--            <version>${project.version}</version>-->
 <!--        </dependency>-->
-
-        <!-- knife4j Api文档插件-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>iboot-knife4j</artifactId>
-        </dependency>
 
         <!-- 消息源插件(短信, email, 钉钉...) -->
         <dependency>

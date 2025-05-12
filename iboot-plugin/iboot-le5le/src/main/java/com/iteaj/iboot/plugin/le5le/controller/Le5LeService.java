@@ -13,9 +13,10 @@ import cn.hutool.core.util.ZipUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
@@ -240,7 +241,7 @@ public class Le5LeService implements InitializingBean {
 
         HttpRequest post = HttpUtil.createPost(url);
         post.header("Authorization", token);
-        HttpResponse execute = post.body(body.toString(SerializerFeature.SkipTransientField)).execute();
+        HttpResponse execute = post.body(body.toString()).execute();
         if(execute.isOk()) {
             JSONObject response = JSONObject.parseObject(execute.body());
             String error = response.getString("error");
@@ -311,7 +312,7 @@ public class Le5LeService implements InitializingBean {
     @NotNull
     private JSONObject doAddDatasource(Le5LeDatasource entity, List<Dataset> datasets) {
         JSONObject data = new JSONObject();
-        JSONObject params = (JSONObject)JSONObject.toJSON(entity);
+        JSONObject params = (JSONObject) JSON.toJSON(entity);
         data.put("devices", datasets);
         data.put("mode", "");
         data.put("url", "");
@@ -393,7 +394,7 @@ public class Le5LeService implements InitializingBean {
 
     private void doUpdateDataset(Le5LeDatasource entity, List<Dataset> datasets) {
         JSONObject data = new JSONObject();
-        JSONObject params = (JSONObject)JSONObject.toJSON(entity);
+        JSONObject params = (JSONObject)JSON.toJSON(entity);
         data.put("devices", datasets);
         data.put("mode", "");
         data.put("url", "");

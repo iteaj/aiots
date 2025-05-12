@@ -11,7 +11,10 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
@@ -43,8 +46,7 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
             velocityEngine = new VelocityEngine(p);
         }
 
-        this.setConfigBuilder(configBuilder);
-        configBuilder.setInjectionConfig(new VueInjectionConfig(configBuilder, this.properties));
+        configBuilder.setInjectionConfig(new VueInjectionConfig(this.properties, configBuilder));
         return this;
     }
 
@@ -61,18 +63,16 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
     }
 
     @Override
-    public void writer(Map<String, Object> objectMap, String templatePath, String outputFile) throws Exception {
+    public void writer(Map<String, Object> objectMap, String templatePath, File outputFile) throws Exception {
         Template template = velocityEngine.getTemplate(templatePath, ConstVal.UTF8);
         try (StringWriter sw = new StringWriter()) {
             template.merge(new VelocityContext(objectMap), sw);
 
             //添加到zip
-            zip.putNextEntry(new ZipEntry(outputFile));
+            zip.putNextEntry(new ZipEntry(outputFile.getPath()));
             zip.write(sw.toString().getBytes(StandardCharsets.UTF_8));
             zip.closeEntry();
         }
-
-        logger.debug("模板:" + templatePath + ";  文件:" + outputFile);
     }
 
     protected VelocityEngine getVelocityEngine() {

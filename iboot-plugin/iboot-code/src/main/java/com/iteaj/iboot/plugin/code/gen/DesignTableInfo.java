@@ -1,7 +1,9 @@
 package com.iteaj.iboot.plugin.code.gen;
 
+import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
@@ -9,7 +11,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
 public class DesignTableInfo extends TableInfo {
 
     private String dtoName;
@@ -65,6 +68,10 @@ public class DesignTableInfo extends TableInfo {
      * 列表字段
      */
     private List<FormTableField> formTableFields;
+
+    public DesignTableInfo(ConfigBuilder configBuilder, String name) {
+        super(configBuilder, name);
+    }
 
     public String getJoinColumns() {
         if(CollectionUtils.isEmpty(dtoFields)) {

@@ -1,9 +1,14 @@
 package com.iteaj.iboot.plugin.code.gen;
 
+import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.po.TableField;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
-@Data
+@Getter
+@Setter
 public class LcdField extends TableField {
 
     private String alias;
@@ -32,4 +37,9 @@ public class LcdField extends TableField {
      * 校验注解
      */
     private String validate;
+
+    public LcdField(@NotNull ConfigBuilder configBuilder, @NotNull String name, String alias) {
+        super(configBuilder, name);
+        this.alias = alias;
+    }
 }

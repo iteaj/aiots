@@ -2,11 +2,11 @@ package com.iteaj.iboot.plugin.satoken;
 
 import cn.dev33.satoken.context.SaHolder;
 import cn.dev33.satoken.dao.SaTokenDao;
-import cn.dev33.satoken.dao.SaTokenDaoRedisJackson;
+import cn.dev33.satoken.dao.SaTokenDaoRedisFastjson2;
 import cn.dev33.satoken.filter.SaServletFilter;
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.iteaj.framework.ProfilesInclude;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.captcha.CaptchaService;
@@ -20,18 +20,19 @@ import com.iteaj.iboot.plugin.satoken.impl.SaTokenSecurityService;
 import com.iteaj.iboot.plugin.satoken.impl.StpInterfaceImpl;
 import com.iteaj.iboot.plugin.satoken.listener.SaTokenOnlineListener;
 import eu.bitwalker.useragentutils.UserAgent;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -81,7 +82,7 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
     @ConditionalOnCluster
 //    @ConditionalOnClass(name = "org.springframework.data.redis.connection.RedisConnectionFactory")
     public SaTokenDao saTokenDao() {
-        return new SaTokenDaoRedisJackson();
+        return new SaTokenDaoRedisFastjson2();
     }
 
     @Bean
@@ -92,7 +93,7 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
                     SaHolder.getResponse()
                             .setStatus(HttpServletResponse.SC_UNAUTHORIZED)
                             .setHeader("Content-Type", "application/json;charset=UTF-8");
-                    return JSONUtil.toJsonStr(Result.fail(HttpServletResponse.SC_UNAUTHORIZED, "未认证"));
+                    return JSON.toJSONString(Result.fail(HttpServletResponse.SC_UNAUTHORIZED, "未认证"));
                 });
     }
 

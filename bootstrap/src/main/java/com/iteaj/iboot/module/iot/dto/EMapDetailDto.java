@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.iboot.module.iot.consts.WarnGrade;
@@ -99,7 +99,7 @@ public class EMapDetailDto {
         /**
          * 采集时间
          */
-        @JsonFormat(pattern = "MM-dd HH:mm:ss")
+        @JSONField(format = "MM-dd HH:mm:ss")
         private Date collectTime;
 
         private CollectStatus status;
@@ -137,7 +137,7 @@ public class EMapDetailDto {
          */
         private String content;
 
-        @JsonFormat(pattern = "yy-MM-dd HH:mm:ss")
+        @JSONField(format = "yy-MM-dd HH:mm:ss")
         private Date warnTime;
 
         public Warn(String grade, String content, Date warnTime) {

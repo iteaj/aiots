@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.iteaj.framework.IVOption;
 import lombok.Getter;
 import lombok.Setter;
@@ -65,7 +65,7 @@ public class PanelsDeviceDto {
          */
         private String label = null;
 
-        @JsonIgnore
+        @JSONField(serialize = false)
         private Boolean ctrlStatus;
 
         public AttrValue(String field, String name, String unit, Boolean ctrlStatus) {

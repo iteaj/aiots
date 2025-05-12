@@ -1,6 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.dahua;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.dahuatech.hutool.http.Method;
 import com.dahuatech.icc.exception.ClientException;
 import com.dahuatech.icc.oauth.model.v202010.GeneralRequest;

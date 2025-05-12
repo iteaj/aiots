@@ -34,7 +34,7 @@ public class ScriptManager {
     public static void register(String key, ScriptConfig script) {
         final ScriptInterface scriptInterface = get(script.getLanguage());
         if(scriptInterface != null) {
-            final Object compile = scriptInterface.compile(script.getScript() + "\r\n" + script.getInvoke());
+            final Object compile = scriptInterface.compile(script.getScript());
             if(compile != null) {
                 register(key, compile);
             }

@@ -1,9 +1,9 @@
 package com.iteaj.iboot.module.core.entity;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.OnlineSession;
 import com.iteaj.framework.spi.admin.event.OnlineStatus;
@@ -80,11 +80,11 @@ public class OnlineUser extends BaseEntity implements OnlineSession {
     private String userNick;
 
     /**创建时间*/
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**更新时间*/
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     public OnlineUser() { }

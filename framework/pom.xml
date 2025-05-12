@@ -23,8 +23,8 @@
         </dependency>
 
         <dependency>
+            <optional>true</optional>
             <artifactId>kaptcha</artifactId>
-            <version>${kaptcha.version}</version>
             <groupId>com.github.penggle</groupId>
         </dependency>
         <dependency>
@@ -56,9 +56,9 @@
             <groupId>com.squareup.okhttp3</groupId>
         </dependency>
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2-extension-spring6</artifactId>
         </dependency>
 
         <!-- 缓存相关 -->
@@ -66,19 +66,6 @@
             <optional>true</optional>
             <artifactId>spring-data-redis</artifactId>
             <groupId>org.springframework.data</groupId>
-        </dependency>
-
-        <!--ehcache3.x版本-->
-        <dependency>
-            <optional>true</optional>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-        </dependency>
-
-        <!--使用ehcache3.x版本必须的依赖-->
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
@@ -91,10 +78,25 @@
             <version>${excelpoi.version}</version>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <version>31.0.1-jre</version>-->
+<!--            <groupId>com.google.guava</groupId>-->
+<!--            <artifactId>guava</artifactId>-->
+<!--        </dependency>-->
         <dependency>
-            <version>31.0.1-jre</version>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-crypto</artifactId>
+            <version>${hutool.version}</version>
         </dependency>
     </dependencies>
 

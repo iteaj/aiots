@@ -3,7 +3,7 @@ package com.iteaj.iboot.module.iot.linkage.calc;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.iteaj.iboot.module.iot.linkage.ConditionCalc;
 
 import java.util.Date;

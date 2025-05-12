@@ -3,7 +3,6 @@ package com.iteaj.iboot.module.core.entity;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.TreeEntity;
 import com.iteaj.framework.spi.admin.MenuResource;
 import com.iteaj.framework.spi.admin.MenuType;
@@ -50,12 +49,10 @@ public class Menu extends TreeEntity implements MenuResource, Comparable<Menu> {
     private String target;
     /**创建时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date createTime;
 
     /**更新时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
     private Date updateTime;
 
     public Menu() {  }

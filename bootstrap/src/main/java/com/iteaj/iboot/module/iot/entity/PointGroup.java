@@ -1,13 +1,13 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.util.List;
 
-import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -47,8 +47,8 @@ public class PointGroup extends BaseEntity {
     /**
      * 产品id列表
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private ArrayNode productIds;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray productIds;
 
     @TableField(exist = false)
     private String productNames;

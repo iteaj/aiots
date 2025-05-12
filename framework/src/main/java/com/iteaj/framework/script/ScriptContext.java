@@ -1,6 +1,7 @@
 package com.iteaj.framework.script;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ScriptContext {
@@ -9,15 +10,18 @@ public class ScriptContext {
 
     private String script;
 
+    private String invoke;
+
     private Map<String, Object> params;
 
-    protected ScriptContext(String key, String script) {
+    protected ScriptContext(String key, String script, String invoke) {
         this.key = key;
+        this.invoke = invoke;
         this.script = script;
     }
 
     public static ScriptContext build(String key, String script, String invoke) {
-        return new ScriptContext(key, script + "\r\n" + invoke);
+        return new ScriptContext(key, script, invoke);
     }
 
     public String getScript() {
@@ -44,9 +48,17 @@ public class ScriptContext {
         this.params = params;
     }
 
+    public String getInvoke() {
+        return invoke;
+    }
+
+    public void setInvoke(String invoke) {
+        this.invoke = invoke;
+    }
+
     public ScriptContext addParam(String name, Object value) {
         if(this.params == null) {
-            this.params = new HashMap<>();
+            this.params = new LinkedHashMap<>();
         }
 
         this.getParams().put(name, value);

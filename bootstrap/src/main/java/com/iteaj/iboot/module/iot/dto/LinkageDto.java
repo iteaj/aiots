@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.dto;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import lombok.Data;
 

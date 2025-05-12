@@ -30,4 +30,6 @@ sa-token:
   is-log: true
   # 日志等级（trace、debug、info、warn、error、fatal），此值与 logLevelInt 联动
   log-level: info
-
+spring:
+  autoconfigure:
+    exclude: cn.dev33.satoken.dao.SaTokenDaoRedisFastjson2

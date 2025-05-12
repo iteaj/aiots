@@ -3,8 +3,8 @@ package com.iteaj.framework.spi.app;
 import com.iteaj.framework.spi.auth.AccountAuthAction;
 import com.iteaj.framework.web.WebUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * create time: 2021/4/4

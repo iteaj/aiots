@@ -1,7 +1,6 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;

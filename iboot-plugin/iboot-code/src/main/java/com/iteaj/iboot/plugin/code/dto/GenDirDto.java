@@ -27,8 +27,7 @@ public class GenDirDto {
      */
     private String moduleName;
 
-    public GenDirDto(String cusGenDir, String projectRoot) {
-        this.cusGenDir = cusGenDir;
+    public GenDirDto(String projectRoot) {
         this.projectRoot = projectRoot;
     }
 }

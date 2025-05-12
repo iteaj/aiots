@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.baomidou.mybatisplus.core.override.MybatisMapperProxy;
 import com.baomidou.mybatisplus.core.toolkit.*;
+import com.baomidou.mybatisplus.core.toolkit.reflect.GenericTypeUtils;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.iteaj.framework.result.BooleanResult;
@@ -38,21 +40,32 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity>
         return baseMapper;
     }
 
-    protected Class<T> entityClass = currentModelClass();
+    protected Class<T> entityClass;
 
     @Override
     public Class<T> getEntityClass() {
-        return entityClass;
+        if(this.entityClass == null) {
+            this.entityClass = (Class<T>) GenericTypeUtils.resolveTypeArguments(this.getMapperClass(), BaseMapper.class)[0];
+        }
+        return this.entityClass;
     }
 
-    protected Class<T> mapperClass = currentMapperClass();
+    protected Class<M> mapperClass;
 
-    protected Class<T> currentMapperClass() {
-        return (Class<T>) ReflectionKit.getSuperClassGenericType(getClass(), 0);
+    public Class<M> getMapperClass() {
+        if (this.mapperClass == null) {
+            MybatisMapperProxy<?> mybatisMapperProxy = MybatisUtils.getMybatisMapperProxy(this.getBaseMapper());
+            this.mapperClass = (Class<M>) mybatisMapperProxy.getMapperInterface();
+        }
+        return this.mapperClass;
+    }
+
+    protected Class<M> currentMapperClass() {
+        return getMapperClass();
     }
 
     protected Class<T> currentModelClass() {
-        return (Class<T>) ReflectionKit.getSuperClassGenericType(getClass(), 1);
+        return getEntityClass();
     }
 
     /**

@@ -2,7 +2,7 @@ package com.iteaj.iboot.plugin.protocol.dahua.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dahuatech.hutool.http.Method;
 import com.dahuatech.icc.exception.ClientException;

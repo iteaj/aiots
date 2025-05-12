@@ -1,7 +1,7 @@
 package com.iteaj.framework.spi.iot;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.FrameworkException;
 
 public class IotUtil {

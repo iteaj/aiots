@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.utils;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;

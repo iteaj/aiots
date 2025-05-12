@@ -1,11 +1,10 @@
 package com.iteaj.iboot.plugin.amqp.rabbit;
 
 import com.iteaj.framework.ProfilesInclude;
-import com.iteaj.framework.json.JacksonUtils;
+import com.iteaj.iboot.plugin.amqp.rabbit.iot.Fastjson2MessageConverter;
 import com.iteaj.iboot.plugin.amqp.rabbit.iot.listener.RabbitDataListenerPublisher;
 import com.iteaj.iboot.plugin.amqp.rabbit.iot.listener.RabbitTestHandler;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.boot.autoconfigure.amqp.RabbitTemplateConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +20,7 @@ public class RabbitPluginAutoConfiguration {
     @Bean
     public RabbitTemplateConfigurer rabbitTemplateConfigurer(RabbitProperties properties) {
         RabbitTemplateConfigurer rabbitTemplateConfigurer = new RabbitTemplateConfigurer(properties);
-        rabbitTemplateConfigurer.setMessageConverter(new Jackson2JsonMessageConverter(JacksonUtils.getMapper()));
+        rabbitTemplateConfigurer.setMessageConverter(new Fastjson2MessageConverter());
         return rabbitTemplateConfigurer;
     }
 

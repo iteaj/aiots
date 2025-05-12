@@ -2,24 +2,32 @@ package com.iteaj.iboot.plugin.code.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.enums.SqlLike;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
+import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
 import com.baomidou.mybatisplus.generator.config.GlobalConfig;
 import com.baomidou.mybatisplus.generator.config.PackageConfig;
-import com.baomidou.mybatisplus.generator.config.TemplateConfig;
+import com.baomidou.mybatisplus.generator.config.StrategyConfig;
 import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
+import com.baomidou.mybatisplus.generator.config.po.LikeTable;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.querys.MySqlQuery;
+import com.baomidou.mybatisplus.generator.config.rules.DateType;
+import com.baomidou.mybatisplus.generator.engine.AbstractTemplateEngine;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.autoconfigure.FrameworkProperties;
+import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.iboot.plugin.code.LowCodeProperties;
 import com.iteaj.iboot.plugin.code.VelocityReviewTemplateEngine;
 import com.iteaj.iboot.plugin.code.dto.*;
+import com.iteaj.iboot.plugin.code.utils.LowCodeUtil;
 import com.iteaj.iboot.plugin.code.vue.VelocityVueTemplateEngine;
 import com.iteaj.iboot.plugin.code.vue.VelocityVueTemplateZipEngine;
-import com.iteaj.iboot.plugin.code.utils.LowCodeUtil;
-import com.iteaj.framework.BaseController;
-import com.iteaj.framework.autoconfigure.FrameworkProperties;
-import com.iteaj.framework.result.Result;
-import org.springframework.beans.BeanUtils;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.env.Environment;
@@ -28,8 +36,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -73,14 +79,16 @@ public class GeneratorController extends BaseController implements InitializingB
      */
     @GetMapping("list")
     public Result<List<TableInfo>> list(final String name, final String prefix) {
-        initTableQuerySql(name, prefix, null);
-        List<TableInfo> tableInfoList = new ConfigBuilder(properties.getLpc(), properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), properties.getLgc()).getTableInfoList();
+        DataSourceConfig dataSourceConfig = initTableQuerySql(name, prefix, null);
+        List<TableInfo> tableInfoList = new ConfigBuilder(null, dataSourceConfig
+                , new StrategyConfig.Builder().likeTable(new LikeTable(prefix, SqlLike.RIGHT)).build()
+                , null, null, null)
+                .getTableInfoList();
         if(CollectionUtil.isNotEmpty(tableInfoList)) {
             tableInfoList.forEach(item -> {
-                item.setFields(null); // 不写字段信息到前端
-                item.setCommonFields(null);
-                item.setImportPackages(null);
+                item.getFields().clear();
+                item.getCommonFields().clear();
+                item.getImportPackages().clear();
             });
         }
         return success(tableInfoList);
@@ -93,8 +101,8 @@ public class GeneratorController extends BaseController implements InitializingB
     @GetMapping("init")
     public Result<GenInit> init() {
         GenInit genInit = new GenInit();
-        genInit.setMsn(properties.getLpc().getModuleName());
-        genInit.setParentPath(properties.getLpc().getParent());
+        genInit.setMsn(properties.getModuleName());
+        genInit.setParentPath(properties.getParent());
         genInit.setProjectPath(properties.getProjectPath());
         genInit.setWebProjectPath(properties.getWebProjectPath());
         return success(genInit);
@@ -102,7 +110,7 @@ public class GeneratorController extends BaseController implements InitializingB
 
     @GetMapping("prefix")
     public Result<List<Map<String, String>>> prefix() {
-        return success(properties.getLsc().getTablePrefix().stream().map(item -> {
+        return success(properties.getTablePrefix().stream().map(item -> {
             Map<String, String> options = new HashMap<>();
             options.put("label", item);
             options.put("value", item);
@@ -116,10 +124,9 @@ public class GeneratorController extends BaseController implements InitializingB
      */
     @GetMapping("getOutDir")
     public Result<GenDirDto> getOutDir() {
-        return success(new GenDirDto(properties.getLgc().getOutputDir()
-                , properties.getProjectPath())
-                .setModuleName(properties.getLpc().getModuleName())
-                .setParentPackage(properties.getLpc().getParent()));
+        return success(new GenDirDto(properties.getProjectPath())
+                .setModuleName(properties.getModuleName())
+                .setParentPackage(properties.getParent()));
     }
 
     /**
@@ -192,41 +199,97 @@ public class GeneratorController extends BaseController implements InitializingB
         }
 
         initTableQuerySql(null, null, dto.getTables());
-        GlobalConfig globalConfig = new GlobalConfig();
 
-        BeanUtils.copyProperties(properties.getLgc(), globalConfig);
-        // 设置输出目录
-        globalConfig.setOutputDir(dto.getOutDir() + String.format("%ssrc%smain%sjava", File.separator, File.separator, File.separator));
+        String outputDir = dto.getOutDir() + String.format("%ssrc%smain%sjava", File.separator, File.separator, File.separator);
 
-        PackageConfig packageConfig = new PackageConfig();
-        BeanUtils.copyProperties(properties.getLpc(), packageConfig);
-        packageConfig.setModuleName(dto.getPackageName()).setParent(dto.getParent());
+        AbstractTemplateEngine templateEngine = new VelocityVueTemplateEngine(properties);
+        // 生成前端代码
+        if(StringUtils.hasText(dto.getWebOutDir())) {
+            String outDir = String.format("%s%ssrc%sviews", dto.getWebOutDir(), File.separator, File.separator);
+            templateEngine = new VelocityVueTemplateEngine(outDir, properties);
+        }
 
-        // 文件是否覆盖
-        globalConfig.setFileOverride(dto.isFileOverride());
-        ConfigBuilder configBuilder = new ConfigBuilder(packageConfig, properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), globalConfig);
-
-        configBuilder.setInjectionConfig(new ExtraInjectionConfig().setConfig(configBuilder));
-
-        // 生成文件
-        new AutoGenerator().setConfig(configBuilder).execute();
+        AutoGenerator injection = new AutoGenerator(buildDataSourceConfig())
+                // 全局配置
+                .global(buildGlobalConfig(outputDir))
+                // 包配置
+                .packageInfo(new PackageConfig.Builder()
+                        .parent(dto.getParent())
+                        .moduleName(dto.getPackageName())
+                        .build())
+                // 策略配置
+                .strategy(buildStrategyConfig(dto.getTables(), true, dto.isFileOverride()));
+        injection.execute(templateEngine);
 
         // 生成菜单
         if(dto.getMenuId() != null) {
-            genMenu(dto, configBuilder);
-        }
-
-        // 生成前端代码
-        if(StringUtils.hasText(dto.getWebOutDir())) {
-            String outDir = dto.getWebOutDir() + File.separator + "src" + File.separator + "views";
-            configBuilder.getGlobalConfig().setOutputDir(outDir);
-            new AutoGenerator()
-                    .setTemplateEngine(new VelocityVueTemplateEngine(properties))
-                    .setConfig(configBuilder).execute();
+            genMenu(dto, injection.getConfig());
         }
 
         return success(true);
+    }
+
+    private GlobalConfig buildGlobalConfig(String outputDir) {
+        return new GlobalConfig.Builder().author(properties.getAuthor())
+                .dateType(DateType.ONLY_DATE)
+                .disableOpenDir()
+                .outputDir(outputDir)
+                .build();
+    }
+
+    private @NotNull DataSourceConfig buildDataSourceConfig() {
+        return new DataSourceConfig.Builder(properties.getDataSource().getUrl()
+                , properties.getDataSource().getUsername()
+                , properties.getDataSource().getPassword())
+                .build();
+    }
+
+    private StrategyConfig buildStrategyConfig(List<String> include, Boolean generate, Boolean fileOverride) {
+        StrategyConfig.Builder builder = new StrategyConfig.Builder().addTablePrefix(properties.getTablePrefix())
+                .addFieldPrefix(properties.getTablePrefix())
+                .addExclude(properties.getExclude())
+                .addInclude(include);
+        LowCodeProperties.Entity entity = properties.getEntity();
+        builder.entityBuilder()
+                .disableSerialVersionUID()
+                .idType(entity.getIdType())
+                .naming(entity.getNaming())
+                .enableChainModel().enableLombok()
+                .superClass(entity.getSuperClass())
+                .addSuperEntityColumns(entity.getSuperEntityColumns().stream().toList())
+                .build();
+
+        LowCodeProperties.Service service = properties.getService();
+        builder.serviceBuilder()
+                .superServiceClass(service.getSuperServiceClass())
+                .superServiceImplClass(service.getSuperServiceImplClass())
+                .build();
+
+        builder.mapperBuilder().enableBaseResultMap();
+
+        LowCodeProperties.Controller controller = properties.getController();
+        builder.controllerBuilder()
+                .enableRestStyle()
+                .superClass(controller.getSuperClass())
+                .build();
+
+        // 生产代码
+        if(!generate) {
+            builder.entityBuilder().disable()
+                    .serviceBuilder().disable()
+                    .mapperBuilder().disable()
+                    .controllerBuilder().disable();
+        }
+
+        // 文件覆写
+        if(Boolean.TRUE.equals(fileOverride)) {
+            builder.entityBuilder().enableFileOverride()
+                    .serviceBuilder().enableFileOverride()
+                    .mapperBuilder().enableFileOverride()
+                    .controllerBuilder().enableFileOverride();
+        }
+
+        return builder.build();
     }
 
     /**
@@ -240,7 +303,7 @@ public class GeneratorController extends BaseController implements InitializingB
             // 获取父菜单的msn作为子菜单的msn
             dto.setMsn(resourceManager.getMsnByMenuId(dto.getMenuId()));
 
-            Connection conn = properties.getLdc().getConn();
+            Connection conn = configBuilder.getDataSourceConfig().getConn();
             try(Statement statement = conn.createStatement()) {
                 configBuilder.getTableInfoList().forEach(tableInfo -> {
                     url.append("/").append(dto.getPackageName())
@@ -297,19 +360,15 @@ public class GeneratorController extends BaseController implements InitializingB
     @PostMapping("vue")
     public void download(@RequestBody GenConfigDto dto, HttpServletResponse response) throws IOException {
         initTableQuerySql(null, null, dto.getTables());
-
-        PackageConfig packageConfig = new PackageConfig();
-        BeanUtils.copyProperties(properties.getLpc(), packageConfig);
-        packageConfig.setModuleName(dto.getPackageName());
-
-        ConfigBuilder configBuilder = new ConfigBuilder(packageConfig, properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), properties.getLgc());
         response.setContentType("application/octet-stream");
 
         // 生成文件
         ServletOutputStream outputStream = response.getOutputStream();
-        new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(outputStream
-                , properties)).setConfig(configBuilder).execute();
+        new AutoGenerator(buildDataSourceConfig())
+                .global(buildGlobalConfig(""))
+                .strategy(buildStrategyConfig(dto.getTables(), false, dto.isFileOverride()))
+                .packageInfo(new PackageConfig.Builder().moduleName(dto.getPackageName()).build())
+                .execute(new VelocityVueTemplateZipEngine(outputStream, properties));
     }
 
     /**
@@ -329,20 +388,23 @@ public class GeneratorController extends BaseController implements InitializingB
             msn = "-";
         }
 
-        PackageConfig packageConfig = new PackageConfig();
-        BeanUtils.copyProperties(properties.getLpc(), packageConfig);
-        packageConfig.setModuleName(dto.getPackageName()).setParent(dto.getParent());
+        PackageConfig packageConfig = new PackageConfig.Builder()
+                .moduleName(dto.getPackageName())
+                .parent(dto.getParent())
+                .build();
 
         initTableQuerySql(null, null, Arrays.asList(tableName));
-        ConfigBuilder configBuilder = new ConfigBuilder(packageConfig, properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), properties.getLgc());
 
         // 生成文件
         VelocityReviewTemplateEngine engine = new VelocityReviewTemplateEngine(properties);
-        new AutoGenerator().setConfig(configBuilder).setTemplateEngine(engine).execute();
+        AutoGenerator generator = new AutoGenerator(buildDataSourceConfig())
+                .global(buildGlobalConfig(""))
+                .strategy(buildStrategyConfig(dto.getTables(), true, dto.isFileOverride()))
+                .packageInfo(packageConfig);
+        generator.execute(engine);
 
         final ReviewDto reviewDto = engine.getReviewDto();
-        reviewDto.setMenuSql(this.getMenuSql(configBuilder, msn, dto.getPackageName()));
+        reviewDto.setMenuSql(this.getMenuSql(generator.getConfig(), msn, dto.getPackageName()));
         return success(reviewDto);
     }
 
@@ -367,8 +429,9 @@ public class GeneratorController extends BaseController implements InitializingB
         return batchSql.toString();
     }
 
-    private void initTableQuerySql(String name, String prefix, List<String> tables) {
-        properties.getLdc().setDbQuery(new MySqlQuery() {
+    private DataSourceConfig initTableQuerySql(String name, String prefix, List<String> tables) {
+        return new DataSourceConfig.Builder(properties.getDataSource().getUrl(), properties.getDataSource().getUsername(), properties.getDataSource().getPassword())
+                .dbQuery(new MySqlQuery() {
             @Override
             public String tablesSql() {
                 StringBuilder sql = new StringBuilder("select * from information_schema.tables where TABLE_SCHEMA='").append(database).append("'");
@@ -406,13 +469,13 @@ public class GeneratorController extends BaseController implements InitializingB
             public boolean isKeyIdentity(ResultSet results) throws SQLException {
                 return false;
             }
-        });
+        }).build();
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         // 数据源配置
-        LowCodeProperties.LcdDataSourceConfig ldc = properties.getLdc();
+        LowCodeProperties.DataSource ldc = properties.getDataSource();
         Matcher matcher = pattern.matcher(ldc.getUrl());
         if(matcher.find()) {
             this.database = matcher.group("db");
