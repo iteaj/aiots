@@ -47,7 +47,7 @@ public class JavaScriptImpl implements ScriptInterface<Source> {
             Value eval = compile.eval(JS_ID, script);
             return JavaScriptUtil.getValue(eval);
         } catch (Exception e) {
-            throw new ScriptExecException("脚本[JavaScript]执行异常", e);
+            throw new ScriptExecException("脚本执行异常: " + e.getMessage(), e);
         }
     }
 
@@ -69,7 +69,7 @@ public class JavaScriptImpl implements ScriptInterface<Source> {
                 return JavaScriptUtil.getValue(compile.eval(JS_ID, context.getScript()));
             }
         } catch (Exception e) {
-            throw new ScriptExecException("脚本[JavaScript]执行异常["+context.getKey()+"]", e);
+            throw new ScriptExecException("脚本执行异常: "+e.getMessage(), e);
         }
 
     }
