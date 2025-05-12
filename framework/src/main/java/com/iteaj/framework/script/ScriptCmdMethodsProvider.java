@@ -1,12 +1,10 @@
 package com.iteaj.framework.script;
 
+import com.alibaba.fastjson2.JSON;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ScriptCmdMethodsProvider extends ValueConvertProvide {
 
@@ -68,8 +66,8 @@ public class ScriptCmdMethodsProvider extends ValueConvertProvide {
      */
     public void writeValue(ProtocolModelApiInvokeParam data, Object value) {
         final String protocolAttrField = data.getConfig("protocolAttrField");
-        if(isJSValue(value)) {
-            throw new ScriptExecException("只支持写基础数据类型");
+        if(value instanceof Map || value instanceof Collection) {
+            value = JSON.toJSONString(value);
         }
 
         data.addParam(protocolAttrField, value);
