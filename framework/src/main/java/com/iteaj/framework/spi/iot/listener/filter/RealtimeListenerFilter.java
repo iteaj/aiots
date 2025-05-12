@@ -54,6 +54,7 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
             if(scriptConfig != null) { // 包含过滤脚本
                 List payload = new ArrayList();
                 param.getPayload().forEach(item -> {
+                    long timeMillis = System.currentTimeMillis();
                     // 执行脚本
                     final Object result = ScriptManager.exec(ScriptLanguage.javascript.getName()
                             , ScriptContext.build(getFilterName(), scriptConfig.getScript(), "filter(data, methods)")
@@ -61,12 +62,12 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
 
                     if(item instanceof RealtimeCollectData) {
                         RealtimeCollectData data = (RealtimeCollectData) item;
-                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 模型属性: {}={} - 过滤状态: {}"
-                                , getFilterName(), scriptConfig.getLanguage(), data.getField(), data.getValue(), result);
+                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 模型属性: {}={} - 过滤状态: {} - 耗时: {} ms"
+                                , getFilterName(), scriptConfig.getLanguage(), data.getField(), data.getValue(), result, System.currentTimeMillis() - timeMillis);
                     } else if(item instanceof RealtimeDeviceStatus) {
                         RealtimeDeviceStatus data = (RealtimeDeviceStatus) item;
-                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 设备状态: {} - 过滤状态: {}"
-                                , getFilterName(), scriptConfig.getLanguage(), data.getDeviceStatus(), result);
+                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 设备状态: {} - 过滤状态: {} - 耗时: {} ms"
+                                , getFilterName(), scriptConfig.getLanguage(), data.getDeviceStatus(), result, System.currentTimeMillis() - timeMillis);
                     }
 
                     // 校验执行结果, 是否被过滤
