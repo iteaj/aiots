@@ -82,6 +82,10 @@ public class ProtocolModelApiInvokeParam {
         return uid;
     }
 
+    public ProtocolModelApiInvokeParam setUid(String uid) {
+        this.uid = uid; return this;
+    }
+
     public Long getTimeout() {
         return timeout;
     }
