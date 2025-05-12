@@ -85,23 +85,23 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         IotEvenPublisher.publish(IotEventType.ScriptInvoke, ScriptInvokePayload.build(uid, cmdCode));
     }
 
-    public void warn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void warn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "告警", content);
     }
 
-    public void fatalWarn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void fatalWarn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "严重", content);
     }
 
-    public void urgentWarn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void urgentWarn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "紧急", content);
     }
 
-    public void noticeWarn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void noticeWarn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "通知", content);
     }
 
-    public void normalWarn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void normalWarn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "解除", content);
     }
 
@@ -129,7 +129,7 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - warnTime) > time;
     }
 
-    public void doWarn(Long warnMsgId, String uid, String field, String value, Object grade, String content) {
+    public void doWarn(Long warnMsgId, String uid, String field, Object value, Object grade, String content) {
         if(warnMsgId == null || StrUtil.isBlank(uid) || StrUtil.isBlank(field)) {
             throw new ScriptExecException("发送告警["+grade+"]入参错误");
         }
@@ -142,7 +142,7 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         content = content != null ? content : String.format("设备[%s]触发[%s]告警, 告警值[%s=%s]"
                 , device.getDeviceName(), grade, field, value);
 
-        final Warn warn = new Warn(device).setField(field).setValue(value)
+        final Warn warn = new Warn(device).setField(field).setValue(value.toString())
                 .setContent(content).setWarnMsgId(warnMsgId).setGrade(grade);
 
 
