@@ -142,7 +142,8 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         content = content != null ? content : String.format("设备[%s]触发[%s]告警, 告警值[%s=%s]"
                 , device.getDeviceName(), grade, field, value);
 
-        final Warn warn = new Warn(device).setField(field).setValue(value.toString())
+        String strValue = value != null ? value.toString() : null;
+        final Warn warn = new Warn(device).setField(field).setValue(strValue)
                 .setContent(content).setWarnMsgId(warnMsgId).setGrade(grade);
 
 

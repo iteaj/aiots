@@ -31,7 +31,7 @@ public class JavaScriptImpl implements ScriptInterface<CompiledScript> {
         try {
             final Bindings bindings = engine.createBindings();
             if(CollectionUtil.isNotEmpty(params)) {
-                params.forEach((key, value) -> bindings.put(key, value));
+                bindings.putAll(params);
             }
 
             return engine.eval(script);
@@ -46,7 +46,7 @@ public class JavaScriptImpl implements ScriptInterface<CompiledScript> {
         try {
             final Bindings bindings = engine.createBindings();
             if(context.getParams() != null) {
-                context.getParams().forEach((key, value) -> bindings.put(key, value));
+                bindings.putAll(context.getParams());
             }
 
             CompiledScript compiledScript = (CompiledScript) ScriptManager.getCompilable(context.getKey());
@@ -56,7 +56,7 @@ public class JavaScriptImpl implements ScriptInterface<CompiledScript> {
 
             return engine.eval(context.getScript(), bindings);
         } catch (ScriptException e) {
-            throw new ScriptExecException("脚本[JavaScript]执行异常["+context.getKey()+"]", e);
+            throw new ScriptExecException("脚本执行异常[JavaScript] "+e.getMessage(), e);
         }
     }
 }
