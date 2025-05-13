@@ -78,11 +78,11 @@
             <version>${excelpoi.version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <version>31.0.1-jre</version>-->
-<!--            <groupId>com.google.guava</groupId>-->
-<!--            <artifactId>guava</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <version>32.0.0-jre</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>

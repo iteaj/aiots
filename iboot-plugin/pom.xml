@@ -39,6 +39,7 @@
         <module>iboot-open</module>
         <!--脚本插件-->
         <module>iboot-script</module>
+        <module>iboot-ai</module>
     </modules>
 
     <dependencies>

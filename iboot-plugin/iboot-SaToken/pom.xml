@@ -20,6 +20,7 @@
         </dependency>
         <!-- Sa-Token 整合 Redis -->
         <dependency>
+            <optional>true</optional>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-redis-fastjson2</artifactId>
             <exclusions>

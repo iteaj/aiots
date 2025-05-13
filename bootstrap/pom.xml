@@ -252,6 +252,12 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.iteaj.iboot.boot.IBootApplication</mainClass>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -273,23 +279,23 @@
                     <!--smart-doc实现自动分析依赖树加载第三方依赖的源码，如果一些框架依赖库加载不到导致报错，这时请使用excludes排除掉-->
                     <excludes>
                         <!--格式为：groupId:artifactId;参考如下-->
-                        <exclude>com.alibaba:fastjson</exclude>
+<!--                        <exclude>com.alibaba:fastjson</exclude>-->
                     </excludes>
                     <!--自1.0.8版本开始，插件提供includes支持,配置了includes后插件会按照用户配置加载而不是自动加载，因此使用时需要注意-->
                     <!--smart-doc能自动分析依赖树加载所有依赖源码，原则上会影响文档构建效率，因此你可以使用includes来让插件加载你配置的组件-->
                     <includes>
                         <!--格式为：groupId:artifactId;参考如下-->
-                        <include>com.alibaba:fastjson</include>
+<!--                        <include>com.alibaba:fastjson</include>-->
                     </includes>
                 </configuration>
                 <executions>
                     <execution>
                         <!--如果不需要在执行编译时启动smart-doc，则将phase注释掉-->
-                        <phase>compile</phase>
+<!--                        <phase>compile</phase>-->
                         <goals>
                             <!--smart-doc提供了html、openapi、markdown等goal，可按需配置-->
                             <goal>html</goal>
-                            <goal>openapi</goal>
+<!--                            <goal>openapi</goal>-->
                         </goals>
                     </execution>
                 </executions>

@@ -25,10 +25,20 @@
             <artifactId>sms4j-core</artifactId>
             <groupId>org.dromara.sms4j</groupId>
         </dependency>
-
         <dependency>
-            <groupId>org.dromara.sms4j</groupId>
-            <artifactId>sms4j-Email-core</artifactId>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-json</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+        <dependency>
+            <version>2.0.1</version>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
         </dependency>
     </dependencies>
 </project>
