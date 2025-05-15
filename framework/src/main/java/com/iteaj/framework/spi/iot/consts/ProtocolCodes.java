@@ -42,4 +42,13 @@ public enum ProtocolCodes {
     public static boolean isModbus(String protocolCode) {
         return protocolCode.contains("MODBUS");
     }
+
+    /**
+     * 是否是plc协议
+     * @param protocolCode 协议码
+     * @return true or false
+     */
+    public static boolean isPLC(String protocolCode) {
+        return protocolCode.contains("PLC");
+    }
 }

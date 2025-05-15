@@ -7,16 +7,16 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
-import com.iteaj.plugin.protocol.plc.driver.AbstractPlcProtocolSupplier;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -116,10 +116,10 @@ public class DevicePlcController extends BaseController {
 
     private void initPlcCodes() {
         if(plcCodes == null) {
-            plcCodes = ProtocolSupplierManager.suppliers().stream()
-                    .filter(item -> item instanceof AbstractPlcProtocolSupplier)
-                    .map(item -> item.getProtocol().getCode())
-                    .toArray((num) -> new String[num]);
+            plcCodes = Arrays.stream(ProtocolCodes.values())
+                    .map(ProtocolCodes::getValue)
+                    .filter(ProtocolCodes::isPLC)
+                    .toArray(String[]::new);
         }
     }
 }
