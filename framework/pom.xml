@@ -63,7 +63,7 @@
 
         <!-- 缓存相关 -->
         <dependency>
-            <optional>true</optional>
+            <scope>provided</scope>
             <artifactId>spring-data-redis</artifactId>
             <groupId>org.springframework.data</groupId>
         </dependency>
