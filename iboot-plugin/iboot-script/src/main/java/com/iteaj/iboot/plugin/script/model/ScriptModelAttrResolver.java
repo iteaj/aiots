@@ -2,14 +2,14 @@ package com.iteaj.iboot.plugin.script.model;
 
 import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.iteaj.framework.script.ScriptConfig;
 import com.iteaj.framework.script.ScriptContext;
-import com.iteaj.framework.script.ScriptInterface;
+import com.iteaj.framework.script.ScriptExecException;
 import com.iteaj.framework.script.ScriptManager;
 import com.iteaj.framework.spi.iot.DataValueResolver;
 import com.iteaj.framework.spi.iot.DataValueResolverFactory;
 import com.iteaj.framework.spi.iot.UpModelAttr;
 import com.iteaj.framework.spi.iot.listener.filter.RealtimeListenerFilter;
-import com.iteaj.framework.script.ScriptConfig;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 /**
@@ -20,13 +20,11 @@ public class ScriptModelAttrResolver implements DataValueResolver {
     private final String key;
     private final String name;
     private final ScriptConfig script;
-    private ScriptInterface scriptInterface;
 
     public ScriptModelAttrResolver(String key, String name, ScriptConfig script) {
         this.key = key;
         this.name = name;
         this.script = script;
-        this.scriptInterface = ScriptManager.get(script.getLanguage());
     }
 
     @Override
@@ -36,12 +34,24 @@ public class ScriptModelAttrResolver implements DataValueResolver {
 
     @Override
     public Object resolver(UpModelAttr attr, Object value) {
-        if(this.scriptInterface != null) {
-            final Object exec = scriptInterface.exec(ScriptContext.build(this.getKey(), script.getScript(), "resolver(value, model, methods);")
-                    .addParam("value", value).addParam("model", attr)
-                    .addParam("methods", RealtimeListenerFilter.convertProvide));
+        if(this.script != null) {
+            final Object exec;
+            long timeMillis = System.currentTimeMillis();
+            try {
+                exec = ScriptManager.exec(script.getLanguage(), ScriptContext.build(this.getKey(), script.getScript(), script.getInvoke())
+                        .addParam("value", value).addParam("model", attr)
+                        .addParam("methods", RealtimeListenerFilter.convertProvide));
+            } catch (ScriptExecException e) {
+                RealtimeListenerFilter.convertProvide.error(attr.getField(), "属性解析脚本执行异常 脚本: {}/{} - 解析值: {}", name, script.getLanguage(), value, e);
+                throw e;
+            }
 
-            return doResolver(exec);
+            Object resolver = doResolver(exec);
+            RealtimeListenerFilter.convertProvide.debug(attr.getField(), "执行属性解析脚本 脚本: {}/{} - 解析前/后值: {}/{} - 耗时: {} ms"
+                    , name, script.getLanguage(), value, resolver, System.currentTimeMillis() - timeMillis);
+            return resolver;
+        } else {
+            RealtimeListenerFilter.convertProvide.warn(attr.getField(), "属性解析脚本引擎不存在 脚本: {}/{} - 解析值: {}", name, script.getLanguage(), value);
         }
 
         // 使用默认解析器解析

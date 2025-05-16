@@ -1,28 +1,38 @@
 package com.iteaj.framework.script;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Arrays;
+import java.util.List;
 
-public class LoggerMethodProvide {
+public interface LoggerMethodProvide {
 
-    public static LoggerMethodProvide INSTANCE = new LoggerMethodProvide();
-    private Logger logger = LoggerFactory.getLogger("scriptLogger");
+    List<ScriptComplete> LOGGER_COMPLETES = Arrays.asList(
+            new ScriptComplete("methods.log(msg)", "打印日志(支持{}占位符)",4),
+            new ScriptComplete("methods.debug(uid, msg)", "打印调试日志(支持{}占位符)",4),
+            new ScriptComplete("methods.info(uid, msg)", "打印信息日志(支持{}占位符)",4),
+            new ScriptComplete("methods.warn(uid, msg)", "打印告警日志(支持{}占位符)",4),
+            new ScriptComplete("methods.error(uid, msg)", "打印错误日志(支持{}占位符)",4)
+    );
 
-    protected LoggerMethodProvide() { }
-
-    public void log(String msg, String... params) {
-        logger.debug(msg, params);
+    default void log(String msg, Object... params) {
+        ScriptLoggerFilter.info(getSubType(), "-", msg, params);
     }
 
-    public void info(String msg, String... params) {
-        logger.info(msg, params);
+
+    default void debug(String uid, String msg, Object... params) {
+        ScriptLoggerFilter.debug(getSubType(), uid, msg, params);
     }
 
-    public void warn(String msg, String... params) {
-        logger.warn(msg, params);
+    String getSubType();
+
+    default void info(String uid, String msg, Object... params) {
+        ScriptLoggerFilter.info(getSubType(), uid, msg, params);
     }
 
-    public void error(String msg, String... params) {
-        logger.error(msg, params);
+    default void warn(String uid, String msg, Object... params) {
+        ScriptLoggerFilter.warn(getSubType(), uid, msg, params);
+    }
+
+    default void error(String uid, String msg, Object... params) {
+        ScriptLoggerFilter.error(getSubType(), uid, msg, params);
     }
 }

@@ -24,37 +24,46 @@ import java.util.concurrent.TimeUnit;
 public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
 
     private final static String Split = ":";
+    private final static String NAME = "脚本联动";
     private Map<String, Long> interval = new ConcurrentHashMap<>();
 
-    public static List<ScriptComplete> completes = Arrays.asList(
-            new ScriptComplete("methods.invoke(cmd)", "执行指令(设备指令集指令)",1),
-            new ScriptComplete("methods.invoke(cmd, uid)", "执行指令(产品指令集指令)",1),
-            new ScriptComplete("methods.warn(warnMsgId, uid, field, value, content)", "发送告警",1),
-            new ScriptComplete("methods.statusWarn(msgTempId, uid, field, value, content)", "发送状态告警",1),
-            new ScriptComplete("methods.fatalWarn(msgTempId, uid, field, value, content)", "发送严重告警",1),
-            new ScriptComplete("methods.urgentWarn(msgTempId, uid, field, value, content)", "发送紧急告警",1),
-            new ScriptComplete("methods.noticeWarn(msgTempId, uid, field, value, content)", "发送告警通知",1),
-            new ScriptComplete("methods.normalWarn(msgTempId, uid, field, value, content)", "发送告警解除",1),
-            new ScriptComplete("methods.isGtPrevWarnInterval(uid, field, time)", "距离上一次告警时间是否大于指定时间(秒)",1),
-            new ScriptComplete("methods.getUid(data)", "当前触发的设备",1),
-            new ScriptComplete("methods.getValue(uid, field)", "获取指定字段的最新值",1),
-            new ScriptComplete("methods.getPrevValue(uid, field)", "获取指定字段的上一个值",1),
-            new ScriptComplete("methods.getChangeValue(uid, field)", "获取指定字段改变前的值",1),
-            new ScriptComplete("methods.isUid(data, uid)", "当前触发设备是否为指定设备(uid)",2),
-            new ScriptComplete("methods.isChange(uid, field)", "设备属性值是否改变(与上次值对比)",2),
-            new ScriptComplete("methods.isProduct(data, productCode)", "当前触发设备是否为指定产品",2),
-            new ScriptComplete("methods.isGeInterval(uid, field, 0)", "设备属性采集间隔是否>=指定值(秒)",2),
-            new ScriptComplete("methods.isGeIntervalChange(uid, field, 0)", "设备属性改变值的采集间隔是否>=指定值(秒)",2),
-            new ScriptComplete("methods.isProtocol(data, protocolCode)", "当前触发设备是否为指定协议",2),
-            new ScriptComplete("methods.isRealtimeData(data)", "是否为实时数据触发",2),
-            new ScriptComplete("methods.isRealtimeStatus(data)", "是否为状态数据触发",2),
-            new ScriptComplete("console.log('')", "打印调试日志",4),
-            new ScriptComplete("console.info('')", "打印信息日志",4),
-            new ScriptComplete("console.warn('')", "打印告警日志",4),
-            new ScriptComplete("console.error('')", "打印错误日志",4));
+    public static List<ScriptComplete> completes;
     public static LinkageScriptMethodsProvider INSTANCE = new LinkageScriptMethodsProvider();
 
+    static {
+        completes = new ArrayList<>(Arrays.asList(
+                new ScriptComplete("methods.invoke(cmd)", "执行指令(设备指令集指令)",1),
+                new ScriptComplete("methods.invoke(cmd, uid)", "执行指令(产品指令集指令)",1),
+                new ScriptComplete("methods.warn(warnMsgId, uid, field, value, content)", "发送告警",1),
+                new ScriptComplete("methods.statusWarn(msgTempId, uid, content)", "发送状态告警",1),
+                new ScriptComplete("methods.fatalWarn(msgTempId, uid, field, value, content)", "发送严重告警",1),
+                new ScriptComplete("methods.urgentWarn(msgTempId, uid, field, value, content)", "发送紧急告警",1),
+                new ScriptComplete("methods.noticeWarn(msgTempId, uid, field, value, content)", "发送告警通知",1),
+                new ScriptComplete("methods.normalWarn(msgTempId, uid, field, value, content)", "发送告警解除",1),
+                new ScriptComplete("methods.isGtPrevWarnInterval(uid, field, time)", "距离上一次告警时间是否大于指定时间(秒)",1),
+                new ScriptComplete("methods.getUid(data)", "当前触发的设备",1),
+                new ScriptComplete("methods.getValue(uid, field)", "获取指定字段的最新值",1),
+                new ScriptComplete("methods.getPrevValue(uid, field)", "获取指定字段的上一个值",1),
+                new ScriptComplete("methods.getChangeValue(uid, field)", "获取指定字段改变前的值",1),
+                new ScriptComplete("methods.isUid(data, uid)", "当前触发设备是否为指定设备(uid)",2),
+                new ScriptComplete("methods.isChange(uid, field)", "设备属性值是否改变(与上次值对比)",2),
+                new ScriptComplete("methods.isProduct(data, productCode)", "当前触发设备是否为指定产品",2),
+                new ScriptComplete("methods.isGeInterval(uid, field, 0)", "设备属性采集间隔是否>=指定值(秒)",2),
+                new ScriptComplete("methods.isGeIntervalChange(uid, field, 0)", "设备属性改变值的采集间隔是否>=指定值(秒)",2),
+                new ScriptComplete("methods.isProtocol(data, protocolCode)", "当前触发设备是否为指定协议",2),
+                new ScriptComplete("methods.isRealtimeData(data)", "是否为实时数据触发",2),
+                new ScriptComplete("methods.isRealtimeStatus(data)", "是否为状态数据触发",2)
+        ));
+
+        completes.addAll(LOGGER_COMPLETES);
+    }
+
     protected LinkageScriptMethodsProvider() {}
+
+    @Override
+    public String getSubType() {
+        return NAME;
+    }
 
     public void invoke(String cmdCode) {
         if(StrUtil.isBlank(cmdCode)) {
@@ -76,28 +85,28 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         IotEvenPublisher.publish(IotEventType.ScriptInvoke, ScriptInvokePayload.build(uid, cmdCode));
     }
 
-    public void warn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void warn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "告警", content);
     }
 
-    public void fatalWarn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void fatalWarn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "严重", content);
     }
 
-    public void urgentWarn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void urgentWarn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "紧急", content);
     }
 
-    public void noticeWarn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void noticeWarn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "通知", content);
     }
 
-    public void normalWarn(Long warnMsgId, String uid, String field, String value, String content) {
+    public void normalWarn(Long warnMsgId, String uid, String field, Object value, String content) {
         this.doWarn(warnMsgId, uid, field, value, "解除", content);
     }
 
-    public void statusWarn(Long warnMsgId, String uid, String field, String value, String content) {
-        this.doWarn(warnMsgId, uid, field, value, "状态", content);
+    public void statusWarn(Long warnMsgId, String uid, String content) {
+        this.doWarn(warnMsgId, uid, "status", null, "状态", content);
     }
 
     /**
@@ -120,7 +129,7 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - warnTime) > time;
     }
 
-    public void doWarn(Long warnMsgId, String uid, String field, String value, Object grade, String content) {
+    public void doWarn(Long warnMsgId, String uid, String field, Object value, Object grade, String content) {
         if(warnMsgId == null || StrUtil.isBlank(uid) || StrUtil.isBlank(field)) {
             throw new ScriptExecException("发送告警["+grade+"]入参错误");
         }
@@ -133,7 +142,8 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         content = content != null ? content : String.format("设备[%s]触发[%s]告警, 告警值[%s=%s]"
                 , device.getDeviceName(), grade, field, value);
 
-        final Warn warn = new Warn(device).setField(field).setValue(value)
+        String strValue = value != null ? value.toString() : null;
+        final Warn warn = new Warn(device).setField(field).setValue(strValue)
                 .setContent(content).setWarnMsgId(warnMsgId).setGrade(grade);
 
 

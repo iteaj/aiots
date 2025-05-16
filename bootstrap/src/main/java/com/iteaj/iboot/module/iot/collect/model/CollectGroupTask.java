@@ -18,10 +18,9 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -33,7 +32,6 @@ public class CollectGroupTask implements Runnable{
     private List<ModelApi> apis;
     private EventSourceDto source;
     private IotCacheManager cacheManager;
-    private static Logger logger = LoggerFactory.getLogger("IOT:MODEL:COLLECT");
 
     public CollectGroupTask(DeviceGroup group, EventSourceDto source, IotCacheManager cacheManager) {
         this.group = group;
@@ -46,7 +44,7 @@ public class CollectGroupTask implements Runnable{
     public void run() {
         // 没有任何采集接口, 放弃采集任务
         if(this.apis == null || this.apis.isEmpty()) {
-            logger.warn("放弃采集任务 没有任何采集接口 - 事件源: {} - 设备组: {}", source.getName(), group.getName());
+            IotLogger.warn(source,"-","放弃采集任务 没有任何采集接口 - 设备组: {}", group.getName());
             return;
         }
 
@@ -62,14 +60,14 @@ public class CollectGroupTask implements Runnable{
             if (device.getType() == DeviceType.Child) {
                 RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
                 if(parent == null) {
-                    logger.warn("放弃设备采集任务 父设备不存在({}) - 事件源: {} - 设备组: {} - 设备编号: {}"
-                            , device.getParentDeviceSn(), source.getName(), group.getName(), device.buildDeviceKey());
+                    IotLogger.warn(source, device.getUid(), "放弃设备采集 父设备不存在 - 设备组: {} - 设备编号: {}"
+                            , group.getName(), device.buildDeviceKey());
                     continue;
                 }
 
                 if(parent.getStatus() == DeviceStatus.offline) {
-                    logger.warn("放弃设备采集任务 父设备不在线({}) - 事件源: {} - 设备组: {} - 设备编号: {}"
-                            , device.getParentDeviceSn(), source.getName(), group.getName(), device.buildDeviceKey());
+                    IotLogger.warn(source, device.getUid(), "放弃设备采集 网关设备不在线 - 设备组: {} - 设备编号: {}"
+                            , group.getName(), device.buildDeviceKey());
                     continue;
                 }
             }
@@ -89,14 +87,14 @@ public class CollectGroupTask implements Runnable{
                         prevParentDeviceSn = device.getParentDeviceSn();
                     }
                 } catch (ProtocolInvokeException e) {
-                    logger.error("接口采集执行异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                    IotLogger.error(source, device.getUid(),"接口采集执行异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 } catch (ServiceException e) {
-                    logger.error("接口采集执行错误 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                    IotLogger.error(source, device.getUid(),"接口采集执行错误 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 } catch (Exception e) {
-                    logger.error("接口采集未知异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                    IotLogger.error(source, device.getUid(),"接口采集未知异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 }
             }
         }
@@ -105,7 +103,7 @@ public class CollectGroupTask implements Runnable{
             try {
                 listener.finished(info);
             } catch (Exception e) {
-                logger.error("采集事件完成发布异常 {} - 事件源: {} - 设备组: {}", e.getMessage(), source.getName(), group.getName(), e);
+                IotLogger.error(source,"-","采集事件完成发布异常 {} - 设备组: {}", e.getMessage(), source.getName(), group.getName(), e);
             }
         });
     }
@@ -122,11 +120,11 @@ public class CollectGroupTask implements Runnable{
                     this.doInvoke(info, device, api, 6000L, true);
                 } else {
                     if(retry) {
-                        logger.warn("接口采集重试失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
-                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                        IotLogger.warn(source, device.getUid(), "采集重试失败 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
+                                , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                     } else {
-                        logger.warn("接口采集失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
-                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                        IotLogger.warn(source, device.getUid(), "采集失败 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
+                                , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                     }
 
                     // 发布采集的数据
@@ -149,13 +147,13 @@ public class CollectGroupTask implements Runnable{
 
         ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
             CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
-
+            IotLogger.debug(source, device.getUid(), "采集数据成功 设备编号: {}", device.buildDeviceKey());
             CollectListenerManager.getInstance().eventGroupPublish(item -> {
                 try {
                     item.supplier(source, group, deviceInfo);
                 } catch (Exception e) {
-                    logger.error("采集事件实时发布异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                    IotLogger.error(source, device.getUid(), "采集事件实时发布异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 }
             });
         });

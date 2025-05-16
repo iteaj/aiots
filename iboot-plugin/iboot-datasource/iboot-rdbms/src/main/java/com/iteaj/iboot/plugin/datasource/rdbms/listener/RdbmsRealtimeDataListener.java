@@ -47,6 +47,6 @@ public class RdbmsRealtimeDataListener implements RealtimeListenerFilter {
 
     @Override
     public boolean isFilter(String type, RealtimePayload payload) {
-        return Objects.equals(type, "data_full");
+        return payload.isDataFull() || payload.isDataActive();
     }
 }

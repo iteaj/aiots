@@ -1,5 +1,7 @@
 package com.iteaj.framework.script;
 
+import com.iteaj.framework.logger.LoggerManager;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +9,10 @@ public class ScriptManager {
 
     private static final Map<String, Object> compiledScriptMap = new HashMap<>();
     private static final Map<String, ScriptInterface> interfaceMap = new HashMap<>(8);
+
+    static {
+        LoggerManager.addFilter(new ScriptLoggerFilter());
+    }
 
     /**
      * 注册脚本引擎

@@ -21,7 +21,7 @@ public class WarnSendMsgListener implements IotListener<Object> {
     @Override
     public void onIotEvent(IotEventType eventType, Object value) {
         if(value instanceof RealtimePayload) {
-            if(((RealtimePayload) value).getType().equals("warn")) {
+            if(((RealtimePayload) value).isWarn()) {
                 ((RealtimePayload) value).getPayload().forEach(warn -> {
                     if(warn instanceof WarnData) {
                         templateService.sendIotWarnMessage((WarnData) warn);

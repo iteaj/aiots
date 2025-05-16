@@ -86,7 +86,7 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
         // 有客户端连接存在
         webSocketServerComponent.group(URI).ifPresent(channels -> {
             JSONArray array = new JSONArray();
-            if(Objects.equals(value.getType(), "status")) {
+            if(value.isStatus()) {
                 value.getPayload().forEach(status -> {
                     JSONObject jsonObject = new JSONObject();
                     RealtimeDeviceStatus deviceStatus = (RealtimeDeviceStatus) status;
@@ -94,7 +94,7 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
                     jsonObject.put("value", deviceStatus.getDeviceStatus());
                     array.add(jsonObject);
                 });
-            } else if(Objects.equals(value.getType(), "warn")) {
+            } else if(value.isWarn()) {
                 value.getPayload().forEach(item -> {
                     JSONObject jsonObject = new JSONObject();
                     WarnData warn = (WarnData) item;
@@ -102,7 +102,7 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
                     jsonObject.put("value", warn.getValue());
                     array.add(jsonObject);
                 });
-            } else if(Objects.equals(value.getType(), "data")) {
+            } else if(value.isData() || value.isDataActive()) {
                 value.getPayload().forEach(item -> {
                     RealtimeCollectData data = (RealtimeCollectData) item;
                     if(data != null && data.getStatus()) {
