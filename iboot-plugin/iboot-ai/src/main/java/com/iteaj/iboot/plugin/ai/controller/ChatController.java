@@ -4,6 +4,7 @@ import com.alibaba.dashscope.common.DashScopeResult;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.Result;
+import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.community.model.dashscope.QwenLanguageModel;
 import dev.langchain4j.community.model.dashscope.QwenStreamingChatModel;
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -21,16 +22,34 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * 聊天管理
+ * 聊天接口
  */
 @RestController
 @RequestMapping("/ai/chat")
 public class ChatController extends BaseController {
 
-    @GetMapping(value = "bot", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<Result<String>>> chat(String message) {
+    @GetMapping
+    public Result<String> chat(String message) {
+        QwenChatModel model = QwenChatModel.builder()
+                .apiKey("sk-f6e0510b47514148b89c57bfc75bd329")
+                .modelName("qwen-turbo")
+                .build();
+
+        final String chat = model.chat(message);
+        return success(chat);
+    }
+
+    /**
+     * 流式聊天
+     * @param message
+     * @return
+     */
+    @GetMapping(value = "stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<Result<String>>> stream(String message) {
         Flux<Result<String>> flux = Flux.create(sink -> {
             try {
                 QwenStreamingChatModel model = QwenStreamingChatModel.builder()
