@@ -1,0 +1,1 @@
+jlink --compress=2 --no-header-files --no-man-pages --strip-debug --module-path ../jmods --add-modules java.base,java.desktop,java.naming,java.sql,java.logging,java.management,java.security.jgss,java.instrument,jdk.unsupported --output H:\软件\jdk\minial-jre

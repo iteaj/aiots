@@ -1,20 +1,18 @@
 package com.iteaj.iboot.plugin.ai.controller;
 
-import com.alibaba.dashscope.common.DashScopeResult;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.plugin.ai.memory.db.DBMemoryProvider;
+import com.iteaj.iboot.plugin.ai.tools.WeatherTool;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
-import dev.langchain4j.community.model.dashscope.QwenLanguageModel;
 import dev.langchain4j.community.model.dashscope.QwenStreamingChatModel;
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import dev.langchain4j.service.AiServices;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -22,8 +20,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 聊天接口
@@ -32,46 +28,52 @@ import java.util.List;
 @RequestMapping("/ai/chat")
 public class ChatController extends BaseController {
 
+    /**
+     * 普通聊天
+     * @param message 用户提示词
+     * @param sessionId 会话标识
+     * @return ai响应消息
+     */
     @GetMapping
-    public Result<String> chat(String message) {
+    public Result<String> chat(String message, String sessionId) {
         QwenChatModel model = QwenChatModel.builder()
                 .apiKey("sk-f6e0510b47514148b89c57bfc75bd329")
                 .modelName("qwen-turbo")
                 .build();
 
-        final String chat = model.chat(message);
-        return success(chat);
+        final String chat = AiServices.builder(TestChat.class)
+                .chatLanguageModel(model)
+                .tools(new WeatherTool())
+                .build().chat(message);
+
+        return success(chat, chat);
     }
 
     /**
-     * 流式聊天
-     * @param message
-     * @return
+     * 流式模型聊天
+     * @param message 用户提示词
+     * @param sessionId 会话标识
+     * @return ai响应消息
      */
     @GetMapping(value = "stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<Result<String>>> stream(String message) {
+    public Flux<ServerSentEvent<Result<String>>> stream(String message, String sessionId) {
         Flux<Result<String>> flux = Flux.create(sink -> {
             try {
                 QwenStreamingChatModel model = QwenStreamingChatModel.builder()
                         .apiKey("sk-f6e0510b47514148b89c57bfc75bd329")
                         .modelName("qwen-turbo")
                         .build();
-            model.chat(message, new StreamingChatResponseHandler() {
-                @Override
-                public void onPartialResponse(String partialResponse) {
-                    sink.next(Result.success(partialResponse));
-                }
-
-                @Override
-                public void onCompleteResponse(ChatResponse completeResponse) {
-                    sink.complete();
-                }
-
-                @Override
-                public void onError(Throwable error) {
-                    sink.error(error);
-                }
-            });
+//                model.chat();
+                AiServices.builder(TestChat.class)
+                        .tools(new WeatherTool())
+                        .chatMemoryProvider(new DBMemoryProvider())
+                        .streamingChatLanguageModel(model)
+                        .build()
+                        .stream(message)
+                        .onError(sink::error)
+                        .onCompleteResponse(chatResponse -> sink.complete())
+                        .onPartialResponse(response -> sink.next(success(response, response)))
+                        .start();
             } catch (Exception e) {
                 sink.error(e);
             }
