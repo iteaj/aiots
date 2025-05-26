@@ -81,6 +81,15 @@ public class ProductController extends BaseController {
     }
 
     /**
+     * 获取非网关设备类型下面的产品列表
+     * @return
+     */
+    @GetMapping("/listByNonGateway")
+    public Result<List<Product>> listByNonGateway() {
+        return this.productService.list(Wrappers.<Product>lambdaQuery().ne(Product::getDeviceType, DeviceType.Gateway));
+    }
+
+    /**
      * 父产品列表
      * @return
      */

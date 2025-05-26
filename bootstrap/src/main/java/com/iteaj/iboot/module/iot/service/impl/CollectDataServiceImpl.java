@@ -93,6 +93,11 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
     }
 
     @Override
+    public PageResult productOfPage(Page page, RealtimeCollectData entity) {
+        return new PageResult(this.getBaseMapper().productOfPage(page, entity));
+    }
+
+    @Override
     public List<BaseEchartsCount> countLastMonth() {
         Map<String, BaseEchartsCount> map = new HashMap<>();
         List<BaseEchartsCount> dtos = this.getBaseMapper().countLastByDays(29);
