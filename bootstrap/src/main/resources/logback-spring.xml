@@ -31,7 +31,7 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
-            <pattern>%d{HH:mm:ss} [%thread] %-3level %logger{50} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n</pattern>
         </encoder>
         <!--日志级别过滤-->
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -62,13 +62,16 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
             <MaxFileSize>30MB</MaxFileSize>
         </triggeringPolicy>
     </appender>
-
+    <appender name="WebsocketPush" class="com.iteaj.framework.logger.PushAppender"/>
     <logger level="warn" name="org.springframework.context.support.PostProcessorRegistrationDelegate">
         <appender-ref ref="STDOUT" />
     </logger>
     <!--spring 启动异常日志分析-->
     <logger level="debug" name="org.springframework.boot.diagnostics">
         <appender-ref ref="STDOUT" />
+    </logger>
+    <logger level="debug" name="PUSH:LOGGER">
+        <appender-ref ref="WebsocketPush" />
     </logger>
     <!--开发环境日志输出级别配置-->
     <springProfile name="dev">
