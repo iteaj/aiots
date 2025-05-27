@@ -1,0 +1,2 @@
+# 2025-5-27
+INSERT INTO `sys_menu` VALUES (1480,'产品数据',1421,88,'/iot/collectData/product','iot','V','enabled','iot:collectData:product','iz-icon-container-default','','_self','2025-05-26 00:00:00',NULL)
