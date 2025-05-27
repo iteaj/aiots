@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.datasource.tdengine.mapper;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
@@ -47,4 +48,6 @@ public interface TaosCollectDataMapper {
     List<RealtimeCollectData> listOfCommonByTime(CollectDataCondition.DataSqlCondition item);
 
     Page pageOfCommonByTime(Page<RealtimeCollectData> page, CollectDataCondition.DataSqlCondition condition);
+
+    Page<RealtimeCollectData> productOfPage(Page page, RealtimeCollectData entity);
 }
