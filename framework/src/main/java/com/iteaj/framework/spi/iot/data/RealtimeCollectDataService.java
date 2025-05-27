@@ -37,4 +37,12 @@ public interface RealtimeCollectDataService {
      * @return
      */
     List<CollectValueItem> listOfCommonByTime(CollectDataCondition condition);
+
+    /**
+     * 根据产品模型获取数据
+     * @param page
+     * @param entity
+     * @return
+     */
+    PageResult productOfPage(Page page, RealtimeCollectData entity);
 }

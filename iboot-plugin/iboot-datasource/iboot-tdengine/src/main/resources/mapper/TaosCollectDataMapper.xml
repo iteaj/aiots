@@ -152,5 +152,9 @@
             and cast(collect_time as bigint) between #{startTimestamp} and #{endTimestamp}
         </where>
     </select>
+    <select id="productOfPage" resultMap="BaseResultMap">
+
+    </select>
+
 
 </mapper>

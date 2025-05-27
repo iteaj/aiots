@@ -114,4 +114,9 @@ public class TaosDataService implements RealtimeCollectDataService {
 
         return values;
     }
+
+    @Override
+    public PageResult productOfPage(Page page, RealtimeCollectData entity) {
+        return new PageResult(collectDataMapper.productOfPage(page, entity));
+    }
 }

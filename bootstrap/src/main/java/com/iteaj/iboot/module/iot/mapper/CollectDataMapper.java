@@ -45,4 +45,6 @@ public interface CollectDataMapper extends BaseMapper<CollectData> {
     List<CollectDataDto> listOfCommonByTime(CollectDataCondition.DataSqlCondition item);
 
     Page pageOfCommonByTime(Page<CollectDataDto> page, CollectDataCondition.DataSqlCondition condition);
+
+    Page<CollectDataDto> productOfPage(Page page, RealtimeCollectData entity);
 }

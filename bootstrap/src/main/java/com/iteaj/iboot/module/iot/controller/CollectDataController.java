@@ -53,4 +53,17 @@ public class CollectDataController extends BaseController {
         entity.setCollectMode("model");
         return collectDataService.detailOfPage(page, entity);
     }
+
+    /**
+     * 获取产品数据
+     * @param page
+     * @param entity
+     * @return
+     */
+    @Logger("访问产品数据页面")
+    @GetMapping("/product")
+    public Result<Page<CollectDataDto>> product(Page page, CollectDataDto entity) {
+        entity.setCollectMode("model");
+        return collectDataService.productOfPage(page, entity);
+    }
 }
