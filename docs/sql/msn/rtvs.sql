@@ -1,26 +1,26 @@
 CREATE TABLE IF NOT EXISTS AVINFO (
-     F_ID varchar(255) NOT NULL,
-    F_SIM varchar(20) NOT NULL,
-    F_CHANNEL int(11) NOT NULL,
-    F_ALARM decimal(18,0) NOT NULL,
-    F_STORAGE_TYPE int(11) NOT NULL,
-    F_STREAM_TYPE int(11) NOT NULL,
-    F_START_TIME decimal(20,0) NOT NULL,
-    F_END_TIME decimal(20,0) NOT NULL,
-    F_FILE_PATH varchar(255) NOT NULL,
-    F_FILE_SIZE decimal(18,0) NOT NULL,
-    F_DATA_TYPE int(11) default NULL,
-    PRIMARY KEY (F_ID)
+  F_ID varchar(255) NOT NULL,
+  F_SIM varchar(20) NOT NULL,
+  F_CHANNEL int(11) NOT NULL,
+  F_ALARM decimal(18,0) NOT NULL,
+  F_STORAGE_TYPE int(11) NOT NULL,
+  F_STREAM_TYPE int(11) NOT NULL,
+  F_START_TIME decimal(20,0) NOT NULL,
+  F_END_TIME decimal(20,0) NOT NULL,
+  F_FILE_PATH varchar(255) NOT NULL,
+  F_FILE_SIZE decimal(18,0) NOT NULL,
+  F_DATA_TYPE int(11) default NULL,
+  PRIMARY KEY (F_ID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS jt_log_flow (
-    F_ID int(11) NOT NULL AUTO_INCREMENT,
-    F_FD_TYPE varchar(45) NOT NULL,
-    F_BS_TYPE varchar(45) NOT NULL,
-    F_TIME bigint(20) NOT NULL,
-    F_GUID_KEY varchar(45) DEFAULT NULL,
-    F_EXPLAIN varchar(100) NOT NULL,
-    F_DESCRIBLE varchar(1000) DEFAULT NULL,
-    PRIMARY KEY (F_ID)
+   F_ID int(11) NOT NULL AUTO_INCREMENT,
+   F_FD_TYPE varchar(45) NOT NULL,
+   F_BS_TYPE varchar(45) NOT NULL,
+   F_TIME bigint(20) NOT NULL,
+   F_GUID_KEY varchar(45) DEFAULT NULL,
+   F_EXPLAIN varchar(100) NOT NULL,
+   F_DESCRIBLE varchar(1000) DEFAULT NULL,
+   PRIMARY KEY (F_ID)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS jt_log_index (
     F_ID int(11) NOT NULL AUTO_INCREMENT,
@@ -36,12 +36,11 @@ CREATE TABLE IF NOT EXISTS jt_log_index (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ;
 ALTER TABLE jt_log_index
     ADD COLUMN F_ADDED_CONTEXT1 VARCHAR(100) NULL AFTER F_TIME,
-	ADD COLUMN F_ADDED_TIME1 BIGINT(20) NULL AFTER F_ADDED_CONTEXT1,
-	ADD COLUMN F_ADDED_CONTEXT2 VARCHAR(100) NULL AFTER F_ADDED_TIME1,
-	ADD COLUMN F_ADDED_TIME2 BIGINT(20) NULL AFTER F_ADDED_CONTEXT2,
-	ADD COLUMN F_ADDED_CONTEXT3 VARCHAR(100) NULL AFTER F_ADDED_TIME2,
-	ADD COLUMN F_ADDED_TIME3 BIGINT(20) NULL AFTER F_ADDED_CONTEXT3;
-
+    ADD COLUMN F_ADDED_TIME1 BIGINT(20) NULL AFTER F_ADDED_CONTEXT1,
+    ADD COLUMN F_ADDED_CONTEXT2 VARCHAR(100) NULL AFTER F_ADDED_TIME1,
+    ADD COLUMN F_ADDED_TIME2 BIGINT(20) NULL AFTER F_ADDED_CONTEXT2,
+    ADD COLUMN F_ADDED_CONTEXT3 VARCHAR(100) NULL AFTER F_ADDED_TIME2,
+    ADD COLUMN F_ADDED_TIME3 BIGINT(20) NULL AFTER F_ADDED_CONTEXT3;
 CREATE TABLE IF NOT EXISTS T_Catalog (
     ChannelID varchar(50) NOT NULL COMMENT 'CatalogID',
     DeviceID varchar(50) NOT NULL COMMENT '设备ID',
@@ -115,77 +114,79 @@ CREATE TABLE IF NOT EXISTS T_Event (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS T_SuperiorChannel (
-    SuperiorID varchar(50) NOT NULL COMMENT '上级ID',
-    CustomChannelID varchar(50) NOT NULL COMMENT '自定义通道ID',
-    DeviceID varchar(50) NOT NULL COMMENT '设备ID',
-    ChannelID varchar(50) NOT NULL COMMENT 'CatalogID',
-    Enable bit(1) NOT NULL COMMENT '启用',
-    PRIMARY KEY (SuperiorID,CustomChannelID)
+ SuperiorID varchar(50) NOT NULL COMMENT '上级ID',
+ CustomChannelID varchar(50) NOT NULL COMMENT '自定义通道ID',
+ DeviceID varchar(50) NOT NULL COMMENT '设备ID',
+ ChannelID varchar(50) NOT NULL COMMENT 'CatalogID',
+ Enable bit(1) NOT NULL COMMENT '启用',
+ PRIMARY KEY (SuperiorID,CustomChannelID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS T_SuperiorInfo (
-    ID varchar(50) NOT NULL COMMENT '唯一ID',
-    Enable bit(1) NOT NULL COMMENT '启用',
-    Name varchar(50) NOT NULL COMMENT '名称',
-    ServerID varchar(50) NOT NULL COMMENT '上级国标编码',
-    ServerRealm varchar(50) NOT NULL COMMENT '服务域',
-    Server varchar(50) NOT NULL COMMENT '上级IP/域名',
-    ServerPort int(11) NOT NULL COMMENT '上级端口',
-    ClientID varchar(50) NOT NULL COMMENT '本地SIP国标编码',
-    ClientName varchar(50) NOT NULL COMMENT '本地SIP名称',
-    ClientPort int(11) NOT NULL DEFAULT 0 COMMENT '本地端口',
-    SIPUsername varchar(50) NOT NULL COMMENT 'SIP认证用户名',
-    SIPPassword varchar(50) NOT NULL COMMENT 'SIP认证密码',
-    Expiry int(11) NOT NULL COMMENT '注册有效期',
-    RegSec int(11) NOT NULL COMMENT '注册间隔',
-    HeartSec int(11) NOT NULL COMMENT '心跳周期',
-    HeartTimeoutTimes int(11) NOT NULL COMMENT '最大心跳超时次数',
-    UseTcp bit(1) NOT NULL COMMENT 'TCP/UDP',
-    PRIMARY KEY (ID)
+  ID varchar(50) NOT NULL COMMENT '唯一ID',
+  Enable bit(1) NOT NULL COMMENT '启用',
+  Name varchar(50) NOT NULL COMMENT '名称',
+  ServerID varchar(50) NOT NULL COMMENT '上级国标编码',
+  ServerRealm varchar(50) NOT NULL COMMENT '服务域',
+  Server varchar(50) NOT NULL COMMENT '上级IP/域名',
+  ServerPort int(11) NOT NULL COMMENT '上级端口',
+  ClientID varchar(50) NOT NULL COMMENT '本地SIP国标编码',
+  ClientName varchar(50) NOT NULL COMMENT '本地SIP名称',
+  ClientPort int(11) NOT NULL DEFAULT 0 COMMENT '本地端口',
+  SIPUsername varchar(50) NOT NULL COMMENT 'SIP认证用户名',
+  SIPPassword varchar(50) NOT NULL COMMENT 'SIP认证密码',
+  Expiry int(11) NOT NULL COMMENT '注册有效期',
+  RegSec int(11) NOT NULL COMMENT '注册间隔',
+  HeartSec int(11) NOT NULL COMMENT '心跳周期',
+  HeartTimeoutTimes int(11) NOT NULL COMMENT '最大心跳超时次数',
+  UseTcp bit(1) NOT NULL COMMENT 'TCP/UDP',
+  PRIMARY KEY (ID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS T_UserInfo (
-    Id int(11) NOT NULL,
-    Name varchar(50) NOT NULL DEFAULT '' COMMENT '姓名',
-    Username varchar(50) NOT NULL COMMENT '用户名',
-    Password varchar(50) NOT NULL COMMENT '密码',
-    Psalt varchar(50) NOT NULL DEFAULT '' COMMENT '加密盐',
-    NickName varchar(100) NOT NULL DEFAULT '' COMMENT '昵称',
-    HeadImg varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
-    LoginIp varchar(50) NOT NULL DEFAULT '' COMMENT '登录IP',
-    Email varchar(50) NOT NULL DEFAULT '',
-    Phone varchar(20) NOT NULL DEFAULT '',
-    Remark varchar(255) NOT NULL DEFAULT '' COMMENT '备注',
-    Status int(11) NOT NULL COMMENT '状态',
-    DepartmentId int(11) NOT NULL COMMENT '部门ID',
-    DepartmentName varchar(50) NOT NULL DEFAULT '' COMMENT '部门名称',
-    CreateTime timestamp NOT NULL DEFAULT '2000-01-01 00:00:00' COMMENT '创建时间',
-    UpTime timestamp NOT NULL DEFAULT '2000-01-01 00:00:00' COMMENT '更新时间',
-    PRIMARY KEY (Id)
+  Id int(11) NOT NULL,
+  Name varchar(50) NOT NULL DEFAULT '' COMMENT '姓名',
+  Username varchar(50) NOT NULL COMMENT '用户名',
+  Password varchar(50) NOT NULL COMMENT '密码',
+  Psalt varchar(50) NOT NULL DEFAULT '' COMMENT '加密盐',
+  NickName varchar(100) NOT NULL DEFAULT '' COMMENT '昵称',
+  HeadImg varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
+  LoginIp varchar(50) NOT NULL DEFAULT '' COMMENT '登录IP',
+  Email varchar(50) NOT NULL DEFAULT '',
+  Phone varchar(20) NOT NULL DEFAULT '',
+  Remark varchar(255) NOT NULL DEFAULT '' COMMENT '备注',
+  Status int(11) NOT NULL COMMENT '状态',
+  DepartmentId int(11) NOT NULL COMMENT '部门ID',
+  DepartmentName varchar(50) NOT NULL DEFAULT '' COMMENT '部门名称',
+  CreateTime timestamp NOT NULL DEFAULT '2000-01-01 00:00:00' COMMENT '创建时间',
+  UpTime timestamp NOT NULL DEFAULT '2000-01-01 00:00:00' COMMENT '更新时间',
+  PRIMARY KEY (Id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS T_Group (
-    GroupID varchar(50) NOT NULL COMMENT '分组ID(215业务分组 216虚拟组织)',
-    ParentID varchar(50) NOT NULL COMMENT '上级ID',
-    Name varchar(50) NOT NULL COMMENT '分组名称',
-    Path varchar(1000) NOT NULL COMMENT '查询路径 /分割',
-    PRIMARY KEY (GroupID) USING BTREE,
-    INDEX `idx_path`(Path) USING BTREE
+   GroupID varchar(50) NOT NULL COMMENT '分组ID(215业务分组 216虚拟组织)',
+   ParentID varchar(50) NOT NULL COMMENT '上级ID',
+   Name varchar(50) NOT NULL COMMENT '分组名称',
+   Path varchar(1000) NOT NULL COMMENT '查询路径 /分割',
+   PRIMARY KEY (GroupID) USING BTREE,
+   INDEX `idx_path`(Path) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT = '系统目录分组';
 
 CREATE TABLE IF NOT EXISTS T_GroupBind (
-    GroupID varchar(50) NOT NULL COMMENT '分组ID',
-    DeviceID varchar(50) NOT NULL COMMENT '绑定设备ID',
-    ChannelID varchar(50) NOT NULL COMMENT '绑定通道ID(0代表所有)',
-    CustomChannelID varchar(50) NOT NULL COMMENT '自定义通道ID(上报用，如不自定义需与ChannelID保持一致)',
-    PRIMARY KEY (GroupID, CustomChannelID) USING BTREE
+   GroupID varchar(50) NOT NULL COMMENT '分组ID',
+   DeviceID varchar(50) NOT NULL COMMENT '绑定设备ID',
+   ChannelID varchar(50) NOT NULL COMMENT '绑定通道ID(0代表所有)',
+   CustomChannelID varchar(50) NOT NULL COMMENT '自定义通道ID(上报用，如不自定义需与ChannelID保持一致)',
+   PRIMARY KEY (GroupID, CustomChannelID) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT = '分组绑定通道';
 
 CREATE TABLE IF NOT EXISTS T_SuperiorGroup (
-    SuperiorID varchar(50) NOT NULL COMMENT '上级ID',
-    GroupID varchar(50) NOT NULL COMMENT '分组ID',
-    HasChild bit(1) NOT NULL COMMENT '包含下级分组',
-    PRIMARY KEY (SuperiorID, GroupID) USING BTREE
+   SuperiorID varchar(50) NOT NULL COMMENT '上级ID',
+   GroupID varchar(50) NOT NULL COMMENT '分组ID',
+   HasChild bit(1) NOT NULL COMMENT '包含下级分组',
+   PRIMARY KEY (SuperiorID, GroupID) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT = '上级绑定分组';
 
 ALTER TABLE T_Catalog MODIFY COLUMN ParentID varchar(255) NOT NULL COMMENT '上级ID' AFTER DeviceID;
+
 ALTER TABLE T_Catalog ADD COLUMN DType int(11) NOT NULL DEFAULT 0 COMMENT '类型 0设备/1系统目录/2业务分组/3虚拟组织/1001 JT2GB' AFTER OfflineTime;

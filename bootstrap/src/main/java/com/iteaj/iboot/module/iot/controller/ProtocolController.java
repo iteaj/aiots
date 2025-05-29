@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
@@ -13,12 +14,16 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.file.UploadResult;
 import com.iteaj.framework.spi.file.UploadService;
+import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
+import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.entity.ProtocolApi;
@@ -274,6 +279,60 @@ public class ProtocolController extends BaseController {
         } else {
             return fail("不支持的类型[type="+type+"]");
         }
+    }
+
+    /**
+     * 返回各个驱动的事件模型的配置项
+     * @return
+     */
+    @GetMapping("listEventApiTableHead")
+    public Result<Map<String, List<ParamMeta>>> listEventApiTableHead() {
+        Map<String, List<ParamMeta>> result = new HashMap<>();
+        ProtocolSupplierManager.suppliers().forEach(supplier -> {
+            final ProtocolModel protocolModel = supplier.getProtocol();
+            final Map<String, AbstractProtocolModelApi> apiMap = protocolModel.getApis();
+            if(CollectionUtil.isNotEmpty(apiMap) && protocolModel.getCtrlMode() == CtrlMode.POINT) {
+                List<ParamMeta> config = new ArrayList<>();
+                result.put(protocolModel.getCode(), config);
+
+                final List<AbstractProtocolModelApi> modelApis = apiMap.values().stream().filter(modelApi -> modelApi.getTriggerMode() == TriggerMode.passive
+                        && modelApi.getType() == ProtocolApiType.event).collect(Collectors.toList());
+
+                // 新增指令项
+                final IVOption[] ivOptions = modelApis.stream().map(modelApi -> new IVOption(modelApi.getName(), modelApi.getCode()))
+                        .toArray(size -> new IVOption[size]);
+                config.add(ParamMeta.buildRequiredSelect("direct", "指令", null, null, ivOptions));
+
+                // 新增下行配置项
+                Map<String, ParamMeta> fieldMetas = new HashMap<>();
+                modelApis.forEach(modelApi -> {
+                    if(modelApi.getDownConfig() != null) {
+                        modelApi.getDownConfig().values().stream()
+                            .filter(apiConfig -> apiConfig.getDirection() == ApiConfigDirection.DOWN)
+                            .forEach(apiConfig -> {
+                                if(!fieldMetas.containsKey(apiConfig.getProtocolModelAttrField())) {
+                                    final ProtocolModelAttr modelAttr = protocolModel.getAttrs().get(apiConfig.getProtocolModelAttrField());
+                                    String attrName = modelAttr != null ? modelAttr.getName() : apiConfig.getProtocolModelAttrField();
+                                    if(CollectionUtil.isNotEmpty(apiConfig.getOptions())) {
+                                        final IVOption[] options = apiConfig.getOptions().stream()
+                                                .map(item -> new IVOption(item.getLabel(), item.getValue()))
+                                                .toArray(size -> new IVOption[size]);
+                                        fieldMetas.put(apiConfig.getProtocolModelAttrField(), ParamMeta
+                                                .buildSelect(apiConfig.getProtocolModelAttrField(), attrName, null, options));
+                                    } else {
+                                        fieldMetas.put(apiConfig.getProtocolModelAttrField(), ParamMeta.build(apiConfig.getProtocolModelAttrField(), attrName));
+                                    }
+                                }
+                        });
+                    }
+                });
+
+                if(!fieldMetas.isEmpty()) {
+                    config.addAll(fieldMetas.values());
+                }
+            }
+        });
+        return success(result);
     }
 }
 
