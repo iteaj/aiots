@@ -232,4 +232,12 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
 
         return new DetailResult<>(modelApi);
     }
+
+    @Override
+    public void removeJoinByCode(String code) {
+        if(StrUtil.isNotBlank(code)) {
+            this.getBaseMapper().removeJoinByCode(code);
+            cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API).evict(code);
+        }
+    }
 }

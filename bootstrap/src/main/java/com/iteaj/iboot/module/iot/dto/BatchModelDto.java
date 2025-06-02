@@ -1,17 +1,28 @@
 package com.iteaj.iboot.module.iot.dto;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Transient;
 
-import javax.validation.constraints.NotBlank;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
 public class BatchModelDto {
 
+    /**
+     * 模型属性id
+     */
+    private Long id;
+
+    /**
+     * 产品id
+     */
     private Long productId;
 
     /**
@@ -70,4 +81,35 @@ public class BatchModelDto {
      * 协议指令
      */
     private String direct;
+
+    /**
+     * 接口名
+     */
+    private String apiName;
+
+    /**
+     * 接口代码
+     */
+    private String apiCode;
+
+    /**
+     * 产品码
+     */
+    private String productCode;
+
+    @Transient
+    private String apiDownConfig;
+
+    private Map<String, Object> config;
+
+    public void setApiDownConfig(String apiDownConfig) {
+        if(StrUtil.isNotBlank(apiDownConfig)) {
+            config = new HashMap<>();
+            final String[] split = apiDownConfig.split(":::");
+            for (int i = 0; i < split.length; i++) {
+                final String[] item = split[i].split("->");
+                config.put(item[0], item[1]);
+            }
+        }
+    }
 }
