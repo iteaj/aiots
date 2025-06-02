@@ -11,10 +11,11 @@ import com.iteaj.framework.script.FunctionScript;
 import com.iteaj.framework.script.ScriptConfigService;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.framework.spi.iot.DataValueResolverFactory;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.BatchModelDto;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
@@ -185,7 +186,36 @@ public class ProductController extends BaseController {
     }
 
     /**
-     * 脚本列表
+     * 批量模型属性
+     * @param entity
+     * @return
+     */
+    @GetMapping("listBatchModel")
+    public Result<List<BatchModelDto>> listBatchModel(BatchModelDto entity) {
+        return this.productService.listBatchModel(entity);
+    }
+
+    /**
+     * 新增或者更新批量模型记录
+     * @param entity
+     * @return
+     */
+    @PostMapping("batchModelSaveOrUpdate")
+    public Result<Boolean> batchModelSaveOrUpdate(@RequestBody BatchModelDto entity) {
+        return this.productService.batchModelSaveOrUpdate(entity);
+    }
+
+    /**
+     * 删除批量模型记录
+     * @param entity id和apiCode必填
+     * @return
+     */
+    @PostMapping("batchModelDel")
+    public Result<Boolean> batchModelDel(@RequestBody BatchModelDto entity) {
+        return this.productService.delBatchModel(entity.getId(), entity.getApiCode());
+    }
+    /**
+     * 新增或者更新批量模型记录
      * @return
      */
     @GetMapping("scripts")

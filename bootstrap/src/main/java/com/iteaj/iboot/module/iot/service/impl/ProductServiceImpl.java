@@ -1,35 +1,26 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.result.BooleanResult;
-import com.iteaj.framework.result.DetailResult;
-import com.iteaj.framework.result.ListResult;
-import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.result.*;
 import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.IotUtil;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.framework.spi.iot.consts.AttrType;
-import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
-import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.common.CacheKeys;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.*;
-import com.iteaj.iboot.module.iot.dto.DeviceTypeCountDto;
-import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
-import com.iteaj.iboot.module.iot.dto.ProductDto;
-import com.iteaj.iboot.module.iot.dto.ProtocolToProductModel;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.mapper.ProductMapper;
 import com.iteaj.iboot.module.iot.service.*;
@@ -43,9 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -500,6 +489,108 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     @Override
     public ListResult<Product> listOfProtocolCodes(DeviceType deviceType, String[] protocolCodes, TransportProtocol protocol) {
         return new ListResult<>(getBaseMapper().listOfProtocolCodes(deviceType, protocolCodes, protocol));
+    }
+
+    @Override
+    public ListResult<BatchModelDto> listBatchModel(BatchModelDto entity) {
+        return new ListResult<>(getBaseMapper().listBatchModel(entity));
+    }
+
+    @Override
+    @Transactional
+    public BooleanResult batchModelSaveOrUpdate(BatchModelDto entity) {
+        final Product product = this.getById(entity.getProductId()).getData();
+        if(product == null) {
+            return BooleanResult.buildFalse("产品不存在");
+        }
+        if(product.getStatus() == FuncStatus.enabled) {
+            return BooleanResult.buildFalse("请先停用产品");
+        }
+        final DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(product.getProtocolCode());
+        if(supplier == null) {
+            return BooleanResult.buildFalse("驱动不存在");
+        }
+
+        // 处理模型属性
+        final ModelAttr modelAttr = new ModelAttr();
+        if(entity.getId() == null) {// 模型属性为null表示新增
+            BeanUtils.copyProperties(entity, modelAttr);
+            modelAttr.setOrigin(AttrOrigin.Model).setCtrlStatus(false).setEnumerate(false);
+            modelAttrService.save(modelAttr).ifPresent(item -> entity.setId(modelAttr.getId()));
+        } else { // 更新
+            BeanUtils.copyProperties(entity, modelAttr);
+            modelAttrService.updateById(modelAttr);
+        }
+
+        // 处理模型api
+        if(StrUtil.isNotBlank(entity.getApiCode())) { // 更新
+            final ModelApi modelApi = modelApiService.detailByCode(entity.getApiCode())
+                    .ifNotPresentThrow("模型接口不存在[" + entity.getApiCode() + "]")
+                    .getData();
+            if(StrUtil.isNotBlank(entity.getDirect())) { // 有选择指令
+                resolverModelApi(modelApi, entity, supplier, product);
+                modelApiService.removeJoinByCode(modelApi.getCode());
+                this.modelApiService.save(modelApi);
+            } else { // 移除了指令
+                modelApiService.removeJoinByCode(modelApi.getCode());
+            }
+        } else { // 新增
+            if(StrUtil.isNotBlank(entity.getDirect())) {
+                final ModelApi modelApi = new ModelApi();
+                resolverModelApi(modelApi, entity, supplier, product);
+                this.modelApiService.save(modelApi);
+            }
+        }
+
+        return BooleanResult.buildTrue("处理成功");
+    }
+
+    @Override
+    @Transactional
+    public Result<Boolean> delBatchModel(Long id, String apiCode) {
+        this.modelApiService.removeJoinByCode(apiCode);
+        this.modelAttrService.removeByIds(Arrays.asList(id));
+        return BooleanResult.buildTrue("删除成功");
+    }
+
+    private void resolverModelApi(ModelApi modelApi, BatchModelDto entity, DeviceProtocolSupplier supplier, Product product) {
+        final ProtocolModel protocol = supplier.getProtocol();
+        final AbstractProtocolModelApi protocolApi = protocol.getApi(entity.getDirect());
+        String apiCode = modelApi.getCode() != null ? modelApi.getCode()
+                : IotUtil.getModelCodePrefix(product.getCode()) + "get_" + entity.getField();
+
+        modelApi.setAsStatus(false).setProductId(entity.getProductId())
+                .setTriggerMode(protocolApi.getTriggerMode()).setProtocol(false).setDebug(true)
+                .setDirect(entity.getDirect()).setFuncType(FuncType.R).setType(protocolApi.getType())
+                .setName("获取"+entity.getName()).setCode(apiCode);
+        List<ModelApiConfig> upConfigs = new ArrayList<>();
+        protocolApi.getUpConfig().forEach((direct, config) -> {
+            final ProtocolModelAttr modelAttr = protocol.getAttr(config.getProtocolModelAttrField());
+            final ModelApiConfig apiConfig = new ModelApiConfig().setModelAttrId(entity.getId()).setAttrName(entity.getName())
+                    .setAttrField(entity.getField()).setProductId(entity.getProductId()).setApiCode(apiCode).setDataType(entity.getDataType())
+                    .setDirection(ApiConfigDirection.UP).setFieldType(ApiFieldType.field).setProtocolAttrName(modelAttr.getName())
+                    .setProtocolAttrField(config.getProtocolModelAttrField()).setProtocolDataType(modelAttr.getDataType().getValue())
+                    .setValue("@"+entity.getField()).setSort(config.getSort()).setRemark(config.getRemark());
+            upConfigs.add(apiConfig);
+        });
+
+        List<ModelApiConfig> downConfigs = new ArrayList<>();
+        protocolApi.getDownConfig().forEach((direct, config) -> {
+            final ProtocolModelAttr modelAttr = protocol.getAttr(config.getProtocolModelAttrField());
+            final String value = (String) entity.getConfig().get(config.getProtocolModelAttrField());
+            if(StrUtil.isBlank(value)) {
+                throw new ServiceException(config.getProtocolModelAttrField()+"必填");
+            }
+
+            final ModelApiConfig apiConfig = new ModelApiConfig().setModelAttrId(entity.getId()).setAttrName(entity.getName())
+                    .setAttrField(entity.getField()).setProductId(entity.getProductId()).setApiCode(apiCode)
+                    .setDirection(ApiConfigDirection.DOWN).setFieldType(ApiFieldType.field).setProtocolAttrName(modelAttr.getName())
+                    .setProtocolAttrField(config.getProtocolModelAttrField()).setProtocolDataType(modelAttr.getDataType().getValue())
+                    .setValue(value).setSort(config.getSort()).setRemark(config.getRemark()).setDataType(modelAttr.getDataType().getValue());
+            downConfigs.add(apiConfig);
+        });
+
+        modelApi.setUpConfig(upConfigs).setDownConfig(downConfigs);
     }
 
     private ModelApi convertProtocolApiToModelApi(ProtocolApi api) {

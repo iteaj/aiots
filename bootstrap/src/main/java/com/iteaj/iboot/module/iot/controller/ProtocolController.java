@@ -286,50 +286,18 @@ public class ProtocolController extends BaseController {
      * @return
      */
     @GetMapping("listEventApiTableHead")
-    public Result<Map<String, List<ParamMeta>>> listEventApiTableHead() {
-        Map<String, List<ParamMeta>> result = new HashMap<>();
+    public Result<Map<String, Collection<ParamMeta>>> listEventApiTableHead() {
+        Map<String, Collection<ParamMeta>> result = new HashMap<>();
         ProtocolSupplierManager.suppliers().forEach(supplier -> {
             final ProtocolModel protocolModel = supplier.getProtocol();
-            final Map<String, AbstractProtocolModelApi> apiMap = protocolModel.getApis();
-            if(CollectionUtil.isNotEmpty(apiMap) && protocolModel.getCtrlMode() == CtrlMode.POINT) {
-                List<ParamMeta> config = new ArrayList<>();
-                result.put(protocolModel.getCode(), config);
-
-                final List<AbstractProtocolModelApi> modelApis = apiMap.values().stream().filter(modelApi -> modelApi.getTriggerMode() == TriggerMode.passive
-                        && modelApi.getType() == ProtocolApiType.event).collect(Collectors.toList());
-
-                // 新增指令项
-                final IVOption[] ivOptions = modelApis.stream().map(modelApi -> new IVOption(modelApi.getName(), modelApi.getCode()))
-                        .toArray(size -> new IVOption[size]);
-                config.add(ParamMeta.buildRequiredSelect("direct", "指令", null, null, ivOptions));
-
-                // 新增下行配置项
-                Map<String, ParamMeta> fieldMetas = new HashMap<>();
-                modelApis.forEach(modelApi -> {
-                    if(modelApi.getDownConfig() != null) {
-                        modelApi.getDownConfig().values().stream()
-                            .filter(apiConfig -> apiConfig.getDirection() == ApiConfigDirection.DOWN)
-                            .forEach(apiConfig -> {
-                                if(!fieldMetas.containsKey(apiConfig.getProtocolModelAttrField())) {
-                                    final ProtocolModelAttr modelAttr = protocolModel.getAttrs().get(apiConfig.getProtocolModelAttrField());
-                                    String attrName = modelAttr != null ? modelAttr.getName() : apiConfig.getProtocolModelAttrField();
-                                    if(CollectionUtil.isNotEmpty(apiConfig.getOptions())) {
-                                        final IVOption[] options = apiConfig.getOptions().stream()
-                                                .map(item -> new IVOption(item.getLabel(), item.getValue()))
-                                                .toArray(size -> new IVOption[size]);
-                                        fieldMetas.put(apiConfig.getProtocolModelAttrField(), ParamMeta
-                                                .buildSelect(apiConfig.getProtocolModelAttrField(), attrName, null, options));
-                                    } else {
-                                        fieldMetas.put(apiConfig.getProtocolModelAttrField(), ParamMeta.build(apiConfig.getProtocolModelAttrField(), attrName));
-                                    }
-                                }
-                        });
-                    }
+            if(protocolModel.getCtrlMode() == CtrlMode.POINT) {
+                final Map<String, ParamMeta> map = supplier.resolverMetaConfig(modelApi -> {
+                    final AbstractProtocolModelApi protocolModelApi = (AbstractProtocolModelApi) modelApi;
+                    return protocolModelApi.getTriggerMode() == TriggerMode.passive
+                            && protocolModelApi.getType() == ProtocolApiType.event;
                 });
 
-                if(!fieldMetas.isEmpty()) {
-                    config.addAll(fieldMetas.values());
-                }
+                result.put(protocolModel.getCode(), map.values());
             }
         });
         return success(result);

@@ -52,4 +52,6 @@ public interface IModelApiService extends IBaseService<ModelApi> {
     DetailResult<ModelApi> getAsStatusModelApi(Long productId);
 
     DetailResult<ModelApi> detailByCode(String modelApiCode);
+
+    void removeJoinByCode(String code);
 }

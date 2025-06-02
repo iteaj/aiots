@@ -133,4 +133,10 @@ public interface IProductService extends IBaseService<Product> {
      * @return
      */
     ListResult<Product> listOfProtocolCodes(DeviceType deviceType, String[] protocolCodes, TransportProtocol protocol);
+
+    ListResult<BatchModelDto> listBatchModel(BatchModelDto entity);
+
+    BooleanResult batchModelSaveOrUpdate(BatchModelDto entity);
+
+    Result<Boolean> delBatchModel(Long id, String apiCode);
 }

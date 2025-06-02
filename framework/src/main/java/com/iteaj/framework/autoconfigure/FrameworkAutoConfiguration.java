@@ -68,7 +68,7 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        event.getApplicationContext().getBeanFactory().getBeanProvider(ApplicationReadyListener.class)
+        event.getApplicationContext().getBeanProvider(ApplicationReadyListener.class)
                 .orderedStream().forEach(applicationReadyListener -> applicationReadyListener.started(event.getApplicationContext()));
     }
 }
