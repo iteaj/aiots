@@ -76,7 +76,10 @@ public abstract class Dlt645ProtocolFuncModelApi extends AbstractFuncProtocolMod
             String rate = arg.getString("rate");
             return dlt645Protocol.mcrBuild(deviceSn, address, rate).build(prefix);
         } else if(type == Dlt645ProtocolType.ctrl) {
-            String perm = "04"; //arg.getString("perm");
+            String perm = arg.getString("perm");
+            if(StrUtil.isBlank(perm)) {
+                throw new ProtocolInvokeException("认证密级未指定");
+            }
             String pwd = arg.getString("pwd");
             if(StrUtil.isBlank(pwd)) {
                 throw new ProtocolInvokeException("密码未指定");
