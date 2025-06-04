@@ -32,6 +32,7 @@
         <module>iboot-file</module>
         <!--物模型协议模块-->
         <module>iboot-protocol</module>
+        <module>iboot-iotview</module>
     </modules>
 
     <dependencies>
