@@ -19,6 +19,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
 import org.slf4j.Logger;
@@ -37,7 +38,6 @@ public class BatchGroupTask implements Runnable{
     private DeviceGroup group;
     private EventSourceDto source;
     private IotCacheManager cacheManager;
-    private static Logger logger = LoggerFactory.getLogger("IOT:MODEL:COLLECT");
 
     public BatchGroupTask(DeviceGroup group, EventSourceDto source, IotCacheManager cacheManager) {
         this.group = group;
@@ -80,8 +80,8 @@ public class BatchGroupTask implements Runnable{
     @Override
     public void run() {
         // 没有任何采集接口, 放弃采集任务
-        if(this.source.getApis() == null) {
-            logger.warn("放弃采集任务 没有任何采集接口 - 事件源: {} - 设备组: {}", source.getName(), group.getName());
+        if(CollectionUtil.isEmpty(this.source.getApis())) {
+            IotLogger.warn(source, "-", "放弃采集任务 没有任何采集接口 - 设备组: {}", group.getName());
             return;
         }
 
@@ -97,19 +97,15 @@ public class BatchGroupTask implements Runnable{
             if (device.getType() == DeviceType.Child) {
                 parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
                 if(parent == null) {
-                    if(logger.isWarnEnabled()) {
-                        logger.warn("放弃设备采集任务 父设备不存在({}) - 事件源: {} - 设备组: {} - 设备编号: {}"
-                                , device.getParentDeviceSn(), source.getName(), group.getName(), device.buildDeviceKey());
-                    }
+                    IotLogger.warn(source, device.getUid(), "放弃设备采集任务 父设备不存在({}) - 设备组: {} - 设备编号: {}"
+                            , device.getParentDeviceSn(), group.getName(), device.buildDeviceKey());
 
                     continue;
                 }
 
                 if(parent.getStatus() == DeviceStatus.offline) {
-                    if(logger.isWarnEnabled()) {
-                        logger.warn("放弃设备采集任务 父设备不在线({}) - 事件源: {} - 设备组: {} - 设备编号: {}"
-                                , device.getParentDeviceSn(), source.getName(), group.getName(), device.buildDeviceKey());
-                    }
+                    IotLogger.warn(source, device.getUid(), "放弃设备采集任务 父设备不在线({}) - 设备组: {} - 设备编号: {}"
+                            , device.getParentDeviceSn(), group.getName(), device.buildDeviceKey());
 
                     continue;
                 }
@@ -124,14 +120,14 @@ public class BatchGroupTask implements Runnable{
                             doInvoke(info, device, api, 3000L, false);
                         }
                     } catch (ProtocolInvokeException e) {
-                        logger.error("接口采集执行异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                        IotLogger.error(source, device.getUid(), "接口采集执行异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                                , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                     } catch (ServiceException e) {
-                        logger.error("接口采集执行错误 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                        IotLogger.error(source, device.getUid(), "接口采集执行错误 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                                , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                     } catch (Exception e) {
-                        logger.error("接口采集未知异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                        IotLogger.error(source, device.getUid(), "接口采集未知异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                                , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                     }
                 }
             } else {
@@ -147,7 +143,7 @@ public class BatchGroupTask implements Runnable{
             try {
                 listener.finished(info);
             } catch (Exception e) {
-                logger.error("采集事件完成发布异常 {} - 事件源: {} - 设备组: {}", e.getMessage(), source.getName(), group.getName(), e);
+                IotLogger.error(source, "-", "采集事件完成发布异常 {} - 设备组: {}", e.getMessage(), group.getName(), e);
             }
         });
     }
@@ -189,11 +185,11 @@ public class BatchGroupTask implements Runnable{
                     this.doInvoke(info, device, api, 6000L, true);
                 } else {
                     if(retry) {
-                        logger.warn("接口采集重试失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
-                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                        IotLogger.warn(source, device.getUid(), "接口采集重试失败 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
+                                , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                     } else {
-                        logger.warn("接口采集失败 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
-                                , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                        IotLogger.warn(source, device.getUid(), "接口采集失败 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
+                                , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                     }
 
                     // 发布采集的数据
@@ -218,6 +214,10 @@ public class BatchGroupTask implements Runnable{
         if(result instanceof BatchResult) {
             deviceInfo = info.addDeviceInfo(device, api, ((BatchResult) result).getValue());
         } else {
+            if(result.getStatus() != ExecStatus.success && result.getProtocol() == null) {
+                return;
+            }
+
             deviceInfo = ProtocolSupplierManager.getDataSupplier(result.getProtocol()).map(data -> info.addDeviceInfo(device, api, data)).get();
         }
 
@@ -226,8 +226,8 @@ public class BatchGroupTask implements Runnable{
                 try {
                     item.supplier(source, group, deviceInfo);
                 } catch (Exception e) {
-                    logger.error("采集事件实时发布异常 {} - 事件源: {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
-                            , source.getName(), group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+                    IotLogger.error(source, device.getUid(), "采集事件实时发布异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                            , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 }
             });
         }
