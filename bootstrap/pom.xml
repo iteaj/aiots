@@ -159,6 +159,11 @@
 <!--            <artifactId>iboot-message</artifactId>-->
 <!--        </dependency>-->
         <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>iboot-iotview</artifactId>
+        </dependency>
+        <dependency>
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
