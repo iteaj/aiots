@@ -1,9 +1,11 @@
 package com.iteaj.iboot.plugin.iotview.controller;
 
+import java.io.IOException;
 import java.util.List;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.file.UploadResult;
+import com.iteaj.framework.spi.file.UploadService;
 import com.iteaj.iboot.plugin.iotview.IotViewResult;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
@@ -12,6 +14,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.iboot.plugin.iotview.entity.Project;
 import com.iteaj.iboot.plugin.iotview.service.IProjectService;
 import com.iteaj.framework.BaseController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 大屏项目管理
@@ -22,9 +25,11 @@ import com.iteaj.framework.BaseController;
 @RequestMapping("/isv/project")
 public class ProjectController extends BaseController {
 
+    private final UploadService uploadService;
     private final IProjectService projectService;
 
-    public ProjectController(IProjectService projectService) {
+    public ProjectController(UploadService uploadService, IProjectService projectService) {
+        this.uploadService = uploadService;
         this.projectService = projectService;
     }
 
@@ -37,7 +42,7 @@ public class ProjectController extends BaseController {
     @Logger("浏览大屏项目功能")
     @CheckPermission({"isv:project:view"})
     public Result<IPage<Project>> list(Page<Project> page, Project entity) {
-        return IotViewResult.build(this.projectService.page(page, entity));
+        return new IotViewResult(this.projectService.page(page, entity));
     }
 
     /**
@@ -51,14 +56,36 @@ public class ProjectController extends BaseController {
     }
 
     /**
-    * 新增或者更新记录
+     * 创建项目
+     * @param entity
+     */
+    @PostMapping("/create")
+    @Logger("创建大屏项目")
+    @CheckPermission(value = {"isv:project:add"})
+    public Result<Boolean> create(@RequestBody Project entity) {
+        return new IotViewResult(this.projectService.save(entity));
+    }
+
+    /**
+    * 更新大屏记录
     * @param entity
     */
-    @PostMapping("/saveOrUpdate")
+    @PostMapping("/edit")
     @Logger("新增或者更新大屏项目记录")
-    @CheckPermission(value = {"isv:project:edit", "isv:project:add"}, logical = Logical.OR)
-    public Result<Boolean> saveOrUpdate(@RequestBody Project entity) {
-        return this.projectService.saveOrUpdate(entity);
+    @CheckPermission(value = {"isv:project:edit"})
+    public Result<Boolean> edit(@RequestBody Project entity) {
+        return new IotViewResult(this.projectService.updateById(entity));
+    }
+
+
+    /**
+     * 获取大屏详情记录
+     * @param projectId
+     */
+    @GetMapping("/getData")
+    @Logger("新增或者更新大屏项目记录")
+    public Result<Project> detail(String projectId) {
+        return new IotViewResult(this.projectService.getById(projectId));
     }
 
     /**
@@ -70,6 +97,25 @@ public class ProjectController extends BaseController {
     @CheckPermission({"iotview:project:del"})
     public Result<Boolean> remove(@RequestBody List<Long> idList) {
         return this.projectService.removeByIds(idList);
+    }
+
+    /**
+     * 上传大屏略缩图
+     * @param id
+     * @param file
+     * @return
+     */
+    @PostMapping("upload")
+    public Result<String> upload(String id, MultipartFile file) {
+        try {
+            final UploadResult isv = uploadService.upload(file.getInputStream(), file.getOriginalFilename(), id, "/isv");
+            final Project project = new Project().setIndexImage(isv.getUrl());
+            project.setId(id);
+            projectService.updateById(project);
+            return IotViewResult.Success(isv.getUrl());
+        } catch (IOException e) {
+            return IotViewResult.Fail("上传失败");
+        }
     }
 }
 
