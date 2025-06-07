@@ -207,8 +207,12 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     }
 
     private void doHandleWarn(WarnConfig warn, RealtimeStatus device, Object value) {
+        WarnInfo warnInfo = null;
+        if(warn.getModelAttrId() != null) {
+            warnInfo = warnStatus.get(warn.getModelAttrId());
+        }
+
         WarnGrade grade = warn.getGrade();
-        WarnInfo warnInfo = warnStatus.get(warn.getModelAttrId());
         // 属于解除告警并且已经执行一次
         if(grade == WarnGrade.normal) {
             // 等于null说明是第一次触发解除
