@@ -160,8 +160,12 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
                 properties.setHost(config.getHost());
             }
 
-            if(config.getReadIdle() != null && config.getReadIdle() > 0) {
-                properties.setReaderIdleTime(config.getReadIdle());
+            if(config.getReadIdle() != null) {
+                if(config.getReadIdle() > 0) {
+                    properties.setReaderIdleTime(config.getReadIdle());
+                } else {
+                    properties.setReaderIdleTime(0L);
+                }
             }
         }
     }
