@@ -235,11 +235,12 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             }
 
             Date date = new Date();
-            String content = resolverWarnTemplate(warn, device.getDeviceSn(), value, date);
+            String warnValue = value == null ? null : value.equals("offline") ? "离线" : "在线";
+            String content = resolverWarnTemplate(warn, device.getDeviceSn(), warnValue, date, device.getDeviceName());
             WarnRecord warnRecord = new WarnRecord().setDeviceSn(device.getDeviceSn()).
                     setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(grade)
                     .setWarnConfigId(warn.getId()).setContent(content).setField(warn.getModelAttrField())
-                    .setProductCode(device.getProductCode()).setValue(value != null ? value.toString() : null);
+                    .setProductCode(device.getProductCode()).setValue(warnValue);
 
             CollectListenerManager.getInstance().publish(listener -> {
                 if(listener instanceof LinkageActionListener) {
@@ -253,13 +254,15 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
      * 解析告警配置模板
      * @param warn
      * @param warnTime
+     * @param deviceName
      * @return
      */
-    private String resolverWarnTemplate(WarnConfig warn, String deviceSn, Object value, Date warnTime) {
+    private String resolverWarnTemplate(WarnConfig warn, String deviceSn, String value, Date warnTime, String deviceName) {
         Map<String, String> param = new HashMap<>();
+        param.put("value", value);
         param.put("deviceSn", deviceSn);
+        param.put("deviceName", deviceName);
         param.put("grade", warn.getGrade().toString());
-        param.put("value", value != null ? value.toString() : "");
         param.put("warnTime", DateUtil.format(warnTime, "yy-MM-dd HH:mm:ss"));
 
         return StrUtil.format(warn.getTemplate(), param, true);
