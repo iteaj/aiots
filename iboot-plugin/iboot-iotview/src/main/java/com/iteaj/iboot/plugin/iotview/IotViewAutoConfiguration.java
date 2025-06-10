@@ -19,4 +19,14 @@ public class IotViewAutoConfiguration {
     public OrderFilterChainDefinition devIsvDefinition() {
         return new OrderFilterChainDefinition().addAnon("/isv/**");
     }
+
+    /**
+     * 其他环境授权配置
+     * @return
+     */
+    @Bean
+    @Profile({"prod", "test"})
+    public OrderFilterChainDefinition prodIsvDefinition() {
+        return new OrderFilterChainDefinition().addAnon("/isv/data/**");
+    }
 }

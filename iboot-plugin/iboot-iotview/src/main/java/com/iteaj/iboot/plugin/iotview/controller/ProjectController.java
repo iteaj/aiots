@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.iotview.controller;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
@@ -90,13 +91,14 @@ public class ProjectController extends BaseController {
 
     /**
     * 删除指定记录
-    * @param idList
+    * @param ids
     */
-    @PostMapping("/del")
+    @DeleteMapping("/delete")
     @Logger("删除大屏项目记录")
     @CheckPermission({"iotview:project:del"})
-    public Result<Boolean> remove(@RequestBody List<Long> idList) {
-        return this.projectService.removeByIds(idList);
+    public Result<Boolean> remove(String ids) {
+        final String[] idList = ids.split(",");
+        return this.projectService.removeByIds(Arrays.asList(idList));
     }
 
     /**
