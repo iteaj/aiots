@@ -10,13 +10,13 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DataItemOption {
+public class DataItemOption implements Cloneable{
 
     private String label;
 
-    private Object key;
+    private Object value;
 
-    private String url;
+    private boolean load;
 
     private boolean isLeaf;
 
@@ -25,27 +25,24 @@ public class DataItemOption {
     private boolean unique;
 
     private List<DataItemOption> children;
+    public static final String SPLIT = ":";
 
-    public DataItemOption(String label, Object key) {
-        this.key = key;
+    public DataItemOption() { }
+
+    public DataItemOption(String label, Object value) {
+        this.value = value;
         this.label = label;
     }
 
-    public DataItemOption(String label, Object key, String url) {
-        this.label = label;
-        this.key = key;
-        this.url = url;
-    }
-
-    public DataItemOption(String label, Object key, boolean isLeaf) {
-        this.key = key;
+    public DataItemOption(String label, Object value, boolean isLeaf) {
+        this.value = value;
         this.label = label;
         this.isLeaf = isLeaf;
     }
 
-    public DataItemOption(String label, Object key, boolean isLeaf, boolean unique) {
+    public DataItemOption(String label, Object value, boolean isLeaf, boolean unique) {
         this.label = label;
-        this.key = key;
+        this.value = value;
         this.isLeaf = isLeaf;
         this.unique = unique;
     }
@@ -56,11 +53,19 @@ public class DataItemOption {
         }
 
         children.add(option);
-        option.setKey(this.getKey()+":"+option.getKey());
         return this;
+    }
+
+    public DataItemOption load() {
+        this.load = true; return this;
     }
 
     public boolean getIsLeaf() {
         return isLeaf;
+    }
+
+    @Override
+    public DataItemOption clone() throws CloneNotSupportedException {
+        return (DataItemOption) super.clone();
     }
 }

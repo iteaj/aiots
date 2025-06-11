@@ -74,7 +74,7 @@ public class TimeCountCondition extends BaseCondition{
                 throw new ServiceException("不支持的时间操作符");
             }
         } else {
-            startTime = DateUtil.parse(result[0], "yyyy-MM-dd HH");
+            startTime = DateUtil.parse(result[0], "yyyy-MM-dd HH:mm:ss");
         }
 
         if(result[1].trim().equalsIgnoreCase("now")) {
@@ -91,7 +91,7 @@ public class TimeCountCondition extends BaseCondition{
             }
         } else {
             endOffset = endOffset + 1;
-            endTime = DateUtil.parse(result[1], "yyyy-MM-dd HH");
+            endTime = DateUtil.parse(result[1], "yyyy-MM-dd HH:mm:ss");
         }
 
         if(timeType == TimeCountType.year) {

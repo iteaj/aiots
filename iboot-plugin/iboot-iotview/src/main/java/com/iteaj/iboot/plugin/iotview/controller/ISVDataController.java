@@ -1,9 +1,10 @@
 package com.iteaj.iboot.plugin.iotview.controller;
 
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.view.ViewApiManager;
 import com.iteaj.iboot.plugin.iotview.IotViewResult;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
-import com.iteaj.iboot.plugin.iotview.service.IVSDataService;
+import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,10 +19,10 @@ import java.util.List;
 @RequestMapping("/isv/data")
 public class ISVDataController {
 
-    private final IVSDataService ivsDataService;
+    private final ISVDataService ISVDataService;
 
-    public ISVDataController(IVSDataService ivsDataService) {
-        this.ivsDataService = ivsDataService;
+    public ISVDataController(ISVDataService ISVDataService) {
+        this.ISVDataService = ISVDataService;
     }
 
     /**
@@ -30,24 +31,15 @@ public class ISVDataController {
      */
     @GetMapping("options")
     public Result<List<DataItemOption>> options() {
-        List<DataItemOption> options = new ArrayList<>();
-        options.add(new DataItemOption("设备状态", "STATUS")
-                .addChild(new DataItemOption("在线", "online")
-                        .addChild(new DataItemOption("统计", "count", true, true))
-                        .addChild(new DataItemOption("占比", "ratio", true, true)))
-                .addChild(new DataItemOption("离线", "offline")
-                        .addChild(new DataItemOption("统计", "count", true, true))
-                        .addChild(new DataItemOption("占比", "ratio", true, true))));
-        options.add(new DataItemOption("模型属性", "MODEL", "/isv/data/model"));
-        return IotViewResult.Success(options);
+        return IotViewResult.Success(ViewApiManager.options());
     }
 
     /**
-     * 物模型
+     * 加载配置项
      * @return
      */
-    @GetMapping
-    public Result<List<DataItemOption>> model() {
-        return null;
+    @GetMapping("load")
+    public Result<List<DataItemOption>> load(String key) {
+        return IotViewResult.Success(ViewApiManager.loadOptions(key));
     }
 }

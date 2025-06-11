@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.iotview.mapper.ISVDataMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.framework.spi.iot.view.DataItemOption">
+        <result property="value" column="code" />
+        <result property="load" column="loaded" />
+        <result property="label" column="name" />
+        <result property="leaf" column="leaf" />
+        <result property="disabled" column="disabled" />
+    </resultMap>
+    <select id="listProductOption" resultMap="BaseResultMap">
+        select a.name, a.id code, count(b.id) > 0 loaded, count(b.id) = 0 leaf  from iot_product a
+            left join iot_model_attr b on a.id = b.product_id and b.data_type != 'json'
+        where device_type != 'Gateway' group by a.id
+    </select>
+
+    <select id="listModelAttrOption" resultMap="BaseResultMap">
+        select name, field code from iot_model_attr
+        where product_id = #{productId} and data_type != 'json'
+    </select>
+
+</mapper>
