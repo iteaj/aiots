@@ -50,6 +50,11 @@ public class SiemensS7Protocol extends PlcProtocolAbstract<SiemensMessage> {
     }
 
     @Override
+    protected OperateResult doWriteByte(String address, byte value) {
+        return getSiemensS7Net().Write(address, value);
+    }
+
+    @Override
     protected OperateResult doWriteDate(String address, Date date) {
         return getSiemensS7Net().WriteDate(address, date);
     }

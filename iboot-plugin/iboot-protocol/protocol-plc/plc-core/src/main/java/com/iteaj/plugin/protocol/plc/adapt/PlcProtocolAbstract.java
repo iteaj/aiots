@@ -341,7 +341,7 @@ public abstract class PlcProtocolAbstract<M extends PlcClientMessage> extends Ab
         }
     }
 
-    private OperateResult doWriteByte(String address, byte value) {
+    protected OperateResult doWriteByte(String address, byte value) {
         throw new UnsupportedOperationException(protocolType()+"不支持写字节操作");
     }
 

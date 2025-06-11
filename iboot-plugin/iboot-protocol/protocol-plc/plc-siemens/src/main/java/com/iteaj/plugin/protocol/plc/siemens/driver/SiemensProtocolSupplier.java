@@ -59,7 +59,7 @@ public class SiemensProtocolSupplier extends AbstractPlcProtocolSupplier<Siemens
         this.getModelApis().put("writeByte", createPlcFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_BYTE, "写byte值", FuncType.W, "写取字节值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
 //                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_NUMBER, "要读取的float值数量", 2))
-                .addUpConfig(ProtocolModelApiConfig.upBuild(PlcProtocolConsts.PLC_VALUE, "写入的字节值", 1)));
+                .addDownConfig(ProtocolModelApiConfig.downBuild(PlcProtocolConsts.PLC_VALUE, "写入的字节值", 1)));
 
         this.getModelApis().put("writeDate", createPlcFuncProtocolModelApi(PlcProtocolConsts.PLC_WRITE_DATE, "写日期值", FuncType.W, "写日期值")
                 .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, PlcProtocolConsts.PLC_ADDRESS_CONFIG_REMARK, 1))
