@@ -32,7 +32,7 @@ public interface ViewApiItem extends Ordered {
         return ORDER;
     }
 
-    Object fetch(ViewApiParams params);
+    List<ViewFetchResult> fetch(List<ViewApiParams.Value> values, ViewApiParams params);
 
     /**
      * 数据列表

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
 import com.iteaj.framework.spi.iot.view.ViewApiItem;
 import com.iteaj.framework.spi.iot.view.ViewApiParams;
+import com.iteaj.framework.spi.iot.view.ViewFetchResult;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
 
@@ -19,10 +20,10 @@ public class ModelAttrApiItem implements ViewApiItem {
     private final ISVDataService isvDataService;
 
     private List<DataItemOption> calcOptions = Arrays.asList(
-            new DataItemOption("数量统计", "count", true),
-            new DataItemOption("求平均值", "avg", true),
-            new DataItemOption("求最大值", "max", true),
-            new DataItemOption("求最小值", "min", true)
+            new DataItemOption("数量统计", "count", true).asName(),
+            new DataItemOption("求平均值", "avg", true).asName(),
+            new DataItemOption("求最大值", "max", true).asName(),
+            new DataItemOption("求最小值", "min", true).asName()
     );
     private List<DataItemOption> options = Arrays.asList(new DataItemOption(NAME, KEY));
 
@@ -41,23 +42,13 @@ public class ModelAttrApiItem implements ViewApiItem {
     }
 
     @Override
-    public Object fetch(ViewApiParams params) {
-        return null;
-    }
-
-    @Override
     public int getOrder() {
         return ViewApiItem.super.getOrder() + 200;
     }
 
     @Override
-    public ViewApiItem init() {
-        final DataItemOption parent = options.get(0);
-        final List<DataItemOption> dataItemOptions = isvDataService.listProductOption();
-        if(CollectionUtil.isNotEmpty(dataItemOptions)) {
-            dataItemOptions.forEach(parent::addChild);
-        }
-        return this;
+    public List<ViewFetchResult> fetch(List<ViewApiParams.Value> values, ViewApiParams params) {
+        return null;
     }
 
     @Override
@@ -67,15 +58,33 @@ public class ModelAttrApiItem implements ViewApiItem {
 
     @Override
     public List<DataItemOption> loadOptions(String[] args) {
-        final List<DataItemOption> dataItemOptions = isvDataService.listModelAttrOption(args[1]);
-        if(CollectionUtil.isNotEmpty(dataItemOptions)) {
-            dataItemOptions.forEach(item -> {
-                calcOptions.forEach(calc -> item.addChild(calc));
-            });
+        List<DataItemOption> results = Collections.emptyList();
+        if(args.length == 1) {
+            final List<DataItemOption> dataItemOptions = isvDataService.listProductOption(false);
+            if(CollectionUtil.isNotEmpty(dataItemOptions)) {
+                results = dataItemOptions;
+                dataItemOptions.forEach(child -> child.setValue(KEY + DataItemOption.SPLIT + child.getValue()).asName());
+            }
+        } else if(args.length == 2) {
+            final List<DataItemOption> dataItemOptions = isvDataService.listModelAttrOption(args[1]);
+            if(CollectionUtil.isNotEmpty(dataItemOptions)) {
+                results = dataItemOptions;
+                final String keyPrefix = String.join(DataItemOption.SPLIT, args);
+                dataItemOptions.forEach(item -> {
+                    item.setValue(keyPrefix + DataItemOption.SPLIT + item.getValue());
+                    calcOptions.forEach(calc -> {
+                        try {
+                            item.asName().addChild(calc.clone());
+                        } catch (CloneNotSupportedException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                });
+            }
         } else {
-            return Collections.emptyList();
+
         }
 
-        return dataItemOptions;
+        return results;
     }
 }

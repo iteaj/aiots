@@ -38,7 +38,16 @@ public class IotViewResult extends AbstractResult {
     }
 
     public static IotViewResult Fail(String msg) {
-        return Fail(msg, HttpResult.DEFAULT_ERROR_CODE);
+        return Fail(msg, -HttpResult.DEFAULT_ERROR_CODE);
+    }
+
+    /**
+     * 失败但前端不进行跳转失败页
+     * @param msg
+     * @return
+     */
+    public static IotViewResult FailNotJump(String msg) {
+        return Fail(msg, -HttpResult.DEFAULT_ERROR_CODE);
     }
 
     public static IotViewResult Fail(String msg, int code) {

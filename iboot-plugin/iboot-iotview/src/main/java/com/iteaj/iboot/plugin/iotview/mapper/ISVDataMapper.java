@@ -2,13 +2,17 @@ package com.iteaj.iboot.plugin.iotview.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.Mapper;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
+import com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto;
 
 import java.util.List;
 
 public interface ISVDataMapper extends Mapper {
 
-    List<DataItemOption> listProductOption();
+    List<DataItemOption> listProductOption(boolean hasGateway);
 
-    List<DataItemOption> listModelAttrOption(String productId);
+    List<DataItemOption> listModelAttrOption(String productCode);
 
+    List<DataItemOption> listGroupOption();
+
+    DeviceStatusCountDto countDeviceStatus(String status, String range, String rangeValue);
 }

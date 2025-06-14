@@ -1,9 +1,12 @@
 package com.iteaj.framework.spi.iot.view;
 
+import cn.hutool.core.util.StrUtil;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.consts.TimeCountType;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -44,9 +47,14 @@ public class ViewApiParams {
         private String item;
 
         /**
-         * 字段
+         * 名
          */
-        private String field;
+        private String name;
+
+        /**
+         * 值
+         */
+        private String value;
 
         /**
          * 计算类型(count, min, max, avg, sum, ...)
@@ -54,11 +62,6 @@ public class ViewApiParams {
         private String calcType;
 
         /**
-         * 统计范围
-         * all 所有
-         * product 产品
-         * group 设备组
-         * device 指定设备
          */
         private String range;
 
@@ -67,5 +70,24 @@ public class ViewApiParams {
          */
         private String rangeValue;
 
+        private List<String> values;
+
+        public Value build() {
+            if(StrUtil.isNotBlank(this.getValue())) {
+                this.values = Arrays.asList(this.getValue().split(DataItemOption.SPLIT));
+            } else {
+                throw new ServiceException("项格式错误");
+            }
+
+            return this;
+        }
+
+        public String getValueItem(int index) {
+            if(values == null) {
+                build();
+            }
+
+            return this.values.get(index);
+        }
     }
 }

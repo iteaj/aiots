@@ -1,8 +1,10 @@
 package com.iteaj.framework.spi.iot.view;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.exception.ServiceException;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +49,27 @@ public final class ViewApiManager {
         return viewApiItem.loadOptions(split);
     }
 
-    public static Object fetch(ViewApiParams params) {
-        return null;
+    public static List<ViewFetchResult> fetch(ViewApiParams params) {
+        List<ViewFetchResult> result = new ArrayList<>();
+        final List<ViewApiParams.Value> values = params.getValues();
+        if(CollectionUtil.isNotEmpty(values)) {
+            final Map<String, List<ViewApiParams.Value>> listMap = values.stream()
+                    .collect(Collectors.groupingBy(item -> item.getValueItem(0)));
+            listMap.forEach((key, valueList) -> {
+                if(!itemMap.containsKey(key)) {
+                    throw new ServiceException("未找到处理接口");
+                }
+            });
+
+            listMap.forEach((key, valueList) -> {
+                final ViewApiItem viewApiItem = itemMap.get(key);
+                final List<ViewFetchResult> results = viewApiItem.fetch(valueList, params);
+                result.addAll(results);
+            });
+        } else {
+            throw new ServiceException("没有提供统计项");
+        }
+
+        return result;
     }
 }
