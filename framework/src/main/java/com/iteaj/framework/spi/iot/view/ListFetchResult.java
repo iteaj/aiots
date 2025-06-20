@@ -14,6 +14,11 @@ public class ListFetchResult extends ViewFetchResult {
         super(item, values);
     }
 
+    public ListFetchResult addValue(BaseEchartsCount value) {
+        getValue().add(value);
+        return this;
+    }
+
     @Override
     public List<BaseEchartsCount> getValue() {
         return (List<BaseEchartsCount>) super.getValue();

@@ -14,5 +14,11 @@ public interface ISVDataMapper extends Mapper {
 
     List<DataItemOption> listGroupOption();
 
-    DeviceStatusCountDto countDeviceStatus(String status, String range, String rangeValue);
+    List<DeviceStatusCountDto> countDeviceStatus(String status, String range, List<String> values);
+
+    List<DataItemOption> listDeviceOptions(String productCode);
+
+    List<DeviceStatusCountDto> countDeviceStatusByTime(String status, String range, List<String> values);
+
+    List<DeviceStatusCountDto> countDeviceStatusByRange(String status, String range, List<String> values);
 }

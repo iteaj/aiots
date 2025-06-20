@@ -15,5 +15,5 @@ public interface ISVDataService {
 
     List<DataItemOption> listDeviceOptions(String productCode);
 
-    DeviceStatusCountDto countDeviceStatus(String status, String range, String rangeValue);
+    List<DeviceStatusCountDto> countDeviceStatus(String status, String category, String range, List<String> values);
 }

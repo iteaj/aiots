@@ -7,6 +7,7 @@ import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ISVDataServiceImpl implements ISVDataService {
@@ -34,11 +35,17 @@ public class ISVDataServiceImpl implements ISVDataService {
 
     @Override
     public List<DataItemOption> listDeviceOptions(String productCode) {
-        return null;
+        return isvDataMapper.listDeviceOptions(productCode);
     }
 
     @Override
-    public DeviceStatusCountDto countDeviceStatus(String status, String range, String rangeValue) {
-        return isvDataMapper.countDeviceStatus(status, range, rangeValue);
+    public List<DeviceStatusCountDto> countDeviceStatus(String status, String category, String range, List<String> values) {
+        if(Objects.equals(category, "time")) {
+            return isvDataMapper.countDeviceStatusByTime(status, range, values);
+        } else if(Objects.equals(category, "range")) {
+            return isvDataMapper.countDeviceStatusByRange(status, range, values);
+        } else { // void
+            return isvDataMapper.countDeviceStatus(status, range, values);
+        }
     }
 }

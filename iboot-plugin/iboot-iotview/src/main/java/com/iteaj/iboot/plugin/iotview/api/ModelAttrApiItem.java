@@ -1,10 +1,8 @@
 package com.iteaj.iboot.plugin.iotview.api;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.iteaj.framework.spi.iot.view.DataItemOption;
-import com.iteaj.framework.spi.iot.view.ViewApiItem;
-import com.iteaj.framework.spi.iot.view.ViewApiParams;
-import com.iteaj.framework.spi.iot.view.ViewFetchResult;
+import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
+import com.iteaj.framework.spi.iot.view.*;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +46,21 @@ public class ModelAttrApiItem implements ViewApiItem {
 
     @Override
     public List<ViewFetchResult> fetch(List<ViewApiParams.Value> values, ViewApiParams params) {
-        return null;
+        return Arrays.asList(new ListFetchResult("温度", Arrays.asList(
+                new BaseEchartsCount("2025-01", 30),
+                new BaseEchartsCount("2025-02", 50),
+                new BaseEchartsCount("2025-03", 70),
+                new BaseEchartsCount("2025-04", 90),
+                new BaseEchartsCount("2025-05", 88)
+                )
+            )
+            , new ListFetchResult("湿度", Arrays.asList(
+                    new BaseEchartsCount("2025-01", 28),
+                    new BaseEchartsCount("2025-02", 54),
+                    new BaseEchartsCount("2025-03", 42),
+                    new BaseEchartsCount("2025-04", 19),
+                    new BaseEchartsCount("2025-05", 38)
+            )));
     }
 
     @Override

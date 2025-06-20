@@ -26,8 +26,8 @@ public class ViewApiParams {
 
     /**
      * 时间范围(格式 yyyy-MM-dd HH:mm)
-     * 1. 支持具体的时间 如：2024-01-10 15:00 - 2024-01-16 15:00
-     * 2. 支持now关键字 如：now-6 - now
+     * 1. 支持具体的时间 如：2024-01-10 15:00,2024-01-16 15:00
+     * 2. 支持now关键字 如：now-6,now
      * @see #timeType
      */
     private List<String> timeRange;
@@ -36,6 +36,41 @@ public class ViewApiParams {
      * 值条件
      */
     private List<Value> values;
+
+    /**
+     * 范围值
+     */
+    private String rangeValue;
+
+    /**
+     * 产品轴类型(time, range)
+     */
+    private String category;
+
+    /**
+     * 范围类型(all、product、device、group...)
+     */
+    private String range;
+
+    /**
+     * 范围值(产品列表, 设备列表, 分组列表, ...)
+     */
+    private List<String> ranges;
+
+    public void setRangeValue(String rangeValue) {
+        this.rangeValue = rangeValue;
+        if(StrUtil.isNotBlank(rangeValue)) {
+            final String[] split = rangeValue.split(DataItemOption.SPLIT);
+            if(split.length == 1) {
+                this.range = split[0];
+            } else if(split.length > 1) {
+                this.range = split[0];
+                this.ranges = Arrays.asList(split[1].split(","));
+            } else {
+
+            }
+        }
+    }
 
     @Getter
     @Setter
@@ -61,20 +96,16 @@ public class ViewApiParams {
          */
         private String calcType;
 
-        /**
-         */
-        private String range;
-
-        /**
-         * 范围值
-         */
-        private String rangeValue;
-
         private List<String> values;
 
         public Value build() {
+            if(values != null) {
+                return this;
+            }
+
             if(StrUtil.isNotBlank(this.getValue())) {
                 this.values = Arrays.asList(this.getValue().split(DataItemOption.SPLIT));
+                this.calcType = this.values.get(this.values.size() - 1);
             } else {
                 throw new ServiceException("项格式错误");
             }
@@ -85,6 +116,9 @@ public class ViewApiParams {
         public String getValueItem(int index) {
             if(values == null) {
                 build();
+            }
+            if(index > (this.values.size() - 1)) {
+                return "";
             }
 
             return this.values.get(index);

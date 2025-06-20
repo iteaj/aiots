@@ -16,4 +16,9 @@ public class DeviceStatusCountDto {
      * 总值
      */
     private int total;
+
+    /**
+     * 类别名称
+     */
+    private String name;
 }

@@ -98,7 +98,11 @@ public class ISVDataController {
         if(Objects.equals(args[0], "device")) {
             List<DataItemOption> devices = isvDataService.listDeviceOptions(args[1]);
             if(CollectionUtil.isNotEmpty(devices)) {
+                devices.forEach(item -> {
+                    item.setValue(key + DataItemOption.SPLIT + item.getValue()).setLeaf(true);
+                });
 
+                return IotViewResult.Success(devices);
             }
         }
         return IotViewResult.Success(Collections.EMPTY_LIST);
