@@ -1,6 +1,8 @@
 package com.iteaj.iboot.plugin.iotview.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.view.ViewApiManager;
 import com.iteaj.framework.spi.iot.view.ViewApiParams;
@@ -21,7 +23,7 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping("/isv/data")
-public class ISVDataController {
+public class ISVDataController extends BaseController {
 
     private final ISVDataService isvDataService;
 
@@ -118,7 +120,10 @@ public class ISVDataController {
         try {
             final List<ViewFetchResult> results = ViewApiManager.fetch(params);
             return FetchResult.builder(params.getChart(), IotViewResult.Success(results));
+        } catch (ServiceException e) {
+            return FetchResult.FailNotJump(e.getMessage());
         } catch (Exception e) {
+            logger.error("fetch接口未知异常", e);
             return FetchResult.FailNotJump("获取数据异常");
         }
     }

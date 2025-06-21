@@ -40,9 +40,7 @@ public class ISVDataServiceImpl implements ISVDataService {
 
     @Override
     public List<DeviceStatusCountDto> countDeviceStatus(String status, String category, String range, List<String> values) {
-        if(Objects.equals(category, "time")) {
-            return isvDataMapper.countDeviceStatusByTime(status, range, values);
-        } else if(Objects.equals(category, "range")) {
+        if(Objects.equals(category, "range")) {
             return isvDataMapper.countDeviceStatusByRange(status, range, values);
         } else { // void
             return isvDataMapper.countDeviceStatus(status, range, values);

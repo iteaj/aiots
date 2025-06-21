@@ -8,6 +8,7 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.data.BaseCondition;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.EchartsCountValue;
+import com.iteaj.framework.spi.iot.data.TimeRangeResolver;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,17 +30,18 @@ public class TimeCountCondition extends BaseCondition{
      */
     private CountCalcType calcType = CountCalcType.count;
 
-    private List<BaseEchartsCount> timeEmptyValue = new ArrayList<>();
+    private List<BaseEchartsCount> timeEmptyValue;
 
     public List<TimeCountSqlCondition> buildSqlConditions() {
         validateCondition();
         List<TimeCountSqlCondition> conditions = new ArrayList<>();
-        String[] resolverTime = resolverTime();
         List<BaseCondition.ValueMeta> resolverValue = resolverValue(this.getValue());
+        final TimeRangeResolver resolver = new TimeRangeResolver(this.getTimeType(), this.getTimeRange());
+        timeEmptyValue = resolver.getEmptyCounts();
         if(CollectionUtil.isNotEmpty(resolverValue)) {
             resolverValue.forEach(meta -> {
                 TimeCountSqlCondition condition = new TimeCountSqlCondition(this.getTimeType()
-                        , this.calcType, resolverTime[0], resolverTime[1]);
+                        , this.calcType, resolver.getStartTime(), resolver.getEndTime());
                 if(meta.getType().equals("D")) {
                     conditions.add(condition.buildDevice(meta.getValue(), meta.getFields()));
                 } else if(meta.getType().equals("P")) {
@@ -49,137 +51,10 @@ public class TimeCountCondition extends BaseCondition{
                 }
             });
         } else {
-            conditions.add(new TimeCountSqlCondition(this.getTimeType(), this.calcType, resolverTime[0], resolverTime[1]));
+            conditions.add(new TimeCountSqlCondition(this.getTimeType(), this.calcType, resolver.getStartTime(), resolver.getEndTime()));
         }
 
         return conditions;
-    }
-
-    public String[] resolverTime() {
-        TimeCountCondition condition = this;
-        String[] result = new String[]{condition.getTimeRange().get(0), condition.getTimeRange().get(1)};
-        TimeCountType timeType = condition.getTimeType();
-        DateTime startTime, endTime;
-        int startOffset = 0, endOffset = 0;
-        if(result[0].trim().equalsIgnoreCase("now")) {
-            startTime = new DateTime();
-        } else if(result[0].contains("now")) {
-            startTime = new DateTime();
-            String replaceAll = result[0].replaceAll(" ", "");
-            if(replaceAll.contains("+")) {
-                startOffset = 0 + Integer.valueOf(replaceAll.substring(4));
-            } else if(replaceAll.contains("-")) {
-                startOffset = 0 - Integer.valueOf(replaceAll.substring(4));
-            } else {
-                throw new ServiceException("不支持的时间操作符");
-            }
-        } else {
-            startTime = DateUtil.parse(result[0], "yyyy-MM-dd HH:mm:ss");
-        }
-
-        if(result[1].trim().equalsIgnoreCase("now")) {
-            endTime = new DateTime(); endOffset = endOffset + 1;
-        } else if(result[1].contains("now")) {
-            endTime = new DateTime();
-            String replaceAll = result[1].replaceAll(" ", "");
-            if(replaceAll.contains("+")) {
-                endOffset = 1 + Integer.valueOf(replaceAll.substring(4));
-            } else if(replaceAll.contains("-")) {
-                endOffset = 1 - Integer.valueOf(replaceAll.substring(4));
-            } else {
-                throw new ServiceException("不支持的时间操作符");
-            }
-        } else {
-            endOffset = endOffset + 1;
-            endTime = DateUtil.parse(result[1], "yyyy-MM-dd HH:mm:ss");
-        }
-
-        if(timeType == TimeCountType.year) {
-            DateTime startDateTime = startTime.offset(DateField.YEAR, startOffset).setField(DateField.MONTH, 0)
-                    .setField(DateField.DAY_OF_MONTH, 1).setField(DateField.HOUR_OF_DAY, 0)
-                    .setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0)
-                    .setField(DateField.MILLISECOND, 0);
-            result[0] = "" + startDateTime.getTime();
-            DateTime endDateTime = endTime.offset(DateField.YEAR, endOffset).setField(DateField.MONTH, 0)
-                    .setField(DateField.DAY_OF_MONTH, 1).setField(DateField.HOUR_OF_DAY, 0)
-                    .setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0)
-                    .setField(DateField.MILLISECOND, 0);
-            result[1] = "" + (endDateTime.getTime() - 1);
-            DateTime tempDate = startDateTime;
-            while (tempDate.getTime() <= (endDateTime.getTime() - 1)) {
-                String time = tempDate.toString("yyyy");
-                timeEmptyValue.add(new BaseEchartsCount(time, 0));
-                tempDate = tempDate.offset(DateField.YEAR, 1);
-            }
-        } else if(timeType == TimeCountType.quarter) {
-
-        } else if(timeType == TimeCountType.month) {
-            DateTime startDateTime = startTime.offset(DateField.MONTH, startOffset)
-                    .setField(DateField.DAY_OF_MONTH, 1).setField(DateField.HOUR_OF_DAY, 0)
-                    .setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0)
-                    .setField(DateField.MILLISECOND, 0);
-            result[0] = "" + startDateTime.getTime();
-            DateTime endDateTime = endTime.offset(DateField.MONTH, endOffset)
-                    .setField(DateField.DAY_OF_MONTH, 1).setField(DateField.HOUR_OF_DAY, 0)
-                    .setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0)
-                    .setField(DateField.MILLISECOND, 0);
-            result[1] = "" + (endDateTime.getTime() - 1);
-            DateTime tempDate = startDateTime;
-            while (tempDate.getTime() <= (endDateTime.getTime() - 1)) {
-                String time = tempDate.toString("yyyy-MM");
-                timeEmptyValue.add(new BaseEchartsCount(time, 0));
-                tempDate = tempDate.offset(DateField.MONTH, 1);
-            }
-        } else if(timeType == TimeCountType.week) {
-            DateTime startDateTime = startTime.offset(DateField.WEEK_OF_MONTH, startOffset)
-                    .setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0)
-                    .setField(DateField.SECOND, 0).setField(DateField.MILLISECOND, 0);
-            result[0] = "" + startDateTime.getTime();
-            DateTime endDateTime = endTime.offset(DateField.WEEK_OF_MONTH, endOffset)
-                    .setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0)
-                    .setField(DateField.SECOND, 0).setField(DateField.MILLISECOND, 0);
-            result[1] = "" + (endDateTime.getTime() - 1);
-            DateTime tempDate = startDateTime;
-            while (tempDate.getTime() <= (endDateTime.getTime() - 1)) {
-                String time = tempDate.toString("yyyy-MM-dd");
-                timeEmptyValue.add(new BaseEchartsCount(time, 0));
-                tempDate = tempDate.offset(DateField.DAY_OF_MONTH, 1);
-            }
-        } else if(timeType == TimeCountType.day) {
-            DateTime startDateTime = startTime.offset(DateField.DAY_OF_MONTH, startOffset)
-                    .setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0)
-                    .setField(DateField.SECOND, 0).setField(DateField.MILLISECOND, 0);
-            result[0] = "" + startDateTime.getTime();
-            DateTime endDateTime = endTime.offset(DateField.DAY_OF_MONTH, endOffset)
-                    .setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0)
-                    .setField(DateField.SECOND, 0).setField(DateField.MILLISECOND, 0);
-            result[1] = "" + (endDateTime.getTime() - 1);
-            DateTime tempDate = startDateTime;
-            while (tempDate.getTime() <= (endDateTime.getTime() - 1)) {
-                String time = tempDate.toString("yyyy-MM-dd");
-                timeEmptyValue.add(new BaseEchartsCount(time, 0));
-                tempDate = tempDate.offset(DateField.DAY_OF_MONTH, 1);
-            }
-        } else if(timeType == TimeCountType.hour) {
-            DateTime startDateTime = startTime.offset(DateField.HOUR_OF_DAY, startOffset)
-                    .setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0)
-                    .setField(DateField.MILLISECOND, 0);
-            result[0] = "" + startDateTime.getTime();
-            DateTime endDatetime = endTime.offset(DateField.HOUR_OF_DAY, endOffset)
-                    .setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0)
-                    .setField(DateField.MILLISECOND, 0);
-            result[1] = "" + (endDatetime.getTime() - 1);
-            DateTime tempDate = startDateTime;
-            while (tempDate.getTime() <= (endDatetime.getTime() - 1)) {
-                String time = tempDate.toString("yy-MM-dd HH");
-                timeEmptyValue.add(new BaseEchartsCount(time, 0));
-                tempDate = tempDate.offset(DateField.HOUR_OF_DAY, 1);
-            }
-        } else {
-            throw new ServiceException("不支持的时间类型["+condition.getTimeType()+"]");
-        }
-
-        return result;
     }
 
     public List<EchartsCountValue> buildResult(TimeCountSqlCondition condition, List<BaseEchartsCount> counts) {

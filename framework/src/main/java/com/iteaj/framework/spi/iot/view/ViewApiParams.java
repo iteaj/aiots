@@ -1,8 +1,10 @@
 package com.iteaj.framework.spi.iot.view;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.consts.TimeCountType;
+import com.iteaj.framework.spi.iot.data.TimeRangeResolver;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,7 +45,7 @@ public class ViewApiParams {
     private String rangeValue;
 
     /**
-     * 产品轴类型(time, range)
+     * 产品轴类型(time, range, void)
      */
     private String category;
 
@@ -56,6 +58,8 @@ public class ViewApiParams {
      * 范围值(产品列表, 设备列表, 分组列表, ...)
      */
     private List<String> ranges;
+
+    private TimeRangeResolver resolver;
 
     public void setRangeValue(String rangeValue) {
         this.rangeValue = rangeValue;
@@ -70,6 +74,18 @@ public class ViewApiParams {
 
             }
         }
+    }
+
+    public TimeRangeResolver getResolver() {
+        if(resolver != null) {
+            return resolver;
+        }
+
+        if(CollectionUtil.isNotEmpty(this.getTimeRange())) {
+            return this.resolver = new TimeRangeResolver(this.getTimeType(), this.getTimeRange());
+        }
+
+        return resolver;
     }
 
     @Getter

@@ -50,26 +50,23 @@ public final class ViewApiManager {
     }
 
     public static List<ViewFetchResult> fetch(ViewApiParams params) {
-        List<ViewFetchResult> result = new ArrayList<>();
         final List<ViewApiParams.Value> values = params.getValues();
         if(CollectionUtil.isNotEmpty(values)) {
-            final Map<String, List<ViewApiParams.Value>> listMap = values.stream()
-                    .collect(Collectors.groupingBy(item -> item.getValueItem(0)));
-            listMap.forEach((key, valueList) -> {
-                if(!itemMap.containsKey(key)) {
-                    throw new ServiceException("未找到处理接口");
-                }
-            });
+            final List<String> types = values.stream()
+                    .map(item -> item.getValueItem(0))
+                    .distinct().collect(Collectors.toList());
+            if(types.size() != 1) {
+                throw new ServiceException("数据项不支持混合统计");
+            }
 
-            listMap.forEach((key, valueList) -> {
-                final ViewApiItem viewApiItem = itemMap.get(key);
-                final List<ViewFetchResult> results = viewApiItem.fetch(valueList, params);
-                result.addAll(results);
-            });
+            final ViewApiItem apiItem = itemMap.get(types.get(0));
+            if(apiItem == null) {
+                throw new ServiceException("未找到数据项处理器");
+            }
+
+            return apiItem.fetch(params.getValues(), params);
         } else {
-            throw new ServiceException("没有提供统计项");
+            throw new ServiceException("没有提供任何数据项");
         }
-
-        return result;
     }
 }

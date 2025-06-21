@@ -30,10 +30,9 @@
     </select>
 
     <select id="countDeviceStatus" resultType="com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto">
-        select count(if(a.status=#{status}, 1, null)) value, count(1) total, b.name from iot_device a
+        select count(if(a.status=#{status}, 1, null)) value, count(1) total from iot_device a
         <if test="range == 'device'">
-            left join iot_device b on a.id=b.id
-            where uid in (
+            where a.uid in (
             <foreach collection="values" separator="," item="uid">
                 #{uid}
             </foreach>
@@ -48,8 +47,7 @@
             )
         </if>
         <if test="range == 'group'">
-            right join iot_device_group b on a.device_group_id=b.id
-            where b.id in (
+            where a.device_group_id in (
             <foreach collection="values" separator="," item="groupId">
                 #{groupId}
             </foreach>
@@ -61,9 +59,7 @@
             right join iot_product p on a.product_id = p.id
         where p.code = #{productCode}
     </select>
-    <select id="countDeviceStatusByTime" resultType="com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto">
-        select count(if(a.status=#{status}, 1, null)) value, count(1) total from iot_device a
-    </select>
+
     <select id="countDeviceStatusByRange" resultType="com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto">
         select count(if(a.status=#{status}, 1, null)) value, count(1) total, b.name from iot_device a
         <if test="range == 'device'">
@@ -91,6 +87,9 @@
             </foreach>
             )
             group by b.id
+        </if>
+        <if test="range == 'all'">
+            left join iot_device b on a.id=b.id
         </if>
     </select>
 

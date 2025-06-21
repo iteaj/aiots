@@ -183,5 +183,148 @@
         </where>
         group by a.cid, a.uid
     </select>
+    <select id="countOfViewByTime" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
+        <if test="calcType == 'count'">
+            select count(1) value, field,
+        </if>
+        <if test="calcType == 'avg'">
+            select avg(value) value, field,
+        </if>
+        <if test="calcType == 'max'">
+            select max(value) value, field,
+        </if>
+        <if test="calcType == 'min'">
+            select min(value) value, field,
+        </if>
+        <if test="timeType == 'year'">
+            date_format(collect_time, '%Y')
+        </if>
+        <if test="timeType == 'month'">
+            date_format(collect_time, '%Y-%m') category
+        </if>
+        <if test="timeType == 'day'">
+            date_format(collect_time, '%Y-%m-%d') category
+        </if>
+        <if test="timeType == 'quarter'">
+            concat(date_format(collect_time, '%Y'),'/', quarter(collect_time)) category
+        </if>
+        <if test="timeType == 'hour'">
+            date_format(collect_time, '%y-%m-%d %H') category
+        </if>
+        from iot_collect_data
+        <if test="range == 'product'">
+            where field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and product_code in (
+            <foreach collection="ranges" separator="," item="productCode">
+                #{productCode}
+            </foreach>
+            )
+        </if>
+        <if test="range == 'device'">
+            where field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and uid in (
+            <foreach collection="ranges" separator="," item="uid">
+                #{uid}
+            </foreach>
+            )
+        </if>
+        <if test="range == 'group'">
+            where product_code=#{productCode} and field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and device_group_id in (
+            <foreach collection="ranges" separator="," item="groupId">
+                #{groupId}
+            </foreach>
+            )
+        </if>
+        <if test="range == 'all'">
+            where product_code=#{productCode} and field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime})
+        </if>
+        group by category
+    </select>
+    <select id="countOfViewByRange" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
+        <if test="range == 'product'">
+            select ifnull(value, 0) value, field, b.name category from (
+                <if test="calcType == 'count'">
+                    select count(1) value, field, product_code
+                </if>
+                <if test="calcType == 'avg'">
+                    select avg(value) value, field, product_code
+                </if>
+                <if test="calcType == 'max'">
+                    select max(value) value, field, product_code
+                </if>
+                <if test="calcType == 'min'">
+                    select min(value) value, field, product_code
+                </if>
+                from iot_collect_data
+                where field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and product_code in (
+                    <foreach collection="ranges" separator="," item="productCode">
+                        #{productCode}
+                    </foreach>
+                )
+            ) as a right join iot_product b on a.product_code = b.code
+            where b.code in (
+                <foreach collection="ranges" separator="," item="productCode">
+                    #{productCode}
+                </foreach>
+            )
+            group by b.code
+        </if>
+        <if test="range == 'device'">
+            select ifnull(value, 0) value, field, b.name category from (
+                <if test="calcType == 'count'">
+                    select count(1) value, field, uid
+                </if>
+                <if test="calcType == 'avg'">
+                    select avg(value) value, field, uid
+                </if>
+                <if test="calcType == 'max'">
+                    select max(value) value, field, uid
+                </if>
+                <if test="calcType == 'min'">
+                    select min(value) value, field, uid
+                </if>
+                from iot_collect_data
+                where field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and uid in (
+                <foreach collection="ranges" separator="," item="uid">
+                    #{uid}
+                </foreach>
+                )
+            ) as a
+            right join iot_device b on b.uid=a.uid
+            where b.uid in (
+                <foreach collection="ranges" separator="," item="uid">
+                    #{uid}
+                </foreach>
+            )
+            group by b.uid
+        </if>
+        <if test="range == 'group'">
+            select ifnull(value, 0) value, field, b.name category from (
+                <if test="calcType == 'count'">
+                    select count(1) value, field, device_group_id
+                </if>
+                <if test="calcType == 'avg'">
+                    select avg(value) value, field, device_group_id
+                </if>
+                <if test="calcType == 'max'">
+                    select max(value) value, field, device_group_id
+                </if>
+                <if test="calcType == 'min'">
+                    select min(value) value, field, device_group_id
+                </if>
+                from iot_collect_data
+                where product_code=#{productCode} and field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and device_group_id in (
+                    <foreach collection="ranges" separator="," item="groupId">
+                        #{groupId}
+                    </foreach>
+                )
+            ) as a
+            right join iot_device_group b on b.id=a.device_group_id
+            where b.id in (
+                <foreach collection="ranges" separator="," item="groupId">
+                    #{groupId}
+                </foreach>
+            )
+            group by b.id
+        </if>
+    </select>
 
 </mapper>
