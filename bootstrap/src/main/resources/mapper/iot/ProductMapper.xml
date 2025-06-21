@@ -207,7 +207,7 @@
     <select id="listBatchModel" resultType="com.iteaj.iboot.module.iot.dto.BatchModelDto">
         select a.*, b.direct, b.name apiName, b.code apiCode, group_concat(concat(cc.protocol_attr_field, '->', cc.value) separator ':::') apiDownConfig from iot_model_attr a
             left join iot_product p on a.product_id = p.id
-            left join iot_model_api_config c on a.product_id = c.product_id and a.id = c.model_attr_id
+            left join iot_model_api_config c on a.product_id = c.product_id and a.id = c.model_attr_id and c.direction='UP'
             left join iot_model_api_config cc on cc.api_code = c.api_code and cc.id != c.id
             left join iot_model_api b on cc.api_code = b.code and b.type = 'event'
         <where>
