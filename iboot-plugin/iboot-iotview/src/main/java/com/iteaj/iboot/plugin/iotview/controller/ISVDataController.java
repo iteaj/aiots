@@ -62,7 +62,7 @@ public class ISVDataController extends BaseController {
         result.add(product);
         result.add(group);
         result.add(device);
-        result.add(0, new DataItemOption("所有设备", "all", true).asName());
+        result.add(0, new DataItemOption("按所有", "all", true).asName());
         final List<DataItemOption> groupOptions = isvDataService.listGroupOption();
         final List<DataItemOption> productOptions = isvDataService.listProductOption(true);
         if(CollectionUtil.isNotEmpty(groupOptions)) {

@@ -95,6 +95,24 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
     private Date createTime;
 
     /**
+     * 产品码
+     */
+    @IotField(value = "product_code")
+    private String productCode;
+
+    /**
+     * 协议码
+     */
+    @IotField(value = "protocol_code")
+    private String protocolCode;
+
+    /**
+     * 所属组
+     */
+    @IotField(value = "device_group_id")
+    private Long deviceGroupId;
+
+    /**
      * 采集状态
      */
     private CollectStatus collectStatus;
@@ -125,20 +143,5 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
     @Override
     public Long getTaskId() {
         return getCollectTaskId();
-    }
-
-    @Override
-    public String getProtocolCode() {
-        return null;
-    }
-
-    @Override
-    public String getProductCode() {
-        return null;
-    }
-
-    @Override
-    public Long getDeviceGroupId() {
-        return null;
     }
 }

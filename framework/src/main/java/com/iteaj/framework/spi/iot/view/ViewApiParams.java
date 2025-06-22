@@ -35,7 +35,7 @@ public class ViewApiParams {
     private List<String> timeRange;
 
     /**
-     * 值条件
+     * 数据项
      */
     private List<Value> values;
 
@@ -69,7 +69,7 @@ public class ViewApiParams {
                 this.range = split[0];
             } else if(split.length > 1) {
                 this.range = split[0];
-                this.ranges = Arrays.asList(split[1].split(","));
+                this.ranges = Arrays.asList(split[split.length - 1].split(","));
             } else {
 
             }

@@ -13,3 +13,21 @@ create table isv_project (
     create_time datetime default now() not null comment '创建时间',
     constraint isv_project_pk primary key (id)
 ) comment '大屏项目';
+
+alter table iot_collect_data
+    add product_code varchar(64) null comment '产品编码';
+
+alter table iot_collect_data
+    add protocol_code varchar(64) null comment '协议编码';
+
+alter table iot_collect_data
+    add device_group_id bigint null comment '所属组';
+
+create index iot_collect_data_device_group_id_index
+    on iot_collect_data (device_group_id);
+
+create index iot_collect_data_protocol_code_index
+    on iot_collect_data (protocol_code);
+
+create index iot_collect_data_product_code_index
+    on iot_collect_data (product_code);

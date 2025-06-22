@@ -220,7 +220,7 @@
             )
         </if>
         <if test="range == 'device'">
-            where field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and uid in (
+            where product_code=#{productCode} and field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and uid in (
             <foreach collection="ranges" separator="," item="uid">
                 #{uid}
             </foreach>
@@ -282,7 +282,7 @@
                     select min(value) value, field, uid
                 </if>
                 from iot_collect_data
-                where field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and uid in (
+                where product_code=#{productCode} and field = #{field} and (UNIX_TIMESTAMP(collect_time) * 1000 between #{startTime} and #{endTime}) and uid in (
                 <foreach collection="ranges" separator="," item="uid">
                     #{uid}
                 </foreach>
