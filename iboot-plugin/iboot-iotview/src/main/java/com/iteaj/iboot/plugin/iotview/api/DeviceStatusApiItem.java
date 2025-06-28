@@ -64,6 +64,10 @@ public class DeviceStatusApiItem implements ViewApiItem {
             throw new ServiceException("未指定产品轴配置");
         }
 
+        if(params.isTable()) {
+            throw new ServiceException("设备状态不支持表格组件");
+        }
+
         List<ViewFetchResult> results = new ArrayList<>(values.size());
         if(Objects.equals("range", params.getCategory())) {
             Map<String, ListFetchResult> maps = new LinkedHashMap<>();

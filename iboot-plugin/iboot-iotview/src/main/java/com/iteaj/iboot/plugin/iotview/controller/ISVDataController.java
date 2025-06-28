@@ -41,11 +41,29 @@ public class ISVDataController extends BaseController {
     }
 
     /**
+     * 表格数据项配置
+     * @return
+     */
+    @GetMapping("table/options")
+    public Result<List<DataItemOption>> tableOptions() {
+        return IotViewResult.Success(ViewApiManager.options());
+    }
+
+    /**
      * 加载配置项
      * @return
      */
     @GetMapping("load")
     public Result<List<DataItemOption>> load(String key) {
+        return IotViewResult.Success(ViewApiManager.loadOptions(key));
+    }
+
+    /**
+     * 表格加载配置项
+     * @return
+     */
+    @GetMapping("table/load")
+    public Result<List<DataItemOption>> tableLoad(String key) {
         return IotViewResult.Success(ViewApiManager.loadOptions(key));
     }
 

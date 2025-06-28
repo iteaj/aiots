@@ -32,6 +32,14 @@ public final class ViewApiManager {
 
     public static List<DataItemOption> options() {
         return itemMap.values().stream()
+                .filter(item -> !(item instanceof ViewTableApiItem))
+                .flatMap(item -> item.basicOptions().stream())
+                .collect(Collectors.toList());
+    }
+
+    public static List<DataItemOption> tableOptions() {
+        return itemMap.values().stream()
+                .filter(item -> (item instanceof ViewTableApiItem))
                 .flatMap(item -> item.basicOptions().stream())
                 .collect(Collectors.toList());
     }

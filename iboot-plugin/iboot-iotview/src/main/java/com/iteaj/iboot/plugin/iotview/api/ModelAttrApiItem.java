@@ -19,6 +19,7 @@ public class ModelAttrApiItem implements ViewApiItem {
     private final ISVDataService isvDataService;
     private final RealtimeCollectDataService collectDataService;
     private List<DataItemOption> calcOptions = Arrays.asList(
+            new DataItemOption("求和", "sum", true).asName(),
             new DataItemOption("数量统计", "count", true).asName(),
             new DataItemOption("求平均值", "avg", true).asName(),
             new DataItemOption("求最大值", "max", true).asName(),

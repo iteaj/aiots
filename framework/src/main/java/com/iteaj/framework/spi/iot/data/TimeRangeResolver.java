@@ -71,7 +71,7 @@ public class TimeRangeResolver {
                     .setField(DateField.DAY_OF_MONTH, 1).setField(DateField.HOUR_OF_DAY, 0)
                     .setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0)
                     .setField(DateField.MILLISECOND, 0);
-            result[1] = "" + (endDateTime.getTime() - 1);
+            result[1] = "" + (endDateTime.getTime() - 1000);
             DateTime tempDate = startDateTime;
             while (tempDate.getTime() <= (endDateTime.getTime() - 1)) {
                 String time = tempDate.toString("yyyy");
@@ -92,7 +92,7 @@ public class TimeRangeResolver {
                     .setField(DateField.MILLISECOND, 0);
             result[1] = "" + (endDateTime.getTime() - 1);
             DateTime tempDate = startDateTime;
-            while (tempDate.getTime() <= (endDateTime.getTime() - 1)) {
+            while (tempDate.getTime() <= (endDateTime.getTime() - 1000)) {
                 String time = tempDate.toString("yyyy-MM");
                 emptyCounts.add(new BaseEchartsCount(time, 0));
                 tempDate = tempDate.offset(DateField.MONTH, 1);
@@ -105,7 +105,7 @@ public class TimeRangeResolver {
             DateTime endDateTime = endTime.offset(DateField.WEEK_OF_MONTH, endOffset)
                     .setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0)
                     .setField(DateField.SECOND, 0).setField(DateField.MILLISECOND, 0);
-            result[1] = "" + (endDateTime.getTime() - 1);
+            result[1] = "" + (endDateTime.getTime() - 1000);
             DateTime tempDate = startDateTime;
             while (tempDate.getTime() <= (endDateTime.getTime() - 1)) {
                 String time = tempDate.toString("yyyy-MM-dd");
@@ -120,7 +120,7 @@ public class TimeRangeResolver {
             DateTime endDateTime = endTime.offset(DateField.DAY_OF_MONTH, endOffset)
                     .setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0)
                     .setField(DateField.SECOND, 0).setField(DateField.MILLISECOND, 0);
-            result[1] = "" + (endDateTime.getTime() - 1);
+            result[1] = "" + (endDateTime.getTime() - 1000);
             DateTime tempDate = startDateTime;
             while (tempDate.getTime() <= (endDateTime.getTime() - 1)) {
                 String time = tempDate.toString("yyyy-MM-dd");
@@ -135,7 +135,7 @@ public class TimeRangeResolver {
             DateTime endDatetime = endTime.offset(DateField.HOUR_OF_DAY, endOffset)
                     .setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0)
                     .setField(DateField.MILLISECOND, 0);
-            result[1] = "" + (endDatetime.getTime() - 1);
+            result[1] = "" + (endDatetime.getTime() - 1000);
             DateTime tempDate = startDateTime;
             while (tempDate.getTime() <= (endDatetime.getTime() - 1)) {
                 String time = tempDate.toString("yyyy-MM-dd HH");

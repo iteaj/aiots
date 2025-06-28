@@ -187,6 +187,9 @@
         <if test="calcType == 'count'">
             select count(1) value, field,
         </if>
+        <if test="calcType == 'sum'">
+            select sum(value) value, field,
+        </if>
         <if test="calcType == 'avg'">
             select avg(value) value, field,
         </if>
@@ -244,6 +247,9 @@
                 <if test="calcType == 'count'">
                     select count(1) value, field, product_code
                 </if>
+                <if test="calcType == 'sum'">
+                    select sum(value) value, field, product_code
+                </if>
                 <if test="calcType == 'avg'">
                     select avg(value) value, field, product_code
                 </if>
@@ -271,6 +277,9 @@
             select ifnull(value, 0) value, field, b.name category from (
                 <if test="calcType == 'count'">
                     select count(1) value, field, uid
+                </if>
+                <if test="calcType == 'sum'">
+                    select sum(value) value, field, uid
                 </if>
                 <if test="calcType == 'avg'">
                     select avg(value) value, field, uid
@@ -300,6 +309,9 @@
             select ifnull(value, 0) value, field, b.name category from (
                 <if test="calcType == 'count'">
                     select count(1) value, field, device_group_id
+                </if>
+                <if test="calcType == 'sum'">
+                    select sum(value) value, field, device_group_id
                 </if>
                 <if test="calcType == 'avg'">
                     select avg(value) value, field, device_group_id

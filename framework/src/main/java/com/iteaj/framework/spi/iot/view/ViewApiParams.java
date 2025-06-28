@@ -88,6 +88,10 @@ public class ViewApiParams {
         return resolver;
     }
 
+    public boolean isTable() {
+        return this.chart != null ? this.chart.startsWith("Table") : false;
+    }
+
     @Getter
     @Setter
     public static class Value {
