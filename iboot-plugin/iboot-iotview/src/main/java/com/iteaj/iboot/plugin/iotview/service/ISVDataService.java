@@ -9,7 +9,7 @@ public interface ISVDataService {
 
     List<DataItemOption> listProductOption(boolean isGateway);
 
-    List<DataItemOption> listModelAttrOption(String productId);
+    List<DataItemOption> listModelAttrOption(String productCode);
 
     List<DataItemOption> listGroupOption();
 

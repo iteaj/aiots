@@ -16,7 +16,7 @@
                 and device_type != 'Gateway'
             </if>
         </where>
-        group by a.id order by a.device_type asc, create_time desc
+        order by a.device_type asc, create_time desc
     </select>
 
     <select id="listModelAttrOption" resultMap="BaseResultMap">
@@ -56,8 +56,9 @@
     </select>
     <select id="listDeviceOptions" resultMap="BaseResultMap">
         select a.name label, a.uid code from iot_device a
-            right join iot_product p on a.product_id = p.id
-        where p.code = #{productCode}
+        <if test="productCode != null and productCode != ''">
+            left join iot_product p on a.product_id = p.id where p.code = #{productCode}
+        </if>
     </select>
 
     <select id="countDeviceStatusByRange" resultType="com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto">

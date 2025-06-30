@@ -1,15 +1,14 @@
 package com.iteaj.iboot.plugin.iotview.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.BaseController;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.spi.iot.view.ViewApiManager;
-import com.iteaj.framework.spi.iot.view.ViewApiParams;
-import com.iteaj.framework.spi.iot.view.ViewFetchResult;
+import com.iteaj.framework.spi.iot.view.*;
 import com.iteaj.iboot.plugin.iotview.FetchResult;
 import com.iteaj.iboot.plugin.iotview.IotViewResult;
-import com.iteaj.framework.spi.iot.view.DataItemOption;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +25,6 @@ import java.util.Objects;
 public class ISVDataController extends BaseController {
 
     private final ISVDataService isvDataService;
-
     public ISVDataController(ISVDataService isvDataService) {
         this.isvDataService = isvDataService;
     }
@@ -47,6 +45,46 @@ public class ISVDataController extends BaseController {
     @GetMapping("table/options")
     public Result<List<DataItemOption>> tableOptions() {
         return IotViewResult.Success(ViewApiManager.options());
+    }
+
+    /**
+     * 表格数据项配置
+     * @return
+     */
+    @GetMapping("device/options")
+    public Result<List<DataItemOption>> deviceOptions(String productCode) {
+        final List<DataItemOption> dataItemOptions = isvDataService.listDeviceOptions(productCode);
+        return IotViewResult.Success(dataItemOptions);
+    }
+
+    /**
+     * 物模型属性等项配置
+     * @return
+     */
+    @GetMapping("realtime/options")
+    public Result<List<DataItemOption>> realtimeOptions(String key) {
+        List<DataItemOption> results = new ArrayList<>();
+        if(StrUtil.isBlank(key)) {
+            results.add(new DataItemOption("物模型属性", ViewRealtimeData.Attr_PREFIX));
+            results.add(new DataItemOption("设备状态", ViewRealtimeData.STATUS_PREFIX));
+            final List<DataItemOption> attrProduct = isvDataService.listProductOption(false);
+            if(CollectionUtil.isNotEmpty(attrProduct)) {
+                attrProduct.forEach(dataItemOption -> results.get(0).addChild(dataItemOption));
+            }
+            final List<DataItemOption> deviceProduct = isvDataService.listProductOption(true);
+            if(CollectionUtil.isNotEmpty(deviceProduct)) {
+                deviceProduct.forEach(dataItemOption -> results.get(1).addChild(dataItemOption.setLeaf(true)));
+            }
+        } else {
+            final String[] split = key.split(DataItemOption.SPLIT);
+            if(ViewRealtimeData.Attr_PREFIX.equals(split[0])) {
+                final List<DataItemOption> itemOptions = isvDataService.listModelAttrOption(split[1]);
+                if(CollectionUtil.isNotEmpty(itemOptions)) {
+                    itemOptions.forEach(item -> results.add(item.setValue(key+DataItemOption.SPLIT+item.getValue()).setLeaf(true)));
+                }
+            }
+        }
+        return IotViewResult.Success(results);
     }
 
     /**
