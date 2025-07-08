@@ -17,6 +17,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.BatchModelDto;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandViewDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -255,6 +256,34 @@ public class ProductController extends BaseController {
                             .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
                 }
             });
+
+        return success(result);
+    }
+    /**
+     * 指令集列表(大屏专业)
+     * @param productCode
+     * @return
+     */
+    @GetMapping("commands/view")
+    public Result<List<DeviceCommandViewDto>> commands(String productCode) {
+        List<DeviceCommandViewDto> result = new ArrayList<>();
+        productService.getByCode(productCode).ifNotPresentThrow("产品不存在").ifPresent(product -> {
+            productService.joinDetailById(product.getId())
+                .ifPresent(productDto -> {
+                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                        productDto.getFuncApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.add(api.resolverCommandOfView(productDto.getAttrs())));
+                    }
+
+                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                        productDto.getEventApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.add(api.resolverCommandOfView(productDto.getAttrs())));
+                    }
+                });
+        });
+
 
         return success(result);
     }
