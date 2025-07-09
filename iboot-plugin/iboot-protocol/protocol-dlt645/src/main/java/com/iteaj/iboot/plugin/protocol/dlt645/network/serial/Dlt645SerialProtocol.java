@@ -1,6 +1,5 @@
 package com.iteaj.iboot.plugin.protocol.dlt645.network.serial;
 
-import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645DataItem;
 import com.iteaj.iboot.plugin.protocol.dlt645.Dlt645Util;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645DtuMessageBody;
 import com.iteaj.iboot.plugin.protocol.dlt645.network.Dlt645MessageHead;
@@ -11,7 +10,6 @@ import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.serial.SerialClient;
-import com.iteaj.iot.utils.ByteUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -20,7 +18,9 @@ import java.util.function.Consumer;
 public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> implements Dlt645Protocol {
 
     private Object value;
-    private final Dlt645ProtocolType protocolType;
+    private Dlt645ProtocolType protocolType;
+
+    public Dlt645SerialProtocol() { }
 
     public Dlt645SerialProtocol(Dlt645ProtocolType protocolType, Dlt645SerialMessage dlt645SerialMessage) {
         this.protocolType = protocolType;
@@ -34,6 +34,12 @@ public class Dlt645SerialProtocol extends AbstractProtocol<Dlt645SerialMessage> 
 
     public Object getValue() {
         return value;
+    }
+
+    @Override
+    public Dlt645SerialProtocol setProtocolType(Dlt645ProtocolType type) {
+        this.protocolType = type;
+        return this;
     }
 
     @Override
