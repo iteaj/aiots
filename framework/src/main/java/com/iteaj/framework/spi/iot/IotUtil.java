@@ -26,7 +26,7 @@ public class IotUtil {
         }
 
         String[] cmdItem = cmdCode.split("&");
-        if(cmdItem.length < 2) {
+        if(cmdItem.length < 1) {
             throw new FrameworkException("指令码格式错误");
         }
 

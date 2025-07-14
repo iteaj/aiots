@@ -288,22 +288,13 @@ public class ModelApi extends BaseEntity {
                         .map(item -> new DeviceCommandViewDto.ViewConfig(item.getDictName(), item.getDictValue()))
                         .collect(Collectors.toList());
                 StringBuilder configValue = new StringBuilder();
-                downConfig.stream().filter(item -> item.getModelAttrId() == null).forEach(item -> {
-                    configValue.append(item.getProtocolAttrField()).append("->").append(item.getValue()).append('&');
-                });
 
                 configValue.append(apiConfig.getProtocolAttrField()).append("->#{}");
                 return new DeviceCommandViewDto(getName(), configValue.toString(), getCode()).setLeaf(true).setRemark(getRemark()).setConfigs(dictList);
-            } else {
-                StringBuilder valueSb = new StringBuilder();
-                downConfig.forEach(config -> valueSb.append(config.getProtocolAttrField()).append("->").append(config.getValue()).append('&'));
-
-                valueSb.deleteCharAt(valueSb.length() - 1);
-                return new DeviceCommandViewDto(getName(), valueSb.toString(), getCode()).setLeaf(true).setRemark(getRemark());
             }
-        } else {
-            return new DeviceCommandViewDto(getName(), null, getCode()).setLeaf(true).setRemark(getRemark());
         }
+
+        return new DeviceCommandViewDto(getName(), null, getCode()).setLeaf(true).setRemark(getRemark());
     }
 
     private List<List<ModelAttrDict>> cartesianProduct(List<List<ModelAttrDict>> lists, Map<Long, ModelAttr> attrMap) {

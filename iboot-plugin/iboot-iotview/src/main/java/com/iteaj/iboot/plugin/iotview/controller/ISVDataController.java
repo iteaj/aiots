@@ -259,4 +259,15 @@ public class ISVDataController extends BaseController {
         OpenApiUtil.buildPassRequest(request);
         return "forward:/iot/instruct/command/invoke";
     }
+
+    /**
+     * 监控视频通道列表
+     * @param request
+     * @return
+     */
+    @GetMapping("channels")
+    public String channels(HttpServletRequest request) {
+        OpenApiUtil.buildOpenRequest(request);
+        return "forward:/gbs/device/view/channels";
+    }
 }

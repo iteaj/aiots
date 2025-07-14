@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
 import com.iteaj.iboot.plugin.gbs.MediaInfo;
+import com.iteaj.iboot.plugin.gbs.dto.GbsViewChannelDto;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
@@ -191,6 +192,11 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
                 .eq(RtvsChannel::getDeviceId, deviceId)
                 .eq(RtvsChannel::getChannelId, channelId));
         return channel == null ? null : channel.convert();
+    }
+
+    @Override
+    public List<GbsViewChannelDto> listViewChannels() {
+        return channelMapper.listViewChannels();
     }
 
     private HttpResponse invokeRequest(String url) {

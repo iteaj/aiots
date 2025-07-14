@@ -1,8 +1,8 @@
 package com.iteaj.iboot.plugin.iotview.controller;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.file.UploadResult;
@@ -104,17 +104,22 @@ public class ProjectController extends BaseController {
     /**
      * 上传大屏略缩图
      * @param id
+     * @param type (背景: bg, 预览图: preview)
      * @param file
-     * @return
+     * @return fileurl
      */
     @PostMapping("upload")
-    public Result<String> upload(String id, MultipartFile file) {
+    public Result<Map<String, String>> upload(String id, String type, MultipartFile file) {
         try {
             final UploadResult isv = uploadService.upload(file.getInputStream(), file.getOriginalFilename(), id, "/isv");
-            final Project project = new Project().setIndexImage(isv.getUrl());
-            project.setId(id);
-            projectService.updateById(project);
-            return IotViewResult.Success(isv.getUrl());
+            if(Objects.equals("preview", type)) {
+                final Project project = new Project().setIndexImage(isv.getUrl());
+                project.setId(id);
+                projectService.updateById(project);
+            }
+            Map<String, String> result = new HashMap<>();
+            result.put("fileurl", "http://127.0.0.1:8085" + isv.getUrl());
+            return IotViewResult.Success(result);
         } catch (IOException e) {
             return IotViewResult.Fail("上传失败");
         }

@@ -260,7 +260,7 @@ public class ProductController extends BaseController {
         return success(result);
     }
     /**
-     * 指令集列表(大屏专业)
+     * 指令集列表(大屏专yong)
      * @param productCode
      * @return
      */
