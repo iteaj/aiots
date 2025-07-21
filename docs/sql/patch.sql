@@ -107,3 +107,20 @@ create table iot_script(
 alter table iot_script add create_time datetime default now() null comment '创建时间';
 alter table iot_script add update_time timestamp null comment '更新时间';
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('数据过滤', 1421, 168, '/iot/script/filter', 'iot', 'V', 'enabled', 'iot:script:filter:view', '#', '', '_self', '2025-04-11 00:00:00', '2025-04-11 20:42:12');
+
+-- 2025-07-17
+create table isv_resource
+(
+    id char(36) null,
+    name varchar(64) null comment '名称',
+    url varchar(256) null comment '路径',
+    type char(16) null comment '资源类型'
+)
+    comment '大屏资源';
+
+create unique index isv_resource_id_uindex
+    on isv_resource (id);
+
+alter table isv_resource
+    add constraint isv_resource_pk
+        primary key (id);

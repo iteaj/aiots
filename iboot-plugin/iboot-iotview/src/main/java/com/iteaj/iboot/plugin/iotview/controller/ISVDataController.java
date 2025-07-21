@@ -2,19 +2,29 @@ package com.iteaj.iboot.plugin.iotview.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
+import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.view.*;
 import com.iteaj.framework.spi.open.OpenApiUtil;
 import com.iteaj.iboot.plugin.iotview.FetchResult;
 import com.iteaj.iboot.plugin.iotview.IotViewResult;
+import com.iteaj.iboot.plugin.iotview.entity.Resource;
+import com.iteaj.iboot.plugin.iotview.service.IResourceService;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
+import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +38,11 @@ import java.util.Objects;
 public class ISVDataController extends BaseController {
 
     private final ISVDataService isvDataService;
-    public ISVDataController(ISVDataService isvDataService) {
+    private final IResourceService resourceService;
+
+    public ISVDataController(ISVDataService isvDataService, IResourceService resourceService) {
         this.isvDataService = isvDataService;
+        this.resourceService = resourceService;
     }
 
     /**
@@ -82,7 +95,9 @@ public class ISVDataController extends BaseController {
     public Result<List<DataItemOption>> realtimeOptions(String key) {
         List<DataItemOption> results = new ArrayList<>();
         if(StrUtil.isBlank(key)) {
-            results.add(new DataItemOption("物模型属性", ViewRealtimeData.Attr_PREFIX));
+            results.add(new DataItemOption("模型属性", ViewRealtimeData.Attr_PREFIX));
+            results.add(new DataItemOption("设备告警", ViewRealtimeData.WARN_PREFIX)
+                    .addChild(new DataItemOption("所有告警", "all").setLeaf(true), false));
             results.add(new DataItemOption("设备状态", ViewRealtimeData.STATUS_PREFIX));
             final List<DataItemOption> attrProduct = isvDataService.listProductOption(false);
             if(CollectionUtil.isNotEmpty(attrProduct)) {
@@ -90,7 +105,14 @@ public class ISVDataController extends BaseController {
             }
             final List<DataItemOption> deviceProduct = isvDataService.listProductOption(true);
             if(CollectionUtil.isNotEmpty(deviceProduct)) {
-                deviceProduct.forEach(dataItemOption -> results.get(1).addChild(dataItemOption.setLeaf(true), false));
+                deviceProduct.forEach(dataItemOption -> {
+                    try {
+                        results.get(1).addChild(dataItemOption.clone().setLeaf(true), false);
+                        results.get(2).addChild(dataItemOption.clone().setLeaf(true), false);
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         } else {
             final String[] split = key.split(DataItemOption.SPLIT);
@@ -250,14 +272,27 @@ public class ISVDataController extends BaseController {
 
     /**
      * 执行设备指令
-     * @param request
+     * @param cmd
      * @return
      */
+    @ResponseBody
     @PostMapping("cmd")
-    public String cmd(HttpServletRequest request) {
-        OpenApiUtil.buildOpenRequest(request);
-        OpenApiUtil.buildPassRequest(request);
-        return "forward:/iot/instruct/command/invoke";
+    public Mono<Result> cmd(@RequestBody CmdInvokePayload cmd) {
+        return Mono.<InvokeResult>create(item -> {
+            try {
+                IotEvenPublisher.publish(IotEventType.CmdInvoke, cmd.build(result -> {
+                    item.success(result);
+                }));
+            } catch (ProtocolInvokeException e) {
+                item.success(InvokeResult.fail(e.getMessage(), null));
+            }
+        }).timeout(Duration.ofMillis(cmd.getTimeout()), Mono.just(InvokeResult.fail("执行超时", null))).map(item -> {
+            if(item.getStatus() == ExecStatus.success) {
+                return success(item.getValue(), "执行指令成功");
+            } else {
+                return fail(item.getReason());
+            }
+        });
     }
 
     /**
@@ -269,5 +304,16 @@ public class ISVDataController extends BaseController {
     public String channels(HttpServletRequest request) {
         OpenApiUtil.buildOpenRequest(request);
         return "forward:/gbs/device/view/channels";
+    }
+
+    /**
+     * 获取资源列表
+     * @param type
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("resources")
+    public Result<List<Resource>> resources(String type) {
+        return resourceService.list(Wrappers.<Resource>lambdaQuery().eq(Resource::getType, type));
     }
 }

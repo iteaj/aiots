@@ -8,6 +8,8 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.file.UploadResult;
 import com.iteaj.framework.spi.file.UploadService;
 import com.iteaj.iboot.plugin.iotview.IotViewResult;
+import com.iteaj.iboot.plugin.iotview.entity.Resource;
+import com.iteaj.iboot.plugin.iotview.service.IResourceService;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -16,6 +18,8 @@ import com.iteaj.iboot.plugin.iotview.entity.Project;
 import com.iteaj.iboot.plugin.iotview.service.IProjectService;
 import com.iteaj.framework.BaseController;
 import org.springframework.web.multipart.MultipartFile;
+
+import static com.iteaj.iboot.plugin.iotview.entity.Resource.BG_IMG;
 
 /**
  * 大屏项目管理
@@ -28,10 +32,13 @@ public class ProjectController extends BaseController {
 
     private final UploadService uploadService;
     private final IProjectService projectService;
+    private final IResourceService resourceService;
 
-    public ProjectController(UploadService uploadService, IProjectService projectService) {
+    public ProjectController(UploadService uploadService
+            , IProjectService projectService, IResourceService resourceService) {
         this.uploadService = uploadService;
         this.projectService = projectService;
+        this.resourceService = resourceService;
     }
 
     /**
@@ -102,7 +109,7 @@ public class ProjectController extends BaseController {
     }
 
     /**
-     * 上传大屏略缩图
+     * 上传大屏图片
      * @param id
      * @param type (背景: bg, 预览图: preview)
      * @param file
@@ -111,14 +118,28 @@ public class ProjectController extends BaseController {
     @PostMapping("upload")
     public Result<Map<String, String>> upload(String id, String type, MultipartFile file) {
         try {
+            Map<String, String> result = new HashMap<>();
             final UploadResult isv = uploadService.upload(file.getInputStream(), file.getOriginalFilename(), id, "/isv");
             if(Objects.equals("preview", type)) {
                 final Project project = new Project().setIndexImage(isv.getUrl());
                 project.setId(id);
                 projectService.updateById(project);
+            } else if(Objects.equals(BG_IMG, type)) {
+                String originalFilename = isv.getOriginalFilename();
+                if(originalFilename != null) {
+                    final int indexOf = originalFilename.indexOf(".");
+                    if(indexOf > 0) {
+                        originalFilename = originalFilename.substring(0, indexOf);
+                    }
+                }
+
+                final Resource resource = new Resource().setType(BG_IMG).setName(originalFilename).setUrl(isv.getUrl());
+                resourceService.save(resource);
+                result.put("id", resource.getId());
+                result.put("fileName", originalFilename);
             }
-            Map<String, String> result = new HashMap<>();
-            result.put("fileurl", "http://127.0.0.1:8085" + isv.getUrl());
+
+            result.put("fileurl", isv.getUrl());
             return IotViewResult.Success(result);
         } catch (IOException e) {
             return IotViewResult.Fail("上传失败");
