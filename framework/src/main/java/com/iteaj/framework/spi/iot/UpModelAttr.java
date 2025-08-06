@@ -53,6 +53,11 @@ public class UpModelAttr {
      */
     private String path;
 
+    /**
+     * 位属性
+     */
+    private boolean bit;
+
     public UpModelAttr(Long id, String field, String name, DataType dataType
             , Integer accuracy, Integer gain, String resolver, String script, String path) {
         this.id = id;
@@ -64,5 +69,9 @@ public class UpModelAttr {
         this.resolver = resolver;
         this.accuracy = accuracy;
         this.dataType = dataType;
+    }
+
+    public UpModelAttr buildBit() {
+        this.bit = true; return this;
     }
 }

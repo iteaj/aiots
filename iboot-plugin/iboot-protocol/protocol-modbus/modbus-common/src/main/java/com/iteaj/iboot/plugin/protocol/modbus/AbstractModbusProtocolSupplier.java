@@ -116,7 +116,19 @@ public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl
                     String address = param.getString(PointProtocolConfig.POINT_ADDRESS);
                     if(status == CollectStatus.Success) {
                         Object resolverValue = dataResolver(item, value);
-                        supplier.addValue(item.getId(), address, item.getField(), resolverValue);
+                        if(resolverValue instanceof SignalOrFieldValue) {
+                            supplier.addValue((SignalOrFieldValue) resolverValue);
+                        } else if(resolverValue instanceof Collection) {
+                            ((Collection<?>) resolverValue).forEach(itemValue -> {
+                                if(itemValue instanceof SignalOrFieldValue) {
+                                    supplier.addValue((SignalOrFieldValue) itemValue);
+                                } else {
+                                    supplier.addValue(item.getId(), address, item.getField(), resolverValue);
+                                }
+                            });
+                        } else {
+                            supplier.addValue(item.getId(), address, item.getField(), resolverValue);
+                        }
                     } else {
                         supplier.addValue(item.getId(), address, item.getField(), status);
                     }

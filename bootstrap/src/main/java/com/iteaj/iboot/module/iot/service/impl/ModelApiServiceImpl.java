@@ -12,10 +12,15 @@ import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.framework.spi.iot.listener.EntityPayload;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.listener.IotListener;
 import com.iteaj.iboot.common.CacheKeys;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.mapper.ModelApiMapper;
 import com.iteaj.iboot.module.iot.service.IModelApiConfigService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
@@ -41,7 +46,7 @@ import java.util.List;
  */
 @Service
 @CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_MODEL_API})
-public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelApi> implements IModelApiService {
+public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelApi> implements IModelApiService, IotListener<EntityPayload<Product>> {
 
     private final CacheManager cacheManager;
     private final IModelApiConfigService modelApiConfigService;
@@ -238,6 +243,28 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         if(StrUtil.isNotBlank(code)) {
             this.getBaseMapper().removeJoinByCode(code);
             cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API).evict(code);
+        }
+    }
+
+    @Override
+    public boolean isEventMatcher(IotEventType eventType) {
+        return eventType == IotEventType.ProductSwitch;
+    }
+
+    /**
+     * 产品禁用的时候移除所有的接口缓存
+     * @param eventType
+     * @param value
+     */
+    @Override
+    public void onIotEvent(IotEventType eventType, EntityPayload<Product> value) {
+        final FuncStatus status = value.getPayload().getStatus();
+        if(status == FuncStatus.disabled) {
+            this.list(Wrappers.<ModelApi>lambdaQuery().eq(ModelApi::getProductId, value.getPayload().getId())).ifPresent(apis -> {
+                apis.forEach(api -> {
+                    cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API).evict(api.getCode());
+                });
+            });
         }
     }
 }
