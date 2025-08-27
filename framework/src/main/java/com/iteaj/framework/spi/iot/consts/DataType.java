@@ -3,6 +3,7 @@ package com.iteaj.framework.spi.iot.consts;
 public enum DataType {
 
     t_any("any", "any(任何)"), // 前端上行配置项可以编辑
+    t_bit("bit", "bit(按位)"), // 前端上行配置项可以编辑
     t_json("json", "json类型"), // 前端上行配置项可以编辑
     t_byte("byte", "byte(字节)"),
     t_short("short", "short(短整型)"),
@@ -32,6 +33,7 @@ public enum DataType {
         }
 
         switch (dataType) {
+            case "bit": return t_bit;
             case "byte": return t_byte;
             case "short": return t_short;
             case "int": return t_int;

@@ -19,6 +19,7 @@ import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandViewDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -270,13 +271,40 @@ public class ModelApi extends BaseEntity {
         }
     }
 
+    public DeviceCommandViewDto resolverCommandOfView(List<ModelAttr> attrs) {
+        if(!CollectionUtils.isEmpty(downConfig)) {
+            List<ModelApiConfig> configs = downConfig.stream()
+                    .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
+                    .collect(Collectors.toList());
+
+            if(!CollectionUtils.isEmpty(configs)) {
+                if(CollectionUtils.isEmpty(attrs)) {
+                    throw new ServiceException("参数错误[物模型属性为空]");
+                }
+
+                final ModelApiConfig apiConfig = configs.get(0);
+                final List<ModelAttrDict> dicts = apiConfig.getDicts();
+                final List<DeviceCommandViewDto.ViewConfig> dictList = dicts.stream()
+                        .map(item -> new DeviceCommandViewDto.ViewConfig(item.getDictName(), item.getDictValue()))
+                        .collect(Collectors.toList());
+                StringBuilder configValue = new StringBuilder();
+
+                configValue.append(apiConfig.getProtocolAttrField()).append("->#{}");
+                return new DeviceCommandViewDto(getName(), configValue.toString(), getCode()).setLeaf(true).setRemark(getRemark()).setConfigs(dictList);
+            }
+        }
+
+        return new DeviceCommandViewDto(getName(), null, getCode()).setLeaf(true).setRemark(getRemark());
+    }
+
     private List<List<ModelAttrDict>> cartesianProduct(List<List<ModelAttrDict>> lists, Map<Long, ModelAttr> attrMap) {
         List<List<ModelAttrDict>> result = new ArrayList<>();
         cartesianProductHelper(lists, 0, new ArrayList<>(), result, attrMap);
         return result;
     }
 
-    private void cartesianProductHelper(List<List<ModelAttrDict>> lists, int index, List<ModelAttrDict> current, List<List<ModelAttrDict>> result, Map<Long, ModelAttr> attrMap) {
+    private void cartesianProductHelper(List<List<ModelAttrDict>> lists, int index, List<ModelAttrDict> current
+            , List<List<ModelAttrDict>> result, Map<Long, ModelAttr> attrMap) {
         if (index == lists.size()) {
             result.add(new ArrayList<>(current));
             return;

@@ -3,6 +3,7 @@ package com.iteaj.framework.spi.iot;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.exception.FrameworkException;
+import com.iteaj.framework.spi.iot.consts.DataType;
 
 public class IotUtil {
 
@@ -26,7 +27,7 @@ public class IotUtil {
         }
 
         String[] cmdItem = cmdCode.split("&");
-        if(cmdItem.length < 2) {
+        if(cmdItem.length < 1) {
             throw new FrameworkException("指令码格式错误");
         }
 
@@ -55,5 +56,33 @@ public class IotUtil {
         }
 
         return sb.append('_').toString();
+    }
+
+    public static Object resolverBit(UpModelAttr attr, Object value) {
+        if(attr.isBit()) {
+            if(StrUtil.isBlank(attr.getPath())) {
+                throw new IllegalArgumentException("位属性必须指定位地址");
+            }
+
+            if(value instanceof Number) {
+                final long longValue = ((Number) value).longValue();
+                final String[] split = attr.getPath().split("-");
+                final int addBit = Integer.parseInt(split[0]);
+                if(split.length == 1) {
+                    final long l = longValue << 64 - addBit;
+                    value = l >>> 63;
+                } else { // 大于1
+                    final int maxBit = Integer.parseInt(split[1]); // 最大位
+                    final long l = longValue << 64 - maxBit;
+                    value = l >>> 63 - (maxBit - addBit);
+                }
+
+                if(attr.getDataType() == DataType.t_boolean) {
+                    return (long) value > 0;
+                }
+            }
+        }
+
+        return value;
     }
 }

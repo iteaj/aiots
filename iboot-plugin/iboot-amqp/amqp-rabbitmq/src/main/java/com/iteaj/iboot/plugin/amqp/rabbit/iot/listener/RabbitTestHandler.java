@@ -11,7 +11,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 })
 public class RabbitTestHandler {
 
-    @RabbitHandler
+//    @RabbitHandler
     public void reciveStatus(byte[] message) throws Exception {
 //        String s = new String(message.getBody());
         Object parse = JSONObject.parse(message);

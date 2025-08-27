@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.iot;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BatchOfPoint {
@@ -29,6 +30,12 @@ public class BatchOfPoint {
      * 上行模型属性
      */
     private UpModelAttr modelAttr;
+
+    /**
+     * 位模型属性配置
+     * @see UpModelAttr#isBit()
+     */
+    private List<UpModelAttr> bitAttrs;
 
     /**
      * 下行配置
@@ -91,5 +98,13 @@ public class BatchOfPoint {
 
     public void setModelAttr(UpModelAttr modelAttr) {
         this.modelAttr = modelAttr;
+    }
+
+    public List<UpModelAttr> getBitAttrs() {
+        return bitAttrs;
+    }
+
+    public BatchOfPoint setBitAttrs(List<UpModelAttr> bitAttrs) {
+        this.bitAttrs = bitAttrs; return this;
     }
 }

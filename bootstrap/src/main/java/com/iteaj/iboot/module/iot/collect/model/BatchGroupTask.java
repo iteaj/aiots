@@ -19,6 +19,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
@@ -61,6 +62,16 @@ public class BatchGroupTask implements Runnable{
                                         , DataType.build(upConfig.getDataType()), upConfig.getAccuracy(), upConfig.getGain()
                                         , upConfig.getResolver(), upConfig.getScript(), null);
                                 point.setModelAttr(upModelAttr);
+                                // 位属性配置
+                                if(upConfig.getDataType().equals(DataType.t_bit.getValue())) {
+                                    final List<ModelAttrDict> dicts = upConfig.getDicts();
+                                    if(CollectionUtil.isNotEmpty(dicts)) {
+                                        final List<UpModelAttr> bitAttrs = dicts.stream().map(dict -> new UpModelAttr(dict.getModelAttrId(), dict.getAttrField(), dict.getDictName()
+                                                , DataType.build(dict.getDataType()), dict.getAccuracy(), dict.getGain()
+                                                , dict.getResolver(), dict.getScript(), dict.getPath()).buildBit()).collect(Collectors.toList());
+                                        point.setBitAttrs(bitAttrs);
+                                    }
+                                }
                             }
                         });
 

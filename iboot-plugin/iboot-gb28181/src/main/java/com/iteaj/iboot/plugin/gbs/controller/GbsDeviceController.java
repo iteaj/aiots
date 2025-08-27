@@ -5,6 +5,7 @@ import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.iboot.plugin.gbs.dto.GbsViewChannelDto;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
@@ -129,5 +130,14 @@ public class GbsDeviceController extends BaseController {
     public Result<Boolean> updateChannel(@RequestBody GbsChannel device) {
         deviceService.update(device);
         return success();
+    }
+
+    /**
+     * 大屏的通道列表
+     * @return
+     */
+    @GetMapping("view/channels")
+    public Result<List<GbsViewChannelDto>> channels() {
+        return success(deviceService.listViewChannels());
     }
 }

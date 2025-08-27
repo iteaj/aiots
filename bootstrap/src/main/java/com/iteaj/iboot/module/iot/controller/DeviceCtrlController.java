@@ -9,6 +9,7 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
@@ -37,6 +38,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 设备指令接口管理
@@ -139,7 +141,15 @@ public class DeviceCtrlController extends BaseController {
             debugRespDto.setRespMsg(item.getResponseMessage().toString());
             if(item.getStatus() == ExecStatus.success) {
                 debugRespDto.setValue(item.getValue());
-                return success(debugRespDto.setValue(item.getValue()));
+                if(modelApi.getFuncType() == FuncType.R && item.getValue() != null) {
+                    final DataSupplier dataSupplier = supplier.getDataSupplier(item.getProtocol(), param, item.getValue());
+                    final String value = dataSupplier.getValues().stream()
+                            .map(fieldValue -> String.format("%s=%s", fieldValue.getSignalOrField(), fieldValue.getValue().toString()))
+                            .collect(Collectors.joining(", "));
+                    debugRespDto.setValue(value);
+                }
+
+                return success(debugRespDto);
             } else {
                 return success(debugRespDto.setReason(item.getReason()));
             }

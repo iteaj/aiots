@@ -9,6 +9,7 @@ import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.consts.CollectSearchType;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.*;
+import com.iteaj.framework.spi.iot.view.ViewSqlCondition;
 import com.iteaj.iboot.plugin.datasource.tdengine.mapper.TaosCollectDataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -118,5 +119,10 @@ public class TaosDataService implements RealtimeCollectDataService {
     @Override
     public PageResult productOfPage(Page page, RealtimeCollectData entity) {
         return new PageResult(collectDataMapper.productOfPage(page, entity));
+    }
+
+    @Override
+    public List<BaseEchartsCount> countOfView(ViewSqlCondition condition) {
+        return null;
     }
 }

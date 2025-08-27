@@ -3,6 +3,7 @@ package com.iteaj.iboot.plugin.gbs.wvp;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
 import com.iteaj.iboot.plugin.gbs.MediaInfo;
+import com.iteaj.iboot.plugin.gbs.dto.GbsViewChannelDto;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import com.iteaj.iboot.plugin.gbs.entity.GbsDevice;
 import com.iteaj.iboot.plugin.gbs.service.GbsDeviceService;
@@ -66,6 +67,11 @@ public class WvpDeviceServiceImpl implements GbsDeviceService {
 
     @Override
     public GbsChannel getByDeviceIdAndChannelId(String deviceId, String channelId) {
+        return null;
+    }
+
+    @Override
+    public List<GbsViewChannelDto> listViewChannels() {
         return null;
     }
 }
