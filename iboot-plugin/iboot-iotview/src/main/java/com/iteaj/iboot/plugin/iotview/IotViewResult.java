@@ -11,9 +11,9 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class IotViewResult extends AbstractResult {
+public class IotViewResult<T> extends AbstractResult<T> {
 
-    public IotViewResult(Result result) {
+    public IotViewResult(Result<T> result) {
         this(result.getData(), result.getMessage(), result.getCode());
     }
 
@@ -21,7 +21,7 @@ public class IotViewResult extends AbstractResult {
         super(message, code);
     }
 
-    protected IotViewResult(Object data, String message, long code) {
+    protected IotViewResult(T data, String message, long code) {
         super(data, message, code);
     }
 

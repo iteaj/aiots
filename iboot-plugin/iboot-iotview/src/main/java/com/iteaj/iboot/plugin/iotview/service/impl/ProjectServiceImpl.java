@@ -30,7 +30,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
     @Override
     public BooleanResult updateById(Project entity) {
         this.getOne(Wrappers.<Project>lambdaQuery()
-                .eq(Project::getId, entity.getId())
+                .ne(Project::getId, entity.getId())
                 .eq(Project::getProjectName, entity.getProjectName()))
                 .ifPresentThrow("项目名称已经存在");
         return super.updateById(entity);
