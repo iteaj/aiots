@@ -3,7 +3,10 @@ package com.iteaj.iboot.plugin.iotview.controller;
 import java.io.IOException;
 import java.util.*;
 
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.result.BooleanResult;
+import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.file.UploadResult;
 import com.iteaj.framework.spi.file.UploadService;
@@ -70,21 +73,25 @@ public class ProjectController extends BaseController {
     @PostMapping("/create")
     @Logger("创建大屏项目")
     @CheckPermission(value = {"isv:project:add"})
-    public Result<Boolean> create(@RequestBody Project entity) {
-        return new IotViewResult(this.projectService.save(entity));
+    public Result<Project> create(@RequestBody Project entity) {
+        this.projectService.save(entity);
+        return IotViewResult.Success(entity);
     }
 
     /**
     * 更新大屏记录
-    * @param entity
+    * @param entity 实体
     */
     @PostMapping("/edit")
     @Logger("新增或者更新大屏项目记录")
     @CheckPermission(value = {"isv:project:edit"})
     public Result<Boolean> edit(@RequestBody Project entity) {
-        return new IotViewResult(this.projectService.updateById(entity));
-    }
+        if(entity.getId()==null){
+            return IotViewResult.FailNotJump("项目还未保存");
+        }
 
+        return new IotViewResult<>(this.projectService.updateById(entity));
+    }
 
     /**
      * 获取大屏详情记录
@@ -93,30 +100,39 @@ public class ProjectController extends BaseController {
     @GetMapping("/getData")
     @Logger("新增或者更新大屏项目记录")
     public Result<Project> detail(String projectId) {
-        return new IotViewResult(this.projectService.getById(projectId));
+        Project data = this.projectService.getById(projectId).getData();
+        if(data != null){
+            if(StrUtil.isNotEmpty(data.getContent())){
+                return IotViewResult.Success(data);
+            } else {
+                return IotViewResult.Success(null);
+            }
+        }
+
+        return IotViewResult.FailNotJump("项目不存在");
     }
 
     /**
     * 删除指定记录
-    * @param ids
+    * @param id
     */
-    @DeleteMapping("/delete")
+    @PostMapping("/delete")
     @Logger("删除大屏项目记录")
-    @CheckPermission({"iotview:project:del"})
-    public Result<Boolean> remove(String ids) {
-        final String[] idList = ids.split(",");
-        return this.projectService.removeByIds(Arrays.asList(idList));
+    @CheckPermission({"isv:project:del"})
+    public Result<Boolean> remove(String id) {
+        return this.projectService.removeById(id).setMessage("移除项目成功");
     }
 
     /**
      * 上传大屏图片
+     *
      * @param id
      * @param type (背景: bg, 预览图: preview)
      * @param file
      * @return fileurl
      */
     @PostMapping("upload")
-    public Result<Map<String, String>> upload(String id, String type, MultipartFile file) {
+    public IotViewResult upload(String id, String type, MultipartFile file) {
         try {
             Map<String, String> result = new HashMap<>();
             final UploadResult isv = uploadService.upload(file.getInputStream(), file.getOriginalFilename(), id, "/isv");

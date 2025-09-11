@@ -1,8 +1,6 @@
 package com.iteaj.iboot.plugin.iotview.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.iteaj.framework.Entity;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -30,6 +28,7 @@ public class Project implements Entity<String> {
     /**
      * 项目名称
      */
+    @TableField(condition = SqlCondition.LIKE)
     private String projectName;
 
     /**

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
@@ -315,5 +316,19 @@ public class ISVDataController extends BaseController {
     @GetMapping("resources")
     public Result<List<Resource>> resources(String type) {
         return resourceService.list(Wrappers.<Resource>lambdaQuery().eq(Resource::getType, type));
+    }
+
+    /**
+     * 获取当前登录用户
+     * @return 当前登入用户
+     */
+    @ResponseBody
+    @GetMapping("user")
+    public IotViewResult user() {
+        if(SecurityUtil.isLogin()) {
+            return IotViewResult.Success(SecurityUtil.getLoginUser().orElse(null));
+        }
+
+        return IotViewResult.Success(null);
     }
 }
