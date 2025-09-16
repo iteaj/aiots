@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,8 +61,8 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
             subscribeApis.forEach((topic, config) -> {
                 String[] modelTopic = topic.split("/");
                 if(modelTopic.length != subscribeTopic.length) { // 不匹配
-                    if(logger.isDebugEnabled()) {
-                        logger.debug("mqtt订阅不匹配 topic长度不一致 平台订阅: {} - 设备发布: {}", topic, protocolTopic);
+                    if(logger.isWarnEnabled()) {
+                        logger.warn("mqtt订阅不匹配 topic长度不一致 平台订阅: {} - 设备发布: {}", topic, protocolTopic);
                     }
 
                     return;
@@ -109,7 +108,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
 
                 if(deviceSnValue == null) {
                     if(logger.isWarnEnabled()) {
-                        logger.warn("mqtt订阅不匹配(平台topic未指定占位符{deviceSn}) 未指定设备编号 平台订阅: {}", topic);
+                        logger.warn("平台订阅主题和发布主题不匹配(平台配置的主题未指定占位符{deviceSn}) 未指定设备编号 平台订阅: {}", topic);
                     }
 
                     return;
@@ -130,18 +129,18 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
 
                         if(CollectionUtil.isNotEmpty(config.getAttrs())) {
                             resolvePayloadValue(config.getAttrs(), protocol, gatewaySnValue, deviceSnValue, device);
+                        } else {
+                            logger.warn("mqtt产品配置错误 没有配置项 - 设备: {} - 平台订阅主题: {}", deviceKey, topic);
                         }
                     } else {
-                        logger.error("mqtt解析topic失败 设备不存在 - 设备: {} - 平台订阅: {} - 设备发布: {}", deviceKey, topic, protocolTopic);
+                        logger.error("mqtt解析topic失败 设备不存在 - 设备: {} - 平台订阅主题: {} - 设备发布主题: {}", deviceKey, topic, protocolTopic);
                     }
                 } catch (Exception e) {
-                    logger.error("处理mqtt报文负载到物模型属性失败 未知错误 - 平台订阅: {} - 设备发布: {}", topic, protocolTopic, e);
+                    logger.error("处理mqtt报文负载到物模型属性失败 未知错误 - 平台订阅主题: {} - 设备发布主题: {}", topic, protocolTopic, e);
                 }
             });
         } else {
-            if(logger.isWarnEnabled()) {
-                logger.warn("mqtt处理失败(没有找到Mqtt产品) 没有配置产品或产品未启用 - 设备发布: {}", protocolTopic);
-            }
+            logger.warn("未找到Mqtt事件模型({}) 主题没有以子产品编码开头或产品未启用 - 设备发布主题: {}", subscribeTopic[0], protocolTopic);
         }
 
         return null;
