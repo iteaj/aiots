@@ -105,10 +105,12 @@ public class BatchModelDto {
     public void setApiDownConfig(String apiDownConfig) {
         if(StrUtil.isNotBlank(apiDownConfig)) {
             config = new HashMap<>();
-            final String[] split = apiDownConfig.split(":::");
-            for (int i = 0; i < split.length; i++) {
-                final String[] item = split[i].split("->");
-                config.put(item[0], item[1]);
+            if(apiDownConfig.contains(":::")) {
+                final String[] split = apiDownConfig.split(":::");
+                for (String s : split) {
+                    final String[] item = s.split("->");
+                    config.put(item[0], item[1]);
+                }
             }
         }
     }
