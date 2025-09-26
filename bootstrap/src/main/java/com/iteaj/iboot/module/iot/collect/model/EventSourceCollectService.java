@@ -48,19 +48,7 @@ public class EventSourceCollectService implements ApplicationReadyListener {
                 .eq(EventSource::getStatus, FuncStatus.enabled)).forEach(item -> {
 
             try {
-                EventSourceDto source = eventSourceService.collectDetailById(item.getId())
-                        .ifNotPresentThrow("事件源不存在").getData();
-
-                eventSourceService.listProductById(source.getId(), null).forEach(product -> {
-                    if(product.getStatus() == FuncStatus.disabled) {
-                        throw new ServiceException("产品["+product.getName()+"]未启用");
-                    }
-                });
-
-                ThreadPoolTaskScheduler scheduler = threadManger.getScheduler();
-                ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(scheduler
-                        , source, cacheManager), new CronTrigger(source.getCron()));
-                futures.put(source.getId(), schedule);
+                doSwitchTask(item.getId(), FuncStatus.enabled);
             } catch (ServiceException e) {
                 logger.error("启动事件源失败({}) {}", item.getName(), e.getMessage());
                 eventSourceService.update(Wrappers.<EventSource>lambdaUpdate()
@@ -83,14 +71,23 @@ public class EventSourceCollectService implements ApplicationReadyListener {
             return BooleanResult.buildFalse("未指定事件源id");
         }
 
+        doSwitchTask(id, status);
+
+        return this.eventSourceService.update(Wrappers.<EventSource>lambdaUpdate()
+                .set(EventSource::getStatus, status)
+                .set(EventSource::getReason, "")
+                .eq(EventSource::getId, id));
+    }
+
+    private void doSwitchTask(Long id, FuncStatus status) {
         EventSourceDto source = eventSourceService.collectDetailById(id)
                 .ifNotPresentThrow("事件源不存在").getData();
 
         if(StrUtil.isBlank(source.getCron())) {
-            return BooleanResult.buildFalse("cron表达式错误");
+            throw new ServiceException("请输入正确的采集周期(cron或者毫秒值)");
         }
 
-        ScheduledFuture scheduledFuture = futures.get(id);
+        ScheduledFuture<?> scheduledFuture = futures.get(id);
         if(status == FuncStatus.enabled) { // 启用
             this.eventSourceService.listProductById(source.getId(), null).forEach(product -> {
                 if(product.getStatus() == FuncStatus.disabled) {
@@ -103,19 +100,27 @@ public class EventSourceCollectService implements ApplicationReadyListener {
             }
 
             ThreadPoolTaskScheduler scheduler = threadManger.getScheduler();
-            ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(scheduler
-                    , source, cacheManager), new CronTrigger(source.getCron()));
-            futures.put(id, schedule);
+            try { // 定时表达式
+                CronTrigger trigger = new CronTrigger(source.getCron());
+                ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(
+                        threadManger.getCollectExecutor(), source, cacheManager), trigger);
+                futures.put(id, schedule);
+            } catch (Exception e) { // 数值毫秒
+                long timeMills = Long.parseLong(source.getCron());
+                if(timeMills <= 0) {
+                    throw new ServiceException("采集毫秒值必须大于0");
+                }
+
+                ScheduledFuture<?> schedule = scheduler.scheduleAtFixedRate(new EventSourceTask(threadManger
+                        .getCollectExecutor(), source, cacheManager), timeMills);
+                futures.put(id, schedule);
+            }
+
         } else { // 禁用
             // 取消定时任务
             if(scheduledFuture != null) {
                 futures.remove(id).cancel(true);
             }
         }
-
-        return this.eventSourceService.update(Wrappers.<EventSource>lambdaUpdate()
-                .set(EventSource::getStatus, status)
-                .set(EventSource::getReason, "")
-                .eq(EventSource::getId, id));
     }
 }
