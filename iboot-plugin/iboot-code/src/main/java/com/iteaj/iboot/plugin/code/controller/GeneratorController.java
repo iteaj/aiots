@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.querys.MySqlQuery;
 import com.iteaj.framework.spi.admin.*;
+import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.iboot.plugin.code.LowCodeProperties;
 import com.iteaj.iboot.plugin.code.VelocityReviewTemplateEngine;
 import com.iteaj.iboot.plugin.code.dto.*;
