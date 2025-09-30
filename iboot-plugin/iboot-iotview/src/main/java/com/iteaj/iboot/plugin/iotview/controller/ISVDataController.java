@@ -57,16 +57,6 @@ public class ISVDataController extends BaseController {
     }
 
     /**
-     * 表格数据项配置
-     * @return
-     */
-    @ResponseBody
-    @GetMapping("table/options")
-    public Result<List<DataItemOption>> tableOptions() {
-        return IotViewResult.Success(ViewApiManager.options());
-    }
-
-    /**
      * 全局接口数据项配置
      * @return
      */

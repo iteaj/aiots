@@ -2,6 +2,7 @@ package com.iteaj.framework.spi.iot.view;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.iteaj.framework.exception.FrameworkException;
 import com.iteaj.framework.exception.ServiceException;
 
 import java.util.ArrayList;
@@ -14,15 +15,11 @@ public final class ViewApiManager {
 
     private static Map<String, ViewApi> itemMap = new LinkedHashMap<>(16);
 
-    public static void register(ViewApi item) {
-        if(!itemMap.containsKey(item.getKey())) {
-            itemMap.put(item.getKey(), item);
-        }
-    }
-
     public static void initAndRegister(ViewApi item) {
         if(!itemMap.containsKey(item.getKey())) {
             itemMap.put(item.getKey(), item.init());
+        } else {
+            throw new FrameworkException("大屏试图接口冲突[" + item.getKey() + "]");
         }
     }
 
@@ -32,20 +29,13 @@ public final class ViewApiManager {
 
     public static List<DataItemOption> options() {
         return itemMap.values().stream()
-                .filter(item -> !(item instanceof GlobalApiItem) && !(item instanceof ViewTableApiItem))
+                .filter(item -> !(item instanceof GlobalApiItem))
                 .flatMap(item -> item.basicOptions().stream())
                 .collect(Collectors.toList());
     }
 
     public static List<DataItemOption> globalApiOptions() {
         return itemMap.values().stream().filter(item -> item instanceof GlobalApiItem)
-                .flatMap(item -> item.basicOptions().stream())
-                .collect(Collectors.toList());
-    }
-
-    public static List<DataItemOption> tableOptions() {
-        return itemMap.values().stream()
-                .filter(item -> (item instanceof ViewTableApiItem))
                 .flatMap(item -> item.basicOptions().stream())
                 .collect(Collectors.toList());
     }

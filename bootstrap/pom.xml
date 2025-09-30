@@ -218,11 +218,11 @@
             <artifactId>iboot-script</artifactId>
             <version>${project.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>iboot-iotview</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-iotview</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
