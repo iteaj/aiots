@@ -17,6 +17,7 @@ import java.util.List;
 public class LcdVueInjectionConfig extends LcdInjectionConfig {
 
     private LowCodeProperties properties;
+
     public LcdVueInjectionConfig(DesignConfigBuilder builder, LowCodeProperties properties) {
         setConfig(builder);
         this.properties = properties;

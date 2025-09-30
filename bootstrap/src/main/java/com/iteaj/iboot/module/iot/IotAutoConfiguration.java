@@ -139,7 +139,7 @@ public class IotAutoConfiguration {
     public IBootThreadManger iBootThreadManger(IotMsnProperties properties) {
         Integer poolSize = properties.getTask().getPoolSize();
         TaskSchedulerBuilder builder = new TaskSchedulerBuilder(poolSize, false
-                , null, properties.getTask().getThreadNamePrefix(), null);
+        , null, properties.getTask().getThreadNamePrefix(), null);
         return new IBootThreadManger(builder.build());
     }
 }

@@ -38,8 +38,7 @@ public class ModbusTcpFuncProtocolModeApi extends AbstractModbusFuncProtocolMode
 
     @Override
     protected ModbusCommonProtocol buildWrite10(int device, int start, DataFormat format, Object value) {
-        if(value instanceof byte[]) {
-            byte[] message = (byte[]) value;
+        if(value instanceof byte[] message) {
             int num = message.length % 2 == 0 ? message.length / 2 : message.length / 2 + 1;
             return ModbusTcpClientCommonProtocol.buildWrite10(device, start, num, message);
         }
@@ -53,13 +52,13 @@ public class ModbusTcpFuncProtocolModeApi extends AbstractModbusFuncProtocolMode
         if(client != null) {
             Integer timeout = arg.getParentDeviceConfig("timeout");
             if(timeout == null || timeout <= 0) {
-                throw new ProtocolInvokeException("请求超时时间必须大于0["+timeout+"]");
+                throw new ProtocolInvokeException("请求超时时间必须大于0[" + timeout + "]");
             }
 
-            ((ModbusTcpClientCommonProtocol)protocol).sync(timeout * 1000).request(client.getConfig());
+            ((ModbusTcpClientCommonProtocol) protocol).sync(timeout * 1000).request(client.getConfig());
             return InvokeResult.status(((ModbusTcpClientCommonProtocol) protocol).getExecStatus(), protocol);
         } else {
-            throw new ProtocolInvokeException("网关设备不存在["+arg.getParentDeviceSn()+"]");
+            throw new ProtocolInvokeException("网关设备不存在[" + arg.getParentDeviceSn() + "]");
         }
     }
 }

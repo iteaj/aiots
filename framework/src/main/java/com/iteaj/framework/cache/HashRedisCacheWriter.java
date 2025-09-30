@@ -25,7 +25,7 @@ public class HashRedisCacheWriter implements RedisCacheWriter {
     }
 
     public HashRedisCacheWriter(RedisConnectionFactory connectionFactory, Duration sleepTime,
-                            CacheStatisticsCollector cacheStatisticsCollector, BatchStrategy batchStrategy) {
+            CacheStatisticsCollector cacheStatisticsCollector, BatchStrategy batchStrategy) {
 
         Assert.notNull(connectionFactory, "ConnectionFactory must not be null!");
         Assert.notNull(sleepTime, "SleepTime must not be null!");

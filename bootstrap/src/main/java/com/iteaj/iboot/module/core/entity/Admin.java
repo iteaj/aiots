@@ -95,7 +95,7 @@ public class Admin extends BaseEntity implements AuthenticationUser {
      */
     @Excel(name = "创建时间", orderNum = "90", exportFormat = "yyyy-MM-dd", width = 15)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
 
     /**
@@ -105,7 +105,7 @@ public class Admin extends BaseEntity implements AuthenticationUser {
 
     /**更新时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
     /**

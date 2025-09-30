@@ -11,7 +11,7 @@ import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class HashMapRealtimeDataService implements RealtimeDataService{
+public class HashMapRealtimeDataService implements RealtimeDataService {
 
     private final IotCacheManager cacheManager;
     private final Map<String, Map<String, Map<String, RealtimeData>>> realtimeMap = new ConcurrentHashMap<>(500);

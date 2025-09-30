@@ -20,7 +20,8 @@ public class CountLastTimeDto {
      */
     private Object value;
 
-    public CountLastTimeDto() { }
+    public CountLastTimeDto() {
+    }
 
     public CountLastTimeDto(String time, Object value) {
         this.time = time;

@@ -13,22 +13,48 @@
     <artifactId>iboot-shiro</artifactId>
 
     <dependencies>
-        <!--shiro 权限认证-->
+        <!-- Shiro 核心依赖（使用 Jakarta EE 适配版） -->
         <dependency>
             <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-spring</artifactId>
+            <artifactId>shiro-spring</artifactId> <!-- 注意版本号 -->
+            <classifier>jakarta</classifier> <!-- 关键：指定使用 Jakarta 版本 -->
             <exclusions>
+                <!-- 排除可能传递引入的旧版（基于javax）核心组件 -->
                 <exclusion>
                     <groupId>org.apache.shiro</groupId>
-                    <artifactId>shiro-config-ogdl</artifactId>
+                    <artifactId>shiro-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.shiro</groupId>
+                    <artifactId>shiro-web</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
 
+        <!-- 显式引入适配 Jakarta EE 的 shiro-core -->
         <dependency>
-            <optional>true</optional>
-            <artifactId>spring-data-redis</artifactId>
-            <groupId>org.springframework.data</groupId>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>2.0.5</version>
+            <classifier>jakarta</classifier>
+        </dependency>
+
+        <!-- 显式引入适配 Jakarta EE 的 shiro-web -->
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-web</artifactId>
+            <version>2.0.5</version>
+            <classifier>jakarta</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- 其他依赖保持不变，例如 -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

@@ -24,7 +24,7 @@ public class JobTaskController extends BaseController {
     private final SchedulerManager schedulerManager;
 
     public JobTaskController(IJobTaskService jobTaskService
-            , SpringSupportJob springSupportJob, SchedulerManager schedulerManager) {
+        , SpringSupportJob springSupportJob, SchedulerManager schedulerManager) {
         this.jobTaskService = jobTaskService;
         this.springSupportJob = springSupportJob;
         this.schedulerManager = schedulerManager;

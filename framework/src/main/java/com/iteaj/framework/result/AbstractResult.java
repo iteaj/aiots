@@ -15,7 +15,7 @@ public abstract class AbstractResult<E> implements Result<E> {
     private long code;
     private String message;
 
-    protected static Logger logger = LoggerFactory.getLogger(Result.class);
+    protected static Logger logger = LoggerFactory.getLogger(AbstractResult.class);
 
     public AbstractResult(String message, long code) {
         this.code = code;

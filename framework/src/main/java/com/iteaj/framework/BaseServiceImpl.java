@@ -46,14 +46,25 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends Entity>
     }
 
     protected Class<T> mapperClass = currentMapperClass();
-
     protected Class<T> currentMapperClass() {
-        return (Class<T>) ReflectionKit.getSuperClassGenericType(getClass(), 0);
+        // 第一个参数：当前类
+        // 第二个参数：你要查找的父类 BaseServiceImpl
+        // 第三个参数：泛型索引
+        return (Class<T>) ReflectionKit.getSuperClassGenericType(getClass(), BaseServiceImpl.class, 0);
     }
 
     protected Class<T> currentModelClass() {
-        return (Class<T>) ReflectionKit.getSuperClassGenericType(getClass(), 1);
+        return (Class<T>) ReflectionKit.getSuperClassGenericType(getClass(), BaseServiceImpl.class, 1);
     }
+
+
+//    protected Class<T> currentMapperClass() {
+//        return (Class<T>) ReflectionKit.getSuperClassGenericType(getClass(), 0);
+//    }
+//
+//    protected Class<T> currentModelClass() {
+//        return (Class<T>) ReflectionKit.getSuperClassGenericType(getClass(), 1);
+//    }
 
     /**
      * 批量插入

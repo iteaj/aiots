@@ -34,7 +34,8 @@ public class CaptchaService {
         Captcha captcha = new Captcha(code, split[1], expire);
         try {
             captchaMapper.insert(captcha);
-        } catch (Exception e) { }
+        } catch (Exception e) {
+        }
 
         return image;
     }

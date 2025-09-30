@@ -100,7 +100,7 @@ public class EMapDetailDto {
         private CollectStatus status;
 
         public ModelAttr(String field, String name, String unit, Object value
-                , Date collectTime, CollectStatus status) {
+        , Date collectTime, CollectStatus status) {
             this.field = field;
             this.name = name;
             this.unit = unit;

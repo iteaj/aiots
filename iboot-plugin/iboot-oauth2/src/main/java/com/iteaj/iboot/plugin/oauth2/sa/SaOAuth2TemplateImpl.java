@@ -12,7 +12,7 @@ public class SaOAuth2TemplateImpl extends SaOAuth2Template {
     private final Oauth2UserService oauth2UserService;
 
     public SaOAuth2TemplateImpl(Oauth2AppService oauth2AppService
-            , Oauth2UserService oauth2UserService) {
+        , Oauth2UserService oauth2UserService) {
         this.oauth2AppService = oauth2AppService;
         this.oauth2UserService = oauth2UserService;
     }

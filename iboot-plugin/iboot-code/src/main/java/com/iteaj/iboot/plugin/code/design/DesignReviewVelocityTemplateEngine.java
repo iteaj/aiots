@@ -66,7 +66,7 @@ public class DesignReviewVelocityTemplateEngine extends LcdVelocityTemplateEngin
                 this.reviewDto.setServiceImpl(sw.toString());
             } else if(outputFile.contains(tableInfo.getControllerName())) {
                 this.reviewDto.setController(sw.toString());
-            } else if(outputFile.contains(tableInfo.getEntityName()+LowCodeConst.DTO)) {
+            } else if(outputFile.contains(tableInfo.getEntityName() + LowCodeConst.DTO)) {
                 this.reviewDto.setDto(sw.toString());
             } else if(outputFile.contains(tableInfo.getEntityName())) {
                 this.reviewDto.setEntity(sw.toString());

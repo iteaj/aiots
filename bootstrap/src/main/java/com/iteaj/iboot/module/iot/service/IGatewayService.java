@@ -46,5 +46,5 @@ public interface IGatewayService extends IBaseService<Gateway> {
      * @param gatewayDto
      * @param status
      */
-    void switchStatus(GatewayDto gatewayDto,  GatewayStatus status);
+    void switchStatus(GatewayDto gatewayDto, GatewayStatus status);
 }

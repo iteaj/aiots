@@ -43,7 +43,7 @@ public enum DataType {
             case "timestamp": return t_timestamp;
             case "string": return t_string;
             case "boolean": return t_boolean;
-            default: throw new IllegalArgumentException("未知的数据类型["+dataType+"]");
+            default: throw new IllegalArgumentException("未知的数据类型[" + dataType + "]");
         }
     }
 

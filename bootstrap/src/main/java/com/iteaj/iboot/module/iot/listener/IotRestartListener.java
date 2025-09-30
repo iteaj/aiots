@@ -41,8 +41,8 @@ public class IotRestartListener implements ApplicationReadyListener {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     public IotRestartListener(IGatewayService gatewayService
-            , IDeviceService deviceService, IProductService productService
-            , IotCacheManager iotCacheManager, @Autowired(required = false) List<IotListener> list) {
+        , IDeviceService deviceService, IProductService productService
+        , IotCacheManager iotCacheManager, @Autowired(required = false) List<IotListener> list) {
         this.gatewayService = gatewayService;
         this.deviceService = deviceService;
         this.productService = productService;

@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * 功能协议接口
  */
-public abstract class AbstractFuncProtocolModelApi extends AbstractProtocolModelApi{
+public abstract class AbstractFuncProtocolModelApi extends AbstractProtocolModelApi {
 
     private FuncType funcType;
 
@@ -53,6 +53,7 @@ public abstract class AbstractFuncProtocolModelApi extends AbstractProtocolModel
     }
 
     public AbstractFuncProtocolModelApi setFuncType(FuncType funcType) {
-        this.funcType = funcType; return this;
+        this.funcType = funcType;
+        return this;
     }
 }

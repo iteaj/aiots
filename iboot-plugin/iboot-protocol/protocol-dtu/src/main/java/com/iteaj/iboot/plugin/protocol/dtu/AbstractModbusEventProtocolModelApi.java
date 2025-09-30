@@ -87,15 +87,18 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 protocol = this.buildRead04(deviceSn, childSn, start, num);
                 break;
             default:
-                throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码["+getCode()+"]");
+                throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码[" + getCode() + "]");
         }
 
         return protocol;
     }
 
     public abstract ModbusCommonProtocol buildRead01(String equipCode, int device, int start, int num);
+
     public abstract ModbusCommonProtocol buildRead02(String equipCode, int device, int start, int num);
+
     public abstract ModbusCommonProtocol buildRead03(String equipCode, int device, int start, int num);
+
     public abstract ModbusCommonProtocol buildRead04(String equipCode, int device, int start, int num);
 
     private int getNum(ProtocolModelApiInvokeParam arg, String dataType) {
@@ -119,7 +122,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                     throw new ProtocolInvokeException("未指定要读取的寄存器数量");
                 }
             default:
-                throw new ProtocolInvokeException("不支持的数据类型["+dataType+"]");
+                throw new ProtocolInvokeException("不支持的数据类型[" + dataType + "]");
         }
     }
 
@@ -129,8 +132,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
         InvokeResult invokeResult = null;
         DataFormat dataFormat = DataFormat.valueOf(arg.getDeviceConfig("dataFormat"));
         try {
-            if(protocol instanceof ModbusTcpForDtuCommonProtocol) {
-                ModbusTcpForDtuCommonProtocol commonProtocol = (ModbusTcpForDtuCommonProtocol) protocol;
+            if(protocol instanceof ModbusTcpForDtuCommonProtocol commonProtocol) {
                 commonProtocol.timeout(arg.getTimeout()).request();
                 execStatus = commonProtocol.getExecStatus();
                 if(execStatus == ExecStatus.success) {
@@ -145,8 +147,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 } else {
                     invokeResult = InvokeResult.status(execStatus, protocol);
                 }
-            } else if(protocol instanceof ModbusRtuForDtuCommonProtocol) {
-                ModbusRtuForDtuCommonProtocol commonProtocol = (ModbusRtuForDtuCommonProtocol) protocol;
+            } else if(protocol instanceof ModbusRtuForDtuCommonProtocol commonProtocol) {
                 commonProtocol.timeout(arg.getTimeout()).request();
                 execStatus = commonProtocol.getExecStatus();
                 if(execStatus == ExecStatus.success) {
@@ -169,13 +170,13 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
             result.accept(InvokeResult.fail(e.getMessage(), protocol));
         } catch (Exception e) {
             e.printStackTrace();
-            result.accept(InvokeResult.fail("未知错误["+e.getMessage()+"]", protocol));
+            result.accept(InvokeResult.fail("未知错误[" + e.getMessage() + "]", protocol));
         }
     }
 
     public Object getValue(Payload payload, ProtocolModelApiInvokeParam arg) {
-        if(payload instanceof RealCoilPayload) {
-            List<ModbusBitStatus> statuses = ((RealCoilPayload) payload).getStatuses();
+        if(payload instanceof RealCoilPayload coilPayload) {
+            List<ModbusBitStatus> statuses = coilPayload.getStatuses();
             return statuses.get(0) == ModbusBitStatus.ON ? Boolean.TRUE : Boolean.FALSE;
         }
 
@@ -202,9 +203,9 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 int num = arg.getInteger(PointProtocolConfig.POINT_NUMBER);
                 return payload.readString(start, num);
             case "hex":
-                    return ByteUtil.bytesToHex(payload.getPayload());
+                return ByteUtil.bytesToHex(payload.getPayload());
             default:
-                throw new ProtocolInvokeException("不支持的数据类型["+dataType+"]");
+                throw new ProtocolInvokeException("不支持的数据类型[" + dataType + "]");
         }
     }
 }

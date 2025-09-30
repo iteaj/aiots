@@ -34,7 +34,7 @@ public class PushAppender extends AppenderBase<ILoggingEvent> {
             List<String> stacktrace = getStacktrace(iLoggingEvent);
             // 构建参数
             PushParams params = new PushParams((String) args[0], (String) args[1], iLoggingEvent.getFormattedMessage()
-                    , level != null ? level.toString() : "", threadName, Long.toString(iLoggingEvent.getTimeStamp()), stacktrace);
+            , level != null ? level.toString() : "", threadName, Long.toString(iLoggingEvent.getTimeStamp()), stacktrace);
             // 推送
             LoggerManager.push(level, params);
         }

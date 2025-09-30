@@ -25,6 +25,7 @@ import java.util.Objects;
 public class ISVDataController extends BaseController {
 
     private final ISVDataService isvDataService;
+
     public ISVDataController(ISVDataService isvDataService) {
         this.isvDataService = isvDataService;
     }
@@ -80,7 +81,7 @@ public class ISVDataController extends BaseController {
             if(ViewRealtimeData.Attr_PREFIX.equals(split[0])) {
                 final List<DataItemOption> itemOptions = isvDataService.listModelAttrOption(split[1]);
                 if(CollectionUtil.isNotEmpty(itemOptions)) {
-                    itemOptions.forEach(item -> results.add(item.setValue(key+DataItemOption.SPLIT+item.getValue()).setLeaf(true)));
+                    itemOptions.forEach(item -> results.add(item.setValue(key + DataItemOption.SPLIT + item.getValue()).setLeaf(true)));
                 }
             }
         }

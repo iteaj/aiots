@@ -44,7 +44,8 @@ public class DataSupplier {
             values = new ArrayList<>();
         }
 
-        values.add(value); return this;
+        values.add(value);
+        return this;
     }
 
     public DataSupplier addValue(Long id, String signalOrField, Object value) {

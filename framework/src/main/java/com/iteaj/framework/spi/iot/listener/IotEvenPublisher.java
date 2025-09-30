@@ -38,7 +38,7 @@ public class IotEvenPublisher {
                 item.onIotEvent(type, value);
             } catch (Exception e) {
                 logger.error("<<< IOT事件发布异常({}) {} - 发布值: {} - 监听对象: {}"
-                        , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
+                , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
             }
         });
     }
@@ -59,7 +59,7 @@ public class IotEvenPublisher {
                 }
 
                 logger.error("<<< IOT事件发布异常({}) {} - 发布值: {} - 监听对象: {}"
-                        , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
+                , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
             }
         });
     }

@@ -8,9 +8,9 @@ import org.springframework.core.Ordered;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.charset.StandardCharsets;
@@ -108,7 +108,7 @@ public interface WebAuthAction<T> extends Ordered {
      */
     default void writeJson(Result result, HttpServletResponse response) {
         response.setContentType("application/json;charset=utf-8");
-        try(ServletOutputStream outputStream = response.getOutputStream()) {
+        try (ServletOutputStream outputStream = response.getOutputStream()) {
             String toJson = JSONUtil.toJsonStr(result);
             outputStream.write(toJson.getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
@@ -123,13 +123,17 @@ public interface WebAuthAction<T> extends Ordered {
      * 登录的页面地址(GET)和提交表单登录地址(POST)必须相同
      * @return
      */
-    default String getLoginUrl() {return null;}
+    default String getLoginUrl() {
+        return null;
+    }
 
     /**
      * 登录成功时跳转的url地址
      * @return
      */
-    default String getSuccessUrl() { return null;}
+    default String getSuccessUrl() {
+        return null;
+    }
 
     /**
      * 将符合此url模式的请求交由此action处理
@@ -212,8 +216,8 @@ public interface WebAuthAction<T> extends Ordered {
             }
         } else { // 登录失败
             Throwable throwable = cause;
-            if(cause instanceof UndeclaredThrowableException) {
-                throwable = ((UndeclaredThrowableException) cause)
+            if(cause instanceof UndeclaredThrowableException exception) {
+                throwable = exception
                         .getUndeclaredThrowable().getCause();
             }
             cause.printStackTrace();

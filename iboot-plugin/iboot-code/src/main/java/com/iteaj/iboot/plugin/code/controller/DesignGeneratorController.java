@@ -51,8 +51,9 @@ public class DesignGeneratorController extends BaseController {
     private final ResourceManager resourceManager;
     private final LowCodeProperties properties;
     private final ILcdDesignService lcdDesignService;
+
     public DesignGeneratorController(ResourceManager resourceManager
-            , LowCodeProperties properties, ILcdDesignService lcdDesignService) {
+        , LowCodeProperties properties, ILcdDesignService lcdDesignService) {
         this.resourceManager = resourceManager;
         this.properties = properties;
         this.lcdDesignService = lcdDesignService;
@@ -66,6 +67,7 @@ public class DesignGeneratorController extends BaseController {
     public Result<List<DictResource>> dictType() {
         return success(resourceManager.getDictResources());
     }
+
     /**
      * 生成后端代码
      * @param dto
@@ -84,7 +86,7 @@ public class DesignGeneratorController extends BaseController {
         // 文件是否覆盖
         globalConfig.setFileOverride(dto.isFileOverride());
         DesignConfigBuilder configBuilder = new DesignConfigBuilder(properties.getLpc(), properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), globalConfig, dto.getTables());
+        , properties.getLsc(), new TemplateConfig(), globalConfig, dto.getTables());
 
         // 生成java相关代码
         configBuilder.setInjectionConfig(new LcdDtoInjectionConfig(configBuilder));
@@ -107,7 +109,7 @@ public class DesignGeneratorController extends BaseController {
         }
 
         DesignConfigBuilder configBuilder = new DesignConfigBuilder(properties.getLpc(), properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), properties.getLgc(), dto.getTables());
+        , properties.getLsc(), new TemplateConfig(), properties.getLgc(), dto.getTables());
         configBuilder.setInjectionConfig(new LcdVueInjectionConfig(configBuilder, properties));
 
         // 生成文件
@@ -134,7 +136,7 @@ public class DesignGeneratorController extends BaseController {
             map.put("successNum", 0);
 
             Connection conn = properties.getLdc().getConn();
-            try(Statement statement = conn.createStatement()) {
+            try (Statement statement = conn.createStatement()) {
                 listResult.forEach(item -> {
                     try {
                         final int status = statement.executeUpdate(item.getSqlScript());
@@ -167,8 +169,8 @@ public class DesignGeneratorController extends BaseController {
         }
 
         DesignConfigBuilder configBuilder = new DesignConfigBuilder(properties.getLpc(), properties.getLdc()
-                , properties.getLsc(), new TemplateConfig().setEntity("/templates/lcd.entity.java")
-                , properties.getLgc(), Arrays.asList(tableName));
+        , properties.getLsc(), new TemplateConfig().setEntity("/templates/lcd.entity.java")
+        , properties.getLgc(), Arrays.asList(tableName));
 
         final DesignReviewVelocityTemplateEngine engine = new DesignReviewVelocityTemplateEngine(properties);
         engine.init(pretreatmentConfigBuilder(configBuilder)).mkdirs().batchOutput();
@@ -183,42 +185,42 @@ public class DesignGeneratorController extends BaseController {
         List<TableInfo> tableList = config.getTableInfoList();
         for (TableInfo tableInfo : tableList) {
             /* ---------- 添加导入包 ---------- */
-            if (config.getGlobalConfig().isActiveRecord()) {
+            if(config.getGlobalConfig().isActiveRecord()) {
                 // 开启 ActiveRecord 模式
                 tableInfo.setImportPackages(Model.class.getCanonicalName());
             }
-            if (tableInfo.isConvert()) {
+            if(tableInfo.isConvert()) {
                 // 表注解
                 tableInfo.setImportPackages(TableName.class.getCanonicalName());
             }
-            if (config.getStrategyConfig().getLogicDeleteFieldName() != null && tableInfo.isLogicDelete(config.getStrategyConfig().getLogicDeleteFieldName())) {
+            if(config.getStrategyConfig().getLogicDeleteFieldName() != null && tableInfo.isLogicDelete(config.getStrategyConfig().getLogicDeleteFieldName())) {
                 // 逻辑删除注解
                 tableInfo.setImportPackages(TableLogic.class.getCanonicalName());
             }
-            if (StringUtils.isNotBlank(config.getStrategyConfig().getVersionFieldName())) {
+            if(StringUtils.isNotBlank(config.getStrategyConfig().getVersionFieldName())) {
                 // 乐观锁注解
                 tableInfo.setImportPackages(Version.class.getCanonicalName());
             }
             boolean importSerializable = true;
-            if (StringUtils.isNotBlank(config.getStrategyConfig().getSuperEntityClass())) {
+            if(StringUtils.isNotBlank(config.getStrategyConfig().getSuperEntityClass())) {
                 // 父实体
                 tableInfo.setImportPackages(config.getStrategyConfig().getSuperEntityClass());
                 importSerializable = false;
             }
-            if (config.getGlobalConfig().isActiveRecord()) {
+            if(config.getGlobalConfig().isActiveRecord()) {
                 importSerializable = true;
             }
-            if (importSerializable) {
+            if(importSerializable) {
                 tableInfo.setImportPackages(Serializable.class.getCanonicalName());
             }
             // Boolean类型is前缀处理
-            if (config.getStrategyConfig().isEntityBooleanColumnRemoveIsPrefix()
+            if(config.getStrategyConfig().isEntityBooleanColumnRemoveIsPrefix()
                     && CollectionUtils.isNotEmpty(tableInfo.getFields())) {
                 List<TableField> tableFields = tableInfo.getFields().stream().filter(field -> "boolean".equalsIgnoreCase(field.getPropertyType()))
                         .filter(field -> field.getPropertyName().startsWith("is")).collect(Collectors.toList());
                 tableFields.forEach(field -> {
                     //主键为is的情况基本上是不存在的.
-                    if (field.isKeyFlag()) {
+                    if(field.isKeyFlag()) {
                         tableInfo.setImportPackages(TableId.class.getCanonicalName());
                     } else {
                         tableInfo.setImportPackages(com.baomidou.mybatisplus.annotation.TableField.class.getCanonicalName());

@@ -19,7 +19,8 @@ public class StoreActionFactory implements InitializingBean {
     @Autowired(required = false)
     private List<StoreAction> actions;
 
-    protected StoreActionFactory() { }
+    protected StoreActionFactory() {
+    }
 
     private Map<String, StoreAction> actionMap = new ConcurrentHashMap<>(8);
     private static StoreActionFactory actionFactory = new StoreActionFactory();
@@ -107,7 +108,7 @@ public class StoreActionFactory implements InitializingBean {
                 if(!this.isExists(item.getName())) {
                     this.register(item);
                 } else {
-                    throw new BeanInitializationException("存在相同的采集动作["+item.getName()+"]");
+                    throw new BeanInitializationException("存在相同的采集动作[" + item.getName() + "]");
                 }
             });
         }

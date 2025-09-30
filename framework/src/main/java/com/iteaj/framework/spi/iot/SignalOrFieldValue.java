@@ -59,7 +59,8 @@ public class SignalOrFieldValue {
     }
 
     public SignalOrFieldValue builder(CollectStatus status) {
-        this.status = status; return this;
+        this.status = status;
+        return this;
     }
 
     public static SignalOrFieldValue build(Long id, String signalOrField, Object value) {

@@ -15,7 +15,6 @@ public interface ComponentProperties {
     Integer getPort();
 
 
-
     /**
      * 读写空闲
      * @return

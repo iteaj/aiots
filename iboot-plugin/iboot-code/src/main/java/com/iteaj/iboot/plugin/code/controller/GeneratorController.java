@@ -29,8 +29,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -59,8 +59,8 @@ public class GeneratorController extends BaseController implements InitializingB
     private Pattern pattern = Pattern.compile("jdbc:.*((//)|@)(?<host>.+):(?<port>\\d+)/(?<db>.*)\\?.*");
 
     public GeneratorController(List<Module> modules, Environment environment
-            , LowCodeProperties properties, ResourceManager resourceManager
-            , FrameworkProperties frameworkProperties) {
+        , LowCodeProperties properties, ResourceManager resourceManager
+        , FrameworkProperties frameworkProperties) {
         this.modules = modules;
         this.environment = environment;
         this.properties = properties;
@@ -76,7 +76,7 @@ public class GeneratorController extends BaseController implements InitializingB
     public Result<List<TableInfo>> list(final String name, final String prefix) {
         initTableQuerySql(name, prefix, null);
         List<TableInfo> tableInfoList = new ConfigBuilder(properties.getLpc(), properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), properties.getLgc()).getTableInfoList();
+        , properties.getLsc(), new TemplateConfig(), properties.getLgc()).getTableInfoList();
         if(CollectionUtil.isNotEmpty(tableInfoList)) {
             tableInfoList.forEach(item -> {
                 item.setFields(null); // 不写字段信息到前端
@@ -118,7 +118,7 @@ public class GeneratorController extends BaseController implements InitializingB
     @GetMapping("getOutDir")
     public Result<GenDirDto> getOutDir() {
         return success(new GenDirDto(properties.getLgc().getOutputDir()
-                , properties.getProjectPath())
+        , properties.getProjectPath())
                 .setModuleName(properties.getLpc().getModuleName())
                 .setParentPackage(properties.getLpc().getParent()));
     }
@@ -197,7 +197,7 @@ public class GeneratorController extends BaseController implements InitializingB
 
         BeanUtils.copyProperties(properties.getLgc(), globalConfig);
         // 设置输出目录
-        globalConfig.setOutputDir(dto.getOutDir() + String.format("%ssrc%smain%sjava", File.separator, File.separator, File.separator));
+        globalConfig.setOutputDir(dto.getOutDir() + "%ssrc%smain%sjava".formatted(File.separator, File.separator, File.separator));
 
         PackageConfig packageConfig = new PackageConfig();
         BeanUtils.copyProperties(properties.getLpc(), packageConfig);
@@ -206,7 +206,7 @@ public class GeneratorController extends BaseController implements InitializingB
         // 文件是否覆盖
         globalConfig.setFileOverride(dto.isFileOverride());
         ConfigBuilder configBuilder = new ConfigBuilder(packageConfig, properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), globalConfig);
+        , properties.getLsc(), new TemplateConfig(), globalConfig);
 
         configBuilder.setInjectionConfig(new ExtraInjectionConfig().setConfig(configBuilder));
 
@@ -242,7 +242,7 @@ public class GeneratorController extends BaseController implements InitializingB
             dto.setMsn(resourceManager.getMsnByMenuId(dto.getMenuId()));
 
             Connection conn = properties.getLdc().getConn();
-            try(Statement statement = conn.createStatement()) {
+            try (Statement statement = conn.createStatement()) {
                 configBuilder.getTableInfoList().forEach(tableInfo -> {
                     url.append("/").append(dto.getPackageName())
                             .append("/").append(tableInfo.getEntityPath());
@@ -265,10 +265,9 @@ public class GeneratorController extends BaseController implements InitializingB
     private void writeMenuToDb(TableInfo tableInfo, GenConfigDto dto, LowCodeProperties properties, Statement statement) {
         try {
             final String comment = LowCodeUtil.getModuleName(tableInfo.getComment());
-            String url = "/"+dto.getPackageName()+"/" + tableInfo.getEntityPath();
-            String perm = dto.getPackageName()+":"+tableInfo.getEntityPath();
-            String insertSql= String.format("insert into sys_menu (pid, name, url, perms, type, msn, sort) value (%s, '%s', '%s', '%s', 'V', '%s', 158);"
-                    , dto.getMenuId(), comment, url, perm+":"+"view", dto.getMsn());
+            String url = "/" + dto.getPackageName() + "/" + tableInfo.getEntityPath();
+            String perm = dto.getPackageName() + ":" + tableInfo.getEntityPath();
+            String insertSql = "insert into sys_menu (pid, name, url, perms, type, msn, sort) value (%s, '%s', '%s', '%s', 'V', '%s', 158);".formatted(dto.getMenuId(), comment, url, perm + ":" + "view", dto.getMsn());
             statement.executeUpdate(insertSql);
 
             // 查找刚刚插入的菜单id
@@ -278,13 +277,13 @@ public class GeneratorController extends BaseController implements InitializingB
 
             StringBuilder batchSql = new StringBuilder("insert into sys_menu (pid, name, url, perms, type, msn, sort) values ");
             // 查询列表
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 5),", pid, "查询", url+"/view", perm+":view", dto.getMsn()));
+            batchSql.append("(%s, '%s', '%s', '%s', 'A', '%s', 5),".formatted(pid, "查询", url + "/view", perm + ":view", dto.getMsn()));
             // 新增
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 10),", pid, "新增", url+"/add", perm+":add", dto.getMsn()));
+            batchSql.append("(%s, '%s', '%s', '%s', 'A', '%s', 10),".formatted(pid, "新增", url + "/add", perm + ":add", dto.getMsn()));
             // 修改
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 15),", pid, "修改", url+"/edit", perm+":edit", dto.getMsn()));
+            batchSql.append("(%s, '%s', '%s', '%s', 'A', '%s', 15),".formatted(pid, "修改", url + "/edit", perm + ":edit", dto.getMsn()));
             // 删除
-            batchSql.append(String.format("(%s, '%s', '%s', '%s', 'A', '%s', 20);", pid, "删除", url+"/del", perm+":del", dto.getMsn()));
+            batchSql.append("(%s, '%s', '%s', '%s', 'A', '%s', 20);".formatted(pid, "删除", url + "/del", perm + ":del", dto.getMsn()));
             statement.executeUpdate(batchSql.toString());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -304,13 +303,13 @@ public class GeneratorController extends BaseController implements InitializingB
         packageConfig.setModuleName(dto.getPackageName());
 
         ConfigBuilder configBuilder = new ConfigBuilder(packageConfig, properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), properties.getLgc());
+        , properties.getLsc(), new TemplateConfig(), properties.getLgc());
         response.setContentType("application/octet-stream");
 
         // 生成文件
         ServletOutputStream outputStream = response.getOutputStream();
         new AutoGenerator().setTemplateEngine(new VelocityVueTemplateZipEngine(outputStream
-                , properties)).setConfig(configBuilder).execute();
+        , properties)).setConfig(configBuilder).execute();
     }
 
     /**
@@ -336,7 +335,7 @@ public class GeneratorController extends BaseController implements InitializingB
 
         initTableQuerySql(null, null, Arrays.asList(tableName));
         ConfigBuilder configBuilder = new ConfigBuilder(packageConfig, properties.getLdc()
-                , properties.getLsc(), new TemplateConfig(), properties.getLgc());
+        , properties.getLsc(), new TemplateConfig(), properties.getLgc());
 
         // 生成文件
         VelocityReviewTemplateEngine engine = new VelocityReviewTemplateEngine(properties);
@@ -350,21 +349,21 @@ public class GeneratorController extends BaseController implements InitializingB
     private String getMenuSql(ConfigBuilder configBuilder, String msn, String packageName) {
         final TableInfo tableInfo = configBuilder.getTableInfoList().get(0);
         final String comment = LowCodeUtil.getModuleName(tableInfo.getComment());
-        String url = "/"+packageName+"/" + tableInfo.getEntityPath();
-        String perm = packageName+":"+tableInfo.getEntityPath();
+        String url = "/" + packageName + "/" + tableInfo.getEntityPath();
+        String perm = packageName + ":" + tableInfo.getEntityPath();
 
         StringBuilder batchSql = new StringBuilder();
-        batchSql.append(String.format("insert into sys_menu (pid, name, url, perms, type, remark, msn, sort) \n\tvalue (%s, '%s管理', '%s', '%s', 'V', '浏览%s', '%s', 158);\n", 0, comment, url, perm+":"+"view", comment, msn));
+        batchSql.append("insert into sys_menu (pid, name, url, perms, type, remark, msn, sort) \n\tvalue (%s, '%s管理', '%s', '%s', 'V', '浏览%s', '%s', 158);\n".formatted(0, comment, url, perm + ":" + "view", comment, msn));
         batchSql.append("set @pid = (select last_insert_id());\n");
         batchSql.append("insert into sys_menu (pid, name, url, perms, type, remark, msn, sort) values \n");
         // 查询列表
-        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '查询', '%s', 5),\n", "@pid", "查询", url+"/view", perm+":view", msn));
+        batchSql.append("\t(%s, '%s', '%s', '%s', 'A', '查询', '%s', 5),\n".formatted("@pid", "查询", url + "/view", perm + ":view", msn));
         // 新增
-        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '新增', '%s', 10),\n", "@pid", "新增", url+"/add", perm+":add", msn));
+        batchSql.append("\t(%s, '%s', '%s', '%s', 'A', '新增', '%s', 10),\n".formatted("@pid", "新增", url + "/add", perm + ":add", msn));
         // 修改
-        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '修改', '%s', 15),\n", "@pid", "修改", url+"/edit", perm+":edit", msn));
+        batchSql.append("\t(%s, '%s', '%s', '%s', 'A', '修改', '%s', 15),\n".formatted("@pid", "修改", url + "/edit", perm + ":edit", msn));
         // 删除
-        batchSql.append(String.format("\t(%s, '%s', '%s', '%s', 'A', '删除', '%s', 20);", "@pid", "删除", url+"/del", perm+":del", msn));
+        batchSql.append("\t(%s, '%s', '%s', '%s', 'A', '删除', '%s', 20);".formatted("@pid", "删除", url + "/del", perm + ":del", msn));
         return batchSql.toString();
     }
 
@@ -390,7 +389,7 @@ public class GeneratorController extends BaseController implements InitializingB
 
             @Override
             public String[] fieldCustom() {
-                return new String[] {"key", "null", "default"};
+                return new String[]{"key", "null", "default"};
             }
 
             @Override

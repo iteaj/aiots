@@ -32,7 +32,7 @@ public class CacheEntry {
         this(name, expire, Object.class, type);
     }
 
-    public CacheEntry( String name, long expire, Class<?> clazz, SerializerType type) {
+    public CacheEntry(String name, long expire, Class<?> clazz, SerializerType type) {
         this.expire = expire;
         this.name = name;
         this.clazz = clazz;

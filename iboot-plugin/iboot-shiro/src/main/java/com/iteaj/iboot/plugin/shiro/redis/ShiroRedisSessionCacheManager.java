@@ -58,21 +58,21 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
         return cache;
     }
 
-    protected class RedisSessionCache implements Cache<String, Session>{
+    protected class RedisSessionCache implements Cache<String, Session> {
 
         @SneakyThrows
         @Override
         public Session get(String s) throws CacheException {
             // 首先先从线程上下文获取session, 将session和线程绑定
             Object session = SecurityUtil.getRequestAttr(s).orElse(null);
-            if(session instanceof Session) {
-                return (Session) session;
+            if(session instanceof Session session1) {
+                return session1;
             }
 
-            session = valueOperations.get(CoreConst.SESSION_KEY_PREFIX +s);
-            if(session instanceof Session) {
+            session = valueOperations.get(CoreConst.SESSION_KEY_PREFIX + s);
+            if(session instanceof Session session1) {
                 SecurityUtil.setRequestAttr(s, session);
-                return (Session) session;
+                return session1;
             }
 
             return null;
@@ -80,16 +80,16 @@ public class ShiroRedisSessionCacheManager implements CacheManager, Initializing
 
         @Override
         public Session put(String s, Session session) throws CacheException {
-            valueOperations.set(CoreConst.SESSION_KEY_PREFIX+s, session, session.getTimeout(), TimeUnit.MILLISECONDS);
+            valueOperations.set(CoreConst.SESSION_KEY_PREFIX + s, session, session.getTimeout(), TimeUnit.MILLISECONDS);
             SecurityUtil.setRequestAttr(s, session);
             return session;
         }
 
         @Override
         public Session remove(String s) throws CacheException {
-            final Session session = this.get(CoreConst.SESSION_KEY_PREFIX+s);
+            final Session session = this.get(CoreConst.SESSION_KEY_PREFIX + s);
             if(session != null) {
-                redisTemplate.delete(CoreConst.SESSION_KEY_PREFIX+s);
+                redisTemplate.delete(CoreConst.SESSION_KEY_PREFIX + s);
             }
 
             return session;

@@ -41,10 +41,10 @@ public class Role extends BaseEntity {
     private String remark;
 
     /**创建时间*/
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 
     /**更新时间*/
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date updateTime;
 }

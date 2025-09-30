@@ -1,0 +1,27 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: com.iteaj.migrate.SpringBoot3Migration
+displayName: Spring Boot 2.7 to 3.1 migration
+description: 全面迁移 javax 到 jakarta，并升级 Spring Boot 3.1 API
+
+recipeList:
+  # === 1. 先执行 Java 17 升级（基础） ===
+  - org.openrewrite.java.migrate.UpgradeToJava17
+
+  # === 2. 强制 Servlet API 迁移（关键） ===
+  - org.openrewrite.java.migrate.javax.AddJakartaServletApi
+  - org.openrewrite.java.migrate.jakarta.JavaxServletToJakartaServlet
+
+  # === 3. 全局 Javax -> Jakarta 迁移 ===
+  - org.openrewrite.java.migrate.JavaxToJakarta
+
+  # === 4. Spring Boot 核心升级 ===
+  - org.openrewrite.java.spring.boot2.SpringBoot2To3Migration
+  - org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1
+
+  # === 5. 其他依赖迁移 ===
+  - org.openrewrite.java.migrate.jaxb.JaxbToJakarta
+  - org.openrewrite.java.logging.slf4j.Slf4jBestPractices
+
+  # === 6. 清理和优化 ===
+  - org.openrewrite.java.cleanup.RemoveUnusedImports
+  - org.openrewrite.java.format.AutoFormat

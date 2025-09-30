@@ -5,10 +5,10 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.web.WebUtils;
 import org.apache.shiro.web.filter.authc.UserFilter;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class ShiroAdminFilter extends UserFilter {
 

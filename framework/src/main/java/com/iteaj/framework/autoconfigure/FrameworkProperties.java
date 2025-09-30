@@ -74,12 +74,12 @@ public class FrameworkProperties {
         /**
          * 文件访问pattern如 /file/**
          */
-        private String pattern = String.format("%sfile%s**", File.separator, File.separator);
+        private String pattern = "%sfile%s**".formatted(File.separator, File.separator);
 
         /**
          * 文件存放路径必须以file: 或 classpath: 开头
          */
-        private String location = String.format("file:D:%supload%s", File.separator, File.separator);
+        private String location = "file:D:%supload%s".formatted(File.separator, File.separator);
 
         public String getLocationPath() {
             return location.contains("file:") ? location.split("file:")[1] : location.split("classpath:")[1];

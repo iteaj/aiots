@@ -33,10 +33,14 @@ public class DictTypeServiceImpl extends BaseServiceImpl<IDictTypeDao, DictType>
     @Override
     public BooleanResult save(DictType entity) {
         getOne(Wrappers.<DictType>lambdaQuery().eq(DictType::getType, entity.getType())).ofNullable()
-                .ifPresent(item -> {throw new ServiceException("字典类型重复["+entity.getType()+"]");});
+                .ifPresent(item -> {
+                    throw new ServiceException("字典类型重复[" + entity.getType() + "]");
+                });
 
         getOne(Wrappers.<DictType>lambdaQuery().eq(DictType::getName, entity.getName())).ofNullable()
-                .ifPresent(item -> {throw new ServiceException("字典名称重复["+entity.getName()+"]");});
+                .ifPresent(item -> {
+                    throw new ServiceException("字典名称重复[" + entity.getName() + "]");
+                });
 
         return super.save(entity);
     }
@@ -46,7 +50,7 @@ public class DictTypeServiceImpl extends BaseServiceImpl<IDictTypeDao, DictType>
         getOne(Wrappers.<DictType>lambdaQuery().eq(DictType::getName, entity.getName())).ofNullable()
                 .ifPresent(item -> {
                     if(item.getId().compareTo(entity.getId()) != 0) {
-                        throw new ServiceException("字典名称重复["+entity.getName()+"]");
+                        throw new ServiceException("字典名称重复[" + entity.getName() + "]");
                     }
                 });
 

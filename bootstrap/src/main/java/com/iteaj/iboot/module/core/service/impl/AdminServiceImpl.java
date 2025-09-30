@@ -42,7 +42,7 @@ public class AdminServiceImpl extends BaseServiceImpl<IAdminDao, Admin> implemen
     public void createAdmin(AdminDto adminDto) {
         if(null == adminDto) throw new ServiceException("创建失败");
         Admin byAccount = this.getByAccount(adminDto.getAccount());
-        if(null != byAccount) throw new ServiceException("此账号已经存在："+adminDto.getAccount());
+        if(null != byAccount) throw new ServiceException("此账号已经存在：" + adminDto.getAccount());
 
         if(StrUtil.isNotBlank(adminDto.getPassword())) {
             adminDto.setPassword(SecureUtil.md5(adminDto.getPassword()));

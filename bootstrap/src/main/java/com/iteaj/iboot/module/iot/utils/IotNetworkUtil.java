@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
 
 public class IotNetworkUtil {
 
-        /**
+    /**
      * 网络控制
      * @param protocolCode 协议码
      * @param device
@@ -32,7 +32,7 @@ public class IotNetworkUtil {
     public static Object networkCtrl(String protocolCode, Device device, FuncStatus status) {
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
         if(supplier == null) {
-            throw new ServiceException("协议驱动["+protocolCode+"]不存在");
+            throw new ServiceException("协议驱动[" + protocolCode + "]不存在");
         }
 
         return networkCtrl(supplier, device, status);
@@ -67,14 +67,14 @@ public class IotNetworkUtil {
 
     private static Object resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status, FrameworkComponent component) {
         if(status == FuncStatus.enabled) {
-            if(client instanceof TcpSocketClient) {
-                if(!((TcpSocketClient) client).isConnect()) {
+            if(client instanceof TcpSocketClient socketClient) {
+                if(!socketClient.isConnect()) {
                     return client.connect();
                 }
             } else {
                 Object connect = client.connect();
-                if(connect instanceof Boolean) {
-                    if((boolean) connect) {
+                if(connect instanceof Boolean boolean1) {
+                    if(boolean1) {
                         FrameworkManager.publishEvent(new StatusEvent(client, ClientStatus.online, component));
                     }
                 }
@@ -86,8 +86,8 @@ public class IotNetworkUtil {
                 return client.close(); // 断开连接并且移除客户端
             } else {
                 Object close = client.close();
-                if(close instanceof Boolean) {
-                    if((Boolean) close) {
+                if(close instanceof Boolean boolean1) {
+                    if(boolean1) {
                         client.getClientComponent().removeClient(client.getConfig());
                         FrameworkManager.publishEvent(new StatusEvent(client, ClientStatus.offline, component));
                     }
@@ -96,7 +96,7 @@ public class IotNetworkUtil {
                 return close;
             }
         } else {
-            throw new ServiceException("错误的状态[status="+status+"]");
+            throw new ServiceException("错误的状态[status=" + status + "]");
         }
 
         return null;
@@ -105,8 +105,8 @@ public class IotNetworkUtil {
     public static void removeClient(RealtimeStatus status) {
         String protocolCode = status.getProtocolCode();
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
-        if(supplier instanceof ClientProtocolSupplier) {
-            final IotClient client = ((ClientProtocolSupplier<?, ?, ?>) supplier).removeClient(status.getDeviceSn());
+        if(supplier instanceof ClientProtocolSupplier<?, ?, ?> protocolSupplier) {
+            final IotClient client = protocolSupplier.removeClient(status.getDeviceSn());
             if(client != null) {
                 client.close();
             }

@@ -6,7 +6,7 @@ import lombok.Getter;
  * 自定义对象获取
  */
 @Getter
-public abstract class OriginFetchResult extends ViewFetchResult{
+public abstract class OriginFetchResult extends ViewFetchResult {
 
     /**
      * 是否是原始数据

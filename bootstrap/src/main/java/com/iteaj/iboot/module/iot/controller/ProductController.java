@@ -151,7 +151,7 @@ public class ProductController extends BaseController {
     @Logger("切换产品状态")
     @PostMapping("switch/{id}/{status}")
     @CheckPermission({"iot:gateway:switch"})
-    public Result<Boolean> switchStatus(@PathVariable Long id,  @PathVariable FuncStatus status) {
+    public Result<Boolean> switchStatus(@PathVariable Long id, @PathVariable FuncStatus status) {
         this.productService.switchStatus(id, status);
         return success(true);
     }

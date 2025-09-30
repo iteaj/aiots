@@ -95,7 +95,7 @@ public class RealtimeDataController extends BaseController {
     public Result<RealtimeData> getByEventOrSignalField(Long deviceId, String signalOrField) {
         DeviceDto device = deviceService.detailById(deviceId).ifNotPresentThrow("设备不存在").getData();
         RealtimeData realtimeData = realtimeDataService.getOfDeviceAndKey(device.getProductCode()
-                , DeviceKey.build(device.getDeviceSn(), device.getDeviceSn()), signalOrField);
+        , DeviceKey.build(device.getDeviceSn(), device.getDeviceSn()), signalOrField);
         return success(realtimeData);
     }
 }

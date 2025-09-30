@@ -81,7 +81,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
             devices.forEach(device -> {
                 try {
                     IotLogger.info(device.getStatus(), device.getUid(), "设备{} - 设备编号: {}"
-                            , device.getStatus() == DeviceStatus.online ? "上线" : "离线", device.getDeviceSn());
+                    , device.getStatus() == DeviceStatus.online ? "上线" : "离线", device.getDeviceSn());
                     String jsonString = JSONObject.toJSONString(PushData.buildStatus(device));
                     doPush(device.getUid(), jsonString, TYPE_STATUS);
                 } catch (Exception e) {
@@ -130,7 +130,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
         try {
             Map<String, SignalOrFieldValue> valueMap = new HashMap<>();
             valueMap.put(data.getAddress(), SignalOrFieldValue.build(data.getSignalId()
-                    , data.getAddress(), data.getCollectTime(), data.getValue()).builder(data.getCollectStatus()));
+            , data.getAddress(), data.getCollectTime(), data.getValue()).builder(data.getCollectStatus()));
             String deviceUid = device.getUid().toString();
             String jsonString = JSONObject.toJSONString(PushData.buildSignal(deviceUid, valueMap));
 

@@ -40,7 +40,8 @@ public class ProtocolModelApiInvokeParam {
     public static final String PARENT_DEVICE_CONFIG = "_ParentDeviceConfig";
     public static final String INVOKE_UP_CONFIG = "_InvokeUpConfig";
 
-    public ProtocolModelApiInvokeParam() { }
+    public ProtocolModelApiInvokeParam() {
+    }
 
     public ProtocolModelApiInvokeParam(String uid) {
         this(uid, new JSONObject());
@@ -100,7 +101,8 @@ public class ProtocolModelApiInvokeParam {
     }
 
     public ProtocolModelApiInvokeParam addUpAttrs(List<UpModelAttr> attrs) {
-        this.addConfig(INVOKE_UP_CONFIG, attrs); return this;
+        this.addConfig(INVOKE_UP_CONFIG, attrs);
+        return this;
     }
 
     public DeviceKey buildKey() {
@@ -124,7 +126,8 @@ public class ProtocolModelApiInvokeParam {
     }
 
     public ProtocolModelApiInvokeParam addParam(String key, Object value) {
-        param.put(key, value); return this;
+        param.put(key, value);
+        return this;
     }
 
     public Map getConfig() {
@@ -149,11 +152,13 @@ public class ProtocolModelApiInvokeParam {
     }
 
     public ProtocolModelApiInvokeParam addDeviceConfig(JSONObject config) {
-        this.addConfig(DEVICE_CONFIG, config); return this;
+        this.addConfig(DEVICE_CONFIG, config);
+        return this;
     }
 
     public ProtocolModelApiInvokeParam addParentDeviceConfig(JSONObject config) {
-        this.addConfig(PARENT_DEVICE_CONFIG, config); return this;
+        this.addConfig(PARENT_DEVICE_CONFIG, config);
+        return this;
     }
 
     public <T> T getDeviceConfig(String key) {

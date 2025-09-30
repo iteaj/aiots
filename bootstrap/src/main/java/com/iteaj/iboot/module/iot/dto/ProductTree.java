@@ -56,7 +56,8 @@ public class ProductTree {
      */
     private List<ProductTree> children;
 
-    public ProductTree() { }
+    public ProductTree() {
+    }
 
     protected ProductTree(Long id, Long pid, String type, String name) {
         this(id, pid, type, name, null);
@@ -73,7 +74,7 @@ public class ProductTree {
     }
 
     public static ProductTree buildProduct(Long id, Long pid, String name) {
-        return new ProductTree(id, pid, "product", name).setPkey("productType:"+pid).setIsLeaf(true);
+        return new ProductTree(id, pid, "product", name).setPkey("productType:" + pid).setIsLeaf(true);
     }
 
     public static ProductTree buildProductType(Long id, Long pid, String name) {

@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.admin;
 
-public interface DictResource extends Resource{
+public interface DictResource extends Resource {
 
     /**
      * 返回字典名称

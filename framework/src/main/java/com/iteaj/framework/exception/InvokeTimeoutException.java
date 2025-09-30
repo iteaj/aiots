@@ -1,6 +1,6 @@
 package com.iteaj.framework.exception;
 
-public class InvokeTimeoutException extends ServiceException{
+public class InvokeTimeoutException extends ServiceException {
 
     public InvokeTimeoutException(String message) {
         super(message);

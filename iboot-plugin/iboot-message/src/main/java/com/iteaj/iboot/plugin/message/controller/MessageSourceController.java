@@ -34,7 +34,7 @@ public class MessageSourceController extends BaseController {
     private final IMessageSourceService messageSourceService;
 
     public MessageSourceController(@Autowired(required = false) MessageManager messageManager
-            , IMessageSourceService messageSourceService) {
+        , IMessageSourceService messageSourceService) {
         this.messageManager = messageManager;
         this.messageSourceService = messageSourceService;
     }
@@ -77,7 +77,7 @@ public class MessageSourceController extends BaseController {
                     service.build(entity.getConfig());
                     messageManager.registerOrUpdateDefault(service);
                 } else {
-                    throw new ServiceException("没有找到对应的通道服务["+record.getChannel()+"]");
+                    throw new ServiceException("没有找到对应的通道服务[" + record.getChannel() + "]");
                 }
             });
         }
@@ -140,7 +140,7 @@ public class MessageSourceController extends BaseController {
                 MessageService messageService = services.stream().findFirst().get();
                 IVOption ivOption = new IVOption(messageService.getName(), messageService.getType());
                 services.forEach(channel -> ivOption.addChildren(channel.getChannelName()
-                        , channel.getChannelId(), channel.getConfigParams()));
+                , channel.getChannelId(), channel.getConfigParams()));
 
                 return ivOption;
             }).distinct().collect(Collectors.toList());

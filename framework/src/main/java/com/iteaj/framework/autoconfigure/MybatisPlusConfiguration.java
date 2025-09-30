@@ -37,8 +37,8 @@ public class MybatisPlusConfiguration {
         return new PaginationInnerInterceptor(DbType.MYSQL);
     }
 
-    @Bean
-    public ConfigurationCustomizer configurationCustomizer() {
-        return configuration -> configuration.setUseDeprecatedExecutor(false);
-    }
+//    @Bean
+//    public ConfigurationCustomizer configurationCustomizer() {
+//        return configuration -> configuration.setUseDeprecatedExecutor(false);
+//    }
 }

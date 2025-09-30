@@ -53,7 +53,7 @@ public interface NetworkConfig {
         } else if(protocol == TransportProtocol.SERIAL) {
             return config.toJavaObject(NetworkConfigImpl.SerialConfig.class);
         } else {
-            throw new ServiceException("错误的协议类型["+protocol+"]");
+            throw new ServiceException("错误的协议类型[" + protocol + "]");
         }
     }
 }

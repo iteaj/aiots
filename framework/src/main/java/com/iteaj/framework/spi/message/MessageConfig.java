@@ -13,7 +13,8 @@ public class MessageConfig {
 
     private JSONObject config;
 
-    protected MessageConfig() { }
+    protected MessageConfig() {
+    }
 
     public MessageConfig(String type, String channelId, JSONObject config) {
         this.type = type;

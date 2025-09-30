@@ -27,8 +27,8 @@ public class IotIndexController extends BaseController {
     private final RealtimeCollectDataService collectDataService;
 
     public IotIndexController(IDeviceService deviceService, IProductService productService
-            , IProtocolService protocolService, RealtimeCollectDataService collectDataService
-            , IEventSourceService eventSourceService) {
+        , IProtocolService protocolService, RealtimeCollectDataService collectDataService
+        , IEventSourceService eventSourceService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.protocolService = protocolService;

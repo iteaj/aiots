@@ -131,7 +131,8 @@ public class ViewRealtimePushListener implements WebSocketServerListener, EventG
                                             .append(DataItemOption.SPLIT).append(item.getAttr());
                                     final String keyValue = key.toString();
                                     if(binds.contains(keyValue)) {
-                                        item.setKey(keyValue); return true;
+                                        item.setKey(keyValue);
+                                        return true;
                                     }
 
                                     return false;
@@ -142,11 +143,13 @@ public class ViewRealtimePushListener implements WebSocketServerListener, EventG
                                             .append(DataItemOption.SPLIT).append(item.getProductCode());
                                     String keyValue = key.toString();
                                     if(binds.contains(keyValue)) {
-                                        item.setKey(keyValue); return true;
+                                        item.setKey(keyValue);
+                                        return true;
                                     } else {
                                         keyValue = key.append(DataItemOption.SPLIT).append(item.getUid()).toString();
                                         if(binds.contains(keyValue)) {
-                                            item.setKey(keyValue); return true;
+                                            item.setKey(keyValue);
+                                            return true;
                                         }
                                     }
 

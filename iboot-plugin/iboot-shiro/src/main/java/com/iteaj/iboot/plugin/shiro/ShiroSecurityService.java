@@ -15,8 +15,8 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.DefaultSessionKey;
 import org.apache.shiro.subject.Subject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ public class ShiroSecurityService implements SecurityService {
     private final AuthorizationService authorizationService;
 
     public ShiroSecurityService(FrameworkProperties properties
-            , AuthorizationService authorizationService) {
+        , AuthorizationService authorizationService) {
         this.properties = properties;
         this.authorizationService = authorizationService;
     }
@@ -56,7 +56,7 @@ public class ShiroSecurityService implements SecurityService {
         if(logical == Logical.AND) {
             return SecurityUtils.getSubject().hasAllRoles(Arrays.asList(roles));
         } else {
-            for(boolean item : SecurityUtils.getSubject().hasRoles(Arrays.asList(roles))) {
+            for (boolean item : SecurityUtils.getSubject().hasRoles(Arrays.asList(roles))) {
                 if(item) {
                     return true;
                 }
@@ -77,7 +77,7 @@ public class ShiroSecurityService implements SecurityService {
             return SecurityUtils.getSubject().isPermittedAll(permissions);
         } else {
             boolean[] permitted = SecurityUtils.getSubject().isPermitted(permissions);
-            for(boolean item : permitted) {
+            for (boolean item : permitted) {
                 if(item) {
                     return true;
                 }

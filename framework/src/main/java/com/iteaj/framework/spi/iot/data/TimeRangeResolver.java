@@ -45,7 +45,8 @@ public class TimeRangeResolver {
         }
 
         if(result[1].trim().equalsIgnoreCase("now")) {
-            endTime = new DateTime(); endOffset = endOffset + 1;
+            endTime = new DateTime();
+            endOffset = endOffset + 1;
         } else if(result[1].contains("now")) {
             endTime = new DateTime();
             String replaceAll = result[1].replaceAll(" ", "");
@@ -143,10 +144,11 @@ public class TimeRangeResolver {
                 tempDate = tempDate.offset(DateField.HOUR_OF_DAY, 1);
             }
         } else {
-            throw new ServiceException("不支持的时间类型["+timeType+"]");
+            throw new ServiceException("不支持的时间类型[" + timeType + "]");
         }
 
-        this.startTime = result[0]; this.endTime = result[1];
+        this.startTime = result[0];
+        this.endTime = result[1];
     }
 
     public List<BaseEchartsCount> buildValues(List<BaseEchartsCount> counts) {

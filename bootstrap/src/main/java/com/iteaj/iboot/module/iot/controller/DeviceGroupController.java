@@ -35,7 +35,7 @@ public class DeviceGroupController extends BaseController {
     private final IDeviceGroupService deviceGroupService;
 
     public DeviceGroupController(IModelApiService modelApiService
-            , IDeviceGroupService deviceGroupService) {
+        , IDeviceGroupService deviceGroupService) {
         this.modelApiService = modelApiService;
         this.deviceGroupService = deviceGroupService;
     }

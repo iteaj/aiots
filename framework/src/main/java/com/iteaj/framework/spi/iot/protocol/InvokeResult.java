@@ -33,14 +33,15 @@ public class InvokeResult {
 
     private static Message EMPTY_MESSAGE = new EmptyMessage();
 
-    public InvokeResult() { }
+    public InvokeResult() {
+    }
 
     public InvokeResult(ExecStatus status) {
         this(status.desc, status);
     }
 
     public InvokeResult(String reason) {
-       this(reason, ExecStatus.fail);
+        this(reason, ExecStatus.fail);
     }
 
     public InvokeResult(String reason, ExecStatus status) {
@@ -93,7 +94,8 @@ public class InvokeResult {
     }
 
     public InvokeResult setValue(Object value) {
-        this.value = value; return this;
+        this.value = value;
+        return this;
     }
 
     public String getReason() {
@@ -118,10 +120,11 @@ public class InvokeResult {
     }
 
     public InvokeResult setProtocol(Protocol protocol) {
-        this.protocol = protocol; return this;
+        this.protocol = protocol;
+        return this;
     }
 
-    public static class EmptyMessage implements Message{
+    public static class EmptyMessage implements Message {
 
         @Override
         public int length() {
@@ -147,5 +150,6 @@ public class InvokeResult {
         public String toString() {
             return "";
         }
-    };
+    }
+    ;
 }

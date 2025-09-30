@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Data
-public class CollectDataCondition extends BaseCondition{
+public class CollectDataCondition extends BaseCondition {
 
     /**
      * 每页条数
@@ -79,7 +79,8 @@ public class CollectDataCondition extends BaseCondition{
         }
 
         if(result[1].trim().equalsIgnoreCase("now")) {
-            endTime = new DateTime(); endOffset = endOffset + 1;
+            endTime = new DateTime();
+            endOffset = endOffset + 1;
         } else if(result[1].contains("now")) {
             endTime = new DateTime();
             String replaceAll = result[1].replaceAll(" ", "");
@@ -147,7 +148,7 @@ public class CollectDataCondition extends BaseCondition{
                     .setField(DateField.MILLISECOND, 0);
             result[1] = "" + (endDatetime.getTime() - 1);
         } else {
-            throw new ServiceException("不支持的时间类型["+this.getTimeType()+"]");
+            throw new ServiceException("不支持的时间类型[" + this.getTimeType() + "]");
         }
 
         return result;
@@ -161,7 +162,7 @@ public class CollectDataCondition extends BaseCondition{
         if(CollectionUtil.isNotEmpty(resolverValue)) {
             resolverValue.forEach(meta -> {
                 DataSqlCondition condition = new DataSqlCondition(this.timeType
-                        , resolverTime[0], resolverTime[1]);
+                , resolverTime[0], resolverTime[1]);
                 if(meta.getType().equals("D")) {
                     conditions.add(condition.buildDevice(meta.getValue(), meta.getFields()));
                 } else if(meta.getType().equals("P")) {
@@ -206,7 +207,7 @@ public class CollectDataCondition extends BaseCondition{
         private String endTimestamp;
 
         public DataSqlCondition(String uid, List<String> fields, TimeCountType timeType
-                , String startTimestamp, String endTimestamp) {
+        , String startTimestamp, String endTimestamp) {
             this.uid = uid;
             this.fields = fields;
             this.timeType = timeType.name();

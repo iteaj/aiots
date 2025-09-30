@@ -55,7 +55,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Transactional
     public BooleanResult save(ModelApi entity) {
         entity.setCreateTime(new Date());
-        this.getByCode(entity.getCode()).ifPresentThrow("接口码已存在["+entity.getCode()+"]");
+        this.getByCode(entity.getCode()).ifPresentThrow("接口码已存在[" + entity.getCode() + "]");
 
         if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
             entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));
@@ -83,9 +83,9 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         // 如果是点位协议, 同一款产品下面上/下行的点位地址必须唯一
         if(config.getProtocolAttrField().equals(PointProtocolConfig.POINT_ADDRESS)) {
             CtrlMode ctrlMode = this.getProtocolCtrlModelByProductId(entity.getProductId());
-            if (ctrlMode == CtrlMode.POINT) {
+            if(ctrlMode == CtrlMode.POINT) {
                 if(config.getValue().startsWith("@")) { //
-                    throw new ServiceException("点位地址错误["+config.getValue()+"], 不允许提及模型属性");
+                    throw new ServiceException("点位地址错误[" + config.getValue() + "], 不允许提及模型属性");
                 }
 
                 // todo modbus协议不同寄存器的地址可以相同
@@ -116,9 +116,9 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         }
 
         this.getByCode(entity.getCode()).ifPresent(item -> {
-           if(!item.getId().equals(entity.getId())) {
-               throw new ServiceException("接口码已存在["+entity.getCode()+"]");
-           }
+            if(!item.getId().equals(entity.getId())) {
+                throw new ServiceException("接口码已存在[" + entity.getCode() + "]");
+            }
         });
 
         if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
@@ -179,10 +179,10 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Override
     public BooleanResult updateAsStatus(Long productId, String code) {
         if(productId == null || StrUtil.isBlank(code)) {
-            return BooleanResult.buildFalse("参数错误[productId="+productId+", code="+code+"]");
+            return BooleanResult.buildFalse("参数错误[productId=" + productId + ", code=" + code + "]");
         }
 
-        this.getByCode(code).ifNotPresentThrow("协议不存在["+code+"]").ifPresent(api -> {
+        this.getByCode(code).ifNotPresentThrow("协议不存在[" + code + "]").ifPresent(api -> {
             if(api.getFuncType() == FuncType.R) { // 采集设备状态
                 this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
                 this.getAsStatusModelApi(productId).ifPresent(modelApi -> {

@@ -25,6 +25,7 @@ public class RealtimeLoggerPush implements WebSocketServerListener, LoggerPushSe
     private static final String URI = "/ws/logger/realtime";
     private final DefaultWebSocketServerComponent server;
     private ChannelGroup channelGroup;
+
     public RealtimeLoggerPush(DefaultWebSocketServerComponent server) {
         this.server = server;
     }
@@ -41,7 +42,7 @@ public class RealtimeLoggerPush implements WebSocketServerListener, LoggerPushSe
             JSONObject params = JSONObject.parseObject(protocol.readText());
             if(!params.containsKey("level") || !params.containsKey("filter")) {
                 DefaultWebSocketServerProtocol.close(protocol.getEquipCode()
-                        , WebSocketCloseStatus.INVALID_PAYLOAD_DATA, "未指定参数");
+                , WebSocketCloseStatus.INVALID_PAYLOAD_DATA, "未指定参数");
                 return;
             }
 
@@ -56,28 +57,28 @@ public class RealtimeLoggerPush implements WebSocketServerListener, LoggerPushSe
     public void push(Level level, PushParams params) {
         if(channelGroup != null && !channelGroup.isEmpty()) {
             DefaultWebSocketServerProtocol.writeGroup(URI, JSON.toJSONString(params)
-                    , new WebSocketChannelMatcher((channel, session) -> {
-                        JSONObject reqParams = channel.attr(PARAM_KEY).get();
-                        Integer reqLevel = reqParams.getInteger("level");
+            , new WebSocketChannelMatcher((channel, session) -> {
+                JSONObject reqParams = channel.attr(PARAM_KEY).get();
+                Integer reqLevel = reqParams.getInteger("level");
 
-                        if(reqLevel != null) {
-                            if(level.toInt() < reqLevel) {
-                                return false;
-                            }
-                        }
+                if(reqLevel != null) {
+                    if(level.toInt() < reqLevel) {
+                        return false;
+                    }
+                }
 
-                        JSONArray filter = reqParams.getJSONArray("filter");
-                        if(filter == null || filter.isEmpty()) {
-                            return true;
-                        }
+                JSONArray filter = reqParams.getJSONArray("filter");
+                if(filter == null || filter.isEmpty()) {
+                    return true;
+                }
 
-                        long count = filter.stream()
-                                .map(type -> LoggerManager.getFilter((String) type))
-                                .filter(item -> item.filter(params))
-                                .count();
+                long count = filter.stream()
+                        .map(type -> LoggerManager.getFilter((String) type))
+                        .filter(item -> item.filter(params))
+                        .count();
 
-                        return count > 0;
-                    })
+                return count > 0;
+            })
             );
         }
     }

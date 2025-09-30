@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.generator.config.GlobalConfig;
 import com.baomidou.mybatisplus.generator.config.TemplateConfig;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.FileType;
-import com.baomidou.mybatisplus.generator.engine.AbstractTemplateEngine;
 import com.iteaj.iboot.plugin.code.gen.DesignConfigBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public abstract class AbstractLcdTemplateEngine {
-    protected static final Logger logger = LoggerFactory.getLogger(AbstractTemplateEngine.class);
+    protected static final Logger logger = LoggerFactory.getLogger(AbstractLcdTemplateEngine.class);
     /**
      * 配置信息
      */
@@ -51,13 +50,13 @@ public abstract class AbstractLcdTemplateEngine {
                 TemplateConfig template = getConfigBuilder().getTemplate();
                 // 自定义内容
                 LcdInjectionConfig injectionConfig = getConfigBuilder().getInjectionConfig();
-                if (null != injectionConfig) {
+                if(null != injectionConfig) {
                     injectionConfig.initTableMap(tableInfo);
                     objectMap.put("cfg", injectionConfig.getMap());
                     List<FileOutConfig> focList = injectionConfig.getFileOutConfigList();
-                    if (CollectionUtils.isNotEmpty(focList)) {
+                    if(CollectionUtils.isNotEmpty(focList)) {
                         for (FileOutConfig foc : focList) {
-                            if (isCreate(FileType.OTHER, foc.outputFile(tableInfo))) {
+                            if(isCreate(FileType.OTHER, foc.outputFile(tableInfo))) {
                                 writerFile(objectMap, foc.getTemplatePath(), foc.outputFile(tableInfo));
                             }
                         }
@@ -65,44 +64,44 @@ public abstract class AbstractLcdTemplateEngine {
                 }
                 // Mp.java
                 String entityName = tableInfo.getEntityName();
-                if (null != entityName && null != pathInfo.get(ConstVal.ENTITY_PATH)) {
+                if(null != entityName && null != pathInfo.get(ConstVal.ENTITY_PATH)) {
                     String entityFile = String.format((pathInfo.get(ConstVal.ENTITY_PATH) + File.separator + "%s" + suffixJavaOrKt()), entityName);
-                    if (isCreate(FileType.ENTITY, entityFile)) {
+                    if(isCreate(FileType.ENTITY, entityFile)) {
                         writerFile(objectMap, templateFilePath(template.getEntity(getConfigBuilder().getGlobalConfig().isKotlin())), entityFile);
                     }
                 }
                 // MpMapper.java
-                if (null != tableInfo.getMapperName() && null != pathInfo.get(ConstVal.MAPPER_PATH)) {
+                if(null != tableInfo.getMapperName() && null != pathInfo.get(ConstVal.MAPPER_PATH)) {
                     String mapperFile = String.format((pathInfo.get(ConstVal.MAPPER_PATH) + File.separator + tableInfo.getMapperName() + suffixJavaOrKt()), entityName);
-                    if (isCreate(FileType.MAPPER, mapperFile)) {
+                    if(isCreate(FileType.MAPPER, mapperFile)) {
                         writerFile(objectMap, templateFilePath(template.getMapper()), mapperFile);
                     }
                 }
                 // MpMapper.xml
-                if (null != tableInfo.getXmlName() && null != pathInfo.get(ConstVal.XML_PATH)) {
+                if(null != tableInfo.getXmlName() && null != pathInfo.get(ConstVal.XML_PATH)) {
                     String xmlFile = String.format((pathInfo.get(ConstVal.XML_PATH) + File.separator + tableInfo.getXmlName() + ConstVal.XML_SUFFIX), entityName);
-                    if (isCreate(FileType.XML, xmlFile)) {
+                    if(isCreate(FileType.XML, xmlFile)) {
                         writerFile(objectMap, templateFilePath(template.getXml()), xmlFile);
                     }
                 }
                 // IMpService.java
-                if (null != tableInfo.getServiceName() && null != pathInfo.get(ConstVal.SERVICE_PATH)) {
+                if(null != tableInfo.getServiceName() && null != pathInfo.get(ConstVal.SERVICE_PATH)) {
                     String serviceFile = String.format((pathInfo.get(ConstVal.SERVICE_PATH) + File.separator + tableInfo.getServiceName() + suffixJavaOrKt()), entityName);
-                    if (isCreate(FileType.SERVICE, serviceFile)) {
+                    if(isCreate(FileType.SERVICE, serviceFile)) {
                         writerFile(objectMap, templateFilePath(template.getService()), serviceFile);
                     }
                 }
                 // MpServiceImpl.java
-                if (null != tableInfo.getServiceImplName() && null != pathInfo.get(ConstVal.SERVICE_IMPL_PATH)) {
+                if(null != tableInfo.getServiceImplName() && null != pathInfo.get(ConstVal.SERVICE_IMPL_PATH)) {
                     String implFile = String.format((pathInfo.get(ConstVal.SERVICE_IMPL_PATH) + File.separator + tableInfo.getServiceImplName() + suffixJavaOrKt()), entityName);
-                    if (isCreate(FileType.SERVICE_IMPL, implFile)) {
+                    if(isCreate(FileType.SERVICE_IMPL, implFile)) {
                         writerFile(objectMap, templateFilePath(template.getServiceImpl()), implFile);
                     }
                 }
                 // MpController.java
-                if (null != tableInfo.getControllerName() && null != pathInfo.get(ConstVal.CONTROLLER_PATH)) {
+                if(null != tableInfo.getControllerName() && null != pathInfo.get(ConstVal.CONTROLLER_PATH)) {
                     String controllerFile = String.format((pathInfo.get(ConstVal.CONTROLLER_PATH) + File.separator + tableInfo.getControllerName() + suffixJavaOrKt()), entityName);
-                    if (isCreate(FileType.CONTROLLER, controllerFile)) {
+                    if(isCreate(FileType.CONTROLLER, controllerFile)) {
                         writerFile(objectMap, templateFilePath(template.getController()), controllerFile);
                     }
                 }
@@ -114,7 +113,7 @@ public abstract class AbstractLcdTemplateEngine {
     }
 
     protected void writerFile(Map<String, Object> objectMap, String templatePath, String outputFile) throws Exception {
-        if (StringUtils.isNotBlank(templatePath)) this.writer(objectMap, templatePath, outputFile);
+        if(StringUtils.isNotBlank(templatePath)) this.writer(objectMap, templatePath, outputFile);
     }
 
     /**
@@ -132,10 +131,10 @@ public abstract class AbstractLcdTemplateEngine {
     public AbstractLcdTemplateEngine mkdirs() {
         getConfigBuilder().getPathInfo().forEach((key, value) -> {
             File dir = new File(value);
-            if (!dir.exists()) {
+            if(!dir.exists()) {
                 boolean result = dir.mkdirs();
-                if (result) {
-                    logger.debug("创建目录： [" + value + "]");
+                if(result) {
+                    logger.debug("创建目录： [{}]", value);
                 }
             }
         });
@@ -148,17 +147,17 @@ public abstract class AbstractLcdTemplateEngine {
      */
     public void open() {
         String outDir = getConfigBuilder().getGlobalConfig().getOutputDir();
-        if (getConfigBuilder().getGlobalConfig().isOpen()
+        if(getConfigBuilder().getGlobalConfig().isOpen()
                 && StringUtils.isNotBlank(outDir)) {
             try {
                 String osName = System.getProperty("os.name");
-                if (osName != null) {
-                    if (osName.contains("Mac")) {
+                if(osName != null) {
+                    if(osName.contains("Mac")) {
                         Runtime.getRuntime().exec("open " + outDir);
-                    } else if (osName.contains("Windows")) {
+                    } else if(osName.contains("Windows")) {
                         Runtime.getRuntime().exec("cmd /c start " + outDir);
                     } else {
-                        logger.debug("文件输出目录:" + outDir);
+                        logger.debug("文件输出目录:{}", outDir);
                     }
                 }
             } catch (IOException e) {
@@ -177,7 +176,7 @@ public abstract class AbstractLcdTemplateEngine {
     public Map<String, Object> getObjectMap(TableInfo tableInfo) {
         Map<String, Object> objectMap;
         DesignConfigBuilder config = getConfigBuilder();
-        if (config.getStrategyConfig().isControllerMappingHyphenStyle()) {
+        if(config.getStrategyConfig().isControllerMappingHyphenStyle()) {
             objectMap = CollectionUtils.newHashMapWithExpectedSize(33);
             objectMap.put("controllerMappingHyphenStyle", config.getStrategyConfig().isControllerMappingHyphenStyle());
             objectMap.put("controllerMappingHyphen", StringUtils.camelToHyphen(tableInfo.getEntityPath()));
@@ -237,7 +236,7 @@ public abstract class AbstractLcdTemplateEngine {
      * @return ignore
      */
     private String getSuperClassName(String classPath) {
-        if (StringUtils.isBlank(classPath)) {
+        if(StringUtils.isBlank(classPath)) {
             return null;
         }
         return classPath.substring(classPath.lastIndexOf(StringPool.DOT) + 1);
@@ -262,13 +261,13 @@ public abstract class AbstractLcdTemplateEngine {
         DesignConfigBuilder cb = getConfigBuilder();
         // 自定义判断
         LcdInjectionConfig ic = cb.getInjectionConfig();
-        if (null != ic && null != ic.getFileCreate()) {
+        if(null != ic && null != ic.getFileCreate()) {
             return ic.getFileCreate().isCreate(cb, fileType, filePath);
         }
         // 全局判断【默认】
         File file = new File(filePath);
         boolean exist = file.exists();
-        if (!exist) {
+        if(!exist) {
             file.getParentFile().mkdirs();
         }
         return !exist || getConfigBuilder().getGlobalConfig().isFileOverride();

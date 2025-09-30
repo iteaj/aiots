@@ -28,6 +28,17 @@
             <groupId>com.iteaj</groupId>
             <artifactId>iot-mqtt</artifactId>
         </dependency>
+        <!-- Jakarta Bean Validation API -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+
+        <!-- Hibernate Validator（实现） -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>iot-serial</artifactId>
@@ -44,11 +55,6 @@
             <groupId>cn.hutool</groupId>
             <version>${hutool.version}</version>
             <artifactId>hutool-cron</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
         </dependency>
         <dependency>
             <version>4.3.0</version>
@@ -111,11 +117,11 @@
 
         <!-- iboot 可选插件 -->
         <!--低代码平台插件-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>iboot-code</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <artifactId>iboot-code</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
 
         <!-- Shiro权限认证插件(和SaToken二选其一)-->
 <!--        <dependency>-->
@@ -216,5 +222,18 @@
                 </executions>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.14.1</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+            <release>${java.version}</release>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>

@@ -29,6 +29,7 @@ public class VueFieldInfo {
     // 搜索表单组件
     private String searchComponent;
     private static final Pattern DICT_PATTERN = Pattern.compile("^.*(字典?<type>[\\w|_]*).*");
+
     public VueFieldInfo(TableField tableField) {
         this.tableField = tableField;
     }
@@ -67,10 +68,10 @@ public class VueFieldInfo {
                         if(StrUtil.isBlank((String) aDefault)) {
                             return "";
                         } else {
-                            return "defaultValue=\""+aDefault+"\"";
+                            return "defaultValue=\"" + aDefault + "\"";
                         }
                     case InputNumber:
-                        return ":defaultValue=\""+aDefault+"\"";
+                        return ":defaultValue=\"" + aDefault + "\"";
                     case Dict:
                         tableField.getComment().indexOf("字典");
                     default:
@@ -88,7 +89,7 @@ public class VueFieldInfo {
     private boolean isEditComponent(LowCodeProperties properties) {
         Set<String> exclude = properties.getForm().getEdit();
         if(exclude != null) {
-            for(String item : exclude) {
+            for (String item : exclude) {
                 if(tableField.getName().equals(item)) {
                     return false;
                 }
@@ -102,7 +103,7 @@ public class VueFieldInfo {
         String name = this.tableField.getName();
         Set<String> include = properties.getForm().getSearch();
         if(include != null && StrUtil.isNotBlank(name)) {
-            for(String item : include) {
+            for (String item : include) {
                 if(name.contains(item)) {
                     return true;
                 }

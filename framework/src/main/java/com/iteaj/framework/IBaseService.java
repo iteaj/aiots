@@ -115,7 +115,7 @@ public interface IBaseService<E extends Entity> {
      * @param idList 主键ID列表
      */
     default BooleanResult removeByIds(Collection<? extends Serializable> idList) {
-        if (CollectionUtils.isEmpty(idList)) {
+        if(CollectionUtils.isEmpty(idList)) {
             return new BooleanResult(false);
         }
         return new BooleanResult(SqlHelper.retBool(getBaseMapper().deleteBatchIds(idList)));

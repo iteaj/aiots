@@ -51,7 +51,7 @@ public class ViewSqlCondition {
 
     public static ViewSqlCondition build(String productCode, String field, String calcType, ViewApiParams params) {
         List<String> ranges = params.getRanges();
-        if(Objects.equals("range", params.getCategory())){
+        if(Objects.equals("range", params.getCategory())) {
             if(Objects.equals("all", params.getRange())) {
                 throw new ServiceException("按范围的产品轴不能选用所有范围");
             } else if(CollectionUtil.isEmpty(ranges)) {

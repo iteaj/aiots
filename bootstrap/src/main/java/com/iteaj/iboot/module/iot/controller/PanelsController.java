@@ -52,8 +52,8 @@ public class PanelsController extends BaseController {
     private final RealtimeDataService realtimeDataService;
 
     public PanelsController(ISignalService signalService, IDeviceService deviceService
-            , IProductService productService, IotCacheManager cacheManager
-            , RealtimeDataService realtimeDataService) {
+        , IProductService productService, IotCacheManager cacheManager
+        , RealtimeDataService realtimeDataService) {
         this.signalService = signalService;
         this.deviceService = deviceService;
         this.productService = productService;
@@ -105,7 +105,7 @@ public class PanelsController extends BaseController {
                             }
 
                             if(CollectionUtil.isNotEmpty(attr.getDicts()) && !DataType.t_json.getValue().equals(attr.getDataType())) {
-                                attr.getDicts().forEach(dict -> attrDictMap.put(attr.getField()+"_"+dict.getDictValue(), dict.getDictName()));
+                                attr.getDicts().forEach(dict -> attrDictMap.put(attr.getField() + "_" + dict.getDictValue(), dict.getDictName()));
                             }
                         });
 
@@ -132,7 +132,7 @@ public class PanelsController extends BaseController {
                         copyAttrValues.forEach(attrValue -> {
                             String protocolCode = productProtocolMap.get(deviceDto.getProductId());
                             Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(protocolCode
-                                    , DeviceKey.build(deviceDto.getDeviceSn(), deviceDto.getParentDeviceSn()));
+                            , DeviceKey.build(deviceDto.getDeviceSn(), deviceDto.getParentDeviceSn()));
                             if(CollectionUtil.isNotEmpty(realtimeDataMap)) {
 
                                 // 设置各属性的实时值
@@ -178,7 +178,7 @@ public class PanelsController extends BaseController {
                 .ifNotPresentThrow("设备不存在").of().ifPresent(item -> {
             debugDto.setDevice(item);
             productService.joinDetailById(item.getProductId())
-                    .ifNotPresentThrow("此设备数据不完整["+item.getName()+"]")
+                    .ifNotPresentThrow("此设备数据不完整[" + item.getName() + "]")
                     .ifPresent(productDto -> {
                         debugDto.setProduct(productDto);
                         if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
@@ -201,23 +201,23 @@ public class PanelsController extends BaseController {
                             productDto.setEventApis(modelApis);
                         }
                         Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
-                                , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
+                        , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                         if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
                             productDto.getAttrs().stream().filter(attr -> (attr.getAttrType() != AttrType.W
                                     && !DataType.t_json.getValue().equals(attr.getDataType())))
-                                .forEach(attr -> {
-                                    if(realtimeDataMap != null) {
-                                        RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
-                                        if(realtimeData != null && realtimeData.getRealtime() != null) {
-                                            SignalOrFieldValue realtime = realtimeData.getRealtime();
-                                            debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType()
-                                                    , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
-                                            return;
+                                    .forEach(attr -> {
+                                        if(realtimeDataMap != null) {
+                                            RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
+                                            if(realtimeData != null && realtimeData.getRealtime() != null) {
+                                                SignalOrFieldValue realtime = realtimeData.getRealtime();
+                                                debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType()
+                                                , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
+                                                return;
+                                            }
                                         }
-                                    }
 
-                                    debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType());
-                            });
+                                        debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType());
+                                    });
                         }
 
                         productDto.setAttrs(null);
@@ -230,7 +230,7 @@ public class PanelsController extends BaseController {
                                 if(realtimeData != null && realtimeData.getRealtime() != null) {
                                     SignalOrFieldValue realtime = realtimeData.getRealtime();
                                     debugDto.addSignal(signal.getName(), signal.getAddress(), realtime.getValue()
-                                            , realtime.getCollectTime(), realtime.getStatus());
+                                    , realtime.getCollectTime(), realtime.getStatus());
                                     return;
                                 }
                             }
@@ -253,62 +253,62 @@ public class PanelsController extends BaseController {
         this.deviceService.getByUid(dto.getId().toString())
                 .ifNotPresentThrow("设备不存在")
                 .ifPresent(item -> {
-            this.productService.getCtrlStatusModelApi(item.getProductId())
-                    .ifNotPresentThrow("此设备绑定的产品有误").ifPresent(productDto -> {
-               if(CollectionUtil.isEmpty(productDto.getFuncApis())) {
-                   throw new ServiceException("此产品["+productDto.getName()+"]没有指定状态接口");
-               }
-
-               if(productDto.getStatus() == FuncStatus.disabled) {
-                   throw new ServiceException("请先启用产品["+productDto.getName()+"]");
-               }
-
-                ModelApi modelApi = productDto.getFuncApis().get(0);
-                DeviceKey deviceKey = DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn());
-                RealtimeStatus realtimeStatus = cacheManager.get(productDto.getProtocolCode(), deviceKey);
-
-                if(CollectionUtil.isEmpty(productDto.getAttrs())) {
-                    throw new ServiceException("此产品["+productDto.getName()+"]没有模型属性");
-                }
-
-                ModelAttr ctrlStatusAttr = productDto.getAttrs().stream()
-                        .filter(attr -> Boolean.TRUE.equals(attr.getCtrlStatus()))
-                        .findFirst().orElse(null);
-                if(ctrlStatusAttr == null) {
-                    throw new ServiceException("此产品["+productDto.getName()+"]没有设置控制属性");
-                }
-
-                JSONObject jsonObject = new JSONObject();
-                ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(realtimeStatus.getUid(), jsonObject);
-                if(CollectionUtil.isNotEmpty(modelApi.getDownConfig())) {
-                    modelApi.getDownConfig().forEach(config -> {
-                        if(config.getModelAttrId() != null) {
-                            // 控制属性
-                            if(ctrlStatusAttr.getField().equals(config.getAttrField())) {
-                                jsonObject.put(config.getProtocolAttrField(), dto.getStatus());
-                            } else {
-                                jsonObject.put(config.getProtocolAttrField(), config.getAttrDefaultValue());
-                            }
-                        } else {
-                            jsonObject.put(config.getProtocolAttrField(), config.getValue());
+                    this.productService.getCtrlStatusModelApi(item.getProductId())
+                            .ifNotPresentThrow("此设备绑定的产品有误").ifPresent(productDto -> {
+                        if(CollectionUtil.isEmpty(productDto.getFuncApis())) {
+                            throw new ServiceException("此产品[" + productDto.getName() + "]没有指定状态接口");
                         }
-                    });
-                }
 
-                ProtocolInvokeUtil.invoke(modelApi, invokeParam, realtimeStatus, (result) -> {
-                    if(result.getStatus() != ExecStatus.success) {
-                        throw new ServiceException("调用设备失败["+result.getReason()+"]");
-                    } else {
-                        // 将实时值更新为下发的值
-                        realtimeDataService.put(realtimeStatus.getProtocolCode(), deviceKey
+                        if(productDto.getStatus() == FuncStatus.disabled) {
+                            throw new ServiceException("请先启用产品[" + productDto.getName() + "]");
+                        }
+
+                        ModelApi modelApi = productDto.getFuncApis().get(0);
+                        DeviceKey deviceKey = DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn());
+                        RealtimeStatus realtimeStatus = cacheManager.get(productDto.getProtocolCode(), deviceKey);
+
+                        if(CollectionUtil.isEmpty(productDto.getAttrs())) {
+                            throw new ServiceException("此产品[" + productDto.getName() + "]没有模型属性");
+                        }
+
+                        ModelAttr ctrlStatusAttr = productDto.getAttrs().stream()
+                                .filter(attr -> Boolean.TRUE.equals(attr.getCtrlStatus()))
+                                .findFirst().orElse(null);
+                        if(ctrlStatusAttr == null) {
+                            throw new ServiceException("此产品[" + productDto.getName() + "]没有设置控制属性");
+                        }
+
+                        JSONObject jsonObject = new JSONObject();
+                        ProtocolModelApiInvokeParam invokeParam = new ProtocolModelApiInvokeParam(realtimeStatus.getUid(), jsonObject);
+                        if(CollectionUtil.isNotEmpty(modelApi.getDownConfig())) {
+                            modelApi.getDownConfig().forEach(config -> {
+                                if(config.getModelAttrId() != null) {
+                                    // 控制属性
+                                    if(ctrlStatusAttr.getField().equals(config.getAttrField())) {
+                                        jsonObject.put(config.getProtocolAttrField(), dto.getStatus());
+                                    } else {
+                                        jsonObject.put(config.getProtocolAttrField(), config.getAttrDefaultValue());
+                                    }
+                                } else {
+                                    jsonObject.put(config.getProtocolAttrField(), config.getValue());
+                                }
+                            });
+                        }
+
+                        ProtocolInvokeUtil.invoke(modelApi, invokeParam, realtimeStatus, (result) -> {
+                            if(result.getStatus() != ExecStatus.success) {
+                                throw new ServiceException("调用设备失败[" + result.getReason() + "]");
+                            } else {
+                                // 将实时值更新为下发的值
+                                realtimeDataService.put(realtimeStatus.getProtocolCode(), deviceKey
                                 , SignalOrFieldValue.build(ctrlStatusAttr.getId(), ctrlStatusAttr.getField(), dto.getStatus()));
 
-                        // 触发状态更新
-                        DeviceStatusModelApiManager.getInstance().trigger(realtimeStatus.getProductCode(), realtimeStatus.getUid());
-                    }
+                                // 触发状态更新
+                                DeviceStatusModelApiManager.getInstance().trigger(realtimeStatus.getProductCode(), realtimeStatus.getUid());
+                            }
+                        });
+                    });
                 });
-            });
-        });
 
         return success();
     }

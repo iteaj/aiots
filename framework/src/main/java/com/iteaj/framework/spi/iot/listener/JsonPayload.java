@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSONPath;
 /**
  * json格式的负载
  */
-public class JsonPayload implements IotEventPayload{
+public class JsonPayload implements IotEventPayload {
 
     private JSON json;
 

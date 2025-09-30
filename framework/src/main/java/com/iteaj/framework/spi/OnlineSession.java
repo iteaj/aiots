@@ -9,7 +9,7 @@ import java.util.Date;
  * @author iteaj
  * @since 1.0
  */
-public interface OnlineSession extends Serializable{
+public interface OnlineSession extends Serializable {
 
     /**
      * 当前会话的账号

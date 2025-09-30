@@ -21,10 +21,14 @@ public class ConfigServiceImpl extends BaseServiceImpl<IConfigDao, Config> imple
     @Override
     public BooleanResult save(Config entity) {
         getOne(Wrappers.<Config>lambdaQuery().eq(Config::getLabel, entity.getLabel())).ofNullable()
-                .ifPresent(item -> {throw new ServiceException("配置标识重复["+entity.getLabel()+"]");});
+                .ifPresent(item -> {
+                    throw new ServiceException("配置标识重复[" + entity.getLabel() + "]");
+                });
 
         getOne(Wrappers.<Config>lambdaQuery().eq(Config::getName, entity.getName())).ofNullable()
-                .ifPresent(item -> {throw new ServiceException("配置名称重复["+entity.getName()+"]");});
+                .ifPresent(item -> {
+                    throw new ServiceException("配置名称重复[" + entity.getName() + "]");
+                });
 
         return super.save(entity);
     }
@@ -35,7 +39,7 @@ public class ConfigServiceImpl extends BaseServiceImpl<IConfigDao, Config> imple
                 .ifPresent(item -> {
                     // 名称重复
                     if(entity.getId().compareTo(item.getId()) != 0) {
-                        throw new ServiceException("配置名称重复["+entity.getName()+"]");
+                        throw new ServiceException("配置名称重复[" + entity.getName() + "]");
                     }
                 });
         return super.updateById(entity);

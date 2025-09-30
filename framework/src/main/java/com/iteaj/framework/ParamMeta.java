@@ -118,6 +118,7 @@ public class ParamMeta {
     }
 
     public ParamMeta setPlaceholder(String placeholder) {
-        this.placeholder = placeholder; return this;
+        this.placeholder = placeholder;
+        return this;
     }
 }

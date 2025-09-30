@@ -23,6 +23,6 @@ public class DtoFileOutConfig extends FileOutConfig {
     @Override
     public String outputFile(TableInfo tableInfo) {
         String dto = builder.getPathInfo().get(LowCodeConst.DTO_PATH);
-        return dto + File.separator + tableInfo.getEntityName()+"Dto.java";
+        return dto + File.separator + tableInfo.getEntityName() + "Dto.java";
     }
 }

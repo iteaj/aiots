@@ -63,12 +63,12 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
                 final Object result = context.invoke(expression, jobExecutionContext);
                 jobExecutionContext.setResult(result);
             } else {
-                jobExecutionContext.setResult("方法不存在或者不能访问["+expression+"]");
-                logger.warn("[quartz]执行方法不存在或者不能访问["+expression+"]");
+                jobExecutionContext.setResult("方法不存在或者不能访问[" + expression + "]");
+                logger.warn("[quartz]执行方法不存在或者不能访问[{}]", expression);
             }
         } else {
-            jobExecutionContext.setResult("job["+ jobDetail.getKey().getName()+"]没有指定要执行的方法");
-            logger.warn("[quartz]没有找到对应的执行方法["+expression+"]");
+            jobExecutionContext.setResult("job[" + jobDetail.getKey().getName() + "]没有指定要执行的方法");
+            logger.warn("[quartz]没有找到对应的执行方法[{}]", expression);
         }
     }
 
@@ -91,12 +91,12 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
                 final String name = beanName + "." + method.getName();
                 final QuartzJobContext context = cache.get(name);
                 if(context != null) {
-                    throw new BeanCreationException(String.format("定时任务方法重复[%s -> %s]"
-                            , beanName, name));
+                    throw new BeanCreationException("定时任务方法重复[%s -> %s]".formatted(beanName, name));
                 } else {
                     cache.put(name, new QuartzJobContext(bean, method));
                     HashMap<String, String> option = new HashMap<>();
-                    option.put("label", name); option.put("value", name);
+                    option.put("label", name);
+                    option.put("value", name);
                     optionValues.add(option);
                 }
             });
@@ -117,7 +117,8 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
      * 运行并发执行
      */
     public static class EmptyJob implements Job {
-        protected EmptyJob() {}
+        protected EmptyJob() {
+        }
 
         @Override
         public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -131,7 +132,8 @@ public class SpringSupportJob implements Job, JobFactory, BeanFactoryAware, Bean
     @DisallowConcurrentExecution
     @PersistJobDataAfterExecution
     public static class NonConcurrentEmptyJob extends EmptyJob {
-        protected NonConcurrentEmptyJob() {}
+        protected NonConcurrentEmptyJob() {
+        }
     }
 
     public List<Map<String, String>> getOptionValues() {

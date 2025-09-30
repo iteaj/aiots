@@ -26,13 +26,14 @@ public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl
     private static List<ProtocolModelApiConfigOption> readOptions = new ArrayList<>();
     private static List<ProtocolModelApiConfigOption> writeOptions = new ArrayList<>();
 
-    private ParamMeta[] deviceConfig = new ParamMeta[] {
+    private ParamMeta[] deviceConfig = new ParamMeta[]{
             ParamMeta.buildRequiredSelect("dataFormat", "数据格式", "ABCD", ""
-                    , new IVOption("ABCD", "ABCD")
-                    , new IVOption("BADC", "BADC")
-                    , new IVOption("CDAB", "CDAB")
-                    , new IVOption("DCBA", "DCBA")),
+            , new IVOption("ABCD", "ABCD")
+            , new IVOption("BADC", "BADC")
+            , new IVOption("CDAB", "CDAB")
+            , new IVOption("DCBA", "DCBA")),
     };
+
     static {
         readOptions.add(new ProtocolModelApiConfigOption("readShort", "short", "占1个寄存器"));
         readOptions.add(new ProtocolModelApiConfigOption("readUShort", "ushort", "占1个寄存器"));
@@ -57,10 +58,10 @@ public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl
 
     public AbstractModbusProtocolSupplier(String code, TransportProtocol protocol, String remark) {
         protocolModel = new DefaultProtocolModel(code, CtrlMode.POINT, protocol, remark)
-                .addModelAttr(new ProtocolModelAttr(dataType, "数据类型", DataType.t_string, AttrType.IGNORE,"要操作的数据类型"))
+                .addModelAttr(new ProtocolModelAttr(dataType, "数据类型", DataType.t_string, AttrType.IGNORE, "要操作的数据类型"))
                 .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_NUMBER, "寄存器数量", DataType.t_int, AttrType.IGNORE, numRemark))
                 .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_ADDRESS, "寄存器地址", DataType.t_string, AttrType.IGNORE, "寄存器地址"))
-                .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_VALUE, "点位值", DataType.t_any, AttrType.IGNORE,"读/写寄存器的值(跟随数据类型转换)"))
+                .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_VALUE, "点位值", DataType.t_any, AttrType.IGNORE, "读/写寄存器的值(跟随数据类型转换)"))
                 .addModelApi(createEventApi(ModbusCode.Read01.name(), "读线圈(01)", "读线圈")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addUpConfig(ProtocolModelApiConfig.upBuild(PointProtocolConfig.POINT_VALUE, "读取到的值")))

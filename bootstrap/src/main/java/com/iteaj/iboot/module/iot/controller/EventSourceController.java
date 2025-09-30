@@ -32,8 +32,9 @@ public class EventSourceController extends BaseController {
     private final IDeviceGroupService deviceGroupService;
     private final IEventSourceService eventSourceService;
     private final EventSourceCollectService eventSourceCollectService;
+
     public EventSourceController(IDeviceGroupService deviceGroupService
-            , IEventSourceService eventSourceService, EventSourceCollectService eventSourceCollectService) {
+        , IEventSourceService eventSourceService, EventSourceCollectService eventSourceCollectService) {
         this.deviceGroupService = deviceGroupService;
         this.eventSourceService = eventSourceService;
         this.eventSourceCollectService = eventSourceCollectService;

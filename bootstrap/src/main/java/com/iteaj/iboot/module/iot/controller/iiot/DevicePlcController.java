@@ -74,12 +74,12 @@ public class DevicePlcController extends BaseController {
                     Device device = this.deviceService.getOne(Wrappers.<Device>lambdaQuery()
                             .eq(Device::getProductId, entity.getProductId())
                             .orderByDesc(Device::getDeviceSn).last("limit 1")).getData();
-                    if (device != null) {
+                    if(device != null) {
                         String[] number = device.getDeviceSn().split("_");
                         Integer idValue = Integer.valueOf(number[number.length - 1]);
-                        deviceSn = String.format("gwd_%s_%d_%04d", deviceSn.toLowerCase(), entity.getProductId(), (idValue + 1));
+                        deviceSn = "gwd_%s_%d_%04d".formatted(deviceSn.toLowerCase(), entity.getProductId(), (idValue + 1));
                     } else {
-                        deviceSn = "gwd_"+deviceSn.toLowerCase()+"_" + entity.getProductId() + "_0001";
+                        deviceSn = "gwd_" + deviceSn.toLowerCase() + "_" + entity.getProductId() + "_0001";
                     }
 
                     entity.setDeviceSn(deviceSn);

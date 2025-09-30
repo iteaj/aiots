@@ -43,13 +43,13 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
     @Override
     @Transactional
     public BooleanResult save(Protocol entity) {
-        this.getByCode(entity.getCode()).ifPresentThrow("协议代码已存在["+entity.getCode()+"]");
+        this.getByCode(entity.getCode()).ifPresentThrow("协议代码已存在[" + entity.getCode() + "]");
 
         if(entity.getImplMode() != ProtocolImplMode.Jar) {
             ProtocolDto protocolDto = loadProtocol(entity.getCode());
 
             if(protocolDto == null) {
-                throw new ServiceException("没有找到对应的协议["+entity.getCode()+"]");
+                throw new ServiceException("没有找到对应的协议[" + entity.getCode() + "]");
             }
         }
 
@@ -69,7 +69,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
 
         this.getByCode(entity.getCode()).ifPresent(item -> {
             if(!item.getId().equals(entity.getId())) {
-                throw new ServiceException("协议代码已存在["+entity.getCode()+"]");
+                throw new ServiceException("协议代码已存在[" + entity.getCode() + "]");
             }
         });
 
@@ -77,7 +77,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
             ProtocolDto protocolDto = loadProtocol(entity.getCode());
 
             if(protocolDto == null) {
-                throw new ServiceException("没有找到对应的协议["+entity.getCode()+"]");
+                throw new ServiceException("没有找到对应的协议[" + entity.getCode() + "]");
             }
         }
 
@@ -152,25 +152,25 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                         .setTriggerMode(api.getTriggerMode());
 
                 // 功能类型
-                if(api instanceof AbstractFuncProtocolModelApi) {
-                    protocolApi.setFuncType(((AbstractFuncProtocolModelApi) api).getFuncType());
+                if(api instanceof AbstractFuncProtocolModelApi modelApi) {
+                    protocolApi.setFuncType(modelApi.getFuncType());
                 }
 
                 // 协议接口上行配置
                 List<ProtocolApiConfig> upConfig = api.getUpConfig()
                         .values().stream().map(config -> {
-                            ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
-                            // 将协议模型的api配置转换成协议api配置
-                            return convertProtocolApiConfig(protocolApi, config, attr);
-                        }).collect(Collectors.toList());
+                    ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
+                    // 将协议模型的api配置转换成协议api配置
+                    return convertProtocolApiConfig(protocolApi, config, attr);
+                }).collect(Collectors.toList());
 
                 // 协议接口下行配置
                 List<ProtocolApiConfig> downConfig = api.getDownConfig()
                         .values().stream().map(config -> {
-                            ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
-                            // 将协议模型的api配置转换成协议api配置
-                            return convertProtocolApiConfig(protocolApi, config, attr);
-                        }).collect(Collectors.toList());
+                    ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
+                    // 将协议模型的api配置转换成协议api配置
+                    return convertProtocolApiConfig(protocolApi, config, attr);
+                }).collect(Collectors.toList());
 
                 protocolDto.addApis(protocolApi.setUpConfigs(upConfig).setDownConfigs(downConfig));
             });

@@ -37,7 +37,8 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
     public void handle(DtuDebugModel model, DebugWebsocketWrite write) {
         String deviceSn = model.getDeviceSn();
         if(!StringUtils.hasText(deviceSn)) {
-            write.write(HttpResult.Fail("未指定设备编号[deviceSn]")); return;
+            write.write(HttpResult.Fail("未指定设备编号[deviceSn]"));
+            return;
         }
 
         try {
@@ -52,7 +53,7 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
                         modbusRtuHandle(model, write); break;
                     case "cus": // 自定义协议
                         otherHandle(model, write); break;
-                    default: write.write(HttpResult.Fail("不支持的协议类型["+protocolType+"]"));
+                    default: write.write(HttpResult.Fail("不支持的协议类型[" + protocolType + "]"));
                 }
             }
         } catch (Exception e) {
@@ -63,12 +64,14 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
     private void otherHandle(DtuDebugModel model, DebugWebsocketWrite write) {
         String message = model.getMessage();
         if(!StringUtils.hasText(message)) {
-            write.write(HttpResult.Fail("未指定要发送的报文")); return;
+            write.write(HttpResult.Fail("未指定要发送的报文"));
+            return;
         }
 
         String cmd = model.getCmd();
         if(!StringUtils.hasText(cmd)) {
-            write.write(HttpResult.Fail("未指定操作指令")); return;
+            write.write(HttpResult.Fail("未指定操作指令"));
+            return;
         }
 
         try {
@@ -76,7 +79,8 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
             try {
                 bytes = ByteUtil.hexToByte(message);
             } catch (Exception e) {
-                write.write(HttpResult.Fail("只支持16进制报文格式")); return;
+                write.write(HttpResult.Fail("只支持16进制报文格式"));
+                return;
             }
 
             DebugResult result = new DebugResult(model)
@@ -92,7 +96,8 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
             } else if("writeOfAsync".equals(cmd)) {
                 protocol.writeOfAsync(bytes);
             } else {
-                write.write(HttpResult.Fail("只支持指令[read、write、writeOfAsync]")); return;
+                write.write(HttpResult.Fail("只支持指令[read、write、writeOfAsync]"));
+                return;
             }
 
             result.setRespTime(System.currentTimeMillis())
@@ -116,7 +121,8 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
                 byte[] bytes = ByteUtil.hexToByte(model.getMessage());
                 protocol = ModbusTcpForDtuCommonProtocol.build(model.getDeviceSn(), bytes, null);
             } catch (Exception e) {
-                write.write(HttpResult.Fail("报文只支持十六进制格式")); return;
+                write.write(HttpResult.Fail("报文只支持十六进制格式"));
+                return;
             }
         } else {
             if(!modbusValidate(model, write)) {
@@ -128,34 +134,35 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
             switch (cmd) {
                 case "01":
                     protocol = ModbusTcpForDtuCommonProtocol.buildRead01(model.getDeviceSn()
-                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
+                    , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "02":
                     protocol = ModbusTcpForDtuCommonProtocol.buildRead02(model.getDeviceSn()
-                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
+                    , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "03":
                     protocol = ModbusTcpForDtuCommonProtocol.buildRead03(model.getDeviceSn()
-                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
+                    , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "04":
                     protocol = ModbusTcpForDtuCommonProtocol.buildRead04(model.getDeviceSn()
-                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
+                    , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "05":
                     Object writeValue = parseWriteValue(model);
                     if(writeValue == null) {
-                        write.write(HttpResult.Fail("写05功能码的值只能是[0 或 1]")); return;
+                        write.write(HttpResult.Fail("写05功能码的值只能是[0 或 1]"));
+                        return;
                     }
                     protocol = ModbusTcpForDtuCommonProtocol.buildWrite05(model.getDeviceSn()
-                            , address, model.getStart(), (ModbusCoilStatus) writeValue); break;
+                    , address, model.getStart(), (ModbusCoilStatus) writeValue); break;
                 case "06":
                     protocol = ModbusTcpForDtuCommonProtocol.buildWrite06(model.getDeviceSn()
-                            , address, model.getStart(), (byte[]) parseWriteValue(model)); break;
+                    , address, model.getStart(), (byte[]) parseWriteValue(model)); break;
                 case "10":
                     byte[] writeBytes = (byte[]) parseWriteValue(model);
                     protocol = ModbusTcpForDtuCommonProtocol.buildWrite10(model.getDeviceSn()
-                            , address, model.getStart(), writeBytes.length / 2, writeBytes); break;
+                    , address, model.getStart(), writeBytes.length / 2, writeBytes); break;
                 case "0F":
                     protocol = ModbusTcpForDtuCommonProtocol.buildWrite0F(model.getDeviceSn()
-                            , address, model.getStart(), (byte[]) parseWriteValue(model)); break;
-                default: write.write(HttpResult.Fail("不支持的指令["+cmd+"]"));
+                    , address, model.getStart(), (byte[]) parseWriteValue(model)); break;
+                default: write.write(HttpResult.Fail("不支持的指令[" + cmd + "]"));
                     return;
             }
         }
@@ -165,15 +172,18 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
 
     private boolean modbusValidate(DtuDebugModel model, DebugWebsocketWrite write) {
         if(model.getStart() == null) {
-            write.write(HttpResult.Fail("未指定寄存器起始地址")); return false;
+            write.write(HttpResult.Fail("未指定寄存器起始地址"));
+            return false;
         }
 
         if(!StringUtils.hasText(model.getCmd())) {
-            write.write(HttpResult.Fail("未指定功能码指令")); return false;
+            write.write(HttpResult.Fail("未指定功能码指令"));
+            return false;
         }
 
         if(!StringUtils.hasText(model.getType())) {
-            write.write(HttpResult.Fail("未指定值类型")); return false;
+            write.write(HttpResult.Fail("未指定值类型"));
+            return false;
         }
 
         return true;
@@ -187,7 +197,8 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
                 byte[] bytes = ByteUtil.hexToByte(hexMsg);
                 protocol = ModbusRtuForDtuCommonProtocol.build(model.getDeviceSn(), bytes, null);
             } catch (Exception e) {
-                write.write(HttpResult.Fail("报文只支持十六进制格式")); return;
+                write.write(HttpResult.Fail("报文只支持十六进制格式"));
+                return;
             }
         } else {
             if(!modbusValidate(model, write)) {
@@ -199,34 +210,35 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
             switch (cmd) {
                 case "01":
                     protocol = ModbusRtuForDtuCommonProtocol.buildRead01(model.getDeviceSn()
-                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
+                    , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "02":
                     protocol = ModbusRtuForDtuCommonProtocol.buildRead02(model.getDeviceSn()
-                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
+                    , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "03":
                     protocol = ModbusRtuForDtuCommonProtocol.buildRead03(model.getDeviceSn()
-                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
+                    , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "04":
                     protocol = ModbusRtuForDtuCommonProtocol.buildRead04(model.getDeviceSn()
-                            , address, model.getStart(), this.getTypeCoilNum(model)); break;
+                    , address, model.getStart(), this.getTypeCoilNum(model)); break;
                 case "05":
                     Object writeValue = parseWriteValue(model);
                     if(writeValue == null) {
-                        write.write(HttpResult.Fail("写05功能码的值只能是[0 或 1]")); return;
+                        write.write(HttpResult.Fail("写05功能码的值只能是[0 或 1]"));
+                        return;
                     }
                     protocol = ModbusRtuForDtuCommonProtocol.buildWrite05(model.getDeviceSn()
-                            , address, model.getStart(), (ModbusCoilStatus) writeValue); break;
+                    , address, model.getStart(), (ModbusCoilStatus) writeValue); break;
                 case "06":
                     protocol = ModbusRtuForDtuCommonProtocol.buildWrite06(model.getDeviceSn()
-                            , address, model.getStart(), (byte[]) parseWriteValue(model)); break;
+                    , address, model.getStart(), (byte[]) parseWriteValue(model)); break;
                 case "10":
                     byte[] writeBytes = (byte[]) parseWriteValue(model);
                     protocol = ModbusRtuForDtuCommonProtocol.buildWrite10(model.getDeviceSn()
-                            , address, model.getStart(), writeBytes.length / 2, writeBytes); break;
+                    , address, model.getStart(), writeBytes.length / 2, writeBytes); break;
                 case "0F":
                     protocol = ModbusRtuForDtuCommonProtocol.buildWrite0F(model.getDeviceSn()
-                            , address, model.getStart(), (byte[]) parseWriteValue(model)); break;
-                default: write.write(HttpResult.Fail("不支持的指令["+cmd+"]"));
+                    , address, model.getStart(), (byte[]) parseWriteValue(model)); break;
+                default: write.write(HttpResult.Fail("不支持的指令[" + cmd + "]"));
                     return;
             }
         }
@@ -254,9 +266,9 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
                 try {
                     return Integer.valueOf(writeValue);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("字符串的长度值["+writeValue+"]不支持");
+                    throw new IllegalArgumentException("字符串的长度值[" + writeValue + "]不支持");
                 }
-            default: throw new IllegalArgumentException("不支持的值类型["+type+"]");
+            default: throw new IllegalArgumentException("不支持的值类型[" + type + "]");
         }
     }
 
@@ -284,15 +296,15 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
 
                 if(protocol.getExecStatus() == ExecStatus.success) {
                     Message.MessageBody body = serverMessage.getBody();
-                    if(body instanceof ModbusRtuBody) {
-                        if(!((ModbusRtuBody) body).isSuccess()) {
-                            String reason = ((ModbusRtuBody) body).getErrCode().getDesc();
+                    if(body instanceof ModbusRtuBody rtuBody) {
+                        if(!rtuBody.isSuccess()) {
+                            String reason = rtuBody.getErrCode().getDesc();
                             write.write(HttpResult.StatusCode(result, reason, 208));
                             return null;
                         }
-                    } else if(body instanceof ModbusTcpBody) {
-                        if(!((ModbusTcpBody) body).isSuccess()) {
-                            String reason = ((ModbusTcpBody) body).getErrCode().getDesc();
+                    } else if(body instanceof ModbusTcpBody tcpBody) {
+                        if(!tcpBody.isSuccess()) {
+                            String reason = tcpBody.getErrCode().getDesc();
                             write.write(HttpResult.StatusCode(result, reason, 208));
                             return null;
                         }
@@ -335,7 +347,7 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
             case "string":
                 int length = Integer.valueOf(model.getWriteValue());
                 return payload.readString(model.getStart(), length);
-            default: throw new IllegalArgumentException("不支持的值类型["+type+"]");
+            default: throw new IllegalArgumentException("不支持的值类型[" + type + "]");
         }
     }
 
@@ -357,10 +369,10 @@ public class DtuDebugHandle implements DebugHandle<DtuDebugModel> {
                             model.getWriteValue().equals("1") ? ModbusCoilStatus.ON : null;
                 case "string":
                     return model.getWriteValue().getBytes(StandardCharsets.UTF_8);
-                default: throw new IllegalArgumentException("不支持的值类型["+type+"]");
+                default: throw new IllegalArgumentException("不支持的值类型[" + type + "]");
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("值类型["+type+"]和值["+model.getWriteValue()+"]不匹配");
+            throw new IllegalArgumentException("值类型[" + type + "]和值[" + model.getWriteValue() + "]不匹配");
         }
     }
 
