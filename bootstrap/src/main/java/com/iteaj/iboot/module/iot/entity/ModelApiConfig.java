@@ -48,13 +48,13 @@ public class ModelApiConfig extends BaseEntity {
     /**
      * 物模型属性字段
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.DEFAULT)
     private String attrField;
 
     /**
      * 属性名称
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.DEFAULT)
     private String attrName;
 
     /**
@@ -82,7 +82,7 @@ public class ModelApiConfig extends BaseEntity {
     /**
      * 模型属性id
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.DEFAULT)
     private Long modelAttrId;
 
     /**

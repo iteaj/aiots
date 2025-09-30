@@ -82,7 +82,7 @@ public class Product extends BaseEntity {
     /**
      * 父产品id
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.DEFAULT)
     private Long parentId;
 
     /**

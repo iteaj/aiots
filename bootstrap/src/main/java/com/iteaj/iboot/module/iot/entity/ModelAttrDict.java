@@ -77,6 +77,6 @@ public class ModelAttrDict extends BaseEntity {
      * 模型属性id
      */
     @NotNull(message = "模型属性必填")
-    @TableField(whereStrategy = FieldStrategy.IGNORED)
+    @TableField(whereStrategy = FieldStrategy.DEFAULT)
     private Long modelAttrId;
 }

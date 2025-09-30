@@ -43,7 +43,7 @@ public class Device extends BaseEntity {
      * @see com.iteaj.iboot.module.iot.consts.DeviceType#Child
      * @see com.iteaj.iboot.module.iot.consts.DeviceType#Gateway
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.DEFAULT)
     private Long pid;
 
     /**
