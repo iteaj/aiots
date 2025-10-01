@@ -105,7 +105,7 @@ public class BatchModelDto {
     public void setApiDownConfig(String apiDownConfig) {
         if(StrUtil.isNotBlank(apiDownConfig)) {
             config = new HashMap<>();
-            if(apiDownConfig.contains(":::")) {
+            if(apiDownConfig.contains("->")) {
                 final String[] split = apiDownConfig.split(":::");
                 for (String s : split) {
                     final String[] item = s.split("->");
