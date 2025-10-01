@@ -8,9 +8,14 @@ public interface CacheKeys {
     String IBOOT_CACHE_ORG = "IBOOT:ORG";
 
     /**
-     * 字段缓存
+     * 字典缓存
      */
     String IBOOT_CACHE_DICT = "IBOOT:DICT";
+
+    /**
+     * 配置缓存
+     */
+    String IBOOT_CACHE_CONFIG = "IBOOT:CONFIG";
 
     String IBOOT_CACHE_KEY_PERMS = "IBOOT:CACHE:PERMS";
 

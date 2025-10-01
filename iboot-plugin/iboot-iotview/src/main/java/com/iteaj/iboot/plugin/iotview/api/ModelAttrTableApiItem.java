@@ -1,18 +1,19 @@
 package com.iteaj.iboot.plugin.iotview.api;
 
-import com.iteaj.framework.spi.iot.view.DataItemOption;
-import com.iteaj.framework.spi.iot.view.ViewApiParams;
-import com.iteaj.framework.spi.iot.view.ViewFetchResult;
-import com.iteaj.framework.spi.iot.view.ViewTableApiItem;
+import com.iteaj.framework.spi.iot.view.*;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+@Component
 public class ModelAttrTableApiItem implements ViewTableApiItem {
-    private static final String KEY = "MT";
-    private static final String NAME = "模型属性";
 
-    private List<DataItemOption> options = Arrays.asList(new DataItemOption(NAME, KEY));
+    private static final String KEY = "GTA";
+    private static final String NAME = "表格接口";
+
+    private List<DataItemOption> options = Collections.singletonList(new DataItemOption(NAME, KEY));
 
     @Override
     public String getKey() {
@@ -25,7 +26,7 @@ public class ModelAttrTableApiItem implements ViewTableApiItem {
     }
 
     @Override
-    public List<ViewFetchResult> fetch(List<ViewApiParams.Value> values, ViewApiParams params) {
+    public GlobalApiParams fetch(GlobalApiParams params) {
         return null;
     }
 
@@ -34,8 +35,4 @@ public class ModelAttrTableApiItem implements ViewTableApiItem {
         return options;
     }
 
-    @Override
-    public List<DataItemOption> loadOptions(String[] args) {
-        return null;
-    }
 }

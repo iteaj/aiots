@@ -5,14 +5,13 @@ import lombok.Setter;
 import org.springframework.data.annotation.Transient;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 @Getter
 @Setter
 public class GlobalApiParams extends HashMap<String, Object> {
-
-    private String key;
 
     @Transient
     private List<String> keys;
@@ -31,10 +30,7 @@ public class GlobalApiParams extends HashMap<String, Object> {
             keys = new ArrayList<>();
             final String key = getKey();
             if(key != null) {
-                final String[] split = key.split(DataItemOption.SPLIT);
-                for (int i = 0; i < split.length; i++) {
-                    keys.add(split[i]);
-                }
+                Collections.addAll(keys, key.split(DataItemOption.SPLIT));
             }
         }
 

@@ -97,6 +97,21 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
     @TableField(exist = false)
     private CollectStatus collectStatus;
 
+    /**
+     * 所属设备组
+     */
+    private Long deviceGroupId;
+
+    /**
+     * 协议码
+     */
+    private String protocolCode;
+
+    /**
+     * 产品码
+     */
+    private String productCode;
+
     public CollectData() { }
 
     public CollectData(CollectMode collectMode) {
@@ -113,20 +128,5 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
         }
 
         return this;
-    }
-
-    @Override
-    public String getProtocolCode() {
-        return null;
-    }
-
-    @Override
-    public String getProductCode() {
-        return null;
-    }
-
-    @Override
-    public Long getDeviceGroupId() {
-        return null;
     }
 }
