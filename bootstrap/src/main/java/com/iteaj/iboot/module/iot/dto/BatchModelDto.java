@@ -109,7 +109,9 @@ public class BatchModelDto {
                 final String[] split = apiDownConfig.split(":::");
                 for (String s : split) {
                     final String[] item = s.split("->");
-                    config.put(item[0], item[1]);
+                    if(item.length == 2) {
+                        config.put(item[0], item[1]);
+                    }
                 }
             }
         }
