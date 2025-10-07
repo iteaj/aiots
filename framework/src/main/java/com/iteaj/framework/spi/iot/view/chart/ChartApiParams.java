@@ -1,10 +1,11 @@
-package com.iteaj.framework.spi.iot.view;
+package com.iteaj.framework.spi.iot.view.chart;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.consts.TimeCountType;
 import com.iteaj.framework.spi.iot.data.TimeRangeResolver;
+import com.iteaj.framework.spi.iot.view.DataItemOption;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ViewApiParams {
+public class ChartApiParams {
 
     /**
      * chart类型

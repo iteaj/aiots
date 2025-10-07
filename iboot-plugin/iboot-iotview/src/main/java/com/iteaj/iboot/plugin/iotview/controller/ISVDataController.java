@@ -13,6 +13,11 @@ import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.view.*;
+import com.iteaj.framework.spi.iot.view.chart.ChartApiParams;
+import com.iteaj.framework.spi.iot.view.chart.ChartFetchResult;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.table.TableApiParams;
+import com.iteaj.framework.spi.iot.view.table.TableApiResult;
 import com.iteaj.framework.spi.open.OpenApiUtil;
 import com.iteaj.iboot.plugin.iotview.FetchResult;
 import com.iteaj.iboot.plugin.iotview.IotViewResult;
@@ -53,7 +58,7 @@ public class ISVDataController extends BaseController {
     @ResponseBody
     @GetMapping("options")
     public Result<List<DataItemOption>> options() {
-        return IotViewResult.Success(ViewApiManager.options());
+        return IotViewResult.Success(ViewApiManager.chartOptions());
     }
 
     /**
@@ -68,6 +73,16 @@ public class ISVDataController extends BaseController {
 
     /**
      * 表格数据项配置
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("table/options")
+    public Result<List<DataItemOption>> tableOptions() {
+        return IotViewResult.Success(ViewApiManager.tableApiOptions());
+    }
+
+    /**
+     * 设备数据项配置
      * @return
      */
     @ResponseBody
@@ -207,9 +222,9 @@ public class ISVDataController extends BaseController {
      */
     @ResponseBody
     @PostMapping("fetch")
-    public Result<List<ViewFetchResult>> fetch(@RequestBody ViewApiParams params) {
+    public Result<List<ChartFetchResult>> fetch(@RequestBody ChartApiParams params) {
         try {
-            final List<ViewFetchResult> results = ViewApiManager.fetch(params);
+            final List<ChartFetchResult> results = ViewApiManager.fetch(params);
             return FetchResult.builder(params.getChart(), IotViewResult.Success(results));
         } catch (ServiceException e) {
             return FetchResult.FailNotJump(e.getMessage());
@@ -218,7 +233,6 @@ public class ISVDataController extends BaseController {
             return FetchResult.FailNotJump("获取数据异常");
         }
     }
-
 
     /**
      * 获取全局接口数据
@@ -231,6 +245,25 @@ public class ISVDataController extends BaseController {
         try {
             final GlobalApiParams response = ViewApiManager.fetch(params);
             return IotViewResult.Success(response);
+        } catch (ServiceException e) {
+            return FetchResult.FailNotJump(e.getMessage());
+        } catch (Exception e) {
+            logger.error("fetch接口未知异常", e);
+            return FetchResult.FailNotJump("获取数据异常");
+        }
+    }
+
+    /**
+     * 获取列表接口数据
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("table/fetch")
+    public Result<TableApiResult> tableFetch(@RequestBody TableApiParams params) {
+        try {
+            TableApiResult apiResult = ViewApiManager.fetch(params);
+            return IotViewResult.Success(apiResult);
         } catch (ServiceException e) {
             return FetchResult.FailNotJump(e.getMessage());
         } catch (Exception e) {

@@ -1,22 +1,19 @@
-package com.iteaj.framework.spi.iot.view;
+package com.iteaj.framework.spi.iot.view.chart;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.spi.iot.consts.TimeCountType;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
-import com.iteaj.framework.spi.iot.data.EchartsCountValue;
 import com.iteaj.framework.spi.iot.data.TimeRangeResolver;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ViewSqlCondition {
+public class ChartSqlCondition {
 
     private String productCode;
 
@@ -43,13 +40,13 @@ public class ViewSqlCondition {
 
     private TimeRangeResolver resolver;
 
-    public ViewSqlCondition(String productCode, String field, String calcType) {
+    public ChartSqlCondition(String productCode, String field, String calcType) {
         this.productCode = productCode;
         this.field = field;
         this.calcType = calcType;
     }
 
-    public static ViewSqlCondition build(String productCode, String field, String calcType, ViewApiParams params) {
+    public static ChartSqlCondition build(String productCode, String field, String calcType, ChartApiParams params) {
         List<String> ranges = params.getRanges();
         if(Objects.equals("range", params.getCategory())){
             if(Objects.equals("all", params.getRange())) {
@@ -59,7 +56,7 @@ public class ViewSqlCondition {
             }
         }
 
-        return new ViewSqlCondition(productCode, field, calcType).setRanges(ranges)
+        return new ChartSqlCondition(productCode, field, calcType).setRanges(ranges)
                 .setCategory(params.getCategory()).setTimeType(params.getTimeType().name())
                 .setRange(params.getRange()).setResolver(params.getResolver());
     }

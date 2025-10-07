@@ -1,13 +1,17 @@
 package com.iteaj.iboot.plugin.iotview.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
-import com.iteaj.framework.spi.iot.view.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
 import com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto;
 import com.iteaj.iboot.plugin.iotview.mapper.ISVDataMapper;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -71,5 +75,20 @@ public class ISVDataServiceImpl implements ISVDataService {
     @Override
     public GlobalApiParams countBasicDriverInfoOfGlobal(GlobalApiParams req) {
         return isvDataMapper.countBasicDriverInfoOfGlobal(req);
+    }
+
+    @Override
+    public void listBasicProduct(Page<?> page, Map<String, Object> params) {
+        isvDataMapper.listBasicProduct(page, params);
+        if(CollectionUtils.isNotEmpty(page.getRecords())) {
+            page.getRecords().forEach(item -> {
+                Map<String, String> map = (Map<String, String>) item;
+                String deviceType = map.get("deviceType");
+                if(deviceType != null) {
+                    deviceType = deviceType.equals("Direct") ? "直连设备" : deviceType.equals("Gateway") ? "边缘网关" : "网关子设备";
+                    map.put("deviceType", deviceType);
+                }
+            });
+        }
     }
 }

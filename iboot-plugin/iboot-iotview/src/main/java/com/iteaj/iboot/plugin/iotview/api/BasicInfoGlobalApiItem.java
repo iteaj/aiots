@@ -1,9 +1,9 @@
 package com.iteaj.iboot.plugin.iotview.api;
 
 import com.iteaj.framework.spi.iot.view.DataItemOption;
-import com.iteaj.framework.spi.iot.view.GlobalApiConfig;
-import com.iteaj.framework.spi.iot.view.GlobalApiItem;
-import com.iteaj.framework.spi.iot.view.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.ApiConfigOption;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiItem;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
 
@@ -19,12 +19,12 @@ public class BasicInfoGlobalApiItem implements GlobalApiItem {
     private static final String NAME = "基础信息";
     private final ISVDataService isvDataService;
 
-    private GlobalApiConfig driverConfig = new GlobalApiConfig()
+    private ApiConfigOption driverConfig = new ApiConfigOption()
             .addRespParams("总驱动数", "total", "平台现有的驱动数量")
             .addRespParams("启用数", "start", "平台已经启用的驱动数量")
             .addRespParams("启用占比", "startRate", "平台启用的占总驱动的比例");
 
-    private GlobalApiConfig productConfig = new GlobalApiConfig()
+    private ApiConfigOption productConfig = new ApiConfigOption()
             .addRespParams("总产品数", "total", "平台现有的产品数量")
             .addRespParams("启用数", "start", "平台已经启用的产品数量")
             .addRespParams("启用占比", "startRate", "平台启用的占总产品的比例");

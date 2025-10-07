@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.view.*;
+import com.iteaj.framework.spi.iot.view.chart.*;
 import com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 @Component
-public class DeviceStatusApiItem implements ViewApiItem {
+public class DeviceStatusApiItem implements ChartApiItem {
 
     private static final String KEY = "DSS";
     private static final String NAME = "设备状态";
@@ -51,11 +52,11 @@ public class DeviceStatusApiItem implements ViewApiItem {
 
     @Override
     public int getOrder() {
-        return ViewApiItem.super.getOrder() - 80;
+        return ChartApiItem.super.getOrder() - 80;
     }
 
     @Override
-    public List<ViewFetchResult> fetch(List<ViewApiParams.Value> values, ViewApiParams params) {
+    public List<ChartFetchResult> fetch(List<ChartApiParams.Value> values, ChartApiParams params) {
 
         if(StrUtil.isBlank(params.getRange())) {
             throw new ServiceException("未指定统计范围配置");
@@ -68,7 +69,7 @@ public class DeviceStatusApiItem implements ViewApiItem {
             throw new ServiceException("设备状态不支持表格组件");
         }
 
-        List<ViewFetchResult> results = new ArrayList<>(values.size());
+        List<ChartFetchResult> results = new ArrayList<>(values.size());
         if(Objects.equals("range", params.getCategory())) {
             Map<String, ListFetchResult> maps = new LinkedHashMap<>();
             values.stream().forEach(item -> {

@@ -2,9 +2,9 @@ package com.iteaj.iboot.plugin.iotview.api;
 
 import cn.hutool.core.date.DateUtil;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
-import com.iteaj.framework.spi.iot.view.GlobalApiConfig;
-import com.iteaj.framework.spi.iot.view.GlobalApiItem;
-import com.iteaj.framework.spi.iot.view.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.ApiConfigOption;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiItem;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ public class DeviceGlobalApiItem implements GlobalApiItem {
     private static final String NAME = "设备信息";
     private final ISVDataService isvDataService;
 
-    private GlobalApiConfig statusConfig = new GlobalApiConfig()
+    private ApiConfigOption statusConfig = new ApiConfigOption()
             .addReqParams("产品编码", "productCode", "不填统计所有产品")
             .addReqParams("设备分组ID", "deviceGroupId", "不填统计所有设备组")
             .addRespParams("总设备数", "total", "当前系统的总设备数")
@@ -30,7 +30,7 @@ public class DeviceGlobalApiItem implements GlobalApiItem {
             .addRespParams("在线占比", "onlineRate", "当前系统在线数占总设备的比例")
             .addRespParams("离线占比", "offlineRate", "当前系统离线数占总设备的比例");
 
-    private GlobalApiConfig warnConfig = new GlobalApiConfig()
+    private ApiConfigOption warnConfig = new ApiConfigOption()
             .addReqParams("产品编码", "productCode", "不填统计所有产品")
 //            .addReqParams("设备分组ID", "deviceGroupId", "不填统计所有设备组")
             .addReqParams("设备uid", "uid", "不填统计所有设备")

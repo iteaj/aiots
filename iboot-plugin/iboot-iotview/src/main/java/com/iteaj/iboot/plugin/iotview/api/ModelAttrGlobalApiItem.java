@@ -1,11 +1,10 @@
 package com.iteaj.iboot.plugin.iotview.api;
 
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
-import com.iteaj.framework.spi.iot.view.GlobalApiConfig;
-import com.iteaj.framework.spi.iot.view.GlobalApiItem;
-import com.iteaj.framework.spi.iot.view.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.ApiConfigOption;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiItem;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,7 @@ public class ModelAttrGlobalApiItem implements GlobalApiItem {
     private static final String KEY = "MAG";
     private static final String NAME = "采集信息";
     private final ISVDataService isvDataService;
-    private GlobalApiConfig apiConfig = new GlobalApiConfig()
+    private ApiConfigOption apiConfig = new ApiConfigOption()
             .addReqParams("产品编码", "productCode", "不填统计所有产品")
             .addReqParams("设备uid", "uid", "不填统计所有设备")
             .addReqParams("设备分组ID", "deviceGroupId", "不填统计所有设备组")

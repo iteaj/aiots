@@ -1,5 +1,6 @@
-package com.iteaj.framework.spi.iot.view;
+package com.iteaj.framework.spi.iot.view.global;
 
+import com.iteaj.framework.spi.iot.view.DataItemOption;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
