@@ -1,10 +1,12 @@
 package com.iteaj.iboot.plugin.iotview.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
-import com.iteaj.framework.spi.iot.view.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
 import com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ISVDataService {
 
@@ -42,4 +44,6 @@ public interface ISVDataService {
     GlobalApiParams countBasicProductInfoOfGlobal(GlobalApiParams req);
 
     GlobalApiParams countBasicDriverInfoOfGlobal(GlobalApiParams req);
+
+    void listBasicProduct(Page<?> page, Map<String, Object> params);
 }

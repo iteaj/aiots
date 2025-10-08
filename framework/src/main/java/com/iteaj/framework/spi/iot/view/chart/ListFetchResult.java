@@ -1,4 +1,4 @@
-package com.iteaj.framework.spi.iot.view;
+package com.iteaj.framework.spi.iot.view.chart;
 
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ListFetchResult extends ViewFetchResult {
+public class ListFetchResult extends ChartFetchResult {
 
     public ListFetchResult(String item, List<BaseEchartsCount> values) {
         super(item, values);

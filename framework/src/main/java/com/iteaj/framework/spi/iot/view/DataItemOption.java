@@ -26,9 +26,9 @@ public class DataItemOption implements Cloneable{
     private boolean name;
 
     /**
-     * 全局接口配置, 必须放在此树形结构的倒数第二级, 用于声明最后一级的接口配置
+     * 全局接口配置, 必须放在树形结构的最后一、二级, 用于声明最后一级的接口配置
      */
-    private GlobalApiConfig config;
+    private ApiConfigOption config;
     private List<DataItemOption> children;
     public static final String SPLIT = ":";
 
@@ -49,7 +49,11 @@ public class DataItemOption implements Cloneable{
         return this.addChild(option, true);
     }
 
-
+    /**
+     * @param option 选择项
+     * @param split 是否使用 ':'分隔符
+     * @return
+     */
     public DataItemOption addChild(DataItemOption option, boolean split) {
         if(children == null) {
             children = new ArrayList<>();
@@ -59,7 +63,7 @@ public class DataItemOption implements Cloneable{
         if(split) {
             option.setValue(this.getValue() + SPLIT + option.getValue());
         } else {
-            option.setValue(this.getValue() + "" + option.getValue());
+            option.setValue(this.getValue() + option.getValue());
         }
 
         return this;
@@ -91,7 +95,7 @@ public class DataItemOption implements Cloneable{
         return (DataItemOption) super.clone();
     }
 
-    public class Builder {
+    public static class Builder {
         public Builder parent;
         public DataItemOption current;
 
@@ -110,13 +114,13 @@ public class DataItemOption implements Cloneable{
             return new Builder(option, this);
         }
 
-        public Builder addChild(String label, String value, GlobalApiConfig config) {
+        public Builder addChild(String label, String value, ApiConfigOption config) {
             final DataItemOption option = new DataItemOption(label, value);
             current.addChild(option.setConfig(config));
             return new Builder(option, this);
         }
 
-        public Builder addChild(String label, String value, boolean isLeaf, GlobalApiConfig config) {
+        public Builder addChild(String label, String value, boolean isLeaf, ApiConfigOption config) {
             final DataItemOption option = new DataItemOption(label, value, isLeaf);
             current.addChild(option.setConfig(config));
             return new Builder(option, this);

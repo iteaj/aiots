@@ -1,15 +1,15 @@
-package com.iteaj.framework.spi.iot.view;
+package com.iteaj.framework.spi.iot.view.chart;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class ViewFetchResult {
+public abstract class ChartFetchResult {
 
     /**
      * 项
-     * @see ViewApiParams.Value#getItem()
+     * @see ChartApiParams.Value#getItem()
      */
     private String item;
 
@@ -18,7 +18,7 @@ public abstract class ViewFetchResult {
      */
     private Object value;
 
-    public ViewFetchResult(String item, Object value) {
+    public ChartFetchResult(String item, Object value) {
         this.item = item;
         this.value = value;
     }

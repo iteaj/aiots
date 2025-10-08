@@ -25,10 +25,6 @@ public class IotViewResult<T> extends AbstractResult<T> {
         super(data, message, code);
     }
 
-    public String getMsg() {
-        return getMessage();
-    }
-
     public static IotViewResult Success(Object data) {
         return new IotViewResult(data, "成功", HttpResult.DEFAULT_SUCCESS_CODE);
     }
@@ -57,9 +53,5 @@ public class IotViewResult<T> extends AbstractResult<T> {
     public static IotViewResult Fail(Object data, String msg, int code) {
         return new IotViewResult(data, msg, code);
     }
-    @Override
-    @JsonIgnore
-    public String getMessage() {
-        return super.getMessage();
-    }
+
 }

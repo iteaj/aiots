@@ -94,7 +94,7 @@
         </if>
     </select>
 
-    <select id="countAggRealtimeOfGlobal" resultType="com.iteaj.framework.spi.iot.view.GlobalApiParams">
+    <select id="countAggRealtimeOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
         select
         <if test="type == 'count'">
             count(if(unix_timestamp(collect_time) >= #{year}, 1, null)) year,
@@ -145,7 +145,7 @@
             </if>
         </where>
     </select>
-    <select id="countDeviceStatusInfoOfGlobal" resultType="com.iteaj.framework.spi.iot.view.GlobalApiParams">
+    <select id="countDeviceStatusInfoOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
         select count(1) total, count(if(a.status='online', 1, null)) online, count(if(a.status='offline', 1, null)) offline from iot_device a
             left join iot_product p on a.product_id = p.id
         <where>
@@ -157,7 +157,7 @@
             </if>
         </where>
     </select>
-    <select id="countDeviceWarnOfGlobal" resultType="com.iteaj.framework.spi.iot.view.GlobalApiParams">
+    <select id="countDeviceWarnOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
         select
             count(if(unix_timestamp(warn_time) >= #{month}, 1, null)) month,
             count(if(unix_timestamp(warn_time) >= #{day}, 1, null)) day,
@@ -173,11 +173,15 @@
             </if>
         </where>
     </select>
-    <select id="countBasicProductInfoOfGlobal" resultType="com.iteaj.framework.spi.iot.view.GlobalApiParams">
+    <select id="countBasicProductInfoOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
         select count(1) total, count(if(status = 'enabled', 1, null)) start from iot_product
     </select>
-    <select id="countBasicDriverInfoOfGlobal" resultType="com.iteaj.framework.spi.iot.view.GlobalApiParams">
+    <select id="countBasicDriverInfoOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
         select count(1) total, count(if(status = 'start', 1, null)) start from iot_gateway
+    </select>
+
+    <select id="listBasicProduct" resultType="java.util.Map">
+        select name, status, code, device_type deviceType from iot_product
     </select>
 
 </mapper>

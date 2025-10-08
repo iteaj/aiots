@@ -3,7 +3,6 @@ package com.iteaj.iboot.plugin.iotview;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.view.ViewApi;
-import com.iteaj.framework.spi.iot.view.ViewApiItem;
 import com.iteaj.framework.spi.iot.view.ViewApiManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.ApplicationContext;

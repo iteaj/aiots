@@ -2,9 +2,8 @@ package com.iteaj.framework.spi.iot.data;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
-import com.iteaj.framework.spi.iot.view.ViewSqlCondition;
+import com.iteaj.framework.spi.iot.view.chart.ChartSqlCondition;
 
 import java.util.*;
 
@@ -48,5 +47,5 @@ public interface RealtimeCollectDataService {
      */
     PageResult productOfPage(Page page, RealtimeCollectData entity);
 
-    List<BaseEchartsCount> countOfView(ViewSqlCondition condition);
+    List<BaseEchartsCount> countOfView(ChartSqlCondition condition);
 }

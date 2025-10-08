@@ -20,6 +20,8 @@ public interface ViewApi extends Ordered {
      */
     String getName();
 
+    ViewApiType getApiType();
+
     /**
      * 初始化
      */
