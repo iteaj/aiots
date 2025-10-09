@@ -109,9 +109,9 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, P
             throw new ServiceException("请先删除对应的子类型");
         });
 
-        NumberResult<Integer> count = productService.count(Wrappers
+        NumberResult<Long> count = productService.count(Wrappers
                 .<Product>lambdaQuery().in(Product::getProductTypeId, idList));
-        Integer integer = count.ofNullable().orElse(0);
+        Long integer = count.ofNullable().orElse(0L);
         if(integer > 0) {
             throw new ServiceException("此类型已在使用");
         }
