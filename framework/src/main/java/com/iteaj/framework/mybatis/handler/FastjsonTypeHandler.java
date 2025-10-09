@@ -9,7 +9,7 @@ import org.apache.ibatis.type.MappedTypes;
 @MappedTypes({JSONObject.class, JSONArray.class})
 public class FastjsonTypeHandler extends AbstractJsonTypeHandler<JSON> {
 
-    // ✅ 必须有这个构造方法
+    //  必须有这个构造方法
     public FastjsonTypeHandler(Class<?> type) {
         super(type);
     }
