@@ -3,6 +3,8 @@ package com.iteaj.iboot.module.iot.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +29,7 @@ import lombok.experimental.Accessors;
 @TableName("iot_protocol_api")
 public class ProtocolApi extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

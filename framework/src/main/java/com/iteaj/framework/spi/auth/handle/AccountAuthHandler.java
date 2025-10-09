@@ -3,8 +3,8 @@ package com.iteaj.framework.spi.auth.handle;
 import com.iteaj.framework.consts.CoreConst;
 import com.iteaj.framework.spi.auth.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**

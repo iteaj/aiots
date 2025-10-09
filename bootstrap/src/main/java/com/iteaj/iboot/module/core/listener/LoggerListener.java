@@ -21,7 +21,7 @@ public class LoggerListener implements FrameworkListener<PayloadEvent<AccessLogg
     @Override
     public void onApplicationEvent(PayloadEvent<AccessLogger> event) {
         AccessLogger payload = event.getPayload();
-        Optional<Entity> source = (Optional<Entity>)event.getSource();
+        Optional<Entity> source = (Optional<Entity>) event.getSource();
 
         AccessLog accessLog = new AccessLog();
         BeanUtils.copyProperties(payload, accessLog);

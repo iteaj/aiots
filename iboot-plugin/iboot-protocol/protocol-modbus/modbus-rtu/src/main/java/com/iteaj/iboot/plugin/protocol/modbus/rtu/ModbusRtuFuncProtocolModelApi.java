@@ -36,8 +36,7 @@ public class ModbusRtuFuncProtocolModelApi extends AbstractModbusFuncProtocolMod
 
     @Override
     protected ModbusCommonProtocol buildWrite10(int device, int start, DataFormat format, Object value) {
-        if(value instanceof byte[]) {
-            byte[] message = (byte[]) value;
+        if(value instanceof byte[] message) {
             int num = message.length % 2 == 0 ? message.length / 2 : message.length / 2 + 1;
             return ModbusRtuClientProtocol.buildWrite10(device, start, num, message);
         }
@@ -50,7 +49,7 @@ public class ModbusRtuFuncProtocolModelApi extends AbstractModbusFuncProtocolMod
         String com = arg.getParentDeviceSn();
         IotClient client = FrameworkManager.getClient(com, ModbusRtuClientMessage.class);
         if(client != null) {
-            ((ModbusRtuClientProtocol)protocol).request(com);
+            ((ModbusRtuClientProtocol) protocol).request(com);
             return InvokeResult.status(((ModbusRtuClientProtocol) protocol).getExecStatus(), protocol);
         } else {
             throw new ProtocolInvokeException("网关设备不存在[" + arg.getParentDeviceSn() + "]");

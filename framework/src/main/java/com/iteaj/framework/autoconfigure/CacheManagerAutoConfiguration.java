@@ -119,7 +119,7 @@ public class CacheManagerAutoConfiguration {
      * Ehcache缓存配置
      */
     @ConditionalOnClass(name = "org.ehcache.core.EhcacheManager")
-    public static class Ehcache3Configuration{
+    public static class Ehcache3Configuration {
         /**
          * 如果redis缓存存在则使用redis缓存
          * @return

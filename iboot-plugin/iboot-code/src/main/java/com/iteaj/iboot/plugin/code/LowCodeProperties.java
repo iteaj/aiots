@@ -65,9 +65,14 @@ public class LowCodeProperties implements InitializingBean {
         }
     }
 
-    public static class LcdGlobalConfig extends GlobalConfig { }
-    public static class LcdPackageConfig extends PackageConfig { }
-    public static class LcdStrategyConfig extends StrategyConfig { }
+    public static class LcdGlobalConfig extends GlobalConfig {
+    }
+
+    public static class LcdPackageConfig extends PackageConfig {
+    }
+
+    public static class LcdStrategyConfig extends StrategyConfig {
+    }
 
     /**
      * 前端表单配置
@@ -87,5 +92,6 @@ public class LowCodeProperties implements InitializingBean {
     }
 
     @Data
-    public static class LcdDataSourceConfig extends DataSourceConfig { }
+    public static class LcdDataSourceConfig extends DataSourceConfig {
+    }
 }

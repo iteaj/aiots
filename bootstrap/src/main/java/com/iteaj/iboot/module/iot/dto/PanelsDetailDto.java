@@ -48,11 +48,13 @@ public class PanelsDetailDto {
     }
 
     public PanelsDetailDto addSignal(String name, String address) {
-        this.signals.add(new Signal(name, "-", address, null, CollectStatus.Success)); return this;
+        this.signals.add(new Signal(name, "-", address, null, CollectStatus.Success));
+        return this;
     }
 
     public PanelsDetailDto addSignal(String name, String address, Object value, Date collectTime, CollectStatus status) {
-        this.signals.add(new Signal(name, value, address, collectTime, status)); return this;
+        this.signals.add(new Signal(name, value, address, collectTime, status));
+        return this;
     }
 
     @Getter
@@ -125,7 +127,7 @@ public class PanelsDetailDto {
         private CollectStatus status;
 
         public ModelAttr(String field, String name, String unit, Object value
-                , AttrType attrType, Date collectTime, CollectStatus status) {
+        , AttrType attrType, Date collectTime, CollectStatus status) {
             this.field = field;
             this.name = name;
             this.unit = unit;

@@ -20,7 +20,8 @@ public class Captcha {
 
     private Date createTime;
 
-    public Captcha() { }
+    public Captcha() {
+    }
 
     public Captcha(String code, String captcha, long expire) {
         this.code = code;

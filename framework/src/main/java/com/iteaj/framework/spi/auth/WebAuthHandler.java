@@ -3,8 +3,8 @@ package com.iteaj.framework.spi.auth;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static com.iteaj.framework.consts.CoreConst.EXEC_EXCEPTION_STATUS;
@@ -52,19 +52,19 @@ public interface WebAuthHandler {
      * @param response
      */
      default void login(HttpServletRequest request, HttpServletResponse response) throws SecurityException {
-         final WebAuthAction action = matcher(request);
-         if(action != null) {
-             Exception throwable = null;
-             final AuthContext context = action.getContext(request, response);
-             try {
-                 action.login(context, request, response);
-             } catch (Exception e) {
-                 throwable = e;
-             } finally {
-                 action.loginCall(throwable, request, response);
-             }
-         }
-     }
+        final WebAuthAction action = matcher(request);
+        if(action != null) {
+            Exception throwable = null;
+            final AuthContext context = action.getContext(request, response);
+            try {
+                action.login(context, request, response);
+            } catch (Exception e) {
+                throwable = e;
+            } finally {
+                action.loginCall(throwable, request, response);
+            }
+        }
+    }
 
     /**
      * 注销
@@ -72,17 +72,17 @@ public interface WebAuthHandler {
      * @param response
      */
      default void logout(HttpServletRequest request, HttpServletResponse response) {
-         final WebAuthAction matcher = matcher(request);
-         if(matcher != null) {
-             matcher.logout(request, response);
-         }
-     }
+        final WebAuthAction matcher = matcher(request);
+        if(matcher != null) {
+            matcher.logout(request, response);
+        }
+    }
 
-     default AuthContext getAuthContext(HttpServletRequest request) {
+    default AuthContext getAuthContext(HttpServletRequest request) {
         return (AuthContext) request.getAttribute(CoreConst.SESSION_AUTH_CONTEXT);
-     }
+    }
 
-     default boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
+    default boolean preAuthorize(HttpServletRequest request, HttpServletResponse response) {
         final WebAuthAction action = matcher(request);
 
         if(action == null) {
@@ -94,7 +94,7 @@ public interface WebAuthHandler {
         }
 
         return action.preAuthorize(request, response);
-     }
+    }
 
     /**
      * 继续授权

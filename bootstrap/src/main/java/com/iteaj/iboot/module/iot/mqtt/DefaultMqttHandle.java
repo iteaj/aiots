@@ -82,7 +82,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                             if(!properties.getClientId().equals(clientIdValue)) {
                                 if(logger.isDebugEnabled()) {
                                     logger.debug("mqtt订阅不匹配 不属于平台指定客户端 平台客户端: {} - 设备发布: {}"
-                                            , properties.getClientId(), clientIdValue);
+                                    , properties.getClientId(), clientIdValue);
                                 }
 
                                 return;
@@ -93,7 +93,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                             if(!gatewaySnValue.equals(properties.connectKey())) {
                                 if(logger.isDebugEnabled()) {
                                     logger.debug("mqtt订阅不匹配 不属于统一网关 平台配置: {} - 设备发布: {}"
-                                            , properties.connectKey(), gatewaySnValue);
+                                    , properties.connectKey(), gatewaySnValue);
                                 }
 
                                 return;
@@ -147,7 +147,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
     }
 
     private void resolvePayloadValue(List<UpModelAttr> dicts, DefaultMqttSubscribeProtocol protocol
-            , String gatewaySnValue, String deviceSnValue, RealtimeStatus device) {
+        , String gatewaySnValue, String deviceSnValue, RealtimeStatus device) {
         Date date = new Date();
         byte[] message = protocol.requestMessage().getMessage();
         JSONObject jsonObject = JSONObject.parseObject(new String(message, StandardCharsets.UTF_8));
@@ -193,7 +193,9 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                 Map<String, SubscribeConfig> subscribeApis = new HashMap<>();
                 eventApis.forEach(api -> {
                     if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
-                        String topic = null; List<UpModelAttr> attrs = new ArrayList<>(); boolean isWill = false;
+                        String topic = null;
+                        List<UpModelAttr> attrs = new ArrayList<>();
+                        boolean isWill = false;
                         for (int i = 0; i < api.getUpConfig().size(); i++) {
                             ModelApiConfig config = api.getUpConfig().get(i);
                             if("topic".equals(config.getProtocolAttrField())) {
@@ -207,18 +209,18 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                                 if(config.getModelAttrId() == null) {
                                     if(logger.isDebugEnabled()) {
                                         logger.debug("解析mqtt物模型 payload没有配置属性 - 产品: {} - 事件模型: {}/{}"
-                                                , productDto.getName(), api.getName(), api.getCode());
+                                        , productDto.getName(), api.getName(), api.getCode());
                                     }
                                 } else if(CollectionUtil.isEmpty(config.getDicts())) {
                                     if(logger.isDebugEnabled()) {
                                         logger.debug("解析mqtt物模型 payload属性没有配置项 - 产品: {} - 事件模型: {}/{}"
-                                                , productDto.getName(), api.getName(), api.getCode());
+                                        , productDto.getName(), api.getName(), api.getCode());
                                     }
                                 } else {
                                     attrs = config.getDicts().stream().map(item -> new UpModelAttr(Long.valueOf(item.getDictValue())
-                                            , item.getAttrField(), item.getDictName(), DataType.build(item.getDataType())
-                                            , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript()
-                                            , item.getPath())).collect(Collectors.toList());
+                                    , item.getAttrField(), item.getDictName(), DataType.build(item.getDataType())
+                                    , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript()
+                                    , item.getPath())).collect(Collectors.toList());
                                 }
 
                             } else {

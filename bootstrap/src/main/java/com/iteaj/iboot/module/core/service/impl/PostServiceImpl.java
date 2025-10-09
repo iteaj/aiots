@@ -27,10 +27,10 @@ public class PostServiceImpl extends BaseServiceImpl<PostMapper, Post> implement
     public BooleanResult save(Post entity) {
         // 同一个机构下面不能存在同一个岗位
         this.getOne(Wrappers.<Post>lambdaQuery()
-            .eq(Post::getOrgId, entity.getOrgId())
-            .eq(Post::getName, entity.getName())).ifPresent(item -> {
-                throw new ServiceException("岗位名称["+entity.getName()+"]已存在");
-            });
+                .eq(Post::getOrgId, entity.getOrgId())
+                .eq(Post::getName, entity.getName())).ifPresent(item -> {
+            throw new ServiceException("岗位名称[" + entity.getName() + "]已存在");
+        });
         return super.save(entity);
     }
 
@@ -40,7 +40,7 @@ public class PostServiceImpl extends BaseServiceImpl<PostMapper, Post> implement
                 .ne(Post::getId, entity.getId())
                 .eq(Post::getOrgId, entity.getOrgId())
                 .eq(Post::getName, entity.getName())).ifPresent(item -> {
-            throw new ServiceException("岗位名称["+entity.getName()+"]已存在");
+            throw new ServiceException("岗位名称[" + entity.getName() + "]已存在");
         });
 
         return super.updateById(entity);

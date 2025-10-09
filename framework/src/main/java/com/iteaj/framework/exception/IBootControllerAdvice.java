@@ -11,8 +11,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -56,7 +56,7 @@ public class IBootControllerAdvice {
     @ExceptionHandler(BindException.class)
     public Result bindExceptionHandler(BindException e) {
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
-        logger.error("字段校验失败["+fieldErrors.get(0).getDefaultMessage()+"]", e);
+        logger.error("字段校验失败[{}]", fieldErrors.get(0).getDefaultMessage(), e);
         // 只返回第一个错误信息
         return HttpResult.Fail(fieldErrors.get(0).getDefaultMessage());
     }
@@ -65,7 +65,7 @@ public class IBootControllerAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
-        logger.error("字段校验失败["+fieldErrors.get(0).getDefaultMessage()+"]", e);
+        logger.error("字段校验失败[{}]", fieldErrors.get(0).getDefaultMessage(), e);
         // 只返回第一个错误信息
         return HttpResult.Fail(fieldErrors.get(0).getDefaultMessage());
     }
@@ -74,7 +74,7 @@ public class IBootControllerAdvice {
     @ExceptionHandler(ConstraintViolationException.class)
     public Result constraintViolationExceptionHandler(ConstraintViolationException e) {
         final ConstraintViolation<?> violation = e.getConstraintViolations().stream().findFirst().get();
-        logger.error("字段校验失败", e.getMessage());
+        logger.error("字段校验失败", e);
         // 只返回第一个错误信息
         return HttpResult.Fail(violation.getMessage());
     }

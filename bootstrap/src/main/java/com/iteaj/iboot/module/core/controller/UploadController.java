@@ -87,7 +87,7 @@ public class UploadController extends BaseController {
         try {
             Admin admin = SecurityUtil.getLoginUser().map(item -> (Admin) item).get();
             UploadResult result = this.uploadService.upload(file.getInputStream()
-                    , file.getOriginalFilename(), "avatar-" + admin.getAccount(), "/avatar");
+            , file.getOriginalFilename(), "avatar-" + admin.getAccount(), "/avatar");
             return success(result.getUrl(), "上传成功");
         } catch (IOException e) {
             logger.error(e.getMessage(), e);

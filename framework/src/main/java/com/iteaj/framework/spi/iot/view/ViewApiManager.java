@@ -51,7 +51,7 @@ public final class ViewApiManager {
         final String[] split = parentKey.split(DataItemOption.SPLIT);
         final ViewApiItem viewApiItem = itemMap.get(split[0]);
         if(viewApiItem == null) {
-            throw new ServiceException("未找到对应的接口项["+split[0]+"]");
+            throw new ServiceException("未找到对应的接口项[" + split[0] + "]");
         }
 
         return viewApiItem.loadOptions(split);

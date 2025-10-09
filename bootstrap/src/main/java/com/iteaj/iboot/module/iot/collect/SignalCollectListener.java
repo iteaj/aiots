@@ -8,5 +8,6 @@ public interface SignalCollectListener extends CollectDataListener {
 
     void supplier(CollectDevice device, CollectData data);
 
-    default void finished(CollectDevice device, List<CollectData> data) {}
+    default void finished(CollectDevice device, List<CollectData> data) {
+    }
 }

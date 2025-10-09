@@ -8,9 +8,9 @@ import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 
 /**
@@ -40,7 +40,7 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
      */
     @Override
     protected Serializable getSessionId(ServletRequest request, ServletResponse response) {
-        HttpServletRequest servletRequest = (HttpServletRequest)request;
+        HttpServletRequest servletRequest = (HttpServletRequest) request;
 
         UserAgent userAgent = UserAgent.parseUserAgentString(servletRequest.getHeader("user-agent"));
         servletRequest.setAttribute(CoreConst.WEB_USER_AGENT, userAgent);
@@ -52,7 +52,7 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
             // 尝试从header获取access_token作为sessionId
             if(web.getSession().isWriteHeader()) {
                 String token = getTokenFromHeader(servletRequest, web);
-                if (token != null) {
+                if(token != null) {
                     return token;
                 }
             }
@@ -68,7 +68,7 @@ public class OnlineSessionManager extends DefaultWebSessionManager {
         } else if(web.getSession().isWriteHeader()) {
             // 尝试从header获取access_token作为sessionId
             String token = getTokenFromHeader(servletRequest, web);
-            if (token != null) {
+            if(token != null) {
                 return token;
             }
         }

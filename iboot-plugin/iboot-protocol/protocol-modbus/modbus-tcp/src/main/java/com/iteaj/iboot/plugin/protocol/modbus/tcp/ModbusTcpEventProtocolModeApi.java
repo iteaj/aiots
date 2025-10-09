@@ -47,7 +47,7 @@ public class ModbusTcpEventProtocolModeApi extends AbstractModbusEventProtocolMo
         if(client != null) {
             Integer timeout = arg.getParentDeviceConfig("timeout");
             if(timeout == null || timeout <= 0) {
-                throw new ProtocolInvokeException("请求超时时间必须大于0["+timeout+"]");
+                throw new ProtocolInvokeException("请求超时时间必须大于0[" + timeout + "]");
             }
 
             ModbusTcpClientCommonProtocol commonProtocol = (ModbusTcpClientCommonProtocol) protocol;
@@ -66,7 +66,7 @@ public class ModbusTcpEventProtocolModeApi extends AbstractModbusEventProtocolMo
                 return InvokeResult.status(execStatus, protocol);
             }
         } else {
-            throw new ProtocolInvokeException("网关设备不存在["+arg.getParentDeviceSn()+"]");
+            throw new ProtocolInvokeException("网关设备不存在[" + arg.getParentDeviceSn() + "]");
         }
     }
 }

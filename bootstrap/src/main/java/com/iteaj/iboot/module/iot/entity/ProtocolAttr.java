@@ -2,6 +2,8 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.util.Date;
 
 import com.iteaj.framework.spi.iot.consts.AttrType;
@@ -23,6 +25,7 @@ import lombok.experimental.Accessors;
 @TableName("iot_protocol_attr")
 public class ProtocolAttr extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

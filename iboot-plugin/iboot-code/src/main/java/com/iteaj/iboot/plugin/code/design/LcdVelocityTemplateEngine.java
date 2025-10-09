@@ -22,7 +22,7 @@ public class LcdVelocityTemplateEngine extends AbstractLcdTemplateEngine {
     @Override
     public LcdVelocityTemplateEngine init(DesignConfigBuilder configBuilder) {
         super.init(configBuilder);
-        if (null == velocityEngine) {
+        if(null == velocityEngine) {
             Properties p = new Properties();
             p.setProperty(ConstVal.VM_LOAD_PATH_KEY, ConstVal.VM_LOAD_PATH_VALUE);
             p.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, StringPool.EMPTY);
@@ -43,13 +43,13 @@ public class LcdVelocityTemplateEngine extends AbstractLcdTemplateEngine {
              BufferedWriter writer = new BufferedWriter(ow)) {
             template.merge(new VelocityContext(objectMap), writer);
         }
-        logger.debug("模板:" + templatePath + ";  文件:" + outputFile);
+        logger.debug("模板:{};  文件:{}", templatePath, outputFile);
     }
 
 
     @Override
     public String templateFilePath(String filePath) {
-        if (null == filePath || filePath.contains(DOT_VM)) {
+        if(null == filePath || filePath.contains(DOT_VM)) {
             return filePath;
         }
         return filePath + DOT_VM;

@@ -46,9 +46,9 @@ public class FormField {
     public String getCondition() {
         if(type != null) {
             if(this.type == DbColumnType.STRING) {
-                return String.format("entity.%s!=null and entity.%s!=''", this.propertyName, this.propertyName);
+                return "entity.%s!=null and entity.%s!=''".formatted(this.propertyName, this.propertyName);
             } else {
-                return "entity." + this.propertyName+" != null";
+                return "entity." + this.propertyName + " != null";
             }
         }
         return "";

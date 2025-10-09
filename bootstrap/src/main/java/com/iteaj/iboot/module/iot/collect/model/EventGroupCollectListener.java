@@ -10,7 +10,8 @@ public interface EventGroupCollectListener extends CollectDataListener {
      *  组任务采集完成
      * @param info
      */
-    default void finished(CollectInfo info) {}
+    default void finished(CollectInfo info) {
+    }
 
     /**
      * 设备采集完成

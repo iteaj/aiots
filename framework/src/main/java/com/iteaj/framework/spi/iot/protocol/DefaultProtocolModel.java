@@ -6,7 +6,7 @@ import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class DefaultProtocolModel implements ProtocolModel{
+public class DefaultProtocolModel implements ProtocolModel {
 
     private String code;
     private String remark;
@@ -25,12 +25,12 @@ public class DefaultProtocolModel implements ProtocolModel{
     }
 
     public DefaultProtocolModel(String code, CtrlMode ctrlMode, TransportProtocol type
-            , Map<String, AbstractProtocolModelApi> modelApis, Map<String, ProtocolModelAttr> modelAttrs) {
+        , Map<String, AbstractProtocolModelApi> modelApis, Map<String, ProtocolModelAttr> modelAttrs) {
         this(code, ctrlMode, type, modelApis, modelAttrs, null);
     }
 
     public DefaultProtocolModel(String code, CtrlMode ctrlMode, TransportProtocol type
-            , Map<String, AbstractProtocolModelApi> modelApis, Map<String, ProtocolModelAttr> modelAttrs, String remark) {
+        , Map<String, AbstractProtocolModelApi> modelApis, Map<String, ProtocolModelAttr> modelAttrs, String remark) {
         this.code = code;
         this.type = type;
         this.remark = remark;

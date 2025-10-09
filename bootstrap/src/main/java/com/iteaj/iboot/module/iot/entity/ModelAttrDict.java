@@ -8,8 +8,8 @@ import com.iteaj.framework.BaseEntity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * 物模型属性字典
@@ -77,6 +77,6 @@ public class ModelAttrDict extends BaseEntity {
      * 模型属性id
      */
     @NotNull(message = "模型属性必填")
-    @TableField(whereStrategy = FieldStrategy.IGNORED)
+    @TableField(whereStrategy = FieldStrategy.DEFAULT)
     private Long modelAttrId;
 }

@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FetchResult extends IotViewResult{
+public class FetchResult extends IotViewResult {
 
     private String chart;
 

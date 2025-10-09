@@ -40,7 +40,7 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
     @CacheEvict(allEntries = true)
     public BooleanResult save(Org entity) {
         this.getOne(Wrappers.<Org>lambdaQuery().eq(Org::getName, entity.getName()))
-                .ifPresentThrow("部门["+entity.getName()+"]已存在");
+                .ifPresentThrow("部门[" + entity.getName() + "]已存在");
 
         super.save(entity);
         if(entity.getPid() == 0l) {
@@ -51,7 +51,7 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
             parent.ofNullable().orElseThrow(() -> new ServiceException("父部门不存在"));
 
             entity.setLevel(parent.getData().getLevel() + 1);
-            entity.setPath(parent.getData().getPath()+","+entity.getId());
+            entity.setPath(parent.getData().getPath() + "," + entity.getId());
         }
 
         return updateById(entity); // 更新最新路径path;
@@ -65,7 +65,7 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
             parent.ofNullable().orElseThrow(() -> new ServiceException("父部门不存在"));
 
             entity.setLevel(parent.getData().getLevel() + 1);
-            entity.setPath(parent.getData().getPath()+","+entity.getId());
+            entity.setPath(parent.getData().getPath() + "," + entity.getId());
 
             if(parent.getData().getId().equals(entity.getId())) {
                 throw new ServiceException("父部门不能是自己");
@@ -92,10 +92,10 @@ public class OrgServiceImpl extends BaseServiceImpl<IOrgDao, Org> implements IOr
         // 如果存在子部门, 则要先删除子部门
         list(Wrappers.<Org>query().eq("pid", id))
                 .ofNullable().ifPresent(item -> {
-                    if(!item.isEmpty()) {
-                        throw new ServiceException("请先删除子部门");
-                    }
-                });
+            if(!item.isEmpty()) {
+                throw new ServiceException("请先删除子部门");
+            }
+        });
 
         // 此部门已经在使用
         adminService.getOne(Wrappers.<Admin>query().eq("org_id", id))

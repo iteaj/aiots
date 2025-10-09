@@ -88,7 +88,7 @@ public interface ProductMapper extends BaseMapper<Product> {
      */
     List<DeviceTypeCountDto> countOfDeviceType();
 
-        /**
+    /**
      * 获取指定协议码下的产品列表
      * @param deviceType
      * @param protocolCodes

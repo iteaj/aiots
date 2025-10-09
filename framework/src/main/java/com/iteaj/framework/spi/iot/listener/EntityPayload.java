@@ -8,7 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class EntityPayload<T> implements IotEventPayload{
+public class EntityPayload<T> implements IotEventPayload {
 
     private T payload;
 

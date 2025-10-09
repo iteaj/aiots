@@ -2,7 +2,7 @@ package com.iteaj.framework.spi.iot;
 
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 
-public class InvokeStatusException extends ProtocolInvokeException{
+public class InvokeStatusException extends ProtocolInvokeException {
 
     private CollectStatus status;
 

@@ -27,7 +27,7 @@ public class RealtimeDataCacheListener implements EventGroupCollectListener, Sig
         if(supplier != null) {
             realtimeDataService.put(supplier);
             IotLogger.debug(IotLogger.REPORT_NAME, supplier.getProtocolCode(), device.getUid()
-                    , "<<< 接收到设备上报数据 设备编号: {}", supplier.getKey().getKey());
+            , "<<< 接收到设备上报数据 设备编号: {}", supplier.getKey().getKey());
         }
     }
 
@@ -39,7 +39,7 @@ public class RealtimeDataCacheListener implements EventGroupCollectListener, Sig
     @Override
     public void supplier(CollectDevice device, CollectData data) {
         realtimeDataService.put(device.getProtocolCode(), device.buildKey()
-                , SignalOrFieldValue.build(data.getSignalId(), data.getAddress(), data.getCollectTime()
-                        , data.getValue(), data.getAddress()).builder(data.getCollectStatus()));
+        , SignalOrFieldValue.build(data.getSignalId(), data.getAddress(), data.getCollectTime()
+        , data.getValue(), data.getAddress()).builder(data.getCollectStatus()));
     }
 }

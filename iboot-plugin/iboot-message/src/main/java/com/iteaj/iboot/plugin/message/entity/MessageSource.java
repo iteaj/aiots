@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
 import java.util.Date;
 
 /**
@@ -25,6 +26,7 @@ import java.util.Date;
 @TableName("sys_message_source")
 public class MessageSource extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -53,7 +55,8 @@ public class MessageSource extends BaseEntity {
      */
     private Date createTime;
 
-    public MessageSource() { }
+    public MessageSource() {
+    }
 
     public MessageSource(String type) {
         this.type = type;

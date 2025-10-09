@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.iteaj.framework.BaseEntity;
+
+import java.io.Serial;
 import java.util.Date;
 
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
@@ -27,6 +29,7 @@ import lombok.experimental.Accessors;
 @TableName("lcd_design")
 public class LcdDesign extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

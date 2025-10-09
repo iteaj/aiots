@@ -9,6 +9,7 @@ import org.quartz.spi.JobFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
@@ -23,6 +24,7 @@ import javax.sql.DataSource;
  * @author iteaj
  * @since 1.0
  */
+@AutoConfiguration
 @EnableScheduling
 @ComponentScan({"com.iteaj.iboot.plugin.quartz"})
 @MapperScan({"com.iteaj.iboot.plugin.quartz.mapper"})
@@ -38,7 +40,7 @@ public class QuartzAutoConfiguration implements BeanFactoryPostProcessor {
     }
 
     @Bean("schedulerFactoryBean")
-    public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory, DataSource dataSource){
+    public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory, DataSource dataSource) {
 
         SchedulerFactoryBean factoryBean = new SchedulerFactoryBean();
 

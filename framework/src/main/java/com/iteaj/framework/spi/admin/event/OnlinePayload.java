@@ -24,6 +24,7 @@ public class OnlinePayload {
     private OnlineStatus type;
     private String sessionId;
     private UserAgent userAgent;
+
     public OnlinePayload(OnlineStatus type, String sessionId) {
         this.type = type;
         this.sessionId = sessionId;

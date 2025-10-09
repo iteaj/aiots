@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
 import java.util.Date;
 
 /**
@@ -23,6 +24,7 @@ import java.util.Date;
 @TableName("iot_signal")
 public class Signal extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -96,5 +98,6 @@ public class Signal extends BaseEntity {
     @TableField(exist = false)
     private Long productTypeId;
 
-    public Signal() { }
+    public Signal() {
+    }
 }

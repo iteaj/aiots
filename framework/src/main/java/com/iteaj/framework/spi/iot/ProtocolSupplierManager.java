@@ -37,10 +37,12 @@ public class ProtocolSupplierManager {
     private static Map<Class, DeviceProtocolSupplier> messageMap = new HashMap<>(8);
     private static Map<String, DeviceProtocolSupplier> supplierMap = new HashMap<>(8);
 
-    private ProtocolSupplierManager() { }
+    private ProtocolSupplierManager() {
+    }
 
     public static ProtocolSupplierManager build(FrameworkProperties properties) {
-        ProtocolSupplierManager.properties = properties; return instance;
+        ProtocolSupplierManager.properties = properties;
+        return instance;
     }
 
     /**
@@ -63,11 +65,13 @@ public class ProtocolSupplierManager {
         }
 
         if(contain(protocol.getCode())) {
-            throw new FrameworkException("协议已存在["+protocol.getCode()+"]");
+            throw new FrameworkException("协议已存在[" + protocol.getCode() + "]");
         }
 
-        logger.info("<<<注册协议提供成功 {} - 版本: {} - 实现: {} - 说明: {}", protocol.getCode()
-                , supplier.getVersion(), supplier.getImplMode().getDesc(), supplier.getDesc());
+        if(logger.isInfoEnabled()) {
+            logger.info("<<<注册协议提供成功 {} - 版本: {} - 实现: {} - 说明: {}", protocol.getCode()
+            , supplier.getVersion(), supplier.getImplMode().getDesc(), supplier.getDesc());
+        }
         supplierMap.put(protocol.getCode(), supplier);
         return instance;
     }
@@ -83,7 +87,7 @@ public class ProtocolSupplierManager {
         DeviceProtocolSupplier protocolSupplier = messageMap.get(messageClass);
 
         if(protocolSupplier != null) {
-            throw new FrameworkException("协议已存在["+messageClass.getSimpleName()+"]");
+            throw new FrameworkException("协议已存在[" + messageClass.getSimpleName() + "]");
         }
 
         if(supplier == null || protocol == null) {
@@ -215,8 +219,8 @@ public class ProtocolSupplierManager {
         if(supplier != null) {
             // 先从缓存中获取数据
             Object dataCache = protocol.getParam(AbstractProtocolModelApi.INVOKE_API_DATA_SUPPLIER);
-            if(dataCache instanceof DataSupplier) {
-                return Optional.of((DataSupplier) dataCache);
+            if(dataCache instanceof DataSupplier dataSupplier) {
+                return Optional.of(dataSupplier);
             }
 
             // 缓存中没有则从协议提供方获取数据
@@ -275,7 +279,7 @@ public class ProtocolSupplierManager {
         File target = new File(location + File.separator + PROTOCOL_JAR_DIR + File.separator + fileName);
         File temp = new File(location + File.separator + PROTOCOL_JAR_TEMP_DIR + File.separator + fileName);
         if(!temp.exists()) {
-            throw new ProtocolSupplierException("Jar文件不存在["+fileName+"]");
+            throw new ProtocolSupplierException("Jar文件不存在[" + fileName + "]");
         }
 
         FileUtil.copy(temp, target, true);
@@ -292,13 +296,13 @@ public class ProtocolSupplierManager {
         if(supplier != null) {
             // 系统内置不允许删除
             if(supplier.getImplMode() == ProtocolImplMode.Internal) {
-                throw new ProtocolSupplierException("内置协议["+code+"]不允许删除");
+                throw new ProtocolSupplierException("内置协议[" + code + "]不允许删除");
             }
 
             ClassLoader classLoader = supplier.getClass().getClassLoader();
-            if(classLoader instanceof JarClassLoader) {
+            if(classLoader instanceof JarClassLoader loader) {
                 try {
-                    ((JarClassLoader) classLoader).close();
+                    loader.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -30,11 +30,15 @@ public interface AuthToken extends Serializable {
      * 角色列表
      * @return
      */
-    default Collection<String> getRoles() {return Collections.emptyList();}
+    default Collection<String> getRoles() {
+        return Collections.emptyList();
+    }
 
     /**
      * 权限列表
      * @return
      */
-    default Collection<String> getPermissions(){return Collections.emptyList();}
+    default Collection<String> getPermissions() {
+        return Collections.emptyList();
+    }
 }

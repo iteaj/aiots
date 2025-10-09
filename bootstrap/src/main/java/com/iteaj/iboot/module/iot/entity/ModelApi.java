@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.io.Serial;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,8 +21,8 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.springframework.util.CollectionUtils;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * <p>
@@ -37,6 +38,7 @@ import javax.validation.constraints.NotNull;
 @TableName("iot_model_api")
 public class ModelApi extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -182,7 +184,7 @@ public class ModelApi extends BaseEntity {
     }
 
     private void cartesianProductHelper(List<List<ModelAttrDict>> lists, int index, List<ModelAttrDict> current, List<List<ModelAttrDict>> result, Map<Long, ModelAttr> attrMap) {
-        if (index == lists.size()) {
+        if(index == lists.size()) {
             result.add(new ArrayList<>(current));
             return;
         }

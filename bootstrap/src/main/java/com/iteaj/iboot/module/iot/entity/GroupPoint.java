@@ -18,7 +18,8 @@ public class GroupPoint extends BaseEntity {
      */
     private Long groupId;
 
-    public GroupPoint() { }
+    public GroupPoint() {
+    }
 
     public GroupPoint(Long signalId, Long groupId) {
         this.signalId = signalId;

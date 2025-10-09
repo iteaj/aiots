@@ -1,9 +1,9 @@
 package com.iteaj.framework.validate.constraints;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Pattern;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Pattern;
 import java.lang.annotation.*;
 
 @Documented
@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @Repeatable(Phone.List.class)
 public @interface Phone {
 
-    String message() default "{javax.validation.constraints.Phone.message}";
+    String message() default "{jakarta.validation.constraints.Phone.message}";
 
     Class<?>[] groups() default {};
 

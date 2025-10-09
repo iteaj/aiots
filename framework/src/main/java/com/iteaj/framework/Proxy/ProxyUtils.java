@@ -14,8 +14,8 @@ public class ProxyUtils {
     public static Object getTarget(Object proxy) {
         if(Proxy.isProxyClass(proxy.getClass())) {
             final InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-            if(handler instanceof TargetInvocationHandler) {
-                return ((TargetInvocationHandler<?>) handler).getTarget();
+            if(handler instanceof TargetInvocationHandler<?> invocationHandler) {
+                return invocationHandler.getTarget();
             }
         }
 

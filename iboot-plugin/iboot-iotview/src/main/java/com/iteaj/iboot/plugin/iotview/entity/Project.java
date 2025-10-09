@@ -7,6 +7,7 @@ import com.iteaj.framework.Entity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
 import java.util.Date;
 
 /**
@@ -22,6 +23,7 @@ import java.util.Date;
 @TableName("isv_project")
 public class Project implements Entity<String> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.ASSIGN_UUID)

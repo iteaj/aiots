@@ -4,7 +4,7 @@ import com.iteaj.framework.IBaseService;
 import com.iteaj.iboot.module.core.entity.DictType;
 
 /**
- * jdk：1.8
+ * jdk：17
  *
  * @author iteaj
  * create time：2019/7/13

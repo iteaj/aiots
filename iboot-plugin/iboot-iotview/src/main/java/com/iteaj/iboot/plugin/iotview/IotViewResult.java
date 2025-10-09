@@ -57,6 +57,7 @@ public class IotViewResult extends AbstractResult {
     public static IotViewResult Fail(Object data, String msg, int code) {
         return new IotViewResult(data, msg, code);
     }
+
     @Override
     @JsonIgnore
     public String getMessage() {

@@ -26,7 +26,7 @@ public class RealtimeData implements ModelAttrRealtimeData {
      */
     private String signalOrField;
 
-    public RealtimeData( SignalOrFieldValue realtime) {
+    public RealtimeData(SignalOrFieldValue realtime) {
         this.realtime = realtime;
         this.signalOrField = realtime.getSignalOrField();
     }

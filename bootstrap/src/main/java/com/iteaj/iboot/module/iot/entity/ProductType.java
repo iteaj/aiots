@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
 import java.util.Date;
 
 /**
@@ -23,6 +24,7 @@ import java.util.Date;
 @TableName("iot_product_type")
 public class ProductType extends TreeEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     /**
      * 父节点

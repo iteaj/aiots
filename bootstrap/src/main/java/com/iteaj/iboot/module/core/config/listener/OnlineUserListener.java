@@ -53,9 +53,9 @@ public class OnlineUserListener implements FrameworkListener<PayloadEvent<Online
                     .setExpireTime(payload.getExpireTime());
             service.getOne(Wrappers.<OnlineUser>lambdaQuery().eq(OnlineUser::getSessionId, onlineUser.getSessionId()))
                     .ifPresent(user -> {
-                user.setLoginTime(onlineUser.getLoginTime()).setStatus(OnlineStatus.Online);
-                service.updateById(user);
-            }).ifNotPresent(user -> {
+                        user.setLoginTime(onlineUser.getLoginTime()).setStatus(OnlineStatus.Online);
+                        service.updateById(user);
+                    }).ifNotPresent(user -> {
                 service.save(onlineUser);
             });
 

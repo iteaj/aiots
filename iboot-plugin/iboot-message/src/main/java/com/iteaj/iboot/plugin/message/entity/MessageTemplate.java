@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +29,7 @@ import lombok.experimental.Accessors;
 @TableName("sys_message_template")
 public class MessageTemplate extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

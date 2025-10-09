@@ -24,7 +24,7 @@ public interface ILcdFileCreate {
     default void checkDir(String filePath) {
         File file = new File(filePath);
         boolean exist = file.exists();
-        if (!exist) {
+        if(!exist) {
             file.getParentFile().mkdir();
         }
     }

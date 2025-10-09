@@ -36,7 +36,7 @@ public class Sms4jEmailMessageService extends EmailMessageService {
     }
 
     @Override
-    public void sendAsync( SendModel model, Consumer callback) {
+    public void sendAsync(SendModel model, Consumer callback) {
         BeanFactory.getExecutor().execute(() -> {
             try {
                 send(model);

@@ -145,7 +145,8 @@ public class ProtocolModelApiConfig {
     }
 
     public ProtocolModelApiConfig setSort(int sort) {
-        this.sort = sort; return this;
+        this.sort = sort;
+        return this;
     }
 
     public ApiFieldType getFieldType() {
@@ -153,7 +154,8 @@ public class ProtocolModelApiConfig {
     }
 
     public ProtocolModelApiConfig setFieldType(ApiFieldType fieldType) {
-        this.fieldType = fieldType; return this;
+        this.fieldType = fieldType;
+        return this;
     }
 
     public int getLength() {
@@ -161,7 +163,8 @@ public class ProtocolModelApiConfig {
     }
 
     public ProtocolModelApiConfig setLength(int length) {
-        this.length = length; return this;
+        this.length = length;
+        return this;
     }
 
     public String getRemark() {
@@ -169,7 +172,8 @@ public class ProtocolModelApiConfig {
     }
 
     public ProtocolModelApiConfig setRemark(String remark) {
-        this.remark = remark; return this;
+        this.remark = remark;
+        return this;
     }
 
     public String getProtocolModelAttrField() {
@@ -177,7 +181,8 @@ public class ProtocolModelApiConfig {
     }
 
     public ProtocolModelApiConfig setProtocolModelAttrField(String protocolModelAttrField) {
-        this.protocolModelAttrField = protocolModelAttrField; return this;
+        this.protocolModelAttrField = protocolModelAttrField;
+        return this;
     }
 
     public String getPosition() {
@@ -185,7 +190,8 @@ public class ProtocolModelApiConfig {
     }
 
     public ProtocolModelApiConfig setPosition(String position) {
-        this.position = position; return this;
+        this.position = position;
+        return this;
     }
 
     public ApiConfigDirection getDirection() {
@@ -193,7 +199,8 @@ public class ProtocolModelApiConfig {
     }
 
     public ProtocolModelApiConfig setDirection(ApiConfigDirection direction) {
-        this.direction = direction; return this;
+        this.direction = direction;
+        return this;
     }
 
     public List<ProtocolModelApiConfigOption> getOptions() {
@@ -201,6 +208,7 @@ public class ProtocolModelApiConfig {
     }
 
     public ProtocolModelApiConfig setOptions(List<ProtocolModelApiConfigOption> options) {
-        this.options = options; return this;
+        this.options = options;
+        return this;
     }
 }

@@ -37,16 +37,17 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
             ParamMeta.buildRequiredNumber("port", "端口", "5020", "监听的端口(1024-65535)"),
             ParamMeta.buildRequiredNumber("readIdle", "读空闲时长(秒)", 0, "多长时间没读到数据关闭链接"),
             ParamMeta.buildRequiredSelect("messageType", "注册码类型", "ASCII", "可选值(ASCII、HEX)"
-                    , new IVOption("ASCII", "ASCII"), new IVOption("HEX", "HEX")),
+            , new IVOption("ASCII", "ASCII"), new IVOption("HEX", "HEX")),
     };
 
-    private ParamMeta[] deviceConfig = new ParamMeta[] {
+    private ParamMeta[] deviceConfig = new ParamMeta[]{
             ParamMeta.buildRequiredSelect("dataFormat", "数据格式", "ABCD", ""
-                    , new IVOption("ABCD", "ABCD")
-                    , new IVOption("BADC", "BADC")
-                    , new IVOption("CDAB", "CDAB")
-                    , new IVOption("DCBA", "DCBA")),
+            , new IVOption("ABCD", "ABCD")
+            , new IVOption("BADC", "BADC")
+            , new IVOption("CDAB", "CDAB")
+            , new IVOption("DCBA", "DCBA")),
     };
+
     static {
         readOptions.add(new ProtocolModelApiConfigOption("readShort", "short", "占1个寄存器"));
         readOptions.add(new ProtocolModelApiConfigOption("readUShort", "ushort", "占1个寄存器"));
@@ -71,10 +72,10 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
 
     public AbstractDtuForModbusProtocolSupplier(String code) {
         protocolModel = new DefaultProtocolModel(code, CtrlMode.POINT, TransportProtocol.TCP, "用于提供边缘网关设备Dtu+Modbus协议的支持")
-                .addModelAttr(new ProtocolModelAttr(dataType, "数据类型", DataType.t_string, AttrType.IGNORE,"要操作的数据类型"))
+                .addModelAttr(new ProtocolModelAttr(dataType, "数据类型", DataType.t_string, AttrType.IGNORE, "要操作的数据类型"))
                 .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_NUMBER, "寄存器数量", DataType.t_int, AttrType.IGNORE, numRemark))
                 .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_ADDRESS, "寄存器地址", DataType.t_string, AttrType.IGNORE, "寄存器地址"))
-                .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_VALUE, "点位值", DataType.t_any, AttrType.IGNORE,"读/写寄存器的值(跟随数据类型转换)"))
+                .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_VALUE, "点位值", DataType.t_any, AttrType.IGNORE, "读/写寄存器的值(跟随数据类型转换)"))
                 .addModelApi(createEventApi(ModbusCode.Read01.name(), "读线圈(01)", "读线圈")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addUpConfig(ProtocolModelApiConfig.upBuild(PointProtocolConfig.POINT_VALUE, "读取到的值")))
@@ -138,8 +139,8 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
         if(!component.isStart()) {
             DtuMessageAware delegation = component.getDtuMessageAwareDelegation();
             if(delegation.messageType() != config.getMessageType()) {
-                if(delegation instanceof DefaultDtuMessageAware) {
-                    ((DefaultDtuMessageAware<?>) delegation).setMessageType(config.getMessageType());
+                if(delegation instanceof DefaultDtuMessageAware<?> aware) {
+                    aware.setMessageType(config.getMessageType());
                 }
             }
 

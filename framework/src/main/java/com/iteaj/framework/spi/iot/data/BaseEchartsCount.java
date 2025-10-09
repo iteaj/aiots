@@ -13,7 +13,8 @@ public class BaseEchartsCount {
 
     private String category;
 
-    public BaseEchartsCount() { }
+    public BaseEchartsCount() {
+    }
 
     public BaseEchartsCount(String category, Object value) {
         this.category = category;

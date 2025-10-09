@@ -40,7 +40,7 @@ public class EMapController extends BaseController {
     private final RealtimeDataService realtimeDataService;
 
     public EMapController(IDeviceService deviceService, IProductService productService
-            , RealtimeDataService realtimeDataService) {
+        , RealtimeDataService realtimeDataService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.realtimeDataService = realtimeDataService;
@@ -68,71 +68,71 @@ public class EMapController extends BaseController {
         EMapDetailDto detailDto = new EMapDetailDto();
         deviceService.getByUid(uid).ifNotPresentThrow("设备不存在").ifPresent(item -> {
             productService.joinDetailById(item.getProductId())
-                .ifNotPresentThrow("此设备数据不完整["+item.getName()+"]")
-                .ifPresent(productDto -> {
+                    .ifNotPresentThrow("此设备数据不完整[" + item.getName() + "]")
+                    .ifPresent(productDto -> {
 
-                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
-                        // 过滤出被动的功能接口
-                        List<ModelApi> modelApis = productDto.getFuncApis().stream()
-                                .filter(api -> api.getTriggerMode() == TriggerMode.passive && api.getFuncType() != FuncType.R)
-                                .collect(Collectors.toList());
-                        if(CollectionUtil.isNotEmpty(modelApis)) {
-                            detailDto.setFuncApis(modelApis);
-                            modelApis.forEach(api -> detailDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
-                            modelApis.removeIf(api -> {
-                                if(Boolean.TRUE.equals(api.getAsStatus())) {
-                                    detailDto.setCtrlApi(api);
-                                    return true;
-                                }
+                        if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                            // 过滤出被动的功能接口
+                            List<ModelApi> modelApis = productDto.getFuncApis().stream()
+                                    .filter(api -> api.getTriggerMode() == TriggerMode.passive && api.getFuncType() != FuncType.R)
+                                    .collect(Collectors.toList());
+                            if(CollectionUtil.isNotEmpty(modelApis)) {
+                                detailDto.setFuncApis(modelApis);
+                                modelApis.forEach(api -> detailDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
+                                modelApis.removeIf(api -> {
+                                    if(Boolean.TRUE.equals(api.getAsStatus())) {
+                                        detailDto.setCtrlApi(api);
+                                        return true;
+                                    }
 
-                                return false;
-                            });
+                                    return false;
+                                });
+                            }
                         }
-                    }
 
-                    Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
-                            , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
-                    if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
-                        productDto.getAttrs().stream().filter(attr -> (attr.getAttrType() != AttrType.W
-                            && !DataType.t_json.getValue().equals(attr.getDataType())))
-                            .forEach(attr -> {
-                                boolean isCtrlAttr = false;
-                                if(attr.getAttrType() != AttrType.R) { // 写或者读写
-                                    if(Boolean.TRUE.equals(attr.getCtrlStatus())) {
-                                        isCtrlAttr = true;
-                                        ModelApi ctrlApi = detailDto.getCtrlApi();
-                                        if(ctrlApi != null) {
-                                            List<ModelApiConfig> downConfig = ctrlApi.getDownConfig();
-                                            if(CollectionUtil.isNotEmpty(downConfig)) {
-                                                downConfig.forEach(config -> {
-                                                    if(config.getModelAttrId() != null && config.getModelAttrId() == attr.getId()
-                                                            && CollectionUtil.isNotEmpty(config.getDicts())) {
-                                                        config.getDicts().forEach(dict -> detailDto.addCtrlAttr(dict.getDictName(), dict.getDictValue()));
+                        Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
+                        , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
+                        if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
+                            productDto.getAttrs().stream().filter(attr -> (attr.getAttrType() != AttrType.W
+                                    && !DataType.t_json.getValue().equals(attr.getDataType())))
+                                    .forEach(attr -> {
+                                        boolean isCtrlAttr = false;
+                                        if(attr.getAttrType() != AttrType.R) { // 写或者读写
+                                            if(Boolean.TRUE.equals(attr.getCtrlStatus())) {
+                                                isCtrlAttr = true;
+                                                ModelApi ctrlApi = detailDto.getCtrlApi();
+                                                if(ctrlApi != null) {
+                                                    List<ModelApiConfig> downConfig = ctrlApi.getDownConfig();
+                                                    if(CollectionUtil.isNotEmpty(downConfig)) {
+                                                        downConfig.forEach(config -> {
+                                                            if(config.getModelAttrId() != null && config.getModelAttrId() == attr.getId()
+                                                                    && CollectionUtil.isNotEmpty(config.getDicts())) {
+                                                                config.getDicts().forEach(dict -> detailDto.addCtrlAttr(dict.getDictName(), dict.getDictValue()));
+                                                            }
+                                                        });
                                                     }
-                                                });
+                                                }
                                             }
                                         }
-                                    }
-                                }
 
-                                if(realtimeDataMap != null) {
-                                    RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
-                                    if(realtimeData != null && realtimeData.getRealtime() != null) {
-                                        SignalOrFieldValue realtime = realtimeData.getRealtime();
-                                        detailDto.addAttr(attr.getField(), attr.getName(), attr.getUnit()
+                                        if(realtimeDataMap != null) {
+                                            RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
+                                            if(realtimeData != null && realtimeData.getRealtime() != null) {
+                                                SignalOrFieldValue realtime = realtimeData.getRealtime();
+                                                detailDto.addAttr(attr.getField(), attr.getName(), attr.getUnit()
                                                 , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
 
-                                        if(isCtrlAttr && realtime.getValue() != null) {
-                                            detailDto.setCtrlAttrValue(realtime.getValue().toString());
+                                                if(isCtrlAttr && realtime.getValue() != null) {
+                                                    detailDto.setCtrlAttrValue(realtime.getValue().toString());
+                                                }
+                                                return;
+                                            }
                                         }
-                                        return;
-                                    }
-                                }
 
-                                detailDto.addAttr(attr.getField(), attr.getName(), attr.getUnit());
-                            });
-                    }
-                });
+                                        detailDto.addAttr(attr.getField(), attr.getName(), attr.getUnit());
+                                    });
+                        }
+                    });
         });
 
         return success(detailDto);

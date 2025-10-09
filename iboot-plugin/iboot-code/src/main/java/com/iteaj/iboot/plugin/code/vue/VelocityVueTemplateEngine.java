@@ -20,6 +20,7 @@ import java.util.Map;
 public class VelocityVueTemplateEngine extends VelocityTemplateEngine {
 
     private LowCodeProperties properties;
+
     public VelocityVueTemplateEngine(LowCodeProperties properties) {
         this.properties = properties;
     }
@@ -50,12 +51,12 @@ public class VelocityVueTemplateEngine extends VelocityTemplateEngine {
             public IFileCreate getFileCreate() {
                 return (configBuilder1, fileType, filePath) -> {
                     // 只生成前端代码
-                    if (fileType == FileType.OTHER) {
+                    if(fileType == FileType.OTHER) {
                         // 只生成.vue结尾的文件
                         boolean endsWith = filePath.endsWith(".vue");
-                        if (endsWith) {
+                        if(endsWith) {
                             File file = new File(filePath);
-                            if (!file.exists()) {
+                            if(!file.exists()) {
                                 file.getParentFile().mkdirs();
                             }
 

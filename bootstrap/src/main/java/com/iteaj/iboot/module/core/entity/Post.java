@@ -3,6 +3,8 @@ package com.iteaj.iboot.module.core.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,6 +24,7 @@ import lombok.experimental.Accessors;
 @TableName("sys_post")
 public class Post extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

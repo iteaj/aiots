@@ -50,15 +50,16 @@ public class Menu extends TreeEntity implements MenuResource, Comparable<Menu> {
     private String target;
     /**创建时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
 
     /**更新时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date updateTime;
 
-    public Menu() {  }
+    public Menu() {
+    }
 
     public String getUrl() {
         return url;

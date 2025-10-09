@@ -8,8 +8,8 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class LoggerInterceptor implements HandlerInterceptor {
 
@@ -17,11 +17,11 @@ public class LoggerInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if(handler instanceof HandlerMethod) {
-            Logger logger = ((HandlerMethod) handler).getMethod().getAnnotation(Logger.class);
+        if(handler instanceof HandlerMethod method) {
+            Logger logger = method.getMethod().getAnnotation(Logger.class);
             if(logger != null) {
-                String methodName = ((HandlerMethod) handler).getMethod().getName();
-                String beanName = ((HandlerMethod) handler).getMethod().getDeclaringClass().getSimpleName();
+                String methodName = method.getMethod().getName();
+                String beanName = method.getMethod().getDeclaringClass().getSimpleName();
                 AccessLogger accessLogger = new AccessLogger(request.getRequestURI(), logger.type(), logger.value())
                         .setIp(WebUtils.getIpAddress(request))
                         .setParams(request.getQueryString())
@@ -38,17 +38,17 @@ public class LoggerInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         Object attribute = request.getAttribute(ACCESS_LOGGER);
-        if(attribute instanceof AccessLogger) {
-            ((AccessLogger) attribute).setMillis(System.currentTimeMillis() - ((AccessLogger) attribute).getStartTime());
+        if(attribute instanceof AccessLogger logger) {
+            logger.setMillis(System.currentTimeMillis() - logger.getStartTime());
         }
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         Object attribute = request.getAttribute(ACCESS_LOGGER);
-        if(attribute instanceof AccessLogger) {
+        if(attribute instanceof AccessLogger logger) {
             if(ex != null) {
-                ((AccessLogger) attribute)
+                logger
                         .setStatus(false)
                         .setErrMsg(ex.getMessage());
             }

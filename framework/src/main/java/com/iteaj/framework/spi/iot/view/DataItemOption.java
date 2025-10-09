@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class DataItemOption implements Cloneable{
+public class DataItemOption implements Cloneable {
 
     private String label;
 
@@ -28,7 +28,8 @@ public class DataItemOption implements Cloneable{
     private List<DataItemOption> children;
     public static final String SPLIT = ":";
 
-    public DataItemOption() { }
+    public DataItemOption() {
+    }
 
     public DataItemOption(String label, Object value) {
         this.value = value;
@@ -56,7 +57,8 @@ public class DataItemOption implements Cloneable{
     }
 
     public DataItemOption asName() {
-        this.name = true; return this;
+        this.name = true;
+        return this;
     }
 
     public boolean getIsLeaf() {

@@ -117,7 +117,8 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
      */
     private CollectStatus collectStatus;
 
-    public CollectData() { }
+    public CollectData() {
+    }
 
     public CollectData(CollectMode collectMode) {
         this.collectMode = collectMode.name();

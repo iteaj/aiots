@@ -17,6 +17,8 @@ public class QuartzJobTest {
     public void job(JobExecutionContext context) {
         JobDetail jobDetail = context.getJobDetail();
         JobDataMap dataMap = context.getMergedJobDataMap();
-        logger.info("调度任务测试用例执行... 参数：{}", dataMap.get("params"));
+        if(logger.isInfoEnabled()) {
+            logger.info("调度任务测试用例执行... 参数：{}", dataMap.get("params"));
+        }
     }
 }

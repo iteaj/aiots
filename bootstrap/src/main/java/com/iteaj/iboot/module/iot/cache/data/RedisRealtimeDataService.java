@@ -11,7 +11,7 @@ import com.iteaj.framework.utils.RedisUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RedisRealtimeDataService implements RealtimeDataService{
+public class RedisRealtimeDataService implements RealtimeDataService {
 
     private static final String KEY_PREFIX = "Realtime:Data:";
 
@@ -60,12 +60,12 @@ public class RedisRealtimeDataService implements RealtimeDataService{
         String signalOrField = value.getSignalOrField();
         String valueKey = KEY_PREFIX + protocolCode + ":" + key.getKey();
         Object o = RedisUtils.getOpsForHash().get(valueKey, signalOrField);
-        if(o instanceof RealtimeData) {
-            ((RealtimeData) o).setRealtime(value);
+        if(o instanceof RealtimeData data) {
+            data.setRealtime(value);
             RedisUtils.getOpsForHash().put(valueKey, signalOrField, o);
         } else {
             RedisUtils.getOpsForHash().put(valueKey
-                    , signalOrField, new RealtimeData(value));
+            , signalOrField, new RealtimeData(value));
         }
     }
 
@@ -82,8 +82,8 @@ public class RedisRealtimeDataService implements RealtimeDataService{
             String key = keys.get(i);
             Object value = list.get(i);
             SignalOrFieldValue fieldValue = collect.get(key);
-            if(value instanceof RealtimeData) {
-                ((RealtimeData) value).setRealtime(fieldValue);
+            if(value instanceof RealtimeData data) {
+                data.setRealtime(fieldValue);
             } else {
                 value = new RealtimeData(fieldValue);
             }

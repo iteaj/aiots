@@ -35,7 +35,8 @@ public abstract class StaticProtocolSupplier<C extends NetworkConfigImpl, T exte
      * @param component
      * @param config
      */
-    protected void doRefresh(T component, C config) {}
+    protected void doRefresh(T component, C config) {
+    }
 
     /**
      * 创建组件

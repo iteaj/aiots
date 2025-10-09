@@ -6,7 +6,7 @@ import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.client.MultiClientManager;
 
 public abstract class StaticClientProtocolSupplier<C extends NetworkConfigImpl, T extends ClientComponent, K extends IotClient>
-        extends StaticProtocolSupplier<C, T> implements ClientProtocolSupplier<C, T, K>{
+        extends StaticProtocolSupplier<C, T> implements ClientProtocolSupplier<C, T, K> {
 
     @Override
     public synchronized K createClient(C config) {

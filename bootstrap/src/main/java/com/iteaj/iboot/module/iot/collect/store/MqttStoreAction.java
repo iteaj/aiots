@@ -54,7 +54,7 @@ public class MqttStoreAction extends StoreAction {
 
             // 创建连接配置信息
             MqttGatewayConnectProperties connectProperties = new MqttGatewayConnectProperties((String) config.get("host")
-                    , (Integer) config.get("port"), (String) config.get("clientId"), (String) config.get("topic"));
+            , (Integer) config.get("port"), (String) config.get("clientId"), (String) config.get("topic"));
             if(StringUtils.hasText((String) config.get("username")) &&
                     StringUtils.hasText((String) config.get("password"))) {
                 connectProperties.setPassword((String) config.get("password"));
@@ -63,7 +63,7 @@ public class MqttStoreAction extends StoreAction {
 
             // 创建请求报文
             MqttGatewayHead head = new MqttGatewayHead((String) config.get("clientId")
-                    , null, MqttGatewayProtocolType.Mqtt_Gateway);
+            , null, MqttGatewayProtocolType.Mqtt_Gateway);
             DefaultMessageBody body = new DefaultMessageBody(JSONObject.toJSONBytes(item));
             MqttGatewayMessage gatewayMessage = new MqttGatewayMessage(head, body, MqttQoS.AT_LEAST_ONCE, topic);
 

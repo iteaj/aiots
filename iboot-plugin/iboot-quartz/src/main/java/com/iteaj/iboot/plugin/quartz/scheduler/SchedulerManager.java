@@ -54,7 +54,7 @@ public class SchedulerManager {
     }
 
     protected void addJob(String jobName, String jobGroupName, String triggerName
-            , String triggerGroupName, Class<? extends Job> jobClass, String cron, JobDataMap map, String desc) {
+        , String triggerGroupName, Class<? extends Job> jobClass, String cron, JobDataMap map, String desc) {
         try {
             JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);
             JobDetail jobDetail = scheduler.getJobDetail(jobKey);
@@ -62,7 +62,7 @@ public class SchedulerManager {
 
             map = map == null ? new JobDataMap() : map;
             JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName
-                    , jobGroupName).usingJobData(map).withDescription(desc).build();
+            , jobGroupName).usingJobData(map).withDescription(desc).build();
 
             // 表达式调度构建器
             CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cron);
@@ -101,7 +101,7 @@ public class SchedulerManager {
         try {
             final JobKey jobKey = new JobKey(jobName, JOB_GROUP_NAME);
             final JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-            if (jobDetail == null) throw new RuntimeException("作业不存在[" + jobName + "]");
+            if(jobDetail == null) throw new RuntimeException("作业不存在[" + jobName + "]");
 
             JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName, JOB_GROUP_NAME)
                     .usingJobData(map).storeDurably().withDescription(desc).build();
@@ -122,11 +122,11 @@ public class SchedulerManager {
         try {
 
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
-            if (trigger == null)  throw new RuntimeException("触发器不存在[" + triggerKey + "]");
+            if(trigger == null) throw new RuntimeException("触发器不存在[" + triggerKey + "]");
 
             String oldTime = trigger.getCronExpression();
 
-            if (!oldTime.equalsIgnoreCase(cron)) {
+            if(!oldTime.equalsIgnoreCase(cron)) {
                 // trigger已存在，则更新相应的定时设置
                 CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cron);
 
@@ -162,7 +162,7 @@ public class SchedulerManager {
         try {
 
             Trigger trigger = scheduler.getTrigger(triggerKey);
-            if (trigger == null) return;
+            if(trigger == null) return;
 
 //            scheduler.pauseTrigger(triggerKey);// 停止触发器
             scheduler.unscheduleJob(triggerKey);// 移除触发器
@@ -231,10 +231,10 @@ public class SchedulerManager {
      */
     public void shutdownJobs() {
         try {
-            if (!scheduler.isShutdown()) {
+            if(!scheduler.isShutdown()) {
                 scheduler.shutdown();
             }
-	    } catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -280,11 +280,11 @@ public class SchedulerManager {
      * 		BLOCKED : 阻塞
      * @param jobName 触发器名, 默认作业名
      */
-    public Trigger.TriggerState getTriggerState(String jobName){
+    public Trigger.TriggerState getTriggerState(String jobName) {
         return getTriggerState(jobName, TRIGGER_GROUP_NAME);
     }
 
-    protected Trigger.TriggerState getTriggerState(String triggerName, String triggerGroup){
+    protected Trigger.TriggerState getTriggerState(String triggerName, String triggerGroup) {
         TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroup);
         try {
             return scheduler.getTriggerState(triggerKey);

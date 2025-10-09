@@ -48,7 +48,7 @@ public class AdminCenterController extends BaseController {
     @PostMapping("pwd")
     public Result<Boolean> updatePwd(@RequestBody PasswordDto passwordDto) {
         this.adminService.updatePwdById(passwordDto.getId()
-                , passwordDto.getPassword(), passwordDto.getOldPwd());
+        , passwordDto.getPassword(), passwordDto.getOldPwd());
         return success("修改成功");
     }
 }

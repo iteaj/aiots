@@ -16,7 +16,8 @@ public class CollectListenerManager {
 
     private static CollectListenerManager instance = new CollectListenerManager();
 
-    protected CollectListenerManager() { }
+    protected CollectListenerManager() {
+    }
 
     public static CollectListenerManager build(List<CollectDataListener> listeners) {
         if(CollectionUtil.isNotEmpty(listeners)) {
@@ -29,12 +30,12 @@ public class CollectListenerManager {
     }
 
     public void register(CollectDataListener listener) {
-        if(listener instanceof EventGroupCollectListener) {
-            instance.register((EventGroupCollectListener) listener);
+        if(listener instanceof EventGroupCollectListener collectListener) {
+            instance.register(collectListener);
         }
 
-        if(listener instanceof SignalCollectListener) {
-            instance.register((SignalCollectListener) listener);
+        if(listener instanceof SignalCollectListener collectListener) {
+            instance.register(collectListener);
         }
 
         listeners.add(listener);
@@ -67,8 +68,8 @@ public class CollectListenerManager {
     public void modelAttrPublish(Consumer<ModelAttrListener> consumer) {
         try {
             this.listeners.forEach(item -> {
-                if(item instanceof ModelAttrListener) {
-                    consumer.accept((ModelAttrListener) item);
+                if(item instanceof ModelAttrListener listener) {
+                    consumer.accept(listener);
                 }
             });
         } catch (Exception e) {
@@ -83,8 +84,8 @@ public class CollectListenerManager {
     public void deviceStatusPublish(Consumer<DeviceStatusListener> consumer) {
         try {
             this.listeners.forEach(item -> {
-                if(item instanceof DeviceStatusListener) {
-                    consumer.accept((DeviceStatusListener) item);
+                if(item instanceof DeviceStatusListener listener) {
+                    consumer.accept(listener);
                 }
             });
         } catch (Exception e) {

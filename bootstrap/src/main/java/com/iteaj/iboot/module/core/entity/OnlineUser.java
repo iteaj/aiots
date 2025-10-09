@@ -80,14 +80,15 @@ public class OnlineUser extends BaseEntity implements OnlineSession {
     private String userNick;
 
     /**创建时间*/
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**更新时间*/
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
-    public OnlineUser() { }
+    public OnlineUser() {
+    }
 
     public OnlineUser(String sessionId) {
         this.sessionId = sessionId;

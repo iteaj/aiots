@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * jdk：1.8
+ * jdk：17
  *
  * @author iteaj
  * create time：2019/6/24
