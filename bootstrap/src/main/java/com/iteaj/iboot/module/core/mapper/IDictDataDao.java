@@ -5,7 +5,7 @@ import com.iteaj.iboot.module.core.entity.DictData;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * jdk：1.8
+ * jdk：17
  *
  * @author iteaj
  * create time：2019/6/24
