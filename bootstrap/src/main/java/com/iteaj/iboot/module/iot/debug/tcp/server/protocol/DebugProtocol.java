@@ -23,7 +23,8 @@ public class DebugProtocol extends ClientInitiativeProtocol<DebugServerMessage> 
     }
 
     @Override
-    protected void doBuildRequestMessage(DebugServerMessage requestMessage) { }
+    protected void doBuildRequestMessage(DebugServerMessage requestMessage) {
+    }
 
     @Override
     public ProtocolType protocolType() {

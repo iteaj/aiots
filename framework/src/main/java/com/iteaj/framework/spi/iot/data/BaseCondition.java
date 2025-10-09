@@ -60,7 +60,7 @@ public class BaseCondition {
                 String key = item.replaceAll(" ", "");
                 String[] split = key.split(":");
                 if(split.length < 2) {
-                    throw new ServiceException("不支持的格式["+item+"]");
+                    throw new ServiceException("不支持的格式[" + item + "]");
                 }
 
                 String type = split[0].toUpperCase(Locale.ROOT);
@@ -73,7 +73,7 @@ public class BaseCondition {
                 } else if(type.equals("F")) {
                     metas.add(new BaseCondition.ValueMeta(Arrays.asList(split[1].split(","))));
                 } else {
-                    throw new ServiceException("不支持的类型["+type+"]");
+                    throw new ServiceException("不支持的类型[" + type + "]");
                 }
             });
         }

@@ -62,14 +62,14 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, P
     @Transactional
     public BooleanResult save(ProductType entity) {
         this.getOne(Wrappers.<ProductType>lambdaQuery().eq(ProductType::getName, entity.getName()))
-                .ifPresentThrow("产品类型名称已存在["+entity.getName()+"]");
+                .ifPresentThrow("产品类型名称已存在[" + entity.getName() + "]");
 
         super.save(entity);
         if(entity.getPid() != null && entity.getPid() != 0) {
             ProductType parent = this.getById(entity.getPid())
                     .ifNotPresentThrow("父类型不存在")
                     .getData();
-            entity.setPath(parent.getPath()+","+entity.getId());
+            entity.setPath(parent.getPath() + "," + entity.getId());
         } else {
             entity.setPath(entity.getId().toString());
         }
@@ -85,13 +85,13 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, P
         this.getOne(Wrappers.<ProductType>lambdaQuery()
                 .eq(ProductType::getName, entity.getName())
                 .ne(ProductType::getId, entity.getId()))
-                .ifPresentThrow("产品类型名称已存在["+entity.getName()+"]");
+                .ifPresentThrow("产品类型名称已存在[" + entity.getName() + "]");
         if(entity.getPid() != null && entity.getPid() != 0) {
             ProductType parent = this.getById(entity.getPid())
                     .ifNotPresentThrow("父类型不存在")
                     .getData();
 
-            entity.setPath(parent.getPath()+","+entity.getId());
+            entity.setPath(parent.getPath() + "," + entity.getId());
         } else {
             entity.setPath(entity.getId().toString());
         }
@@ -109,9 +109,9 @@ public class ProductTypeServiceImpl extends BaseServiceImpl<ProductTypeMapper, P
             throw new ServiceException("请先删除对应的子类型");
         });
 
-        NumberResult<Integer> count = productService.count(Wrappers
+        NumberResult<Long> count = productService.count(Wrappers
                 .<Product>lambdaQuery().in(Product::getProductTypeId, idList));
-        Integer integer = count.ofNullable().orElse(0);
+        Long integer = count.ofNullable().orElse(0L);
         if(integer > 0) {
             throw new ServiceException("此类型已在使用");
         }

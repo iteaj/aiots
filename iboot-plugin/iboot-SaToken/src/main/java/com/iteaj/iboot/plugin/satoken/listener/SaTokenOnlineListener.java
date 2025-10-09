@@ -37,7 +37,7 @@ public class SaTokenOnlineListener extends SaTokenListenerForSimple {
     public void doLogout(String loginType, Object loginId, String tokenValue) {
         // 发布session 停止事件
         EventUtils.publish(new PayloadEvent(tokenValue
-                , new OnlinePayload(OnlineStatus.Offline, tokenValue)
+        , new OnlinePayload(OnlineStatus.Offline, tokenValue)
                 .setAccessTime(new Date())));
     }
 
@@ -45,7 +45,7 @@ public class SaTokenOnlineListener extends SaTokenListenerForSimple {
     public void doKickout(String loginType, Object loginId, String tokenValue) {
         // 发布session 停止事件
         EventUtils.publish(new PayloadEvent(tokenValue
-                , new OnlinePayload(OnlineStatus.Offline, tokenValue)
+        , new OnlinePayload(OnlineStatus.Offline, tokenValue)
                 .setAccessTime(new Date())));
     }
 }

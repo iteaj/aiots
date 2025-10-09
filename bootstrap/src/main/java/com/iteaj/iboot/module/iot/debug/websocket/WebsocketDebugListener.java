@@ -46,7 +46,7 @@ public class WebsocketDebugListener implements WebSocketServerListener, WebSocke
                 DebugRequestModel parse = debugHandle.parse(protocol.readText());
                 iotTaskScheduler.execute(() -> debugHandle.handle(parse.getModel(), new DebugWebsocketWrite(parse.getClientSn())));
             } else {
-                protocol.response(JSON.toJSONString(HttpResult.Fail("未找到对应的处理器["+type.get()+"]")));
+                protocol.response(JSON.toJSONString(HttpResult.Fail("未找到对应的处理器[" + type.get() + "]")));
             }
         } else {
             protocol.response(JSON.toJSONString(HttpResult.Fail("未指定调试类型[type]")));

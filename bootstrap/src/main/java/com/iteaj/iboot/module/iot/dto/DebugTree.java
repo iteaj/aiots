@@ -67,7 +67,8 @@ public class DebugTree {
     @JsonIgnore
     private DebugTree parent;
 
-    public DebugTree() { }
+    public DebugTree() {
+    }
 
     protected DebugTree(Long id, Long pid, String type, String name) {
         this(id, pid, type, name, null);
@@ -84,7 +85,7 @@ public class DebugTree {
     }
 
     public static DebugTree buildProduct(Long id, Long pid, String name) {
-        return new DebugTree(id, pid, "product", name).setPkey("productType:"+pid).setIsLeaf(false);
+        return new DebugTree(id, pid, "product", name).setPkey("productType:" + pid).setIsLeaf(false);
     }
 
     public static DebugTree buildProductType(Long id, Long pid, String name) {
@@ -92,7 +93,7 @@ public class DebugTree {
     }
 
     public static DebugTree buildDevice(Long id, Long pid, String name, DeviceStatus status) {
-        return new DebugTree(id, pid, "device", name, status).setPkey("product:"+pid).setIsLeaf(true);
+        return new DebugTree(id, pid, "device", name, status).setPkey("product:" + pid).setIsLeaf(true);
     }
 
     public DebugTree addChildren(DebugTree tree) {

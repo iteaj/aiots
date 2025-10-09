@@ -14,7 +14,7 @@ public class QuartzJobContext {
 
     private Object bean;
     private Method method;
-    private static ExpressionParser parser=new SpelExpressionParser();
+    private static ExpressionParser parser = new SpelExpressionParser();
 
     public QuartzJobContext(Object bean, Method method) {
         this.bean = bean;

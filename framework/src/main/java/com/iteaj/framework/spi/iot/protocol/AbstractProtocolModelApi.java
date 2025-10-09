@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 /**
  * 协议模型接口
  */
-public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
+public abstract class AbstractProtocolModelApi implements ProtocolModelApi {
 
     /**
      * 接口代码
@@ -71,7 +71,7 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     }
 
     public AbstractProtocolModelApi(String code, String name, ProtocolApiType type, Map<String
-            , ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
+    , ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
         this.code = code;
         this.name = name;
         this.type = type;
@@ -80,7 +80,7 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     }
 
     public AbstractProtocolModelApi(String code, String name, String remark, ProtocolApiType type
-            , Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
+        , Map<String, ProtocolModelApiConfig> upConfig, Map<String, ProtocolModelApiConfig> downConfig) {
         this.code = code;
         this.name = name;
         this.type = type;
@@ -95,7 +95,8 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     }
 
     public AbstractProtocolModelApi setCode(String code) {
-        this.code = code; return this;
+        this.code = code;
+        return this;
     }
 
     @Override
@@ -104,7 +105,8 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     }
 
     public AbstractProtocolModelApi setName(String name) {
-        this.name = name; return this;
+        this.name = name;
+        return this;
     }
 
     @Override
@@ -113,7 +115,8 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     }
 
     public AbstractProtocolModelApi setRemark(String remark) {
-        this.remark = remark; return this;
+        this.remark = remark;
+        return this;
     }
 
     @Override
@@ -180,7 +183,8 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     }
 
     public AbstractProtocolModelApi setType(ProtocolApiType type) {
-        this.type = type; return this;
+        this.type = type;
+        return this;
     }
 
     public Map<String, ProtocolModelApiConfig> getUpConfig() {

@@ -42,7 +42,7 @@ public class LcdDesignServiceImpl extends BaseServiceImpl<LcdDesignMapper, LcdDe
                 .eq(LcdDesign::getTableName, entity.getTableName()));
 
         one.ofNullable().ifPresent(item -> {
-            throw new ServiceException("表已经存在["+entity.getTableName()+"]");
+            throw new ServiceException("表已经存在[" + entity.getTableName() + "]");
         });
 
         return super.save(entity);
@@ -51,21 +51,21 @@ public class LcdDesignServiceImpl extends BaseServiceImpl<LcdDesignMapper, LcdDe
     @Override
     public List<TableOptionsDto> listForeign(Long id) {
         return list(Wrappers.<LcdDesign>lambdaQuery().select(LcdDesign::getId
-                , LcdDesign::getTableName, LcdDesign::getName)
-                .ne(id != null, LcdDesign::getId, id)).stream().map(table -> {
-                final TableOptionsDto tableOptionsDto = new TableOptionsDto(table.getTableName(), table.getTableName());
-                if(id != null && id.equals(table.getTableName())) {
-                    tableOptionsDto.setDisabled(true);
-                }
+        , LcdDesign::getTableName, LcdDesign::getName)
+        .ne(id != null, LcdDesign::getId, id)).stream().map(table -> {
+            final TableOptionsDto tableOptionsDto = new TableOptionsDto(table.getTableName(), table.getTableName());
+            if(id != null && id.equals(table.getTableName())) {
+                tableOptionsDto.setDisabled(true);
+            }
 
-                return tableOptionsDto;
-            }).collect(Collectors.toList());
+            return tableOptionsDto;
+        }).collect(Collectors.toList());
     }
 
     @Override
     public List<TableOptionsDto> listColumns(String tableName) {
         final LcdDesign lcdDesign = getOne(Wrappers.<LcdDesign>lambdaQuery().select(LcdDesign::getId, LcdDesign::getTableName
-                , LcdDesign::getName, LcdDesign::getEdit, LcdDesign::getContainer).eq(LcdDesign::getTableName, tableName))
+        , LcdDesign::getName, LcdDesign::getEdit, LcdDesign::getContainer).eq(LcdDesign::getTableName, tableName))
                 .ofNullable().orElseThrow(() -> new ServiceException("表不存在[" + tableName + "]"));
 
         final JsonNode jsonNode = lcdDesign.getContainer().get("meta").get("tabModel");

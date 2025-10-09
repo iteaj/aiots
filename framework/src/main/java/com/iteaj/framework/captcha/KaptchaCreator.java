@@ -6,6 +6,7 @@ import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.util.Config;
 
 import java.util.Properties;
+
 /**
  * kaptcha.border 是否有边框默认为true 我们可以自己设置yes，no
  * kaptcha.border.color 边框颜色默认为Color.BLACK

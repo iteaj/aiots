@@ -34,8 +34,8 @@ public class EventSourceCollectService implements ApplicationReadyListener {
     private final Map<Long, ScheduledFuture> futures = new ConcurrentHashMap<>(128);
 
     public EventSourceCollectService(IotCacheManager cacheManager
-            , IBootThreadManger threadManger, IDeviceGroupService deviceGroupService
-            , IEventSourceService eventSourceService) {
+        , IBootThreadManger threadManger, IDeviceGroupService deviceGroupService
+        , IEventSourceService eventSourceService) {
         this.cacheManager = cacheManager;
         this.threadManger = threadManger;
         this.deviceGroupService = deviceGroupService;
@@ -53,16 +53,16 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
                 eventSourceService.listProductById(source.getId(), null).forEach(product -> {
                     if(product.getStatus() == FuncStatus.disabled) {
-                        throw new ServiceException("产品["+product.getName()+"]未启用");
+                        throw new ServiceException("产品[" + product.getName() + "]未启用");
                     }
                 });
 
                 ThreadPoolTaskScheduler scheduler = threadManger.getScheduler();
                 ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(scheduler
-                        , source, cacheManager), new CronTrigger(source.getCron()));
+                , source, cacheManager), new CronTrigger(source.getCron()));
                 futures.put(source.getId(), schedule);
             } catch (ServiceException e) {
-                logger.error("启动事件源失败({}) {}", item.getName(), e.getMessage());
+                logger.error("启动事件源失败({}) {}", item.getName(), e.getMessage(), e);
                 eventSourceService.update(Wrappers.<EventSource>lambdaUpdate()
                         .set(EventSource::getReason, e.getMessage())
                         .eq(EventSource::getId, item.getId()));
@@ -94,7 +94,7 @@ public class EventSourceCollectService implements ApplicationReadyListener {
         if(status == FuncStatus.enabled) { // 启用
             this.eventSourceService.listProductById(source.getId(), null).forEach(product -> {
                 if(product.getStatus() == FuncStatus.disabled) {
-                    throw new ServiceException("产品["+product.getName()+"]未启用");
+                    throw new ServiceException("产品[" + product.getName() + "]未启用");
                 }
             });
 
@@ -104,7 +104,7 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
             ThreadPoolTaskScheduler scheduler = threadManger.getScheduler();
             ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(scheduler
-                    , source, cacheManager), new CronTrigger(source.getCron()));
+            , source, cacheManager), new CronTrigger(source.getCron()));
             futures.put(id, schedule);
         } else { // 禁用
             // 取消定时任务

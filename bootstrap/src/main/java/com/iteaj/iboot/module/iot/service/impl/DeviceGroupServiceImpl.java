@@ -36,7 +36,7 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
     @Transactional
     public BooleanResult save(DeviceGroup entity) {
         this.getOne(Wrappers.<DeviceGroup>lambdaQuery().eq(DeviceGroup::getName, entity.getName()))
-                .ifPresentThrow("分组名称已存在["+entity.getName()+"]");
+                .ifPresentThrow("分组名称已存在[" + entity.getName() + "]");
 
         DetailResult<DeviceGroup> detailResult = this.getById(entity.getPid());
         super.save(entity.setCreateTime(new Date()));
@@ -44,7 +44,7 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
             DeviceGroup parent = detailResult
                     .ifNotPresentThrow("父类型不存在")
                     .getData();
-            entity.setPath(parent.getPath()+","+entity.getId());
+            entity.setPath(parent.getPath() + "," + entity.getId());
         } else {
             entity.setPath(entity.getId().toString());
         }
@@ -68,7 +68,7 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
         this.getOne(Wrappers.<DeviceGroup>lambdaQuery()
                 .eq(DeviceGroup::getName, entity.getName())
                 .ne(DeviceGroup::getId, entity.getId()))
-                .ifPresentThrow("分组名称已存在["+entity.getName()+"]");
+                .ifPresentThrow("分组名称已存在[" + entity.getName() + "]");
 
         DetailResult<DeviceGroup> parentResult = this.getById(entity.getPid());
         if(entity.getPid() != null && entity.getPid() != 0) {
@@ -76,7 +76,7 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
                     .ifNotPresentThrow("父分组不存在")
                     .getData();
 
-            entity.setPath(parent.getPath()+","+entity.getId());
+            entity.setPath(parent.getPath() + "," + entity.getId());
         } else {
             entity.setPath(entity.getId().toString());
         }
@@ -147,10 +147,10 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
         Serializable id = idList.stream().findFirst().get();
         this.count(Wrappers.<DeviceGroup>lambdaQuery().eq(DeviceGroup::getPid, id))
                 .ifPresent(count -> {
-            if(count > 0) {
-                throw new ServiceException("请先删除子分组");
-            }
-        });
+                    if(count > 0) {
+                        throw new ServiceException("请先删除子分组");
+                    }
+                });
 
         // 校验是否已绑定设备
         if(this.hasBindDevice(id)) {

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements IMenuService {
 
     private final List<Module> modules;
+
     public MenuServiceImpl(List<Module> modules) {
         this.modules = modules;
     }
@@ -36,7 +37,9 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                 .eq(Menu::getName, entity.getName())
                 .eq(Menu::getPid, entity.getPid()))
                 .ofNullable()
-                .ifPresent(menu -> {throw new ServiceException("同级已经存在菜单名称["+entity.getName()+"]");});
+                .ifPresent(menu -> {
+                    throw new ServiceException("同级已经存在菜单名称[" + entity.getName() + "]");
+                });
 
         return super.save(entity);
     }
@@ -48,8 +51,8 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                 .eq(Menu::getPid, entity.getPid())
                 .eq(Menu::getName, entity.getName()))
                 .ofNullable().ifPresent(menu -> {
-                    throw new ServiceException("同级已经存在菜单名称["+entity.getName()+"]");
-                });
+            throw new ServiceException("同级已经存在菜单名称[" + entity.getName() + "]");
+        });
 
         entity.setUpdateTime(new Date());
         return super.updateById(entity);
@@ -127,10 +130,10 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
 
         idList.stream().forEach(item -> {
             this.count(Wrappers.<Menu>query().eq("pid", item))
-                .ofNullable().filter(count -> count > 0)
-                .ifPresent((menu) -> {
-                    throw new ServiceException("请先删除子菜单");
-                });
+                    .ofNullable().filter(count -> count > 0)
+                    .ifPresent((menu) -> {
+                        throw new ServiceException("请先删除子菜单");
+                    });
         });
 
         return super.removeByIds(idList);

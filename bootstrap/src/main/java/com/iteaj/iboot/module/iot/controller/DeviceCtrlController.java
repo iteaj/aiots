@@ -44,9 +44,10 @@ public class DeviceCtrlController extends BaseController {
     private final IProductService productService;
     private final IModelApiService modelApiService;
     private final RealtimePushListener realtimeListener;
+
     public DeviceCtrlController(IDeviceService deviceService
-            , IProductService productService, IModelApiService modelApiService
-            , IotCacheManager cacheManager, RealtimePushListener realtimeListener) {
+        , IProductService productService, IModelApiService modelApiService
+        , IotCacheManager cacheManager, RealtimePushListener realtimeListener) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.modelApiService = modelApiService;
@@ -71,11 +72,13 @@ public class DeviceCtrlController extends BaseController {
                 RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
                 if(realtimeStatus.getStatus() == DeviceStatus.offline) {
                     if(realtimeStatus.getType() == DeviceType.Direct) {
-                        item.success(InvokeResult.fail("设备不在线["+realtimeStatus.getDeviceName()+"]", null)); return;
+                        item.success(InvokeResult.fail("设备不在线[" + realtimeStatus.getDeviceName() + "]", null));
+                        return;
                     } else if(realtimeStatus.getType() == DeviceType.Child) {
                         RealtimeStatus parent = cacheManager.get(supplier.getProtocol().getCode(), param.getParentDeviceSn());
                         if(parent != null && parent.getStatus() == DeviceStatus.offline) {
-                            item.success(InvokeResult.fail("网关设备不在线["+parent.getDeviceName()+"]", null)); return;
+                            item.success(InvokeResult.fail("网关设备不在线[" + parent.getDeviceName() + "]", null));
+                            return;
                         }
                     }
                 }
@@ -148,7 +151,7 @@ public class DeviceCtrlController extends BaseController {
                 .ifNotPresentThrow("未找到所属产品").getData();
 
         if(product.getStatus() == FuncStatus.disabled) {
-            throw new ServiceException("请先启用产品["+product.getName()+"]");
+            throw new ServiceException("请先启用产品[" + product.getName() + "]");
         }
 
         Device device = deviceService.getByUid(param.getUid())
@@ -175,7 +178,7 @@ public class DeviceCtrlController extends BaseController {
         // 查找对应的协议接口
         AbstractProtocolModelApi protocolModelApi = protocolSupplier.getProtocol().getApi(modelApi.getDirect());
         if(protocolModelApi == null) {
-            throw new ServiceException("没有找到接口[apiCode="+modelApi.getDirect()+"]");
+            throw new ServiceException("没有找到接口[apiCode=" + modelApi.getDirect() + "]");
         }
 
         // 设置父网关设备配置

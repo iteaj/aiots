@@ -35,7 +35,8 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
      */
     private String deviceSn;
 
-    public NetworkConfigImpl() { }
+    public NetworkConfigImpl() {
+    }
 
     public NetworkConfigImpl(Integer port) {
         this.port = port;
@@ -93,11 +94,11 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
 
         @JsonIgnore
         public static ParamMeta[] tcpMetas = new ParamMeta[]{
-            ParamMeta.buildRequired("host", "主机", "客户端不校验(跟随设备)", "0.0.0.0"),
-            ParamMeta.buildRequiredNumber("port", "端口", 8168, "必须是[1-65535]的整数"),
-            ParamMeta.buildNumber("allIdle", "读写空闲(秒)", 0, "必须是大于0的整数"),
-            ParamMeta.buildNumber("readIdle", "读空闲(秒)", 0, "必须是大于0的整数"),
-            ParamMeta.buildNumber("writeIdle", "写空闲(秒)", 0, "必须是大于0的整数"),
+                ParamMeta.buildRequired("host", "主机", "客户端不校验(跟随设备)", "0.0.0.0"),
+                ParamMeta.buildRequiredNumber("port", "端口", 8168, "必须是[1-65535]的整数"),
+                ParamMeta.buildNumber("allIdle", "读写空闲(秒)", 0, "必须是大于0的整数"),
+                ParamMeta.buildNumber("readIdle", "读空闲(秒)", 0, "必须是大于0的整数"),
+                ParamMeta.buildNumber("writeIdle", "写空闲(秒)", 0, "必须是大于0的整数"),
 //            ParamMeta.buildHidden("@type", "TCP"),
         };
     }
@@ -109,7 +110,7 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
     public static class UdpNetworkConfig extends NetworkConfigImpl {
         public static ParamMeta[] udpMetas = new ParamMeta[]{
 
-        };
+                };
     }
 
     /**
@@ -120,7 +121,7 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
 
         public static ParamMeta[] httpMetas = new ParamMeta[]{
 
-        };
+                };
     }
 
     /**
@@ -129,11 +130,13 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
     @Data
     public static class SerialConfig extends NetworkConfigImpl {
         private int
-            baudRate = 9600, // 波特率
-            dataBits = 8, // 数据位
-            parity = 0, // 校验位
-            stopBits = 1; // 停止位
-        public SerialConfig() { }
+                baudRate = 9600, // 波特率
+                dataBits = 8, // 数据位
+                parity = 0, // 校验位
+                stopBits = 1; // 停止位
+
+        public SerialConfig() {
+        }
 
         public SerialConfig(String com) {
             super(com, null);
@@ -149,7 +152,7 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
 
         public static ParamMeta[] serialMetas = new ParamMeta[]{
 
-        };
+                };
     }
 
     /**
@@ -159,7 +162,7 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
     public static class WebSocketConfig extends NetworkConfigImpl {
         public static ParamMeta[] websocketMetas = new ParamMeta[]{
 
-        };
+                };
     }
 
     /**

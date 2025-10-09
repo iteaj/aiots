@@ -39,7 +39,8 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
     public void handle(ModbusDebugModel model, DebugWebsocketWrite write) {
         String deviceSn = model.getDeviceSn();
         if(!StringUtils.hasText(deviceSn)) {
-            write.write(HttpResult.Fail("未指定设备编号[deviceSn]")); return;
+            write.write(HttpResult.Fail("未指定设备编号[deviceSn]"));
+            return;
         }
 
         try {
@@ -52,7 +53,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                         modbusTcpHandle(model, write); break;
                     case "rtu": // modbus rtu
                         modbusRtuHandle(model, write); break;
-                    default: write.write(HttpResult.Fail("不支持的协议类型["+protocolType+"]"));
+                    default: write.write(HttpResult.Fail("不支持的协议类型[" + protocolType + "]"));
                 }
             }
         } catch (Exception e) {
@@ -72,7 +73,8 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                 header.setMessage(bytes);
                 protocol = ModbusTcpClientCommonProtocol.build(header, empty);
             } catch (Exception e) {
-                write.write(HttpResult.Fail("报文只支持十六进制格式")); return;
+                write.write(HttpResult.Fail("报文只支持十六进制格式"));
+                return;
             }
         } else {
             if(!modbusValidate(model, write)) {
@@ -97,7 +99,8 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                 case "05":
                     Object writeValue = parseWriteValue(model);
                     if(writeValue == null) {
-                        write.write(HttpResult.Fail("写05功能码的值只能是[0 或 1]")); return;
+                        write.write(HttpResult.Fail("写05功能码的值只能是[0 或 1]"));
+                        return;
                     }
                     protocol = ModbusTcpClientCommonProtocol.buildWrite05(
                             address, model.getStart(), (ModbusCoilStatus) writeValue); break;
@@ -111,7 +114,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                 case "0F":
                     protocol = ModbusTcpClientCommonProtocol.buildWrite0F(
                             address, model.getStart(), (byte[]) parseWriteValue(model)); break;
-                default: write.write(HttpResult.Fail("不支持的指令["+cmd+"]"));
+                default: write.write(HttpResult.Fail("不支持的指令[" + cmd + "]"));
                     return;
             }
         }
@@ -123,15 +126,18 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
 
     private boolean modbusValidate(ModbusDebugModel model, DebugWebsocketWrite write) {
         if(model.getStart() == null) {
-            write.write(HttpResult.Fail("未指定寄存器起始地址")); return false;
+            write.write(HttpResult.Fail("未指定寄存器起始地址"));
+            return false;
         }
 
         if(!StringUtils.hasText(model.getCmd())) {
-            write.write(HttpResult.Fail("未指定功能码指令")); return false;
+            write.write(HttpResult.Fail("未指定功能码指令"));
+            return false;
         }
 
         if(!StringUtils.hasText(model.getType())) {
-            write.write(HttpResult.Fail("未指定值类型")); return false;
+            write.write(HttpResult.Fail("未指定值类型"));
+            return false;
         }
 
         return true;
@@ -146,10 +152,12 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                     byte[] bytes = ByteUtil.hexToByte(hexMsg);
                     protocol = ModbusRtuClientProtocol.build(bytes);
                 } catch (Exception e) {
-                    write.write(HttpResult.Fail("报文只支持十六进制格式")); return;
+                    write.write(HttpResult.Fail("报文只支持十六进制格式"));
+                    return;
                 }
             } catch (Exception e) {
-                write.write(HttpResult.Fail("报文只支持十六进制格式")); return;
+                write.write(HttpResult.Fail("报文只支持十六进制格式"));
+                return;
             }
         } else {
             if(!modbusValidate(model, write)) {
@@ -157,7 +165,8 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
             }
 
             if(true) {
-                write.write(HttpResult.Fail("暂不支持modbus rtu调试")); return;
+                write.write(HttpResult.Fail("暂不支持modbus rtu调试"));
+                return;
             }
 
             String cmd = model.getCmd();
@@ -165,34 +174,35 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
             switch (cmd) {
                 case "01":
                     protocol = ModbusRtuClientProtocol.buildRead01(address
-                            , model.getStart(), this.getTypeCoilNum(model)); break;
+                    , model.getStart(), this.getTypeCoilNum(model)); break;
                 case "02":
                     protocol = ModbusRtuClientProtocol.buildRead02(address
-                            , model.getStart(), this.getTypeCoilNum(model)); break;
+                    , model.getStart(), this.getTypeCoilNum(model)); break;
                 case "03":
                     protocol = ModbusRtuClientProtocol.buildRead03(address
-                            , model.getStart(), this.getTypeCoilNum(model)); break;
+                    , model.getStart(), this.getTypeCoilNum(model)); break;
                 case "04":
                     protocol = ModbusRtuClientProtocol.buildRead04(address
-                            , model.getStart(), this.getTypeCoilNum(model)); break;
+                    , model.getStart(), this.getTypeCoilNum(model)); break;
                 case "05":
                     Object writeValue = parseWriteValue(model);
                     if(writeValue == null) {
-                        write.write(HttpResult.Fail("写05功能码的值只能是[0 或 1]")); return;
+                        write.write(HttpResult.Fail("写05功能码的值只能是[0 或 1]"));
+                        return;
                     }
                     protocol = ModbusRtuClientProtocol.buildWrite05(address
-                            , model.getStart(), (ModbusCoilStatus) writeValue); break;
+                    , model.getStart(), (ModbusCoilStatus) writeValue); break;
                 case "06":
                     protocol = ModbusRtuClientProtocol.buildWrite06(address
-                            , model.getStart(), (byte[]) parseWriteValue(model)); break;
+                    , model.getStart(), (byte[]) parseWriteValue(model)); break;
                 case "10":
                     byte[] writeBytes = (byte[]) parseWriteValue(model);
                     protocol = ModbusRtuClientProtocol.buildWrite10(address
-                            , model.getStart(), writeBytes.length / 2, writeBytes); break;
+                    , model.getStart(), writeBytes.length / 2, writeBytes); break;
                 case "0F":
                     protocol = ModbusRtuClientProtocol.buildWrite0F(
                             address, model.getStart(), (byte[]) parseWriteValue(model)); break;
-                default: write.write(HttpResult.Fail("不支持的指令["+cmd+"]"));
+                default: write.write(HttpResult.Fail("不支持的指令[" + cmd + "]"));
                     return;
             }
         }
@@ -223,9 +233,9 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                 try {
                     return Integer.valueOf(writeValue);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("字符串的长度值["+writeValue+"]不支持");
+                    throw new IllegalArgumentException("字符串的长度值[" + writeValue + "]不支持");
                 }
-            default: throw new IllegalArgumentException("不支持的值类型["+type+"]");
+            default: throw new IllegalArgumentException("不支持的值类型[" + type + "]");
         }
     }
 
@@ -254,15 +264,15 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
 
                 if(protocol.getExecStatus() == ExecStatus.success) {
                     Message.MessageBody body = clientMessage.getBody();
-                    if(body instanceof ModbusRtuBody) {
-                        if(!((ModbusRtuBody) body).isSuccess()) {
-                            String reason = ((ModbusRtuBody) body).getErrCode().getDesc();
+                    if(body instanceof ModbusRtuBody rtuBody) {
+                        if(!rtuBody.isSuccess()) {
+                            String reason = rtuBody.getErrCode().getDesc();
                             write.write(HttpResult.StatusCode(result, reason, 208));
                             return null;
                         }
-                    } else if(body instanceof ModbusTcpBody) {
-                        if(!((ModbusTcpBody) body).isSuccess()) {
-                            String reason = ((ModbusTcpBody) body).getErrCode().getDesc();
+                    } else if(body instanceof ModbusTcpBody tcpBody) {
+                        if(!tcpBody.isSuccess()) {
+                            String reason = tcpBody.getErrCode().getDesc();
                             write.write(HttpResult.StatusCode(result, reason, 208));
                             return null;
                         }
@@ -302,7 +312,7 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
             case "string":
                 int length = Integer.valueOf(model.getWriteValue());
                 return payload.readString(model.getStart(), length);
-            default: throw new IllegalArgumentException("不支持的值类型["+type+"]");
+            default: throw new IllegalArgumentException("不支持的值类型[" + type + "]");
         }
     }
 
@@ -324,10 +334,10 @@ public class ModbusDebugHandle implements DebugHandle<ModbusDebugModel> {
                             model.getWriteValue().equals("1") ? ModbusCoilStatus.ON : null;
                 case "string":
                     return model.getWriteValue().getBytes(StandardCharsets.UTF_8);
-                default: throw new IllegalArgumentException("不支持的值类型["+type+"]");
+                default: throw new IllegalArgumentException("不支持的值类型[" + type + "]");
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("值类型["+type+"]和值["+model.getWriteValue()+"]不匹配");
+            throw new IllegalArgumentException("值类型[" + type + "]和值[" + model.getWriteValue() + "]不匹配");
         }
     }
 

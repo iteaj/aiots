@@ -126,7 +126,7 @@ public class GatewayController extends BaseController {
     @Logger("切换网关状态")
     @PostMapping("switch/{id}/{status}")
     @CheckPermission({"iot:gateway:switch"})
-    public Result<Boolean> switchStatus(@PathVariable Long id,  @PathVariable GatewayStatus status) {
+    public Result<Boolean> switchStatus(@PathVariable Long id, @PathVariable GatewayStatus status) {
         this.gatewayService.switchStatus(id, status);
         return success(true);
     }

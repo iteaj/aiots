@@ -3,6 +3,8 @@ package com.iteaj.iboot.module.iot.entity;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.util.Date;
 import java.util.List;
 
@@ -24,6 +26,7 @@ import lombok.experimental.Accessors;
 @TableName("iot_device_group")
 public class DeviceGroup extends TreeEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

@@ -23,7 +23,6 @@ import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.SocketClient;
 import com.iteaj.iot.modbus.client.tcp.ModbusTcpClientComponent;
 import com.iteaj.framework.security.CheckPermission;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,7 +44,7 @@ public class DeviceModbusController extends BaseController {
     private final static String[] modbusCodes = {ProtocolCodes.MODBUS_RTU.getValue(), ProtocolCodes.MODBUS_TCP.getValue()};
 
     public DeviceModbusController(ISerialService serialService, IDeviceService deviceService
-            , IProductService productService) {
+        , IProductService productService) {
         this.serialService = serialService;
         this.deviceService = deviceService;
         this.productService = productService;
@@ -90,12 +89,12 @@ public class DeviceModbusController extends BaseController {
                     Device device = this.deviceService.getOne(Wrappers.<Device>lambdaQuery()
                             .eq(Device::getProductId, entity.getProductId())
                             .orderByDesc(Device::getDeviceSn).last("limit 1")).getData();
-                    if (device != null) {
+                    if(device != null) {
                         String[] number = device.getDeviceSn().split("_");
                         Integer idValue = Integer.valueOf(number[number.length - 1]);
-                        deviceSn = String.format("gwd_%s_%d_%04d", deviceSn.toLowerCase(), entity.getProductId(), (idValue + 1));
+                        deviceSn = "gwd_%s_%d_%04d".formatted(deviceSn.toLowerCase(), entity.getProductId(), (idValue + 1));
                     } else {
-                        deviceSn = "gwd_"+deviceSn.toLowerCase()+"_" + entity.getProductId() + "_0001";
+                        deviceSn = "gwd_" + deviceSn.toLowerCase() + "_" + entity.getProductId() + "_0001";
                     }
 
                     entity.setDeviceSn(deviceSn);

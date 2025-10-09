@@ -45,7 +45,7 @@ public class MessageAutoConfiguration implements InitializingBean {
 
     @Bean
     public MessageManager messageManager(@Autowired(required = false) List<MessageService> services
-            , IMessageSourceService service, IMessageTemplateService templateService) {
+        , IMessageSourceService service, IMessageTemplateService templateService) {
         MessageManager messageManager = new MessageManager(services);
         if(CollectionUtil.isNotEmpty(services)) {
             Map<String, MessageService> serviceMap = services.stream().collect(Collectors.toMap(MessageService::getType, item -> item));

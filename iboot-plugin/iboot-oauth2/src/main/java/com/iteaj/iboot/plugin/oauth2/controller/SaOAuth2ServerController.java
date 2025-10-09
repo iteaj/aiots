@@ -35,11 +35,11 @@ public class SaOAuth2ServerController {
                     }
                     return SaResult.error("账号名或密码错误");
                 }).setConfirmView((clientId, scope) -> {// 配置：确认授权时返回的View
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("clientId", clientId);
-                    map.put("scope", scope);
-                    return new ModelAndView("/confirm.html", map);
-                });
+            Map<String, Object> map = new HashMap<>();
+            map.put("clientId", clientId);
+            map.put("scope", scope);
+            return new ModelAndView("/confirm.html", map);
+        });
     }
 
     // 全局异常拦截

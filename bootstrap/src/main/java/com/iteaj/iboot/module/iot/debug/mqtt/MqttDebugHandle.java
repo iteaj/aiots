@@ -30,16 +30,18 @@ public class MqttDebugHandle implements DebugHandle<MqttDebugModel> {
     @Override
     public void handle(MqttDebugModel model, DebugWebsocketWrite write) {
         if(!StringUtils.hasText(model.getIp()) || model.getPort() == null) {
-            write.write(HttpResult.Fail("未指定mqtt设备的ip地址和端口")); return;
+            write.write(HttpResult.Fail("未指定mqtt设备的ip地址和端口"));
+            return;
         }
 
         DebugResult result = new DebugResult(model);
-        try{
+        try {
             DefaultMqttConnectProperties properties = new DefaultMqttConnectProperties(model.getIp()
-                    , model.getPort(), model.getDeviceSn(), null, null);
+            , model.getPort(), model.getDeviceSn(), null, null);
             MqttClient client = defaultMqttComponent.getClient(properties);
             if(client == null) {
-                write.write(HttpResult.Fail("客户端未连接")); return;
+                write.write(HttpResult.Fail("客户端未连接"));
+                return;
             }
 
             // 订阅

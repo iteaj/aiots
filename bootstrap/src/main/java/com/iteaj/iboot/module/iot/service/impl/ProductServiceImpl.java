@@ -56,8 +56,8 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     private final IModelAttrService modelAttrService;
 
     public ProductServiceImpl(IProtocolService protocolService
-            , IModelApiService modelApiService, IModelAttrService modelAttrService
-            , IotCacheManager iotCacheManager, CacheManager cacheManager) {
+        , IModelApiService modelApiService, IModelAttrService modelAttrService
+        , IotCacheManager iotCacheManager, CacheManager cacheManager) {
         this.protocolService = protocolService;
         this.modelApiService = modelApiService;
         this.modelAttrService = modelAttrService;
@@ -71,9 +71,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         this.getOne(Wrappers.<Product>lambdaQuery()
                 .eq(Product::getProductTypeId, entity.getProductTypeId())
                 .eq(Product::getName, entity.getName()))
-                .ifPresent(one -> {throw new ServiceException("此产品已经存在["+entity.getName()+"]");});
+                .ifPresent(one -> {
+                    throw new ServiceException("此产品已经存在[" + entity.getName() + "]");
+                });
 
-        this.getByCode(entity.getCode()).ifPresentThrow("此产品代码已经存在["+entity.getCode()+"]");
+        this.getByCode(entity.getCode()).ifPresentThrow("此产品代码已经存在[" + entity.getCode() + "]");
 
         this.protocolService.getById(entity.getProtocolId())
                 .ifNotPresentThrow("协议不存在")
@@ -93,11 +95,13 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 .ne(Product::getId, entity.getId())
                 .eq(Product::getProductTypeId, entity.getProductTypeId())
                 .eq(Product::getName, entity.getName()))
-                .ofNullable().ifPresent(one -> {throw new ServiceException("此产品已经存在["+entity.getName()+"]");});
+                .ofNullable().ifPresent(one -> {
+            throw new ServiceException("此产品已经存在[" + entity.getName() + "]");
+        });
 
         this.getByCode(entity.getCode()).ifPresent(item -> {
             if(!item.getId().equals(entity.getId())) {
-                throw new ServiceException("此产品代码已经存在["+entity.getCode()+"]");
+                throw new ServiceException("此产品代码已经存在[" + entity.getCode() + "]");
             }
         });
 
@@ -123,7 +127,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         // 网关子设备的产品需要绑定父网关产品
         if(entity.getDeviceType() != DeviceType.Child) {
             entity.setParentId(null);
-        } else if(entity.getParentId() == null){
+        } else if(entity.getParentId() == null) {
             throw new ServiceException("网关子设备产品需绑定父产品");
         }
 
@@ -189,10 +193,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
         this.getOne(Wrappers.<Product>lambdaQuery().in(Product::getId, idList).last("limit 1"))
                 .ifPresent(item -> {
-            if(item.getStatus() == FuncStatus.enabled) {
-                throw new ServiceException("请先停用产品");
-            }
-        });
+                    if(item.getStatus() == FuncStatus.enabled) {
+                        throw new ServiceException("请先停用产品");
+                    }
+                });
 
         return super.removeByIds(idList).ifPresent(item -> idList.forEach(id -> {
             // 先移除缓存
@@ -232,18 +236,18 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                         // 协议接口上行配置
                         List<ModelApiConfig> upConfig = api.getUpConfig()
                                 .values().stream().map(config -> {
-                                    ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
-                                    // 将协议模型的api配置转换成协议api配置
-                                    return convertProtocolApiConfig(modelApi, config, attr);
-                                }).collect(Collectors.toList());
+                            ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
+                            // 将协议模型的api配置转换成协议api配置
+                            return convertProtocolApiConfig(modelApi, config, attr);
+                        }).collect(Collectors.toList());
 
                         // 协议接口下行配置
                         List<ModelApiConfig> downConfig = api.getDownConfig()
                                 .values().stream().map(config -> {
-                                    ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
-                                    // 将协议模型的api配置转换成协议api配置
-                                    return convertProtocolApiConfig(modelApi, config, attr);
-                                }).collect(Collectors.toList());
+                            ProtocolModelAttr attr = protocol.getAttrs().get(config.getProtocolModelAttrField());
+                            // 将协议模型的api配置转换成协议api配置
+                            return convertProtocolApiConfig(modelApi, config, attr);
+                        }).collect(Collectors.toList());
 
                         modelApi.setProtocol(true); //协议指令为null
                         if(api.getType() == ProtocolApiType.event) {
@@ -256,16 +260,16 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                     // 协议属性转模型属性
                     List<ModelAttr> attrs = protocol.getAttrs().values().stream()
                             .filter(attr -> attr.getAttrType() == AttrType.R || attr.getAttrType() == AttrType.RW)
-                        .map(attr -> new ModelAttr()
-                                .setName(attr.getName())
-                                .setField(attr.getField())
-                                .setRemark(attr.getRemark())
-                                .setDataType(attr.getDataType().getValue())
-                                .setRealType(attr.getDataType().getValue())
-                                .setAttrType(attr.getAttrType())
-                                .setEnumerate(false)
-                                .setOrigin(AttrOrigin.Protocol))
-                        .collect(Collectors.toList());
+                            .map(attr -> new ModelAttr()
+                                    .setName(attr.getName())
+                                    .setField(attr.getField())
+                                    .setRemark(attr.getRemark())
+                                    .setDataType(attr.getDataType().getValue())
+                                    .setRealType(attr.getDataType().getValue())
+                                    .setAttrType(attr.getAttrType())
+                                    .setEnumerate(false)
+                                    .setOrigin(AttrOrigin.Protocol))
+                            .collect(Collectors.toList());
                     model.setAttrs(attrs);
                 }
             } else {
@@ -369,90 +373,90 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     @Transactional
     public void switchStatus(Long id, FuncStatus status) {
         this.detailById(id).ifNotPresentThrow("查找不到此产品")
-            .ifPresent(item -> {
-                // 被启用的事件源绑定后产品不能被禁用
-                if(status == FuncStatus.disabled) {
-                    if(this.hasBindEnabledEventSource(id)) {
-                        throw new ServiceException("此产品正被事件源使用中, 请先禁用对应事件源");
+                .ifPresent(item -> {
+                    // 被启用的事件源绑定后产品不能被禁用
+                    if(status == FuncStatus.disabled) {
+                        if(this.hasBindEnabledEventSource(id)) {
+                            throw new ServiceException("此产品正被事件源使用中, 请先禁用对应事件源");
+                        }
                     }
-                }
 
-                // 网关子设备的父产品是边缘网关产品
-                if(item.getDeviceType() == DeviceType.Child) {
-                    if(status == FuncStatus.enabled) {
-                        this.getById(item.getParentId()).ifNotPresentThrow("查找不到父产品")
-                            .ifPresent(parent -> {
+                    // 网关子设备的父产品是边缘网关产品
+                    if(item.getDeviceType() == DeviceType.Child) {
+                        if(status == FuncStatus.enabled) {
+                            this.getById(item.getParentId()).ifNotPresentThrow("查找不到父产品")
+                                    .ifPresent(parent -> {
 //                                if(parent.getStatus() == FuncStatus.disabled) {
 //                                    throw new ServiceException("请先启用父产品["+parent.getName()+"]");
 //                                }
-                            });
-                    }
-                } else if(item.getDeviceType() == DeviceType.Gateway) { // 启用边缘网关下面所有的设备
-                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
-                    if(supplier == null) {
-                        throw new ServiceException("查找不到对应的协议提供[code="+item.getProtocolCode()+"]");
-                    }
+                                    });
+                        }
+                    } else if(item.getDeviceType() == DeviceType.Gateway) { // 启用边缘网关下面所有的设备
+                        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
+                        if(supplier == null) {
+                            throw new ServiceException("查找不到对应的协议提供[code=" + item.getProtocolCode() + "]");
+                        }
 
-                    // 校验此网关产品下面有没有已启用的子产品
-                    if(status == FuncStatus.disabled) {
+                        // 校验此网关产品下面有没有已启用的子产品
+                        if(status == FuncStatus.disabled) {
 //                        this.getOne(Wrappers.<Product>lambdaQuery()
 //                                .eq(Product::getParentId, item.getId())
 //                                .eq(Product::getStatus, FuncStatus.enabled)
 //                                .last("limit 1")).ifPresent(child -> {
 //                            throw new ServiceException("请先停用子产品["+child.getName()+"]");
 //                        });
-                    }
-
-                    if(supplier instanceof ClientProtocolSupplier) {
-                        // 先校验产品绑定的网关是否启用
-                        if(status == FuncStatus.enabled) {
-                            if(item.getGatewayStatus() == GatewayStatus.stop) {
-                                throw new ServiceException("请先启用网关["+item.getGatewayName()+"]");
-                            }
                         }
 
-                        // 获取此网关产品下面的所有网关设备
-                        this.getBaseMapper().listDeviceByProductId(item.getId()).forEach(device -> {
-                            try {
-                                IotNetworkUtil.networkCtrl(supplier, device, status);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    }
-                }
-
-                this.update(Wrappers.<Product>lambdaUpdate().eq(Product::getId, item.getId()).set(Product::getStatus, status));
-                if(item.getDeviceType() == DeviceType.Child) {
-                    if(status == FuncStatus.enabled) {
-                        // 启用的时候加入到状态定时任务
-                        this.modelApiService.getAsStatusModelApi(id).ifPresent(modelApi -> {
-                            DeviceStatusModelApiManager.getInstance().register(modelApi);
-                        });
-                    } else {
-                        // 禁用的时候移除掉此产品的状态接口
-                        DeviceStatusModelApiManager.getInstance().remove(id);
-
-                         // 产品禁用关闭所有此产品下的设备
-                        iotCacheManager.listByProductCode(item.getCode()).forEach(device -> {
-                            try {
-                                if(device.getStatus() == DeviceStatus.online) {
-                                    device.setStatus(DeviceStatus.offline);
-                                    IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                        if(supplier instanceof ClientProtocolSupplier) {
+                            // 先校验产品绑定的网关是否启用
+                            if(status == FuncStatus.enabled) {
+                                if(item.getGatewayStatus() == GatewayStatus.stop) {
+                                    throw new ServiceException("请先启用网关[" + item.getGatewayName() + "]");
                                 }
-                            } catch (Exception e) {
-                                e.printStackTrace();
                             }
-                        });
 
+                            // 获取此网关产品下面的所有网关设备
+                            this.getBaseMapper().listDeviceByProductId(item.getId()).forEach(device -> {
+                                try {
+                                    IotNetworkUtil.networkCtrl(supplier, device, status);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
                     }
-                }
 
-                /**
-                 * 发布产品状态切换事件
-                 */
-                IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item.setStatus(status)));
-            });
+                    this.update(Wrappers.<Product>lambdaUpdate().eq(Product::getId, item.getId()).set(Product::getStatus, status));
+                    if(item.getDeviceType() == DeviceType.Child) {
+                        if(status == FuncStatus.enabled) {
+                            // 启用的时候加入到状态定时任务
+                            this.modelApiService.getAsStatusModelApi(id).ifPresent(modelApi -> {
+                                DeviceStatusModelApiManager.getInstance().register(modelApi);
+                            });
+                        } else {
+                            // 禁用的时候移除掉此产品的状态接口
+                            DeviceStatusModelApiManager.getInstance().remove(id);
+
+                            // 产品禁用关闭所有此产品下的设备
+                            iotCacheManager.listByProductCode(item.getCode()).forEach(device -> {
+                                try {
+                                    if(device.getStatus() == DeviceStatus.online) {
+                                        device.setStatus(DeviceStatus.offline);
+                                        IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+
+                        }
+                    }
+
+                    /**
+                     * 发布产品状态切换事件
+                     */
+                    IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item.setStatus(status)));
+                });
     }
 
     @Override
@@ -562,7 +566,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         modelApi.setAsStatus(false).setProductId(entity.getProductId())
                 .setTriggerMode(protocolApi.getTriggerMode()).setProtocol(false).setDebug(true)
                 .setDirect(entity.getDirect()).setFuncType(FuncType.R).setType(protocolApi.getType())
-                .setName("获取"+entity.getName()).setCode(apiCode);
+                .setName("获取" + entity.getName()).setCode(apiCode);
         List<ModelApiConfig> upConfigs = new ArrayList<>();
         protocolApi.getUpConfig().forEach((direct, config) -> {
             final ProtocolModelAttr modelAttr = protocol.getAttr(config.getProtocolModelAttrField());
@@ -570,7 +574,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                     .setAttrField(entity.getField()).setProductId(entity.getProductId()).setApiCode(apiCode).setDataType(entity.getDataType())
                     .setDirection(ApiConfigDirection.UP).setFieldType(ApiFieldType.field).setProtocolAttrName(modelAttr.getName())
                     .setProtocolAttrField(config.getProtocolModelAttrField()).setProtocolDataType(modelAttr.getDataType().getValue())
-                    .setValue("@"+entity.getField()).setSort(config.getSort()).setRemark(config.getRemark());
+                    .setValue("@" + entity.getField()).setSort(config.getSort()).setRemark(config.getRemark());
             upConfigs.add(apiConfig);
         });
 
@@ -579,7 +583,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             final ProtocolModelAttr modelAttr = protocol.getAttr(config.getProtocolModelAttrField());
             final String value = (String) entity.getConfig().get(config.getProtocolModelAttrField());
             if(StrUtil.isBlank(value)) {
-                throw new ServiceException(config.getProtocolModelAttrField()+"必填");
+                throw new ServiceException(config.getProtocolModelAttrField() + "必填");
             }
 
             final ModelApiConfig apiConfig = new ModelApiConfig().setModelAttrId(entity.getId()).setAttrName(entity.getName())

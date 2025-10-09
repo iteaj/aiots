@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.util.Date;
 
 import com.iteaj.iboot.module.iot.consts.SerialStatus;
@@ -23,6 +24,7 @@ import lombok.experimental.Accessors;
 @TableName("iot_serial")
 public class Serial extends BaseEntity {
 
+    @java.io.Serial
     private static final long serialVersionUID = 1L;
 
     /**

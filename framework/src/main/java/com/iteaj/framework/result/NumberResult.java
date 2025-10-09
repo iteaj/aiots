@@ -1,6 +1,6 @@
 package com.iteaj.framework.result;
 
-public class NumberResult<T extends Number> extends OptionalResult<T, NumberResult<T>>{
+public class NumberResult<T extends Number> extends OptionalResult<T, NumberResult<T>> {
 
     public NumberResult(T value) {
         super(value);

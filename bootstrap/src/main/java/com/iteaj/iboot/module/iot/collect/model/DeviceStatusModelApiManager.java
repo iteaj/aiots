@@ -160,7 +160,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                 // 父设备不存在或者不在线则不采集子设备状态
                 if(realtimeStatus == null || realtimeStatus.getStatus() == DeviceStatus.offline) {
                     IotLogger.debug(IotLogger.NAME, "采集状态", device.getUid(), "放弃状态接口调用 网关设备不在线 - 网关编号: {} - 设备编号: {} - 接口: {}/{}"
-                            , device.getParentDeviceSn(), device.getDeviceSn(), api.getCode(), api.getDirect());
+                    , device.getParentDeviceSn(), device.getDeviceSn(), api.getCode(), api.getDirect());
                     return;
                 }
             }
@@ -180,7 +180,7 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
         }
 
         IotLogger.error(IotLogger.NAME, "采集状态", device.getUid(), "采集状态异常 {} - 设备编号: {} - 接口: {}/{}"
-                , e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+        , e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
     }
 
     private void doInvoke(ModelApi api, RealtimeStatus device, long timeout, boolean retry) {
@@ -217,10 +217,10 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                     if(logger.isWarnEnabled()) {
                         if(retry) {
                             IotLogger.warn(IotLogger.NAME, "采集状态", device.getUid(), "采集状态重试失败 {} - 设备编号: {} - 接口: {}/{}"
-                                    , result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                            , result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                         } else {
                             IotLogger.warn(IotLogger.NAME, "采集状态", device.getUid(), "采集状态失败 {} - 设备编号: {} - 接口: {}/{}"
-                                    , result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                            , result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                         }
                     }
                 }

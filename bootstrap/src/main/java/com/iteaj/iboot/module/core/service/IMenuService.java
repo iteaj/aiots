@@ -22,7 +22,7 @@ public interface IMenuService extends IBaseService<Menu> {
      * @param isSuper 是否是超级管理员
      * @return
      */
-    ListResult<Menu> selectMenuBarTrees(Long aid,  boolean isSuper);
+    ListResult<Menu> selectMenuBarTrees(Long aid, boolean isSuper);
 
     /**
      * 不包含菜单类型是权限的菜单

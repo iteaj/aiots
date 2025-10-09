@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * @author iteaj
  * @since 1.0
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Conditional(ClusterConditionalImpl.class)
 public @interface ConditionalOnCluster {

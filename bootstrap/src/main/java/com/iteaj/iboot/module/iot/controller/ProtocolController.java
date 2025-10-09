@@ -122,7 +122,7 @@ public class ProtocolController extends BaseController {
     public Result<Protocol> loadProtocol(MultipartFile file) throws IOException {
         // 先上传到临时文件
         UploadResult protocol = uploadService.upload(file.getInputStream()
-                , file.getOriginalFilename(), file.getOriginalFilename(), ProtocolSupplierManager.PROTOCOL_JAR_TEMP_DIR);
+        , file.getOriginalFilename(), file.getOriginalFilename(), ProtocolSupplierManager.PROTOCOL_JAR_TEMP_DIR);
 
         List<DeviceProtocolSupplier> load = ProtocolSupplierManager.loadFromTempProtocol(protocol.getFileName());
         if(load.size() > 1) {
@@ -186,9 +186,9 @@ public class ProtocolController extends BaseController {
     @GetMapping("apis")
     public Result<List<ProtocolApi>> apis(Long id, ProtocolApiType type) {
         List<ProtocolApi> protocolApis = this.protocolService.getByDetail(id).ofNullable().map(item -> {
-            if (type == ProtocolApiType.func) {
+            if(type == ProtocolApiType.func) {
                 return item.getFuncApis();
-            } else if (type == ProtocolApiType.event) {
+            } else if(type == ProtocolApiType.event) {
                 return item.getEventApis();
             } else {
                 ArrayList<ProtocolApi> list = new ArrayList<>();
@@ -222,7 +222,7 @@ public class ProtocolController extends BaseController {
 
         internals.forEach(item -> {
             Protocol protocol = protocolMap.get(item.getProtocol().getCode());
-            if (protocol == null) {
+            if(protocol == null) {
                 ProtocolDto protocolDto = protocolService.loadProtocol(item);
                 protocol = new Protocol();
                 BeanUtils.copyProperties(protocolDto, protocol);
@@ -267,7 +267,7 @@ public class ProtocolController extends BaseController {
 
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
         if(supplier == null) {
-            return fail("找不到协议[protocolCode="+protocolCode+"]");
+            return fail("找不到协议[protocolCode=" + protocolCode + "]");
         }
 
         if(type.equals("network")) {
@@ -277,7 +277,7 @@ public class ProtocolController extends BaseController {
         } else if(type.equals("child")) {
             return success(supplier.getDeviceConfig());
         } else {
-            return fail("不支持的类型[type="+type+"]");
+            return fail("不支持的类型[type=" + type + "]");
         }
     }
 

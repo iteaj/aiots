@@ -48,10 +48,10 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
     public BooleanResult updateById(Role entity) {
         this.getOne(Wrappers.<Role>lambdaQuery().eq(Role::getName, entity.getName()))
                 .ofNullable().ifPresent(item -> {
-                    if(item.getId().compareTo(entity.getId()) != 0) {
-                        throw new ServiceException("角色名称重复["+entity.getName()+"]");
-                    }
-                });
+            if(item.getId().compareTo(entity.getId()) != 0) {
+                throw new ServiceException("角色名称重复[" + entity.getName() + "]");
+            }
+        });
         return super.updateById(entity);
     }
 
@@ -86,7 +86,9 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
     @Override
     public void createRoleAndPerms(RoleDto role) {
         this.getOne(Wrappers.<Role>lambdaQuery().eq(Role::getName, role.getName())).ofNullable()
-                .ifPresent(item -> {throw new ServiceException("角色名称重复["+role.getName()+"]");});
+                .ifPresent(item -> {
+                    throw new ServiceException("角色名称重复[" + role.getName() + "]");
+                });
 
         getBaseMapper().createRoleAndPerms(role);
     }
@@ -98,11 +100,11 @@ public class RoleServiceImpl extends BaseServiceImpl<IRoleDao, Role> implements 
         }
         this.getOne(Wrappers.<Role>lambdaQuery().eq(Role::getName, role.getName()))
                 .ofNullable().ifPresent(item -> {
-                    // 设备名称已存在
-                    if(role.getId().compareTo(item.getId()) != 0) {
-                        throw new ServiceException("角色名称重复["+role.getName()+"]");
-                    }
-                });
+            // 设备名称已存在
+            if(role.getId().compareTo(item.getId()) != 0) {
+                throw new ServiceException("角色名称重复[" + role.getName() + "]");
+            }
+        });
 
         getBaseMapper().updateRolePermsById(role);
         Objects.requireNonNull(cacheManager.getCache(IBOOT_CACHE_KEY_PERMS)).clear();

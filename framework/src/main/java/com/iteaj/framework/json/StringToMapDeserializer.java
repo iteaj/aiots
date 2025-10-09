@@ -24,14 +24,14 @@ public class StringToMapDeserializer extends JsonDeserializer {
                     String item = items[i];
                     String[] split = item.split("=");
                     if(split.length != 2) {
-                        throw new IllegalArgumentException("错误的数据格式["+item+"]");
+                        throw new IllegalArgumentException("错误的数据格式[" + item + "]");
                     }
 
                     result.put(split[0], split[1]);
                 }
 
                 return result;
-            } else if(jsonParser.currentToken() == JsonToken.START_OBJECT){
+            } else if(jsonParser.currentToken() == JsonToken.START_OBJECT) {
                 return jsonParser.readValueAs(Map.class);
             } else {
                 throw new InvalidFormatException(jsonParser, "数据格式异常", currentName, Map.class);

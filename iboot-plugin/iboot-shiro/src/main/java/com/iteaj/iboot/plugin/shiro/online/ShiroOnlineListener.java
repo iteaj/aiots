@@ -16,7 +16,7 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.subject.PrincipalCollection;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.util.Date;
 
 /**
@@ -32,7 +32,8 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
      * @param session
      */
     @Override
-    public void onStart(Session session) { }
+    public void onStart(Session session) {
+    }
 
     /**
      * 会话停止
@@ -42,7 +43,7 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
     public void onStop(Session session) {
         // 发布session 停止事件
         EventUtils.publish(new PayloadEvent(session.getId()
-                , new OnlinePayload(OnlineStatus.Offline, (String) session.getId())
+        , new OnlinePayload(OnlineStatus.Offline, (String) session.getId())
                 .setAccessTime(session.getLastAccessTime())));
     }
 
@@ -54,7 +55,7 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
     public void onExpiration(Session session) {
         // 发布session 过期事件
         EventUtils.publish(new PayloadEvent(session
-                , new OnlinePayload(OnlineStatus.Offline, (String) session.getId())
+        , new OnlinePayload(OnlineStatus.Offline, (String) session.getId())
                 .setAccessTime(session.getLastAccessTime())));
     }
 
@@ -78,8 +79,10 @@ public class ShiroOnlineListener implements SessionListener, AuthenticationListe
     }
 
     @Override
-    public void onFailure(AuthenticationToken authenticationToken, AuthenticationException e) { }
+    public void onFailure(AuthenticationToken authenticationToken, AuthenticationException e) {
+    }
 
     @Override
-    public void onLogout(PrincipalCollection principalCollection) { }
+    public void onLogout(PrincipalCollection principalCollection) {
+    }
 }

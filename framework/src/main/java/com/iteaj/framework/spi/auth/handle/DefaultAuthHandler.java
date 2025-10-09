@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public abstract class DefaultAuthHandler implements WebAuthHandler, Initializing
     private List<WebAuthAction> actions;
     private FrameworkProperties config;
     private Map<String, WebAuthAction> actionMap;
-    protected static Logger logger = LoggerFactory.getLogger(WebAuthHandler.class);
+    protected static Logger logger = LoggerFactory.getLogger(DefaultAuthHandler.class);
 
     public DefaultAuthHandler(List<WebAuthAction> actions) {
         this.actions = actions;
@@ -51,7 +51,7 @@ public abstract class DefaultAuthHandler implements WebAuthHandler, Initializing
         }
 
         String requestURI = WebUtils.getRequestUriContext(request);
-        for (WebAuthAction item: actions) {
+        for (WebAuthAction item : actions) {
             if(item.pathMatcher(requestURI, request)) {
                 request.setAttribute(CoreConst.HANDLE_AUTH_ACTION, item);
                 return item;

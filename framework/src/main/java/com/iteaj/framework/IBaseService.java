@@ -115,7 +115,7 @@ public interface IBaseService<E extends Entity> {
      * @param idList 主键ID列表
      */
     default BooleanResult removeByIds(Collection<? extends Serializable> idList) {
-        if (CollectionUtils.isEmpty(idList)) {
+        if(CollectionUtils.isEmpty(idList)) {
             return new BooleanResult(false);
         }
         return new BooleanResult(SqlHelper.retBool(getBaseMapper().deleteBatchIds(idList)));
@@ -240,7 +240,7 @@ public interface IBaseService<E extends Entity> {
      *
      * @see Wrappers#emptyWrapper()
      */
-    default NumberResult<Integer> count() {
+    default NumberResult<Long> count() {
         return count(Wrappers.emptyWrapper());
     }
 
@@ -249,7 +249,7 @@ public interface IBaseService<E extends Entity> {
      *
      * @param queryWrapper 实体对象封装操作类 {@link com.baomidou.mybatisplus.core.conditions.query.QueryWrapper}
      */
-    default NumberResult<Integer> count(Wrapper<E> queryWrapper) {
+    default NumberResult<Long> count(Wrapper<E> queryWrapper) {
         return new NumberResult(SqlHelper.retCount(getBaseMapper().selectCount(queryWrapper)));
     }
 

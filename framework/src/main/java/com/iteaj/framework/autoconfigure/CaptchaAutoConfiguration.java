@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -69,7 +69,7 @@ public class CaptchaAutoConfiguration {
             throw new ServiceException("未指定code");
         }
 
-        try(ServletOutputStream out = response.getOutputStream()){
+        try (ServletOutputStream out = response.getOutputStream()) {
             handleResponseHeader(response);
             BufferedImage image = captchaService.createCaptcha(code);
 
@@ -99,7 +99,7 @@ public class CaptchaAutoConfiguration {
      */
     @Bean(name = "charCaptcha")
     @ConditionalOnProperty(value = "framework.captcha.type", havingValue = "Char")
-    public Producer charCaptcha(){
+    public Producer charCaptcha() {
         return KaptchaCreator.charInstance();
     }
 
@@ -110,7 +110,7 @@ public class CaptchaAutoConfiguration {
     @Primary
     @Bean(name = "mathCaptcha")
     @ConditionalOnProperty(value = "framework.captcha.type", havingValue = "Math", matchIfMissing = true)
-    public Producer mathCaptcha(){
+    public Producer mathCaptcha() {
         return KaptchaCreator.mathInstance();
     }
 
@@ -122,7 +122,7 @@ public class CaptchaAutoConfiguration {
      */
     @Bean
     public CaptchaService captchaService(CaptchaMapper captchaMapper
-            , Producer producer, FrameworkProperties properties) {
+        , Producer producer, FrameworkProperties properties) {
         return new CaptchaService(producer, captchaMapper, properties);
     }
 }

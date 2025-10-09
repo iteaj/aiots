@@ -93,7 +93,8 @@ public class ListResult<E> extends OptionalResult<List<E>, ListResult<E>> {
     }
 
     public ListResult<E> forEach(Consumer<E> consumer) {
-        this.stream().forEach(consumer); return this;
+        this.stream().forEach(consumer);
+        return this;
     }
 
     public Stream<E> stream() {

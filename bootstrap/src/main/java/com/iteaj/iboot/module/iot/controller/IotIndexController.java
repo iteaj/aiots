@@ -27,8 +27,8 @@ public class IotIndexController extends BaseController {
     private final RealtimeCollectDataService collectDataService;
 
     public IotIndexController(IDeviceService deviceService, IProductService productService
-            , IProtocolService protocolService, RealtimeCollectDataService collectDataService
-            , IEventSourceService eventSourceService) {
+        , IProtocolService protocolService, RealtimeCollectDataService collectDataService
+        , IEventSourceService eventSourceService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.protocolService = protocolService;
@@ -49,7 +49,7 @@ public class IotIndexController extends BaseController {
         indexCountDto.setOnlineNum(deviceDto.getOnline());
 
         // 协议数量
-        protocolService.count().ifPresent(item -> indexCountDto.setProtocolNum(item));
+        protocolService.count().ifPresent(item -> indexCountDto.setProtocolNum(item.intValue()));
         // 产品数量
         FuncStatusProfileDto profileDto = productService.countStatusProfile();
         indexCountDto.setProductNum(profileDto.getTotalNum());

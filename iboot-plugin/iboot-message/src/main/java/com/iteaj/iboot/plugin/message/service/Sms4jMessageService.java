@@ -54,7 +54,7 @@ public abstract class Sms4jMessageService extends SmsMessageService {
         }
 
         if(model.getTemplateId() == null) {
-            if (Objects.isNull(model.getContent())) {
+            if(Objects.isNull(model.getContent())) {
                 throw new ServiceException("发送内容[content]不能为空");
             }
         }
@@ -63,7 +63,7 @@ public abstract class Sms4jMessageService extends SmsMessageService {
         SmsBlend smsBlend = SmsFactory.getBySupplier(getChannelId());
 
         if(smsBlend == null) {
-            throw new ServiceException("不支持消息类型["+getChannelId()+"]");
+            throw new ServiceException("不支持消息类型[" + getChannelId() + "]");
         }
 
         try {
@@ -75,11 +75,11 @@ public abstract class Sms4jMessageService extends SmsMessageService {
             if(model.getTemplateId() != null) {
                 if(callback == null) {
                     smsResponse = smsBlend.massTexting(accepts, model.getTemplateId()
-                            , new LinkedHashMap<>(model.getTemplateVars()));
+                    , new LinkedHashMap<>(model.getTemplateVars()));
                 } else {
                     for (int i = 0; i < accepts.size(); i++) {
                         smsBlend.sendMessageAsync(accepts.get(i), model.getTemplateId()
-                                , model.getTemplateVars(), (response) -> {
+                        , model.getTemplateVars(), (response) -> {
                             if(!isSuccess(response)) {
                                 logger.error("异步短信发送失败({}) {}", getChannelName(), response.getData());
                             }
@@ -111,7 +111,7 @@ public abstract class Sms4jMessageService extends SmsMessageService {
 
             return smsResponse;
         } catch (Exception e) {
-            throw new ServiceException("短信发送异常["+getChannelId()+"]", e);
+            throw new ServiceException("短信发送异常[" + getChannelId() + "]", e);
         }
 
     }
@@ -122,8 +122,8 @@ public abstract class Sms4jMessageService extends SmsMessageService {
     public MessageService build(JSONObject config) {
         BaseProviderFactory providerFactory = buildBaseProviderFactory();
         Object object = config.toJavaObject(providerFactory.getConfigClass());
-        if(object instanceof BaseConfig) {
-            ((BaseConfig) object).setConfigId(getConfigId());
+        if(object instanceof BaseConfig baseConfig) {
+            baseConfig.setConfigId(getConfigId());
         }
 
         SmsFactory.createSmsBlend((SupplierConfig) object);

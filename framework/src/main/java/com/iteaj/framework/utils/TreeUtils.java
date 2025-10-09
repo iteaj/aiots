@@ -25,7 +25,7 @@ public class TreeUtils {
 
         List<T> parents = new ArrayList<>();
         // 查找每条记录的父级, 并挂到父级的children里面
-        list.forEach(item->{
+        list.forEach(item -> {
             T parentItem = menuMap.get(item.getPid().toString());
             if(null != parentItem) {
                 parentItem.addChild(item);
@@ -61,8 +61,8 @@ public class TreeUtils {
 
         // 过滤出非功能的菜单并且排序
         List<T> collect = adminMenus.values().stream().filter(item -> {
-            if(item instanceof MenuResource) {
-                return ((MenuResource) item).getType() != MenuType.A;
+            if(item instanceof MenuResource resource) {
+                return resource.getType() != MenuType.A;
             }
 
             return true;

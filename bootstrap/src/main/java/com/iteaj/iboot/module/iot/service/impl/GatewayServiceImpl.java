@@ -55,7 +55,7 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
             }
 
             if(this.getBaseMapper().getByPort(port) != null) {
-                throw new ServiceException("端口["+port+"]已被使用");
+                throw new ServiceException("端口[" + port + "]已被使用");
             }
         }
 
@@ -77,7 +77,7 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
 
             Gateway byPort = this.getBaseMapper().getByPort(port);
             if(byPort != null && byPort.getId() != entity.getId()) {
-                throw new ServiceException("端口["+port+"]已被使用");
+                throw new ServiceException("端口[" + port + "]已被使用");
             }
         }
 
@@ -91,16 +91,16 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
         }
 
         this.list(Wrappers.<Gateway>lambdaQuery()
-            .in(Gateway::getId, idList))
-            .forEach(gateway -> {
-                if(gateway.getStatus() == GatewayStatus.start) {
-                    throw new ServiceException("请先停止网关["+gateway.getName()+"]后再删除");
-                }
+                .in(Gateway::getId, idList))
+                .forEach(gateway -> {
+                    if(gateway.getStatus() == GatewayStatus.start) {
+                        throw new ServiceException("请先停止网关[" + gateway.getName() + "]后再删除");
+                    }
 
-                if(this.isBindProduct(gateway.getId())) {
-                    throw new ServiceException("此网关["+gateway.getName()+"]已被绑定");
-                }
-            });
+                    if(this.isBindProduct(gateway.getId())) {
+                        throw new ServiceException("此网关[" + gateway.getName() + "]已被绑定");
+                    }
+                });
 
         return super.removeByIds(idList);
     }
@@ -152,7 +152,7 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
     private void doSwitchStatus(GatewayDto gateway, GatewayStatus status) {
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(gateway.getProtocolCode());
         if(supplier == null) {
-            throw new ServiceException("未找到对应的协议["+gateway.getProtocolCode()+"]");
+            throw new ServiceException("未找到对应的协议[" + gateway.getProtocolCode() + "]");
         }
 
         FrameworkComponent component;

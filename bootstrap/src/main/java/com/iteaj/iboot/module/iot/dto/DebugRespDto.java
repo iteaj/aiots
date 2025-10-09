@@ -49,7 +49,8 @@ public class DebugRespDto {
      */
     private ExecStatus status;
 
-    public DebugRespDto() { }
+    public DebugRespDto() {
+    }
 
     public DebugRespDto(String deviceSn) {
         this(deviceSn, System.currentTimeMillis());

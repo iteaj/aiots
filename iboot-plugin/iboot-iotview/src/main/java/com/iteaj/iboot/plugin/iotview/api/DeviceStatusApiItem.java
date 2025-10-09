@@ -10,6 +10,7 @@ import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 @Component
@@ -23,14 +24,14 @@ public class DeviceStatusApiItem implements ViewApiItem {
             .addNameChild("总设备数", "all", true)
             .toParent()
             .addNameChild("在线", "online")
-                .addNameChild("统计", "count", true)
+            .addNameChild("统计", "count", true)
             .toParent()
-                .addNameChild("占比", "ratio", true)
+            .addNameChild("占比", "ratio", true)
             .toTop()
             .addNameChild("离线", "offline")
-                .addNameChild("统计", "count", true)
+            .addNameChild("统计", "count", true)
             .toParent()
-                .addNameChild("占比", "ratio", true)
+            .addNameChild("占比", "ratio", true)
             .toTop()
             .build()
     );
@@ -76,7 +77,7 @@ public class DeviceStatusApiItem implements ViewApiItem {
                 final String countType = item.getValueItem(2);
 
                 List<DeviceStatusCountDto> countDtos = isvDataService.countDeviceStatus(status
-                        , params.getCategory(), params.getRange(), params.getRanges());
+                , params.getCategory(), params.getRange(), params.getRanges());
                 if(CollectionUtil.isNotEmpty(countDtos)) {
                     countDtos.forEach(countDto -> {
                         ListFetchResult listFetchResult = maps.get(item.getItem());
@@ -88,8 +89,8 @@ public class DeviceStatusApiItem implements ViewApiItem {
                             listFetchResult.addValue(new BaseEchartsCount(countDto.getName(), countDto.getValue()));
                         } else if("ratio".equals(countType)) {
                             listFetchResult.addValue(new BaseEchartsCount(countDto.getName()
-                                    , new BigDecimal(countDto.getValue() / (countDto.getTotal() * 1.0))
-                                    .setScale(2, BigDecimal.ROUND_DOWN)));
+                            , new BigDecimal(countDto.getValue() / (countDto.getTotal() * 1.0))
+                                    .setScale(2, RoundingMode.DOWN)));
                         } else {
                             listFetchResult.addValue(new BaseEchartsCount(countDto.getName(), countDto.getTotal()));
                         }
@@ -106,14 +107,14 @@ public class DeviceStatusApiItem implements ViewApiItem {
                 final String countType = item.getValueItem(2);
 
                 List<DeviceStatusCountDto> countDtos = isvDataService.countDeviceStatus(status
-                        , params.getCategory(), params.getRange(), params.getRanges());
+                , params.getCategory(), params.getRange(), params.getRanges());
                 final DeviceStatusCountDto countDto = countDtos.get(0);
-                if ("count".equals(countType)) {
+                if("count".equals(countType)) {
                     results.add(new NumberFetchResult(item.getItem(), countDto.getValue()));
-                } else if ("ratio".equals(countType)) {
+                } else if("ratio".equals(countType)) {
                     results.add(new NumberFetchResult(item.getItem()
-                            , new BigDecimal(countDto.getValue() / (countDto.getTotal() * 1.0))
-                            .setScale(2, BigDecimal.ROUND_DOWN)));
+                    , new BigDecimal(countDto.getValue() / (countDto.getTotal() * 1.0))
+                            .setScale(2, RoundingMode.DOWN)));
                 } else {
                     results.add(new NumberFetchResult(item.getItem(), countDto.getTotal()));
                 }

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +28,7 @@ import lombok.experimental.Accessors;
 @TableName("iot_point_group")
 public class PointGroup extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

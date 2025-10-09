@@ -103,7 +103,7 @@ public enum FormType {
     }
 
     public String getTemplate(String... args) {
-        return String.format(template, args);
+        return template.formatted(args);
     }
 
     public boolean isOptions() {

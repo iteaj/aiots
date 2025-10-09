@@ -24,12 +24,13 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
+@AutoConfiguration
 public class ShiroAutoConfiguration implements WebMvcConfigurer {
 
     private final FrameworkProperties properties;
@@ -100,7 +102,7 @@ public class ShiroAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(List<OrderFilterChainDefinition> definitions
-            , SecurityManager securityManager, List<AccessFilterWrapper> filters) {
+        , SecurityManager securityManager, List<AccessFilterWrapper> filters) {
 
         ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
         factoryBean.setSecurityManager(securityManager);
@@ -112,7 +114,7 @@ public class ShiroAutoConfiguration implements WebMvcConfigurer {
 
         // 处理拦截定义
         Map<String, String> pathDefinition = new LinkedHashMap<>();
-        definitions.stream().forEach((definition)-> pathDefinition.putAll(definition.getFilterChainMap()));
+        definitions.stream().forEach((definition) -> pathDefinition.putAll(definition.getFilterChainMap()));
         factoryBean.setFilterChainDefinitionMap(pathDefinition);
 
         return factoryBean;
@@ -129,7 +131,7 @@ public class ShiroAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public RealmSecurityManager securityManager(Collection<SessionListener> listeners
-            , SessionDAO sessionDAO, Collection<Realm> realms, ObjectProvider<CacheManager> cacheManager) {
+        , SessionDAO sessionDAO, Collection<Realm> realms, ObjectProvider<CacheManager> cacheManager) {
 
         DefaultSessionManager sessionManager = new OnlineSessionManager(properties);
         // 开启session校验
@@ -149,10 +151,10 @@ public class ShiroAutoConfiguration implements WebMvcConfigurer {
 
         // 设置认证监听器列表
         final Authenticator authenticator = securityManager.getAuthenticator();
-        if(authenticator instanceof AbstractAuthenticator) {
+        if(authenticator instanceof AbstractAuthenticator abstractAuthenticator) {
             final ArrayList<AuthenticationListener> authenticationListeners =
                     authentication.stream().collect(Collectors.toCollection(ArrayList::new));
-            ((AbstractAuthenticator) authenticator).setAuthenticationListeners(authenticationListeners);
+            abstractAuthenticator.setAuthenticationListeners(authenticationListeners);
         }
 
         // 如果有缓存管理

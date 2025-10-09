@@ -15,6 +15,7 @@ public class AuthContext implements Serializable {
     private AuthType type;
     private String action;
     private Map<String, Serializable> params = new HashMap<>();
+
     protected AuthContext(AuthType type) {
         this.type = type;
     }

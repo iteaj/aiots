@@ -29,8 +29,7 @@ public class ModbusTcpForDtuFuncProtocolModeApi extends AbstractModbusFuncProtoc
 
     @Override
     protected ModbusCommonProtocol buildWrite10(String equipCode, int device, int start, DataFormat format, Object value) {
-        if(value instanceof byte[]) {
-            byte[] message = (byte[]) value;
+        if(value instanceof byte[] message) {
             int num = message.length % 2 == 0 ? message.length / 2 : message.length / 2 + 1;
             return ModbusTcpForDtuCommonProtocol.buildWrite10(equipCode, device, start, num, message);
         }

@@ -16,8 +16,8 @@ import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
 import eu.bitwalker.useragentutils.BrowserType;
 import eu.bitwalker.useragentutils.UserAgent;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -32,8 +32,8 @@ public class SaTokenSecurityService implements SecurityService {
     private final AuthenticationService authenticationService;
 
     public SaTokenSecurityService(CaptchaService captchaService
-            , FrameworkProperties properties, AuthorizationService authorizationService
-            , AuthenticationService authenticationService) {
+        , FrameworkProperties properties, AuthorizationService authorizationService
+        , AuthenticationService authenticationService) {
         this.properties = properties;
         this.captchaService = captchaService;
         this.authorizationService = authorizationService;

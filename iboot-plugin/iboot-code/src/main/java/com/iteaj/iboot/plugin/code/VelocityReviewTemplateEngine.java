@@ -30,7 +30,7 @@ public class VelocityReviewTemplateEngine extends VelocityTemplateEngine {
 
     @Override
     public VelocityTemplateEngine init(ConfigBuilder configBuilder) {
-        if (null == velocityEngine) {
+        if(null == velocityEngine) {
             Properties p = new Properties();
             p.setProperty(ConstVal.VM_LOAD_PATH_KEY, ConstVal.VM_LOAD_PATH_VALUE);
             p.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, StringPool.EMPTY);

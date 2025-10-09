@@ -144,21 +144,21 @@ public class DeviceController extends BaseController {
         }
 
         DeviceDto entity = deviceService.detailById(device.getId())
-                .ifNotPresentThrow("设备不存在["+device.getDeviceSn()+"]")
+                .ifNotPresentThrow("设备不存在[" + device.getDeviceSn() + "]")
                 .getData();
 
         this.productService.getById(entity.getProductId()).ifNotPresentThrow("产品不存在")
                 .ifPresent(product -> {
-                   if(product.getStatus() == FuncStatus.disabled) {
-                       throw new ServiceException("请先启用产品["+product.getName()+"]");
-                   }
+                    if(product.getStatus() == FuncStatus.disabled) {
+                        throw new ServiceException("请先启用产品[" + product.getName() + "]");
+                    }
                 });
 
         try {
             FuncStatus funcStatus = status == DeviceStatus.online ? FuncStatus.enabled : FuncStatus.disabled;
             Object networkCtrl = IotNetworkUtil.networkCtrl(entity.getProtocolCode(), entity, funcStatus);
-            if(networkCtrl instanceof ChannelFuture) {
-                ((ChannelFuture) networkCtrl).get(10, TimeUnit.SECONDS);
+            if(networkCtrl instanceof ChannelFuture future) {
+                future.get(10, TimeUnit.SECONDS);
             }
         } catch (Throwable e) {
             e.printStackTrace();

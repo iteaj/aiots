@@ -42,7 +42,7 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
         this.getOne(Wrappers.<ModelAttr>lambdaQuery()
                 .eq(ModelAttr::getField, entity.getField())
                 .eq(ModelAttr::getProductId, entity.getProductId()))
-                .ifPresentThrow("属性字段已存在["+entity.getField()+"]");
+                .ifPresentThrow("属性字段已存在[" + entity.getField() + "]");
         entity.setCreateTime(new Date());
         resolveField(entity);
         BooleanResult booleanResult = super.save(entity).ifPresent(item -> {
@@ -63,15 +63,15 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
                 .ne(ModelAttr::getId, entity.getId())
                 .eq(ModelAttr::getField, entity.getField())
                 .eq(ModelAttr::getProductId, entity.getProductId()))
-                .ifPresentThrow("属性字段已存在["+entity.getField()+"]");
+                .ifPresentThrow("属性字段已存在[" + entity.getField() + "]");
 
         // 字段被使用则不允许修改字段名
         this.getById(entity.getId()).ifNotPresentThrow("属性不存在").ifPresent(item -> {
-           if(!Objects.equals(item.getField(), entity.getField())) {
+            if(!Objects.equals(item.getField(), entity.getField())) {
                 if(hasBinded(Arrays.asList(item.getId()))) {
                     throw new ServiceException("属性已被绑定字段名不允许修改");
                 }
-           }
+            }
         });
         resolveField(entity);
         return super.updateById(entity);

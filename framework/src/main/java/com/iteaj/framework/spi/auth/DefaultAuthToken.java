@@ -4,7 +4,7 @@ import com.iteaj.framework.Entity;
 
 import java.util.Collection;
 
-public class DefaultAuthToken implements AuthToken{
+public class DefaultAuthToken implements AuthToken {
     private Entity principal;
     private Object credentials;
 
@@ -12,7 +12,7 @@ public class DefaultAuthToken implements AuthToken{
     private Collection<String> permissions;
 
     public DefaultAuthToken(Entity principal, Object credentials
-            , Collection<String> roles, Collection<String> permissions) {
+        , Collection<String> roles, Collection<String> permissions) {
         this.principal = principal;
         this.credentials = credentials;
         this.roles = roles;

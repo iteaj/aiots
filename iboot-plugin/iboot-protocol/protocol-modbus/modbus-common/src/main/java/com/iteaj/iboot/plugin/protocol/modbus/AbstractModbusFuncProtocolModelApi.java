@@ -67,15 +67,18 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
                 protocol = this.buildWrite10(childSn, start, DataFormat.valueOf(dataFormat), writeValue);
                 break;
             default:
-                throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码["+getCode()+"]");
+                throw new ProtocolInvokeException(getProtocolModel().getCode(), getCode(), "不支持的功能代码[" + getCode() + "]");
         }
 
         return protocol;
     }
 
     protected abstract ModbusCommonProtocol buildWrite05(int device, int start, ModbusCoilStatus status);
+
     protected abstract ModbusCommonProtocol buildWrite06(int device, int start, short value);
+
     protected abstract ModbusCommonProtocol buildWrite0F(int device, int start, byte[] write);
+
     protected abstract ModbusCommonProtocol buildWrite10(int device, int start, DataFormat format, Object value);
 
     private Object getValue(String dataType, String value) {
@@ -89,7 +92,7 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
                 return ByteUtil.hexToByte(value);
             case "string":
                 return value;
-            default: throw new IllegalArgumentException("不支持的值类型["+dataType+"]");
+            default: throw new IllegalArgumentException("不支持的值类型[" + dataType + "]");
         }
     }
 
@@ -103,7 +106,7 @@ public abstract class AbstractModbusFuncProtocolModelApi extends AbstractFuncPro
             result.accept(InvokeResult.fail(e.getMessage(), protocol));
         } catch (Exception e) {
             e.printStackTrace();
-            result.accept(InvokeResult.fail("未知错误["+e.getMessage()+"]", protocol));
+            result.accept(InvokeResult.fail("未知错误[" + e.getMessage() + "]", protocol));
         }
     }
 

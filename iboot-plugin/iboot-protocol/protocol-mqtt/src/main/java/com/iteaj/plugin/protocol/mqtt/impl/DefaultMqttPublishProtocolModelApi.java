@@ -26,7 +26,7 @@ public class DefaultMqttPublishProtocolModelApi extends AbstractFuncProtocolMode
     protected Protocol buildProtocol(ProtocolModelApiInvokeParam arg) {
         IotClient client = FrameworkManager.getClient(arg.getParentDeviceSn(), DefaultMqttMessage.class);
         if(client == null) {
-            throw new ProtocolInvokeException("客户端不存在["+arg.getParentDeviceSn()+"]");
+            throw new ProtocolInvokeException("客户端不存在[" + arg.getParentDeviceSn() + "]");
         }
 
         String topic = arg.getParam().getString("topic");

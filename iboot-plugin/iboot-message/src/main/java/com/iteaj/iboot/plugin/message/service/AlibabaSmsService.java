@@ -23,8 +23,8 @@ public class AlibabaSmsService extends Sms4jMessageService {
     @Override
     protected boolean isSuccess(SmsResponse response) {
         Object data = response.getData();
-        if(data instanceof JSONObject) {
-            return Objects.equals(((JSONObject) data).getStr("Code"), "OK");
+        if(data instanceof JSONObject object) {
+            return Objects.equals(object.getStr("Code"), "OK");
         }
 
         return false;

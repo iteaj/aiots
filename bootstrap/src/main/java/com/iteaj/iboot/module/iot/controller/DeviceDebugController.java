@@ -35,8 +35,8 @@ public class DeviceDebugController extends BaseController {
     private final IProductTypeService productTypeService;
 
     public DeviceDebugController(IDeviceService deviceService
-            , IProductService productService, IModelApiService modelApiService
-            , IProductTypeService productTypeService) {
+        , IProductService productService, IModelApiService modelApiService
+        , IProductTypeService productTypeService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.modelApiService = modelApiService;
@@ -110,17 +110,17 @@ public class DeviceDebugController extends BaseController {
     public Result<DebugDto> detail(Long deviceId) {
         DebugDto debugDto = new DebugDto();
         deviceService.detailById(deviceId)
-            .ifNotPresentThrow("设备不存在").of().ifPresent(item -> {
-                debugDto.setDevice(item);
+                .ifNotPresentThrow("设备不存在").of().ifPresent(item -> {
+            debugDto.setDevice(item);
             productService.debugById(item.getProductId())
-                .ifNotPresentThrow("此设备数据不完整["+item.getName()+"]")
-                .ifPresent(productDto -> {
-                    debugDto.setProduct(productDto);
-                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
-                        productDto.getFuncApis().forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
-                    }
-                    productDto.setAttrs(null);
-                });
+                    .ifNotPresentThrow("此设备数据不完整[" + item.getName() + "]")
+                    .ifPresent(productDto -> {
+                        debugDto.setProduct(productDto);
+                        if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                            productDto.getFuncApis().forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
+                        }
+                        productDto.setAttrs(null);
+                    });
         });
 
         return success(debugDto);

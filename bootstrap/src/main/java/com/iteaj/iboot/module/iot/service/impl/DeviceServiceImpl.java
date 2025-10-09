@@ -52,8 +52,9 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
     private final RealtimeDataService realtimeDataService;
+
     public DeviceServiceImpl(IProductService productService, IotCacheManager iotCacheManager
-            , RealtimeDataService realtimeDataService) {
+        , RealtimeDataService realtimeDataService) {
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
         this.realtimeDataService = realtimeDataService;
@@ -153,9 +154,9 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                     this.getByDeviceSn(entity.getDeviceSn(), productDto.getProtocolCode(), parent.getDeviceSn())
                             .ifPresent(item -> {
                                 if(entity.getId() == null) { // 新增
-                                    throw new ServiceException("网关设备["+parent.getDeviceSn()+"]已包含子设备编号["+ entity.getDeviceSn()+"]");
+                                    throw new ServiceException("网关设备[" + parent.getDeviceSn() + "]已包含子设备编号[" + entity.getDeviceSn() + "]");
                                 } else if(!item.getId().equals(entity.getId())) { // 更新
-                                    throw new ServiceException("网关设备["+parent.getDeviceSn()+"]已包含子设备编号["+ entity.getDeviceSn()+"]");
+                                    throw new ServiceException("网关设备[" + parent.getDeviceSn() + "]已包含子设备编号[" + entity.getDeviceSn() + "]");
                                 }
                             });
                 });
@@ -163,9 +164,9 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                 this.getByDeviceSn(entity.getDeviceSn(), productDto.getProtocolCode(), null)
                         .ifPresent(item -> {
                             if(entity.getId() == null) { // 新增
-                                throw new ServiceException("网络组件["+productDto.getProtocolCode()+"]已包含设备编号["+ entity.getDeviceSn()+"]");
+                                throw new ServiceException("网络组件[" + productDto.getProtocolCode() + "]已包含设备编号[" + entity.getDeviceSn() + "]");
                             } else if(!item.getId().equals(entity.getId())) { // 更新
-                                throw new ServiceException("网络组件["+productDto.getProtocolCode()+"]已包含设备编号["+ entity.getDeviceSn()+"]");
+                                throw new ServiceException("网络组件[" + productDto.getProtocolCode() + "]已包含设备编号[" + entity.getDeviceSn() + "]");
                             }
                         });
 
@@ -174,28 +175,28 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
                 if(deviceType == DeviceType.Gateway) {
                     if(oldStatus != null) { // 属于更新操作
                         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(productDto.getProtocolCode());
-                        if(supplier instanceof ClientProtocolSupplier) {
+                        if(supplier instanceof ClientProtocolSupplier protocolSupplier) {
                             if(oldStatus.getStatus() == DeviceStatus.online) {
                                 // 修改了设备编号
-                                if (!oldStatus.getDeviceSn().equals(entity.getDeviceSn())) {
+                                if(!oldStatus.getDeviceSn().equals(entity.getDeviceSn())) {
                                     throw new ServiceException("请先断开连接");
                                 }
 
                                 // 修改了网关配置
-                                if (oldStatus.getConfig() != null) {
+                                if(oldStatus.getConfig() != null) {
                                     oldStatus.getConfig().forEach((key, value) -> {
                                         Object newValue = entity.getConfig().get(key);
-                                        if (newValue != null) {
-                                            if (value == null) {
+                                        if(newValue != null) {
+                                            if(value == null) {
                                                 throw new ServiceException("请先断开连接");
-                                            } else if (!newValue.equals(value)) {
+                                            } else if(!newValue.equals(value)) {
                                                 throw new ServiceException("请先断开连接");
                                             }
                                         }
                                     });
                                 }
                             } else { // 更新操作直接移除客户端
-                                ((ClientProtocolSupplier) supplier).removeClient(oldStatus.getDeviceSn());
+                                protocolSupplier.removeClient(oldStatus.getDeviceSn());
                             }
                         }
                     }

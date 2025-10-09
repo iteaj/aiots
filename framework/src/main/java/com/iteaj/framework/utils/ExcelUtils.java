@@ -9,8 +9,8 @@ import com.iteaj.framework.exception.ServiceException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
@@ -22,13 +22,17 @@ public final class ExcelUtils {
     public static void exportForXSSF(Collection<?> records, Class<?> entityClass, OutputStream outputStream) throws IOException {
         final ExportParams exportParams = new ExportParams();
         final Workbook sheets = ExcelExportUtil.exportExcel(exportParams, entityClass, records);
-        sheets.write(outputStream); outputStream.flush(); outputStream.flush();
+        sheets.write(outputStream);
+        outputStream.flush();
+        outputStream.flush();
     }
 
     public static void exportForHSSF(Collection<?> records, Class<?> entityClass, OutputStream outputStream) throws IOException {
         final ExportParams exportParams = new ExportParams();
         final Workbook sheets = ExcelExportUtil.exportExcel(exportParams, entityClass, records);
-        sheets.write(outputStream); outputStream.flush(); outputStream.flush();
+        sheets.write(outputStream);
+        outputStream.flush();
+        outputStream.flush();
     }
 
     public static void exportExcel(Collection<?> records, Class<?> entityClass, ExportParams params, OutputStream outputStream) throws IOException {

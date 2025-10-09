@@ -26,6 +26,7 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
     private ZipOutputStream zip;
     private VelocityEngine velocityEngine;
     private LowCodeProperties properties;
+
     public VelocityVueTemplateZipEngine(OutputStream outputStream, LowCodeProperties properties) {
         this.properties = properties;
         this.zip = new ZipOutputStream(outputStream);
@@ -33,7 +34,7 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
 
     @Override
     public VelocityTemplateEngine init(ConfigBuilder configBuilder) {
-        if (null == velocityEngine) {
+        if(null == velocityEngine) {
             Properties p = new Properties();
             p.setProperty(ConstVal.VM_LOAD_PATH_KEY, ConstVal.VM_LOAD_PATH_VALUE);
             p.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, StringPool.EMPTY);
@@ -72,7 +73,7 @@ public class VelocityVueTemplateZipEngine extends VelocityTemplateEngine {
             zip.closeEntry();
         }
 
-        logger.debug("模板:" + templatePath + ";  文件:" + outputFile);
+        logger.debug("模板:{};  文件:{}", templatePath, outputFile);
     }
 
     protected VelocityEngine getVelocityEngine() {

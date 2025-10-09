@@ -38,14 +38,14 @@ public class CollectTaskListenerService implements ApplicationReadyListener {
     private Map<Long, ScheduledFuture> scheduledFutureMap = new ConcurrentHashMap<>();
 
     public CollectTaskListenerService(IBootThreadManger threadManger, IotCacheManager cacheManager
-            , StoreActionFactory storeActionFactory, ICollectTaskService collectTaskService) {
+        , StoreActionFactory storeActionFactory, ICollectTaskService collectTaskService) {
         this.threadManger = threadManger;
         this.cacheManager = cacheManager;
         this.storeActionFactory = storeActionFactory;
         this.collectTaskService = collectTaskService;
     }
 
-    public void statusSwitch(Long id, String status) throws CollectException{
+    public void statusSwitch(Long id, String status) throws CollectException {
 
         if(status.equals("run")) {
             CollectTaskDto taskDto = collectTaskService.collectDetailById(id);
@@ -60,8 +60,8 @@ public class CollectTaskListenerService implements ApplicationReadyListener {
 
             ScheduledFuture future = scheduledFutureMap.get(id);
             Object result = validateTask(taskDto);// 校验采集任务
-            if(result instanceof String) { // 任务校验失败
-                throw new CollectException((String) result);
+            if(result instanceof String string) { // 任务校验失败
+                throw new CollectException(string);
             }
 
             if(future == null) {
@@ -70,13 +70,13 @@ public class CollectTaskListenerService implements ApplicationReadyListener {
                 scheduledFutureMap.remove(id);
                 createScheduledTask(taskDto);
             }
-        } else if(status.equals("stop")){
+        } else if(status.equals("stop")) {
             ScheduledFuture future = scheduledFutureMap.remove(id);
             if(future != null && !future.isCancelled()) {
                 future.cancel(true);
             }
         } else {
-            throw new IllegalArgumentException("不支持的状态["+status+"]");
+            throw new IllegalArgumentException("不支持的状态[" + status + "]");
         }
 
         collectTaskService.update(Wrappers.<CollectTask>lambdaUpdate()
@@ -105,7 +105,7 @@ public class CollectTaskListenerService implements ApplicationReadyListener {
                 String reason = null;
 
                 if(CollectionUtils.isEmpty(item.getDevices())) {
-                    reason = "任务详情["+item.getPointGroupName()+"]没有绑定任何设备";
+                    reason = "任务详情[" + item.getPointGroupName() + "]没有绑定任何设备";
                 }
 
                 if(reason != null) {
@@ -119,7 +119,7 @@ public class CollectTaskListenerService implements ApplicationReadyListener {
                 }
             });
         } catch (CollectException e) {
-            logger.error("校验任务失败 {} - 任务:{}", e.getMessage(), taskDto.getName());
+            logger.error("校验任务失败 {} - 任务:{}", e.getMessage(), taskDto.getName(), e);
             return e.getMessage();
         } catch (Exception e) {
             logger.error("校验任务失败 {} - 任务:{}", e.getMessage(), taskDto.getName(), e);

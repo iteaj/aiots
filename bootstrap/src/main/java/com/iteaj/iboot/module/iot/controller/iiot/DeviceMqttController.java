@@ -34,7 +34,7 @@ public class DeviceMqttController extends BaseController {
     private final IProductService productService;
 
     public DeviceMqttController(IDeviceService deviceService
-            , IProductService productService) {
+        , IProductService productService) {
         this.deviceService = deviceService;
         this.productService = productService;
     }
@@ -76,10 +76,10 @@ public class DeviceMqttController extends BaseController {
                     Device device = this.deviceService.getOne(Wrappers.<Device>lambdaQuery()
                             .eq(Device::getProductId, entity.getProductId())
                             .orderByDesc(Device::getDeviceSn).last("limit 1")).getData();
-                    if (device != null) {
+                    if(device != null) {
                         String[] number = device.getDeviceSn().split("_");
                         Integer idValue = Integer.valueOf(number[number.length - 1]);
-                        deviceSn = String.format("gwd_mqtt_%d_%04d", entity.getProductId(), (idValue + 1));
+                        deviceSn = "gwd_mqtt_%d_%04d".formatted(entity.getProductId(), (idValue + 1));
                     } else {
                         deviceSn = "gwd_mqtt_" + entity.getProductId() + "_0001";
                     }

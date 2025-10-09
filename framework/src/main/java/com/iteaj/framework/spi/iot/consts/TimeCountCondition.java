@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
-public class TimeCountCondition extends BaseCondition{
+public class TimeCountCondition extends BaseCondition {
 
     /**
      * 计算类型
@@ -41,7 +41,7 @@ public class TimeCountCondition extends BaseCondition{
         if(CollectionUtil.isNotEmpty(resolverValue)) {
             resolverValue.forEach(meta -> {
                 TimeCountSqlCondition condition = new TimeCountSqlCondition(this.getTimeType()
-                        , this.calcType, resolver.getStartTime(), resolver.getEndTime());
+                , this.calcType, resolver.getStartTime(), resolver.getEndTime());
                 if(meta.getType().equals("D")) {
                     conditions.add(condition.buildDevice(meta.getValue(), meta.getFields()));
                 } else if(meta.getType().equals("P")) {
@@ -78,7 +78,7 @@ public class TimeCountCondition extends BaseCondition{
                     } else {
                         Map<String, BaseEchartsCount> timeCountMap = baseEchartsCounts.stream()
                                 .collect(Collectors.toMap(item1 -> item1.getCategory(), item1 -> item1));
-                        for (int i = 0; i <timeEmptyValue.size(); i++) {
+                        for (int i = 0; i < timeEmptyValue.size(); i++) {
                             BaseEchartsCount emptyTimeCount = timeEmptyValue.get(i);
                             if(!timeCountMap.containsKey(emptyTimeCount.getCategory())) {
                                 baseEchartsCounts.add(i, emptyTimeCount);
@@ -90,7 +90,7 @@ public class TimeCountCondition extends BaseCondition{
             } else {
                 Map<String, BaseEchartsCount> timeCountMap = counts.stream()
                         .collect(Collectors.toMap(item -> item.getCategory(), item -> item));
-                for (int i = 0; i <timeEmptyValue.size(); i++) {
+                for (int i = 0; i < timeEmptyValue.size(); i++) {
                     BaseEchartsCount emptyTimeCount = timeEmptyValue.get(i);
                     if(!timeCountMap.containsKey(emptyTimeCount.getCategory())) {
                         counts.add(i, emptyTimeCount);
@@ -115,7 +115,7 @@ public class TimeCountCondition extends BaseCondition{
         private String endTimestamp;
 
         public TimeCountSqlCondition(String uid, List<String> fields, TimeCountType timeType
-                , CountCalcType calcType, String startTimestamp, String endTimestamp) {
+        , CountCalcType calcType, String startTimestamp, String endTimestamp) {
             this.uid = uid;
             this.fields = fields;
             this.timeType = timeType.name();

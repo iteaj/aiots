@@ -70,7 +70,7 @@ public class DesignTableInfo extends TableInfo {
         if(CollectionUtils.isEmpty(dtoFields)) {
             return "";
         }
-        return ", " + dtoFields.stream().map(item -> item.getAlias() + "." + item.getColumnName() +" " +
+        return ", " + dtoFields.stream().map(item -> item.getAlias() + "." + item.getColumnName() + " " +
                 item.getPropertyName()).collect(Collectors.joining(", "));
     }
 }

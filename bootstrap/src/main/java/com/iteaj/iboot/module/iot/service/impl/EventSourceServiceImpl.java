@@ -54,7 +54,7 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
     public BooleanResult save(EventSource entity) {
         this.getOne(Wrappers.<EventSource>lambdaQuery()
                 .eq(EventSource::getName, entity.getName()))
-                .ifPresentThrow("名称已存在["+entity.getName()+"]");
+                .ifPresentThrow("名称已存在[" + entity.getName() + "]");
         entity.setCreateTime(new Date());
         return super.save(entity);
     }
@@ -65,7 +65,7 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
         this.getOne(Wrappers.<EventSource>lambdaQuery()
                 .ne(EventSource::getId, entity.getId())
                 .eq(EventSource::getName, entity.getName()))
-                .ifPresentThrow("名称已存在["+entity.getName()+"]");
+                .ifPresentThrow("名称已存在[" + entity.getName() + "]");
 
         return super.updateById(entity);
     }
@@ -109,9 +109,9 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
     @Override
     public BooleanResult removeAllByIds(List<Long> idList) {
         this.listByIds(idList).forEach(item -> {
-           if(item.getStatus() == FuncStatus.enabled) {
-               throw new ServiceException("请先停用事件源["+item.getName()+"]");
-           }
+            if(item.getStatus() == FuncStatus.enabled) {
+                throw new ServiceException("请先停用事件源[" + item.getName() + "]");
+            }
         });
 
         int result = this.getBaseMapper().removeAllByIds(idList);

@@ -54,7 +54,7 @@ public class UpModelAttr {
     private String path;
 
     public UpModelAttr(Long id, String field, String name, DataType dataType
-            , Integer accuracy, Integer gain, String resolver, String script, String path) {
+        , Integer accuracy, Integer gain, String resolver, String script, String path) {
         this.id = id;
         this.field = field;
         this.name = name;

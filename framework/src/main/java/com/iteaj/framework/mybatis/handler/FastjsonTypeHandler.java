@@ -9,13 +9,18 @@ import org.apache.ibatis.type.MappedTypes;
 @MappedTypes({JSONObject.class, JSONArray.class})
 public class FastjsonTypeHandler extends AbstractJsonTypeHandler<JSON> {
 
+    //  必须有这个构造方法
+    public FastjsonTypeHandler(Class<?> type) {
+        super(type);
+    }
+
     @Override
-    protected JSON parse(String json) {
+    public JSON parse(String json) {
         return (JSON) JSON.parse(json);
     }
 
     @Override
-    protected String toJson(JSON obj) {
+    public String toJson(JSON obj) {
         return obj.toJSONString();
     }
 }

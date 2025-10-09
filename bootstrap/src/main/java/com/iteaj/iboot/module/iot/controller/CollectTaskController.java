@@ -33,8 +33,9 @@ public class CollectTaskController extends BaseController {
     private final CollectTaskListenerService collectTaskListenerService;
     private final ICollectTaskService collectTaskService;
     private final StoreActionFactory storeActionFactory;
+
     public CollectTaskController(@Autowired(required = false) CollectTaskListenerService collectTaskListenerService
-            , ICollectTaskService collectTaskService, StoreActionFactory storeActionFactory) {
+        , ICollectTaskService collectTaskService, StoreActionFactory storeActionFactory) {
         this.collectTaskListenerService = collectTaskListenerService;
         this.collectTaskService = collectTaskService;
         this.storeActionFactory = storeActionFactory;

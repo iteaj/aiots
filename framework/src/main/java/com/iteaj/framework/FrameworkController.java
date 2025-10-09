@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/core/framework")
-public class FrameworkController extends BaseController{
+public class FrameworkController extends BaseController {
 
     /**
      * 日志过滤列表

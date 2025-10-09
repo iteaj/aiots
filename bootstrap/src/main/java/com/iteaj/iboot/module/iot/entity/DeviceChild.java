@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,6 +25,7 @@ import lombok.experimental.Accessors;
 @TableName("iot_device_child")
 public class DeviceChild extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

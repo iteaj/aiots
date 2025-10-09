@@ -19,8 +19,10 @@ public class DemoJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap args = jobExecutionContext.getMergedJobDataMap();
-//        jobExecutionContex
-        logger.info("测试Job执行, 参数: demo={}, author={}", args.get("demo"), args.get("author"));
+        if(logger.isInfoEnabled()) {
+//        jobExecutionContex
+            logger.info("测试Job执行, 参数: demo={}, author={}", args.get("demo"), args.get("author"));
+        }
     }
 
     public String test(JobExecutionContext context, String name, int k) {

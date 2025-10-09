@@ -55,7 +55,7 @@ public interface ProtocolModel {
 
     /**
      * 协议模型接口
-     * @see java.util.LinkedHashMap<String,  AbstractProtocolModelApi >
+     * @see java.util.LinkedHashMap<String, AbstractProtocolModelApi>
      * @see AbstractProtocolModelApi#getCode() key
      * @return
      */

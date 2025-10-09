@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @author iteaj
  * @since 1.0
  */
-public class SysResourceManager implements ResourceManager{
+public class SysResourceManager implements ResourceManager {
 
     @Autowired
     private IMenuService menuService;
@@ -53,7 +53,7 @@ public class SysResourceManager implements ResourceManager{
 
         Collection<Menu> menus = TreeUtils.toTrees(listResult.getData(), 0l);
 
-        return menus.stream().map(item -> (MenuResource)item)
+        return menus.stream().map(item -> (MenuResource) item)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 }

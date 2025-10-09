@@ -38,7 +38,7 @@ public class LocalUploadService implements UploadService, InitializingBean {
     @Override
     public UploadResult upload(InputStream stream, String originalFilename, String fileName, String subPath) throws FileException {
         try {
-            fileName = StrUtil.isNotBlank(fileName) ? fileName :  UUID.randomUUID().toString();
+            fileName = StrUtil.isNotBlank(fileName) ? fileName : UUID.randomUUID().toString();
             String filePath = genFilePath(originalFilename, fileName, subPath);
 
             File file = new File(rootDir, filePath);
@@ -80,7 +80,7 @@ public class LocalUploadService implements UploadService, InitializingBean {
                     : uploadRootDir.split("classpath:")[1];
 
             if(uploadRootDir.endsWith(File.separator)) {
-                uploadRootDir = uploadRootDir.substring(0, uploadRootDir.length()-1);
+                uploadRootDir = uploadRootDir.substring(0, uploadRootDir.length() - 1);
             }
 
             this.rootDir = new File(uploadRootDir);
@@ -89,7 +89,7 @@ public class LocalUploadService implements UploadService, InitializingBean {
             }
 
             if(!this.rootDir.isDirectory()) {
-                throw new ServiceException("文件的上传根路径必须是目录："+uploadRootDir);
+                throw new ServiceException("文件的上传根路径必须是目录：" + uploadRootDir);
             }
         }
         String uploadRootUri = upload.getPattern();
@@ -99,7 +99,7 @@ public class LocalUploadService implements UploadService, InitializingBean {
             }
 
             if(uploadRootUri.endsWith("/")) {
-                uploadRootUri = uploadRootUri.substring(0, uploadRootUri.length()-1);
+                uploadRootUri = uploadRootUri.substring(0, uploadRootUri.length() - 1);
             }
 
             this.uploadRootUri = uploadRootUri;

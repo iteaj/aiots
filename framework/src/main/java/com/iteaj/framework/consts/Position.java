@@ -1,7 +1,7 @@
 package com.iteaj.framework.consts;
 
 /**
- * jdk：1.8
+ * jdk：17
  *  功能点放置位置
  * @author iteaj
  * create time：2019/5/25

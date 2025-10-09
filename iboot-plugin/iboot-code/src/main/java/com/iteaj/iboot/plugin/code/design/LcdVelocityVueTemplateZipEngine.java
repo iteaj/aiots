@@ -23,6 +23,7 @@ public class LcdVelocityVueTemplateZipEngine extends AbstractLcdTemplateEngine {
     private ZipOutputStream zip;
     private VelocityEngine velocityEngine;
     private LowCodeProperties properties;
+
     public LcdVelocityVueTemplateZipEngine(OutputStream outputStream, LowCodeProperties properties) {
         this.properties = properties;
         this.zip = new ZipOutputStream(outputStream);
@@ -30,7 +31,7 @@ public class LcdVelocityVueTemplateZipEngine extends AbstractLcdTemplateEngine {
 
     @Override
     public AbstractLcdTemplateEngine init(DesignConfigBuilder configBuilder) {
-        if (null == velocityEngine) {
+        if(null == velocityEngine) {
             Properties p = new Properties();
             p.setProperty(ConstVal.VM_LOAD_PATH_KEY, ConstVal.VM_LOAD_PATH_VALUE);
             p.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, StringPool.EMPTY);
@@ -69,7 +70,7 @@ public class LcdVelocityVueTemplateZipEngine extends AbstractLcdTemplateEngine {
             zip.closeEntry();
         }
 
-        logger.debug("模板:" + templatePath + ";  文件:" + outputFile);
+        logger.debug("模板:{};  文件:{}", templatePath, outputFile);
     }
 
     @Override

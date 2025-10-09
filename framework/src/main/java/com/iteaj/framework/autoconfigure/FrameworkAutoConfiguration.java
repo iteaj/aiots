@@ -57,11 +57,12 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
         return builder.build();
     }
 
-    @Bean
-    @Lazy
-    public ThreadPoolTaskExecutor taskExecutor(TaskExecutorBuilder builder) {
-        return builder.build();
-    }
+    // todo 和boot3 bean  冲突
+//    @Bean
+//    @Lazy
+//    public ThreadPoolTaskExecutor taskExecutor(TaskExecutorBuilder builder) {
+//        return builder.build();
+//    }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {

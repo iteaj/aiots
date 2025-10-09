@@ -27,9 +27,9 @@ public class DefaultResolver implements DataValueResolver {
         DataType dataType = attr.getDataType();
         try {
             if(value instanceof Number) {
-                if(value instanceof Long) {
+                if(value instanceof Long long1) {
                     if(dataType == DataType.t_datetime) {
-                        return new Date((Long) value);
+                        return new Date(long1);
                     }
                 }
 
@@ -45,7 +45,7 @@ public class DefaultResolver implements DataValueResolver {
             }
         } catch (Exception e) {
             logger.error("解析数据格式异常({}) 解析器: {} - 属性: {} - 值: {}", dataType
-                    , attr.getResolver(), attr.getField(), value, e);
+            , attr.getResolver(), attr.getField(), value, e);
         }
         return value;
     }

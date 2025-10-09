@@ -11,7 +11,8 @@ public class SpringUtils implements ApplicationContextAware {
     private static SpringUtils instance = new SpringUtils();
     private static ConfigurableApplicationContext applicationContext;
 
-    protected SpringUtils() { }
+    protected SpringUtils() {
+    }
 
     public static SpringUtils getInstance() {
         return instance;

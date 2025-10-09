@@ -22,7 +22,7 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -125,6 +125,6 @@ public class ShiroAdminRealm extends AuthorizingRealm {
     @Override
     public boolean hasRole(PrincipalCollection principal, String roleIdentifier) {
         return SecurityUtil.isSuper() ||
-            super.hasRole(principal, roleIdentifier);
+                super.hasRole(principal, roleIdentifier);
     }
 }

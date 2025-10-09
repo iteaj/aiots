@@ -20,7 +20,8 @@ public interface DebugHandle<P extends DebugModel> {
     default DebugRequestModel<P> parse(String model) {
         Class<P> typeArgument = (Class<P>) GenericTypeResolver
                 .resolveTypeArguments(getClass(), DebugHandle.class)[0];
-        return JSON.parseObject(model, new TypeReference<DebugRequestModel<P>>(typeArgument){});
+        return JSON.parseObject(model, new TypeReference<DebugRequestModel<P>>(typeArgument){
+        });
     }
 
     /**

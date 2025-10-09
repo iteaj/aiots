@@ -61,7 +61,8 @@ public class IVOption {
      */
     private Map<String, Object> config;
 
-    public IVOption() {}
+    public IVOption() {
+    }
 
     public IVOption(String label, Object value) {
         this(label, value, null);
@@ -87,7 +88,8 @@ public class IVOption {
             children = new ArrayList<>();
         }
 
-        children.add(child); return this;
+        children.add(child);
+        return this;
     }
 
     /**
@@ -163,7 +165,7 @@ public class IVOption {
 
     @Override
     public boolean equals(Object o) {
-        return Objects.equals(this.getValue(), ((IVOption)o).getValue());
+        return Objects.equals(this.getValue(), ((IVOption) o).getValue());
     }
 
 }
