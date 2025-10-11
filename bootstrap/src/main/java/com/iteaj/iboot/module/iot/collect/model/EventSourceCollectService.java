@@ -19,6 +19,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
@@ -91,15 +92,17 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
         if ("millisecond".equals(source.getPeriodType())) {
             // 毫秒级采集
+
+            // spring6.0 弃用 scheduleAtFixedRate /scheduleWithFixedDelay  以long 表示时间间隔的方法，改成java.time.Duration
             if (source.getRateType()==1) {
                 scheduledFuture = scheduler.scheduleAtFixedRate(
                         new EventSourceTask(scheduler, source, cacheManager),
-                        source.getPeriodMs()
+                        Duration.ofMillis(source.getPeriodMs())
                 );
             } else {
                 scheduledFuture = scheduler.scheduleWithFixedDelay(
                         new EventSourceTask(scheduler, source, cacheManager),
-                        source.getPeriodMs()
+                        Duration.ofMillis(source.getPeriodMs())
                 );
             }
         } else {
