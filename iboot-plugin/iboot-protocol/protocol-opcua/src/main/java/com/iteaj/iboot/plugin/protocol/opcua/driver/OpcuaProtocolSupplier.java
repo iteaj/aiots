@@ -4,10 +4,7 @@ import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.*;
-import com.iteaj.iboot.plugin.protocol.opcua.network.OpcuaClientConfig;
-import com.iteaj.iboot.plugin.protocol.opcua.network.OpcuaClientWrapper;
-import com.iteaj.iboot.plugin.protocol.opcua.network.OpcuaComponent;
-import com.iteaj.iboot.plugin.protocol.opcua.network.OpcuaProtocol;
+import com.iteaj.iboot.plugin.protocol.opcua.network.*;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.ClientConnectProperties;
 import lombok.Getter;
@@ -107,6 +104,16 @@ public class OpcuaProtocolSupplier extends StaticClientProtocolSupplier<OpcuaPro
 
     @Override
     public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {
+        if(protocol instanceof OpcuaVariableProtocol) {
+            OpcuaProtocol.OpcuaProtocolType protocolType = protocol.protocolType();
+            if(protocolType == OpcuaProtocol.OpcuaProtocolType.READ
+                    || protocolType == OpcuaProtocol.OpcuaProtocolType.READ_OBJECT) {
+                UpModelAttr upModelAttr = param.listUpAttrs().get(0);
+                return new DataSupplier(protocolType.name(), param.buildKey())
+                        .addValue(upModelAttr.getId(), upModelAttr.getField(), value);
+            }
+        }
+
         return null;
     }
 

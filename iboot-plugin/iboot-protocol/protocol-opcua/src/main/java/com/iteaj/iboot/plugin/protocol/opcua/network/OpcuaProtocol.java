@@ -2,6 +2,7 @@ package com.iteaj.iboot.plugin.protocol.opcua.network;
 
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.iot.FrameworkManager;
+import com.iteaj.iot.Message;
 import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.ProtocolType;
 import com.iteaj.iot.client.*;
@@ -32,14 +33,16 @@ public abstract class OpcuaProtocol extends ClientInitiativeProtocol<OpcuaMessag
      */
     private ProtocolType protocolType;
 
+    private static OpcuaMessage message = new OpcuaMessage(Message.EMPTY);
+
     protected OpcuaProtocol(String address, ProtocolType protocolType) {
-        this.address = address;
-        this.protocolType = protocolType;
+        this(address, null, protocolType);
     }
 
     protected OpcuaProtocol(String address, Object value, ProtocolType protocolType) {
         this.value = value;
         this.address = address;
+        this.requestMessage = message;
         this.protocolType = protocolType;
     }
 
