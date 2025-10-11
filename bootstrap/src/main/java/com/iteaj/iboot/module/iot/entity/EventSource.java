@@ -38,10 +38,27 @@ public class EventSource extends BaseEntity {
      */
     private EventSourceType type;
 
+
+    /**
+     * 采集类型
+     */
+
+    private String  periodType;
+
     /**
      * 采集周期
      */
     private String cron;
+
+    /**
+     * 采集周期 毫秒
+     */
+    private Long periodMs;
+
+    /**
+     * 控制使用固定速率还是固定延迟     true 固定速率  false 固定延迟
+     */
+    private int rateType;
 
     /**
      * 事件名称
@@ -97,4 +114,5 @@ public class EventSource extends BaseEntity {
      */
     @TableField(exist = false)
     private List<String> modelApiIds;
+
 }
