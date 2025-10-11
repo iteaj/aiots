@@ -1,63 +1,33 @@
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1435, '新增', 1403, 20, '#', 'iot', 'A', 'enabled', 'iot:device:gateway:add', '#', '', '2024-06-10 15:18:47', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1436, '修改', 1403, 30, '#', 'iot', 'A', 'enabled', 'iot:device:gateway:edit', '#', '', '2024-06-10 15:19:09', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1437, '删除', 1403, 40, '#', 'iot', 'A', 'enabled', 'iot:device:gateway:del', '#', '', '2024-06-10 15:19:28', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1438, '连接', 1403, 50, '#', 'iot', 'A', 'enabled', 'iot:device:gateway:connect', '#', '', '2024-06-10 00:00:00', '2024-06-10 15:19:54');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1439, '子设备', 1403, 60, '#', 'iot', 'A', 'enabled', 'iot:device:gateway:child', '#', '', '2024-06-10 15:21:18', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1440, 'Modbus网关设备', 1468, 15, '/iot/modbus', 'iot', 'V', 'enabled', 'iot:modbus:view', 'iz-icon-modbus', '', '2024-06-12 00:00:00', '2024-06-13 16:30:53');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1441, 'DTU网关设备', 1468, 8, '/iot/dtu', 'iot', 'V', 'enabled', 'iot:modbus:dtu', 'iz-icon-dtu', '', '2024-06-12 00:00:00', '2024-06-13 16:30:29');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1442, '浏览', 1441, 10, '#', 'iot', 'A', 'enabled', 'iot:dtu:view', '#', '', '2024-06-12 09:21:59', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1443, '新增', 1441, 20, '#', 'iot', 'A', 'enabled', 'iot:dtu:add', '#', '', '2024-06-12 00:00:00', '2024-06-12 09:22:54');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1444, '修改', 1441, 30, '#', 'iot', 'A', 'enabled', 'iot:dtu:edit', '#', '', '2024-06-12 09:23:13', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1445, '删除', 1441, 40, '#', 'iot', 'A', 'enabled', 'iot:dtu:del', '', '', '2024-06-12 09:23:35', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1446, '子设备', 1441, 50, '#', 'iot', 'A', 'enabled', 'iot:dtu:child', '#', '', '2024-06-12 09:23:57', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1447, '浏览', 1440, 10, '#', 'iot', 'A', 'enabled', 'iot:modbus:view', '#', '', '2024-06-12 00:00:00', '2024-06-12 09:27:40');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1448, '新增', 1440, 20, '#', 'iot', 'A', 'enabled', 'iot:modbus:add', '#', '', '2024-06-12 00:00:00', '2024-06-12 09:27:46');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1449, '修改', 1440, 30, '#', 'iot', 'A', 'enabled', 'iot:modbus:edit', '#', '', '2024-06-12 00:00:00', '2024-06-12 09:27:52');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1450, '删除', 1440, 40, '#', 'iot', 'A', 'enabled', 'iot:modbus:del', '#', '', '2024-06-12 00:00:00', '2024-06-12 09:27:58');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1451, '子设备', 1440, 50, '#', 'iot', 'A', 'enabled', 'iot:modbus:child', '#', '', '2024-06-12 09:27:28', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1452, '连接', 1440, 40, '#', 'iot', 'A', 'enabled', 'iot:modbus:connect', '#', '', '2024-06-12 09:28:23', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1453, 'Mqtt网关设备', 1468, 12, '/iot/mqtt', 'iot', 'V', 'enabled', 'iot:mqtt:view', 'iz-icon-mqtt', '', '2024-06-12 00:00:00', '2024-06-13 16:30:46');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1454, 'PLC网关设备', 1468, 9, '/iot/plc', 'iot', 'V', 'enabled', 'iot:plc:view', 'iz-icon-plc', '', '2024-06-12 00:00:00', '2024-06-13 16:30:38');
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1455, '浏览', 1454, 10, '#', 'iot', 'A', 'enabled', 'iot:plc:view', '#', '', '2024-06-12 11:07:38', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1456, '新增', 1454, 20, '#', 'iot', 'A', 'enabled', 'iot:plc:add', '#', '', '2024-06-12 11:07:53', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1457, '修改', 1454, 30, '#', 'iot', 'A', 'enabled', 'iot:plc:edit', '#', '', '2024-06-12 11:13:19', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1458, '删除', 1454, 40, '#', 'iot', 'A', 'enabled', 'iot:plc:del', '#', '', '2024-06-12 11:13:34', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1459, '子设备', 1454, 50, '#', 'iot', 'A', 'enabled', 'iot:plc:child', '#', '', '2024-06-12 11:13:51', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1460, '连接', 1454, 60, '#', 'iot', 'A', 'enabled', 'iot:plc:connect', '#', '', '2024-06-12 11:14:13', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1461, '浏览', 1453, 10, '#', 'iot', 'A', 'enabled', 'iot:mqtt:view', '#', '', '2024-06-12 11:07:38', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1462, '新增', 1453, 20, '#', 'iot', 'A', 'enabled', 'iot:mqtt:add', '#', '', '2024-06-12 11:07:53', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1463, '修改', 1453, 30, '#', 'iot', 'A', 'enabled', 'iot:mqtt:edit', '#', '', '2024-06-12 11:13:19', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1464, '删除', 1453, 40, '#', 'iot', 'A', 'enabled', 'iot:mqtt:del', '#', '', '2024-06-12 11:13:34', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1465, '子设备', 1453, 50, '#', 'iot', 'A', 'enabled', 'iot:mqtt:child', '#', '', '2024-06-12 11:13:51', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1466, '连接', 1453, 60, '#', 'iot', 'A', 'enabled', 'iot:mqtt:connect', '#', '', '2024-06-12 11:14:13', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1467, '浏览', 1403, 10, '#', 'iot', 'A', 'enabled', 'iot:device:gateway:view', '#', '', '2024-06-10 15:18:25', null);
-INSERT INTO sys_menu (id, name, pid, sort, url, msn, type, status, perms, icon, remark, create_time, update_time) VALUES (1468, '工业网关设备', 1402, 88, '#', 'iot', 'M', 'enabled', null, 'iz-icon-iiot', '', '2024-06-13 00:00:00', '2024-06-13 16:40:39');
+# 2025-5-27
+INSERT INTO `sys_menu` VALUES (1480,'产品数据',1421,88,'/iot/collectData/product','iot','V','enabled','iot:collectData:product','iz-icon-container-default','','_self','2025-05-26 00:00:00',NULL);
 
--- 2024-07-05
-alter table sys_menu modify type enum('A', 'M', 'V', 'G') not null comment '菜单类型: A.权限、M.菜单、V.视图、G.分组';
+# 2025-06-04
+create table isv_project (
+    id char(36),
+    project_name varchar(64) null comment '项目名称',
+    state int null comment '状态',
+    index_image varchar(256) null comment '项目封面',
+    remarks varchar(256) null comment '项目说明',
+    is_delete int null comment '是否删除',
+    content json null comment '项目内容',
+    create_time datetime default now() not null comment '创建时间',
+    constraint isv_project_pk primary key (id)
+) comment '大屏项目';
 
--- 2024-07-12
-alter table sys_menu
-    add target char(16) default '_self' null comment '打开方式' after remark;
+alter table iot_collect_data
+    add product_code varchar(64) null comment '产品编码';
 
--- 2024-07-16
-create table sys_message_template
-(
-    id             bigint auto_increment
-        primary key,
-    type           char(16)                           not null comment '消息类型',
-    template_id    varchar(64)                        null comment '短信模板id',
-    template_name  varchar(64)                        null comment '消息模板名称',
-    template_title varchar(128)                       null comment '模板标题',
-    accepts        json                               null comment '接收人列表',
-    content        varchar(1024)                      null comment '发送内容',
-    remark         varchar(512)                       null comment '备注',
-    create_time    datetime default CURRENT_TIMESTAMP not null
-)
-    comment '消息模板';
+alter table iot_collect_data
+    add protocol_code varchar(64) null comment '协议编码';
 
-create index sys_message_template_template_id_index
-    on sys_message_template (template_id);
+alter table iot_collect_data
+    add device_group_id bigint null comment '所属组';
 
-create index sys_message_template_type_index
-    on sys_message_template (type);
+create index iot_collect_data_device_group_id_index
+    on iot_collect_data (device_group_id);
+
+create index iot_collect_data_protocol_code_index
+    on iot_collect_data (protocol_code);
+
+create index iot_collect_data_product_code_index
+    on iot_collect_data (product_code);

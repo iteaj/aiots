@@ -1,27 +1,38 @@
 ### iboot(物联网网关)
-iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc(欧姆龙、西门子)
-- [演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://iot.iteaj.com/#/login)
+iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc、dlt645-2007、opcua，实现的plc包括西门子、欧姆龙、三菱、松下、汇川、罗克韦尔
+- [开发文档](http://doc.iteaj.com)
 - [项目前端仓库(vue3+antdv3+vite2)](https://gitee.com/iteaj/ivzone)
+- [演示地址(支持DTU、PLC、MODBUS、串口等调试)](http://iot.iteaj.com/#/login)
 ### 加入社区
+> 加群申请请备注: iot
+
 QQ3群 - 272518000 <br>
 QQ2群 - 616124620 (已满)<br>
 QQ1群 - 552167793 (已满)<br>
 ### 商务合作(qq号：97235681)
 ### 视频教程
-[Iboot序列教程之Mqtt篇](https://www.bilibili.com/video/BV1k9t5e3EtK/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
-### 未来功能规划
-1. 接入[乐吾乐大屏](https://le5le.com/)，支持组态、3D、大屏在线设计(开发中)
+1. [Iboot系统简介](https://www.bilibili.com/video/BV15NtieWE9W/?vd_source=32a176fca70a1cee8222bff9ac0846ab)<br>
+2. [Iboot设备类型介绍](https://www.bilibili.com/video/BV13kx7ebEYM/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
+2. [Iboot序列教程之Mqtt篇](https://www.bilibili.com/video/BV1k9t5e3EtK/?vd_source=32a176fca70a1cee8222bff9ac0846ab)<br>
+3. [Iboot序列教程之Modbus篇](https://www.bilibili.com/video/BV1dgtQeNEyP/?vd_source=32a176fca70a1cee8222bff9ac0846ab) 
+### 已实现的协议驱动
+| 协议 | 实现方式 | 开源 |其他| 说明 |
+|----|--------|-----|-------|------------|
+|  Mqtt  |   系统内置   |   是   |-|  支持设备、第三方业务和iboot系统的双向数据对接  |
+|  DTU+Modbus Tcp  |   系统内置   |   是   |-|  支持设备以modbus tcp协议对接并通过dtu连接iboot云网关  |
+|  DTU+Modbus Rtu  |   系统内置   |   是   |-|  支持设备通过485和dtu串口以modbus rtu协议对接上传到iboot云网关  |
+|  Modbus Tcp  |   系统内置   |   是   |-|  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
+|  Modbus Rtu  |   系统内置   |   是   |-|  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
+|  Opc Ua  |   系统内置   |   否   |-|  支持iboot网关(上位机)以opcua服务器对接采集和控制设备  |
+|  dlt645-2007  |   系统内置   |   否   |-|  支持以内网以串口或者云服务器以dtu方式采集电表数据  |
+|  西门子S7  |   系统内置   |   否   |-|  支持西门子S7协议的序列PLC  |
+|  欧姆龙  |   系统内置   |   否   |-|  支持欧姆龙Fins协议的序列PLC  |
+|  三菱  |   系统内置   |   否   |-|  支持三菱A1E和Qna-3E协议的序列PLC  |
+|  汇川  |   系统内置   |   否   |-|  以Modbus Tcp方式实现  |
+|  松下  |   系统内置   |   否   |-|  松下PLC  |
+|  罗克韦尔  |   系统内置   |   否   |-|  以CIP协议实现，适用1756，1769等型号  |
 ### 平台架构图
 ![平台架构](https://iot.iteaj.com/show/IBoot网络架构图.jpg)
-### 目前支持哪些协议
-| 协议 | 实现方式 | 是否开源 | 其他 | 说明 |
-|----|------|------|------|----|
-|  Mqtt  |   系统内置   |   是   |   -   |  支持设备、第三方业务和iboot系统的双向数据对接  |
-|  DTU+Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备以modbus tcp协议对接并通过dtu连接iboot云网关  |
-|  DTU+Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过485和dtu串口以modbus rtu协议对接上传到iboot云网关  |
-|  Modbus Tcp  |   系统内置   |   是   |   -   |  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
-|  Modbus Rtu  |   系统内置   |   是   |   -   |  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
-|  Opc Ua  |   开发中   |   否   |   待定   |  支持iboot网关(上位机)以opcua服务器对接采集和控制设备  |
 ### 项目介绍
 1. ##### 这个项目能用来做什么<br>
       iboot是一款通用的物联网关平台，用来连接业务系统和物联网设备的网关；对南向主要用于采集和控制设备对北向主要是提供接口给第三方业务平台操作设备，使得对物联网不熟的个人开发者或者公司可以更加关注业务需求，将设备相关部分交由iboot物联网关

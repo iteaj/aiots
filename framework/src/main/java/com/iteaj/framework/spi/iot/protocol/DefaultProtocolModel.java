@@ -65,7 +65,11 @@ public class DefaultProtocolModel implements ProtocolModel{
 
     @Override
     public String getRemark() {
-        return null;
+        return this.remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public void setCode(String code) {

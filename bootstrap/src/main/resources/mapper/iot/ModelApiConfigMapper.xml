@@ -47,7 +47,7 @@
     <select id="listUpByApiCode" resultMap="JoinModelAttrDictMap">
         select a.*, pa.attr_type func_type, pa.accuracy, pa.script, pa.gain, pa.resolver, ad.model_attr_id ad_model_attr_id, ad.dict_name ad_dict_name, ad.dict_value ad_dict_value
              , jpa.field ad_attr_field, jpa.data_type ad_data_type, jpa.accuracy ad_accuracy, jpa.gain ad_gain, jpa.resolver ad_resolver
-             , jpa.script ad_script from iot_model_api_config a
+             , jpa.script ad_script, ad.path ad_path from iot_model_api_config a
             left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
             left join iot_model_attr pa on a.model_attr_id=pa.id
             left join iot_model_attr jpa on a.protocol_data_type = 'json' and jpa.id=ad.dict_value
@@ -57,7 +57,7 @@
     <select id="listDownByApiCode" resultMap="JoinModelAttrDictMap">
         select a.*, pa.attr_type func_type, pa.accuracy, pa.script, pa.gain, pa.resolver, ad.model_attr_id ad_model_attr_id, ad.dict_name ad_dict_name, ad.dict_value ad_dict_value
              , pa.default_value attr_default_value, jpa.accuracy ad_accuracy, jpa.gain ad_gain, jpa.resolver ad_resolver
-                  , jpa.script ad_script from iot_model_api_config a
+                  , jpa.script ad_script, ad.path ad_path from iot_model_api_config a
             left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
             left join iot_model_attr pa on a.model_attr_id=pa.id
             left join iot_model_attr jpa on a.protocol_data_type = 'json' and jpa.id=ad.dict_value

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.IVOption;
@@ -13,12 +14,16 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.file.UploadResult;
 import com.iteaj.framework.spi.file.UploadService;
+import com.iteaj.framework.spi.iot.consts.ApiConfigDirection;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
+import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iboot.module.iot.dto.ProtocolDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.entity.ProtocolApi;
@@ -274,6 +279,28 @@ public class ProtocolController extends BaseController {
         } else {
             return fail("不支持的类型[type="+type+"]");
         }
+    }
+
+    /**
+     * 返回各个驱动的事件模型的配置项
+     * @return
+     */
+    @GetMapping("listEventApiTableHead")
+    public Result<Map<String, Collection<ParamMeta>>> listEventApiTableHead() {
+        Map<String, Collection<ParamMeta>> result = new HashMap<>();
+        ProtocolSupplierManager.suppliers().forEach(supplier -> {
+            final ProtocolModel protocolModel = supplier.getProtocol();
+            if(protocolModel.getCtrlMode() == CtrlMode.POINT) {
+                final Map<String, ParamMeta> map = supplier.resolverMetaConfig(modelApi -> {
+                    final AbstractProtocolModelApi protocolModelApi = (AbstractProtocolModelApi) modelApi;
+                    return protocolModelApi.getTriggerMode() == TriggerMode.passive
+                            && protocolModelApi.getType() == ProtocolApiType.event;
+                });
+
+                result.put(protocolModel.getCode(), map.values());
+            }
+        });
+        return success(result);
     }
 }
 

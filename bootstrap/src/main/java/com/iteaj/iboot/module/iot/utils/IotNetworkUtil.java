@@ -83,11 +83,7 @@ public class IotNetworkUtil {
             }
         } else if(status == FuncStatus.disabled) {
             if(client instanceof TcpSocketClient) {
-                if(((TcpSocketClient) client).isConnect()) {
-                    return client.close(); // 断开连接并且移除客户端
-                } else {// 如果客户端不在线直接移除客户端
-                    client.getClientComponent().removeClient(client.getConfig());
-                }
+                return client.close(); // 断开连接并且移除客户端
             } else {
                 Object close = client.close();
                 if(close instanceof Boolean) {
@@ -109,13 +105,10 @@ public class IotNetworkUtil {
     public static void removeClient(RealtimeStatus status) {
         String protocolCode = status.getProtocolCode();
         DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
-        if(supplier != null && status.getType() == DeviceType.Gateway) {
-            FrameworkComponent component = supplier.getComponent();
-            if(component != null && component instanceof ClientComponent) {
-                IotClient client = ((ClientComponent<?>) component).removeClient(status.getDeviceSn());
-                if(client != null) {
-//                    client.disconnect();
-                }
+        if(supplier instanceof ClientProtocolSupplier) {
+            final IotClient client = ((ClientProtocolSupplier<?, ?, ?>) supplier).removeClient(status.getDeviceSn());
+            if(client != null) {
+                client.close();
             }
         }
 

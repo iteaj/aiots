@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.utils.RedisUtils;
 
 import java.util.*;
@@ -118,5 +120,15 @@ public class RedisRealtimeDataService implements RealtimeDataService{
         }
 
         return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public ModelAttrRealtimeData getRealtimeData(String uid, String signalOrField) {
+        return null;
+    }
+
+    @Override
+    public RealtimeDeviceStatus getDeviceStatus(String uid) {
+        return null;
     }
 }

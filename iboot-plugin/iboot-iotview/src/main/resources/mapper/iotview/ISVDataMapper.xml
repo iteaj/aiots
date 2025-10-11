@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.iotview.mapper.ISVDataMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.framework.spi.iot.view.DataItemOption">
+        <result property="value" column="code" />
+        <result property="label" column="label" />
+        <result property="leaf" column="leaf" />
+        <result property="disabled" column="disabled" />
+    </resultMap>
+    <select id="listProductOption" resultMap="BaseResultMap">
+        select a.name label, a.code from iot_product a
+        <where>
+            <if test="hasGateway == false">
+                and device_type != 'Gateway'
+            </if>
+        </where>
+        order by a.device_type asc, create_time desc
+    </select>
+
+    <select id="listModelAttrOption" resultMap="BaseResultMap">
+        select a.name label, a.field code from iot_model_attr a
+            left join iot_product b on a.product_id = b.id
+        where b.code = #{productCode} and data_type != 'json' and b.id is not null
+        order by a.create_time desc
+    </select>
+    <select id="listGroupOption" resultMap="BaseResultMap">
+        select name label, id code from iot_device_group order by create_time desc
+    </select>
+
+    <select id="countDeviceStatus" resultType="com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto">
+        select count(if(a.status=#{status}, 1, null)) value, count(1) total from iot_device a
+        <if test="range == 'device'">
+            where a.uid in (
+            <foreach collection="values" separator="," item="uid">
+                #{uid}
+            </foreach>
+            )
+        </if>
+        <if test="range == 'product'">
+            right join iot_product b on a.product_id=b.id
+            where b.code in (
+            <foreach collection="values" separator="," item="productCode">
+                #{productCode}
+            </foreach>
+            )
+        </if>
+        <if test="range == 'group'">
+            where a.device_group_id in (
+            <foreach collection="values" separator="," item="groupId">
+                #{groupId}
+            </foreach>
+            )
+        </if>
+    </select>
+    <select id="listDeviceOptions" resultMap="BaseResultMap">
+        select a.name label, a.uid code from iot_device a
+        <if test="productCode != null and productCode != ''">
+            left join iot_product p on a.product_id = p.id where p.code = #{productCode}
+        </if>
+    </select>
+
+    <select id="countDeviceStatusByRange" resultType="com.iteaj.iboot.plugin.iotview.dto.DeviceStatusCountDto">
+        select count(if(a.status=#{status}, 1, null)) value, count(1) total, b.name from iot_device a
+        <if test="range == 'device'">
+            left join iot_device b on a.id=b.id
+            where uid in (
+            <foreach collection="values" separator="," item="uid">
+                #{uid}
+            </foreach>
+            )
+        </if>
+        <if test="range == 'product'">
+            right join iot_product b on a.product_id=b.id
+            where b.code in (
+            <foreach collection="values" separator="," item="productCode">
+                #{productCode}
+            </foreach>
+            )
+            group by b.id
+        </if>
+        <if test="range == 'group'">
+            right join iot_device_group b on a.device_group_id=b.id
+            where b.id in (
+            <foreach collection="values" separator="," item="groupId">
+                #{groupId}
+            </foreach>
+            )
+            group by b.id
+        </if>
+        <if test="range == 'all'">
+            left join iot_device b on a.id=b.id
+        </if>
+    </select>
+
+</mapper>

@@ -77,6 +77,18 @@
             <artifactId>protocol-dtu</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--modbus协议提供-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>modbus-rtu</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>modbus-tcp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <scope>provided</scope>
             <groupId>org.springframework.boot</groupId>
@@ -171,8 +183,8 @@
                 </executions>
             </plugin>
             <plugin>
-                <version>2.7.7</version>
-                <groupId>com.github.shalousun</groupId>
+                <version>3.0.4</version>
+                <groupId>com.ly.smart-doc</groupId>
                 <artifactId>smart-doc-maven-plugin</artifactId>
                 <configuration>
                     <!--指生成文档的使用的配置文件,配置文件放在自己的项目中-->
@@ -194,7 +206,7 @@
                 <executions>
                     <execution>
                         <!--如果不需要在执行编译时启动smart-doc，则将phase注释掉-->
-                        <phase>compile</phase>
+<!--                        <phase>compile</phase>-->
                         <goals>
                             <!--smart-doc提供了html、openapi、markdown等goal，可按需配置-->
                             <goal>html</goal>

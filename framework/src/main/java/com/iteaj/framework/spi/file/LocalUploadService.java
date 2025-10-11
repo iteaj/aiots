@@ -98,8 +98,8 @@ public class LocalUploadService implements UploadService, InitializingBean {
                 uploadRootUri = uploadRootUri.replaceAll("\\*", "");
             }
 
-            if(uploadRootUri.endsWith(File.separator)) {
-                this.uploadRootUri = uploadRootUri.substring(0, uploadRootUri.length()-1);
+            if(uploadRootUri.endsWith("/")) {
+                uploadRootUri = uploadRootUri.substring(0, uploadRootUri.length()-1);
             }
 
             this.uploadRootUri = uploadRootUri;

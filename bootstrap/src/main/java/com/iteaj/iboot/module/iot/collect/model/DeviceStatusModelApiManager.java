@@ -12,6 +12,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
+import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.consts.ExecStatus;
@@ -158,11 +159,8 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                 RealtimeStatus realtimeStatus = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
                 // 父设备不存在或者不在线则不采集子设备状态
                 if(realtimeStatus == null || realtimeStatus.getStatus() == DeviceStatus.offline) {
-                    if(logger.isDebugEnabled()) {
-                        logger.debug("放弃子设备状态接口调用 网关设备不在线 - 网关编号: {} - 设备编号: {} - 接口: {}/{}"
-                                , device.getParentDeviceSn(), device.getDeviceSn(), api.getCode(), api.getDirect());
-                    }
-
+                    IotLogger.debug(IotLogger.NAME, "采集状态", device.getUid(), "放弃状态接口调用 网关设备不在线 - 网关编号: {} - 设备编号: {} - 接口: {}/{}"
+                            , device.getParentDeviceSn(), device.getDeviceSn(), api.getCode(), api.getDirect());
                     return;
                 }
             }
@@ -181,7 +179,8 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
             IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
         }
 
-        logger.error("采集在线状态异常 {} - 设备编号: {} - 接口: {}/{}", e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
+        IotLogger.error(IotLogger.NAME, "采集状态", device.getUid(), "采集状态异常 {} - 设备编号: {} - 接口: {}/{}"
+                , e.getMessage(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
     }
 
     private void doInvoke(ModelApi api, RealtimeStatus device, long timeout, boolean retry) {
@@ -204,9 +203,6 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
                     IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
                 }
 
-                if(logger.isDebugEnabled() && !status) {
-                    logger.warn("采集在线状态失败 采集值为{}(布尔值为true、数值须大于0、其他类型) - 设备编号: {} - 接口: {}/{}", result.getValue(), device.buildDeviceKey(), api.getCode(), api.getDirect());
-                }
             } else {
                 // 如果执行超时则重新尝试一次
                 if(result.getStatus() == ExecStatus.timeout && !retry) {
@@ -220,9 +216,11 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
 
                     if(logger.isWarnEnabled()) {
                         if(retry) {
-                            logger.warn("采集在线状态重试失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                            IotLogger.warn(IotLogger.NAME, "采集状态", device.getUid(), "采集状态重试失败 {} - 设备编号: {} - 接口: {}/{}"
+                                    , result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                         } else {
-                            logger.warn("采集在线状态失败 {} - 设备编号: {} - 接口: {}/{}", result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
+                            IotLogger.warn(IotLogger.NAME, "采集状态", device.getUid(), "采集状态失败 {} - 设备编号: {} - 接口: {}/{}"
+                                    , result.getStatus(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                         }
                     }
                 }

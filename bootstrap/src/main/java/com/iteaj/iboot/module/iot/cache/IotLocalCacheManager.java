@@ -13,10 +13,11 @@ import java.util.stream.Collectors;
 
 public class IotLocalCacheManager implements IotCacheManager {
 
-    private Map<String, Set<RealtimeStatus>> productMaps = new ConcurrentHashMap<>(50);
-    private Map<Long, Set<RealtimeStatus>> groupMaps = new ConcurrentHashMap<>(50);
+    private final Map<String, RealtimeStatus> uidMaps = new HashMap<>(320);
+    private final Map<String, Set<RealtimeStatus>> productMaps = new ConcurrentHashMap<>(50);
+    private final Map<Long, Set<RealtimeStatus>> groupMaps = new ConcurrentHashMap<>(50);
     // protocolCode -> deviceKey
-    private Map<String, Map<String, RealtimeStatus>> realtimeMap = new ConcurrentHashMap(500);
+    private final Map<String, Map<String, RealtimeStatus>> realtimeMap = new ConcurrentHashMap<>(500);
 
     @Override
     public RealtimeStatus cache(RealtimeStatus device) {
@@ -28,18 +29,11 @@ public class IotLocalCacheManager implements IotCacheManager {
                 if(deviceMaps == null) {
                     realtimeMap.put(device.getProtocolCode(), deviceMaps = new ConcurrentHashMap<>());
                     deviceMaps.put(device.buildDeviceKey(), device);
-                    Set<RealtimeStatus> productSets = productMaps.get(device.getProductCode());
-                    if(productSets == null) {
-                        productMaps.put(device.getProductCode(), productSets = new HashSet<>());
-                    }
-
+                    Set<RealtimeStatus> productSets = productMaps.computeIfAbsent(device.getProductCode(), k -> new HashSet<>());
                     productSets.add(device);
-                    if(device.getGroupId() != null) {
-                        Set<RealtimeStatus> statuses = groupMaps.get(device.getGroupId());
-                        if(statuses == null) {
-                            groupMaps.put(device.getGroupId(), statuses = new HashSet<>());
-                        }
 
+                    if(device.getGroupId() != null) {
+                        Set<RealtimeStatus> statuses = groupMaps.computeIfAbsent(device.getGroupId(), k -> new HashSet<>());
                         statuses.add(device);
                     }
                 }
@@ -50,10 +44,7 @@ public class IotLocalCacheManager implements IotCacheManager {
             Set<RealtimeStatus> productSet = productMaps.get(device.getProductCode());
             if(productSet == null) {
                 synchronized (this) {
-                    productSet = productMaps.get(device.getProductCode());
-                    if(productSet == null) {
-                        productMaps.put(device.getProductCode(), productSet = new HashSet<>());
-                    }
+                    productSet = productMaps.computeIfAbsent(device.getProductCode(), k -> new HashSet<>());
                 }
             }
             productSet.add(device);
@@ -62,10 +53,7 @@ public class IotLocalCacheManager implements IotCacheManager {
                 Set<RealtimeStatus> statuses = groupMaps.get(device.getGroupId());
                 if(statuses == null) {
                     synchronized (this) {
-                        statuses = groupMaps.get(device.getGroupId());
-                        if(statuses == null) {
-                            groupMaps.put(device.getGroupId(), statuses = new HashSet<>());
-                        }
+                        statuses = groupMaps.computeIfAbsent(device.getGroupId(), k -> new HashSet<>());
                     }
                 }
 
@@ -73,6 +61,7 @@ public class IotLocalCacheManager implements IotCacheManager {
             }
         }
 
+        uidMaps.put(device.getUid(), device);
         return device;
     }
 
@@ -167,6 +156,8 @@ public class IotLocalCacheManager implements IotCacheManager {
             if(CollectionUtil.isNotEmpty(realtimeStatuses)) {
                 realtimeStatuses.remove(remove);
             }
+
+            uidMaps.remove(remove.getUid());
         }
 
         return remove;
@@ -198,9 +189,8 @@ public class IotLocalCacheManager implements IotCacheManager {
     }
 
     @Override
-    public RealtimeStatus getByUid(Long deviceGroupId, String uid) {
-        Set<RealtimeStatus> statuses = this.listByGroupId(deviceGroupId);
-        return statuses.stream().filter(item -> item.getUid().equals(uid)).findFirst().orElse(null);
+    public RealtimeStatus getByUid(String uid) {
+        return uidMaps.get(uid);
     }
 
     @Override

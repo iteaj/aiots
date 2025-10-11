@@ -12,10 +12,12 @@ import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
+import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.event.CombinedEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -48,10 +50,10 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
                 device.setStatus(DeviceStatus.online);
                 deviceService.updateDeviceStatus(device);
             } else {
-                logger.warn("更新设备状态失败 设备不存在 - 设备编号: {}", source);
+                IotLogger.warn(DeviceStatus.online, null, "设备上线 更新失败(设备不存在) - 设备编号: {} - 驱动: {}", source, supplier.getDesc());
             }
         } else {
-            logger.warn("更新设备状态失败 协议不存在 - 设备编号: {} - 协议类: {}", source, component.getMessageClass().getSimpleName());
+            IotLogger.warn(DeviceStatus.online, null, "设备上线 更新失败(未找到驱动) - 设备编号: {} - 协议类: {}", source, component.getMessageClass().getSimpleName());
         }
     }
 
@@ -65,10 +67,10 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
                 device.setStatus(DeviceStatus.offline);
                 deviceService.updateDeviceStatus(device);
             } else {
-                logger.warn("更新设备状态失败 设备不存在 - 设备编号: {} - 协议码: {}", source, supplier.getProtocol().getCode());
+                IotLogger.warn(DeviceStatus.offline, null, "设备离线 更新失败(设备不存在) - 设备编号: {} - 驱动: {}", source, supplier.getDesc());
             }
         } else {
-            logger.warn("更新设备状态失败 协议不存在 - 设备编号: {} - 协议类: {}", source, component.getMessageClass().getSimpleName());
+            IotLogger.warn(DeviceStatus.online, null, "设备离线 更新失败(未找到驱动) - 设备编号: {} - 协议类: {}", source, component.getMessageClass().getSimpleName());
         }
     }
 

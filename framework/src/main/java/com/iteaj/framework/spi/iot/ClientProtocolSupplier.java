@@ -9,10 +9,17 @@ public interface ClientProtocolSupplier<C extends NetworkConfig, T extends Clien
 
     /**
      * 创建Iot客户端
-     * @param config
+     * @param config 配置
      * @return 如果已经存在直接返回, 如果不存在则创建一个新的客户端
      */
     K createClient(C config);
+
+    /**
+     * 移除客户端
+     * @param clientKey 客户端标识
+     * @return 客户端
+     */
+    K removeClient(Object clientKey);
 
     @Override
     default ConnectionType getConnectionType() {

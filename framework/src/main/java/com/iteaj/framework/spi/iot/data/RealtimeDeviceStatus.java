@@ -17,6 +17,12 @@ public interface RealtimeDeviceStatus {
     String getDeviceSn();
 
     /**
+     * 获取设备名称
+     * @return
+     */
+    String getDeviceName();
+
+    /**
      * 获取设备状态(online、offline)
      * @return
      */

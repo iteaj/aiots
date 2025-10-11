@@ -12,6 +12,7 @@ import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.BatchModelDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -78,6 +79,15 @@ public class ProductController extends BaseController {
         product.setDeviceType(deviceType);
         product.setProductTypeId(productTypeId);
         return this.productService.listOfDetail(product);
+    }
+
+    /**
+     * 获取非网关设备类型下面的产品列表
+     * @return
+     */
+    @GetMapping("/listByNonGateway")
+    public Result<List<Product>> listByNonGateway() {
+        return this.productService.list(Wrappers.<Product>lambdaQuery().ne(Product::getDeviceType, DeviceType.Gateway));
     }
 
     /**
@@ -162,6 +172,36 @@ public class ProductController extends BaseController {
     @GetMapping("resolvers")
     public Result<List<IVOption>> resolvers() {
         return success(DataValueResolverFactory.options());
+    }
+
+    /**
+     * 批量模型属性
+     * @param entity
+     * @return
+     */
+    @GetMapping("listBatchModel")
+    public Result<List<BatchModelDto>> listBatchModel(BatchModelDto entity) {
+        return this.productService.listBatchModel(entity);
+    }
+
+    /**
+     * 新增或者更新批量模型记录
+     * @param entity
+     * @return
+     */
+    @PostMapping("batchModelSaveOrUpdate")
+    public Result<Boolean> batchModelSaveOrUpdate(@RequestBody BatchModelDto entity) {
+        return this.productService.batchModelSaveOrUpdate(entity);
+    }
+
+    /**
+     * 删除批量模型记录
+     * @param entity id和apiCode必填
+     * @return
+     */
+    @PostMapping("batchModelDel")
+    public Result<Boolean> batchModelDel(@RequestBody BatchModelDto entity) {
+        return this.productService.delBatchModel(entity.getId(), entity.getApiCode());
     }
 }
 

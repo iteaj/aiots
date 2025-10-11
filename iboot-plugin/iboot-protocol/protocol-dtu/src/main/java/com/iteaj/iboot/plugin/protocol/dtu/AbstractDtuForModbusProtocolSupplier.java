@@ -75,32 +75,32 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
                 .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_NUMBER, "寄存器数量", DataType.t_int, AttrType.IGNORE, numRemark))
                 .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_ADDRESS, "寄存器地址", DataType.t_string, AttrType.IGNORE, "寄存器地址"))
                 .addModelAttr(new ProtocolModelAttr(PointProtocolConfig.POINT_VALUE, "点位值", DataType.t_any, AttrType.IGNORE,"读/写寄存器的值(跟随数据类型转换)"))
-                .addModelApi(createEventApi(ModbusCode.Read01.name(), "读线圈", "读线圈")
+                .addModelApi(createEventApi(ModbusCode.Read01.name(), "读线圈(01)", "读线圈")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addUpConfig(ProtocolModelApiConfig.upBuild(PointProtocolConfig.POINT_VALUE, "读取到的值")))
-                .addModelApi(createEventApi(ModbusCode.Read02.name(), "读离散量输入", "读离散量输入")
+                .addModelApi(createEventApi(ModbusCode.Read02.name(), "读离散量输入(02)", "读离散量输入")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addUpConfig(ProtocolModelApiConfig.upBuild(PointProtocolConfig.POINT_VALUE, "读取到的值")))
-                .addModelApi(createEventApi(ModbusCode.Read03.name(), "读保持寄存器", "读保持寄存器")
+                .addModelApi(createEventApi(ModbusCode.Read03.name(), "读保持寄存器(03)", "读保持寄存器")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(dataType, "读取值的数据类型").setOptions(readOptions))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_NUMBER, numRemark))
                         .addUpConfig(ProtocolModelApiConfig.upBuild(PointProtocolConfig.POINT_VALUE, "读取到的值")))
-                .addModelApi(createEventApi(ModbusCode.Read04.name(), "读输入寄存器", "读输入寄存器")
+                .addModelApi(createEventApi(ModbusCode.Read04.name(), "读输入寄存器(04)", "读输入寄存器")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(dataType, "读取值的数据类型").setOptions(readOptions))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_NUMBER, numRemark))
                         .addUpConfig(ProtocolModelApiConfig.upBuild(PointProtocolConfig.POINT_VALUE, "读取到的值")))
-                .addModelApi(createFuncApi(ModbusCode.Write05.name(), "写单个线圈", "写单个线圈")
+                .addModelApi(createFuncApi(ModbusCode.Write05.name(), "写单个线圈(05)", "写单个线圈")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_VALUE, "要写的值")))
-                .addModelApi(createFuncApi(ModbusCode.Write06.name(), "写单个保持寄存器", "写单个保持寄存器")
+                .addModelApi(createFuncApi(ModbusCode.Write06.name(), "写单个保持寄存器(06)", "写单个保持寄存器")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_VALUE, "要写的值")))
-                .addModelApi(createFuncApi(ModbusCode.Write0F.name(), "写多个线圈", "写多个线圈")
+                .addModelApi(createFuncApi(ModbusCode.Write0F.name(), "写多个线圈(0F)", "写多个线圈")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_VALUE, "要写的值")))
-                .addModelApi(createFuncApi(ModbusCode.Write10.name(), "写多个保持寄存器", "写多个保持寄存器")
+                .addModelApi(createFuncApi(ModbusCode.Write10.name(), "写多个保持寄存器(10)", "写多个保持寄存器")
                         .addDownConfig(ProtocolModelApiConfig.downBuild(dataType, "写入值的数据类型").setOptions(writeOptions))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_VALUE, "要写的值")));
@@ -152,8 +152,12 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
                 properties.setHost(config.getHost());
             }
 
-            if(config.getReadIdle() != null && config.getReadIdle() > 0) {
-                properties.setReaderIdleTime(config.getReadIdle());
+            if(config.getReadIdle() != null) {
+                if(config.getReadIdle() > 0) {
+                    properties.setReaderIdleTime(config.getReadIdle());
+                } else {
+                    properties.setReaderIdleTime(0L);
+                }
             }
         }
     }

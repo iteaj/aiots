@@ -3,9 +3,11 @@ package com.iteaj.iboot.module.iot.controller;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.DebugDto;
 import com.iteaj.iboot.module.iot.dto.DebugTree;
 import com.iteaj.iboot.module.iot.entity.Device;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
@@ -63,13 +65,27 @@ public class DeviceDebugController extends BaseController {
             });
 
             // 将产品放入对应的产品类型
-            productService.list().forEach(item -> {
-                if(item.getProductTypeId() != null) {
-                    DebugTree parent = debugTreeMap.get("productType:" + item.getProductTypeId());
-                    if(parent != null) {
-                        parent.addChildren(DebugTree.buildProduct(item.getId(), parent.getId(), item.getName()));
+            productService.list(Wrappers.<Product>lambdaQuery()
+                    .ne(Product::getDeviceType, DeviceType.Gateway))
+                    .forEach(item -> {
+                        if(item.getProductTypeId() != null) {
+                            DebugTree parent = debugTreeMap.get("productType:" + item.getProductTypeId());
+                            if(parent != null) {
+                                parent.addChildren(DebugTree.buildProduct(item.getId(), parent.getId(), item.getName()));
+                            }
+                        }
+                    });
+
+            debugTreeMap.values().forEach(item -> {
+                if(!item.isProduct()) {
+                    item.setChildren(null);
+
+                    final DebugTree parent = item.getParent();
+                    if(parent != null && parent.getChildren() != null) {
+                        parent.getChildren().remove(item);
                     }
                 }
+
             });
 
             return success(debugTreeMap.values().stream()

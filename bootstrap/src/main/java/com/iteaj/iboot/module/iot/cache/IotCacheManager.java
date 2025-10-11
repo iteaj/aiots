@@ -85,10 +85,9 @@ public interface IotCacheManager {
     /**
      * 获取指定设备组下的指定uid的设备
      * @param uid 设备uid
-     * @param deviceGroupId 设备组id
      * @return
      */
-    RealtimeStatus getByUid(Long deviceGroupId, String uid);
+    RealtimeStatus getByUid(String uid);
 
     /**
      * 获取指定的网关或者直连设备信息

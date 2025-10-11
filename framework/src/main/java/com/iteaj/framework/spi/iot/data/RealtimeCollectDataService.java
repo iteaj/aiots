@@ -2,7 +2,9 @@ package com.iteaj.framework.spi.iot.data;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.PageResult;
+import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
+import com.iteaj.framework.spi.iot.view.ViewSqlCondition;
 
 import java.util.*;
 
@@ -37,4 +39,14 @@ public interface RealtimeCollectDataService {
      * @return
      */
     List<CollectValueItem> listOfCommonByTime(CollectDataCondition condition);
+
+    /**
+     * 根据产品模型获取数据
+     * @param page
+     * @param entity
+     * @return
+     */
+    PageResult productOfPage(Page page, RealtimeCollectData entity);
+
+    List<BaseEchartsCount> countOfView(ViewSqlCondition condition);
 }

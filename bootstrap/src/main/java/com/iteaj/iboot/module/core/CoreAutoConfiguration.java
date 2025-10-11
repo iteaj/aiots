@@ -26,6 +26,7 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -86,13 +87,19 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     public OrderFilterChainDefinition coreFilterChainDefinition() {
         return new OrderFilterChainDefinition()
                 .addAnon("/core/login", "/js/**", "/css/**", "/img/**"
-                        , "/libs/**", "/doc/**", "/favicon.ico");
+                        , "/libs/**", "/doc/**", "/favicon.ico", "/", "/static/**");
     }
 
     @Bean
     @Order(value = 9999)
     public OrderFilterChainDefinition authFilterChainDefinition() {
         return new OrderFilterChainDefinition().addInclude("/**");
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/")
+                .setViewName("forward:/static/index.html");
     }
 
     @Bean

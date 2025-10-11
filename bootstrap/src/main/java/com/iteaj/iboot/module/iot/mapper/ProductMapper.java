@@ -96,4 +96,6 @@ public interface ProductMapper extends BaseMapper<Product> {
          * @return
      */
     List<Product> listOfProtocolCodes(DeviceType deviceType, String[] protocolCodes, TransportProtocol protocol);
+
+    List<BatchModelDto> listBatchModel(BatchModelDto entity);
 }

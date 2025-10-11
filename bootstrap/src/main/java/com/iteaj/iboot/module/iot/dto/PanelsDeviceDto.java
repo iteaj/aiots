@@ -60,6 +60,11 @@ public class PanelsDeviceDto {
          */
         private String value = "-";
 
+        /**
+         * 值标签
+         */
+        private String label = null;
+
         @JsonIgnore
         private Boolean ctrlStatus;
 

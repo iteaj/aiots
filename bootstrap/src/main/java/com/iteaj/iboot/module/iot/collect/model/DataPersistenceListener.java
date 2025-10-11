@@ -31,6 +31,9 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
                         .setCollectTime(value.getCollectTime())
                         .setCollectStatus(value.getStatus())
                         .setUid(device.getUid())
+                        .setProductCode(device.getProductCode())
+                        .setProtocolCode(device.getProtocolCode())
+                        .setDeviceGroupId(device.getDeviceGroupId())
                         .setField(value.getSignalOrField())
                         .setFieldName(value.getSignalOrField())
                 );
@@ -51,6 +54,7 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
         if(CollectionUtil.isNotEmpty(info.getInfos())) {
             long cid = UniqueIdGen.nextLong(); // 声明同一组
             info.getInfos().forEach(item -> {
+                final RealtimeStatus device = item.getDevice();
                 DataSupplier supplier = item.getSupplier();
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
                     supplier.getValues().forEach(value -> {
@@ -59,10 +63,13 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
                                 .setCid(cid + "").setStatus(true).setReason("")
                                 .setCreateTime(new Date()).setValue(strValue)
                                 .setAddress(value.getAddress())
-                                .setUid(item.getDevice().getUid())
+                                .setUid(device.getUid())
                                 .setSignalId(value.getId())
                                 .setCollectStatus(value.getStatus())
                                 .setField(value.getSignalOrField())
+                                .setProductCode(device.getProductCode())
+                                .setProtocolCode(device.getProtocolCode())
+                                .setDeviceGroupId(device.getDeviceGroupId())
                                 .setFieldName(value.getSignalOrField())
                                 .setCollectTime(supplier.getCollectTime())
                                 .setCollectTaskId(info.getSource().getId());
