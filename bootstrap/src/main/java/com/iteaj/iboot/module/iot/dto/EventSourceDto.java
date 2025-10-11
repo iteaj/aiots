@@ -21,4 +21,5 @@ public class EventSourceDto extends EventSource {
      * 组
      */
     private List<DeviceGroup> groups;
+
 }
