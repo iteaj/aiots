@@ -92,8 +92,8 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
         if ("millisecond".equals(source.getPeriodType())) {
             // 毫秒级采集
-            // spring6.0 弃用 scheduleAtFixedRate /scheduleWithFixedDelay
-            // 以long 表示时间间隔的方法，改成java.time.Duration
+
+            // spring6.0 弃用 scheduleAtFixedRate /scheduleWithFixedDelay  以long 表示时间间隔的方法，改成java.time.Duration
             if (source.getRateType()==1) {
                 scheduledFuture = scheduler.scheduleAtFixedRate(
                         new EventSourceTask(scheduler, source, cacheManager),
