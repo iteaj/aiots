@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -78,6 +79,9 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         this.protocolService.getById(entity.getProtocolId())
                 .ifNotPresentThrow("协议不存在")
                 .ifPresent(item -> entity.setProtocolCode(item.getCode()));
+        if(entity.getConfig() == null) {
+            entity.setConfig(new JSONObject()); // 放入空json
+        }
 
         BooleanResult save = super.save(entity);
         // 保存协议对应的指令到物模型
@@ -108,9 +112,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         // 如果修改了协议需要删除所有物模型数据
         this.getById(entity.getId()).ifPresent(product -> {
             if(!product.getProtocolId().equals(entity.getProtocolId())) {
-                // 移除缓存里面的无模型信息
+                // 移除缓存里面的物模型信息
+                Cache cache = Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API));
                 modelApiService.list(Wrappers.<ModelApi>lambdaQuery().eq(ModelApi::getProductId, product.getId()))
-                        .forEach(modelApi -> Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API)).evict(modelApi.getCode()));
+                        .forEach(modelApi -> cache.evict(modelApi.getCode()));
 
                 // 移除所有物模型信息
                 this.removeModel(entity.getId());
@@ -452,6 +457,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                  * 发布产品状态切换事件
                  */
                 IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item.setStatus(status)));
+                Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT)).evict(id); // 移除缓存
             });
     }
 
