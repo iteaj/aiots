@@ -7,6 +7,9 @@
         <result column="id" property="id" />
         <result column="type" property="type" />
         <result column="cron" property="cron" />
+        <result column="period_type" property="periodType" />
+        <result column="period_ms" property="periodMs" />
+        <result column="rate_type" property="rateType" />
         <result column="name" property="name" />
         <result column="status" property="status" />
         <result column="has_passive" property="hasPassive" />
