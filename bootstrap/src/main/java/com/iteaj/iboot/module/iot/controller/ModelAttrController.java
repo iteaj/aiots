@@ -5,11 +5,14 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
+import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
+import com.iteaj.iboot.module.iot.service.IModelApiConfigService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
@@ -29,10 +32,12 @@ import com.iteaj.framework.BaseController;
 public class ModelAttrController extends BaseController {
 
     private final IModelAttrService modelAttrService;
-
-    public ModelAttrController(IModelAttrService modelAttrService) {
+    private final IModelApiConfigService  modelApiConfigService;
+    public ModelAttrController(IModelAttrService modelAttrService, IModelApiConfigService modelApiConfigService) {
         this.modelAttrService = modelAttrService;
+        this.modelApiConfigService = modelApiConfigService;
     }
+
 
     /**
     * 列表查询
@@ -83,6 +88,13 @@ public class ModelAttrController extends BaseController {
     @CheckPermission(value = {"iot:modelAttr:edit", "iot:modelAttr:add"}, logical = Logical.OR)
     public Result<Long> saveOrUpdate(@Validated @RequestBody ModelAttr entity) {
         this.modelAttrService.saveOrUpdate(entity);
+        ListResult<ModelApiConfig> list = modelApiConfigService.list(Wrappers.<ModelApiConfig>lambdaQuery().eq(ModelApiConfig::getModelAttrId, entity.getId()));
+        if(!list.isEmpty())
+        {
+            modelApiConfigService.saveOrUpdate(null,Wrappers.<ModelApiConfig>lambdaUpdate()
+                    .eq(ModelApiConfig::getModelAttrId,entity.getId()).
+                    set(ModelApiConfig::getDataType,entity.getDataType()));
+        }
         return success(entity.getId());
     }
 
