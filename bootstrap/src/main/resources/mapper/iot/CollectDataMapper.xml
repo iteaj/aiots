@@ -160,27 +160,40 @@
 
     <select id="productOfPage" resultType="com.iteaj.iboot.module.iot.dto.CollectDataDto">
         select a.cid, a.uid, a.task_id, group_concat(concat(a.field, '=', if(a.status, a.value, a.reason)) separator ':::') value
-            , a.status, a.reason, a.collect_time, a.create_time, d.name device_name, d.device_sn
+            , a.status, a.reason, a.collect_time, a.create_time, a.device_name, a.device_sn
         from iot_collect_data a
-            left join iot_device d on a.uid=d.uid
         <where>
             <if test="entity.uid != null and entity.uid != ''">
                 and a.uid=#{entity.uid}
             </if>
             <if test="entity.deviceSn != null and entity.deviceSn != ''">
-                and d.device_sn=#{entity.deviceSn}
+                and a.device_sn=#{entity.deviceSn}
             </if>
             <if test="entity.collectMode != null">
                 and a.collect_mode = #{entity.collectMode}
             </if>
-            <if test="entity.productId != null">
-                and d.product_id=#{entity.productId}
+            <if test="entity.deviceGroupId != null">
+                and a.device_group_id=#{entity.deviceGroupId}
+            </if>
+            <if test="entity.productCode != null and entity.productCode != ''">
+                and a.product_code=#{entity.productCode}
             </if>
             <if test="entity.taskId != null">
                 and a.task_id=#{entity.taskId}
             </if>
+            <choose>
+                <when test="entity.startTimestamp != null and entity.endTimestamp != null">
+                    and UNIX_TIMESTAMP(a.collect_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
+                </when>
+                <when test="entity.startTimestamp != null">
+                    and UNIX_TIMESTAMP(a.collect_time) * 1000 >= #{entity.startTimestamp}
+                </when>
+                <when test="entity.endTimestamp != null">
+                    and #{entity.endTimestamp} >= UNIX_TIMESTAMP(a.collect_time)
+                </when>
+            </choose>
         </where>
-        group by a.cid, a.uid
+        group by a.cid, a.uid order by a.collect_time desc
     </select>
     <select id="countOfViewByTime" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
         <if test="calcType == 'count'">

@@ -7,6 +7,7 @@ import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
+import com.iteaj.framework.spi.iot.data.RealtimeDataParam;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.Product;
@@ -67,7 +68,7 @@ public class CollectDataController extends BaseController {
      */
     @Logger("访问产品数据页面")
     @GetMapping("/product")
-    public Result<Page<CollectDataDto>> product(Page page, CollectDataDto entity) {
+    public Result<Page<CollectDataDto>> product(Page page, RealtimeDataParam entity) {
         entity.setCollectMode("model");
         if(entity.getProductId() == null) {
             return success(page);

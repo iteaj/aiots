@@ -22,7 +22,7 @@
     <select id="listModelAttrOption" resultMap="BaseResultMap">
         select a.name label, a.field code from iot_model_attr a
             left join iot_product b on a.product_id = b.id
-        where b.code = #{productCode} and data_type != 'json' and b.id is not null
+        where b.code = #{productCode} and (data_type != 'json' and data_type != 'bit') and b.id is not null
         order by a.create_time desc
     </select>
     <select id="listGroupOption" resultMap="BaseResultMap">

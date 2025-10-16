@@ -153,7 +153,47 @@
         </where>
     </select>
     <select id="productOfPage" resultMap="BaseResultMap">
-
+        select uid,cid from (
+            select distinct uid, cid, collect_time from iot_collect_data
+            <where>
+                <if test="entity.uid != null and entity.uid != ''">
+                    and uid=#{entity.uid}
+                </if>
+                <if test="entity.deviceSn != null and entity.deviceSn != ''">
+                    and device_sn=#{entity.deviceSn}
+                </if>
+                <if test="entity.collectMode != null">
+                    and collect_mode = #{entity.collectMode}
+                </if>
+                <if test="entity.productCode != null and entity.productCode != ''">
+                    and product_code=#{entity.productCode}
+                </if>
+                <if test="entity.deviceGroupId != null">
+                    and device_group_id=#{entity.deviceGroupId}
+                </if>
+                <if test="entity.taskId != null">
+                    and task_id=#{entity.taskId}
+                </if>
+                <choose>
+                    <when test="entity.startTimestamp != null and entity.endTimestamp != null">
+                        and cast(collect_time as bigint) between #{entity.startTimestamp} and #{entity.endTimestamp}
+                    </when>
+                    <when test="entity.startTimestamp != null">
+                        and cast(collect_time as bigint) >= #{entity.startTimestamp}
+                    </when>
+                    <when test="entity.endTimestamp != null">
+                        and #{entity.endTimestamp} >= cast(collect_time as bigint)
+                    </when>
+                </choose>
+            </where>
+        )
+        order by collect_time desc
+    </select>
+    <select id="listProductData" resultMap="BaseResultMap">
+        select cid, uid, field, collect_value, collect_time, device_sn, collect_status, reason, device_name from iot_collect_data where
+        <foreach collection="list" separator="or" item="item">
+            (cid=#{item.cid} and uid=#{item.uid})
+        </foreach>
     </select>
 
 

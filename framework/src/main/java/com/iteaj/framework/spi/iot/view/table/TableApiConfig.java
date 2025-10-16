@@ -7,8 +7,8 @@ import lombok.Getter;
 public class TableApiConfig extends ApiConfigOption {
 
     @Override
-    public TableApiConfig addReqParams(String label, String value, String placeholder) {
-        return (TableApiConfig) super.addReqParams(label, value, placeholder);
+    public TableApiConfig addReqParams(String name, String field, String placeholder) {
+        return (TableApiConfig) super.addReqParams(name, field, placeholder);
     }
 
     public TableApiConfig addTableHead(String label, String value) {
