@@ -118,7 +118,23 @@ public class TaosDataService implements RealtimeCollectDataService {
 
     @Override
     public PageResult productOfPage(Page page, RealtimeCollectData entity) {
-        return new PageResult(collectDataMapper.productOfPage(page, entity));
+        Page<RealtimeCollectData> product = collectDataMapper.productOfPage(page, entity);
+        if(CollectionUtil.isNotEmpty(product.getRecords())) {
+            List<DefaultRealtimeData> datas = collectDataMapper.listProductData(page.getRecords());
+            Map<String, List<DefaultRealtimeData>> collect = datas.stream().collect(Collectors.groupingBy(item -> item.getCid() + item.getUid()));
+            List<RealtimeCollectData> collected = collect.values().stream().map((value) -> {
+                DefaultRealtimeData realtimeData = value.get(0);
+                String joinValue = value.stream()
+                        .map(item -> item.getField() + "=" + (item.getStatus() ? item.getValue() : item.getReason()))
+                        .collect(Collectors.joining(":::"));
+                return realtimeData.setValue(joinValue);
+            }).sorted((a, b) -> Math.toIntExact(b.getCollectTime().getTime() - a.getCollectTime().getTime()))
+                    .collect(Collectors.toList());
+
+            product.setRecords(collected);
+        }
+
+        return new PageResult(product);
     }
 
     @Override
