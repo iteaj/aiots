@@ -34,7 +34,7 @@ public class TableHeadDesc extends ApiConfigDesc {
     private boolean ellipsis;
 
     public TableHeadDesc(String label, String key) {
-        this(label, key, 120);
+        this(label, key, 100);
     }
 
     public TableHeadDesc(String label, String key, int width) {
@@ -42,7 +42,7 @@ public class TableHeadDesc extends ApiConfigDesc {
     }
 
     public TableHeadDesc(String label, String key, String align) {
-        this(label, key, 120, align, false, true);
+        this(label, key, 100, align, false, true);
     }
 
     public TableHeadDesc(String label, String key, int width, String align, boolean resizable, boolean ellipsis) {
