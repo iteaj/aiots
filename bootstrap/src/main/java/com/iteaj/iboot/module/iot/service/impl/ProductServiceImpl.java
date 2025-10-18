@@ -373,7 +373,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     @Override
     @Transactional
     public void switchStatus(Long id, FuncStatus status) {
-        this.detailById(id).ifNotPresentThrow("查找不到此产品")
+        new DetailResult<>(getBaseMapper().detailById(id)).ifNotPresentThrow("查找不到此产品")
             .ifPresent(item -> {
                 // 被启用的事件源绑定后产品不能被禁用
                 if(status == FuncStatus.disabled) {
