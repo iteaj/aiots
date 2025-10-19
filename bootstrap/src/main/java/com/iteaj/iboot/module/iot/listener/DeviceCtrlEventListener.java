@@ -39,9 +39,9 @@ public class DeviceCtrlEventListener implements ScriptInvokeListener {
     public void onIotEvent(IotEventType eventType, ScriptInvokePayload value) {
         if(value.isCmd()) {
             final ProtocolModelApiInvokeParam invokeParam = IotUtil.createParamByCmdCode(value.getCmd(), value.getUid());
-            RealtimeStatus device = cacheManager.getByUid(value.getUid());
+            RealtimeStatus device = cacheManager.getByUid(invokeParam.getUid());
             if(device == null) {
-                throw new ServiceException("设备不存在["+value.getUid()+"]");
+                throw new ServiceException("设备不存在["+invokeParam.getUid()+"]");
             }
 
             //查找对应的物模型api
