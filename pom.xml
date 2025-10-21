@@ -22,9 +22,9 @@
     <!-- 子模块 -->
     <modules>
         <module>framework</module>
-        <module>bootstrap</module>
         <module>iboot-plugin</module>
         <module>iboot-tos</module>
+        <module>bootstrap</module>
     </modules>
 
     <properties>
@@ -254,6 +254,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${springboot.version}</version>
                 <configuration>
+                    <skip>true</skip>
                     <mainClass>com.iteaj.iboot.boot.IBootApplication</mainClass>
                 </configuration>
                 <executions>
