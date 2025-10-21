@@ -229,8 +229,9 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.14.1</version>
                     <configuration>
+                        <skip>false</skip>
                         <encoding>UTF-8</encoding>
-            <release>${java.version}</release>
+                        <release>${java.version}</release>
                     </configuration>
                 </plugin>
             </plugins>
