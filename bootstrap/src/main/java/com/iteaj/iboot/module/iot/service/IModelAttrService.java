@@ -9,6 +9,7 @@ import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -44,4 +45,6 @@ public interface IModelAttrService extends IBaseService<ModelAttr> {
      * @return
      */
     BooleanResult switchCtrlStatus(StatusSwitchDto<Boolean> dto);
+
+    List<ModelAttr> listDetailByProductId(@NotBlank(message = "产品id必填") Long productId);
 }

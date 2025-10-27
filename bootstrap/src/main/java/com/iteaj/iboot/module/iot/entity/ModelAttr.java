@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
 import com.iteaj.framework.validate.AllGroup;
 import com.iteaj.iboot.module.iot.consts.AttrOrigin;
 import lombok.Data;
@@ -14,6 +15,7 @@ import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +31,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_model_attr")
-public class ModelAttr extends BaseEntity {
+public class ModelAttr extends BaseEntity implements ModelAttrMeta {
 
     private static final long serialVersionUID = 1L;
 
@@ -142,5 +144,10 @@ public class ModelAttr extends BaseEntity {
         }
 
         return null;
+    }
+
+    @Override
+    public List<ModelAttrMeta> getDictMetas() {
+        return Collections.emptyList();
     }
 }

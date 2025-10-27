@@ -154,4 +154,9 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
         return new BooleanResult(this.getBaseMapper()
                 .switchCtrlStatus(modelAttr.getProductId(), dto.getId(), dto.getStatus()) > 0);
     }
+
+    @Override
+    public List<ModelAttr> listDetailByProductId(Long productId) {
+        return this.getBaseMapper().listDetailByProductId(productId);
+    }
 }

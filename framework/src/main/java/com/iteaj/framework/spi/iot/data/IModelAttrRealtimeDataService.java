@@ -16,4 +16,12 @@ public interface IModelAttrRealtimeDataService {
      * @return 设备实时状态数据
      */
     RealtimeDeviceStatus getDeviceStatus(String uid);
+
+    /**
+     * 根据协议码和设备编号获取设备信息
+     * @param protocolCode
+     * @param deviceSn
+     * @return
+     */
+    RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn);
 }
