@@ -158,30 +158,66 @@
             and UNIX_TIMESTAMP(collect_time) * 1000 between #{startTimestamp} and #{endTimestamp}
         </where>
     </select>
-
-    <select id="productOfPage" resultType="com.iteaj.iboot.module.iot.dto.CollectDataDto">
-        select a.cid, a.uid, a.collect_task_id, group_concat(concat(a.field, '=', if(a.status, a.value, a.reason)) separator ':::') value
-            , a.status, a.reason, a.collect_time, a.create_time, d.name device_name, d.device_sn
-        from iot_collect_data a
-            left join iot_device d on a.uid=d.uid
+    <select id="productOfPage" resultMap="DtoResultMap">
+        WITH RankedData AS (
+        SELECT
+        a.cid,
+        a.uid,
+        a.collect_task_id,
+        a.field,
+        a.value,
+        a.status,
+        a.reason,
+        a.collect_time,
+        a.create_time,
+        d.name AS device_name,
+        d.device_sn,
+        a.collect_mode,          -- 注意：collect_mode 在 a 表中，需要加入
+        d.product_id,            -- 注意：product_id 在 d 表中，需要加入
+        ROW_NUMBER() OVER (
+        PARTITION BY a.cid, a.uid
+        ORDER BY a.collect_time DESC
+        ) AS rn
+        FROM iot_collect_data a
+        LEFT JOIN iot_device d ON a.uid = d.uid
         <where>
+            <!-- 原始所有动态条件，直接迁移过来 -->
             <if test="entity.uid != null and entity.uid != ''">
-                and a.uid=#{entity.uid}
+                AND a.uid = #{entity.uid}
             </if>
             <if test="entity.deviceSn != null and entity.deviceSn != ''">
-                and d.device_sn=#{entity.deviceSn}
+                AND d.device_sn = #{entity.deviceSn}
             </if>
             <if test="entity.collectMode != null">
-                and a.collect_mode = #{entity.collectMode}
+                AND a.collect_mode = #{entity.collectMode}
             </if>
             <if test="entity.productId != null">
-                and d.product_id=#{entity.productId}
+                AND d.product_id = #{entity.productId}
             </if>
             <if test="entity.collectTaskId != null">
-                and a.collect_task_id=#{entity.collectTaskId}
+                AND a.collect_task_id = #{entity.collectTaskId}
             </if>
         </where>
-        group by a.cid, a.uid
+        )
+        SELECT
+        cid,
+        uid,
+        collect_task_id,
+        GROUP_CONCAT(CONCAT(field, '=', IF(status, value, reason)) SEPARATOR ':::') AS value,
+        status,
+        reason,
+        collect_time,
+        create_time,
+        device_name,
+        device_sn
+        FROM RankedData
+        WHERE rn = 1
+        GROUP BY
+        cid, uid,
+        collect_task_id,
+        status, reason,
+        collect_time, create_time,
+        device_name, device_sn
     </select>
     <select id="countOfViewByTime" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
         <if test="calcType == 'count'">
