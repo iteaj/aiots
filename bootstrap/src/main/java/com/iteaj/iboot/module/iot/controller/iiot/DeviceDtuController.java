@@ -30,7 +30,8 @@ public class DeviceDtuController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IProductService productService;
-    private final static String[] dutCode = {ProtocolCodes.DTU_MODBUS_RTU.getValue(), ProtocolCodes.DTU_MODBUS_TCP.getValue()};
+    private final static String[] dutCode = {ProtocolCodes.DTU_MODBUS_RTU.getValue()
+            , ProtocolCodes.DTU_MODBUS_TCP.getValue(), ProtocolCodes.DTU_MODBUS_OVER_MQTT.getValue()};
 
     public DeviceDtuController(IDeviceService deviceService, IProductService productService) {
         this.deviceService = deviceService;
