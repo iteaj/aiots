@@ -150,13 +150,13 @@ public class BatchGroupTask implements Runnable{
             }
         }
 
-        CollectListenerManager.getInstance().eventGroupPublish(listener -> {
-            try {
-                listener.finished(info);
-            } catch (Exception e) {
-                IotLogger.error(source, "-", "采集事件完成发布异常 {} - 设备组: {}", e.getMessage(), group.getName(), e);
-            }
-        });
+//        CollectListenerManager.getInstance().eventGroupPublish(listener -> {
+//            try {
+//                listener.finished(info);
+//            } catch (Exception e) {
+//                IotLogger.error(source, "-", "采集事件完成发布异常 {} - 设备组: {}", e.getMessage(), group.getName(), e);
+//            }
+//        });
     }
 
     private Map<String, List<List<BatchOfPoint>>> resolverBatchInfo(RealtimeStatus device) {
