@@ -43,8 +43,8 @@
             <if test="entity.collectMode != null">
                 and a.collect_mode = #{entity.collectMode}
             </if>
-            <if test="entity.productId != null">
-                and a.product_id=#{entity.productId}
+            <if test="entity.productCode != null and entity.productCode != ''">
+                and a.product_code=#{entity.productCode}
             </if>
             <if test="entity.fieldId != null">
                 and a.field_id=#{entity.fieldId}
