@@ -3,6 +3,8 @@ package com.iteaj.iboot.plugin.protocol.dtu.mqtt;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttProtocolType;
 import com.iteaj.iot.client.mqtt.message.MqttClientMessage;
 import com.iteaj.iot.client.mqtt.message.MqttMessageHead;
+import com.iteaj.iot.modbus.consts.ModbusCode;
+import com.iteaj.iot.utils.ByteUtil;
 import io.netty.handler.codec.mqtt.MqttQoS;
 
 public class ModbusOverMqttMessage extends MqttClientMessage {
@@ -30,7 +32,14 @@ public class ModbusOverMqttMessage extends MqttClientMessage {
     @Override
     protected MqttMessageHead doBuild(byte[] payload) {
         String deviceSn = getProperties().connectKey();
-        String messageId = String.format("%s:%d:%d", deviceSn, payload[0], payload[1]);
+        byte code = payload[1];
+        String messageId;
+        if(code >= ModbusCode.Write05.getCode()) { // 写操作
+            short address = ByteUtil.bytesToShort(payload, 2);
+            messageId = String.format("%s:%d:%d:%d", deviceSn, payload[0], code, address);
+        } else {
+            messageId = String.format("%s:%d:%d", deviceSn, payload[0], code);
+        }
         return new MqttMessageHead(deviceSn, messageId, DefaultMqttProtocolType.Subscribe);
     }
 }

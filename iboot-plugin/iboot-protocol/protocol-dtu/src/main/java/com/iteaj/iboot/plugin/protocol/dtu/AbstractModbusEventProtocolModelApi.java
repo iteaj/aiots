@@ -227,7 +227,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                 } else {
                     int readNum = address - startAddress;
                     final ModbusBitStatus status = payload.readStatus(readNum);
-                    dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), status == ModbusBitStatus.ON ? true : false);
+                    dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), status == ModbusBitStatus.ON);
                 }
             });
         } else {

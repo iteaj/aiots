@@ -6,6 +6,8 @@ import com.iteaj.iot.client.SocketClient;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttProtocolType;
 import com.iteaj.iot.client.mqtt.message.MqttMessageHead;
 import com.iteaj.iot.client.protocol.ClientInitiativeProtocol;
+import com.iteaj.iot.modbus.consts.ModbusCode;
+import com.iteaj.iot.utils.ByteUtil;
 import io.netty.handler.codec.mqtt.MqttQoS;
 
 public class ModbusOverMqttPublishProtocol extends ClientInitiativeProtocol<ModbusOverMqttMessage> {
@@ -32,7 +34,15 @@ public class ModbusOverMqttPublishProtocol extends ClientInitiativeProtocol<Modb
     @Override
     protected ModbusOverMqttMessage doBuildRequestMessage() {
         String deviceSn = client.getConfig().connectKey();
-        String messageId = String.format("%s:%d:%d", deviceSn, this.msg[0], this.msg[1]);
+        byte code = msg[1];
+        String messageId;
+        if(code >= ModbusCode.Write05.getCode()) {
+            short address = ByteUtil.bytesToShort(msg, 2);
+            messageId = String.format("%s:%d:%d:%d", deviceSn, msg[0], code, address);
+        } else {
+            messageId = String.format("%s:%d:%d", deviceSn, this.msg[0], code);
+        }
+
         MqttMessageHead messageHead = new MqttMessageHead(deviceSn, messageId, protocolType());
         messageHead.setMessage(this.msg);
         return new ModbusOverMqttMessage(messageHead, this.qoS, this.topic);

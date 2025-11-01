@@ -136,6 +136,7 @@ public class DeviceController extends BaseController {
      * @param device
      * @return
      */
+
     @PostMapping("connect/{status}")
     @CheckPermission(value = {"iot:modbus:connect", "iot:mqtt:connect", "iot:device:gateway:connect", "iot:plc:connect", "iot:dlt645:connect", "iot:opcua:connect"}, logical = Logical.OR)
     public Result connect(@RequestBody Device device, @PathVariable DeviceStatus status) {

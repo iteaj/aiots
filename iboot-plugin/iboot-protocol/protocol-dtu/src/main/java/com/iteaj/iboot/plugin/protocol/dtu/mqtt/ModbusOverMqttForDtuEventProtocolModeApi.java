@@ -46,7 +46,7 @@ public class ModbusOverMqttForDtuEventProtocolModeApi extends AbstractModbusEven
                         .collect(Collectors.toList());
             }).flatMap(Collection::stream).collect(Collectors.toList());
 
-            diguiPublish(arg, pointList, consumer, batchResult, dataSupplier, deviceSn, childSn, 0);
+            doPublish(arg, pointList, consumer, batchResult, dataSupplier, deviceSn, childSn, 0);
         } catch (NumberFormatException e) {
             consumer.accept(new BatchResult("解析设备编号失败["+e.getMessage()+"]", ExecStatus.fail));
         } catch (Exception e) {
@@ -54,7 +54,7 @@ public class ModbusOverMqttForDtuEventProtocolModeApi extends AbstractModbusEven
         }
     }
 
-    private void diguiPublish(ProtocolModelApiInvokeParam arg, List<Point> pointList
+    private void doPublish(ProtocolModelApiInvokeParam arg, List<Point> pointList
             , Consumer<BatchResult> consumer, BatchResult batchResult, DataSupplier dataSupplier, String deviceSn, int childSn, int index) {
         Point execPoint = pointList.get(index);
 
@@ -90,7 +90,7 @@ public class ModbusOverMqttForDtuEventProtocolModeApi extends AbstractModbusEven
                 e.printStackTrace();
             } finally {
                 if(index < pointList.size() - 1) {
-                    diguiPublish(arg, pointList, consumer, batchResult, dataSupplier, deviceSn, childSn, index + 1);
+                    doPublish(arg, pointList, consumer, batchResult, dataSupplier, deviceSn, childSn, index + 1);
                 } else {
                     consumer.accept(batchResult);
                 }

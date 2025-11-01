@@ -30,6 +30,11 @@ public class CollectInfo {
     private DeviceGroup group;
 
     /**
+     * 采集时间
+     */
+    private Date collectTime;
+
+    /**
      * 设备信息
      */
     private List<DeviceInfo> infos = new ArrayList<>();
