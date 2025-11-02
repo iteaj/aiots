@@ -53,10 +53,11 @@
         select * from iot_model_attr where product_id=#{productId}
     </select>
 
-    <select id="listDetailByProductId" resultMap="DetailResultMap">
+    <select id="listDetailByProductCode" resultMap="DetailResultMap">
         select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path from iot_model_attr a
+            left join iot_product p on a.product_id = p.id
             left join iot_model_attr_dict d on a.id = d.model_attr_id
-        where a.product_id=#{productId} order by d.id
+        where p.code=#{productCode} order by d.id
     </select>
 
     <select id="hasBinded" resultType="java.lang.Boolean">

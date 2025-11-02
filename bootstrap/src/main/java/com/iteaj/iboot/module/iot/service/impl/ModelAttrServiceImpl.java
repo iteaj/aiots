@@ -7,6 +7,8 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
+import com.iteaj.iboot.common.CacheKeys;
 import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
@@ -14,13 +16,16 @@ import com.iteaj.iboot.module.iot.mapper.ModelAttrDictMapper;
 import com.iteaj.iboot.module.iot.mapper.ModelAttrMapper;
 import com.iteaj.iboot.module.iot.service.IModelAttrService;
 import com.iteaj.framework.BaseServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -31,10 +36,16 @@ import java.util.*;
  * @since 2023-09-12
  */
 @Service
+@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_MODEL_ATTR})
 public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, ModelAttr> implements IModelAttrService {
 
-    @Autowired
-    private ModelAttrDictMapper modelAttrDictMapper;
+    private final Cache cache;
+    private final ModelAttrDictMapper modelAttrDictMapper;
+
+    public ModelAttrServiceImpl(CacheManager cacheManager, ModelAttrDictMapper modelAttrDictMapper) {
+        this.modelAttrDictMapper = modelAttrDictMapper;
+        cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_ATTR);
+    }
 
     @Override
     @Transactional
@@ -59,6 +70,10 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
 
     @Override
     public BooleanResult updateById(ModelAttr entity) {
+        if(getBaseMapper().isEnabledOfProduct(entity.getId())) {
+            BooleanResult.buildFalse("请先停用产品");
+        }
+
         this.getOne(Wrappers.<ModelAttr>lambdaQuery()
                 .ne(ModelAttr::getId, entity.getId())
                 .eq(ModelAttr::getField, entity.getField())
@@ -73,6 +88,7 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
                 }
            }
         });
+
         resolveField(entity);
         return super.updateById(entity);
     }
@@ -153,5 +169,36 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
         ModelAttr modelAttr = this.getById(dto.getId()).ifNotPresentThrow("模型属性不存在").getData();
         return new BooleanResult(this.getBaseMapper()
                 .switchCtrlStatus(modelAttr.getProductId(), dto.getId(), dto.getStatus()) > 0);
+    }
+
+    @Override
+    public List<ModelAttr> listDetailByProductCode(Serializable productCode) {
+        return this.getBaseMapper().listDetailByProductCode(productCode);
+    }
+
+    @Override
+    public Map<Serializable, ModelAttrMeta> getAttrMetas(Serializable productCode) {
+        Map<Serializable, ModelAttrMeta> attrMetaMap;
+        Cache.ValueWrapper valueWrapper = cache.get(productCode);
+        if(valueWrapper == null) {
+            List<ModelAttr> modelAttrs = listDetailByProductCode(productCode);
+            if(modelAttrs != null && !modelAttrs.isEmpty()) {
+                attrMetaMap = modelAttrs.stream()
+                        .map(item -> (ModelAttrMeta) item)
+                        .collect(Collectors.toMap(ModelAttrMeta::getId, item -> item));
+                cache.put(productCode, attrMetaMap);
+            } else {
+                cache.put(productCode, attrMetaMap = Collections.emptyMap());
+            }
+        } else {
+            attrMetaMap = (Map<Serializable, ModelAttrMeta>) valueWrapper.get();
+        }
+
+        return attrMetaMap;
+    }
+
+    @Override
+    public void removeAttrMetas(Serializable productCode) {
+        cache.evict(productCode);
     }
 }

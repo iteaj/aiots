@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot;
 
 import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.framework.spi.iot.data.ModelAttrMetaService;
 import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.framework.spring.condition.ConditionalOnRedis;
 import com.iteaj.framework.thread.IBootThreadManger;
@@ -86,8 +87,8 @@ public class IotAutoConfiguration {
      * @return
      */
     @Bean
-    public PluginRealtimeInfoListenerPublisher pluginRealtimeInfoListenerPublisher() {
-        return new PluginRealtimeInfoListenerPublisher();
+    public PluginRealtimeInfoListenerPublisher pluginRealtimeInfoListenerPublisher(ModelAttrMetaService modelAttrMetaService) {
+        return new PluginRealtimeInfoListenerPublisher(modelAttrMetaService);
     }
 
     @Bean
