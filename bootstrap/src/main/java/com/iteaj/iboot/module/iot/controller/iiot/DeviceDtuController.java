@@ -6,7 +6,6 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.DeviceDto;
 import com.iteaj.iboot.module.iot.entity.Device;
@@ -30,7 +29,7 @@ public class DeviceDtuController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IProductService productService;
-    private final static String[] dutCode = {ProtocolCodes.DTU_MODBUS_RTU.getValue()
+    private final static String[] dtuCode = {ProtocolCodes.DTU_MODBUS_RTU.getValue()
             , ProtocolCodes.DTU_MODBUS_TCP.getValue(), ProtocolCodes.DTU_MODBUS_OVER_MQTT.getValue()};
 
     public DeviceDtuController(IDeviceService deviceService, IProductService productService) {
@@ -46,7 +45,7 @@ public class DeviceDtuController extends BaseController {
     @GetMapping("/view")
     @CheckPermission({"iot:dtu:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
-        entity.setProtocolCodes(dutCode);
+        entity.setProtocolCodes(dtuCode);
         return this.deviceService.pageOfDetail(page, entity);
     }
 
@@ -86,7 +85,7 @@ public class DeviceDtuController extends BaseController {
      */
     @GetMapping("/products")
     public Result<List<Product>> products(DeviceType deviceType) {
-        return this.productService.listOfProtocolCodes(deviceType, dutCode, null);
+        return this.productService.listOfProtocolCodes(deviceType, dtuCode, null);
     }
 }
 
