@@ -2,6 +2,7 @@ package com.iteaj.framework.spi.iot;
 
 import com.iteaj.framework.spi.iot.protocol.ProtocolSupplierException;
 import com.iteaj.iot.client.ClientComponent;
+import com.iteaj.iot.client.ClientConnectProperties;
 import com.iteaj.iot.client.IotClient;
 import com.iteaj.iot.client.MultiClientManager;
 
@@ -15,19 +16,24 @@ public abstract class StaticClientProtocolSupplier<C extends NetworkConfigImpl, 
             throw new ProtocolSupplierException("未启动网络组件");
         }
 
-        K client = (K) component.getClient(config.getDeviceSn());
+        String clientKey = getClientKey(config);
+        K client = (K) component.getClient(clientKey);
         if(client != null) {
             return client;
         }
 
         client = doCreateClient(config, component);
         if(client != null) {
-            client.init(null);
+            client.init(config);
             if(component instanceof MultiClientManager) {
-                component.addClient(config.getDeviceSn(), client);
+                component.addClient(clientKey, client);
             }
         }
         return client;
+    }
+
+    protected String getClientKey(C config) {
+        return config.getDeviceSn();
     }
 
     @Override
