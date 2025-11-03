@@ -56,12 +56,11 @@ public class BatchGroupTask implements Runnable{
                         point.setAddress(config.getValue());
                         item.getUpConfig().forEach(upConfig -> {
                             if(upConfig.getProtocolAttrField().equals(PointProtocolConfig.POINT_VALUE)) {
-                                point.setAttrId(upConfig.getModelAttrId());
-                                point.setAttrField(upConfig.getAttrField());
                                 final UpModelAttr upModelAttr = new UpModelAttr(upConfig.getModelAttrId(), upConfig.getAttrField(), upConfig.getAttrName()
                                         , DataType.build(upConfig.getDataType()), upConfig.getAccuracy(), upConfig.getGain()
                                         , upConfig.getResolver(), upConfig.getScript(), null);
                                 point.setModelAttr(upModelAttr);
+
                                 // 位属性配置
                                 if(upConfig.getDataType().equals(DataType.t_bit.getValue())) {
                                     final List<ModelAttrDict> dicts = upConfig.getDicts();
@@ -75,7 +74,6 @@ public class BatchGroupTask implements Runnable{
                             }
                         });
 
-                        return;
                     } else {
                         point.addDownConfig(config.getProtocolAttrField(), config.getValue());
                     }
@@ -85,7 +83,7 @@ public class BatchGroupTask implements Runnable{
             }
 
             return null;
-        }).filter(item -> item != null).collect(Collectors.toList());
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     @Override
@@ -150,13 +148,13 @@ public class BatchGroupTask implements Runnable{
             }
         }
 
-        CollectListenerManager.getInstance().eventGroupPublish(listener -> {
-            try {
-                listener.finished(info);
-            } catch (Exception e) {
-                IotLogger.error(source, "-", "采集事件完成发布异常 {} - 设备组: {}", e.getMessage(), group.getName(), e);
-            }
-        });
+//        CollectListenerManager.getInstance().eventGroupPublish(listener -> {
+//            try {
+//                listener.finished(info);
+//            } catch (Exception e) {
+//                IotLogger.error(source, "-", "采集事件完成发布异常 {} - 设备组: {}", e.getMessage(), group.getName(), e);
+//            }
+//        });
     }
 
     private Map<String, List<List<BatchOfPoint>>> resolverBatchInfo(RealtimeStatus device) {

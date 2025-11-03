@@ -35,7 +35,6 @@ public class DataSupplier {
 
     public DataSupplier(String protocolCode, DeviceKey key) {
         this.key = key;
-        this.collectTime = new Date();
         this.protocolCode = protocolCode;
     }
 
@@ -66,7 +65,11 @@ public class DataSupplier {
     public DataSupplier build(Date collectTime) {
         this.collectTime = collectTime;
         if(CollectionUtil.isNotEmpty(this.getValues())) {
-            this.getValues().forEach(item -> item.setCollectTime(collectTime));
+            this.getValues().forEach(item -> {
+                if(item.getCollectTime() == null) {
+                    item.setCollectTime(collectTime);
+                }
+            });
         }
 
         return this;

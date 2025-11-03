@@ -41,7 +41,7 @@ public class RealtimePayload extends EntityPayload<Collection> {
     }
 
     public boolean isDataFull() {
-        return Objects.equals(getType(), "data_full");
+        return isData();
     }
 
     public boolean isDataActive() {

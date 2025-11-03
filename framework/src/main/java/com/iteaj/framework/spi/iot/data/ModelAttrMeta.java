@@ -34,5 +34,5 @@ public interface ModelAttrMeta {
 
     String getRemark();
 
-    List<ModelAttrMeta> getDictMetas();
+    List<ModelAttrDictMeta> getDictMetas();
 }

@@ -24,4 +24,13 @@ public interface IModelAttrRealtimeDataService {
      * @return
      */
     RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn);
+
+    /**
+     *  获取指定的网关子设备信息
+     * @param protocolCode
+     * @param deviceSn 设备编号
+     * @param parentDeviceSn 父设备编号(网关设备编号)
+     * @return {@link  RealtimeDeviceStatus}
+     */
+    RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn);
 }

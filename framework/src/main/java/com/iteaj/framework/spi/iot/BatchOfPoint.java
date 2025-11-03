@@ -7,16 +7,6 @@ import java.util.Map;
 public class BatchOfPoint {
 
     /**
-     * 属性id
-     */
-    private Long attrId;
-
-    /**
-     * 属性字段
-     */
-    private String attrField;
-
-    /**
      * 指令
      */
     private String direct;
@@ -44,9 +34,7 @@ public class BatchOfPoint {
 
     public BatchOfPoint() { }
 
-    public BatchOfPoint(Long attrId, String attrField, String direct, String address) {
-        this.attrId = attrId;
-        this.attrField = attrField;
+    public BatchOfPoint(String direct, String address) {
         this.direct = direct;
         this.address = address;
     }
@@ -68,19 +56,15 @@ public class BatchOfPoint {
     }
 
     public Long getAttrId() {
-        return attrId;
-    }
-
-    public void setAttrId(Long attrId) {
-        this.attrId = attrId;
+        return this.modelAttr.getId();
     }
 
     public String getAttrField() {
-        return attrField;
+        return this.modelAttr.getField();
     }
 
-    public void setAttrField(String attrField) {
-        this.attrField = attrField;
+    public String getAttrName() {
+        return this.modelAttr.getName();
     }
 
     public String getDownConfig(String key) {

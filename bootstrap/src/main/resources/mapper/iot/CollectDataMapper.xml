@@ -27,19 +27,10 @@
 
     <select id="detailOfPage" resultMap="BaseResultMap">
         select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value
-            , a.status, a.reason, a.collect_time, a.create_time, a.device_name, a.device_sn
-            , f.name field_name from iot_collect_data a
-        left join iot_device d on a.uid=d.uid
-        <choose>
-            <when test="entity.collectMode == 'model'">
-                left join iot_model_attr f on f.id = a.field_id
-            </when>
-            <otherwise>
-                left join iot_signal f on f.id=a.field_id
-            </otherwise>
-        </choose>
+            , a.status, a.reason, a.collect_time, a.create_time, a.device_name, a.device_sn, a.field_name
+        from iot_collect_data a
         <where>
-            <if test="entity.uid != null">
+            <if test="entity.uid != null and entity.uid != ''">
                 and a.uid=#{entity.uid}
             </if>
             <if test="entity.cid != null">
@@ -51,8 +42,8 @@
             <if test="entity.collectMode != null">
                 and a.collect_mode = #{entity.collectMode}
             </if>
-            <if test="entity.productId != null">
-                and d.product_id=#{entity.productId}
+            <if test="entity.productCode != null and entity.productCode != ''">
+                and a.product_code=#{entity.productCode}
             </if>
             <if test="entity.fieldId != null">
                 and a.field_id=#{entity.fieldId}

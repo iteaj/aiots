@@ -157,4 +157,9 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn) {
         return cacheManager.get(protocolCode, deviceSn);
     }
+
+    @Override
+    public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn) {
+        return cacheManager.get(protocolCode, deviceSn, parentDeviceSn);
+    }
 }

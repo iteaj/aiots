@@ -136,4 +136,9 @@ public class RedisRealtimeDataService implements RealtimeDataService{
     public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn) {
         return null;
     }
+
+    @Override
+    public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn) {
+        return null;
+    }
 }

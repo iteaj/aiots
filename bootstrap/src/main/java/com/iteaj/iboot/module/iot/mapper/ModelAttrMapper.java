@@ -57,5 +57,5 @@ public interface ModelAttrMapper extends BaseMapper<ModelAttr> {
      */
     boolean isEnabledOfProduct(Serializable id);
 
-    List<ModelAttr> listDetailByProductId(Long productId);
+    List<ModelAttr> listDetailByProductCode(Serializable productCode);
 }

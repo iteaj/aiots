@@ -38,7 +38,9 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
      */
     private String field;
 
-    @TableField(exist = false)
+    /**
+     * 字段名称
+     */
     private String fieldName;
 
     /**

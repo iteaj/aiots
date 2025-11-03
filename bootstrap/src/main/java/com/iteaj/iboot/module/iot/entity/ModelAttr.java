@@ -3,9 +3,11 @@ package com.iteaj.iboot.module.iot.entity;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.data.ModelAttrDictMeta;
 import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
 import com.iteaj.framework.validate.AllGroup;
 import com.iteaj.iboot.module.iot.consts.AttrOrigin;
@@ -18,6 +20,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -133,21 +136,11 @@ public class ModelAttr extends BaseEntity implements ModelAttrMeta {
     @TableField(exist = false)
     private List<ModelAttrDict> dicts;
 
-    public ModelAttrDict resolveValueToDict(String value) {
-        if(CollectionUtil.isNotEmpty(dicts)) {
-            for (int i = 0; i < dicts.size(); i++) {
-                ModelAttrDict attrDict = dicts.get(i);
-                if(attrDict.getDictValue().equals(value)) {
-                    return attrDict;
-                }
-            }
-        }
-
-        return null;
-    }
-
     @Override
-    public List<ModelAttrMeta> getDictMetas() {
-        return Collections.emptyList();
+    @JsonIgnore
+    public List<ModelAttrDictMeta> getDictMetas() {
+        return dicts != null ? dicts.stream()
+                .map(item -> (ModelAttrDictMeta) item)
+                .collect(Collectors.toList()) : Collections.emptyList();
     }
 }
