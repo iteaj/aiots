@@ -2,27 +2,30 @@ package com.iteaj.plguin.protocol.hj212.driver;
 
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.*;
-import com.iteaj.framework.spi.iot.consts.CtrlMode;
-import com.iteaj.framework.spi.iot.consts.GatewayType;
-import com.iteaj.framework.spi.iot.consts.ProtocolImplMode;
-import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
 import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
-import com.iteaj.iot.Message;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.plguin.protocol.hj212.network.HJ212Component;
 import com.iteaj.plguin.protocol.hj212.network.HJ212Message;
 import com.iteaj.plguin.protocol.hj212.network.HJ212RealtimeProtocol;
 
+import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 public class HJ212ProtocolSupplier extends DirectStaticServerProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, HJ212Component> {
 
-    private static final ProtocolModel model = new DefaultProtocolModel("HJ212", CtrlMode.COMMON, TransportProtocol.TCP);
+    private static final ProtocolModel model = new DefaultProtocolModel("HJ212", CtrlMode.COMMON, TransportProtocol.TCP)
+            .addModelAttr(new ProtocolModelAttr("date", "时间", DataType.t_datetime, AttrType.IGNORE))
+            .addModelAttr(new ProtocolModelAttr("pwd", "访问密码", DataType.t_string, AttrType.IGNORE))
+            .addModelApi(new HJ212FuncModelApi("2011", "上报实时数据", "用于启动现场机上传实时数据").asProtocol()
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("pwd", "访问密码")))
+            ;
 
     @Override
     protected void doRefresh(HJ212Component component, NetworkConfigImpl.TcpNetworkConfig config) {
@@ -78,21 +81,22 @@ public class HJ212ProtocolSupplier extends DirectStaticServerProtocolSupplier<Ne
     }
 
     @Override
-    protected DataSupplier doGetDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, List<ModelAttrMeta> metas) {
+    protected DataSupplier doGetDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Map<Serializable, ModelAttrMeta> metas) {
         DataSupplier result = new DataSupplier(getProtocol().getCode(), param.buildKey());
         if(protocol instanceof HJ212RealtimeProtocol) {
             HJ212Message message = (HJ212Message)protocol.requestMessage();
             Map<String, String> data = ((HJ212RealtimeProtocol) protocol).getData();
 
             Date collectTime = message.getBody().getCollectTime();
-            metas.forEach(meta -> {
+            metas.values().forEach(meta -> {
                 if(data.containsKey(meta.getField())) {
                     String metaValue = data.get(meta.getField());
-                    result.addValue(meta.getId(), "-", meta.getField(), metaValue, collectTime);
+                    result.addValue(meta.getId(), "", meta.getField(), metaValue, collectTime);
                 }
             });
         }
 
         return result;
     }
+
 }

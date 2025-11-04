@@ -151,6 +151,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                         .setType(api.getType())
                         .setFuncType(FuncType.R)
                         .setRemark(api.getRemark())
+                        .setProtocol(api.isProtocol())
                         .setTriggerMode(api.getTriggerMode());
 
                 // 功能类型

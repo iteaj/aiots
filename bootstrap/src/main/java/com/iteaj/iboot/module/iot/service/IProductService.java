@@ -8,7 +8,6 @@ import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
-import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Product;
@@ -41,10 +40,11 @@ public interface IProductService extends IBaseService<Product> {
 
     /**
      * 协议模型转产品模型
-     * @param protocolId 协议id
+     *
+     * @param entity 协议id
      * @return
      */
-    ProtocolToProductModel protocolToProductModel(Long protocolId);
+    ProtocolToProductModel protocolToProductModel(Product entity);
 
     /***
      * 根据产品代码获取产品

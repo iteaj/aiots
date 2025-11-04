@@ -137,7 +137,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     private void saveProtocolToModel(Product entity) {
-        ProtocolToProductModel productModel = protocolToProductModel(entity.getProtocolId());
+        ProtocolToProductModel productModel = protocolToProductModel(entity);
         // 批量保存物模型属性
         if(!CollectionUtils.isEmpty(productModel.getAttrs())) {
             productModel.getAttrs().forEach(item -> item.setProductId(entity.getId()));
@@ -145,37 +145,22 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         }
 
         // 批量保存事件接口
-//        List<ModelApi> apis = new ArrayList<>();
-//        if(!CollectionUtils.isEmpty(productModel.getEventApis())) {
-//            apis.addAll(productModel.getEventApis());
-//        }
-//
-//        if(!CollectionUtils.isEmpty(productModel.getFuncApis())) {
-//            productModel.getFuncApis().forEach(item -> item.setProductId(entity.getId()));
-//            apis.addAll(productModel.getFuncApis());
-//        }
-//
-//        if(!CollectionUtils.isEmpty(apis)) {
-//            apis.forEach(item -> {
-//                item.setProductId(entity.getId());
-//                modelApiService.save(item);
-//                List<ModelApiConfig> apiConfigs = new ArrayList<>();
-//
-//                if(!CollectionUtils.isEmpty(item.getUpConfig())) {
-//                    apiConfigs.addAll(item.getUpConfig());
-//                }
-//
-//                if(!CollectionUtils.isEmpty(item.getDownConfig())) {
-//                    apiConfigs.addAll(item.getDownConfig());
-//                }
-//
-//                // 批量保存api配置
-//                if(!CollectionUtils.isEmpty(apiConfigs)) {
-//                    apiConfigs.forEach(config -> config.setProductId(entity.getId()));
-//                    modelApiConfigService.saveBatch(apiConfigs);
-//                }
-//            });
-//        }
+        List<ModelApi> apis = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(productModel.getEventApis())) {
+            apis.addAll(productModel.getEventApis());
+        }
+
+        if(!CollectionUtils.isEmpty(productModel.getFuncApis())) {
+            productModel.getFuncApis().forEach(item -> item.setProductId(entity.getId()));
+            apis.addAll(productModel.getFuncApis());
+        }
+
+        if(!CollectionUtils.isEmpty(apis)) {
+            apis.forEach(item -> {
+                item.setProductId(entity.getId());
+                modelApiService.save(item);
+            });
+        }
     }
 
     @Override
@@ -220,16 +205,18 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     @Override
-    public ProtocolToProductModel protocolToProductModel(Long protocolId) {
+    public ProtocolToProductModel protocolToProductModel(Product entity) {
         ProtocolToProductModel model = new ProtocolToProductModel();
-        this.protocolService.getByDetail(protocolId).ifPresent(item -> {
+        this.protocolService.getByDetail(entity.getProtocolId()).ifPresent(item -> {
             if(item.getImplMode() != ProtocolImplMode.Custom) {
                 DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getCode());
                 if(supplier != null) {
                     ProtocolModel protocol = supplier.getProtocol();
 
                     // 协议接口
-                    protocol.getApis().values().stream().forEach(api -> {
+                    protocol.getApis().values().stream()
+                            .filter(AbstractProtocolModelApi::isProtocol)
+                            .forEach(api -> {
                         // 协议接口
                         ModelApi modelApi = new ModelApi();
                         BeanUtils.copyProperties(api, modelApi);
@@ -250,10 +237,13 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                                     return convertProtocolApiConfig(modelApi, config, attr);
                                 }).collect(Collectors.toList());
 
-                        modelApi.setProtocol(true); //协议指令为null
+                        modelApi.setProtocol(true).setDirect(api.getCode()).setDebug(true); //协议指令为null
+                        String modelCodePrefix = IotUtil.getModelCodePrefix(entity.getCode());
                         if(api.getType() == ProtocolApiType.event) {
+                            modelApi.setCode(modelCodePrefix + "get_" + api.getCode()).setName(api.getName());
                             model.getEventApis().add(modelApi.setUpConfig(upConfig).setDownConfig(downConfig));
                         } else if(api.getType() == ProtocolApiType.func) {
+                            modelApi.setCode(modelCodePrefix + "set_" + api.getCode()).setName(api.getName());
                             model.getFuncApis().add(modelApi.setUpConfig(upConfig).setDownConfig(downConfig));
                         }
                     });
@@ -281,10 +271,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 }).collect(Collectors.toList());
 
                 List<ModelApi> funcApis = item.getFuncApis().stream()
-                        .map(api -> convertProtocolApiToModelApi(api))
+                        .map(this::convertProtocolApiToModelApi)
                         .collect(Collectors.toList());
                 List<ModelApi> eventApis = item.getEventApis().stream()
-                        .map(api -> convertProtocolApiToModelApi(api))
+                        .map(this::convertProtocolApiToModelApi)
                         .collect(Collectors.toList());
 
                 model.setFuncApis(funcApis).setEventApis(eventApis).setAttrs(attrList);
@@ -604,9 +594,6 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         ModelApi modelApi = new ModelApi();
         BeanUtils.copyProperties(api, modelApi);
 
-        // 协议的功能转成协议指令
-        modelApi.setProtocol(true);
-
         List<ModelApiConfig> upConfigs = api.getUpConfigs().stream().map(config -> {
             ModelApiConfig apiConfig = new ModelApiConfig();
             BeanUtils.copyProperties(config, apiConfig);
@@ -629,6 +616,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 .setAttrField(attr.getField())
                 .setApiCode(protocolApi.getCode())
                 .setFieldType(config.getFieldType())
-                .setDirection(config.getDirection());
+                .setProtocolAttrName(attr.getName())
+                .setProtocolAttrField(attr.getField())
+                .setDirection(config.getDirection())
+                .setDataType(attr.getDataType().getValue())
+                .setProtocolDataType(attr.getDataType().getValue());
     }
 }
