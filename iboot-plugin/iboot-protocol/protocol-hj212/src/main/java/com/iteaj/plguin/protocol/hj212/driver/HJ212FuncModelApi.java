@@ -1,6 +1,8 @@
 package com.iteaj.plguin.protocol.hj212.driver;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.AbstractFuncProtocolModelApi;
@@ -39,11 +41,16 @@ public class HJ212FuncModelApi extends AbstractFuncProtocolModelApi {
         Map<String, String> params = new HashMap<>();
         HJ212MessageBody body = new HJ212MessageBody(params);
         HJ212Message message = new HJ212Message(head, body);
-        if(getCode().equals("2011")) {
-            return new HJ212RequestProtocol(message);
+        if(getCode().equals(HJ212CmdCode.设置实时数据间隔.getCode()+"")) {
+            String rtdInterval = arg.getString("RtdInterval");
+            if(StrUtil.isEmpty(rtdInterval)) {
+                throw new ProtocolInvokeException("未指定时间间隔");
+            }
+
+            params.put("RtdInterval", rtdInterval);
         }
 
-        return null;
+        return new HJ212RequestProtocol(message);
     }
 
     @Override
