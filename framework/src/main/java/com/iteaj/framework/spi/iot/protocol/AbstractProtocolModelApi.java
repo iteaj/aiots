@@ -30,6 +30,11 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
     private String remark;
 
     /**
+     * 是否归属原协议(归属于协议的接口自动写入物模型, 不支持作为指令)
+     */
+    private boolean protocol;
+
+    /**
      * 接口类型
      */
     private ProtocolApiType type;
@@ -205,6 +210,14 @@ public abstract class AbstractProtocolModelApi implements ProtocolModelApi{
 
     public void setDownConfig(Map<String, ProtocolModelApiConfig> downConfig) {
         this.downConfig = downConfig;
+    }
+
+    public boolean isProtocol() {
+        return protocol;
+    }
+
+    public AbstractProtocolModelApi asProtocol() {
+        this.protocol = true; return this;
     }
 
     protected void setProtocolModel(ProtocolModel protocolModel) {

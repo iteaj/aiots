@@ -80,6 +80,8 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
             throw new ServiceException("协议属性[protocolAttrField]不能为空");
         }
 
+        config.setProductId(entity.getProductId());
+
         // 如果是点位协议, 同一款产品下面上/下行的点位地址必须唯一
         if(config.getProtocolAttrField().equals(PointProtocolConfig.POINT_ADDRESS)) {
             CtrlMode ctrlMode = this.getProtocolCtrlModelByProductId(entity.getProductId());

@@ -106,7 +106,7 @@ public class ModbusOverMqttForDtuProtocolSupplier extends StaticClientProtocolSu
                 throw new ProtocolSupplierException("订阅主题("+s+")必须包含{deviceSn}占位符");
             }
 
-            s = s.replace("{deviceSn}", "+");
+            s = s.replace("{deviceSn}", config.getDeviceSn());
             subscriptions.add(new MqttTopicSubscription(s, mqttQoS));
         }
 

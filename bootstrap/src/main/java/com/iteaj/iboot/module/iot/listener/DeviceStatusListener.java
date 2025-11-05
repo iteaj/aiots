@@ -82,7 +82,7 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
 
     public boolean isSkip(String source, FrameworkComponent component) {
         String name = component.getName();
-        return name.equals("MQTT(Gateway)") || name.equals("MQTT<ModbusOver>");
+        return name.equals("MQTT(Gateway)");
     }
 
     @Override
