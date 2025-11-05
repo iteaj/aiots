@@ -30,6 +30,22 @@ public class HJ212MessageHead extends DefaultMessageHead {
         this.Flag = Flag;
     }
 
+    public HJ212MessageHead buildResp() {
+        HJ212CmdCode cmdCode = isNotifyCmd() ? HJ212CmdCode.通知应答 : HJ212CmdCode.数据应答;
+        return new HJ212MessageHead(getMN(), HJ212SysCode.系统交互, cmdCode, getQN(), getPW(), "4");
+    }
+
+    public boolean isNotifyCmd() {
+        switch (this.CN) { // 通知命令
+            case 现场机时间校准请求:
+            case 停止察看污染物实时数据:
+            case 停止察看设备运行状态:
+                return true;
+        }
+
+        return false;
+    }
+
     @Override
     public HJ212CmdCode getType() {
         return (HJ212CmdCode) super.getType();

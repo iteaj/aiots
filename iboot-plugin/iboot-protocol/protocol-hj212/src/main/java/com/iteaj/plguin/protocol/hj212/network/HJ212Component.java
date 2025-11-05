@@ -2,6 +2,7 @@ package com.iteaj.plguin.protocol.hj212.network;
 
 import cn.hutool.core.io.checksum.CRC8;
 import cn.hutool.core.io.checksum.crc16.CRC16Ansi;
+import com.iteaj.iot.AbstractProtocol;
 import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.ProtocolType;
 import com.iteaj.iot.config.ConnectProperties;
@@ -26,9 +27,9 @@ public class HJ212Component extends ByteToMessageDecoderServerComponent<HJ212Mes
     @Override
     public HJ212Message doTcpDecode(ChannelHandlerContext ctx, ByteBuf in) {
         if(in.isReadable() && in.readableBytes() >= 2) {
-            if(in.getByte(0) == '#' && in.getByte(1) == '#') {
+            if(in.getByte(in.readerIndex()) == '#' && in.getByte(in.readerIndex() + 1) == '#') {
                 if(in.readableBytes() >= 6) {
-                    CharSequence sequence = in.getCharSequence(2, 4, Charset.defaultCharset());
+                    CharSequence sequence = in.getCharSequence(in.readerIndex() + 2, 4, Charset.defaultCharset());
                     int length = Integer.parseInt(sequence.toString());
                     if(in.readableBytes() >= (length + 12)) {
                         byte[] message = new byte[length + 12];
@@ -36,7 +37,7 @@ public class HJ212Component extends ByteToMessageDecoderServerComponent<HJ212Mes
                         if(CRC16Checksum(message)) {
                             return new HJ212Message(message);
                         } else {
-                            logger.error("解码异常({}) CRC校验失败", getName(), new ProtocolException(ByteUtil.bytesToString(message)));
+                            logger.error("解码异常({}) CRC校验失败 - 数据段长度: {}", getName(), length, new ProtocolException(ByteUtil.bytesToString(message)));
                         }
                     }
                 }
@@ -53,7 +54,7 @@ public class HJ212Component extends ByteToMessageDecoderServerComponent<HJ212Mes
     private boolean CRC16Checksum(byte[] msg) {
         CRC16Ansi crc16Ansi = new CRC16Ansi();
         crc16Ansi.update(ByteUtil.subBytes(msg, 6, msg.length - 6));
-        String value = crc16Ansi.getHexValue();
+        String value = crc16Ansi.getHexValue(true);
         String oriCrc = new String(ByteUtil.subBytes(msg, msg.length - 6, msg.length - 2));
         return Objects.equals(oriCrc.toLowerCase(), value);
     }
@@ -69,13 +70,32 @@ public class HJ212Component extends ByteToMessageDecoderServerComponent<HJ212Mes
     }
 
     @Override
-    protected ClientInitiativeProtocol<HJ212Message> doGetProtocol(HJ212Message message, ProtocolType type) {
-        HJ212CmdCode protocolType = (HJ212CmdCode) type;
-        System.out.println("HJ212命令: " + protocolType);
+    public AbstractProtocol getProtocol(HJ212Message message) {
+        String messageId = message.getHead().getMessageId();
+        HJ212CmdCode type = message.getHead().getType();
+
         HJ212SysCode sysCode = message.getHead().getST();
         if(sysCode == HJ212SysCode.系统交互) { // 9011-9014
-            remove(message.getHead().getQN());
+            if(type == HJ212CmdCode.请求应答) {
+                if(message.getBody().isQnRtnSuccess()) {
+                    return get(messageId);
+                } else {
+                    return remove(messageId);
+                }
+            } else if(type == HJ212CmdCode.执行结果) {
+                return remove(messageId);
+            }
+        } else if(isExists(messageId)) { // 说明是请求命令返回的数据
+            return get(messageId); // 只获取不移除, 在执行结果处移除
         }
+
+        return this.doGetProtocol(message, type);
+    }
+
+    @Override
+    protected ClientInitiativeProtocol<HJ212Message> doGetProtocol(HJ212Message message, ProtocolType type) {
+        HJ212CmdCode protocolType = (HJ212CmdCode) type;
+//        HJ212SysCode sysCode = message.getHead().getST();
 
         // 实时数据上报
         if(protocolType.getCode() >= 2000 && protocolType.getCode() <= 2999) {

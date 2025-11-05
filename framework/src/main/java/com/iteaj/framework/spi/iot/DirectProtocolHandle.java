@@ -35,7 +35,7 @@ public interface DirectProtocolHandle<T extends Protocol> extends ProtocolHandle
                 ProtocolModelApiInvokeParam param = new ProtocolModelApiInvokeParam(deviceStatus.getUid())
                         .setDeviceSn(deviceStatus.getDeviceSn()).addDevice(deviceStatus);
                 DataSupplier dataSupplier = protocolSupplier.getDataSupplier(protocol, param, attrMetas);
-                if(dataSupplier != null) {
+                if(dataSupplier != null && dataSupplier.getValues() != null) {
                     getDataCollectPublishService().publish(dataSupplier, deviceStatus);
                 }
             }

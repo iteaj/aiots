@@ -1,8 +1,12 @@
 package com.iteaj.plguin.protocol.hj212.network;
 
+import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfigOption;
 import com.iteaj.iot.ProtocolException;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public enum HJ212SysCode {
 
@@ -45,5 +49,11 @@ public enum HJ212SysCode {
         }
 
         throw new ProtocolException("不支持的系统编码["+code+"]");
+    }
+
+    public static List<ProtocolModelApiConfigOption> options() {
+        return Arrays.stream(values())
+                .map(item -> new ProtocolModelApiConfigOption(item.name() + "("+item.getCode()+")", item.getCode()))
+                .collect(Collectors.toList());
     }
 }

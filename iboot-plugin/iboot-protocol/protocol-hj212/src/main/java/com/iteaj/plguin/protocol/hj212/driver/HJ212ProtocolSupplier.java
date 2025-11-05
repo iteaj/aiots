@@ -4,26 +4,31 @@ import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
-import com.iteaj.framework.spi.iot.protocol.DefaultProtocolModel;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModel;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelApiConfig;
-import com.iteaj.framework.spi.iot.protocol.ProtocolModelAttr;
+import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
-import com.iteaj.plguin.protocol.hj212.network.HJ212Component;
-import com.iteaj.plguin.protocol.hj212.network.HJ212Message;
-import com.iteaj.plguin.protocol.hj212.network.HJ212RealtimeProtocol;
+import com.iteaj.plguin.protocol.hj212.network.*;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class HJ212ProtocolSupplier extends DirectStaticServerProtocolSupplier<NetworkConfigImpl.TcpNetworkConfig, HJ212Component> {
 
+    private static final List<ProtocolModelApiConfigOption> options = HJ212SysCode.options();
     private static final ProtocolModel model = new DefaultProtocolModel("HJ212", CtrlMode.COMMON, TransportProtocol.TCP)
             .addModelAttr(new ProtocolModelAttr("date", "时间", DataType.t_datetime, AttrType.IGNORE))
             .addModelAttr(new ProtocolModelAttr("pwd", "访问密码", DataType.t_string, AttrType.IGNORE))
-            .addModelApi(new HJ212FuncModelApi("2011", "上报实时数据", "用于启动现场机上传实时数据").asProtocol()
+            .addModelAttr(new ProtocolModelAttr("ST", "系统编码", DataType.t_string, AttrType.IGNORE))
+            .addModelApi(new HJ212FuncModelApi(HJ212CmdCode.上传污染物实时数据.getCode()+"", "上报实时数据", "用于启动现场机上传实时数据").asProtocol()
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("ST", "系统编码(参考系统编码表)").setOptions(options))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("pwd", "访问密码")))
+            .addModelApi(new HJ212FuncModelApi(HJ212CmdCode.设置实时数据间隔.getCode()+"", "设置实时数据间隔", "指定实时数据上报间隔").asProtocol()
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("ST", "系统编码(参考系统编码表)"))
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("pwd", "访问密码")))
+            .addModelApi(new HJ212FuncModelApi(HJ212CmdCode.提取或上传实时数据间隔.getCode()+"", "提取实时数据间隔", "用于提取现场机的实时数据间隔").asProtocol()
+                    .addDownConfig(ProtocolModelApiConfig.downBuild("ST", "系统编码(参考系统编码表)"))
                     .addDownConfig(ProtocolModelApiConfig.downBuild("pwd", "访问密码")))
             ;
 

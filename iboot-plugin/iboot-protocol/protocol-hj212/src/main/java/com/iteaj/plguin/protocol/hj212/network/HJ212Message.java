@@ -1,7 +1,5 @@
 package com.iteaj.plguin.protocol.hj212.network;
 
-import cn.hutool.core.io.checksum.crc16.CRC16Ansi;
-import cn.hutool.core.io.checksum.crc16.CRC16Checksum;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.iot.ProtocolException;
 import com.iteaj.iot.server.ServerMessage;
@@ -26,8 +24,6 @@ public class HJ212Message extends ServerMessage {
 
     @Override
     protected MessageHead doBuild(byte[] message) {
-        String fullMsg = new String(message);
-        System.out.println("HJ212报文: " + fullMsg);
         byte[] subMsg = ByteUtil.subBytes(message, 6, message.length - 6);
 
         String strMsg = new String(subMsg);
@@ -49,6 +45,9 @@ public class HJ212Message extends ServerMessage {
 
             HJ212SysCode byCode = HJ212SysCode.getByCode(head.get(HJ212Item.ST));
             HJ212CmdCode cmdCode = HJ212CmdCode.getByCode(head.get(HJ212Item.CN));
+            if(logger.isDebugEnabled()) {
+                logger.debug("收到HJ212指令: {} - 报文: {}", cmdCode, new String(message));
+            }
             return new HJ212MessageHead(head.get(HJ212Item.MN), byCode, cmdCode, head.get(HJ212Item.QN), head.get(HJ212Item.PW), head.get(HJ212Item.Flag));
         } else {
             throw new ProtocolException("报文不完整错误(未包含CP=&&): " + strMsg);
