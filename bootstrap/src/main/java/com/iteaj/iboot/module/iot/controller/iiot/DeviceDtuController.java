@@ -45,7 +45,7 @@ public class DeviceDtuController extends BaseController {
     @GetMapping("/view")
     @CheckPermission({"iot:dtu:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
-        entity.setProtocolCodes(dtuCode);
+        entity.setProtocolCodes(dtuCode).setExtend("DTU");
         return this.deviceService.pageOfDetail(page, entity);
     }
 
@@ -65,6 +65,7 @@ public class DeviceDtuController extends BaseController {
     @PostMapping("/saveOrUpdate")
     @CheckPermission(value = {"iot:dtu:edit", "iot:dtu:add"}, logical = Logical.OR)
     public Result<Boolean> save(@RequestBody Device entity) {
+        entity.setExtend("DTU");
         return this.deviceService.saveOrUpdate(entity);
     }
 

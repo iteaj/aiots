@@ -68,6 +68,9 @@
             <if test="entity.deviceType!=null">
                 and idm.device_type = #{entity.deviceType}
             </if>
+            <if test="entity.deviceTypes!=null">
+                and (<foreach collection="entity.deviceTypes" item="deviceType" separator=" or ">idm.device_type=#{deviceType}</foreach>)
+            </if>
             <if test="entity.protocol != null">
                 and ig.protocol_type = #{entity.protocol}
             </if>
@@ -95,6 +98,9 @@
             </if>
             <if test="entity.name!=null and entity.name!=''">
                 and a.name like '%${entity.name}%'
+            </if>
+            <if test="entity.extend!=null and entity.extend!=''">
+                and a.extend = #{entity.extend}
             </if>
         </where>
         order by a.status, a.create_time desc

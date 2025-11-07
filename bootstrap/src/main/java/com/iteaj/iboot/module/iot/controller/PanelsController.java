@@ -23,6 +23,7 @@ import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -76,6 +77,7 @@ public class PanelsController extends BaseController {
         DeviceDto device = new DeviceDto();
         device.setProductId(productId);
         device.setDeviceGroupId(deviceGroupId);
+        device.setDeviceTypes(new DeviceType[]{DeviceType.Child, DeviceType.Direct});
         PageResult<IPage<DeviceDto>> pageResult = deviceService.pageOfDetail(page, device);
 
         Map<Long, String> productProtocolMap = new HashMap<>();

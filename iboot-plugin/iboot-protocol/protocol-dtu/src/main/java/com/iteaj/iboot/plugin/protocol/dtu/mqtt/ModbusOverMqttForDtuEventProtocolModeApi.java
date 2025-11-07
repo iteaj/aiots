@@ -3,6 +3,7 @@ package com.iteaj.iboot.plugin.protocol.dtu.mqtt;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractDtuForModbusProtocolSupplier;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractModbusEventProtocolModelApi;
 import com.iteaj.iot.Protocol;
@@ -32,26 +33,20 @@ public class ModbusOverMqttForDtuEventProtocolModeApi extends AbstractModbusEven
 
     @Override
     public void invoke(ProtocolModelApiInvokeParam arg, Map<String, List<List<BatchOfPoint>>> points, Consumer<BatchResult> consumer) {
-        try {
-            final int childSn = Integer.parseInt(arg.getDeviceSn());
-            String deviceSn = StrUtil.isNotBlank(arg.getParentDeviceSn()) ? arg.getParentDeviceSn() : arg.getDeviceSn();
-            DataSupplier dataSupplier = new DataSupplier(getProtocolModel().getCode(), arg.buildKey());
-            final BatchResult batchResult = new BatchResult(dataSupplier);
+        final int childSn = Integer.parseInt(arg.getDeviceSn());
+        String deviceSn = StrUtil.isNotBlank(arg.getParentDeviceSn()) ? arg.getParentDeviceSn() : arg.getDeviceSn();
+        DataSupplier dataSupplier = new DataSupplier(getProtocolModel().getCode(), arg.buildKey());
+        final BatchResult batchResult = new BatchResult(dataSupplier);
 
-            arg.addConfig("isBatch", Boolean.TRUE);
-            List<Point> pointList = points.entrySet().stream().map(entry -> {
-                ModbusCode code = ModbusCode.valueOf(entry.getKey());
-                return entry.getValue().stream()
-                        .map(items -> new Point(code, items))
-                        .collect(Collectors.toList());
-            }).flatMap(Collection::stream).collect(Collectors.toList());
+        arg.addConfig("isBatch", Boolean.TRUE);
+        List<Point> pointList = points.entrySet().stream().map(entry -> {
+            ModbusCode code = ModbusCode.valueOf(entry.getKey());
+            return entry.getValue().stream()
+                    .map(items -> new Point(code, items))
+                    .collect(Collectors.toList());
+        }).flatMap(Collection::stream).collect(Collectors.toList());
 
-            doPublish(arg, pointList, consumer, batchResult, dataSupplier, deviceSn, childSn, 0);
-        } catch (NumberFormatException e) {
-            consumer.accept(new BatchResult("解析设备编号失败["+e.getMessage()+"]", ExecStatus.fail));
-        } catch (Exception e) {
-            consumer.accept(new BatchResult("未知异常["+e.getMessage()+"]", ExecStatus.fail));
-        }
+        doPublish(arg, pointList, consumer, batchResult, dataSupplier, deviceSn, childSn, 0);
     }
 
     private void doPublish(ProtocolModelApiInvokeParam arg, List<Point> pointList
@@ -92,7 +87,8 @@ public class ModbusOverMqttForDtuEventProtocolModeApi extends AbstractModbusEven
                 if(index < pointList.size() - 1) {
                     doPublish(arg, pointList, consumer, batchResult, dataSupplier, deviceSn, childSn, index + 1);
                 } else {
-                    consumer.accept(batchResult);
+                    // 使用采集任务线程处理采集完成后的任务
+                    IBootThreadManger.getInstance().getCollectExecutor().execute(() -> consumer.accept(batchResult));
                 }
             }
         });
@@ -106,13 +102,13 @@ public class ModbusOverMqttForDtuEventProtocolModeApi extends AbstractModbusEven
             // 设置modbus响应报文
             ModbusRtuForDtuCommonProtocol commonProtocol = (ModbusRtuForDtuCommonProtocol) protocol;
             commonProtocol.setExecStatus(execStatus);
-            ModbusRtuForDtuMessage dtuMessage = new ModbusRtuForDtuMessage(publishProtocol.responseMessage().getMessage());
-            dtuMessage.readBuild();
-            commonProtocol.setResponseMessage(dtuMessage).buildResponseMessage();
 
             // 计算响应结果
             InvokeResult invokeResult;
             if(publishProtocol.getExecStatus() == ExecStatus.success) {
+                ModbusRtuForDtuMessage dtuMessage = new ModbusRtuForDtuMessage(publishProtocol.responseMessage().getMessage());
+                dtuMessage.readBuild();
+                commonProtocol.setResponseMessage(dtuMessage).buildResponseMessage();
                 DataFormat dataFormat = DataFormat.valueOf(arg.getDeviceConfig("dataFormat"));
                 ModbusRtuBody body = dtuMessage.getBody();
                 if(body.isSuccess()) {
