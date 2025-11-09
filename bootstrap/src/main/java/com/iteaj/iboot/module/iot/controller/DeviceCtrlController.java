@@ -25,6 +25,7 @@ import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
@@ -109,6 +110,60 @@ public class DeviceCtrlController extends BaseController {
         });
     }
 
+
+    /**
+     * 设备调试接口
+     * @return
+     */
+    @Logger("自定义模型接口调试")
+    @CheckPermission(value = {"iot:model:debug", "iot:open:debug"}, logical = Logical.OR)
+    @PostMapping("/debug")
+    public Mono<Result<DebugRespDto>> debug(@RequestBody ProtocolModelApiInvokeParam param) {
+        Device device = deviceService.getByUid(param.getUid()).ifNotPresentThrow("设备不存在").getData();
+        Product product = productService.getById(device.getProductId()).ifNotPresentThrow("产品不存在").getData();
+        if(product.getStatus() == FuncStatus.disabled) {
+            return Mono.error(new ServiceException("产品未启用"));
+        }
+        DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
+        if(protocolSupplier == null) {
+            return Mono.error(new ServiceException("未找到驱动["+product.getProtocolCode()+"]"));
+        }
+
+        DebugRespDto debugRespDto = new DebugRespDto(device.getDeviceSn());
+        RealtimeStatus parent = null;
+        RealtimeStatus byUid = cacheManager.getByUid(param.getUid());
+        if(byUid.getType() == DeviceType.Child) {
+            parent = cacheManager.get(product.getProtocolCode(), byUid.getParentDeviceSn());
+        }
+
+        String direct = param.getString("direct");
+        AbstractProtocolModelApi modelApi = protocolSupplier.getProtocol().getApi(direct);
+        if(modelApi == null) {
+            throw new ServiceException("指令不存在["+direct+"]");
+        }
+
+        ProtocolModelApiInvokeParam modelApiInvokeParam = ProtocolInvokeUtil.createModelApiInvokeParam(byUid, parent);
+        modelApiInvokeParam.setParam(param.getParam()); modelApiInvokeParam.setTimeout(6000L);
+        return Mono.<InvokeResult>create(item -> {
+            try {
+                modelApi.invoke(modelApiInvokeParam, item::success);
+            } catch (Exception e) {
+                e.printStackTrace();
+                item.success(InvokeResult.fail(e.getMessage(), null));
+            }
+        }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
+            debugRespDto.setStatus(item.getStatus());
+            debugRespDto.setRespTime(System.currentTimeMillis());
+            debugRespDto.setReqMsg(item.getRequestMessage().toString());
+            debugRespDto.setRespMsg(item.getResponseMessage().toString());
+            if(item.getStatus() == ExecStatus.success) {
+                debugRespDto.setValue(item.getValue());
+                return success(debugRespDto);
+            } else {
+                return success(debugRespDto.setReason(item.getReason()));
+            }
+        });
+    }
     /**
      * 设备调试接口
      * @return
@@ -127,16 +182,14 @@ public class DeviceCtrlController extends BaseController {
             // 调用接口
             try {
                 RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
-                ProtocolInvokeUtil.invoke(supplier, modelApi, param, realtimeStatus, result -> {
-                    item.success(result);
-                    debugRespDto.setRespTime(System.currentTimeMillis());
-                });
+                ProtocolInvokeUtil.invoke(supplier, modelApi, param, realtimeStatus, item::success);
             } catch (Exception e) {
                 e.printStackTrace();
                 item.success(InvokeResult.fail(e.getMessage(), null));
             }
         }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
             debugRespDto.setStatus(item.getStatus());
+            debugRespDto.setRespTime(System.currentTimeMillis());
             debugRespDto.setReqMsg(item.getRequestMessage().toString());
             debugRespDto.setRespMsg(item.getResponseMessage().toString());
             if(item.getStatus() == ExecStatus.success) {
