@@ -124,3 +124,12 @@ create unique index isv_resource_id_uindex
 alter table isv_resource
     add constraint isv_resource_pk
         primary key (id);
+
+-- 2025-11-09
+alter table iot_device modify extend varchar(36) default null;
+update iot_device set extend = null where id > 0;
+alter table iot_device modify extend json null;
+update iot_device set extend = '{"tags": [], "alias": ""}' where id > 0;
+
+update iot_device set extend = JSON_SET(extend, '$.alias', 'DTU') where product_id in (select id from iot_product where protocol_code='DTU:MODBUS_TCP' or protocol_code='DTU:MODBUS_RTU');
+update iot_device set extend = JSON_SET(extend, '$.alias', 'MQTT') where product_id in (select id from iot_product where protocol_code='DTU:MODBUS_OVER_MQTT');

@@ -14,7 +14,10 @@ import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 设备管理
@@ -62,7 +65,8 @@ public class Device extends BaseEntity {
     /**
      * 拓展字段
      */
-    private String extend;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject extend;
 
     /**
      * 所属产品
@@ -143,4 +147,48 @@ public class Device extends BaseEntity {
      * 更新时间
      */
     private Date updateTime;
+
+    public Device build() {
+        if(this.extend == null) {
+            this.extend = new JSONObject();
+            this.extend.put("alias", "");
+            this.extend.put("tags", new ArrayList<>());
+        }
+
+        return this;
+    }
+
+    public Device build(String key, Object value) {
+        this.build();
+        this.extend.put(key, value);
+        return this;
+    }
+
+    public Device build(JSONObject extend) {
+        this.build();
+
+        if(extend != null) {
+            this.extend.putAll(extend);
+        }
+
+        return this;
+    }
+
+    public Device setAlias(String alias) {
+        this.build("alias", alias);
+        return this;
+    }
+
+    public Device addTag(String tag) {
+        this.build();
+        this.extend.getJSONArray("tags").add(tag);
+        return this;
+    }
+
+
+    public Device addTags(List<String> tags) {
+        this.build();
+        this.extend.getJSONArray("tags").addAll(tags);
+        return this;
+    }
 }

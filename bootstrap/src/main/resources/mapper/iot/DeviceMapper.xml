@@ -12,7 +12,8 @@
         <result column="name" property="name" />
         <result column="port" property="port" />
         <result column="product_id" property="productId" />
-        <result column="extend" property="extend" />
+        <result column="extend" property="extend"
+            typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"  />
         <result column="status" property="status" />
         <result column="address" property="address" />
         <result column="account" property="account" />
@@ -99,8 +100,10 @@
             <if test="entity.name!=null and entity.name!=''">
                 and a.name like '%${entity.name}%'
             </if>
-            <if test="entity.extend!=null and entity.extend!=''">
-                and a.extend = #{entity.extend}
+            <if test="entity.extend!=null">
+                <if test="entity.extend.containsKey('alias')">
+                    and a.extend -> '$.alias' = #{entity.extend.alias}
+                </if>
             </if>
         </where>
         order by a.status, a.create_time desc
