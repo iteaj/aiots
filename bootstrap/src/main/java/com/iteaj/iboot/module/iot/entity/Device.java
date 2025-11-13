@@ -88,16 +88,19 @@ public class Device extends BaseEntity {
     /**
      * 经度
      */
+    @TableField(updateStrategy =  FieldStrategy.IGNORED)
     private String lon;
 
     /**
      * 纬度
      */
+    @TableField(updateStrategy =  FieldStrategy.IGNORED)
     private String lat;
 
     /**
      * 地址
      */
+    @TableField(updateStrategy =  FieldStrategy.IGNORED)
     private String address;
 
     /**

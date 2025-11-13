@@ -3,7 +3,6 @@ package com.iteaj.iboot.module.iot.controller;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
@@ -14,10 +13,11 @@ import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.AttrType;
-import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.data.CollectWarnDataService;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
+import com.iteaj.framework.spi.iot.data.RealtimeDataParam;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
@@ -26,14 +26,12 @@ import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.*;
+import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
-import com.iteaj.iboot.module.iot.entity.Signal;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
-import com.iteaj.iboot.module.iot.service.ISignalService;
-import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.util.CollectionUtils;
@@ -49,17 +47,16 @@ import java.util.stream.Collectors;
 @RequestMapping("/iot/panels")
 public class PanelsController extends BaseController {
 
-    private final ISignalService signalService;
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final IotCacheManager cacheManager;
     private final CollectWarnDataService warnRecordService;
     private final RealtimeDataService realtimeDataService;
+    private final RealtimeCollectDataService collectDataService;
 
-    public PanelsController(ISignalService signalService, IDeviceService deviceService
-            , IProductService productService, IotCacheManager cacheManager
-            , CollectWarnDataService warnRecordService, RealtimeDataService realtimeDataService) {
-        this.signalService = signalService;
+    public PanelsController(IDeviceService deviceService, IProductService productService, IotCacheManager cacheManager
+            , CollectWarnDataService warnRecordService, RealtimeDataService realtimeDataService, RealtimeCollectDataService collectDataService) {
+        this.collectDataService = collectDataService;
         this.deviceService = deviceService;
         this.productService = productService;
         this.cacheManager = cacheManager;
@@ -111,7 +108,9 @@ public class PanelsController extends BaseController {
                                 }
                             }
 
-                            if(CollectionUtil.isNotEmpty(attr.getDicts()) && !DataType.t_json.getValue().equals(attr.getDataType())) {
+                            if(CollectionUtil.isNotEmpty(attr.getDicts())
+                                    && !DataType.t_json.getValue().equals(attr.getDataType())
+                                    && !DataType.t_bit.getValue().equals(attr.getDataType())) {
                                 attr.getDicts().forEach(dict -> attrDictMap.put(attr.getField()+"_"+dict.getDictValue(), dict.getDictName()));
                             }
                         });
@@ -128,9 +127,9 @@ public class PanelsController extends BaseController {
                     List<IVOption> options = productOptionsMap.get(deviceDto.getProductId());
                     Map<String, String> dictStringMap = productAttrDictsMap.get(deviceDto.getProductId());
                     List<PanelsDeviceDto.AttrValue> attrValues = productValuesMap.get(deviceDto.getProductId());
-
+//
                     PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(options, Collections.EMPTY_LIST, deviceDto);
-                    // 获取每个属性的实时数据
+//                    // 获取每个属性的实时数据
                     if(CollectionUtil.isNotEmpty(attrValues)) {
                         List<PanelsDeviceDto.AttrValue> copyAttrValues = attrValues.stream()
                                 .map(item -> new PanelsDeviceDto.AttrValue(item.getField(), item.getName(), item.getUnit(), item.getCtrlStatus()))
@@ -175,13 +174,13 @@ public class PanelsController extends BaseController {
 
     /**
      * 调试详情
-     * @param deviceId
+     * @param uid
      * @return
      */
     @GetMapping("detail")
-    public Result<PanelsDetailDto> detail(Long deviceId) {
+    public Result<PanelsDetailDto> detail(String uid) {
         PanelsDetailDto debugDto = new PanelsDetailDto();
-        deviceService.detailById(deviceId)
+        deviceService.getByUid(uid)
                 .ifNotPresentThrow("设备不存在").of().ifPresent(item -> {
             debugDto.setDevice(item);
             productService.joinDetailById(item.getProductId())
@@ -211,45 +210,24 @@ public class PanelsController extends BaseController {
                                 , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                         if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
                             productDto.getAttrs().stream().filter(attr -> (attr.getAttrType() != AttrType.W
-                                    && !DataType.t_json.getValue().equals(attr.getDataType())))
+                                    && !DataType.t_json.getValue().equals(attr.getDataType())
+                                            && !DataType.t_bit.getValue().equals(attr.getDataType())))
                                 .forEach(attr -> {
                                     if(realtimeDataMap != null) {
                                         RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
                                         if(realtimeData != null && realtimeData.getRealtime() != null) {
                                             SignalOrFieldValue realtime = realtimeData.getRealtime();
-                                            debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType()
+                                            debugDto.addAttr(attr.getId(), attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType()
                                                     , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
                                             return;
                                         }
                                     }
 
-                                    debugDto.addAttr(attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType());
+                                    debugDto.addAttr(attr.getId(), attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType());
                             });
                         }
 
                         productDto.setAttrs(null);
-
-                        // 处理点位数据
-                        signalService.list(Wrappers.<Signal>lambdaQuery().eq(Signal::getProductId, productDto.getId()))
-                                .stream().forEach(signal -> {
-                            if(realtimeDataMap != null) {
-                                RealtimeData realtimeData = realtimeDataMap.get(signal.getAddress());
-                                if(realtimeData != null && realtimeData.getRealtime() != null) {
-                                    SignalOrFieldValue realtime = realtimeData.getRealtime();
-                                    debugDto.addSignal(signal.getName(), signal.getAddress(), realtime.getValue()
-                                            , realtime.getCollectTime(), realtime.getStatus());
-                                    return;
-                                }
-                            }
-
-                            debugDto.addSignal(signal.getName(), signal.getAddress());
-                        });
-
-                        WarnRecord entity = new WarnRecord(item.getUid());
-                        warnRecordService.detailPage(new Page<WarnRecord>(1, 12), entity)
-                                .<WarnRecord>stream().forEach(record -> {
-                            debugDto.addWarn(record.getWarnConfigName(), record.getGrade(), record.getContent(), record.getWarnTime());
-                        });
                     });
         });
 
@@ -324,5 +302,27 @@ public class PanelsController extends BaseController {
         });
 
         return success();
+    }
+
+    /**
+     * 告警列表
+     * @param page
+     * @param entity
+     * @return
+     */
+    @GetMapping("/warn")
+    public Result<IPage<WarnRecord>> list(Page<WarnRecord> page, WarnRecord entity) {
+        return (Result<IPage<WarnRecord>>) this.warnRecordService.detailPage(page, entity);
+    }
+
+    /**
+     * 模型属性历史数据
+     * @param page
+     * @param entity
+     * @return
+     */
+    @GetMapping("/data")
+    public Result<IPage<WarnRecord>> list(Page<CollectData> page, RealtimeDataParam entity) {
+        return this.collectDataService.detailOfPage(page, entity);
     }
 }

@@ -248,7 +248,9 @@ public class ModelApi extends BaseEntity {
                     sb.deleteCharAt(sb.length() - 1);
                     valueSb.deleteCharAt(valueSb.length() - 1);
 
-                    return new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                    String dict = item.isEmpty() ? null : item.get(0).getDictName();
+                    String apiName = dict == null ? getName() : getName() + "->" + dict;
+                    return new DeviceCommandDto().setApiName(apiName).setApiType(getType()).setUid(uid)
                             .setCommandValue(valueSb.toString()).setRemark(getRemark()).setCommandName(sb.toString()).setCode(getCode());
                 }).collect(Collectors.toList());
             } else {
