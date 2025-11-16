@@ -18,22 +18,23 @@ public class ModbusOverMqttPublishProtocol extends ClientInitiativeProtocol<Modb
 
     private final String topic;
 
+    private final String deviceSn;
     private final IotClient client;
 
-    public ModbusOverMqttPublishProtocol(byte[] msg, String topic, IotClient client) {
-        this(msg, MqttQoS.AT_MOST_ONCE, topic, client);
+    public ModbusOverMqttPublishProtocol(byte[] msg, String deviceSn, String topic, IotClient client) {
+        this(msg, MqttQoS.AT_MOST_ONCE, deviceSn, topic, client);
     }
 
-    public ModbusOverMqttPublishProtocol(byte[] msg, MqttQoS qoS, String topic, IotClient client) {
+    public ModbusOverMqttPublishProtocol(byte[] msg, MqttQoS qoS, String deviceSn, String topic, IotClient client) {
         this.msg = msg;
         this.qoS = qoS;
         this.topic = topic;
         this.client = client;
+        this.deviceSn = deviceSn;
     }
 
     @Override
     protected ModbusOverMqttMessage doBuildRequestMessage() {
-        String deviceSn = client.getConfig().connectKey();
         byte code = msg[1];
         String messageId;
         if(code >= ModbusCode.Write05.getCode()) {

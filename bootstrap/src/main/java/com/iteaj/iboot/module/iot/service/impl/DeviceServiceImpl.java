@@ -136,7 +136,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
 
         // 将uid写入配置, 作为设备的唯一键
         entity.getConfig().put("uid", entity.getUid());
-        return super.save(entity).ifPresentAndTrue(item -> {
+        return super.save(entity.build()).ifPresentAndTrue(item -> {
             RealtimeStatus status = this.getDeviceStatusFromCache(entity.getId());
             iotCacheManager.cache(status);
         });

@@ -71,7 +71,9 @@ public class ProductController extends BaseController {
      */
     @GetMapping("/list")
     public Result<List<IVOption>> list(Product entity) {
-        List<IVOption> options = this.productService.list(entity).stream()
+        List<IVOption> options = this.productService.list(Wrappers.lambdaQuery(entity)
+                        .in(entity.getDeviceTypes() != null, Product::getDeviceType, entity.getDeviceTypes()))
+                .stream()
                 .map(item -> new IVOption(item.getName(), item.getId()))
                 .collect(Collectors.toList());
         return success(options);

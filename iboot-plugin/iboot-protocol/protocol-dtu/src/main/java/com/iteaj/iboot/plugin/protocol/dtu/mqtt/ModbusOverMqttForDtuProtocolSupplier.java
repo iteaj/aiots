@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.protocol.dtu.mqtt;
 
+import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.*;
@@ -24,6 +25,8 @@ public class ModbusOverMqttForDtuProtocolSupplier extends StaticClientProtocolSu
 
     private final ProtocolModel model;
     private final ParamMeta[] gatewayConfig;
+    public static final String VoidClient = "_VoidClient";
+    public static final String DeviceSnPlaceholder = "{deviceSn}";
     private final ModbusRtuForDtuProtocolSupplier protocolSupplier;
     private final AbstractModbusEventProtocolModelApi batchEventModelApi;
 
@@ -46,10 +49,11 @@ public class ModbusOverMqttForDtuProtocolSupplier extends StaticClientProtocolSu
         protocol.getApis().forEach((key, value) -> ((DefaultProtocolModel) model).addModelApi(value));
 
         int length = NetworkConfigImpl.MqttNetworkConfig.mqttMetas.length;
-        gatewayConfig =  new ParamMeta[length + 1];
+        gatewayConfig =  new ParamMeta[length + 2];
         System.arraycopy(NetworkConfigImpl.MqttNetworkConfig.mqttMetas, 0, gatewayConfig, 0, length - 1);
-        gatewayConfig[length - 1] = ParamMeta.buildRequired("publish", "下发主题", "平台发布给DTU的主题", "").setPlaceholder("如: demo/{deviceSn}/write");
-        gatewayConfig[length] = ParamMeta.buildRequired("subscription", "上报主题", "DTU发布给平台的主题", "").setPlaceholder("如: demo/{deviceSn}/read}");
+        gatewayConfig[length - 1] = ParamMeta.buildRequired("productCode", "产品编号", "", "").setPlaceholder("请输入子产品编号");
+        gatewayConfig[length] = ParamMeta.buildRequired("publish", "下发主题", "平台发布给DTU的主题", "").setPlaceholder("如: demo/"+ DeviceSnPlaceholder +"/write");
+        gatewayConfig[length + 1] = ParamMeta.buildRequired("subscription", "上报主题", "DTU发布给平台的主题", "").setPlaceholder("如: demo/"+ DeviceSnPlaceholder +"/read}");
 
         batchEventModelApi = new ModbusOverMqttForDtuEventProtocolModeApi("batch", "批量", "");
         batchEventModelApi.setProtocolModel(model);
@@ -92,36 +96,41 @@ public class ModbusOverMqttForDtuProtocolSupplier extends StaticClientProtocolSu
 
     @Override
     public ModbusOverMqttComponent doCreateComponent(ModbusOverMqttNetworkConfig config) {
-        return new ModbusOverMqttComponent();
+        return ModbusOverMqttVoidClient.build(new ModbusOverMqttComponent());
     }
 
     @Override
     protected MqttClient doCreateClient(ModbusOverMqttNetworkConfig config, ModbusOverMqttComponent component) {
-        Integer qos = config.getQos();
-        String[] split = config.getSubscription().split(",");
-        List<MqttTopicSubscription> subscriptions = new ArrayList<>();
-        MqttQoS mqttQoS = MqttQoS.valueOf(qos);
-        for (String s : split) {
-            if(!s.contains("{deviceSn}")) {
-                throw new ProtocolSupplierException("订阅主题("+s+")必须包含{deviceSn}占位符");
+        if(StrUtil.isNotBlank(config.getProductCode())) {
+            Integer qos = config.getQos();
+            String[] split = config.getSubscription().split(",");
+            List<MqttTopicSubscription> subscriptions = new ArrayList<>();
+            MqttQoS mqttQoS = MqttQoS.valueOf(qos);
+            for (String s : split) {
+                if(!s.contains(DeviceSnPlaceholder)) {
+                    throw new ProtocolSupplierException("订阅主题("+s+")必须包含{deviceSn}占位符");
+                }
+
+                s = s.replace(DeviceSnPlaceholder, "+");
+                subscriptions.add(new MqttTopicSubscription(s, mqttQoS));
             }
 
-            s = s.replace("{deviceSn}", config.getDeviceSn());
-            subscriptions.add(new MqttTopicSubscription(s, mqttQoS));
-        }
+            ModbusOverMqttConnectProperties connectProperties = new ModbusOverMqttConnectProperties(config.getHost()
+                    , config.getPort(), config.getClientId(), subscriptions);
+            connectProperties.setUsername(config.getUsername());
+            connectProperties.setPassword(config.getPassword());
+            connectProperties.setPublishTopic(config.getPublish());
+            connectProperties.setProductCode(config.getProductCode());
+            connectProperties.setSubscribeTopic(config.getSubscription());
+            connectProperties.setConnectKey(config.getDeviceSn()); // 使用产品编号作为唯一标识
+            if(config.getKeepalive() > 0) {
+                connectProperties.setKeepAlive(config.getKeepalive());
+            }
 
-        ModbusOverMqttConnectProperties connectProperties = new ModbusOverMqttConnectProperties(config.getHost()
-                , config.getPort(), config.getClientId(), subscriptions);
-        connectProperties.setUsername(config.getUsername());
-        connectProperties.setPassword(config.getPassword());
-        connectProperties.setPublishTopic(config.getPublish());
-        connectProperties.setSubscribeTopic(config.getSubscription());
-        connectProperties.setConnectKey(config.getDeviceSn()); // 使用设备编号作为唯一标识
-        if(config.getKeepalive() > 0) {
-            connectProperties.setKeepAlive(config.getKeepalive());
+            return new MqttClient(component, connectProperties);
+        } else {
+            return ModbusOverMqttVoidClient.getInstance();
         }
-
-        return new MqttClient(component, connectProperties);
     }
 
     @Override
@@ -134,6 +143,7 @@ public class ModbusOverMqttForDtuProtocolSupplier extends StaticClientProtocolSu
     public static class ModbusOverMqttNetworkConfig extends NetworkConfigImpl.MqttNetworkConfig {
 
         private String publish;
+        private String productCode;
         private String subscription;
     }
 

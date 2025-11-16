@@ -54,6 +54,17 @@
             <if test="entity.status != null">
                 and a.status=#{entity.status}
             </if>
+            <choose>
+                <when test="entity.startTimestamp != null and entity.endTimestamp != null">
+                    and UNIX_TIMESTAMP(a.collect_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
+                </when>
+                <when test="entity.startTimestamp != null">
+                    and UNIX_TIMESTAMP(a.collect_time) * 1000 >= #{entity.startTimestamp}
+                </when>
+                <when test="entity.endTimestamp != null">
+                    and #{entity.endTimestamp} >= UNIX_TIMESTAMP(a.collect_time) * 1000
+                </when>
+            </choose>
         </where>
         order by a.collect_time desc
     </select>
@@ -180,7 +191,7 @@
                     and UNIX_TIMESTAMP(a.collect_time) * 1000 >= #{entity.startTimestamp}
                 </when>
                 <when test="entity.endTimestamp != null">
-                    and #{entity.endTimestamp} >= UNIX_TIMESTAMP(a.collect_time)
+                    and #{entity.endTimestamp} >= UNIX_TIMESTAMP(a.collect_time) * 1000
                 </when>
             </choose>
         </where>

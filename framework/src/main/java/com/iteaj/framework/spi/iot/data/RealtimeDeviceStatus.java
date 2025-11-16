@@ -1,10 +1,11 @@
 package com.iteaj.framework.spi.iot.data;
 
 import com.alibaba.fastjson.JSONObject;
+import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 
 import java.util.Date;
 
-public interface RealtimeDeviceStatus {
+public interface RealtimeDeviceStatus extends IotEventPayload {
 
     /**
      * 获取设备唯一标识
@@ -23,6 +24,12 @@ public interface RealtimeDeviceStatus {
      * @return
      */
     String getDeviceName();
+
+    /**
+     * 切换设备状态
+     * @return
+     */
+    String triggerStatus();
 
     /**
      * 获取设备状态(online、offline)

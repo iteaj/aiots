@@ -7,6 +7,7 @@ import java.util.List;
 
 public class ModbusOverMqttConnectProperties extends MqttConnectProperties {
 
+    private String productCode;
     private String publishTopic;
     private String subscribeTopic;
     private final List<MqttTopicSubscription> topics;
@@ -35,5 +36,13 @@ public class ModbusOverMqttConnectProperties extends MqttConnectProperties {
 
     public void setSubscribeTopic(String subscribeTopic) {
         this.subscribeTopic = subscribeTopic;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
     }
 }

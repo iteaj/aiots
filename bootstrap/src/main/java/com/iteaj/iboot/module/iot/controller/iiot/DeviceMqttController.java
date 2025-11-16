@@ -33,7 +33,8 @@ public class DeviceMqttController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IProductService productService;
-    private final static String[] MqttCodes = {ProtocolCodes.MQTT_DEFAULT_IMPL.getValue()};
+    private final static String[] MqttCodes = {ProtocolCodes.MQTT_DEFAULT_IMPL.getValue()
+            , ProtocolCodes.DTU_MODBUS_OVER_MQTT.getValue()};
 
     public DeviceMqttController(IDeviceService deviceService
             , IProductService productService) {
@@ -49,7 +50,7 @@ public class DeviceMqttController extends BaseController {
     @GetMapping("/view")
     @CheckPermission({"iot:mqtt:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
-        entity.setProtocolCodes(MqttCodes);
+        entity.setProtocolCodes(MqttCodes).setAlias(TransportProtocol.MQTT.name());
         return this.deviceService.pageOfDetail(page, entity);
     }
 
@@ -86,7 +87,7 @@ public class DeviceMqttController extends BaseController {
                         deviceSn = "gwd_mqtt_" + entity.getProductId() + "_0001";
                     }
 
-                    entity.setDeviceSn(deviceSn);
+                    entity.setDeviceSn(deviceSn).setAlias("MQTT");
                     return this.deviceService.saveOrUpdate(entity);
                 }
             }

@@ -142,9 +142,14 @@ public class BatchGroupTask implements Runnable{
             } else {
                 DeviceProtocolSupplier supplier = ProtocolSupplierManager.getInstance().get(device.getProtocolCode());
                 final ProtocolModelApiInvokeParam invokeParam = ProtocolInvokeUtil.createModelApiInvokeParam(device, parent);
-                ((BatchProtocolSupplier) supplier).getBatchEventModelApi().invoke(invokeParam, batchOfPoints, result -> {
-                    dataPublish(info, device, null, result);
-                });
+                try {
+                    ((BatchProtocolSupplier) supplier).getBatchEventModelApi().invoke(invokeParam, batchOfPoints, result -> {
+                        dataPublish(info, device, null, result);
+                    });
+                } catch (Exception e) {
+                    IotLogger.error(source, device.getUid(), "批量采集执行异常 {} - 设备组: {} - 设备编号: {}"
+                            , e.getMessage(), group.getName(), device.buildDeviceKey(), e);
+                }
             }
         }
 

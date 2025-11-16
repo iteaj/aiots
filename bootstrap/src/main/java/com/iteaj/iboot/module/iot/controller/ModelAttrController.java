@@ -8,6 +8,7 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
 import org.springframework.validation.annotation.Validated;
@@ -130,7 +131,7 @@ public class ModelAttrController extends BaseController {
     }
 
     /**
-     * 获取指定产品下面的物模型属性
+     * 获取指定产品下面的物模型属性(不包含bit和json类型)
      * @param productId
      * @return
      */
@@ -142,7 +143,8 @@ public class ModelAttrController extends BaseController {
 
         return this.modelAttrService.list(Wrappers.<ModelAttr>lambdaQuery()
                 .eq(ModelAttr::getProductId, productId)
-                .in(ModelAttr::getAttrType, AttrType.R, AttrType.RW));
+                .notIn(ModelAttr::getDataType, DataType.t_bit.getValue(), DataType.t_json.getValue())
+                .ne(ModelAttr::getAttrType, AttrType.W));
     }
 }
 

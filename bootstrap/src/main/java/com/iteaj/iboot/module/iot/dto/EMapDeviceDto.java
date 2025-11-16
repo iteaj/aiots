@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.dto;
 
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
+import com.iteaj.iboot.module.iot.consts.DeviceType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -57,4 +58,13 @@ public class EMapDeviceDto {
      * 设备图片
      */
     private String logo;
+
+    /**
+     * 设备类型
+     */
+    private DeviceType deviceType;
+
+    public String getDeviceTypeName() {
+        return deviceType != null ? deviceType.getDesc() : null;
+    }
 }
