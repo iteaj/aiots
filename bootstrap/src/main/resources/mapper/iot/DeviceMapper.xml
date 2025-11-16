@@ -225,7 +225,7 @@
     </select>
 
     <select id="listOfEMap" resultType="com.iteaj.iboot.module.iot.dto.EMapDeviceDto">
-        select a.uid, a.name, a.address, a.lat, a.lon, a.device_sn deviceSn, a.status, p.logo from iot_device a
+        select a.uid, a.name, a.address, a.lat, a.lon, a.device_sn deviceSn, a.status, p.logo, a.product_id, p.device_type from iot_device a
             left join iot_product p on a.product_id = p.id
             left join iot_device_group g on a.device_group_id = g.id
         <where>

@@ -322,7 +322,7 @@ public class PanelsController extends BaseController {
      * @return
      */
     @GetMapping("/data")
-    public Result<IPage<WarnRecord>> list(Page<CollectData> page, RealtimeDataParam entity) {
+    public Result<IPage<CollectDataDto>> list(Page<CollectData> page, RealtimeDataParam entity) {
         return this.collectDataService.detailOfPage(page, entity);
     }
 }

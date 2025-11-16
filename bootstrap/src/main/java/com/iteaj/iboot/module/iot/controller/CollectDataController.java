@@ -55,7 +55,7 @@ public class CollectDataController extends BaseController {
      */
     @Logger("访问模型数据页面")
     @GetMapping("/model")
-    public Result<Page<RealtimeCollectData>> model(Page page, CollectDataDto entity) {
+    public Result<Page<RealtimeCollectData>> model(Page page, RealtimeDataParam entity) {
         entity.setCollectMode("model");
         return collectDataService.detailOfPage(page, entity);
     }
