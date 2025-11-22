@@ -1,7 +1,9 @@
 package com.iteaj.iboot.plugin.iotview.service;
 
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.iboot.plugin.iotview.entity.Resource;
 import com.iteaj.framework.IBaseService;
+import com.iteaj.iboot.plugin.iotview.entity.ResourceType;
 
 /**
  * <p>
@@ -13,4 +15,7 @@ import com.iteaj.framework.IBaseService;
  */
 public interface IResourceService extends IBaseService<Resource> {
 
+    ListResult<ResourceType> listTypes();
+
+    ListResult<ResourceType> details(String type);
 }

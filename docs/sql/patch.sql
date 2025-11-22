@@ -111,20 +111,24 @@ INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, rema
 -- 2025-07-17
 create table isv_resource
 (
-    id char(36) null,
-    name varchar(64) null comment '名称',
-    url varchar(256) null comment '路径',
-    type char(16) null comment '资源类型'
-)
-    comment '大屏资源';
+    id          char(36)                           not null,
+    name        varchar(64)                        null comment '名称',
+    url         varchar(256)                       null comment '路径',
+    type        char(16)                           null comment '资源类型',
+    create_time datetime default CURRENT_TIMESTAMP null comment '创建时间'
+) comment '大屏资源';
 
-create unique index isv_resource_id_uindex
-    on isv_resource (id);
+alter table isv_resource add primary key (id);
+alter table isv_resource add constraint isv_resource_id_uindex unique (id);
 
-alter table isv_resource
-    add constraint isv_resource_pk
-        primary key (id);
-
+create table isv_resource_type
+(
+    id   bigint auto_increment
+        primary key,
+    name char(24)    not null comment '名称',
+    type varchar(36) not null comment '类型',
+    sort int         null comment '排序'
+) comment '资源类型';
 -- 2025-11-09
 alter table iot_device modify extend varchar(36) default null;
 update iot_device set extend = null where id > 0;

@@ -8,6 +8,28 @@
         <result column="name" property="name" />
         <result column="url" property="url" />
         <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
     </resultMap>
+
+    <resultMap id="BaseTypeResultMap" type="com.iteaj.iboot.plugin.iotview.entity.ResourceType">
+        <result column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <collection property="resources" resultMap="BaseResultMap" foreignColumn="type" columnPrefix="t_" />
+    </resultMap>
+
+    <select id="listTypes" resultType="com.iteaj.iboot.plugin.iotview.entity.ResourceType">
+        select * from isv_resource_type order by sort
+    </select>
+
+    <select id="details" resultMap="BaseTypeResultMap">
+        select a.*, t.id t_id, t.name t_name, t.type t_type, t.url t_url from isv_resource_type a
+            left join isv_resource t on a.type = t.type
+        <where>
+            <if test="type != null and type != ''">
+                a.type=#{type}
+            </if>
+        </where>
+    </select>
 
 </mapper>

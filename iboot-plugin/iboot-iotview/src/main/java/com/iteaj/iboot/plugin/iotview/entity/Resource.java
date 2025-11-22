@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 import static com.baomidou.mybatisplus.annotation.IdType.ASSIGN_UUID;
 
 /**
@@ -43,9 +45,15 @@ public class Resource implements Entity<String> {
      */
     private String type;
 
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
     public void setId(String id) {
         this.id = id;
     }
 
     public static final String BG_IMG = "bg";
+
 }
