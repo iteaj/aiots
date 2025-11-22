@@ -79,8 +79,7 @@ public class EMapController extends BaseController {
                             , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                     if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
                         productDto.getAttrs().stream().filter(attr -> (attr.getAttrType() != AttrType.W
-                            && !DataType.t_json.getValue().equals(attr.getDataType()))
-                                        && !DataType.t_bit.getValue().equals(attr.getDataType()))
+                            && !DataType.isContainer(attr.getDataType())))
                             .forEach(attr -> {
                                 if(realtimeDataMap != null) {
                                     RealtimeData realtimeData = realtimeDataMap.get(attr.getField());

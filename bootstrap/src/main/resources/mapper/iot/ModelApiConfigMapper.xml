@@ -49,7 +49,7 @@
              , jpa.script ad_script, ad.path ad_path from iot_model_api_config a
             left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
             left join iot_model_attr pa on a.model_attr_id=pa.id
-            left join iot_model_attr jpa on (a.data_type = 'json' or a.data_type = 'bit') and jpa.id=ad.dict_value
+            left join iot_model_attr jpa on (a.data_type = 'json' or a.data_type = 'bit' or a.data_type = 'group') and jpa.id=ad.dict_value
         where api_code=#{apiCode} and a.direction='UP' order by sort
     </select>
 
