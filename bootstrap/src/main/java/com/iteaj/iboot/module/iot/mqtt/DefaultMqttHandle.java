@@ -131,7 +131,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                         }
 
                         if(CollectionUtil.isNotEmpty(config.getAttrs())) {
-                            resolvePayloadValue(config.getAttrs(), protocol, gatewaySnValue, deviceSnValue, device);
+                            resolvePayloadValue(config, protocol, gatewaySnValue, deviceSnValue, device);
                         } else {
                             logger.warn("mqtt产品配置错误 没有配置项 - 设备: {} - 平台订阅主题: {}", deviceKey, topic);
                         }
@@ -149,11 +149,17 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
         return null;
     }
 
-    private void resolvePayloadValue(List<UpModelAttr> dicts, DefaultMqttSubscribeProtocol protocol
+    private void resolvePayloadValue(SubscribeConfig config, DefaultMqttSubscribeProtocol protocol
             , String gatewaySnValue, String deviceSnValue, RealtimeStatus device) {
         Date date = new Date();
+        List<UpModelAttr> dicts = config.getAttrs();
         byte[] message = protocol.requestMessage().getMessage();
         JSONObject jsonObject = JSONObject.parseObject(new String(message, StandardCharsets.UTF_8));
+        if(config.getCollectTime() != null) {
+            date = config.getCollectTime().eval(jsonObject, Date.class);
+        }
+
+        Date finalDate = date;
         List<SignalOrFieldValue> fieldValues = dicts.stream().map(item -> {
             Object fieldValue;
             if(StrUtil.isBlank(item.getPath())) {
@@ -163,7 +169,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
             }
 
             Object value = DataValueResolverFactory.resolver(item, fieldValue);
-            return new SignalOrFieldValue(item.getId(), item.getField(), date, value);
+            return new SignalOrFieldValue(item.getId(), item.getField(), finalDate, value);
         }).collect(Collectors.toList());
 
         // 发布模型属性的事件
@@ -199,7 +205,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                 Map<String, SubscribeConfig> subscribeApis = new HashMap<>();
                 eventApis.forEach(api -> {
                     if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
-                        String topic = null; List<UpModelAttr> attrs = new ArrayList<>(); boolean isWill = false;
+                        String topic = null; List<UpModelAttr> attrs = new ArrayList<>(); boolean isWill = false; JSONPath collectTimePath = null;
                         for (int i = 0; i < api.getUpConfig().size(); i++) {
                             ModelApiConfig config = api.getUpConfig().get(i);
                             if("topic".equals(config.getProtocolAttrField())) {
@@ -220,7 +226,11 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                                         logger.debug("解析mqtt物模型 payload属性没有配置项 - 产品: {} - 事件模型: {}/{}"
                                                 , productDto.getName(), api.getName(), api.getCode());
                                     }
-                                } else {
+                                } else if("collectTime".equals(config.getProtocolAttrField())) {
+                                    if(!"{now}".equals(config.getValue())) {
+                                        collectTimePath = JSONPath.compile(config.getValue(), true);
+                                    }
+                                }  else {
                                     attrs = config.getDicts().stream().map(item -> new UpModelAttr(Long.valueOf(item.getDictValue())
                                             , item.getAttrField(), item.getDictName(), DataType.build(item.getDataType())
                                             , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript()
@@ -232,7 +242,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                             }
                         }
 
-                        subscribeApis.put(topic, new SubscribeConfig(isWill, attrs));
+                        subscribeApis.put(topic, new SubscribeConfig(isWill, collectTimePath, attrs));
                     }
                 });
 
@@ -268,14 +278,18 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
          */
         private final boolean isWill;
 
+
+        private final JSONPath collectTime;
+
         /**
          * 属性配置
          */
         private final List<UpModelAttr> attrs;
 
-        public SubscribeConfig(boolean isWill, List<UpModelAttr> attrs) {
-            this.isWill = isWill;
+        public SubscribeConfig(boolean isWill, JSONPath collectTime, List<UpModelAttr> attrs) {
             this.attrs = attrs;
+            this.isWill = isWill;
+            this.collectTime = collectTime;
         }
     }
 }
