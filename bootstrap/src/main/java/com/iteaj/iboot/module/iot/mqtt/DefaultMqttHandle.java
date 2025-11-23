@@ -220,17 +220,16 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                                         logger.debug("解析mqtt物模型 payload属性没有配置项 - 产品: {} - 事件模型: {}/{}"
                                                 , productDto.getName(), api.getName(), api.getCode());
                                     }
-                                } else if("collectTime".equals(config.getProtocolAttrField())) {
-                                    if(!"{now}".equals(config.getValue())) {
-                                        collectTimePath = JSONPath.compile(config.getValue(), true);
-                                    }
-                                }  else {
+                                } else {
                                     attrs = config.getDicts().stream().map(item -> new UpModelAttr(Long.valueOf(item.getDictValue())
                                             , item.getAttrField(), item.getDictName(), DataType.build(item.getDataType())
                                             , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript()
                                             , item.getPath())).collect(Collectors.toList());
                                 }
-
+                            } else if("collectTime".equals(config.getProtocolAttrField())) {
+                                if(!"{now}".equals(config.getValue())) {
+                                    collectTimePath = JSONPath.compile(config.getValue(), true);
+                                }
                             } else {
                                 isWill = Boolean.parseBoolean(config.getValue());
                             }
