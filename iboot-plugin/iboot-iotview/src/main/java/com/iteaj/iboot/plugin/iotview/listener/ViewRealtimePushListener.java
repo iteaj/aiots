@@ -174,7 +174,7 @@ public class ViewRealtimePushListener implements WebSocketServerListener, IotLis
     public void onIotEvent(IotEventType eventType, IotEventPayload payload) {
         if(eventType == IotEventType.Realtime) {
             RealtimePayload value = (RealtimePayload) payload;
-            if(value.isData() || value.isDataActive()) {
+            if(value.isData() || value.isDataActive() || value.isDataCmd()) {
                 final List<ViewRealtimeData> datas = (List<ViewRealtimeData>) value.getPayload().stream()
                         .filter(item -> item != null && ((RealtimeCollectData)item).getStatus())
                         .map(item -> {
