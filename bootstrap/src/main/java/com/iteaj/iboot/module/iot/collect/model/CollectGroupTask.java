@@ -5,6 +5,8 @@ import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -14,6 +16,7 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.listener.DeviceStatusListener;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
@@ -47,23 +50,21 @@ public class CollectGroupTask implements Runnable{
         String prevParentDeviceSn = null;
         CollectInfo info = new CollectInfo(source, group);
         Collection<RealtimeStatus> devices = cacheManager.listByGroupId(group.getId());
-        Iterator<RealtimeStatus> iterator = devices.iterator();
-        while (iterator.hasNext()) {
-            RealtimeStatus device = iterator.next();
+        for (RealtimeStatus device : devices) {
             // 当前设备的产品不在事件源包含的产品里面
-            if(device.getProductId() == null || !source.getProductIds().contains(device.getProductId().intValue())) {
+            if (device.getProductId() == null || !source.getProductIds().contains(device.getProductId().intValue())) {
                 continue;
             }
 
-            if(device.getStatus() == DeviceStatus.offline) {
-                if(device.getType() == DeviceType.Gateway) {
+            if (device.getStatus() == DeviceStatus.offline) {
+                if (device.getType() == DeviceType.Gateway || device.getType() == DeviceType.Direct) {
                     IotLogger.warn(source, device.getUid(), "放弃设备采集 设备不在线 - 设备组: {} - 设备编号: {}"
                             , group.getName(), device.buildDeviceKey());
                     continue;
-                } else if(device.getType() == DeviceType.Child) {
+                } else if (device.getType() == DeviceType.Child) {
                     RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
-                    if(parent != null) {
-                        if(parent.getStatus() == DeviceStatus.offline) {
+                    if (parent != null) {
+                        if (parent.getStatus() == DeviceStatus.offline) {
                             IotLogger.warn(source, device.getUid(), "放弃设备采集 网关设备不在线 - 设备组: {} - 设备编号: {}"
                                     , group.getName(), device.buildDeviceKey());
                             continue;
@@ -77,30 +78,28 @@ public class CollectGroupTask implements Runnable{
 
             }
 
-            Iterator<ModelApi> apiIterator = apis.iterator();
-            while (apiIterator.hasNext()) {
-                ModelApi api = apiIterator.next();
+            for (ModelApi api : apis) {
                 try {
                     // 对此设备同一产品的模型接口进行调用
-                    if(api.getProductId().equals(device.getProductId())) {
-                        if(prevParentDeviceSn != null && ProtocolCodes.isModbus(device.getProtocolCode())) {
+                    if (api.getProductId().equals(device.getProductId())) {
+                        if (prevParentDeviceSn != null && ProtocolCodes.isModbus(device.getProtocolCode())) {
                             // 同一台网关设备的采集时间需要有一定间隔(防止网关设备性能差导致采集失败)
-                            if(prevParentDeviceSn.equals(device.getParentDeviceSn())) {
+                            if (prevParentDeviceSn.equals(device.getParentDeviceSn())) {
                                 Thread.sleep(1000); // 休眠1秒
                             }
                         }
 
-                        doInvoke(info, device, api, 3000l, false);
+                        doInvoke(info, device, api, 3600L, false);
                         prevParentDeviceSn = device.getParentDeviceSn();
                     }
                 } catch (ProtocolInvokeException e) {
-                    IotLogger.error(source, device.getUid(),"接口采集执行异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                    IotLogger.error(source, device.getUid(), "接口采集执行异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
                             , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 } catch (ServiceException e) {
-                    IotLogger.error(source, device.getUid(),"接口采集执行错误 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                    IotLogger.error(source, device.getUid(), "接口采集执行错误 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
                             , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 } catch (Exception e) {
-                    IotLogger.error(source, device.getUid(),"接口采集未知异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
+                    IotLogger.error(source, device.getUid(), "接口采集未知异常 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", e.getMessage()
                             , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 }
             }
@@ -118,13 +117,17 @@ public class CollectGroupTask implements Runnable{
     private void doInvoke(CollectInfo info, RealtimeStatus device, ModelApi api, long timeout, boolean retry) {
         ProtocolInvokeUtil.invoke(api, device, timeout, result -> {
             if(result.getStatus() == ExecStatus.success) {
+                if(device.getStatus() == DeviceStatus.offline) {
+                    device.setStatus(DeviceStatus.online); // 切换设备在线
+                    IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                }
                 if(api.getFuncType() != FuncType.W) { // 单纯写的功能没有采集数据
                     // 发布采集的数据
                     dataPublish(info, device, api, result);
                 }
             } else {
                 if(result.getStatus() == ExecStatus.timeout && !retry) {
-                    this.doInvoke(info, device, api, 6000l, true);
+                    this.doInvoke(info, device, api, 6000L, true);
                 } else {
                     if(retry) {
                         IotLogger.warn(source, device.getUid(), "采集重试失败 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
@@ -134,6 +137,10 @@ public class CollectGroupTask implements Runnable{
                                 , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect());
                     }
 
+                    if(device.getStatus() == DeviceStatus.online) {
+                        device.setStatus(DeviceStatus.offline); // 切换设备离线
+                        IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+                    }
                     // 发布采集的数据
                     dataPublish(info, device, api, result);
                 }

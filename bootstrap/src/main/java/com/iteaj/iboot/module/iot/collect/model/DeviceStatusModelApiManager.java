@@ -187,26 +187,16 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
         ProtocolInvokeUtil.invoke(api, device, timeout, result -> {
             DeviceStatus realtimeStatus;
             if(result.getStatus() == ExecStatus.success) {
-                boolean status = true;
-//                    Object value = result.getValue();
-//                    if(value instanceof Boolean) { // 如果是布尔值必须等于true
-//                        status = Boolean.TRUE.equals(value);
-//                    } else if(value instanceof Number){ // 如果是数值必须大于0
-//                        Double aDouble = Double.valueOf(value.toString());
-//                        status = aDouble != 0.0;
-//                    }
-
-                realtimeStatus = status == true ? DeviceStatus.online : DeviceStatus.offline;
+                realtimeStatus = DeviceStatus.online;
                 // 如果现在的状态和上一次的状态不一致则更新状态
                 if(realtimeStatus != device.getStatus()) {
                     device.setStatus(realtimeStatus);
                     IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
                 }
-
             } else {
                 // 如果执行超时则重新尝试一次
                 if(result.getStatus() == ExecStatus.timeout && !retry) {
-                    this.doInvoke(api, device, 5000l, true);
+                    this.doInvoke(api, device, 5000L, true);
                 } else {
                     // 如果现在的状态和上一次的状态不一致则更新状态
                     if(DeviceStatus.offline != device.getStatus()) {
@@ -233,12 +223,9 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
         this.cacheManager = context.getBean(IotCacheManager.class);
         this.bootThreadManger = context.getBean(IBootThreadManger.class);
         IModelApiService modelApiService = context.getBean(IModelApiService.class);
-        modelApiService.listAsStatusModelApi().forEach(api -> this.register(api));
+        modelApiService.listAsStatusModelApi().forEach(this::register);
 
-        /**
-         * 30秒执行一次
-         */
         bootThreadManger.getDeviceStatusScheduler()
-                .scheduleWithFixedDelay(this, 15, 35, TimeUnit.SECONDS);
+                .scheduleWithFixedDelay(this, 30, 10 * 60, TimeUnit.SECONDS);
     }
 }
