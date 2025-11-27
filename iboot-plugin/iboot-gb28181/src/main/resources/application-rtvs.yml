@@ -9,7 +9,7 @@ media:
     sip:
       userName: gbsip
       password: admin
-      api-uri: http://${media.rtvs.host}:9081
+      api-uri: https://et.test.cvtsp.com:15006
 ---
 spring:
   config:

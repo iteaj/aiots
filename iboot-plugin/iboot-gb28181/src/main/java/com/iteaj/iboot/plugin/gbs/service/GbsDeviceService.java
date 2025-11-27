@@ -88,4 +88,6 @@ public interface GbsDeviceService {
     GbsChannel getByDeviceIdAndChannelId(String deviceId, String channelId);
 
     List<GbsViewChannelDto> listViewChannels();
+
+    boolean deleteByDeviceAndChannelId(GbsChannel channel);
 }

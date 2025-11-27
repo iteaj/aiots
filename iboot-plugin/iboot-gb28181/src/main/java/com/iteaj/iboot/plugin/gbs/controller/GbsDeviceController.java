@@ -77,10 +77,26 @@ public class GbsDeviceController extends BaseController {
      * @param deviceId
      * @return
      */
-    @GetMapping("/del")
+    @PostMapping("/del")
     @CheckPermission({"gbs:device:del"})
-    public Result<Boolean> del(String deviceId) {
-        boolean delete = deviceService.deleteByDeviceId(deviceId);
+    public Result<Boolean> del(@RequestBody List<String> deviceId) {
+        if(deviceId!=null&& !deviceId.isEmpty()){
+            boolean delete = deviceService.deleteByDeviceId(deviceId.get(0));
+            return success(delete, "删除成功");
+        }
+
+        return fail("未指定要删除的设备");
+    }
+
+    /**
+     * 删除一台通道
+     * @param channel
+     * @return
+     */
+    @PostMapping("/delChannel")
+    @CheckPermission({"gbs:device:del"})
+    public Result<Boolean> del(@RequestBody GbsChannel channel) {
+        boolean delete = deviceService.deleteByDeviceAndChannelId(channel);
         return success(delete, "删除成功");
     }
 

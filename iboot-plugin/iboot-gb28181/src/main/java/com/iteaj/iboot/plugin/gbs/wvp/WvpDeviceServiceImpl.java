@@ -74,4 +74,9 @@ public class WvpDeviceServiceImpl implements GbsDeviceService {
     public List<GbsViewChannelDto> listViewChannels() {
         return null;
     }
+
+    @Override
+    public boolean deleteByDeviceAndChannelId(GbsChannel channel) {
+        return false;
+    }
 }
