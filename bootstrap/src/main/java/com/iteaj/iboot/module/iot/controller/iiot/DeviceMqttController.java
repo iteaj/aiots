@@ -93,7 +93,7 @@ public class DeviceMqttController extends BaseController {
             }
         }
 
-        return this.deviceService.saveOrUpdate(entity);
+        return this.deviceService.saveOrUpdate(entity.setAlias("MQTT"));
     }
 
     /**
