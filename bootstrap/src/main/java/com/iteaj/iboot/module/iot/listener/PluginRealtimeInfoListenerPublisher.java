@@ -24,6 +24,8 @@ import org.springframework.core.Ordered;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.iteaj.framework.spi.iot.listener.RealtimePayload.TYPE_DATA_ACTIVE;
+
 /**
  * 将采集的数据、设备的实时状态、上报的模型属性数据发布出去, 用于给其他插件模块使用
  */
@@ -139,7 +141,12 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
 
     @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
-        doPublisher(null, supplier, device, String.valueOf(UniqueIdGen.nextLong()), "data_active");
+        doPublisher(null, supplier, device, String.valueOf(UniqueIdGen.nextLong()), TYPE_DATA_ACTIVE);
+    }
+
+    @Override
+    public void supplier(DataSupplier supplier, RealtimeStatus device, String type) {
+        doPublisher(null, supplier, device, String.valueOf(UniqueIdGen.nextLong()), type);
     }
 
     /**

@@ -1,14 +1,15 @@
 package com.iteaj.iboot.module.iot.listener;
 
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.spi.iot.IotUtil;
-import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.listener.CmdInvokeListener;
 import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
+import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -18,6 +19,8 @@ import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 @Component
 public class IotViewCmdListener implements CmdInvokeListener {
@@ -41,6 +44,7 @@ public class IotViewCmdListener implements CmdInvokeListener {
             RealtimeStatus device = cacheManager.getByUid(invokeParam.getUid());
             if(device == null) {
                 value.getCallback().accept(InvokeResult.fail("设备不存在["+value.getUid()+"]", null));
+                return;
             }
 
             if(value.getTimeout() > 0) {
@@ -59,10 +63,14 @@ public class IotViewCmdListener implements CmdInvokeListener {
                 value.getCallback().accept(InvokeResult.fail("产品未启用["+product.getName()+"]", null));
             }
 
-            final String uid = invokeParam != null ? invokeParam.getUid() : null;
-            ProtocolInvokeUtil.invoke(modelApi, invokeParam, device, result -> {
+            final String uid = invokeParam.getUid();
+            DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(device.getProtocolCode());
+            ProtocolModelApiInvokeParam finalInvokeParam = invokeParam;
+            ProtocolInvokeUtil.invoke(supplier, modelApi, invokeParam, device, result -> {
                 value.getCallback().accept(result);
                 if(result.getStatus() == ExecStatus.success) {
+                    DataSupplier dataSupplier = supplier.getDataSupplier(result.getProtocol(), finalInvokeParam, result.getValue());
+                    CollectListenerManager.getInstance().publish(dataSupplier.build(new Date()), device, RealtimePayload.TYPE_DATA_CMD);
                     IotLogger.info(IotLogger.NAME, "指令调用", uid
                             , "指令下发成功 指令: {} - 设备: {}", modelApi.getName(), device.buildDeviceKey());
                 } else {

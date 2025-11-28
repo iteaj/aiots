@@ -186,13 +186,14 @@ public class ProtocolInvokeUtil {
     private static void buildUpConfigAttrs(ModelApi api, ProtocolModelApiInvokeParam invokeParam) {
         List<UpModelAttr> upConfigAttrs = new ArrayList<>();
         api.getUpConfig().forEach(item -> {
-            if(DataType.t_json.getValue().equals(item.getDataType())) {
+            DataType dataType = DataType.build(item.getDataType());
+            if(DataType.t_json == dataType || DataType.t_group == dataType) {
                 item.getDicts().forEach(dict -> {
                     upConfigAttrs.add(new UpModelAttr(dict.getModelAttrId(), dict.getAttrField(), dict.getDictName()
                             , DataType.build(dict.getDataType()), dict.getAccuracy(), dict.getGain(), dict.getResolver()
                             , dict.getScript(), dict.getPath()));
                 });
-            } else if(DataType.t_bit.getValue().equals(item.getDataType())) {
+            } else if(DataType.t_bit == dataType) {
                 item.getDicts().forEach(dict -> {
                     upConfigAttrs.add(new UpModelAttr(dict.getModelAttrId(), dict.getAttrField(), dict.getDictName()
                             , DataType.build(dict.getDataType()), dict.getAccuracy(), dict.getGain(), dict.getResolver()

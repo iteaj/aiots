@@ -2,9 +2,12 @@ package com.iteaj.iboot.plugin.gbs.rtvs;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpException;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -23,6 +26,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class RtvsDeviceServiceImpl implements GbsDeviceService {
@@ -30,10 +35,6 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
     private String authorization;
     @Autowired
     private RtvsProperties properties;
-    @Autowired
-    private RtvsDeviceMapper deviceMapper;
-    @Autowired
-    private RtvsChannelMapper channelMapper;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -44,36 +45,37 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
 
     @Override
     public GbsDevice getByDeviceId(String deviceId) {
-        RtvsDevice rtvsDevice = deviceMapper.selectOne(Wrappers.<RtvsDevice>lambdaQuery().eq(RtvsDevice::getDeviceId, deviceId));
-        if(rtvsDevice != null) {
-            GbsDevice gbsDevice = new GbsDevice();
-            BeanUtil.copyProperties(rtvsDevice, gbsDevice);
-            return gbsDevice;
-        }
-
-        return null;
+        JSON json = invokeGetRequest("/api/DeviceInfo/GetDeviceInfo?DeviceId=" + deviceId);
+        return json.toJavaObject(RtvsDevice.class).convert();
     }
 
     @Override
     public boolean deleteByDeviceId(String deviceId) {
-        return deviceMapper.delete(Wrappers.<RtvsDevice>lambdaQuery().eq(RtvsDevice::getDeviceId, deviceId)) > 0;
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("Ids", Collections.singletonList(deviceId));
+        JSONObject response = invokePostRequest("/api/DeviceInfo/DeleteDevice", jsonObject);
+        return response.getBoolean("data");
     }
 
     @Override
     public List<GbsRealtimeTree> trees(String deviceId) {
         if(StrUtil.isNotBlank(deviceId)) {
-            List<RtvsChannel> deviceChannels = channelMapper.selectList(Wrappers.<RtvsChannel>lambdaQuery().eq(RtvsChannel::getDeviceId, deviceId));
+            List<GbsChannel> deviceChannels = this.channels(new Page(1, -1), new GbsChannel().setDeviceId(deviceId)).getRecords();
             if(!CollectionUtils.isEmpty(deviceChannels)) {
                 List<GbsRealtimeTree> realtimeTrees = deviceChannels.stream()
-                        .map(item -> GbsRealtimeTree.buildChannel(item.getDeviceId(), item.getChannelId(), StrUtil.isNotBlank(item.getNickName()) ? item.getNickName() : item.getName(), item.getStatus()))
+                        .map(item -> GbsRealtimeTree.buildChannel(item.getDeviceId(), item.getChannelId()
+                                , StrUtil.isNotBlank(item.getNickName()) ? item.getNickName() : item.getName()
+                                , item.getStatus()))
                         .collect(Collectors.toList());
                 return realtimeTrees;
             }
         } else {
-            List<RtvsDevice> devices = deviceMapper.selectList(Wrappers.emptyWrapper());
+            List<GbsDevice> devices = this.page(new Page(1, -1), new GbsDevice()).getRecords();
             if(!CollectionUtils.isEmpty(devices)) {
                 List<GbsRealtimeTree> realtimeTrees = devices.stream()
-                        .map(item -> GbsRealtimeTree.buildDevice(item.getDeviceId(), StrUtil.isNotBlank(item.getNickName()) ? item.getNickName() : item.getName(), item.getOnline(), item.getChannelCount()))
+                        .map(item -> GbsRealtimeTree.buildDevice(item.getDeviceId()
+                                , (StrUtil.isNotBlank(item.getNickName()) ? item.getNickName() : StrUtil.isBlank(item.getName()) ? item.getDeviceId() : item.getName())
+                                , item.getOnline(), item.getChannelCount()))
                         .collect(Collectors.toList());
 
                 return realtimeTrees;
@@ -86,123 +88,182 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
     public Page<GbsDevice> page(Page page, GbsDevice entity) {
         RtvsDevice gbsDevice = new RtvsDevice();
         BeanUtil.copyProperties(entity, gbsDevice);
-        Page<RtvsDevice> selectPage = deviceMapper.detailByPage(page, gbsDevice);
-        if(!CollectionUtils.isEmpty(page.getRecords())) {
-            List<GbsDevice> devices = selectPage.getRecords()
-                    .stream()
-                    .map(RtvsDevice::convert)
-                    .collect(Collectors.toList());
-            page.setRecords(devices);
+        if(entity.getName() == null) entity.setName(StrUtil.EMPTY);
+        JSONObject response = invokeGetRequest(String.format("/api/DeviceInfo/GetDeviceList?deviceId=%s&DeviceName=%s&Page=%s&Limit=%s", "", entity.getName(), page.getCurrent(), page.getSize()));
+        JSONArray list = response.getJSONArray("list");
+        JSONObject pagination = response.getJSONObject("pagination");
+        if(pagination.getInteger("total") > 0) {
+            List<RtvsDevice> javaList = list.toJavaList(RtvsDevice.class);
+            page.setTotal(pagination.getLong("total"));
+            page.setRecords(javaList.stream().map(RtvsDevice::convert).collect(Collectors.toList()));
         }
-
         return page;
     }
 
     @Override
     public void sync(String deviceId) {
-        RtvsProperties.GbSip sip = properties.getSip();
-        String url = String.format("%s%s?deviceId=%s", sip.getApiUri(), "/api/DeviceInfo/SendRefreshChannel", deviceId);
-        HttpResponse response = invokeRequest(url);
-        if(response.isOk()) {
-            JSONObject jsonObject = JSONObject.parseObject(response.body());
-            if(jsonObject.getInteger("code") != 200) {
-                throw new ServiceException(jsonObject.getString("message"));
-            } else if(!jsonObject.getBoolean("data")) {
-                throw new ServiceException("同步失败");
-            }
-        } else {
-            throw new ServiceException("同步异常");
+        String url = String.format("%s?deviceId=%s", "/api/DeviceInfo/SendRefreshChannel", deviceId);
+        JSONObject response = invokePostRequest(url);
+        if(!response.getBoolean("data")) {
+            throw new ServiceException("同步失败");
         }
     }
 
     @Override
     public boolean update(GbsDevice device) {
-        return deviceMapper.update(device.toRtvsDevice(), Wrappers.<RtvsDevice>lambdaUpdate()
-                .eq(RtvsDevice::getDeviceId, device.getDeviceId())) > 0;
+        JSON body = (JSON) JSONObject.toJSON(device.toRtvsDevice());
+        JSONObject jsonObject = invokePostRequest("/api/DeviceInfo/UpdateDevice", body);
+        return jsonObject.getBoolean("data");
     }
 
     @Override
     public boolean update(GbsChannel channel) {
-        return channelMapper.update(channel.toRtvsChannel(), Wrappers.<RtvsChannel>lambdaUpdate()
-                .eq(RtvsChannel::getDeviceId, channel.getDeviceId())
-                .eq(RtvsChannel::getChannelId, channel.getChannelId())) > 0;
+        RtvsChannel rtvsChannel = new RtvsChannel().setChannelId(channel.getChannelId()).setDeviceId(channel.getDeviceId())
+                .setNickName(channel.getNickName());
+        JSONObject jsonObject = invokePostRequest("/api/Channel/UpdateChannel", (JSON) JSONObject.toJSON(rtvsChannel));
+        return jsonObject.getBoolean("data");
     }
 
     @Override
     public Page<GbsChannel> channels(Page page, GbsChannel entity) {
-        Page<RtvsChannel> selectPage = channelMapper.selectPage(page, Wrappers.query(entity.toRtvsChannel()));
-        if(!CollectionUtils.isEmpty(selectPage.getRecords())) {
-            List<GbsChannel> channels = selectPage.getRecords().stream()
-                    .map(item -> item.convert()).collect(Collectors.toList());
-            page.setRecords(channels);
+        if(entity.getDeviceId() == null) entity.setDeviceId("");
+        if(entity.getChannelId() == null) entity.setChannelId("");
+        JSONObject response = invokeGetRequest(String.format("/api/Channel/GetChannelList?DeviceId=%s&ChannelId=%s&Page=%s&Limit=%s"
+                , entity.getDeviceId(), entity.getChannelId(), page.getCurrent(), page.getSize()));
+        JSONArray list = response.getJSONArray("list");
+        JSONObject pagination = response.getJSONObject("pagination");
+        if(pagination.getInteger("total") > 0) {
+            List<GbsChannel> collect = list.toJavaList(RtvsChannel.class).stream()
+                    .map(RtvsChannel::convert).collect(Collectors.toList());
+            page.setTotal(pagination.getLong("total"));
+            page.setRecords(collect);
         }
-
         return page;
     }
 
     @Override
     public void ptzCtrl(String deviceId, String channelId, String command, Integer speed) {
-        RtvsProperties.GbSip sip = properties.getSip();
 
         String param = "";
-        if(command.equals("up")) {
-            param = "Up="+speed;
-        } else if(command.equals("down")) {
-            param = "Down="+speed;
-        } else if(command.equals("left")) {
-            param = "Left="+speed;
-        } else if(command.equals("right")) {
-            param = "Right="+speed;
-        } else if(command.equals("upleft")) {
-            param = "Up="+speed+"&Left="+speed;
-        } else if(command.equals("upright")) {
-            param = "Up="+speed+"&Right="+speed;
-        } else if(command.equals("downleft")) {
-            param = "Down="+speed+"&Left="+speed;
-        } else if(command.equals("downright")) {
-            param = "Down="+speed+"&Right="+speed;
-        } else if(command.equals("zoomin")) {
-            param = "ZoomIn="+speed;
-        } else if(command.equals("zoomout")) {
-            param = "ZoomOut="+speed;
-        } else if(command.equals("stop")) {
-            // 不需要参数
+        switch (command) {
+            case "up":
+                param = "Up=" + speed;
+                break;
+            case "down":
+                param = "Down=" + speed;
+                break;
+            case "left":
+                param = "Left=" + speed;
+                break;
+            case "right":
+                param = "Right=" + speed;
+                break;
+            case "upleft":
+                param = "Up=" + speed + "&Left=" + speed;
+                break;
+            case "upright":
+                param = "Up=" + speed + "&Right=" + speed;
+                break;
+            case "downleft":
+                param = "Down=" + speed + "&Left=" + speed;
+                break;
+            case "downright":
+                param = "Down=" + speed + "&Right=" + speed;
+                break;
+            case "zoomin":
+                param = "ZoomIn=" + speed;
+                break;
+            case "zoomout":
+                param = "ZoomOut=" + speed;
+                break;
+            case "stop":
+                // 不需要参数
+                break;
         }
 
-        String url = String.format("%s%s?deviceId=%s&channel=%s&%s", sip.getApiUri()
+        String url = String.format("%s?deviceId=%s&channel=%s&%s"
                 , "/api/DeviceControl/PTZCtrl", deviceId, channelId, param);
-        HttpResponse response = invokeRequest(url);
-        if(response.isOk()) {
-            JSONObject jsonObject = JSONObject.parseObject(response.body());
-            if(jsonObject.getInteger("code") != 200) {
-                String message = jsonObject.getString("message");
-                message = message != null ? message : jsonObject.getString("code");
-                throw new ServiceException("接口访问异常[" + message + "]");
-            } else if(!jsonObject.getBoolean("data")) {
-                throw new ServiceException("指令下发失败");
-            }
-        } else {
-            throw new ServiceException("指令下发异常");
+        JSONObject response = invokePostRequest(url);
+        if(!response.getBoolean("data")) {
+            throw new ServiceException("指令下发失败");
         }
     }
 
     @Override
     public GbsChannel getByDeviceIdAndChannelId(String deviceId, String channelId) {
-        RtvsChannel channel = channelMapper.selectOne(Wrappers.<RtvsChannel>lambdaQuery()
-                .eq(RtvsChannel::getDeviceId, deviceId)
-                .eq(RtvsChannel::getChannelId, channelId));
-        return channel == null ? null : channel.convert();
+        JSON response = invokeGetRequest(String.format("/api/Channel/GetChannel?DeviceId=%s&ChannelId=%s", deviceId, channelId));
+        return response.toJavaObject(RtvsChannel.class).convert();
     }
 
     @Override
     public List<GbsViewChannelDto> listViewChannels() {
-        return channelMapper.listViewChannels();
+        Page<GbsChannel> channels = this.channels(new Page(1, -1), new GbsChannel());
+        if(channels.getTotal() > 0) {
+            return channels.getRecords().stream().map(channel -> {
+                GbsViewChannelDto channelDto = new GbsViewChannelDto();
+                channelDto.setLabel(channel.getName());
+                channelDto.setValue(channel.getChannelId());
+                return channelDto;
+            }).collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 
-    private HttpResponse invokeRequest(String url) {
+    @Override
+    public boolean deleteByDeviceAndChannelId(GbsChannel channel) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("DeviceId", channel.getDeviceId());
+        jsonObject.put("ChannelIds", Collections.singletonList(channel.getChannelId()));
+        JSONObject response = invokePostRequest("/api/Channel/DeleteChannel", jsonObject);
+        return response.getBoolean("data");
+    }
+
+    private JSONObject invokeGetRequest(String url) {
         doAuthorization();
-        return HttpUtil.createPost(url)
-                .header("authorization", this.authorization).execute();
+        String apiUri = properties.getSip().getApiUri();
+        try (HttpResponse httpResponse = HttpUtil.createGet(apiUri + url)
+                .header("authorization", this.authorization).execute()) {
+            return responseHandle(httpResponse);
+        }
+    }
+
+    private JSONObject responseHandle( HttpResponse httpResponse) {
+        if (httpResponse.isOk()) {
+            JSONObject jsonObject = JSONObject.parseObject(httpResponse.body());
+            if (jsonObject.getInteger("code") == 200) {
+                Object data = jsonObject.get("data");
+                if (data instanceof JSONObject) {
+                    return (JSONObject) data;
+                } else {
+                    return jsonObject;
+                }
+            } else {
+                throw new ServiceException("调用执行失败: " + jsonObject.getString("message"));
+            }
+        } else {
+            String body = httpResponse.body();
+            throw new ServiceException("请求rtvs失败: " + body);
+        }
+    }
+
+    private JSONObject invokePostRequest(String url, JSON body) {
+        doAuthorization();
+        String apiUri = properties.getSip().getApiUri();
+        try (HttpResponse httpResponse = HttpUtil.createPost(apiUri + url)
+                .body(body.toString(), ContentType.JSON.getValue())
+                .header("authorization", this.authorization).execute()) {
+            return responseHandle(httpResponse);
+        }
+    }
+
+    private JSONObject invokePostRequest(String url) {
+        doAuthorization();
+        String apiUri = properties.getSip().getApiUri();
+        try (HttpResponse httpResponse = HttpUtil.createPost(apiUri + url)
+                .header("authorization", this.authorization).execute()) {
+            return responseHandle(httpResponse);
+        }
     }
 
     /**

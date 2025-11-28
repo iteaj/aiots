@@ -2,6 +2,9 @@ package com.iteaj.iboot.plugin.iotview.mapper;
 
 import com.iteaj.iboot.plugin.iotview.entity.Resource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.iteaj.iboot.plugin.iotview.entity.ResourceType;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ResourceMapper extends BaseMapper<Resource> {
 
+    List<ResourceType> listTypes();
+
+    List<ResourceType> details(String type);
 }

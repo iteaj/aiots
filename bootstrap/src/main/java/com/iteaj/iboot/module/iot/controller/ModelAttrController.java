@@ -131,7 +131,7 @@ public class ModelAttrController extends BaseController {
     }
 
     /**
-     * 获取指定产品下面的物模型属性(不包含bit和json类型)
+     * 获取指定产品下面的物模型属性(不包含bit和json以及group类型)
      * @param productId
      * @return
      */
@@ -143,7 +143,7 @@ public class ModelAttrController extends BaseController {
 
         return this.modelAttrService.list(Wrappers.<ModelAttr>lambdaQuery()
                 .eq(ModelAttr::getProductId, productId)
-                .notIn(ModelAttr::getDataType, DataType.t_bit.getValue(), DataType.t_json.getValue())
+                .notIn(ModelAttr::getDataType, DataType.t_bit.getValue(), DataType.t_json.getValue(), DataType.t_group.getValue())
                 .ne(ModelAttr::getAttrType, AttrType.W));
     }
 }

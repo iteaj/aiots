@@ -109,8 +109,7 @@ public class PanelsController extends BaseController {
                             }
 
                             if(CollectionUtil.isNotEmpty(attr.getDicts())
-                                    && !DataType.t_json.getValue().equals(attr.getDataType())
-                                    && !DataType.t_bit.getValue().equals(attr.getDataType())) {
+                                    && !DataType.isContainer(attr.getDataType())) {
                                 attr.getDicts().forEach(dict -> attrDictMap.put(attr.getField()+"_"+dict.getDictValue(), dict.getDictName()));
                             }
                         });
@@ -210,8 +209,7 @@ public class PanelsController extends BaseController {
                                 , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                         if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
                             productDto.getAttrs().stream().filter(attr -> (attr.getAttrType() != AttrType.W
-                                    && !DataType.t_json.getValue().equals(attr.getDataType())
-                                            && !DataType.t_bit.getValue().equals(attr.getDataType())))
+                                    && !DataType.isContainer(attr.getDataType())))
                                 .forEach(attr -> {
                                     if(realtimeDataMap != null) {
                                         RealtimeData realtimeData = realtimeDataMap.get(attr.getField());

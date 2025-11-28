@@ -16,6 +16,7 @@ public enum DataType {
     t_datetime("datetime", "datetime(完整时间)"),
     t_timestamp("timestamp", "timestamp(时间戳)"),
     t_string("string", "string(字符串)"),
+    t_group("group", "group(组)"),
     t_boolean("boolean", "boolean(布尔)"),
     ;
 
@@ -43,9 +44,26 @@ public enum DataType {
             case "date": return t_date;
             case "time": return t_time;
             case "timestamp": return t_timestamp;
+            case "group": return t_group;
             case "string": return t_string;
             case "boolean": return t_boolean;
             default: throw new IllegalArgumentException("未知的数据类型["+dataType+"]");
+        }
+    }
+
+    /**
+     * 是否为容器类型
+     * @param dataType 数据类型
+     * @return bool
+     */
+    public static boolean isContainer(String dataType) {
+        switch (dataType) {
+            case "bit":
+            case "json":
+            case "group":
+                return true;
+            default:
+                return false;
         }
     }
 

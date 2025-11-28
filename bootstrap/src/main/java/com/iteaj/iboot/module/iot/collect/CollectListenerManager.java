@@ -128,4 +128,9 @@ public class CollectListenerManager implements DataCollectPublishService {
     public void publish(DataSupplier supplier, RealtimeDeviceStatus device) {
         this.modelAttrPublish(item -> item.supplier(supplier, (RealtimeStatus) device));
     }
+
+    @Override
+    public void publish(DataSupplier supplier, RealtimeDeviceStatus device, String type) {
+        this.modelAttrPublish(item -> item.supplier(supplier, (RealtimeStatus) device, type));
+    }
 }

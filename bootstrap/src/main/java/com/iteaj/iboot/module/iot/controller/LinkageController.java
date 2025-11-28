@@ -174,17 +174,26 @@ public class LinkageController extends BaseController {
 
     /**
      * 获取指定产品和设备组下的设备列表
+     * @param linkageId 产品id
      * @param productId 产品id
      * @param deviceGroupIds
      * @return
      */
     @GetMapping("listDeviceByProductAndDeviceGroupIds")
-    public Result<List<Device>> listDeviceByProductAndDeviceGroupIds(Long productId, Long[] deviceGroupIds) {
+    public Result<List<Device>> listDeviceByProductAndDeviceGroupIds(Long linkageId, Long productId, Long[] deviceGroupIds) {
         List<Device> data = new ArrayList<>();
-        if(deviceGroupIds != null && deviceGroupIds.length == 1 && deviceGroupIds[0] != -1) {
+        if(deviceGroupIds != null && deviceGroupIds.length > 0) {
             data = deviceService.list(Wrappers.<Device>lambdaQuery()
                     .eq(Device::getProductId, productId)
-                    .eq(Device::getDeviceGroupId, deviceGroupIds[0])).getData();
+                    .in(Device::getDeviceGroupId, deviceGroupIds)).getData();
+        } else {
+            List<Long> linkageDeviceGroupIds = listDeviceGroupTree(linkageId).getData().stream()
+                    .map(DeviceGroup::getId).collect(Collectors.toList());
+            if(CollectionUtil.isNotEmpty(linkageDeviceGroupIds)) {
+                data = deviceService.list(Wrappers.<Device>lambdaQuery()
+                        .eq(Device::getProductId, productId)
+                        .in(Device::getDeviceGroupId, linkageDeviceGroupIds)).getData();
+            }
         }
 
         data.add(0, new Device()

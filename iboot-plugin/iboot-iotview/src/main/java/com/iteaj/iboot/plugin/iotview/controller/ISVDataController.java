@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
@@ -22,6 +23,7 @@ import com.iteaj.framework.spi.open.OpenApiUtil;
 import com.iteaj.iboot.plugin.iotview.FetchResult;
 import com.iteaj.iboot.plugin.iotview.IotViewResult;
 import com.iteaj.iboot.plugin.iotview.entity.Resource;
+import com.iteaj.iboot.plugin.iotview.entity.ResourceType;
 import com.iteaj.iboot.plugin.iotview.service.IResourceService;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import com.iteaj.iot.consts.ExecStatus;
@@ -331,14 +333,14 @@ public class ISVDataController extends BaseController {
     }
 
     /**
-     * 获取资源列表
+     * 获取资源列表详情
      * @param type
      * @return
      */
     @ResponseBody
     @GetMapping("resources")
-    public Result<List<Resource>> resources(String type) {
-        return resourceService.list(Wrappers.<Resource>lambdaQuery().eq(Resource::getType, type));
+    public Result<List<ResourceType>> resources(String type) {
+        return resourceService.details(type);
     }
 
     /**
