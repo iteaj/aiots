@@ -40,7 +40,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     private final IotCacheManager cacheManager;
     private final RealtimeDataService realtimeDataService;
     private final LinkageCacheService linkageCacheService;
-    private Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
+    private final Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
     private final Map<Long, WarnInfo> warnStatus = new ConcurrentHashMap<>(512);
 
     public LinkageTriggerService(IotCacheManager cacheManager, RealtimeDataService realtimeDataService
