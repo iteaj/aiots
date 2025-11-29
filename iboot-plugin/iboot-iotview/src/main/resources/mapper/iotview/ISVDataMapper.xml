@@ -22,7 +22,7 @@
     <select id="listModelAttrOption" resultMap="BaseResultMap">
         select a.name label, a.field code from iot_model_attr a
             left join iot_product b on a.product_id = b.id
-        where b.code = #{productCode} and data_type != 'json' and b.id is not null
+        where b.code = #{productCode} and (data_type != 'json' and data_type != 'bit') and b.id is not null
         order by a.create_time desc
     </select>
     <select id="listGroupOption" resultMap="BaseResultMap">
@@ -92,6 +92,96 @@
         <if test="range == 'all'">
             left join iot_device b on a.id=b.id
         </if>
+    </select>
+
+    <select id="countAggRealtimeOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
+        select
+        <if test="type == 'count'">
+            count(if(unix_timestamp(collect_time) >= #{year}, 1, null)) year,
+            count(if(unix_timestamp(collect_time) >= #{month}, 1, null)) month,
+            count(if(unix_timestamp(collect_time) >= #{day}, 1, null)) day,
+            count(if(unix_timestamp(collect_time) >= #{hour}, 1, null)) hour,
+            count(if(unix_timestamp(collect_time) >= #{quarter}, 1, null)) quarter
+        </if>
+        <if test="type == 'sum'">
+            sum(if(unix_timestamp(collect_time) >= #{year}, value, 0)) year,
+            sum(if(unix_timestamp(collect_time) >= #{month}, value, 0)) month,
+            sum(if(unix_timestamp(collect_time) >= #{day}, value, 0)) day,
+            sum(if(unix_timestamp(collect_time) >= #{hour}, value, 0)) hour,
+            sum(if(unix_timestamp(collect_time) >= #{quarter}, value, 0)) quarter
+        </if>
+        <if test="type == 'max'">
+            max(if(unix_timestamp(collect_time) >= #{year}, value, null)) year,
+            max(if(unix_timestamp(collect_time) >= #{month}, value, null)) month,
+            max(if(unix_timestamp(collect_time) >= #{day}, value, null)) day,
+            max(if(unix_timestamp(collect_time) >= #{hour}, value, null)) hour,
+            max(if(unix_timestamp(collect_time) >= #{quarter}, value, null)) quarter
+        </if>
+        <if test="type == 'min'">
+            min(if(unix_timestamp(collect_time) >= #{year}, value, null)) year,
+            min(if(unix_timestamp(collect_time) >= #{month}, value, null)) month,
+            min(if(unix_timestamp(collect_time) >= #{day}, value, null)) day,
+            min(if(unix_timestamp(collect_time) >= #{hour}, value, null)) hour,
+            min(if(unix_timestamp(collect_time) >= #{quarter}, value, null)) quarter
+        </if>
+        <if test="type == 'avg'">
+            avg(if(unix_timestamp(collect_time) >= #{year}, value, null)) year,
+            avg(if(unix_timestamp(collect_time) >= #{month}, value, null)) month,
+            avg(if(unix_timestamp(collect_time) >= #{day}, value, null)) day,
+            avg(if(unix_timestamp(collect_time) >= #{hour}, value, null)) hour,
+            avg(if(unix_timestamp(collect_time) >= #{quarter}, value, null)) quarter
+        </if>
+        from iot_collect_data
+        <where>
+            unix_timestamp(collect_time) >= #{year}
+            <if test="productCode != null and productCode != ''">
+                and product_code=#{productCode}
+            </if>
+            <if test="uid != null and uid != ''">
+                and uid=#{uid}
+            </if>
+            <if test="deviceGroupId != null">
+                and device_group_id=#{deviceGroupId}
+            </if>
+        </where>
+    </select>
+    <select id="countDeviceStatusInfoOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
+        select count(1) total, count(if(a.status='online', 1, null)) online, count(if(a.status='offline', 1, null)) offline from iot_device a
+            left join iot_product p on a.product_id = p.id
+        <where>
+            <if test="productCode != null and productCode != ''">
+                and p.code=#{productCode}
+            </if>
+            <if test="deviceGroupId != null">
+                and a.device_group_id=#{deviceGroupId}
+            </if>
+        </where>
+    </select>
+    <select id="countDeviceWarnOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
+        select
+            count(if(unix_timestamp(warn_time) >= #{month}, 1, null)) month,
+            count(if(unix_timestamp(warn_time) >= #{day}, 1, null)) day,
+            count(if(unix_timestamp(warn_time) >= #{hour}, 1, null)) hour
+        from iot_warn_record
+        <where>
+            unix_timestamp(warn_time) >= #{month}
+            <if test="uid != null and uid != ''">
+                and uid=#{uid}
+            </if>
+            <if test="productCode != null and productCode != ''">
+                and product_code=#{productCode}
+            </if>
+        </where>
+    </select>
+    <select id="countBasicProductInfoOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
+        select count(1) total, count(if(status = 'enabled', 1, null)) start from iot_product
+    </select>
+    <select id="countBasicDriverInfoOfGlobal" resultType="com.iteaj.framework.spi.iot.view.global.GlobalApiParams">
+        select count(1) total, count(if(status = 'start', 1, null)) start from iot_gateway
+    </select>
+
+    <select id="listBasicProduct" resultType="java.util.Map">
+        select name, status, code, device_type deviceType from iot_product
     </select>
 
 </mapper>

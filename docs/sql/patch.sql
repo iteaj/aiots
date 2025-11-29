@@ -56,3 +56,24 @@ alter table iot_collect_data
 
 alter table iot_collect_data
     add field_name varchar(36) null comment '字段名称';
+
+create table isv_resource
+(
+    id          char(36)                           not null,
+    name        varchar(64)                        null comment '名称',
+    url         varchar(256)                       null comment '路径',
+    type        char(16)                           null comment '资源类型',
+    create_time datetime default CURRENT_TIMESTAMP null comment '创建时间'
+) comment '大屏资源';
+
+alter table isv_resource add primary key (id);
+alter table isv_resource add constraint isv_resource_id_uindex unique (id);
+
+create table isv_resource_type
+(
+    id   bigint auto_increment
+        primary key,
+    name char(24)    not null comment '名称',
+    type varchar(36) not null comment '类型',
+    sort int         null comment '排序'
+) comment '资源类型';

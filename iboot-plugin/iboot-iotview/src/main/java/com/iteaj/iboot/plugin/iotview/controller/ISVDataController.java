@@ -3,13 +3,22 @@ package com.iteaj.iboot.plugin.iotview.controller;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.iot.view.*;
+import com.iteaj.framework.spi.iot.view.chart.ChartApiParams;
+import com.iteaj.framework.spi.iot.view.chart.ChartFetchResult;
+import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.table.TableApiParams;
+import com.iteaj.framework.spi.iot.view.table.TableApiResult;
 import com.iteaj.iboot.plugin.iotview.FetchResult;
 import com.iteaj.iboot.plugin.iotview.IotViewResult;
+import com.iteaj.iboot.plugin.iotview.entity.Resource;
+import com.iteaj.iboot.plugin.iotview.entity.ResourceType;
+import com.iteaj.iboot.plugin.iotview.service.IResourceService;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -20,37 +29,53 @@ import java.util.Objects;
 /**
  * 大屏数据管理
  */
-@RestController
+@Controller
 @RequestMapping("/isv/data")
 public class ISVDataController extends BaseController {
 
     private final ISVDataService isvDataService;
-    public ISVDataController(ISVDataService isvDataService) {
+    private final IResourceService resourceService;
+
+    public ISVDataController(ISVDataService isvDataService, IResourceService resourceService) {
         this.isvDataService = isvDataService;
+        this.resourceService = resourceService;
     }
 
     /**
      * 数据项配置
      * @return
      */
+    @ResponseBody
     @GetMapping("options")
     public Result<List<DataItemOption>> options() {
-        return IotViewResult.Success(ViewApiManager.options());
+        return IotViewResult.Success(ViewApiManager.chartOptions());
+    }
+
+    /**
+     * 全局接口数据项配置
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("global/options")
+    public Result<List<DataItemOption>> globalOptions() {
+        return IotViewResult.Success(ViewApiManager.globalApiOptions());
     }
 
     /**
      * 表格数据项配置
      * @return
      */
+    @ResponseBody
     @GetMapping("table/options")
     public Result<List<DataItemOption>> tableOptions() {
-        return IotViewResult.Success(ViewApiManager.options());
+        return IotViewResult.Success(ViewApiManager.tableApiOptions());
     }
 
     /**
-     * 表格数据项配置
+     * 设备数据项配置
      * @return
      */
+    @ResponseBody
     @GetMapping("device/options")
     public Result<List<DataItemOption>> deviceOptions(String productCode) {
         final List<DataItemOption> dataItemOptions = isvDataService.listDeviceOptions(productCode);
@@ -61,23 +86,33 @@ public class ISVDataController extends BaseController {
      * 物模型属性等项配置
      * @return
      */
+    @ResponseBody
     @GetMapping("realtime/options")
     public Result<List<DataItemOption>> realtimeOptions(String key) {
         List<DataItemOption> results = new ArrayList<>();
         if(StrUtil.isBlank(key)) {
-            results.add(new DataItemOption("物模型属性", ViewRealtimeData.Attr_PREFIX));
+            results.add(new DataItemOption("模型属性", ViewRealtimeData.Attr_PREFIX));
+            results.add(new DataItemOption("设备告警", ViewRealtimeData.WARN_PREFIX)
+                    .addChild(new DataItemOption("所有告警", "all").setLeaf(true), false));
             results.add(new DataItemOption("设备状态", ViewRealtimeData.STATUS_PREFIX));
             final List<DataItemOption> attrProduct = isvDataService.listProductOption(false);
             if(CollectionUtil.isNotEmpty(attrProduct)) {
-                attrProduct.forEach(dataItemOption -> results.get(0).addChild(dataItemOption));
+                attrProduct.forEach(dataItemOption -> results.get(0).addChild(dataItemOption, false));
             }
             final List<DataItemOption> deviceProduct = isvDataService.listProductOption(true);
             if(CollectionUtil.isNotEmpty(deviceProduct)) {
-                deviceProduct.forEach(dataItemOption -> results.get(1).addChild(dataItemOption.setLeaf(true)));
+                deviceProduct.forEach(dataItemOption -> {
+                    try {
+                        results.get(1).addChild(dataItemOption.clone().setLeaf(true), false);
+                        results.get(2).addChild(dataItemOption.clone().setLeaf(true), false);
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         } else {
             final String[] split = key.split(DataItemOption.SPLIT);
-            if(ViewRealtimeData.Attr_PREFIX.equals(split[0])) {
+            if(key.startsWith(ViewRealtimeData.Attr_PREFIX)) {
                 final List<DataItemOption> itemOptions = isvDataService.listModelAttrOption(split[1]);
                 if(CollectionUtil.isNotEmpty(itemOptions)) {
                     itemOptions.forEach(item -> results.add(item.setValue(key+DataItemOption.SPLIT+item.getValue()).setLeaf(true)));
@@ -91,6 +126,7 @@ public class ISVDataController extends BaseController {
      * 加载配置项
      * @return
      */
+    @ResponseBody
     @GetMapping("load")
     public Result<List<DataItemOption>> load(String key) {
         return IotViewResult.Success(ViewApiManager.loadOptions(key));
@@ -100,6 +136,7 @@ public class ISVDataController extends BaseController {
      * 表格加载配置项
      * @return
      */
+    @ResponseBody
     @GetMapping("table/load")
     public Result<List<DataItemOption>> tableLoad(String key) {
         return IotViewResult.Success(ViewApiManager.loadOptions(key));
@@ -109,6 +146,7 @@ public class ISVDataController extends BaseController {
      * 基础范围项
      * @return
      */
+    @ResponseBody
     @GetMapping("/range/basic")
     public Result<List<DataItemOption>> basic() {
         List<DataItemOption> result = new ArrayList<>();
@@ -150,6 +188,7 @@ public class ISVDataController extends BaseController {
      * 加载范围配置项
      * @return
      */
+    @ResponseBody
     @GetMapping("range/load")
     public Result<List<DataItemOption>> rangeLoad(String key) {
         final String[] args = key.split(DataItemOption.SPLIT);
@@ -171,10 +210,11 @@ public class ISVDataController extends BaseController {
      * @param params
      * @return
      */
+    @ResponseBody
     @PostMapping("fetch")
-    public Result<List<ViewFetchResult>> fetch(@RequestBody ViewApiParams params) {
+    public Result<List<ChartFetchResult>> fetch(@RequestBody ChartApiParams params) {
         try {
-            final List<ViewFetchResult> results = ViewApiManager.fetch(params);
+            final List<ChartFetchResult> results = ViewApiManager.fetch(params);
             return FetchResult.builder(params.getChart(), IotViewResult.Success(results));
         } catch (ServiceException e) {
             return FetchResult.FailNotJump(e.getMessage());
@@ -182,5 +222,79 @@ public class ISVDataController extends BaseController {
             logger.error("fetch接口未知异常", e);
             return FetchResult.FailNotJump("获取数据异常");
         }
+    }
+
+    /**
+     * 获取全局接口数据
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("global/fetch")
+    public Result<GlobalApiParams> globalFetch(@RequestBody GlobalApiParams params) {
+        try {
+            final GlobalApiParams response = ViewApiManager.fetch(params);
+            return IotViewResult.Success(response);
+        } catch (ServiceException e) {
+            return FetchResult.FailNotJump(e.getMessage());
+        } catch (Exception e) {
+            logger.error("fetch接口未知异常", e);
+            return FetchResult.FailNotJump("获取数据异常");
+        }
+    }
+
+    /**
+     * 获取列表接口数据
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("table/fetch")
+    public Result<TableApiResult> tableFetch(@RequestBody TableApiParams params) {
+        try {
+            TableApiResult apiResult = ViewApiManager.fetch(params);
+            return IotViewResult.Success(apiResult);
+        } catch (ServiceException e) {
+            return FetchResult.FailNotJump(e.getMessage());
+        } catch (Exception e) {
+            logger.error("fetch接口未知异常", e);
+            return FetchResult.FailNotJump("获取数据异常");
+        }
+    }
+
+    /**
+     * 获取产品项列表
+     * @param gateway 是否包含网关设备
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("products")
+    public Result<List<DataItemOption>> products(Boolean gateway) {
+        return IotViewResult.Success(isvDataService.listProductOption(gateway));
+    }
+
+    /**
+     * 获取资源列表详情
+     * @param type
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("resources")
+    public Result<List<ResourceType>> resources(String type) {
+        return resourceService.details(type);
+    }
+
+    /**
+     * 获取当前登录用户
+     * @return 当前登入用户
+     */
+    @ResponseBody
+    @GetMapping("user")
+    public IotViewResult user() {
+        if(SecurityUtil.isLogin()) {
+            return IotViewResult.Success(SecurityUtil.getLoginUser().orElse(null));
+        }
+
+        return IotViewResult.Success(null);
     }
 }
