@@ -40,7 +40,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     private final IotCacheManager cacheManager;
     private final RealtimeDataService realtimeDataService;
     private final LinkageCacheService linkageCacheService;
-    private Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
+    private final Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
     private final Map<Long, WarnInfo> warnStatus = new ConcurrentHashMap<>(512);
 
     public LinkageTriggerService(IotCacheManager cacheManager, RealtimeDataService realtimeDataService
@@ -170,11 +170,13 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                                     });
                                 }
                             } else { // 指定设备
-                                cacheManager.listByProductCode(linkageAction.getProductCode()).forEach(device -> {
-                                    if(device.getUid().equals(linkageAction.getUid())) {
-                                        doInvokeAction(linkageAction, api, device);
-                                    }
-                                });
+                                RealtimeStatus device = cacheManager.getByUid(linkageAction.getUid());
+                                if(device != null) {
+                                    doInvokeAction(linkageAction, api, device);
+                                } else {
+                                    logger.error("动作项执行失败 未找到设备 - uid: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", linkageAction.getUid()
+                                            , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
+                                }
                             }
                         } else {
                             logger.error("动作项执行失败 未找到模型接口 - modelApiId: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", linkageAction.getLinkedId()
@@ -188,7 +190,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                             if(deviceAndField != null) {
                                 doHandleWarn(warn, deviceAndField.getDevice(), deviceAndField.getValue().getValue());
                             } else if(triggerDevice != null) {
-                                doHandleWarn(warn, triggerDevice, triggerDevice.getStatus().name());
+                                doHandleWarn(warn, triggerDevice, triggerDevice.getStatus().getDesc());
                             } else {
                                 logger.error("动作项执行失败 未找到触发属性 - 属性: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", warn.getModelAttrField()
                                         , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
@@ -221,7 +223,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             }
 
             warnInfo.setStatus(true); // 已经解除告警
-            return;
+            warnStatus.remove(warn.getModelAttrId()); // 移除告警信息
         } else if(grade != WarnGrade.status){ // 状态告警不涉及模型属性
             if(warnInfo == null) {
                 warnStatus.put(warn.getModelAttrId(), warnInfo = new WarnInfo()); // 持续告警中
@@ -235,7 +237,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             }
 
             Date date = new Date();
-            String warnValue = value == null ? null : value.equals("offline") ? "离线" : "在线";
+            String warnValue = value == null ? StrUtil.EMPTY : value.toString();
             String content = resolverWarnTemplate(warn, device.getDeviceSn(), warnValue, date, device.getDeviceName());
             WarnRecord warnRecord = new WarnRecord().setDeviceSn(device.getDeviceSn()).
                     setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(grade)
@@ -395,10 +397,8 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
             if(LinkageConditionItem.DEVICE_ANY[0].equals(conditionItem.getUid())){ // 组下面且属于此联动项产品的所有设备
                 Collection<RealtimeStatus> statuses = cacheManager.listGroupAndProduct(groupId, conditionItem.getProductCode());
-                Iterator<RealtimeStatus> iterator = statuses.iterator();
                 // 同一组且同一产品下包含多台设备的按或运算, 只要有一台条件满足就行
-                while (iterator.hasNext()) {
-                    RealtimeStatus next = iterator.next();
+                for (RealtimeStatus next : statuses) {
                     RealtimeData data = realtimeDataService.getOfDeviceAndKey(next.getProtocolCode(), next.buildKey(), conditionItem.getTypeValue());
                     if (calcCondition(conditionItem, conditionCalc, data, next)) {
                         validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(next, data.getRealtime()));
