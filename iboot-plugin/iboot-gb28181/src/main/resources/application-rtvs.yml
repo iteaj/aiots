@@ -31,8 +31,8 @@ spring:
 media:
   rtvs:
     port: 17000
-    host: iot.iteaj.com
+    host: et.test.cvtsp.com
     sip:
       userName: gbsip
       password: admin
-      api-uri: http://${media.rtvs.host}:9081
+      api-uri: https://et.test.cvtsp.com:15006
