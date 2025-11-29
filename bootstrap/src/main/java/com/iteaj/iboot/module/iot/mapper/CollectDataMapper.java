@@ -1,14 +1,12 @@
 package com.iteaj.iboot.module.iot.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.CollectDataCondition;
-import com.iteaj.framework.spi.iot.data.CollectTimeValue;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
-import com.iteaj.framework.spi.iot.view.ViewSqlCondition;
+import com.iteaj.framework.spi.iot.view.chart.ChartSqlCondition;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 
@@ -50,7 +48,7 @@ public interface CollectDataMapper extends BaseMapper<CollectData> {
 
     Page<CollectDataDto> productOfPage(Page page, RealtimeCollectData entity);
 
-    List<BaseEchartsCount> countOfViewByTime(ViewSqlCondition condition);
+    List<BaseEchartsCount> countOfViewByTime(ChartSqlCondition condition);
 
-    List<BaseEchartsCount> countOfViewByRange(ViewSqlCondition condition);
+    List<BaseEchartsCount> countOfViewByRange(ChartSqlCondition condition);
 }

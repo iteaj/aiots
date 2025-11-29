@@ -5,12 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
-import com.iteaj.framework.spi.iot.listener.EntityPayload;
-import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
-import com.iteaj.framework.spi.iot.listener.IotEventType;
-import com.iteaj.framework.spi.iot.listener.StatusSwitchListener;
+import com.iteaj.framework.spi.iot.data.DefaultRealtimeData;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
+import com.iteaj.framework.spi.iot.listener.*;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
@@ -24,6 +24,7 @@ import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iot.client.ClientProtocolHandle;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttConnectProperties;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttSubscribeProtocol;
+import com.iteaj.iot.utils.UniqueIdGen;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,6 +176,28 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
         CollectListenerManager.getInstance().modelAttrPublish(modelAttrListener -> {
             modelAttrListener.supplier(dataSupplier, device);
         });
+
+        Collection<RealtimeCollectData> realTimeData = createRealTimeData(device, fieldValues);
+        IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data_active", device.getUid(), realTimeData));
+    }
+
+    private Collection<RealtimeCollectData> createRealTimeData(RealtimeStatus device, List<SignalOrFieldValue> fieldValues) {
+        String cid = String.valueOf(UniqueIdGen.nextLong());
+        Date createTime = new Date();
+        return fieldValues.stream().map(item -> {
+            DefaultRealtimeData data = new DefaultRealtimeData();
+            data.setUid(device.getUid()).setCid(cid);
+            data.setFieldId(item.getId()).setField(item.getSignalOrField());
+            data.setValue(item.getValue() == null ? "" : item.getValue());
+            data.setProductCode(device.getProductCode()).setProductCode(device.getProductCode())
+                    .setDeviceGroupId(device.getDeviceGroupId());
+            data.setAddress(item.getAddress()).setCollectTime(item.getCollectTime()).setCreateTime(createTime);
+            data.setCollectMode("model").setDeviceSn(device.getDeviceSn())
+                    .setDeviceName(device.getDeviceName());
+            data.setStatus(item.getStatus() == CollectStatus.Success);
+            data.setReason(item.getStatus().getReason());
+            return data;
+        }).collect(Collectors.toList());
     }
 
     private void syncSubscribeApi(String productCode) {

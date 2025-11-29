@@ -2,120 +2,120 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.iboot.module.iot.consts.CollectMode;
-import com.iteaj.iot.tools.annotation.IotField;
-import com.iteaj.iot.tools.annotation.IotTable;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
 
+import static com.iteaj.framework.spi.iot.data.RealtimeCollectData.COLLECT_TABLE_NAME;
+
 @Data
 @Accessors(chain = true)
-@TableName("iot_collect_data")
-@IotTable("iot_collect_data")
+@TableName(COLLECT_TABLE_NAME)
 public class CollectData extends BaseEntity implements RealtimeCollectData {
 
     /**
      * 任务执行标识
      */
-    @IotField
     private String cid;
 
     /**
      * 设备uid
      */
-    @IotField
     private String uid;
 
     /**
      * 信号id
      */
-    @IotField("signal_id")
-    private Long signalId;
+    private Long fieldId;
 
     /**
      * 属性
      */
-    @IotField("field")
     private String field;
 
-    @TableField(exist = false)
+    /**
+     * 字段名称
+     */
     private String fieldName;
 
     /**
      * 采集任务标识
      */
-    @IotField("collect_task_id")
-    private Long collectTaskId;
+    private Long taskId;
 
     /**
      * 采集地址
      */
-    @IotField
     private String address;
 
     /**
      * 采集值
      */
-    @IotField
     private String value;
 
     /**
      * 采集状态
      */
-    @IotField
     private Boolean status;
 
     /**
      * 采集状态说明
      */
-    @IotField
     private String reason;
 
     /**
      * 采集方式
      */
-    @IotField(value = "collect_mode")
     private String collectMode;
+
+    /**
+     * 设备编号
+     */
+    private String deviceSn;
+
+    /**
+     * 设备名称
+     */
+    private String deviceName;
 
     /**
      * 采集时间
      */
-    @IotField(value = "collect_time", type = 93)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date collectTime;
 
     /**
      * 创建时间
      */
-    @IotField(value = "create_time", type = 93)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
-
-    /**
-     * 产品码
-     */
-    @IotField(value = "product_code")
-    private String productCode;
-
-    /**
-     * 协议码
-     */
-    @IotField(value = "protocol_code")
-    private String protocolCode;
-
-    /**
-     * 所属组
-     */
-    @IotField(value = "device_group_id")
-    private Long deviceGroupId;
 
     /**
      * 采集状态
      */
+    @TableField(exist = false)
     private CollectStatus collectStatus;
+
+    /**
+     * 所属设备组
+     */
+    private Long deviceGroupId;
+
+    /**
+     * 协议码
+     */
+    private String protocolCode;
+
+    /**
+     * 产品码
+     */
+    private String productCode;
 
     public CollectData() { }
 
@@ -135,13 +135,4 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
         return this;
     }
 
-    @Override
-    public Long getFieldId() {
-        return getSignalId();
-    }
-
-    @Override
-    public Long getTaskId() {
-        return getCollectTaskId();
-    }
 }

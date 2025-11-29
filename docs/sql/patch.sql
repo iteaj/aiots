@@ -31,3 +31,28 @@ create index iot_collect_data_protocol_code_index
 
 create index iot_collect_data_product_code_index
     on iot_collect_data (product_code);
+-- 添加缺失字段
+ALTER TABLE iot_event_source
+    ADD COLUMN period_type VARCHAR(20) NOT NULL DEFAULT 'cron' COMMENT '采集类型(cron:定时,millisecond:周期)',
+    ADD COLUMN period_ms BIGINT COMMENT '采集周期毫秒数',
+    ADD COLUMN rate_type TINYINT(1)  COMMENT '速率类型(1:固定速率, 0:固定延迟)';
+# 2025-11-29
+alter table iot_collect_data
+    change signal_id field_id bigint not null comment '字段id';
+
+alter table iot_collect_data
+    change collect_task_id task_id bigint null comment '任务id';
+
+drop index iot_collect_data_signal_id_index on iot_collect_data;
+
+create index iot_collect_data_field_id_index
+    on iot_collect_data (field_id);
+
+alter table iot_collect_data
+    add device_sn varchar(36) null comment '设备编号';
+
+alter table iot_collect_data
+    add device_name varchar(64) null comment '设备名称';
+
+alter table iot_collect_data
+    add field_name varchar(36) null comment '字段名称';

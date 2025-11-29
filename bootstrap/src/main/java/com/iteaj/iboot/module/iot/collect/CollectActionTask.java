@@ -65,8 +65,8 @@ public class CollectActionTask implements Runnable {
                                                 .setCollectStatus(CollectStatus.Success)
                                                 .setCreateTime(date)
                                                 .setUid(String.valueOf(collectDevice.getUid()))
-                                                .setSignalId(signal.getId())
-                                                .setCollectTaskId(taskDto.getId());
+                                                .setFieldId(signal.getId())
+                                                .setTaskId(taskDto.getId());
 
                                         try {
                                             AbstractProtocolModelApi modelApi = protocol.getApi(signal.getDirect());

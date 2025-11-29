@@ -3,10 +3,14 @@ package com.iteaj.iboot.module.iot.collect.model;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
+import com.iteaj.framework.spi.iot.data.DefaultRealtimeData;
+import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -16,14 +20,14 @@ import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
-import com.iteaj.iboot.module.iot.listener.DeviceStatusListener;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CollectGroupTask implements Runnable{
 
@@ -152,6 +156,7 @@ public class CollectGroupTask implements Runnable{
         ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
             CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
             IotLogger.debug(source, device.getUid(), "采集数据成功 设备编号: {}", device.buildDeviceKey());
+
             CollectListenerManager.getInstance().eventGroupPublish(item -> {
                 try {
                     item.supplier(source, group, deviceInfo);
@@ -160,6 +165,31 @@ public class CollectGroupTask implements Runnable{
                             , group.getName(), device.buildDeviceKey(), api.getCode(), api.getDirect(), e);
                 }
             });
+
+            Collection<RealtimeCollectData> realTimeData = createRealTimeData(info, deviceInfo);
+            IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload("data", device.getUid(), realTimeData));
         });
+    }
+
+    private Collection<RealtimeCollectData> createRealTimeData(CollectInfo info, CollectInfo.DeviceInfo deviceInfo) {
+        RealtimeStatus device = deviceInfo.getDevice();
+        Date createTime = new Date();
+        return deviceInfo.getSupplier().getValues().stream().map(item -> {
+            DefaultRealtimeData data = new DefaultRealtimeData();
+            data.setUid(device.getUid());
+            data.setCid(deviceInfo.getCid());
+            data.setFieldId(item.getId());
+            data.setField(item.getSignalOrField());
+            data.setTaskId(info.getSource().getId());
+            data.setValue(item.getValue() == null ? "" : item.getValue());
+            data.setProductCode(device.getProductCode()).setProductCode(device.getProductCode())
+                    .setDeviceGroupId(device.getDeviceGroupId());
+            data.setAddress(item.getAddress()).setCollectTime(item.getCollectTime());
+            data.setCollectMode("model").setDeviceSn(device.getDeviceSn())
+                    .setDeviceName(device.getDeviceName()).setCreateTime(createTime);
+            data.setStatus(item.getStatus() == CollectStatus.Success);
+            data.setReason(item.getStatus().getReason());
+            return (RealtimeCollectData) data;
+        }).collect(Collectors.toList());
     }
 }

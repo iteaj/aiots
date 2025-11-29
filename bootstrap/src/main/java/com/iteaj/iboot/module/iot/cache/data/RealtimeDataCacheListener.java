@@ -39,7 +39,7 @@ public class RealtimeDataCacheListener implements EventGroupCollectListener, Sig
     @Override
     public void supplier(CollectDevice device, CollectData data) {
         realtimeDataService.put(device.getProtocolCode(), device.buildKey()
-                , SignalOrFieldValue.build(data.getSignalId(), data.getAddress(), data.getCollectTime()
+                , SignalOrFieldValue.build(data.getFieldId(), data.getAddress(), data.getCollectTime()
                         , data.getValue(), data.getAddress()).builder(data.getCollectStatus()));
     }
 }

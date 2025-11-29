@@ -71,60 +71,18 @@ public class EMapController extends BaseController {
                 .ifNotPresentThrow("此设备数据不完整["+item.getName()+"]")
                 .ifPresent(productDto -> {
 
-                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
-                        // 过滤出被动的功能接口
-                        List<ModelApi> modelApis = productDto.getFuncApis().stream()
-                                .filter(api -> api.getTriggerMode() == TriggerMode.passive && api.getFuncType() != FuncType.R)
-                                .collect(Collectors.toList());
-                        if(CollectionUtil.isNotEmpty(modelApis)) {
-                            detailDto.setFuncApis(modelApis);
-                            modelApis.forEach(api -> detailDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
-                            modelApis.removeIf(api -> {
-                                if(Boolean.TRUE.equals(api.getAsStatus())) {
-                                    detailDto.setCtrlApi(api);
-                                    return true;
-                                }
-
-                                return false;
-                            });
-                        }
-                    }
-
                     Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
                             , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                     if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
                         productDto.getAttrs().stream().filter(attr -> (attr.getAttrType() != AttrType.W
-                            && !DataType.t_json.getValue().equals(attr.getDataType())))
+                            && !DataType.isContainer(attr.getDataType())))
                             .forEach(attr -> {
-                                boolean isCtrlAttr = false;
-                                if(attr.getAttrType() != AttrType.R) { // 写或者读写
-                                    if(Boolean.TRUE.equals(attr.getCtrlStatus())) {
-                                        isCtrlAttr = true;
-                                        ModelApi ctrlApi = detailDto.getCtrlApi();
-                                        if(ctrlApi != null) {
-                                            List<ModelApiConfig> downConfig = ctrlApi.getDownConfig();
-                                            if(CollectionUtil.isNotEmpty(downConfig)) {
-                                                downConfig.forEach(config -> {
-                                                    if(config.getModelAttrId() != null && config.getModelAttrId() == attr.getId()
-                                                            && CollectionUtil.isNotEmpty(config.getDicts())) {
-                                                        config.getDicts().forEach(dict -> detailDto.addCtrlAttr(dict.getDictName(), dict.getDictValue()));
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    }
-                                }
-
                                 if(realtimeDataMap != null) {
                                     RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
                                     if(realtimeData != null && realtimeData.getRealtime() != null) {
                                         SignalOrFieldValue realtime = realtimeData.getRealtime();
                                         detailDto.addAttr(attr.getField(), attr.getName(), attr.getUnit()
                                                 , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
-
-                                        if(isCtrlAttr && realtime.getValue() != null) {
-                                            detailDto.setCtrlAttrValue(realtime.getValue().toString());
-                                        }
                                         return;
                                     }
                                 }
@@ -132,6 +90,7 @@ public class EMapController extends BaseController {
                                 detailDto.addAttr(attr.getField(), attr.getName(), attr.getUnit());
                             });
                     }
+
                 });
         });
 

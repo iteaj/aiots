@@ -68,6 +68,9 @@
             <if test="entity.deviceType!=null">
                 and idm.device_type = #{entity.deviceType}
             </if>
+            <if test="entity.deviceTypes!=null">
+                and (<foreach collection="entity.deviceTypes" item="deviceType" separator=" or ">idm.device_type=#{deviceType}</foreach>)
+            </if>
             <if test="entity.protocol != null">
                 and ig.protocol_type = #{entity.protocol}
             </if>
@@ -216,7 +219,7 @@
     </select>
 
     <select id="listOfEMap" resultType="com.iteaj.iboot.module.iot.dto.EMapDeviceDto">
-        select a.uid, a.name, a.address, a.lat, a.lon, a.device_sn deviceSn, a.status, p.logo from iot_device a
+        select a.uid, a.name, a.address, a.lat, a.lon, a.device_sn deviceSn, a.status, p.logo, a.product_id, p.device_type from iot_device a
             left join iot_product p on a.product_id = p.id
             left join iot_device_group g on a.device_group_id = g.id
         <where>
@@ -228,5 +231,44 @@
             </if>
             and a.lat is not null
         </where>
+    </select>
+
+    <select id="countCommonDeviceStatus" resultType="com.iteaj.iboot.module.iot.dto.DeviceStatusDto">
+        select count(if(a.status='online', 1, null)) onlineNum, count(if(a.status='offline', 1, null)) offlineNum, p.name productName from iot_device a
+            left join iot_product p on a.product_id = p.id
+        <where>
+            <if test="productCodes != null and productCodes.size() > 0">
+                and (<foreach collection="productCodes" separator=" or " item="productCode">
+                p.code = #{productCode}
+            </foreach>)
+            </if>
+        </where>
+        <if test="productCodes != null and productCodes.size() > 0">
+            group by a.product_id
+        </if>
+    </select>
+    <select id="pageCommonByStatus" resultType="com.iteaj.iboot.module.iot.dto.DeviceStatusData">
+        select a.id, a.uid, a.device_sn deviceSn, a.name deviceName, a.status, p.name productName, p.code productCode from iot_device a
+            left join iot_product p on a.product_id = p.id
+        <where>
+            <if test="productCodes != null and productCodes.size() > 0">
+                and (<foreach collection="productCodes" separator=" or " item="productCode">
+                p.code = #{productCode}
+            </foreach>)
+            </if>
+        </where>
+        order by a.status desc, a.product_id
+    </select>
+    <select id="listCommonByStatus" resultType="com.iteaj.iboot.module.iot.dto.DeviceStatusData">
+        select a.id, a.uid, a.device_sn deviceSn, a.name deviceName, a.status, p.name productName, p.code productCode from iot_device a
+            left join iot_product p on a.product_id = p.id
+        <where>
+            <if test="productCodes != null and productCodes.size() > 0">
+                and (<foreach collection="productCodes" separator=" or " item="productCode">
+                p.code = #{productCode}
+            </foreach>)
+            </if>
+        </where>
+        order by a.status desc, a.product_id
     </select>
 </mapper>

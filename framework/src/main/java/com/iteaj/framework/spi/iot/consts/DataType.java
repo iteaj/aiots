@@ -47,6 +47,22 @@ public enum DataType {
         }
     }
 
+    /**
+     * 是否为容器类型
+     * @param dataType 数据类型
+     * @return bool
+     */
+    public static boolean isContainer(String dataType) {
+        switch (dataType) {
+            case "bit":
+            case "json":
+            case "group":
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public String getValue() {
         return value;
     }

@@ -1,14 +1,16 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.ProtocolInvokeException;
-import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.FuncType;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
@@ -17,20 +19,27 @@ import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.CmdInvokeDto;
 import com.iteaj.iboot.module.iot.dto.DebugRespDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.consts.ExecStatus;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 设备指令接口管理
@@ -131,7 +140,15 @@ public class DeviceCtrlController extends BaseController {
             debugRespDto.setRespMsg(item.getResponseMessage().toString());
             if(item.getStatus() == ExecStatus.success) {
                 debugRespDto.setValue(item.getValue());
-                return success(debugRespDto.setValue(item.getValue()));
+                if(modelApi.getFuncType() == FuncType.R && item.getValue() != null) {
+                    final DataSupplier dataSupplier = supplier.getDataSupplier(item.getProtocol(), param, item.getValue());
+                    final String value = dataSupplier.getValues().stream()
+                            .map(fieldValue -> String.format("%s=%s", fieldValue.getSignalOrField(), fieldValue.getValue().toString()))
+                            .collect(Collectors.joining(", "));
+                    debugRespDto.setValue(value);
+                }
+
+                return success(debugRespDto);
             } else {
                 return success(debugRespDto.setReason(item.getReason()));
             }
@@ -187,5 +204,85 @@ public class DeviceCtrlController extends BaseController {
         }
 
         return new Object[]{protocolModelApi, modelApi, product, protocolSupplier};
+    }
+
+    /**
+     * 指令集列表
+     * @param uid
+     * @return
+     */
+    @GetMapping("commands")
+    @CheckPermission("iot:cmd:list")
+    public Result<List<DeviceCommandDto>> commands(String uid) {
+        Device device = this.deviceService.getByUid(uid)
+                .ifNotPresentThrow("设备不存在[" + uid + "]").getData();
+
+        List<DeviceCommandDto> result = new ArrayList<>();
+        productService.joinDetailById(device.getProductId())
+                .ifNotPresentThrow("此设备数据不完整["+device.getName()+"]")
+                .ifPresent(productDto -> {
+                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                        productDto.getFuncApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.addAll(api.resolverCommand(device.getUid(), productDto.getAttrs())));
+                    }
+
+                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                        productDto.getEventApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.addAll(api.resolverCommand(device.getUid(), productDto.getAttrs())));
+                    }
+                });
+
+        return success(result);
+    }
+
+    /**
+     * 调用指令
+     * @param cmd 调用参数
+     * @return
+     */
+    @Logger("指令接口调用")
+    @PostMapping("/command/invoke")
+    public Mono<Result> invoke(@RequestBody CmdInvokeDto cmd) {
+
+        ProtocolModelApiInvokeParam param;
+        try {
+            param = IotUtil.createParamByCmdCode(cmd.getCode(), cmd.getUid());
+        } catch (Exception e) {
+            return Mono.create((t) -> t.success(fail(e.getMessage())));
+        }
+
+        Object[] objects = this.getProtocolModelApi(param.getApiCode(), param);
+        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
+
+        return Mono.<InvokeResult>create(item -> {
+            try {
+                RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
+                if(realtimeStatus.getStatus() == DeviceStatus.offline) {
+                    if(realtimeStatus.getType() == DeviceType.Direct) {
+                        item.success(InvokeResult.fail("设备不在线["+realtimeStatus.getDeviceName()+"]", null)); return;
+                    } else if(realtimeStatus.getType() == DeviceType.Child) {
+                        RealtimeStatus parent = cacheManager.get(supplier.getProtocol().getCode(), param.getParentDeviceSn());
+                        if(parent != null && parent.getStatus() == DeviceStatus.offline) {
+                            item.success(InvokeResult.fail("网关设备不在线["+parent.getDeviceName()+"]", null)); return;
+                        }
+                    }
+                }
+
+                ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, realtimeStatus, result -> {
+                    item.success(result);
+                });
+            } catch (ProtocolInvokeException e) {
+                e.printStackTrace();
+                item.success(InvokeResult.fail(e.getMessage(), null));
+            }
+        }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
+            if(item.getStatus() == ExecStatus.success) {
+                return success(item.getValue(), "执行指令成功");
+            } else {
+                return fail(item.getReason());
+            }
+        });
     }
 }

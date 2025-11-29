@@ -37,6 +37,7 @@ public class ProtocolModelApiInvokeParam {
     public static final Long DEFAULT_TIMEOUT = 3600L;
     public static final String INVOKE_API = "_InvokeApi";
     public static final String DEVICE_CONFIG = "_DeviceConfig";
+    public static final String INVOKE_API_CODE = "_InvokeApiCode";
     public static final String PARENT_DEVICE_CONFIG = "_ParentDeviceConfig";
     public static final String INVOKE_UP_CONFIG = "_InvokeUpConfig";
 
@@ -77,6 +78,10 @@ public class ProtocolModelApiInvokeParam {
 
     public String getUid() {
         return uid;
+    }
+
+    public ProtocolModelApiInvokeParam setUid(String uid) {
+        this.uid = uid; return this;
     }
 
     public Long getTimeout() {
@@ -146,6 +151,15 @@ public class ProtocolModelApiInvokeParam {
 
     public void setConfig(Map config) {
         this.config = config;
+    }
+
+    public String getApiCode() {
+        return this.getConfig(INVOKE_API_CODE);
+    }
+
+    public ProtocolModelApiInvokeParam addApiCode(String apiCode) {
+        this.addConfig(INVOKE_API_CODE, apiCode);
+        return this;
     }
 
     public ProtocolModelApiInvokeParam addDeviceConfig(JSONObject config) {

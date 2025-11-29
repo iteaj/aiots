@@ -87,4 +87,15 @@ public interface DeviceMapper extends BaseMapper<Device> {
      * @return
      */
     List<EMapDeviceDto> listOfEMap(Long productId, Long deviceGroupId);
+
+    /**
+     * 统计设备在线状态
+     * @param condition
+     * @return
+     */
+    List<DeviceStatusDto> countCommonDeviceStatus(StatusCountCondition condition);
+
+    Page pageCommonByStatus(Page page, StatusDataCondition condition);
+
+    List<DeviceStatusData> listCommonByStatus(StatusDataCondition condition);
 }

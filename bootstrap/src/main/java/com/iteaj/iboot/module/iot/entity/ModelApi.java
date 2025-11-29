@@ -1,5 +1,8 @@
 package com.iteaj.iboot.module.iot.entity;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -15,6 +18,8 @@ import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandViewDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -175,13 +180,106 @@ public class ModelApi extends BaseEntity {
         return Collections.EMPTY_LIST;
     }
 
+    public List<DeviceCommandDto> resolverCommand(String uid, List<ModelAttr> attrs) {
+        if(!CollectionUtils.isEmpty(downConfig)) {
+            List<ModelApiConfig> configs = downConfig.stream()
+                    .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
+                    .collect(Collectors.toList());
+
+            if(!CollectionUtils.isEmpty(configs)) {
+                if(CollectionUtils.isEmpty(attrs)) {
+                    throw new ServiceException("参数错误[物模型属性为空]");
+                }
+
+                Map<Long, ModelAttr> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttr::getId, item -> item));
+                List<List<ModelAttrDict>> collect = configs.stream()
+                        .map(item -> item.getDicts())
+                        .collect(Collectors.toList());
+
+                StringBuilder configValue = new StringBuilder(), configName = new StringBuilder();
+                downConfig.stream().filter(item -> item.getModelAttrId() == null).forEach(item -> {
+                    configName.append(item.getProtocolAttrName()).append("->").append(item.getValue()).append(';');
+                    configValue.append(item.getProtocolAttrField()).append("->").append(item.getValue()).append('&');
+                });
+
+                // 计算笛卡尔积
+                return cartesianProduct(collect, attrMap).stream().map(item -> {
+                    StringBuilder sb = new StringBuilder(configName.toString());
+                    StringBuilder valueSb = new StringBuilder(configValue.toString());
+                    item.forEach(dict -> {
+                        ModelAttr modelAttr = attrMap.get(dict.getModelAttrId());
+                        if(modelAttr != null) {
+                            sb.append(modelAttr.getName()).append("->").append(dict.getDictName()).append(";");
+                            downConfig.forEach(config -> {
+                                if(config.getModelAttrId() != null && config.getModelAttrId().equals(modelAttr.getId())) {
+                                    valueSb.append(config.getProtocolAttrField()).append("->").append(dict.getDictValue()).append("&");
+                                }
+                            });
+                        }
+                    });
+
+                    sb.deleteCharAt(sb.length() - 1);
+                    valueSb.deleteCharAt(valueSb.length() - 1);
+
+                    String dict = item.isEmpty() ? null : item.get(0).getDictName();
+                    String apiName = dict == null ? getName() : getName() + "->" + dict;
+                    return new DeviceCommandDto().setApiName(apiName).setApiType(getType()).setUid(uid)
+                            .setCommandValue(valueSb.toString()).setRemark(getRemark()).setCommandName(sb.toString()).setCode(getCode());
+                }).collect(Collectors.toList());
+            } else {
+                StringBuilder sb = new StringBuilder();
+                StringBuilder valueSb = new StringBuilder();
+                downConfig.forEach(config -> {
+                    sb.append(config.getProtocolAttrName()).append("->").append(config.getValue()).append(';');
+                    valueSb.append(config.getProtocolAttrField()).append("->").append(config.getValue()).append('&');
+                });
+
+                sb.deleteCharAt(sb.length() - 1);
+                valueSb.deleteCharAt(valueSb.length() - 1);
+
+                return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                        .setCommandValue(valueSb.toString()).setCommandName(sb.toString()).setRemark(getRemark()).setCode(getCode()));
+            }
+        } else {
+            return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                    .setCommandValue(null).setCommandName("-").setRemark(getRemark()).setCode(getCode()));
+        }
+    }
+
+    public DeviceCommandViewDto resolverCommandOfView(List<ModelAttr> attrs) {
+        if(!CollectionUtils.isEmpty(downConfig)) {
+            List<ModelApiConfig> configs = downConfig.stream()
+                    .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
+                    .collect(Collectors.toList());
+
+            if(!CollectionUtils.isEmpty(configs)) {
+                if(CollectionUtils.isEmpty(attrs)) {
+                    throw new ServiceException("参数错误[物模型属性为空]");
+                }
+
+                final ModelApiConfig apiConfig = configs.get(0);
+                final List<ModelAttrDict> dicts = apiConfig.getDicts();
+                final List<DeviceCommandViewDto.ViewConfig> dictList = dicts.stream()
+                        .map(item -> new DeviceCommandViewDto.ViewConfig(item.getDictName(), item.getDictValue()))
+                        .collect(Collectors.toList());
+                StringBuilder configValue = new StringBuilder();
+
+                configValue.append(apiConfig.getProtocolAttrField()).append("->#{}");
+                return new DeviceCommandViewDto(getName(), configValue.toString(), getCode()).setLeaf(true).setRemark(getRemark()).setConfigs(dictList);
+            }
+        }
+
+        return new DeviceCommandViewDto(getName(), null, getCode()).setLeaf(true).setRemark(getRemark());
+    }
+
     private List<List<ModelAttrDict>> cartesianProduct(List<List<ModelAttrDict>> lists, Map<Long, ModelAttr> attrMap) {
         List<List<ModelAttrDict>> result = new ArrayList<>();
         cartesianProductHelper(lists, 0, new ArrayList<>(), result, attrMap);
         return result;
     }
 
-    private void cartesianProductHelper(List<List<ModelAttrDict>> lists, int index, List<ModelAttrDict> current, List<List<ModelAttrDict>> result, Map<Long, ModelAttr> attrMap) {
+    private void cartesianProductHelper(List<List<ModelAttrDict>> lists, int index, List<ModelAttrDict> current
+            , List<List<ModelAttrDict>> result, Map<Long, ModelAttr> attrMap) {
         if (index == lists.size()) {
             result.add(new ArrayList<>(current));
             return;

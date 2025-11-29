@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
+import com.iteaj.framework.spi.iot.data.DefaultRealtimeData;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
 
@@ -15,6 +16,6 @@ public class RDBMSPersistenceListener implements DataPersistenceListener {
 
     @Override
     public void persistence(List collectData) {
-        rdbmsSqlManager.batchInsert(CollectData.class, collectData);
+        rdbmsSqlManager.batchInsert(DefaultRealtimeData.class, collectData);
     }
 }

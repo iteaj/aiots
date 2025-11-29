@@ -5,6 +5,7 @@ import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iot.utils.UniqueIdGen;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,8 @@ import java.util.List;
 @Getter
 @Setter
 public class CollectInfo {
+
+    private String cid;
 
     /**
      * 此次采集的事件源
@@ -27,6 +30,13 @@ public class CollectInfo {
     private DeviceGroup group;
 
     /**
+     * 采集时间
+     * @see DataSupplier#getCollectTime()
+     * @see DataSupplier#build(Date)
+     */
+    private Date collectTime;
+
+    /**
      * 设备信息
      */
     private List<DeviceInfo> infos = new ArrayList<>();
@@ -34,10 +44,12 @@ public class CollectInfo {
     public CollectInfo(EventSource source, DeviceGroup group) {
         this.group = group;
         this.source = source;
+        this.collectTime = new Date();
+        this.cid = String.valueOf(UniqueIdGen.nextLong());
     }
 
     public DeviceInfo addDeviceInfo(RealtimeStatus device, ModelApi api, DataSupplier supplier) {
-        DeviceInfo deviceInfo = new DeviceInfo(api, device, supplier);
+        DeviceInfo deviceInfo = new DeviceInfo(api, device, supplier.build(this.collectTime));
         this.infos.add(deviceInfo); return deviceInfo;
     }
 
@@ -55,6 +67,10 @@ public class CollectInfo {
             this.api = api;
             this.device = device;
             this.supplier = supplier;
+        }
+
+        public String getCid() {
+            return CollectInfo.this.cid;
         }
     }
 }

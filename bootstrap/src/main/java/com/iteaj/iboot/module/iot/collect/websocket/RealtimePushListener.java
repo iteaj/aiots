@@ -129,7 +129,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     public void supplier(CollectDevice device, CollectData data) {
         try {
             Map<String, SignalOrFieldValue> valueMap = new HashMap<>();
-            valueMap.put(data.getAddress(), SignalOrFieldValue.build(data.getSignalId()
+            valueMap.put(data.getAddress(), SignalOrFieldValue.build(data.getFieldId()
                     , data.getAddress(), data.getCollectTime(), data.getValue()).builder(data.getCollectStatus()));
             String deviceUid = device.getUid().toString();
             String jsonString = JSONObject.toJSONString(PushData.buildSignal(deviceUid, valueMap));

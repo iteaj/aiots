@@ -6,13 +6,14 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
 import com.iteaj.framework.spi.iot.view.*;
+import com.iteaj.framework.spi.iot.view.chart.*;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @Component
-public class ModelAttrApiItem implements ViewApiItem {
+public class ModelAttrApiItem implements ChartApiItem {
 
     private static final String KEY = "MODEL";
     private static final String NAME = "模型属性";
@@ -44,11 +45,11 @@ public class ModelAttrApiItem implements ViewApiItem {
 
     @Override
     public int getOrder() {
-        return ViewApiItem.super.getOrder() + 200;
+        return ChartApiItem.super.getOrder() + 200;
     }
 
     @Override
-    public List<ViewFetchResult> fetch(List<ViewApiParams.Value> values, ViewApiParams params) {
+    public List<ChartFetchResult> fetch(List<ChartApiParams.Value> values, ChartApiParams params) {
         if(StrUtil.isBlank(params.getRange())) {
             throw new ServiceException("未指定统计范围配置");
         }
@@ -61,14 +62,15 @@ public class ModelAttrApiItem implements ViewApiItem {
             throw new ServiceException("未指定时间范围");
         }
 
-        List<ViewFetchResult> results = new ArrayList<>(values.size());
+        List<ChartFetchResult> results = new ArrayList<>(values.size());
 
         values.forEach(item -> {
             final String productCode = item.getValueItem(1);
             final String attrField = item.getValueItem(2);
             final String calcType = item.getValueItem(3);
-            final ViewSqlCondition condition = ViewSqlCondition.build(productCode, attrField, calcType, params);
-            List<BaseEchartsCount> countValues = collectDataService.countOfView(condition);
+            final ChartSqlCondition condition = ChartSqlCondition.build(productCode, attrField, calcType, params);
+            List<BaseEchartsCount> countValues = collectDataService
+                    .countOfView(condition);
             if(Objects.equals("time", params.getCategory())) {
                 countValues = condition.buildTimeValues(countValues);
             }

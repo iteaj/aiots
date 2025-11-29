@@ -2,6 +2,8 @@ package com.iteaj.iboot.module.iot.collect.model;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.spi.iot.DataSupplier;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.framework.spi.iot.data.DefaultRealtimeData;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.CollectMode;
 import com.iteaj.iboot.module.iot.entity.CollectData;
@@ -26,11 +28,12 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
             supplier.getValues().forEach(value -> {
                 String strValue = value.getValue() == null ? null : value.getValue().toString();
                 data.add(new CollectData(CollectMode.model).setCid(cid + "")
-                        .setReason("").setCreateTime(supplier.getCollectTime())
-                        .setSignalId(value.getId()).setValue(strValue)
+                        .setReason("").setCreateTime(value.getCollectTime())
+                        .setFieldId(value.getId()).setValue(strValue)
                         .setCollectTime(value.getCollectTime())
                         .setCollectStatus(value.getStatus())
-                        .setUid(device.getUid())
+                        .setUid(device.getUid()).setDeviceName(device.getDeviceName())
+                        .setCollectMode(CollectMode.model.name())
                         .setProductCode(device.getProductCode())
                         .setProtocolCode(device.getProtocolCode())
                         .setDeviceGroupId(device.getDeviceGroupId())
@@ -50,29 +53,31 @@ public interface DataPersistenceListener extends EventGroupCollectListener, Mode
 
     @Override
     default void finished(CollectInfo info) {
-        List<CollectData> collectData = new ArrayList<>();
+        List<DefaultRealtimeData> collectData = new ArrayList<>();
         if(CollectionUtil.isNotEmpty(info.getInfos())) {
-            long cid = UniqueIdGen.nextLong(); // 声明同一组
+            String cid = info.getCid(); // 声明同一组
             info.getInfos().forEach(item -> {
                 final RealtimeStatus device = item.getDevice();
                 DataSupplier supplier = item.getSupplier();
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
                     supplier.getValues().forEach(value -> {
                         String strValue = value.getValue() == null ? null : value.getValue().toString();
-                        CollectData data = new CollectData(CollectMode.model)
-                                .setCid(cid + "").setStatus(true).setReason("")
+                        DefaultRealtimeData data = new DefaultRealtimeData()
+                                .setCid(cid).setDeviceSn(device.getDeviceSn())
                                 .setCreateTime(new Date()).setValue(strValue)
                                 .setAddress(value.getAddress())
                                 .setUid(device.getUid())
-                                .setSignalId(value.getId())
-                                .setCollectStatus(value.getStatus())
+                                .setFieldId(value.getId())
+                                .setCollectMode(CollectMode.model.name())
                                 .setField(value.getSignalOrField())
                                 .setProductCode(device.getProductCode())
                                 .setProtocolCode(device.getProtocolCode())
                                 .setDeviceGroupId(device.getDeviceGroupId())
                                 .setFieldName(value.getSignalOrField())
+                                .setDeviceName(device.getDeviceName())
                                 .setCollectTime(supplier.getCollectTime())
-                                .setCollectTaskId(info.getSource().getId());
+                                .setTaskId(info.getSource().getId())
+                                .buildFromStatus(value.getStatus());
 
                         collectData.add(data);
                     });
