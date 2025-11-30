@@ -17,12 +17,12 @@ spring:
       on-profile: test #测试环境
 media:
   rtvs:
-    port: 17000
-    host: 192.168.20.199
+    port: 15001
+    host: et.test.cvtsp.com
     sip:
       userName: gbsip
       password: admin
-      api-uri: http://${media.rtvs.host}:9081
+      api-uri: https://et.test.cvtsp.com:15006
 ---
 spring:
   config:
@@ -35,4 +35,4 @@ media:
     sip:
       userName: gbsip
       password: admin
-      api-uri: https://et.test.cvtsp.com:15006
+      api-uri: http://${media.rtvs.host}:9081

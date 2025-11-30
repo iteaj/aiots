@@ -17,4 +17,13 @@ public class GbsViewChannelDto {
      */
     private String value;
 
+    public GbsViewChannelDto(String label, String value) {
+        this.label = label;
+        this.value = value;
+    }
+
+    public GbsViewChannelDto(String label, String deviceId, String channelId) {
+        this.label = label;
+        this.value = deviceId + "::" + channelId;
+    }
 }

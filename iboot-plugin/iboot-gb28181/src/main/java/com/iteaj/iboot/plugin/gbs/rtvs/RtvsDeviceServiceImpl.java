@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.gbs.GbsRealtimeTree;
+import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.plugin.gbs.MediaInfo;
 import com.iteaj.iboot.plugin.gbs.dto.GbsViewChannelDto;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
@@ -24,8 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -35,7 +35,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
     private String authorization;
     @Autowired
     private RtvsProperties properties;
-
+    private final Map<String, List<GbsViewChannelDto>> channelMap = new HashMap<>(256);
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
@@ -106,6 +106,14 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
         JSONObject response = invokePostRequest(url);
         if(!response.getBoolean("data")) {
             throw new ServiceException("同步失败");
+        } else {
+            Page<GbsChannel> channels = channels(new Page(1, -1), new GbsChannel().setDeviceId(deviceId));
+            if(channels.getTotal() > 0) {
+                List<GbsViewChannelDto> viewChannelDtos = channels.getRecords().stream()
+                        .map(item -> new GbsViewChannelDto(StrUtil.isBlank(item.getNickName()) ? item.getName() : item.getNickName(), item.getDeviceId(), item.getChannelId()))
+                        .collect(Collectors.toList());
+                channelMap.put(deviceId, viewChannelDtos);
+            }
         }
     }
 
@@ -197,17 +205,9 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
 
     @Override
     public List<GbsViewChannelDto> listViewChannels() {
-        Page<GbsChannel> channels = this.channels(new Page(1, -1), new GbsChannel());
-        if(channels.getTotal() > 0) {
-            return channels.getRecords().stream().map(channel -> {
-                GbsViewChannelDto channelDto = new GbsViewChannelDto();
-                channelDto.setLabel(channel.getName());
-                channelDto.setValue(channel.getChannelId());
-                return channelDto;
-            }).collect(Collectors.toList());
-        }
-
-        return Collections.emptyList();
+        return channelMap.values()
+                .stream().flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -285,6 +285,21 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
                     JSONObject jsonObject = JSONObject.parseObject(response.body());
                     if(jsonObject.getInteger("code") == 200) {
                         this.authorization = jsonObject.getJSONObject("data").getString("Token");
+                        IBootThreadManger.getInstance().getTaskExecutor().execute(() -> {
+                            // 同步通道列表
+                            Page<GbsDevice> page = page(new Page<>(1, 9999), new GbsDevice());
+                            if(page.getTotal() > 0) {
+                                for (GbsDevice device : page.getRecords()) {
+                                    Page<GbsChannel> channels = channels(new Page<>(1, -1), new GbsChannel().setDeviceId(device.getDeviceId()));
+                                    if(channels.getTotal() > 0) {
+                                        List<GbsViewChannelDto> viewChannelDtos = channels.getRecords().stream()
+                                                .map(item -> new GbsViewChannelDto(StrUtil.isBlank(item.getNickName()) ? item.getName() : item.getNickName(), item.getDeviceId(), item.getChannelId()))
+                                                .collect(Collectors.toList());
+                                        channelMap.put(device.getDeviceId(), viewChannelDtos);
+                                    }
+                                }
+                            }
+                        });
                     } else {
                         logger.error("<<< 登录RTVS系统失败 {}", jsonObject.getString("message"));
                     }
