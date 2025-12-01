@@ -15,7 +15,7 @@ QQ1群 - 552167793 (已满)<br>
 2. [Iboot设备类型介绍](https://www.bilibili.com/video/BV13kx7ebEYM/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
 2. [Iboot序列教程之Mqtt篇](https://www.bilibili.com/video/BV1k9t5e3EtK/?vd_source=32a176fca70a1cee8222bff9ac0846ab)<br>
 3. [Iboot序列教程之Modbus篇](https://www.bilibili.com/video/BV1dgtQeNEyP/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
-### 已实现的协议驱动
+### 已开源的协议驱动
 | 协议 | 实现方式 | 说明 |
 |------|---------|------------|
 |  Mqtt  |   系统内置   | 支持设备、第三方业务和iboot系统的双向数据对接  |
