@@ -16,13 +16,13 @@ QQ1群 - 552167793 (已满)<br>
 2. [Iboot序列教程之Mqtt篇](https://www.bilibili.com/video/BV1k9t5e3EtK/?vd_source=32a176fca70a1cee8222bff9ac0846ab)<br>
 3. [Iboot序列教程之Modbus篇](https://www.bilibili.com/video/BV1dgtQeNEyP/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
 ### 已实现的协议驱动
-| 协议 | 实现方式 |其他| 说明 |
-|----|--------|-----|-------|------------|
-|  Mqtt  |   系统内置   |-|  支持设备、第三方业务和iboot系统的双向数据对接  |
-|  DTU+Modbus Tcp  |   系统内置   |-|  支持设备以modbus tcp协议对接并通过dtu连接iboot云网关  |
-|  DTU+Modbus Rtu  |   系统内置   |-|  支持设备通过485和dtu串口以modbus rtu协议对接上传到iboot云网关  |
-|  Modbus Tcp  |   系统内置   |-|  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
-|  Modbus Rtu  |   系统内置  |-|  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
+| 协议 | 实现方式 | 说明 |
+|------|---------|------------|
+|  Mqtt  |   系统内置   | 支持设备、第三方业务和iboot系统的双向数据对接  |
+|  DTU+Modbus Tcp  |   系统内置   | 支持设备以modbus tcp协议对接并通过dtu连接iboot云网关  |
+|  DTU+Modbus Rtu  |   系统内置   | 支持设备通过485和dtu串口以modbus rtu协议对接上传到iboot云网关  |
+|  Modbus Tcp  |   系统内置   |  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
+|  Modbus Rtu  |   系统内置  |  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
 ### 平台架构图
 ![平台架构](https://iot.iteaj.com/show/IBoot网络架构图.jpg)
 ### 项目介绍
