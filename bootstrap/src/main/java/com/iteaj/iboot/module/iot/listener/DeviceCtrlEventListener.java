@@ -80,7 +80,7 @@ public class DeviceCtrlEventListener implements ScriptInvokeListener {
             WarnRecord warnRecord = new WarnRecord().setWarnTime(data.getWarnTime())
                     .setUid(data.getUid()).setProductCode(data.getProductCode()).setValue(data.getValue())
                     .setDeviceSn(data.getDeviceSn()).setCreateTime(new Date()).setWarnConfigId(data.getWarnConfigId())
-                    .setContent(data.getContent()).setField(data.getField()).setGrade(WarnGrade.valueOf(data.getGrade().toString()));
+                    .setContent(data.getContent()).setField(data.getField());
             warnRecordService.save(warnRecord);
         }
     }
