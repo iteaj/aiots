@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.iotview.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.Entity;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -59,6 +60,7 @@ public class Project implements Entity<String> {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
     public void setId(String id) {

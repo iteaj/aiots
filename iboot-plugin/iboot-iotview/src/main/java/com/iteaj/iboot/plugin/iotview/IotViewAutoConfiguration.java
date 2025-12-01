@@ -34,7 +34,7 @@ public class IotViewAutoConfiguration implements ApplicationReadyListener, WebMv
     @Bean
     @Profile({"prod", "test"})
     public OrderFilterChainDefinition prodIsvDefinition() {
-        return new OrderFilterChainDefinition().addAnon("/isv/data/**", "/usv/**");
+        return new OrderFilterChainDefinition().addAnon("/isv/data/**", "/usv/**", "/isv/project/getData");
     }
 
     @Override

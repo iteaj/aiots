@@ -116,7 +116,11 @@
             <artifactId>iboot-code</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-iotview</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Shiro权限认证插件(和SaToken二选其一)-->
 <!--        <dependency>-->
 <!--            <groupId>com.iteaj</groupId>-->
