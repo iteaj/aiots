@@ -16,21 +16,13 @@ QQ1群 - 552167793 (已满)<br>
 2. [Iboot序列教程之Mqtt篇](https://www.bilibili.com/video/BV1k9t5e3EtK/?vd_source=32a176fca70a1cee8222bff9ac0846ab)<br>
 3. [Iboot序列教程之Modbus篇](https://www.bilibili.com/video/BV1dgtQeNEyP/?vd_source=32a176fca70a1cee8222bff9ac0846ab)
 ### 已实现的协议驱动
-| 协议 | 实现方式 | 开源 |其他| 说明 |
+| 协议 | 实现方式 |其他| 说明 |
 |----|--------|-----|-------|------------|
-|  Mqtt  |   系统内置   |   是   |-|  支持设备、第三方业务和iboot系统的双向数据对接  |
-|  DTU+Modbus Tcp  |   系统内置   |   是   |-|  支持设备以modbus tcp协议对接并通过dtu连接iboot云网关  |
-|  DTU+Modbus Rtu  |   系统内置   |   是   |-|  支持设备通过485和dtu串口以modbus rtu协议对接上传到iboot云网关  |
-|  Modbus Tcp  |   系统内置   |   是   |-|  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
-|  Modbus Rtu  |   系统内置   |   是   |-|  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
-|  Opc Ua  |   系统内置   |   否   |-|  支持iboot网关(上位机)以opcua服务器对接采集和控制设备  |
-|  dlt645-2007  |   系统内置   |   否   |-|  支持以内网以串口或者云服务器以dtu方式采集电表数据  |
-|  西门子S7  |   系统内置   |   否   |-|  支持西门子S7协议的序列PLC  |
-|  欧姆龙  |   系统内置   |   否   |-|  支持欧姆龙Fins协议的序列PLC  |
-|  三菱  |   系统内置   |   否   |-|  支持三菱A1E和Qna-3E协议的序列PLC  |
-|  汇川  |   系统内置   |   否   |-|  以Modbus Tcp方式实现  |
-|  松下  |   系统内置   |   否   |-|  松下PLC  |
-|  罗克韦尔  |   系统内置   |   否   |-|  以CIP协议实现，适用1756，1769等型号  |
+|  Mqtt  |   系统内置   |-|  支持设备、第三方业务和iboot系统的双向数据对接  |
+|  DTU+Modbus Tcp  |   系统内置   |-|  支持设备以modbus tcp协议对接并通过dtu连接iboot云网关  |
+|  DTU+Modbus Rtu  |   系统内置   |-|  支持设备通过485和dtu串口以modbus rtu协议对接上传到iboot云网关  |
+|  Modbus Tcp  |   系统内置   |-|  支持设备在内网里和iboot网关(上位机)以modbus tcp协议对接  |
+|  Modbus Rtu  |   系统内置  |-|  支持设备通过串口和iboot网关(上位机)以modbus rtu协议对接  |
 ### 平台架构图
 ![平台架构](https://iot.iteaj.com/show/IBoot网络架构图.jpg)
 ### 项目介绍
