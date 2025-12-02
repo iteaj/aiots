@@ -45,6 +45,7 @@
         <module>iboot-script</module>
         <!--大屏/组态插件-->
         <module>iboot-iotview</module>
+        <module>iboot-edge</module>
     </modules>
 
     <dependencies>
