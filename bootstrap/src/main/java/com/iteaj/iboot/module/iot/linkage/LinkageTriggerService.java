@@ -41,7 +41,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     private final RealtimeDataService realtimeDataService;
     private final LinkageCacheService linkageCacheService;
     private final Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
-    private final Map<Long, WarnInfo> warnStatus = new ConcurrentHashMap<>(512);
+    private final Map<String, WarnInfo> warnStatus = new ConcurrentHashMap<>(512);
 
     public LinkageTriggerService(IotCacheManager cacheManager, RealtimeDataService realtimeDataService
             , LinkageCacheService linkageCacheService) {
@@ -211,7 +211,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     private void doHandleWarn(WarnConfig warn, RealtimeStatus device, Object value) {
         WarnInfo warnInfo = null;
         if(warn.getModelAttrId() != null) {
-            warnInfo = warnStatus.get(warn.getModelAttrId());
+            warnInfo = warnStatus.get(device.getUid() + ":" + warn.getModelAttrId());
         }
 
         WarnGrade grade = warn.getGrade();
@@ -223,10 +223,10 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             }
 
             warnInfo.setStatus(true); // 已经解除告警
-            warnStatus.remove(warn.getModelAttrId()); // 移除告警信息
+            warnStatus.remove(device.getUid() + ":" + warn.getModelAttrId()); // 移除告警信息
         } else if(grade != WarnGrade.status){ // 状态告警不涉及模型属性
             if(warnInfo == null) {
-                warnStatus.put(warn.getModelAttrId(), warnInfo = new WarnInfo()); // 持续告警中
+                warnStatus.put(device.getUid() + ":" + warn.getModelAttrId(), warnInfo = new WarnInfo()); // 持续告警中
             }
         }
 
@@ -515,7 +515,16 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
     @Override
     public void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
-
+        try {
+            if(info != null) {
+                Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(source.getId(), group.getId());
+                if(CollectionUtil.isNotEmpty(linkageItems)) {
+                    this.invokeLinkage(linkageItems, null, group);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("联动触发失败 事件源触发 - 事件源: {} - 触发组: {}", source.getName(), group.getName());
+        }
     }
 
     public class WarnInfo {
