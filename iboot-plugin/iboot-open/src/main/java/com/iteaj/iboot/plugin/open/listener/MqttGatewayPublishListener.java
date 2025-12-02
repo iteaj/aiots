@@ -117,7 +117,10 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
             final String host = config.getString("host");
             final Integer port = config.getInteger("port");
             final String topic = config.getString("topic");
-            return new MqttGatewayConnectProperties(host, port, clientId, topic);
+            MqttGatewayConnectProperties properties = new MqttGatewayConnectProperties(host, port, clientId, topic);
+            properties.setUsername(config.getString("username"));
+            properties.setPassword(config.getString("password"));
+            return properties;
         } else {
             return (MqttGatewayConnectProperties) client.getConfig();
         }
