@@ -115,6 +115,6 @@ public class WarnRecord extends BaseEntity implements WarnData {
 
     @Override
     public String getProductCode() {
-        return null;
+        return productCode;
     }
 }

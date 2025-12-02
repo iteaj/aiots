@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.listener;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.IotUtil;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
+import com.iteaj.framework.spi.iot.data.WarnData;
 import com.iteaj.framework.spi.iot.listener.ScriptInvokeListener;
 import com.iteaj.framework.spi.iot.listener.ScriptInvokePayload;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
@@ -11,12 +12,17 @@ import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 /**
  * 设备指令控制监听实现
@@ -27,12 +33,13 @@ public class DeviceCtrlEventListener implements ScriptInvokeListener {
     private final IotCacheManager cacheManager;
     private final IProductService productService;
     private final IModelApiService modelApiService;
-
+    private final IWarnRecordService warnRecordService;
     public DeviceCtrlEventListener(IotCacheManager cacheManager
-            , IProductService productService, IModelApiService modelApiService) {
+            , IProductService productService, IModelApiService modelApiService, IWarnRecordService warnRecordService) {
         this.cacheManager = cacheManager;
         this.productService = productService;
         this.modelApiService = modelApiService;
+        this.warnRecordService = warnRecordService;
     }
 
     @Override
@@ -67,9 +74,14 @@ public class DeviceCtrlEventListener implements ScriptInvokeListener {
                 }
             }
 
-            ProtocolInvokeUtil.invoke(modelApi, invokeParam, device, (result) -> {
-                value.setResult(result);
-            });
+            ProtocolInvokeUtil.invoke(modelApi, invokeParam, device, value::setResult);
+        } else if (value.isWarn()) {
+            WarnData data = value.getData();
+            WarnRecord warnRecord = new WarnRecord().setWarnTime(data.getWarnTime())
+                    .setUid(data.getUid()).setProductCode(data.getProductCode()).setValue(data.getValue())
+                    .setDeviceSn(data.getDeviceSn()).setCreateTime(new Date()).setWarnConfigId(data.getWarnConfigId())
+                    .setContent(data.getContent()).setField(data.getField());
+            warnRecordService.save(warnRecord);
         }
     }
 }
