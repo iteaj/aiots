@@ -17,12 +17,12 @@ public class EdgeConfigProperties {
     /**
      * 读超时
      */
-    private Long readIdle;
+    private long readIdle;
 
     /**
      * 边缘客户端配置
      */
-    private ClientConfig remote;
+    private ClientConfig client;
 
     /**
      * 云端服务器配置
@@ -33,9 +33,10 @@ public class EdgeConfigProperties {
     @Setter
     private static class TCPConfig {
         /**
-         * 主机配置
+         * 本主机配置
          */
         private String host;
+
     }
 
     @Getter
@@ -48,5 +49,14 @@ public class EdgeConfigProperties {
     @Setter
     public static class ClientConfig extends TCPConfig {
 
+        /**
+         * 远程服务器地址
+         */
+        private String remote;
+
+        /**
+         * 十六进制的设备编号(一般用IMEI或者MAC地址简写)
+         */
+        private String deviceSn;
     }
 }

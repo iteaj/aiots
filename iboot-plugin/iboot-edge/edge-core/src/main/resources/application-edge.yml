@@ -6,9 +6,12 @@ spring:
 iot:
   edge:
     port: 9885
-    read-idle: 60000 #毫秒
-    remote:
+    read-idle: 60 #秒
+    client:
       host: 127.0.0.1
+      remote: 127.0.0.1
+      device-sn: AABBCCDDEEFF
     server:
       host: 0.0.0.0
+
 

@@ -1,6 +1,7 @@
 package com.iteaj.iboot.plugin.edge.server.network;
 
 import com.iteaj.iboot.plugin.edge.core.EdgeConfigProperties;
+import com.iteaj.iboot.plugin.edge.core.network.EdgeProtocolType;
 import com.iteaj.iot.ProtocolType;
 import com.iteaj.iot.config.ConnectProperties;
 import com.iteaj.iot.server.component.LengthFieldBasedFrameDecoderServerComponent;
@@ -14,7 +15,7 @@ public class EdgeServerComponent extends LengthFieldBasedFrameDecoderServerCompo
     private static final String DESC = "作为云边协同系统的服务端实现";
 
     public EdgeServerComponent(EdgeConfigProperties edgeConfig) {
-        super(new ConnectProperties(), Short.MAX_VALUE, 2, 2);
+        super(new ConnectProperties(), Short.MAX_VALUE, 1, 2);
         EdgeConfigProperties.ServerConfig server = edgeConfig.getServer();
         config().setHost(server.getHost()); config().setPort(edgeConfig.getPort());
         config().setReaderIdleTime(edgeConfig.getReadIdle());
@@ -42,6 +43,9 @@ public class EdgeServerComponent extends LengthFieldBasedFrameDecoderServerCompo
 
     @Override
     protected ClientInitiativeProtocol<EdgeServerMessage> doGetProtocol(EdgeServerMessage message, ProtocolType type) {
+        if(type == EdgeProtocolType.heartbeat) {
+            return new EdgeServerHeartbeatProtocol(message);
+        }
         return null;
     }
 }

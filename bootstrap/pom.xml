@@ -265,6 +265,11 @@
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
+            <artifactId>edge-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
             <artifactId>edge-server</artifactId>
             <version>${project.version}</version>
         </dependency>
