@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
@@ -240,6 +241,15 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         if(StrUtil.isNotBlank(code)) {
             this.getBaseMapper().removeJoinByCode(code);
             cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API).evict(code);
+        }
+    }
+
+    @Override
+    public void cleanCache(String productCode) {
+        List<ModelApi> list = this.getBaseMapper().listByProductCode(productCode);
+        if(CollectionUtil.isNotEmpty(list)) {
+            Cache cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API);
+            list.forEach(item -> cache.evict(item.getCode()));
         }
     }
 

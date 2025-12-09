@@ -449,6 +449,9 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                  */
                 IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item.setStatus(status)));
                 Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT)).evict(id); // 移除缓存
+                if(item.getDeviceType() != DeviceType.Gateway && status == FuncStatus.disabled) {
+                    modelApiService.cleanCache(item.getCode()); // 禁用的时候移除所有接口缓存
+                }
             });
     }
 
