@@ -28,7 +28,7 @@ public interface DirectProtocolHandle<T extends Protocol> extends ProtocolHandle
         Object result = doHandle(protocol);
         String equipCode = protocol.getEquipCode();
         try {
-            DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(protocol.requestMessage().getClass());
+            DeviceProtocolSupplier<?, ?> protocolSupplier = ProtocolSupplierManager.get(protocol.requestMessage().getClass());
             RealtimeDeviceStatus deviceStatus = getRealtimeDataService().getDeviceStatus(protocolSupplier.getProtocol().getCode(), equipCode);
             if(deviceStatus != null) {
                 Map<Serializable, ModelAttrMeta> attrMetas = getModelAttrMetaService().getAttrMetas(deviceStatus.getProductCode());

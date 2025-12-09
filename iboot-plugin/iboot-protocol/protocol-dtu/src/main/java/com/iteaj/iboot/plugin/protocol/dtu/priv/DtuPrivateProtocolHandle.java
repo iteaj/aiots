@@ -1,16 +1,15 @@
 package com.iteaj.iboot.plugin.protocol.dtu.priv;
 
-import com.iteaj.iot.client.ClientProtocolHandle;
 import com.iteaj.iot.server.ServerMessage;
 import com.iteaj.iot.server.ServerProtocolHandle;
-import com.iteaj.iot.server.dtu.protocol.DtuPrivateProtocol;
-import org.springframework.stereotype.Component;
+import com.iteaj.iot.utils.ByteUtil;
 
-public class DtuPrivateProtocolHandle implements ServerProtocolHandle<DtuPrivateProtocol> {
+public class DtuPrivateProtocolHandle implements ServerProtocolHandle<DtuInitiativeProtocol> {
+
     @Override
-    public Object handle(DtuPrivateProtocol protocol) {
+    public Object handle(DtuInitiativeProtocol protocol) {
         ServerMessage serverMessage = protocol.requestMessage();
-        System.out.println("设备编号: " + protocol.getEquipCode()+ " - 收到数据: " + new String(serverMessage.getMessage()));
+        System.out.println("DTU主动上报数据 - 设备编号: " + protocol.getEquipCode()+ " - 数据: " + ByteUtil.bytesToHexByFormat(serverMessage.getMessage()));
         return null;
     }
 }
