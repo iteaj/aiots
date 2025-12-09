@@ -11,6 +11,7 @@ import com.iteaj.framework.script.ScriptConfig;
 import com.iteaj.framework.script.ScriptLanguage;
 import com.iteaj.iboot.plugin.script.entity.BindDto;
 import com.iteaj.iboot.plugin.script.entity.Script;
+import com.iteaj.iboot.plugin.script.model.ModelAttrDataProvider;
 import com.iteaj.iboot.plugin.script.model.ScriptModelAttrResolver;
 import com.iteaj.iboot.plugin.script.service.IScriptService;
 import org.springframework.beans.factory.InitializingBean;
@@ -30,20 +31,19 @@ import java.util.Objects;
 public class ModelAttrScriptController extends BaseController implements InitializingBean {
 
     private final IScriptService scriptService;
-    private List<ScriptComplete> completes = Arrays.asList();
     private final List<ScriptConfig> configs = Arrays.asList(
-            new ScriptConfig(ScriptLanguage.javascript.getName(), "resolver(value, model, methods)", "" +
-                    "/**\r\n" +
+            new ScriptConfig(ScriptLanguage.javascript.getName(), "resolver(value, model, methods)",
+              "/**\r\n" +
+                    "* 对采集上来的数据进行组定义解析, 如果属性是group类型支持通过methods.addRealtimeData()优先动态增加数据\r\n" +
                     "* 支持ECMAScript 5.1规范\r\n" +
                     "* @param value 采集的值\r\n" +
                     "* @param model 模型属性配置\r\n" +
                     "* @param methods 常用方法\r\n" +
-                    "* @return Object 解析后的值\r\n" +
+                    "* @return Object 解析后的值(methods.addRealtimeData的值优先使用)\r\n" +
                     "*/\r\n" +
                     "function resolver(value, model, methods) {\r\n" +
                     "    return value;\r\n" +
-                    "}\r\n" +
-                    "")
+                    "}\r\n")
     );
 
     public ModelAttrScriptController(IScriptService scriptService) {
@@ -56,7 +56,7 @@ public class ModelAttrScriptController extends BaseController implements Initial
      */
     @GetMapping("completes")
     public Result<List<ScriptComplete>> completes() {
-        return success(completes);
+        return success(ModelAttrDataProvider.completes);
     }
 
     /**

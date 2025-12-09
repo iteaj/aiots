@@ -4,6 +4,10 @@ public interface ModelAttrDictMeta {
 
     String getPath();
 
+    String getAttrField();
+
+    String getDataType();
+
     String getDictName();
 
     String getDictValue();

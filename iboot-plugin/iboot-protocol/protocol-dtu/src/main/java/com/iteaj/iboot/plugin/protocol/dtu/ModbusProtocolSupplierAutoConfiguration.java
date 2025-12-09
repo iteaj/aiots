@@ -2,6 +2,8 @@ package com.iteaj.iboot.plugin.protocol.dtu;
 
 import com.iteaj.framework.spi.iot.data.IModelAttrRealtimeDataService;
 import com.iteaj.iboot.plugin.protocol.dtu.mqtt.ModbusOverMqttForDtuProtocolSupplier;
+import com.iteaj.iboot.plugin.protocol.dtu.priv.DtuPrivateProtocolHandle;
+import com.iteaj.iboot.plugin.protocol.dtu.priv.DtuPrivateProtocolSupplier;
 import com.iteaj.iboot.plugin.protocol.dtu.rtu.ModbusRtuForDtuProtocolSupplier;
 import com.iteaj.iboot.plugin.protocol.dtu.tcp.ModbusTcpForDtuProtocolSupplier;
 import org.springframework.context.annotation.Bean;
@@ -29,4 +31,13 @@ public class ModbusProtocolSupplierAutoConfiguration {
         return new ModbusOverMqttForDtuProtocolSupplier();
     }
 
+    @Bean
+    public DtuPrivateProtocolSupplier dtuPrivateProtocolSupplier() {
+        return new DtuPrivateProtocolSupplier();
+    }
+
+    @Bean
+    public DtuPrivateProtocolHandle dtuPrivateProtocolHandle() {
+        return new DtuPrivateProtocolHandle();
+    }
 }

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.controller.iiot;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
@@ -30,7 +31,7 @@ public class DeviceDtuController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final static String[] dtuCode = {ProtocolCodes.DTU_MODBUS_RTU.getValue()
-            , ProtocolCodes.DTU_MODBUS_TCP.getValue(), ProtocolCodes.DTU_MODBUS_OVER_MQTT.getValue()};
+            , ProtocolCodes.DTU_MODBUS_TCP.getValue(), ProtocolCodes.DTU_MODBUS_OVER_MQTT.getValue(), ProtocolCodes.DTU_PRIVATE.getValue()};
 
     public DeviceDtuController(IDeviceService deviceService, IProductService productService) {
         this.deviceService = deviceService;
@@ -81,10 +82,16 @@ public class DeviceDtuController extends BaseController {
     /**
      * 获取Dtu产品列表
      * @param deviceType 设备类型
+     * @param productCode 父设备的产品编码
      * @return
      */
     @GetMapping("/products")
-    public Result<List<Product>> products(DeviceType deviceType) {
+    public Result<List<Product>> products(DeviceType deviceType, String productCode) {
+        String[] dtuCode = DeviceDtuController.dtuCode;
+        if(deviceType == DeviceType.Child && StrUtil.isNotBlank(productCode)) {
+            Product product = this.productService.getByCode(productCode).getData();
+            dtuCode = new String[]{product.getProtocolCode()};
+        }
         return this.productService.listOfProtocolCodes(deviceType, dtuCode, null);
     }
 }

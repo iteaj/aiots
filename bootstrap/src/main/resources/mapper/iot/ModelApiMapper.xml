@@ -96,4 +96,9 @@
             inner join iot_model_attr ma on a.model_attr_id=ma.id and ma.ctrl_status=true
         where a.api_code=#{code} and a.product_id=#{productId} and a.direction='DOWN' limit 1
     </select>
+    <select id="listByProductCode" resultMap="BaseResultMap">
+        select a.* from iot_model_api a
+            left join iot_product b on a.product_id=b.id
+        where b.code=#{productCode}
+    </select>
 </mapper>
