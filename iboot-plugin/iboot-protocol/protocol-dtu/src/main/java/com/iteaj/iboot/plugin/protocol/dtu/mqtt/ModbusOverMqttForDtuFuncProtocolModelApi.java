@@ -27,7 +27,12 @@ public class ModbusOverMqttForDtuFuncProtocolModelApi extends AbstractModbusFunc
     @Override
     protected void doInvoke(Protocol protocol, ProtocolModelApiInvokeParam arg, Consumer<InvokeResult> result) {
         buildModbusOverMqttPublish(protocol, arg).request(protocol1 -> {
-            result.accept(InvokeResult.status(((ModbusRtuForDtuCommonProtocol) protocol).getExecStatus(), protocol));
+            ModbusRtuForDtuCommonProtocol commonProtocol = (ModbusRtuForDtuCommonProtocol) protocol;
+            commonProtocol.setExecStatus(protocol1.getExecStatus());
+            ModbusRtuForDtuMessage dtuMessage = new ModbusRtuForDtuMessage(protocol1.responseMessage().getMessage());
+//            dtuMessage.readBuild();
+            commonProtocol.setResponseMessage(dtuMessage).buildResponseMessage();
+            result.accept(InvokeResult.status(commonProtocol.getExecStatus(), protocol));
         });
     }
 
