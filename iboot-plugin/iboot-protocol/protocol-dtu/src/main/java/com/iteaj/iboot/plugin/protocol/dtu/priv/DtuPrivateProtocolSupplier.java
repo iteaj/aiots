@@ -8,8 +8,11 @@ import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.plugin.protocol.dtu.AbstractDtuForModbusProtocolSupplier;
 import com.iteaj.iboot.plugin.protocol.dtu.ModbusProtocolConsts;
 import com.iteaj.iot.AbstractProtocol;
+import com.iteaj.iot.IotProtocolFactory;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.config.ConnectProperties;
+import com.iteaj.iot.message.DefaultMessageHead;
+import com.iteaj.iot.server.dtu.DtuCommonProtocolType;
 import com.iteaj.iot.server.dtu.impl.CommonDtuMessageAware;
 import com.iteaj.iot.server.dtu.impl.CommonDtuServerComponent;
 import com.iteaj.iot.server.dtu.impl.CommonDtuServerMessage;
@@ -62,8 +65,28 @@ public class DtuPrivateProtocolSupplier extends StaticServerProtocolSupplier<Abs
 
         return new CommonDtuServerComponent(connectProperties, new CommonDtuMessageAware() {
             @Override
-            protected AbstractProtocol getHeartbeatProtocol(CommonDtuServerMessage message) {
-                return super.getHeartbeatProtocol(message);
+            public AbstractProtocol customize(CommonDtuServerMessage message, IotProtocolFactory<CommonDtuServerMessage> factory) {
+                DefaultMessageHead head = (DefaultMessageHead) message.getHead();
+
+                // Dtu获取设备编号的报文使用默认的协议来处理{@link DtuDeviceSnProtocol}
+                if(head != null) {
+                    // 设备编号注册
+                    if(head.getType() == DtuCommonProtocolType.DEVICE_SN) {
+                        // DTU设备注册包
+                        return this.getDeviceSnRegisterProtocol(message);
+                    } else if(head.getType() == DtuCommonProtocolType.HEARTBEAT) {
+                        // DTU心跳包
+                        return this.getHeartbeatProtocol(message);
+                    } else if(head.getType() == DtuCommonProtocolType.AT) {
+                        // DTU AT协议
+                        return (AbstractProtocol<?>) factory.remove(head.getMessageId());
+                    } else if(head.getType() == DtuCommonProtocolType.DTU) {
+                        // DTU私有协议
+                        return new DtuInitiativeProtocol(message);
+                    }
+                }
+
+                return null;
             }
         });
     }
