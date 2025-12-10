@@ -35,14 +35,11 @@ public class DataSupplier {
 
     public DataSupplier(String protocolCode, DeviceKey key) {
         this.key = key;
+        this.values = new ArrayList<>();
         this.protocolCode = protocolCode;
     }
 
     public DataSupplier addValue(SignalOrFieldValue value) {
-        if(values == null) {
-            values = new ArrayList<>();
-        }
-
         values.add(value); return this;
     }
 
