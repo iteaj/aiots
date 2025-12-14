@@ -59,6 +59,16 @@ public class NorthwardController extends BaseController {
         return this.northwardService.updateById(entity);
     }
 
+    /**
+     * 切换连接状态
+     * @param connectKey 连接标识
+     * @param connectStatus 切换的状态
+     * @return 切换结果
+     */
+    @PostMapping("/switchStatus")
+    public Result<Boolean> switchStatus(String connectKey, String connectStatus) {
+        return this.northwardService.switchStatus(connectKey, connectStatus);
+    }
 //    /**
 //    * 删除指定记录
 //    * @param idList

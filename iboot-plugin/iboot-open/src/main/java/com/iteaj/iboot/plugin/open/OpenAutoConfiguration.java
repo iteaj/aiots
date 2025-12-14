@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.open;
 
+import com.iteaj.iboot.plugin.open.listener.GatewayStatusListener;
 import com.iteaj.iboot.plugin.open.listener.MqttGatewayPublishListener;
 import com.iteaj.iboot.plugin.open.service.INorthwardService;
 import com.iteaj.iot.client.mqtt.gateway.MqttGatewayComponent;
@@ -20,5 +21,10 @@ public class OpenAutoConfiguration {
     public MqttGatewayPublishListener mqttGatewayPublishListener(INorthwardService northwardService
             , MqttGatewayComponent mqttGatewayComponent) {
         return new MqttGatewayPublishListener(northwardService, mqttGatewayComponent);
+    }
+
+    @Bean
+    public GatewayStatusListener gatewayStatusListener() {
+        return new GatewayStatusListener();
     }
 }
