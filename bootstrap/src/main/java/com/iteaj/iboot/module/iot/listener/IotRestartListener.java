@@ -78,7 +78,7 @@ public class IotRestartListener implements ApplicationReadyListener {
             try {
                 this.gatewayService.switchStatus(item.getId(), GatewayStatus.start);
             } catch (Exception e) {
-                logger.error("<<< 启动网关[{}]失败 {}", item.getName(), e);
+                logger.error("<<< 启动网关[{}]失败", item.getName(), e);
                 this.gatewayService.update(Wrappers.<Gateway>lambdaUpdate()
                         .eq(Gateway::getId, item.getId())
                         .set(Gateway::getReason, e.getMessage()));

@@ -26,8 +26,9 @@ public class BatchUtils {
                         } else { // 继续解析
                             start = i1;
                             startIndex = i;
-                            continue;
                         }
+                    } else if(i == (points.size() - 1)) {
+                        result.add(points.subList(startIndex, points.size()));
                     }
                 }
             }

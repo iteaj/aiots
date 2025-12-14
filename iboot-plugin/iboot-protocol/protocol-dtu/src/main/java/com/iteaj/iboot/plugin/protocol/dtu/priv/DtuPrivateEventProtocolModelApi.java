@@ -35,7 +35,6 @@ public class DtuPrivateEventProtocolModelApi extends AbstractEventProtocolModelA
 
         byte[] value = ((CommonDtuProtocol) protocol).timeout(arg.getTimeout()).read(msg);
         if(value != null) {
-            System.out.println("带解析的中两只: " + new String( value));
             result.accept(InvokeResult.success(value, protocol));
         } else {
             result.accept(InvokeResult.fail(((CommonDtuProtocol) protocol).getReason(), protocol));

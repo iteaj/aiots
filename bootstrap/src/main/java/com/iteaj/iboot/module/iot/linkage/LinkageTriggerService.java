@@ -573,11 +573,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 return true; // 小于等于0的值代表实时告警
             }
 
-            if(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - firstOfMs) > frequency) {
-                return true;
-            }
-
-            return false;
+            return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - firstOfMs) > frequency;
         }
 
         /**

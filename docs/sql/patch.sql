@@ -137,3 +137,15 @@ update iot_device set extend = '{"tags": [], "alias": ""}' where id > 0;
 
 update iot_device set extend = JSON_SET(extend, '$.alias', 'DTU') where product_id in (select id from iot_product where protocol_code='DTU:MODBUS_TCP' or protocol_code='DTU:MODBUS_RTU');
 update iot_device set extend = JSON_SET(extend, '$.alias', 'MQTT') where product_id in (select id from iot_product where protocol_code='DTU:MODBUS_OVER_MQTT');
+
+-- 2025-12-13
+alter table iot_northward
+    add connect_key varchar(64) null comment '连接标识';
+
+alter table iot_northward
+    add connect_status varchar(16) null comment '连接状态';
+alter table iot_northward
+    add constraint iot_northward_pk_connect_key unique (connect_key);
+update iot_northward set connect_status = 'offline' where id > 0;
+update iot_northward set connect_key = 'mqtt_sn_0001' where id = 1;
+update iot_northward set connect_key = 'mqtt_sn_0002' where id = 2;

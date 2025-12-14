@@ -18,6 +18,7 @@ public enum DataType {
     t_string("string", "string(字符串)"),
     t_group("group", "group(组)"),
     t_boolean("boolean", "boolean(布尔)"),
+    t_script("script", "script(脚本)"),
     ;
 
     private String value;
@@ -47,6 +48,7 @@ public enum DataType {
             case "group": return t_group;
             case "string": return t_string;
             case "boolean": return t_boolean;
+            case "script": return t_script;
             default: throw new IllegalArgumentException("未知的数据类型["+dataType+"]");
         }
     }

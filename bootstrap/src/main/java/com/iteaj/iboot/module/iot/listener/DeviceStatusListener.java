@@ -18,6 +18,7 @@ import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.event.CombinedEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +28,7 @@ import java.util.Date;
  * 设备上下线状态事件监听
  */
 @Component
-public class DeviceStatusListener implements CombinedEventListener, ApplicationReadyListener, IotListener<RealtimeStatus> {
+public class DeviceStatusListener implements CombinedEventListener, InitializingBean, IotListener<RealtimeStatus> {
 
     private final IotCacheManager cacheManager;
     private final IDeviceService deviceService;
@@ -86,16 +87,6 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
     }
 
     @Override
-    public void started(ApplicationContext context) {
-        if(!properties.isCluster()) {
-            // 系统重启时 更新所有的设备状态到离线
-            deviceService.update(Wrappers.<Device>lambdaUpdate()
-                    .set(Device::getStatus, DeviceStatus.offline)
-                    .set(Device::getSwitchTime, new Date()));
-        }
-    }
-
-    @Override
     public boolean isEventMatcher(IotEventType eventType) {
         return IotEventType.DeviceStatus == eventType;
     }
@@ -109,5 +100,15 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
     @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 1000;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if(!properties.isCluster()) {
+            // 系统重启时 更新所有的设备状态到离线
+            deviceService.update(Wrappers.<Device>lambdaUpdate()
+                    .set(Device::getStatus, DeviceStatus.offline)
+                    .set(Device::getSwitchTime, new Date()));
+        }
     }
 }
