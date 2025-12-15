@@ -138,9 +138,7 @@ public class ModelAttr extends BaseEntity implements ModelAttrMeta {
 
     @Override
     @JsonIgnore
-    public List<ModelAttrDictMeta> getDictMetas() {
-        return dicts != null ? dicts.stream()
-                .map(item -> (ModelAttrDictMeta) item)
-                .collect(Collectors.toList()) : Collections.emptyList();
+    public List<? extends ModelAttrDictMeta> getDictMetas() {
+        return dicts;
     }
 }
