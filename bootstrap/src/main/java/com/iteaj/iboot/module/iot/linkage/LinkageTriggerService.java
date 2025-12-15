@@ -396,12 +396,20 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             }
 
             if(LinkageConditionItem.DEVICE_ANY[0].equals(conditionItem.getUid())){ // 组下面且属于此联动项产品的所有设备
-                Collection<RealtimeStatus> statuses = cacheManager.listGroupAndProduct(groupId, conditionItem.getProductCode());
-                // 同一组且同一产品下包含多台设备的按或运算, 只要有一台条件满足就行
-                for (RealtimeStatus next : statuses) {
-                    RealtimeData data = realtimeDataService.getOfDeviceAndKey(next.getProtocolCode(), next.buildKey(), conditionItem.getTypeValue());
-                    if (calcCondition(conditionItem, conditionCalc, data, next)) {
-                        validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(next, data.getRealtime()));
+                if(triggerDevice == null) { // 组级别的触发
+                    Collection<RealtimeStatus> statuses = cacheManager.listGroupAndProduct(groupId, conditionItem.getProductCode());
+                    // 同一组且同一产品下包含多台设备的按或运算, 只要有一台条件满足就行
+                    for (RealtimeStatus next : statuses) {
+                        RealtimeData data = realtimeDataService.getOfDeviceAndKey(next.getProtocolCode(), next.buildKey(), conditionItem.getTypeValue());
+                        if (calcCondition(conditionItem, conditionCalc, data, next)) {
+                            validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(next, data.getRealtime()));
+                            return true;
+                        }
+                    }
+                } else if(triggerDevice.getProductCode().equals(conditionItem.getProductCode())){ // fix: 2025-12-15 修复触发设备校验
+                    RealtimeData data = realtimeDataService.getOfDeviceAndKey(triggerDevice.getProtocolCode(), triggerDevice.buildKey(), conditionItem.getTypeValue());
+                    if (calcCondition(conditionItem, conditionCalc, data, triggerDevice)) {
+                        validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(triggerDevice, data.getRealtime()));
                         return true;
                     }
                 }
@@ -468,7 +476,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             if(CollectionUtil.isNotEmpty(info.getInfos())) {
                 Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(info.getSource().getId(), info.getGroup().getId());
                 if(CollectionUtil.isNotEmpty(linkageItems) && CollectionUtil.isNotEmpty(info.getInfos())) {
-                    this.invokeLinkage(linkageItems, null, info.getGroup());
+                    this.invokeLinkage(linkageItems, null, info.getInfos().get(0));
                 }
             }
         } catch (Exception e) {
@@ -581,10 +589,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
          * @return
          */
         public void trigger() {
-            if(this.isFirst()) {
-                this.firstOfMs = System.currentTimeMillis();
-            }
-
+            this.firstOfMs = System.currentTimeMillis();
             this.times ++;
         }
     }
