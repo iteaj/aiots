@@ -3,9 +3,11 @@ package com.iteaj.iboot.module.iot.linkage;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
@@ -16,6 +18,7 @@ import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 import com.iteaj.iboot.module.iot.consts.*;
+import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.dto.LinkageActionExecDto;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
@@ -143,6 +146,8 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 groupId = triggerDevice.getGroupId();
             } else if(deviceOrGroup instanceof DeviceGroup) { // 组触发
                 groupId = ((DeviceGroup) deviceOrGroup).getId();
+            } else if(deviceOrGroup instanceof EventSource) {
+                groupId = null;
             } else {
                 logger.error("动作项执行失败 未知的方式({})", deviceOrGroup); return;
             }
@@ -154,9 +159,26 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                         ModelApi api = linkageAction.getApi();
                         if(api != null) {
                             if("-1".equals(linkageAction.getUid())) { // 触发组全部设备
-                                cacheManager.listGroupAndProduct(groupId, linkageAction.getProductCode()).forEach(device -> {
-                                    doInvokeAction(linkageAction, api, device);
-                                });
+                                if(groupId != null) {
+                                    cacheManager.listGroupAndProduct(groupId, linkageAction.getProductCode()).forEach(device -> {
+                                        doInvokeAction(linkageAction, api, device);
+                                    });
+                                } else {
+                                    // groupId为空的情况下deviceOrGroup参数必定是EventSource类型
+                                    JSONArray deviceGroupIds = item.getDeviceGroupIds();
+                                    if(CollectionUtil.isNotEmpty(deviceGroupIds)) {
+                                        deviceGroupIds.forEach(deviceGroupId -> {
+                                            // 为每个组分配一个指定动作任务
+                                            Collection<RealtimeStatus> realtimeStatuses = cacheManager.
+                                                    listGroupAndProduct(Long.parseLong(deviceGroupId.toString()), linkageAction.getProductCode());
+                                            if(CollectionUtil.isNotEmpty(realtimeStatuses)) {
+                                                IBootThreadManger.getInstance().getTaskExecutor().execute(() -> {
+                                                    realtimeStatuses.forEach(device -> doInvokeAction(linkageAction, api, device));
+                                                });
+                                            }
+                                        });
+                                    }
+                                }
                             } else if("-2".equals(linkageAction.getUid())){ // 当前触发设备
                                 if(triggerDevice != null) { // 设备触发
                                     doInvokeAction(linkageAction, api, triggerDevice);
@@ -382,15 +404,21 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
     private boolean validateConditionItem(LinkageConditionItem conditionItem, DataSupplier dataSupplier
             , Object deviceOrGroup, Map<String, SuccessDeviceAndField> validateSuccessField) {
+        if(conditionItem.getType() == ConditionType.None) { // 无需校验(2025-12-20新增功能)
+            return true;
+        }
+
         ConditionCalc conditionCalc = ConditionalsManager.get(conditionItem.getOperator());
         if(conditionCalc != null) {
-            Long groupId;
+            Long groupId = null;
             RealtimeStatus triggerDevice = null;
             if(deviceOrGroup instanceof RealtimeStatus) { // 设备触发
                 triggerDevice = (RealtimeStatus) deviceOrGroup;
                 groupId = triggerDevice.getGroupId();
             } else if(deviceOrGroup instanceof DeviceGroup) { // 组触发
                 groupId = ((DeviceGroup) deviceOrGroup).getId();
+            } else if(deviceOrGroup instanceof EventSource) { // 事件源类型为执行器的触发{@link EventSourceType#period}
+                triggerDevice = (RealtimeStatus) realtimeDataService.getDeviceStatus(conditionItem.getUid());
             } else {
                 logger.error("条件项校验失败 未知的校验方式({})", deviceOrGroup); return false;
             }
@@ -494,6 +522,18 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                     this.invokeLinkage(linkageItems, supplier, device);
                 }
             });
+        }
+    }
+
+    public void trigger(EventSourceDto sourceDto) {
+        Set<LinkageItem> items = new HashSet<>();
+        sourceDto.getDeviceGroupIds().forEach(groupId -> {
+            Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(sourceDto.getId(), Long.parseLong(groupId.toString()));
+            items.addAll(linkageItems);
+        });
+
+        if(CollectionUtil.isNotEmpty(items)) {
+            invokeLinkage(items, null, sourceDto);
         }
     }
 

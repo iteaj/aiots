@@ -1,23 +1,19 @@
-package com.iteaj.iboot.plugin.iotview.api;
+package com.iteaj.iboot.plugin.iotview.api.table;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.PageResult;
-import com.iteaj.framework.spi.iot.data.DefaultRealtimeData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
 import com.iteaj.framework.spi.iot.data.RealtimeDataParam;
-import com.iteaj.framework.spi.iot.view.ApiConfigOption;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
 import com.iteaj.framework.spi.iot.view.ViewApi;
 import com.iteaj.framework.spi.iot.view.table.TableApiConfig;
 import com.iteaj.framework.spi.iot.view.table.TableApiItem;
 import com.iteaj.framework.spi.iot.view.table.TableApiParams;
 import com.iteaj.framework.spi.iot.view.table.TableApiResult;
-import com.iteaj.framework.spring.SpringUtils;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
 

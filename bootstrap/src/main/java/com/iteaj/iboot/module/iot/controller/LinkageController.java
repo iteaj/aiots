@@ -196,12 +196,17 @@ public class LinkageController extends BaseController {
             }
         }
 
-        data.add(0, new Device()
-                .setUid(LinkageConditionItem.DEVICE_ANY[0])
-                .setName(LinkageConditionItem.DEVICE_ANY[1]));
-        data.add(0, new Device()
-                .setUid(LinkageConditionItem.DEVICE_TRIGGER[0])
-                .setName(LinkageConditionItem.DEVICE_TRIGGER[1]));
+        LinkageDto linkageDto = this.linkageService.joinEventSourceById(linkageId).getData();
+
+        if(linkageDto.getEventSourceType() == EventSourceType.event) {
+            data.add(0, new Device()
+                    .setUid(LinkageConditionItem.DEVICE_ANY[0])
+                    .setName(LinkageConditionItem.DEVICE_ANY[1]));
+
+            data.add(0, new Device()
+                    .setUid(LinkageConditionItem.DEVICE_TRIGGER[0])
+                    .setName(LinkageConditionItem.DEVICE_TRIGGER[1]));
+        }
         return success(data);
     }
 
@@ -276,34 +281,39 @@ public class LinkageController extends BaseController {
                 .collect(Collectors.toList());
 
         options.add(0, new IVOption(LinkageAction.DEVICE_ALL[1], LinkageAction.DEVICE_ALL[0]));
-        options.add(0, new IVOption(LinkageAction.DEVICE_TRIGGER[1], LinkageAction.DEVICE_TRIGGER[0]));
+        if(linkage.getEventSourceType() == EventSourceType.event) {
+            options.add(0, new IVOption(LinkageAction.DEVICE_TRIGGER[1], LinkageAction.DEVICE_TRIGGER[0]));
+        }
         return success(options);
     }
 
     /**
      * 获取事件列表
      * @param productId 产品id
+     * @param linkageId 场景联动id
      * @return
      */
     @GetMapping("listEventByProductId")
-    public Result<List<IVOption>> listEventByProductId(Long productId) {
+    public Result<List<IVOption>> listEventByProductId(Long productId, Long linkageId) {
         if(productId == null) {
             return fail("参数校验失败");
         }
-
+        LinkageDto linkageDto = this.linkageService.joinEventSourceById(linkageId).getData();
         List<IVOption> result = new ArrayList<>();
-        result.add(new IVOption("设备状态", ConditionType.Status, "").setSelectable(false)
-                .addChildren(new IVOption("设备上线", DEVICE_ONLINE[2], "")
-                        .addConfig("type", ConditionType.Status)
-                        .addConfig("linkedId", DEVICE_ONLINE[0])
-                        .addConfig("linkedName", DEVICE_ONLINE[1])
-                        .addConfig("attrType", DeviceStatus.online)
-                ).addChildren(new IVOption("设备离线", DEVICE_OFFLINE[2], "")
-                        .addConfig("type", ConditionType.Status)
-                        .addConfig("linkedId", DEVICE_OFFLINE[0])
-                        .addConfig("linkedName", DEVICE_OFFLINE[1])
-                        .addConfig("attrType", DeviceStatus.offline)
-                ));
+        if(linkageDto.getEventSourceType() == EventSourceType.event) {
+            result.add(new IVOption("设备状态", ConditionType.Status, "").setSelectable(false)
+                    .addChildren(new IVOption("设备上线", DEVICE_ONLINE[2], "")
+                            .addConfig("type", ConditionType.Status)
+                            .addConfig("linkedId", DEVICE_ONLINE[0])
+                            .addConfig("linkedName", DEVICE_ONLINE[1])
+                            .addConfig("attrType", DeviceStatus.online)
+                    ).addChildren(new IVOption("设备离线", DEVICE_OFFLINE[2], "")
+                            .addConfig("type", ConditionType.Status)
+                            .addConfig("linkedId", DEVICE_OFFLINE[0])
+                            .addConfig("linkedName", DEVICE_OFFLINE[1])
+                            .addConfig("attrType", DeviceStatus.offline)
+                    ));
+        }
 
         this.productService.joinDetailById(productId).ifNotPresentThrow("产品不存在")
                 .ifPresent(productDto -> {
@@ -356,12 +366,18 @@ public class LinkageController extends BaseController {
         return success(result);
     }
 
+    /**
+     * 获取动作列表
+     * @param productId 产品id
+     * @param linkageId 联动id
+     * @return
+     */
     @GetMapping("listActionByProductId")
-    public Result<List<IVOption>> listActionsByProductIds(Long productId) {
+    public Result<List<IVOption>> listActionsByProductIds(Long productId, Long linkageId) {
         if(productId == null) {
             return fail("请指定产品参数");
         }
-
+        LinkageDto linkageDto = this.linkageService.joinEventSourceById(linkageId).getData();
         List<IVOption> result = new ArrayList<>();
         IVOption func = new IVOption("模型接口", ActionType.model, "物模型").setSelectable(false);
         this.productService.joinDetailById(productId).ifPresent(productDto -> {
@@ -390,7 +406,7 @@ public class LinkageController extends BaseController {
                 });
             }
 
-            if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+            if(!CollectionUtils.isEmpty(productDto.getEventApis()) && linkageDto.getEventSourceType() == EventSourceType.event) {
                 productDto.getEventApis().forEach(item -> {
                     func.addChildren(new IVOption(item.getName(), ActionType.model + item.getId().toString(), ProtocolApiType.event.getDesc())
                             .addConfig("type", ActionType.model)
@@ -400,20 +416,22 @@ public class LinkageController extends BaseController {
                 });
             }
         });
-
-        IVOption warn = new IVOption("事件告警", ActionType.warn, "告警配置").setSelectable(false);
-        warnConfigService.list(Wrappers.<WarnConfig>lambdaQuery().eq(WarnConfig::getProductId, productId))
-                .ifPresent(warnConfigs -> {
-            warnConfigs.forEach(warnConfig -> {
-                warn.addChildren(new IVOption(warnConfig.getName(), (ActionType.warn + warnConfig.getId().toString()), warnConfig.getGrade().getDesc())
-                        .addConfig("type", ActionType.warn)
-                        .addConfig("linkedName", warnConfig.getName())
-                        .addConfig("linkedId", warnConfig.getId()));
-            });
-        });
-
         result.add(func);
-        result.add(warn);
+
+        if(linkageDto.getEventSourceType() == EventSourceType.event) {
+            IVOption warn = new IVOption("事件告警", ActionType.warn, "告警配置").setSelectable(false);
+            warnConfigService.list(Wrappers.<WarnConfig>lambdaQuery().eq(WarnConfig::getProductId, productId))
+                    .ifPresent(warnConfigs -> {
+                        warnConfigs.forEach(warnConfig -> {
+                            warn.addChildren(new IVOption(warnConfig.getName(), (ActionType.warn + warnConfig.getId().toString()), warnConfig.getGrade().getDesc())
+                                    .addConfig("type", ActionType.warn)
+                                    .addConfig("linkedName", warnConfig.getName())
+                                    .addConfig("linkedId", warnConfig.getId()));
+                        });
+                    });
+            result.add(warn);
+        }
+
         return success(result);
     }
 }

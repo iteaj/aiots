@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.iot.data;
 
 import com.alibaba.fastjson.JSONObject;
+import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 
 import java.util.Date;
@@ -78,4 +79,8 @@ public interface RealtimeDeviceStatus extends IotEventPayload {
      * @return
      */
     JSONObject getConfig();
+
+    default DeviceKey buildKey() {
+        return DeviceKey.build(getDeviceSn(), getParentDeviceSn());
+    }
 }
