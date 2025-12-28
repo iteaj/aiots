@@ -7,19 +7,21 @@ import com.iteaj.framework.spi.iot.view.ViewApiType;
 
 import java.util.List;
 
-public interface GlobalApiItem extends ViewApi {
+/**
+ * 全局功能接口
+ */
+public interface GlobalFuncApi extends ViewApi {
 
     @Override
     default ViewApiType getApiType() {
-        return ViewApiType.GLOBAL_API;
+        return ViewApiType.GLOBAL_FUNC_API;
     }
 
     /**
-     * 接口请求
-     * @param params 请求参数
-     * @return api响应
+     * 功能接口调用
+     * @param params 调用参数
      */
-    GlobalApiParams fetch(GlobalApiParams params);
+    void invoke(GlobalFuncApiParams params);
 
     /**
      * 此option必须包含 {@link ApiConfigOption}

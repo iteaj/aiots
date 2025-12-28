@@ -1,8 +1,7 @@
-package com.iteaj.iboot.plugin.iotview.api;
+package com.iteaj.iboot.plugin.iotview.api.table;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.view.*;
-import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
 import com.iteaj.framework.spi.iot.view.table.TableApiConfig;
 import com.iteaj.framework.spi.iot.view.table.TableApiItem;
 import com.iteaj.framework.spi.iot.view.table.TableApiParams;

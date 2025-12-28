@@ -1,9 +1,9 @@
-package com.iteaj.iboot.plugin.iotview.api;
+package com.iteaj.iboot.plugin.iotview.api.data;
 
 import cn.hutool.core.date.DateUtil;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
 import com.iteaj.framework.spi.iot.view.ApiConfigOption;
-import com.iteaj.framework.spi.iot.view.global.GlobalApiItem;
+import com.iteaj.framework.spi.iot.view.global.GlobalApi;
 import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
-public class ModelAttrGlobalApiItem implements GlobalApiItem {
+public class ModelAttrGlobalApi implements GlobalApi {
 
     private static final String KEY = "MAG";
     private static final String NAME = "采集信息";
@@ -41,7 +41,7 @@ public class ModelAttrGlobalApiItem implements GlobalApiItem {
                         .toTop().build()
     );
 
-    public ModelAttrGlobalApiItem(ISVDataService isvDataService) {
+    public ModelAttrGlobalApi(ISVDataService isvDataService) {
         this.isvDataService = isvDataService;
     }
 

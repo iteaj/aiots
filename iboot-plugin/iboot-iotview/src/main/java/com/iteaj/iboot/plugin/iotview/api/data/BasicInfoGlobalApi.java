@@ -1,8 +1,8 @@
-package com.iteaj.iboot.plugin.iotview.api;
+package com.iteaj.iboot.plugin.iotview.api.data;
 
 import com.iteaj.framework.spi.iot.view.DataItemOption;
 import com.iteaj.framework.spi.iot.view.ApiConfigOption;
-import com.iteaj.framework.spi.iot.view.global.GlobalApiItem;
+import com.iteaj.framework.spi.iot.view.global.GlobalApi;
 import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
-public class BasicInfoGlobalApiItem implements GlobalApiItem {
+public class BasicInfoGlobalApi implements GlobalApi {
 
     private static final String KEY = "BIG";
     private static final String NAME = "基础信息";
@@ -37,7 +37,7 @@ public class BasicInfoGlobalApiItem implements GlobalApiItem {
             .toTop().build()
     );
 
-    public BasicInfoGlobalApiItem(ISVDataService isvDataService) {
+    public BasicInfoGlobalApi(ISVDataService isvDataService) {
         this.isvDataService = isvDataService;
     }
 

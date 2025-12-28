@@ -17,6 +17,7 @@ import com.iteaj.framework.spi.iot.view.*;
 import com.iteaj.framework.spi.iot.view.chart.ChartApiParams;
 import com.iteaj.framework.spi.iot.view.chart.ChartFetchResult;
 import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.global.GlobalFuncApiParams;
 import com.iteaj.framework.spi.iot.view.table.TableApiParams;
 import com.iteaj.framework.spi.iot.view.table.TableApiResult;
 import com.iteaj.framework.spi.open.OpenApiUtil;
@@ -71,6 +72,16 @@ public class ISVDataController extends BaseController {
     @GetMapping("global/options")
     public Result<List<DataItemOption>> globalOptions() {
         return IotViewResult.Success(ViewApiManager.globalApiOptions());
+    }
+
+    /**
+     * 全局功能接口数据项配置
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("global/func/options")
+    public Result<List<DataItemOption>> globalFuncOptions() {
+        return IotViewResult.Success(ViewApiManager.globalFuncApiOptions());
     }
 
     /**
@@ -247,6 +258,25 @@ public class ISVDataController extends BaseController {
         try {
             final GlobalApiParams response = ViewApiManager.fetch(params);
             return IotViewResult.Success(response);
+        } catch (ServiceException e) {
+            return FetchResult.FailNotJump(e.getMessage());
+        } catch (Exception e) {
+            logger.error("fetch接口未知异常", e);
+            return FetchResult.FailNotJump("获取数据异常");
+        }
+    }
+
+    /**
+     * 调用全局功能接口
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("global/func")
+    public Result<Boolean> globalFunc(@RequestBody GlobalFuncApiParams params) {
+        try {
+            ViewApiManager.invoke(params);
+            return IotViewResult.Success(true, "调用成功");
         } catch (ServiceException e) {
             return FetchResult.FailNotJump(e.getMessage());
         } catch (Exception e) {

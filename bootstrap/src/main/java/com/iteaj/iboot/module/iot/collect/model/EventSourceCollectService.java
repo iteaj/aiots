@@ -7,9 +7,12 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.consts.EventSourceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.EventSource;
+import com.iteaj.iboot.module.iot.linkage.LinkageTriggerService;
+import com.iteaj.iboot.module.iot.linkage.PeriodEventTask;
 import com.iteaj.iboot.module.iot.service.IDeviceGroupService;
 import com.iteaj.iboot.module.iot.service.IEventSourceService;
 import org.slf4j.Logger;
@@ -28,17 +31,17 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
     private final IotCacheManager cacheManager;
     private final IBootThreadManger threadManger;
-    private final IDeviceGroupService deviceGroupService;
+    private final LinkageTriggerService triggerService;
     private final IEventSourceService eventSourceService;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<Long, ScheduledFuture> futures = new ConcurrentHashMap<>(128);
 
     public EventSourceCollectService(IotCacheManager cacheManager
-            , IBootThreadManger threadManger, IDeviceGroupService deviceGroupService
+            , IBootThreadManger threadManger, LinkageTriggerService triggerService
             , IEventSourceService eventSourceService) {
         this.cacheManager = cacheManager;
         this.threadManger = threadManger;
-        this.deviceGroupService = deviceGroupService;
+        this.triggerService = triggerService;
         this.eventSourceService = eventSourceService;
     }
 
@@ -102,8 +105,14 @@ public class EventSourceCollectService implements ApplicationReadyListener {
             ThreadPoolTaskScheduler scheduler = threadManger.getScheduler();
             try { // 定时表达式
                 CronTrigger trigger = new CronTrigger(source.getCron());
-                ScheduledFuture<?> schedule = scheduler.schedule(new EventSourceTask(
-                        threadManger.getCollectExecutor(), source, cacheManager), trigger);
+                ScheduledFuture<?> schedule;
+                if(source.getType() == EventSourceType.event) {
+                    schedule = scheduler.schedule(new EventSourceTask(
+                            threadManger.getCollectExecutor(), source, cacheManager), trigger);
+                } else {
+                    schedule = scheduler.schedule(new PeriodEventTask(source, triggerService), trigger);
+                }
+
                 futures.put(id, schedule);
             } catch (Exception e) { // 数值毫秒
                 long timeMills = Long.parseLong(source.getCron());

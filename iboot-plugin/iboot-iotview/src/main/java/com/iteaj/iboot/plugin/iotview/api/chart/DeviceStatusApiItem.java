@@ -1,4 +1,4 @@
-package com.iteaj.iboot.plugin.iotview.api;
+package com.iteaj.iboot.plugin.iotview.api.chart;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
