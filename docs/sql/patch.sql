@@ -149,3 +149,18 @@ alter table iot_northward
 update iot_northward set connect_status = 'offline' where id > 0;
 update iot_northward set connect_key = 'mqtt_sn_0001' where id = 1;
 update iot_northward set connect_key = 'mqtt_sn_0002' where id = 2;
+
+create table isv_project
+(
+    id           char(36)                           not null,
+    project_name varchar(64)                        null comment '项目名称',
+    state        int                                null comment '状态',
+    index_image  varchar(256)                       null comment '项目封面',
+    remarks      varchar(256)                       null comment '项目说明',
+    is_delete    int                                null comment '是否删除',
+    content      json                               null comment '项目内容',
+    create_time  datetime default CURRENT_TIMESTAMP not null comment '创建时间'
+)
+    comment '大屏项目';
+
+alter table isv_project add primary key (id);
