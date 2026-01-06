@@ -33,5 +33,9 @@
         <result column="OfflineTime" property="updateTime" />
     </resultMap>
 
+    <select id="listViewChannels" resultType="com.iteaj.iboot.plugin.gbs.dto.GbsViewChannelDto">
+        select Name label, concat(DeviceID, '::',ChannelID) value from t_catalog
+    </select>
+
 
 </mapper>

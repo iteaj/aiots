@@ -102,7 +102,7 @@ public class ScadaRealtimeDataListenerPush implements WebSocketServerListener, R
                     jsonObject.put("value", warn.getValue());
                     array.add(jsonObject);
                 });
-            } else if(value.isData() || value.isDataActive()) {
+            } else if(value.isData() || value.isDataActive() || value.isDataCmd()) {
                 value.getPayload().forEach(item -> {
                     RealtimeCollectData data = (RealtimeCollectData) item;
                     if(data != null && data.getStatus()) {

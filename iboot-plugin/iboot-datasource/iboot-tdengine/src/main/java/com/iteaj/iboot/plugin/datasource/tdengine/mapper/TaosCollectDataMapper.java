@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.CollectDataCondition;
+import com.iteaj.framework.spi.iot.data.DefaultRealtimeData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
+import com.iteaj.iboot.plugin.datasource.tdengine.listener.TaosRealtimeData;
 
 import java.util.List;
 
@@ -47,4 +49,8 @@ public interface TaosCollectDataMapper {
     List<RealtimeCollectData> listOfCommonByTime(CollectDataCondition.DataSqlCondition item);
 
     Page pageOfCommonByTime(Page<RealtimeCollectData> page, CollectDataCondition.DataSqlCondition condition);
+
+    Page<RealtimeCollectData> productOfPage(Page page, RealtimeCollectData entity);
+
+    List<DefaultRealtimeData> listProductData(List<RealtimeCollectData> list);
 }

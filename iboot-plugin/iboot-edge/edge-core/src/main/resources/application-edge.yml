@@ -1,0 +1,17 @@
+---
+spring:
+  config:
+    activate:
+      on-profile: dev #开发环境配置
+iot:
+  edge:
+    port: 9885
+    read-idle: 60 #秒
+    client:
+      host: 127.0.0.1
+      remote: 127.0.0.1
+      device-sn: AABBCCDDEEFF
+    server:
+      host: 0.0.0.0
+
+

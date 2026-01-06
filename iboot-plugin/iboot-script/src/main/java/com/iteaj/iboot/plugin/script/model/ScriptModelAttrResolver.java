@@ -36,19 +36,24 @@ public class ScriptModelAttrResolver implements DataValueResolver {
         if(this.script != null) {
             final Object exec;
             long timeMillis = System.currentTimeMillis();
+            ModelAttrDataProvider.ModelAttrWrapper wrapper = new ModelAttrDataProvider.ModelAttrWrapper(attr);
             try {
                 exec = ScriptManager.exec(script.getLanguage(), ScriptContext.build(this.getKey(), script.getScript(), script.getInvoke())
-                        .addParam("value", value).addParam("model", attr)
-                        .addParam("methods", RealtimeListenerFilter.convertProvide));
+                        .addParam("value", value).addParam("model", wrapper)
+                        .addParam("methods", ModelAttrDataProvider.INSTANCE));
             } catch (ScriptExecException e) {
                 RealtimeListenerFilter.convertProvide.error(attr.getField(), "属性解析脚本执行异常 脚本: {}/{} - 解析值: {}", name, script.getLanguage(), value, e);
                 throw e;
             }
 
-            Object resolver = doResolver(exec);
-            RealtimeListenerFilter.convertProvide.debug(attr.getField(), "执行属性解析脚本 脚本: {}/{} - 解析前/后值: {}/{} - 耗时: {} ms"
-                    , name, script.getLanguage(), value, resolver, System.currentTimeMillis() - timeMillis);
-            return resolver;
+            if(wrapper.getFieldValues() != null) {
+                return wrapper.getFieldValues();
+            } else {
+                Object resolver = doResolver(exec);
+                RealtimeListenerFilter.convertProvide.debug(attr.getField(), "执行属性解析脚本 脚本: {}/{} - 解析前/后值: {}/{} - 耗时: {} ms"
+                        , name, script.getLanguage(), value, resolver, System.currentTimeMillis() - timeMillis);
+                return resolver;
+            }
         } else {
             RealtimeListenerFilter.convertProvide.warn(attr.getField(), "属性解析脚本引擎不存在 脚本: {}/{} - 解析值: {}", name, script.getLanguage(), value);
         }

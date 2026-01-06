@@ -11,4 +11,10 @@ import com.iteaj.iboot.module.core.entity.Config;
  */
 public interface IConfigService extends IBaseService<Config> {
 
+    /**
+     * 获取指定标签配置
+     * @param label 标签值
+     * @return 系统配置 {@link Config}
+     */
+    Config getConfigByLabel(String label);
 }

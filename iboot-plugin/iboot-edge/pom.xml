@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.iteaj</groupId>
+        <version>${reversion}</version>
+        <artifactId>iboot-plugin</artifactId>
+    </parent>
+
+    <packaging>pom</packaging>
+    <name>iboot:plugin:edge</name>
+    <artifactId>iboot-edge</artifactId>
+    <description>iboot 边缘端插件(包括云端和边缘端)</description>
+
+    <modules>
+        <module>edge-server</module>
+        <module>edge-client</module>
+        <module>edge-core</module>
+    </modules>
+
+</project>

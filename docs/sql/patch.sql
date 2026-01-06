@@ -107,3 +107,45 @@ create table iot_script(
 alter table iot_script add create_time datetime default now() null comment '创建时间';
 alter table iot_script add update_time timestamp null comment '更新时间';
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('数据过滤', 1421, 168, '/iot/script/filter', 'iot', 'V', 'enabled', 'iot:script:filter:view', '#', '', '_self', '2025-04-11 00:00:00', '2025-04-11 20:42:12');
+
+-- 2025-07-17
+create table isv_resource
+(
+    id          char(36)                           not null,
+    name        varchar(64)                        null comment '名称',
+    url         varchar(256)                       null comment '路径',
+    type        char(16)                           null comment '资源类型',
+    create_time datetime default CURRENT_TIMESTAMP null comment '创建时间'
+) comment '大屏资源';
+
+alter table isv_resource add primary key (id);
+alter table isv_resource add constraint isv_resource_id_uindex unique (id);
+
+create table isv_resource_type
+(
+    id   bigint auto_increment
+        primary key,
+    name char(24)    not null comment '名称',
+    type varchar(36) not null comment '类型',
+    sort int         null comment '排序'
+) comment '资源类型';
+-- 2025-11-09
+alter table iot_device modify extend varchar(36) default null;
+update iot_device set extend = null where id > 0;
+alter table iot_device modify extend json null;
+update iot_device set extend = '{"tags": [], "alias": ""}' where id > 0;
+
+update iot_device set extend = JSON_SET(extend, '$.alias', 'DTU') where product_id in (select id from iot_product where protocol_code='DTU:MODBUS_TCP' or protocol_code='DTU:MODBUS_RTU');
+update iot_device set extend = JSON_SET(extend, '$.alias', 'MQTT') where product_id in (select id from iot_product where protocol_code='DTU:MODBUS_OVER_MQTT');
+
+-- 2025-12-13
+alter table iot_northward
+    add connect_key varchar(64) null comment '连接标识';
+
+alter table iot_northward
+    add connect_status varchar(16) null comment '连接状态';
+alter table iot_northward
+    add constraint iot_northward_pk_connect_key unique (connect_key);
+update iot_northward set connect_status = 'offline' where id > 0;
+update iot_northward set connect_key = 'mqtt_sn_0001' where id = 1;
+update iot_northward set connect_key = 'mqtt_sn_0002' where id = 2;

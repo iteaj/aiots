@@ -54,5 +54,15 @@ public class Northward extends BaseEntity {
      */
     private Date createTime;
 
+    private String connectKey;
 
+    private String connectStatus;
+
+    public static final String TYPE_MQTT="mqtt_publish";
+    public static final String CONNECT_KEY="connect_key";
+    public static final String CONNECT_STATUS="connect_status";
+
+    public boolean isMqtt() {
+        return TYPE_MQTT.equals(this.type);
+    }
 }

@@ -3,9 +3,11 @@ package com.iteaj.iboot.module.iot.linkage;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
@@ -16,6 +18,7 @@ import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 import com.iteaj.iboot.module.iot.consts.*;
+import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.dto.LinkageActionExecDto;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
@@ -40,8 +43,8 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     private final IotCacheManager cacheManager;
     private final RealtimeDataService realtimeDataService;
     private final LinkageCacheService linkageCacheService;
-    private Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
-    private final Map<Long, WarnInfo> warnStatus = new ConcurrentHashMap<>(512);
+    private final Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
+    private final Map<String, WarnInfo> warnStatus = new ConcurrentHashMap<>(512);
 
     public LinkageTriggerService(IotCacheManager cacheManager, RealtimeDataService realtimeDataService
             , LinkageCacheService linkageCacheService) {
@@ -143,6 +146,8 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 groupId = triggerDevice.getGroupId();
             } else if(deviceOrGroup instanceof DeviceGroup) { // 组触发
                 groupId = ((DeviceGroup) deviceOrGroup).getId();
+            } else if(deviceOrGroup instanceof EventSource) {
+                groupId = null;
             } else {
                 logger.error("动作项执行失败 未知的方式({})", deviceOrGroup); return;
             }
@@ -154,9 +159,26 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                         ModelApi api = linkageAction.getApi();
                         if(api != null) {
                             if("-1".equals(linkageAction.getUid())) { // 触发组全部设备
-                                cacheManager.listGroupAndProduct(groupId, linkageAction.getProductCode()).forEach(device -> {
-                                    doInvokeAction(linkageAction, api, device);
-                                });
+                                if(groupId != null) {
+                                    cacheManager.listGroupAndProduct(groupId, linkageAction.getProductCode()).forEach(device -> {
+                                        doInvokeAction(linkageAction, api, device);
+                                    });
+                                } else {
+                                    // groupId为空的情况下deviceOrGroup参数必定是EventSource类型
+                                    JSONArray deviceGroupIds = item.getDeviceGroupIds();
+                                    if(CollectionUtil.isNotEmpty(deviceGroupIds)) {
+                                        deviceGroupIds.forEach(deviceGroupId -> {
+                                            // 为每个组分配一个指定动作任务
+                                            Collection<RealtimeStatus> realtimeStatuses = cacheManager.
+                                                    listGroupAndProduct(Long.parseLong(deviceGroupId.toString()), linkageAction.getProductCode());
+                                            if(CollectionUtil.isNotEmpty(realtimeStatuses)) {
+                                                IBootThreadManger.getInstance().getTaskExecutor().execute(() -> {
+                                                    realtimeStatuses.forEach(device -> doInvokeAction(linkageAction, api, device));
+                                                });
+                                            }
+                                        });
+                                    }
+                                }
                             } else if("-2".equals(linkageAction.getUid())){ // 当前触发设备
                                 if(triggerDevice != null) { // 设备触发
                                     doInvokeAction(linkageAction, api, triggerDevice);
@@ -170,11 +192,13 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                                     });
                                 }
                             } else { // 指定设备
-                                cacheManager.listByProductCode(linkageAction.getProductCode()).forEach(device -> {
-                                    if(device.getUid().equals(linkageAction.getUid())) {
-                                        doInvokeAction(linkageAction, api, device);
-                                    }
-                                });
+                                RealtimeStatus device = cacheManager.getByUid(linkageAction.getUid());
+                                if(device != null) {
+                                    doInvokeAction(linkageAction, api, device);
+                                } else {
+                                    logger.error("动作项执行失败 未找到设备 - uid: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", linkageAction.getUid()
+                                            , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
+                                }
                             }
                         } else {
                             logger.error("动作项执行失败 未找到模型接口 - modelApiId: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", linkageAction.getLinkedId()
@@ -188,7 +212,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                             if(deviceAndField != null) {
                                 doHandleWarn(warn, deviceAndField.getDevice(), deviceAndField.getValue().getValue());
                             } else if(triggerDevice != null) {
-                                doHandleWarn(warn, triggerDevice, triggerDevice.getStatus().name());
+                                doHandleWarn(warn, triggerDevice, triggerDevice.getStatus().getDesc());
                             } else {
                                 logger.error("动作项执行失败 未找到触发属性 - 属性: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", warn.getModelAttrField()
                                         , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
@@ -207,8 +231,12 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     }
 
     private void doHandleWarn(WarnConfig warn, RealtimeStatus device, Object value) {
+        WarnInfo warnInfo = null;
+        if(warn.getModelAttrId() != null) {
+            warnInfo = warnStatus.get(device.getUid() + ":" + warn.getModelAttrId());
+        }
+
         WarnGrade grade = warn.getGrade();
-        WarnInfo warnInfo = warnStatus.get(warn.getModelAttrId());
         // 属于解除告警并且已经执行一次
         if(grade == WarnGrade.normal) {
             // 等于null说明是第一次触发解除
@@ -217,10 +245,10 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             }
 
             warnInfo.setStatus(true); // 已经解除告警
-            return;
+            warnStatus.remove(device.getUid() + ":" + warn.getModelAttrId()); // 移除告警信息
         } else if(grade != WarnGrade.status){ // 状态告警不涉及模型属性
             if(warnInfo == null) {
-                warnStatus.put(warn.getModelAttrId(), warnInfo = new WarnInfo()); // 持续告警中
+                warnStatus.put(device.getUid() + ":" + warn.getModelAttrId(), warnInfo = new WarnInfo()); // 持续告警中
             }
         }
 
@@ -231,11 +259,12 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             }
 
             Date date = new Date();
-            String content = resolverWarnTemplate(warn, device.getDeviceSn(), value, date);
+            String warnValue = value == null ? StrUtil.EMPTY : value.toString();
+            String content = resolverWarnTemplate(warn, device.getDeviceSn(), warnValue, date, device.getDeviceName());
             WarnRecord warnRecord = new WarnRecord().setDeviceSn(device.getDeviceSn()).
                     setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(grade)
                     .setWarnConfigId(warn.getId()).setContent(content).setField(warn.getModelAttrField())
-                    .setProductCode(device.getProductCode()).setValue(value != null ? value.toString() : null);
+                    .setProductCode(device.getProductCode()).setValue(warnValue);
 
             CollectListenerManager.getInstance().publish(listener -> {
                 if(listener instanceof LinkageActionListener) {
@@ -249,13 +278,15 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
      * 解析告警配置模板
      * @param warn
      * @param warnTime
+     * @param deviceName
      * @return
      */
-    private String resolverWarnTemplate(WarnConfig warn, String deviceSn, Object value, Date warnTime) {
+    private String resolverWarnTemplate(WarnConfig warn, String deviceSn, String value, Date warnTime, String deviceName) {
         Map<String, String> param = new HashMap<>();
+        param.put("value", value);
         param.put("deviceSn", deviceSn);
+        param.put("deviceName", deviceName);
         param.put("grade", warn.getGrade().toString());
-        param.put("value", value != null ? value.toString() : "");
         param.put("warnTime", DateUtil.format(warnTime, "yy-MM-dd HH:mm:ss"));
 
         return StrUtil.format(warn.getTemplate(), param, true);
@@ -373,28 +404,40 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
     private boolean validateConditionItem(LinkageConditionItem conditionItem, DataSupplier dataSupplier
             , Object deviceOrGroup, Map<String, SuccessDeviceAndField> validateSuccessField) {
+        if(conditionItem.getType() == ConditionType.None) { // 无需校验(2025-12-20新增功能)
+            return true;
+        }
+
         ConditionCalc conditionCalc = ConditionalsManager.get(conditionItem.getOperator());
         if(conditionCalc != null) {
-            Long groupId;
+            Long groupId = null;
             RealtimeStatus triggerDevice = null;
             if(deviceOrGroup instanceof RealtimeStatus) { // 设备触发
                 triggerDevice = (RealtimeStatus) deviceOrGroup;
                 groupId = triggerDevice.getGroupId();
             } else if(deviceOrGroup instanceof DeviceGroup) { // 组触发
                 groupId = ((DeviceGroup) deviceOrGroup).getId();
+            } else if(deviceOrGroup instanceof EventSource) { // 事件源类型为执行器的触发{@link EventSourceType#period}
+                triggerDevice = (RealtimeStatus) realtimeDataService.getDeviceStatus(conditionItem.getUid());
             } else {
                 logger.error("条件项校验失败 未知的校验方式({})", deviceOrGroup); return false;
             }
 
             if(LinkageConditionItem.DEVICE_ANY[0].equals(conditionItem.getUid())){ // 组下面且属于此联动项产品的所有设备
-                Collection<RealtimeStatus> statuses = cacheManager.listGroupAndProduct(groupId, conditionItem.getProductCode());
-                Iterator<RealtimeStatus> iterator = statuses.iterator();
-                // 同一组且同一产品下包含多台设备的按或运算, 只要有一台条件满足就行
-                while (iterator.hasNext()) {
-                    RealtimeStatus next = iterator.next();
-                    RealtimeData data = realtimeDataService.getOfDeviceAndKey(next.getProtocolCode(), next.buildKey(), conditionItem.getTypeValue());
-                    if (calcCondition(conditionItem, conditionCalc, data, next)) {
-                        validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(next, data.getRealtime()));
+                if(triggerDevice == null) { // 组级别的触发
+                    Collection<RealtimeStatus> statuses = cacheManager.listGroupAndProduct(groupId, conditionItem.getProductCode());
+                    // 同一组且同一产品下包含多台设备的按或运算, 只要有一台条件满足就行
+                    for (RealtimeStatus next : statuses) {
+                        RealtimeData data = realtimeDataService.getOfDeviceAndKey(next.getProtocolCode(), next.buildKey(), conditionItem.getTypeValue());
+                        if (calcCondition(conditionItem, conditionCalc, data, next)) {
+                            validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(next, data.getRealtime()));
+                            return true;
+                        }
+                    }
+                } else if(triggerDevice.getProductCode().equals(conditionItem.getProductCode())){ // fix: 2025-12-15 修复触发设备校验
+                    RealtimeData data = realtimeDataService.getOfDeviceAndKey(triggerDevice.getProtocolCode(), triggerDevice.buildKey(), conditionItem.getTypeValue());
+                    if (calcCondition(conditionItem, conditionCalc, data, triggerDevice)) {
+                        validateSuccessField.put(conditionItem.getTypeValue(), new SuccessDeviceAndField(triggerDevice, data.getRealtime()));
                         return true;
                     }
                 }
@@ -461,7 +504,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             if(CollectionUtil.isNotEmpty(info.getInfos())) {
                 Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(info.getSource().getId(), info.getGroup().getId());
                 if(CollectionUtil.isNotEmpty(linkageItems) && CollectionUtil.isNotEmpty(info.getInfos())) {
-                    this.invokeLinkage(linkageItems, null, info.getGroup());
+                    this.invokeLinkage(linkageItems, null, info.getInfos().get(0));
                 }
             }
         } catch (Exception e) {
@@ -479,6 +522,18 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                     this.invokeLinkage(linkageItems, supplier, device);
                 }
             });
+        }
+    }
+
+    public void trigger(EventSourceDto sourceDto) {
+        Set<LinkageItem> items = new HashSet<>();
+        sourceDto.getDeviceGroupIds().forEach(groupId -> {
+            Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(sourceDto.getId(), Long.parseLong(groupId.toString()));
+            items.addAll(linkageItems);
+        });
+
+        if(CollectionUtil.isNotEmpty(items)) {
+            invokeLinkage(items, null, sourceDto);
         }
     }
 
@@ -508,7 +563,16 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
     @Override
     public void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
-
+        try {
+            if(info != null) {
+                Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(source.getId(), group.getId());
+                if(CollectionUtil.isNotEmpty(linkageItems)) {
+                    this.invokeLinkage(linkageItems, null, group);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("联动触发失败 事件源触发 - 事件源: {} - 触发组: {}", source.getName(), group.getName());
+        }
     }
 
     public class WarnInfo {
@@ -557,11 +621,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 return true; // 小于等于0的值代表实时告警
             }
 
-            if(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - firstOfMs) > frequency) {
-                return true;
-            }
-
-            return false;
+            return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - firstOfMs) > frequency;
         }
 
         /**
@@ -569,10 +629,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
          * @return
          */
         public void trigger() {
-            if(this.isFirst()) {
-                this.firstOfMs = System.currentTimeMillis();
-            }
-
+            this.firstOfMs = System.currentTimeMillis();
             this.times ++;
         }
     }

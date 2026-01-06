@@ -39,6 +39,17 @@
             <if test="entity.warnConfigName != null and entity.warnConfigName != ''">
                 and c.name like '%${entity.warnConfigName}%'
             </if>
+            <choose>
+                <when test="entity.startTimestamp != null and entity.endTimestamp != null">
+                    and UNIX_TIMESTAMP(a.warn_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
+                </when>
+                <when test="entity.startTimestamp != null">
+                    and UNIX_TIMESTAMP(a.warn_time) * 1000 >= #{entity.startTimestamp}
+                </when>
+                <when test="entity.endTimestamp != null">
+                    and #{entity.endTimestamp} >= UNIX_TIMESTAMP(a.warn_time) * 1000
+                </when>
+            </choose>
         </where>
         order by a.warn_time desc
     </select>

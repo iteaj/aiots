@@ -3,8 +3,10 @@ package com.iteaj.iboot.plugin.gbs.entity;
 import cn.hutool.core.bean.BeanUtil;
 import com.iteaj.iboot.plugin.gbs.rtvs.RtvsChannel;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain=true)
 public class GbsChannel {
     /**
      * 通道国标编号

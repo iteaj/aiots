@@ -6,11 +6,13 @@ import com.iteaj.framework.spi.file.LocalUploadService;
 import com.iteaj.framework.spi.file.UploadService;
 import com.iteaj.framework.spring.SpringUtils;
 import com.iteaj.framework.thread.IBootThreadManger;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.task.TaskExecutorBuilder;
 import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
@@ -54,21 +56,36 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
     }
 
     @Bean
-    public IBootThreadManger iBootThreadManger(FrameworkProperties properties
-            , ThreadPoolTaskExecutor taskExecutor, @Autowired(required = false) ThreadPoolTaskScheduler taskScheduler) {
+    public IBootThreadManger iBootThreadManger(FrameworkProperties properties, @Autowired(required = false) ThreadPoolTaskExecutor taskExecutor) {
+        ThreadPoolTaskExecutor collectExecutor;
+        ThreadPoolTaskScheduler collectScheduler;
         if(properties.getTask() != null) { // 单独配置了采集任务调度器
-            Integer poolSize = properties.getTask().getPoolSize();
-            TaskSchedulerBuilder builder = new TaskSchedulerBuilder(poolSize, false
-                    , null, properties.getTask().getThreadNamePrefix(), null);
-            taskScheduler = builder.build();
+            collectExecutor = new TaskExecutorBuilder()
+                    .awaitTermination(true)
+                    .corePoolSize(properties.getTask().getPoolSize())
+                    .maxPoolSize(properties.getTask().getMaxPoolSize())
+                    .threadNamePrefix(properties.getTask().getThreadNamePrefix()).build();
+        } else {
+            throw new BeanCreationException("未指定采集任务配置(framework.task.[poolSize, maxPoolSize])");
         }
 
-        return IBootThreadManger.build(taskScheduler, taskExecutor);
+        if(properties.getScheduling() != null) {
+            collectScheduler = new TaskSchedulerBuilder()
+                    .awaitTermination(false)
+                    .poolSize(properties.getScheduling().getPoolSize())
+                    .threadNamePrefix(properties.getScheduling().getThreadNamePrefix())
+                    .build();
+        } else {
+            throw new BeanCreationException("未指定采集任务调度配置(framework.scheduling.poolSize)");
+        }
+
+        taskExecutor = taskExecutor == null ? collectExecutor : taskExecutor;
+        return IBootThreadManger.build(collectScheduler, taskExecutor, collectExecutor);
     }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        event.getApplicationContext().getBeanFactory().getBeanProvider(ApplicationReadyListener.class)
+        event.getApplicationContext().getBeanProvider(ApplicationReadyListener.class)
                 .orderedStream().forEach(applicationReadyListener -> applicationReadyListener.started(event.getApplicationContext()));
     }
 }

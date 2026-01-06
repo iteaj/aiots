@@ -30,6 +30,11 @@
         update iot_model_api set as_status = false where product_id=#{productId} and func_type=#{funcType};
         update iot_model_api set as_status=true where product_id=#{productId} and func_type=#{funcType} and trigger_mode='passive' and code=#{code}
     </update>
+    <delete id="removeJoinByCode">
+        delete a, b from iot_model_api a
+            inner join iot_model_api_config b on a.code = b.api_code
+        where code=#{code};
+    </delete>
 
     <select id="listFuncByProductId" resultMap="DetailResultMap">
         select * from iot_model_api where product_id = #{productId} and type='func' order by create_time desc
@@ -90,5 +95,10 @@
         select count(a.id) > 0 from iot_model_api_config a
             inner join iot_model_attr ma on a.model_attr_id=ma.id and ma.ctrl_status=true
         where a.api_code=#{code} and a.product_id=#{productId} and a.direction='DOWN' limit 1
+    </select>
+    <select id="listByProductCode" resultMap="BaseResultMap">
+        select a.* from iot_model_api a
+            left join iot_product b on a.product_id=b.id
+        where b.code=#{productCode}
     </select>
 </mapper>

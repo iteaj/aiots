@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import com.iteaj.framework.spi.iot.data.ModelAttrDictMeta;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -17,7 +18,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @TableName("iot_model_attr_dict")
-public class ModelAttrDict extends BaseEntity {
+public class ModelAttrDict extends BaseEntity implements ModelAttrDictMeta {
 
     /**
      * 路径

@@ -5,6 +5,7 @@ import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.data.ModelAttrMetaService;
 import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
@@ -21,7 +22,7 @@ import java.util.List;
  * @author iteaj
  * @since 2023-09-12
  */
-public interface IModelAttrService extends IBaseService<ModelAttr> {
+public interface IModelAttrService extends IBaseService<ModelAttr>, ModelAttrMetaService {
 
     /**
      * 获取物模型属性详情(包含属性字典)
@@ -44,4 +45,6 @@ public interface IModelAttrService extends IBaseService<ModelAttr> {
      * @return
      */
     BooleanResult switchCtrlStatus(StatusSwitchDto<Boolean> dto);
+
+    List<ModelAttr> listDetailByProductCode(Serializable productCode);
 }

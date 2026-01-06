@@ -72,7 +72,7 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
             definition.addAnon(strings[0]);
         }
 
-        return definition.addAnon("/static/**");
+        return definition.addAnon("/").addAnon("/static/**");
     }
 
     @Bean
@@ -103,6 +103,7 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
                     .addResourceLocations(strings[1]);
         }
 
+        registry.addResourceHandler("/").addResourceLocations("classpath:/static/index.html");
         registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
     }
 

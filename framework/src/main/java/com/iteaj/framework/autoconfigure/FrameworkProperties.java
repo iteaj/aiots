@@ -38,7 +38,12 @@ public class FrameworkProperties {
     /**
      * 采集调度配置
      */
-    private CollectTask task;
+    private CollectTask task = new CollectTask();
+
+    /**
+     * 数据采集调度
+     */
+    private CollectScheduling scheduling = new CollectScheduling();
 
     /**
      * 启用的模块
@@ -143,11 +148,33 @@ public class FrameworkProperties {
         /**
          * 核心线程池大小
          */
-        private Integer poolSize;
+        private Integer poolSize = 8;
+
+        /**
+         * 最大线程池大小
+         */
+        private Integer maxPoolSize = 16;
 
         /**
          * 线程池前缀
          */
         private String threadNamePrefix = "ICT-";
+    }
+
+    /**
+     * 采集任务调度
+     */
+    @Getter
+    @Setter
+    public static class CollectScheduling {
+        /**
+         * 核心线程池大小
+         */
+        private Integer poolSize = 3;
+
+        /**
+         * 线程池前缀
+         */
+        private String threadNamePrefix = "ICS-";
     }
 }

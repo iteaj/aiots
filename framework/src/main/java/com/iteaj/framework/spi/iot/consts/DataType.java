@@ -3,6 +3,7 @@ package com.iteaj.framework.spi.iot.consts;
 public enum DataType {
 
     t_any("any", "any(任何)"), // 前端上行配置项可以编辑
+    t_bit("bit", "bit(按位)"), // 前端上行配置项可以编辑
     t_json("json", "json类型"), // 前端上行配置项可以编辑
     t_byte("byte", "byte(字节)"),
     t_short("short", "short(短整型)"),
@@ -15,7 +16,9 @@ public enum DataType {
     t_datetime("datetime", "datetime(完整时间)"),
     t_timestamp("timestamp", "timestamp(时间戳)"),
     t_string("string", "string(字符串)"),
+    t_group("group", "group(组)"),
     t_boolean("boolean", "boolean(布尔)"),
+    t_script("script", "script(脚本)"),
     ;
 
     private String value;
@@ -32,6 +35,7 @@ public enum DataType {
         }
 
         switch (dataType) {
+            case "bit": return t_bit;
             case "byte": return t_byte;
             case "short": return t_short;
             case "int": return t_int;
@@ -41,9 +45,27 @@ public enum DataType {
             case "date": return t_date;
             case "time": return t_time;
             case "timestamp": return t_timestamp;
+            case "group": return t_group;
             case "string": return t_string;
             case "boolean": return t_boolean;
+            case "script": return t_script;
             default: throw new IllegalArgumentException("未知的数据类型["+dataType+"]");
+        }
+    }
+
+    /**
+     * 是否为容器类型
+     * @param dataType 数据类型
+     * @return bool
+     */
+    public static boolean isContainer(String dataType) {
+        switch (dataType) {
+            case "bit":
+            case "json":
+            case "group":
+                return true;
+            default:
+                return false;
         }
     }
 

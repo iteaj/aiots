@@ -22,5 +22,9 @@
             <groupId>com.iteaj</groupId>
             <artifactId>iot-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-mqtt</artifactId>
+        </dependency>
     </dependencies>
 </project>

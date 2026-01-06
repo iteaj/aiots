@@ -1,6 +1,10 @@
 package com.iteaj.iboot.module.iot.collect;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.iteaj.framework.spi.iot.DataSupplier;
+import com.iteaj.framework.spi.iot.data.DataCollectPublishService;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 
@@ -8,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class CollectListenerManager {
+public class CollectListenerManager implements DataCollectPublishService {
 
     private List<CollectDataListener> listeners = new ArrayList<>();
     private List<SignalCollectListener> signalCollectListeners = new ArrayList<>();
@@ -118,5 +122,15 @@ public class CollectListenerManager {
 
     public static CollectListenerManager getInstance() {
         return instance;
+    }
+
+    @Override
+    public void publish(DataSupplier supplier, RealtimeDeviceStatus device) {
+        this.modelAttrPublish(item -> item.supplier(supplier, (RealtimeStatus) device));
+    }
+
+    @Override
+    public void publish(DataSupplier supplier, RealtimeDeviceStatus device, String type) {
+        this.modelAttrPublish(item -> item.supplier(supplier, (RealtimeStatus) device, type));
     }
 }

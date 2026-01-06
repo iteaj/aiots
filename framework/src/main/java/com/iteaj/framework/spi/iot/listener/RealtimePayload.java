@@ -17,10 +17,13 @@ public class RealtimePayload extends EntityPayload<Collection> {
      * warn 实时告警
      * status 实时设备在线状态
      * data 实时采集的数据
-     * data_full 完整的采集数据
+     * data_cmd 指令采集的数据
      * data_active 设备主动上报
      */
     private String type;
+
+    public final static String TYPE_DATA_CMD = "data_cmd";
+    public final static String TYPE_DATA_ACTIVE = "data_active";
 
     public RealtimePayload(String type, String uid, Collection values) {
         super(values);
@@ -40,8 +43,12 @@ public class RealtimePayload extends EntityPayload<Collection> {
         return Objects.equals(getType(), "status");
     }
 
+    public boolean isDataCmd() {
+        return Objects.equals(getType(), "data_cmd");
+    }
+
     public boolean isDataFull() {
-        return Objects.equals(getType(), "data_full");
+        return isData();
     }
 
     public boolean isDataActive() {

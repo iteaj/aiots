@@ -60,25 +60,45 @@ public class Dlt645DtuMessageBody implements Message.MessageBody {
         return this;
     }
 
+
     /**
      * 电表清零
      * @see Dlt645ProtocolType#rem
      * @return
      */
-    public Dlt645DtuMessageBody rem() {
+    public Dlt645DtuMessageBody rem(String perm, String code, String pwd) {
+        String strMsg = "08" + perm + Dlt645Util.reverse(pwd) + Dlt645Util.reverse(code) + suffix;
+        this.message = ByteUtil.hexToByte(strMsg);
+        return this;
+    }
 
+    /**
+     * 事件清零
+     * @param perm
+     * @param code
+     * @param pwd
+     * @param type 总事件清零 FFFFFFFF  分项事件清零 FFXXXXXX
+     * @return
+     */
+    public Dlt645DtuMessageBody rec(String perm, String code, String pwd, String type) {
+        String strMsg = "0C" + perm + Dlt645Util.reverse(pwd) + Dlt645Util.reverse(code) + Dlt645Util.reverse(type) + suffix;
+        this.message = ByteUtil.hexToByte(strMsg);
         return this;
     }
 
     /**
      * 最大需量清零
+     * @param code 8位操作者代码
+     * @param perm 权限
+     * @param pwd 6位密码
      * @see Dlt645ProtocolType#rmd
      * @return
      */
-    public Dlt645DtuMessageBody rmd() {
+    public Dlt645DtuMessageBody rmd(String perm, String code, String pwd) {
+        String strMsg = "08" + perm + Dlt645Util.reverse(pwd) + Dlt645Util.reverse(code) + suffix;
+        this.message = ByteUtil.hexToByte(strMsg);
         return this;
     }
-
 
     /**
      * 广播校时
@@ -164,10 +184,31 @@ public class Dlt645DtuMessageBody implements Message.MessageBody {
         return this;
     }
 
+    /**
+     * @param data 数据标识
+     * @param value 要写的数据
+     * @param code 操作者代码
+     * @param perm 权限 (98[密文+mac], 99[明文+mac])
+     * @param pwd 密码
+     * @return
+     */
+    public Dlt645DtuMessageBody write(String data, String value, String code, String perm, String pwd) {
+        int valueLength = value.length() % 2 == 0 ? value.length() / 2 : (value.length() / 2 + 1);
+        final int length = 12 + valueLength;
+        this.message = new byte[length + 3];
+        this.message[0] = (byte) (length);
+        String dataValue = Dlt645Util.reverse(data) + perm + Dlt645Util.reverse(pwd) + Dlt645Util.reverse(code) + Dlt645Util.reverse(value);
+        byte[] bytes = ByteUtil.hexToByte(dataValue);
+        for (int i = 0; i < bytes.length; i++) {
+            message[i + 1] = (byte) (bytes[i] + 0x33);
+        }
+
+        message[length + 2] = 0x16;
+        return this;
+    }
 
     @Override
     public byte[] getMessage() {
         return this.message;
     }
-
 }

@@ -58,10 +58,4 @@ public class DictDataServiceImpl extends BaseServiceImpl<IDictDataDao, DictData>
         return this.remove(Wrappers.<DictData>lambdaQuery().eq(DictData::getType, type));
     }
 
-    @Override
-    @Cacheable(key = "'list'")
-    public ListResult<DictData> list() {
-        return super.list();
-    }
-
 }

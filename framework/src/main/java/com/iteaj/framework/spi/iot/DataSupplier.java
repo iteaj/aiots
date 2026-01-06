@@ -35,15 +35,11 @@ public class DataSupplier {
 
     public DataSupplier(String protocolCode, DeviceKey key) {
         this.key = key;
-        this.collectTime = new Date();
+        this.values = new ArrayList<>();
         this.protocolCode = protocolCode;
     }
 
     public DataSupplier addValue(SignalOrFieldValue value) {
-        if(values == null) {
-            values = new ArrayList<>();
-        }
-
         values.add(value); return this;
     }
 
@@ -66,7 +62,11 @@ public class DataSupplier {
     public DataSupplier build(Date collectTime) {
         this.collectTime = collectTime;
         if(CollectionUtil.isNotEmpty(this.getValues())) {
-            this.getValues().forEach(item -> item.setCollectTime(collectTime));
+            this.getValues().forEach(item -> {
+                if(item.getCollectTime() == null) {
+                    item.setCollectTime(collectTime);
+                }
+            });
         }
 
         return this;

@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.dto;
 
 import com.alibaba.fastjson2.JSONArray;
+import com.iteaj.iboot.module.iot.consts.EventSourceType;
 import com.iteaj.iboot.module.iot.entity.Linkage;
 import lombok.Data;
 
@@ -28,4 +29,9 @@ public class LinkageDto extends Linkage {
      * 产品名称列表
      */
     private List<String> productNames;
+
+    /**
+     * 事件源类型
+     */
+    private EventSourceType eventSourceType;
 }

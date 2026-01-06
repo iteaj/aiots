@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
+import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -73,6 +74,13 @@ public class ProtocolApi extends BaseEntity {
      * 所属协议
      */
     private String protocolCode;
+
+    /**
+     * 是否归属于原协议
+     * @see AbstractProtocolModelApi#asProtocol()
+     */
+    @TableField(exist = false)
+    private boolean protocol;
 
     /**
      * 接口上行配置列表

@@ -145,6 +145,16 @@
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>protocol-iec104</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>protocol-hj212</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
             <artifactId>iboot-le5le</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -235,6 +245,21 @@
         <dependency>
             <groupId>com.iteaj</groupId>
             <artifactId>iboot-script</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-iotview</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>edge-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>edge-server</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

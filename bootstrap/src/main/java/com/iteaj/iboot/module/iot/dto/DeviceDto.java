@@ -68,6 +68,11 @@ public class DeviceDto extends Device {
     private String[] protocolCodes;
 
     /**
+     * 设备类型
+     */
+    private DeviceType[] deviceTypes;
+
+    /**
      * 协议类型
      */
     private TransportProtocol protocol;

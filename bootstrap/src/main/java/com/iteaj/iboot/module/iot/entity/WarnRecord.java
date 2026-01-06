@@ -93,6 +93,12 @@ public class WarnRecord extends BaseEntity implements WarnData {
     @TableField(exist = false)
     private String deviceName;
 
+    @TableField(exist = false)
+    private Long startTimestamp;
+
+    @TableField(exist = false)
+    private Long endTimestamp;
+
     public WarnRecord() { }
 
     public WarnRecord(String uid) {
@@ -109,6 +115,6 @@ public class WarnRecord extends BaseEntity implements WarnData {
 
     @Override
     public String getProductCode() {
-        return null;
+        return productCode;
     }
 }

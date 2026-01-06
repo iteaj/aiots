@@ -158,7 +158,7 @@
     </select>
     <select id="listCtrlStatusModelAttrs" resultMap="JoinAttrMap">
         select a.* from iot_product a
-#             left join iot_model_api ma on a.id=ma.product_id and ma.as_status = true and ma.func_type='W'
+            left join iot_model_api ma on a.id=ma.product_id and ma.as_status = true and ma.func_type='W'
         where a.id in (<foreach collection="list" item="id" separator=",">
         #{id}
     </foreach>)
@@ -203,6 +203,23 @@
                 left join iot_product p on a.type = p.device_type
                 left join iot_device d on p.id = d.product_id
         group by a.type;
+    </select>
+    <select id="listBatchModel" resultType="com.iteaj.iboot.module.iot.dto.BatchModelDto">
+        select a.*, b.direct, b.name apiName, b.code apiCode, group_concat(concat(cc.protocol_attr_field, '->', cc.value) separator ':::') apiDownConfig from iot_model_attr a
+            left join iot_product p on a.product_id = p.id
+            left join iot_model_api_config c on a.product_id = c.product_id and a.id = c.model_attr_id and c.direction='UP'
+            left join iot_model_api_config cc on cc.api_code = c.api_code and cc.id != c.id
+            left join iot_model_api b on cc.api_code = b.code and b.type = 'event'
+        <where>
+            p.code=#{productCode}
+            <if test="name != null and name != ''">
+                and a.name like '%${name}%'
+            </if>
+            <if test="field != null and field != ''">
+                and a.field like '%${field}%'
+            </if>
+        </where>
+        group by a.id order by a.create_time desc
     </select>
 
     <delete id="removeModel">

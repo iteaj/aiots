@@ -5,6 +5,7 @@ import com.iteaj.framework.IVOption;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.iboot.module.iot.consts.WarnGrade;
+import com.iteaj.iboot.module.iot.entity.Device;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +18,7 @@ public class PanelsDetailDto {
     /**
      * 设备信息
      */
-    private DeviceDto device;
+    private Device device;
 
     /**
      * 产品信息
@@ -44,12 +45,12 @@ public class PanelsDetailDto {
      */
     private Map<String, List<IVOption>> apiCodeDebugMap;
 
-    public PanelsDetailDto addAttr(String field, String name, String unit, AttrType type) {
-        return addAttr(field, name, unit, type, null, null, CollectStatus.Success);
+    public PanelsDetailDto addAttr(Long id, String field, String name, String unit, AttrType type) {
+        return addAttr(id, field, name, unit, type, null, null, null);
     }
 
-    public PanelsDetailDto addAttr(String field, String name, String unit, AttrType type, Object value, Date collectTime, CollectStatus status) {
-        attrs.add(new ModelAttr(field, name, unit, value, type, collectTime, status));
+    public PanelsDetailDto addAttr(Long id, String field, String name, String unit, AttrType type, Object value, Date collectTime, CollectStatus status) {
+        attrs.add(new ModelAttr(id, field, name, unit, value, type, collectTime, status));
         return this;
     }
 
@@ -61,8 +62,8 @@ public class PanelsDetailDto {
         this.signals.add(new Signal(name, value, address, collectTime, status)); return this;
     }
 
-    public PanelsDetailDto addWarn(String name, WarnGrade grade, String content, Date warnTime) {
-        this.warns.add(new Warn(name, grade.getDesc(), content, warnTime)); return this;
+    public PanelsDetailDto addWarn(String field, String name, WarnGrade grade, String content, Date warnTime) {
+        this.warns.add(new Warn(field, name, grade.getDesc(), content, warnTime)); return this;
     }
 
     @Getter
@@ -99,7 +100,9 @@ public class PanelsDetailDto {
 
     @Getter
     @Setter
-    public class ModelAttr {
+    public static class ModelAttr {
+
+        private final Long id;
 
         /**
          * 属性代码
@@ -129,13 +132,14 @@ public class PanelsDetailDto {
         /**
          * 采集时间
          */
-        @JSONField(format = "MM-dd HH:mm:ss")
+        @JSONField(format = "yyyy-MM-dd HH:mm:ss")
         private Date collectTime;
 
         private CollectStatus status;
 
-        public ModelAttr(String field, String name, String unit, Object value
+        public ModelAttr(Long id, String field, String name, String unit, Object value
                 , AttrType attrType, Date collectTime, CollectStatus status) {
+            this.id = id;
             this.field = field;
             this.name = name;
             this.unit = unit;
@@ -143,6 +147,10 @@ public class PanelsDetailDto {
             this.status = status;
             this.attrType = attrType;
             this.collectTime = collectTime;
+        }
+
+        public String collectStatus() {
+            return status == null ? "无" : status.getReason();
         }
     }
 
@@ -173,11 +181,17 @@ public class PanelsDetailDto {
          */
         private String content;
 
+        /**
+         *告警字段
+         */
+        private String field;
+
         @JSONField(format = "yy-MM-dd HH:mm:ss")
         private Date warnTime;
 
-        public Warn(String name, String grade, String content, Date warnTime) {
+        public Warn(String field, String name, String grade, String content, Date warnTime) {
             this.name = name;
+            this.field = field;
             this.grade = grade;
             this.content = content;
             this.warnTime = warnTime;

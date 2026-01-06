@@ -11,11 +11,13 @@ import com.iteaj.framework.script.FunctionScript;
 import com.iteaj.framework.script.ScriptConfigService;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
-import com.iteaj.framework.spi.iot.DataValueResolverFactory;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.BatchModelDto;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandViewDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -69,7 +71,9 @@ public class ProductController extends BaseController {
      */
     @GetMapping("/list")
     public Result<List<IVOption>> list(Product entity) {
-        List<IVOption> options = this.productService.list(entity).stream()
+        List<IVOption> options = this.productService.list(Wrappers.lambdaQuery(entity)
+                        .in(entity.getDeviceTypes() != null, Product::getDeviceType, entity.getDeviceTypes()))
+                .stream()
                 .map(item -> new IVOption(item.getName(), item.getId()))
                 .collect(Collectors.toList());
         return success(options);
@@ -89,6 +93,15 @@ public class ProductController extends BaseController {
         product.setDeviceType(deviceType);
         product.setProductTypeId(productTypeId);
         return this.productService.listOfDetail(product);
+    }
+
+    /**
+     * 获取非网关设备类型下面的产品列表
+     * @return
+     */
+    @GetMapping("/listByNonGateway")
+    public Result<List<Product>> listByNonGateway() {
+        return this.productService.list(Wrappers.<Product>lambdaQuery().ne(Product::getDeviceType, DeviceType.Gateway));
     }
 
     /**
@@ -176,7 +189,36 @@ public class ProductController extends BaseController {
     }
 
     /**
-     * 脚本列表
+     * 批量模型属性
+     * @param entity
+     * @return
+     */
+    @GetMapping("listBatchModel")
+    public Result<List<BatchModelDto>> listBatchModel(BatchModelDto entity) {
+        return this.productService.listBatchModel(entity);
+    }
+
+    /**
+     * 新增或者更新批量模型记录
+     * @param entity
+     * @return
+     */
+    @PostMapping("batchModelSaveOrUpdate")
+    public Result<Boolean> batchModelSaveOrUpdate(@RequestBody BatchModelDto entity) {
+        return this.productService.batchModelSaveOrUpdate(entity);
+    }
+
+    /**
+     * 删除批量模型记录
+     * @param entity id和apiCode必填
+     * @return
+     */
+    @PostMapping("batchModelDel")
+    public Result<Boolean> batchModelDel(@RequestBody BatchModelDto entity) {
+        return this.productService.delBatchModel(entity.getId(), entity.getApiCode());
+    }
+    /**
+     * 新增或者更新批量模型记录
      * @return
      */
     @GetMapping("scripts")
@@ -216,6 +258,34 @@ public class ProductController extends BaseController {
                             .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
                 }
             });
+
+        return success(result);
+    }
+    /**
+     * 指令集列表(大屏专用)
+     * @param productCode
+     * @return
+     */
+    @GetMapping("commands/view")
+    public Result<List<DeviceCommandViewDto>> commands(String productCode) {
+        List<DeviceCommandViewDto> result = new ArrayList<>();
+        productService.getByCode(productCode).ifNotPresentThrow("产品不存在").ifPresent(product -> {
+            productService.joinDetailById(product.getId())
+                .ifPresent(productDto -> {
+                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                        productDto.getFuncApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.add(api.resolverCommandOfView(productDto.getAttrs())));
+                    }
+
+                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                        productDto.getEventApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.add(api.resolverCommandOfView(productDto.getAttrs())));
+                    }
+                });
+        });
+
 
         return success(result);
     }

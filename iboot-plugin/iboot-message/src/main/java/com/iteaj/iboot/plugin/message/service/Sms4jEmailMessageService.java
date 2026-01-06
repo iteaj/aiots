@@ -29,7 +29,7 @@ public class Sms4jEmailMessageService extends EmailMessageService {
         MailMessage mailMessage = MailMessage.Builder()
                 .mailAddress(model.getAccept())
                 .title(model.getTitle())
-                .htmlContent(model.getContent().toString())
+                .body(model.getContent().toString())
                 .build();
         client.send(mailMessage);
         return Optional.of(client);

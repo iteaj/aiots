@@ -10,16 +10,14 @@ import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.consts.CollectSearchType;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.*;
+import com.iteaj.framework.spi.iot.view.chart.ChartSqlCondition;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.mapper.CollectDataMapper;
 import com.iteaj.iboot.module.iot.service.ICollectDataService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -90,6 +88,20 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
         }
 
         return values;
+    }
+
+    @Override
+    public PageResult productOfPage(Page page, RealtimeCollectData entity) {
+        return new PageResult(this.getBaseMapper().productOfPage(page, entity));
+    }
+
+    @Override
+    public List<BaseEchartsCount> countOfView(ChartSqlCondition condition) {
+        if(Objects.equals("time", condition.getCategory())) {
+            return this.getBaseMapper().countOfViewByTime(condition);
+        } else { // 按范围
+            return this.getBaseMapper().countOfViewByRange(condition);
+        }
     }
 
     @Override

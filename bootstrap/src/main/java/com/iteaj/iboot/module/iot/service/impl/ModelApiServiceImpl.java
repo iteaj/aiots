@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
@@ -79,6 +80,8 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         if(StrUtil.isBlank(config.getProtocolAttrField())) {
             throw new ServiceException("协议属性[protocolAttrField]不能为空");
         }
+
+        config.setProductId(entity.getProductId());
 
         // 如果是点位协议, 同一款产品下面上/下行的点位地址必须唯一
         if(config.getProtocolAttrField().equals(PointProtocolConfig.POINT_ADDRESS)) {
@@ -232,4 +235,22 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
 
         return new DetailResult<>(modelApi);
     }
+
+    @Override
+    public void removeJoinByCode(String code) {
+        if(StrUtil.isNotBlank(code)) {
+            this.getBaseMapper().removeJoinByCode(code);
+            cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API).evict(code);
+        }
+    }
+
+    @Override
+    public void cleanCache(String productCode) {
+        List<ModelApi> list = this.getBaseMapper().listByProductCode(productCode);
+        if(CollectionUtil.isNotEmpty(list)) {
+            Cache cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API);
+            list.forEach(item -> cache.evict(item.getCode()));
+        }
+    }
+
 }

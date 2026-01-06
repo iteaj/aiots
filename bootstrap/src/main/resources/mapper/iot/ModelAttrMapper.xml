@@ -53,6 +53,13 @@
         select * from iot_model_attr where product_id=#{productId}
     </select>
 
+    <select id="listDetailByProductCode" resultMap="DetailResultMap">
+        select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path from iot_model_attr a
+            left join iot_product p on a.product_id = p.id
+            left join iot_model_attr_dict d on a.id = d.model_attr_id
+        where p.code=#{productCode} order by d.id
+    </select>
+
     <select id="listDetailByProductId" resultMap="DetailResultMap">
         select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path from iot_model_attr a
             left join iot_model_attr_dict d on a.id = d.model_attr_id
@@ -69,7 +76,7 @@
     <select id="listDetailDict" resultType="com.iteaj.iboot.module.iot.entity.ModelAttrDict">
         select a.*, jma.data_type dataType, jma.field attrField from iot_model_attr_dict a
             left join iot_model_attr ma on ma.id=a.model_attr_id
-            left join iot_model_attr jma on jma.id=a.dict_value and ma.data_type='json'
+            left join iot_model_attr jma on jma.id=a.dict_value and (ma.data_type='json' or ma.data_type = 'bit' or ma.data_type = 'group')
         where a.model_attr_id=#{modelAttrId}
         <if test="dictName != null">and a.dict_name like '%${dictName}%'</if>
     </select>

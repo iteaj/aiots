@@ -3,6 +3,7 @@ package com.iteaj.framework.spi.iot.listener;
 public enum IotEventType {
 
     Realtime("实时信息"),
+    CmdInvoke("指令调用"),
     ScriptInvoke("脚本调用"),
     DeviceStatus("设备状态切换"),
     GatewaySwitch("网关状态切换"),

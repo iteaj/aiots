@@ -1,19 +1,10 @@
 package com.iteaj.framework.spi.iot;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BatchOfPoint {
-
-    /**
-     * 属性id
-     */
-    private Long attrId;
-
-    /**
-     * 属性字段
-     */
-    private String attrField;
 
     /**
      * 指令
@@ -31,15 +22,19 @@ public class BatchOfPoint {
     private UpModelAttr modelAttr;
 
     /**
+     * 位模型属性配置
+     * @see UpModelAttr#isBit()
+     */
+    private List<UpModelAttr> bitAttrs;
+
+    /**
      * 下行配置
      */
     private Map<String, String> downConfig = new HashMap<>();
 
     public BatchOfPoint() { }
 
-    public BatchOfPoint(Long attrId, String attrField, String direct, String address) {
-        this.attrId = attrId;
-        this.attrField = attrField;
+    public BatchOfPoint(String direct, String address) {
         this.direct = direct;
         this.address = address;
     }
@@ -61,19 +56,15 @@ public class BatchOfPoint {
     }
 
     public Long getAttrId() {
-        return attrId;
-    }
-
-    public void setAttrId(Long attrId) {
-        this.attrId = attrId;
+        return this.modelAttr.getId();
     }
 
     public String getAttrField() {
-        return attrField;
+        return this.modelAttr.getField();
     }
 
-    public void setAttrField(String attrField) {
-        this.attrField = attrField;
+    public String getAttrName() {
+        return this.modelAttr.getName();
     }
 
     public String getDownConfig(String key) {
@@ -91,5 +82,13 @@ public class BatchOfPoint {
 
     public void setModelAttr(UpModelAttr modelAttr) {
         this.modelAttr = modelAttr;
+    }
+
+    public List<UpModelAttr> getBitAttrs() {
+        return bitAttrs;
+    }
+
+    public BatchOfPoint setBitAttrs(List<UpModelAttr> bitAttrs) {
+        this.bitAttrs = bitAttrs; return this;
     }
 }

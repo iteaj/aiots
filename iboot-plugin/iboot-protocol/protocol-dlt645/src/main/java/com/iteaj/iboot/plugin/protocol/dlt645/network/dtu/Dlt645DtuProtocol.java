@@ -13,7 +13,9 @@ import java.io.IOException;
 public class Dlt645DtuProtocol extends ServerInitiativeSyncProtocol<Dlt645DtuMessage> implements Dlt645Protocol {
 
     private Object value;
-    private final Dlt645ProtocolType protocolType;
+    private Dlt645ProtocolType protocolType;
+
+    public Dlt645DtuProtocol() { }
 
     public Dlt645DtuProtocol(Dlt645ProtocolType protocolType, Dlt645DtuMessage dlt645DtuMessage) {
         this.protocolType = protocolType;
@@ -49,6 +51,12 @@ public class Dlt645DtuProtocol extends ServerInitiativeSyncProtocol<Dlt645DtuMes
 
     public Object getValue() {
         return value;
+    }
+
+    @Override
+    public Dlt645DtuProtocol setProtocolType(Dlt645ProtocolType type) {
+        this.protocolType = type;
+        return this;
     }
 
     @Override

@@ -56,7 +56,7 @@ public abstract class Dlt645ProtocolFuncModelApi extends AbstractFuncProtocolMod
             return dlt645Protocol.rtsBuild(deviceSn, timeValue).build(prefix);
         } else if(type == Dlt645ProtocolType.writeMAReq) { // 写电表地址
             String newAddress = arg.getString("deviceSn"); //新的电表地址
-            return dlt645Protocol.writeMABuild(deviceSn, address, newAddress);
+            return dlt645Protocol.writeMABuild(deviceSn, address, newAddress).build(prefix);
         } else if(type == Dlt645ProtocolType.fCmd || type == Dlt645ProtocolType.ffCmd) { // 冻结命令
             Date timeValue;
             String time = arg.getString("time");
@@ -76,7 +76,10 @@ public abstract class Dlt645ProtocolFuncModelApi extends AbstractFuncProtocolMod
             String rate = arg.getString("rate");
             return dlt645Protocol.mcrBuild(deviceSn, address, rate).build(prefix);
         } else if(type == Dlt645ProtocolType.ctrl) {
-            String perm = "04"; //arg.getString("perm");
+            String perm = arg.getString("perm");
+            if(StrUtil.isBlank(perm)) {
+                throw new ProtocolInvokeException("认证密级未指定");
+            }
             String pwd = arg.getString("pwd");
             if(StrUtil.isBlank(pwd)) {
                 throw new ProtocolInvokeException("密码未指定");

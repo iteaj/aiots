@@ -12,6 +12,8 @@ public interface Dlt645Protocol extends Protocol {
 
     ExecStatus getExecStatus();
 
+    Dlt645Protocol setProtocolType(Dlt645ProtocolType type);
+
     default Dlt645Protocol readBuild(String deviceSn, String address, String data) {
         return readBuild(deviceSn, address, data, null);
     }
@@ -37,19 +39,88 @@ public interface Dlt645Protocol extends Protocol {
         return this;
     }
 
+    /**
+     * 写数据
+     * @param deviceSn 设备编号
+     * @param address 电表号
+     * @param data 数据标识
+     * @param value 要写的数据
+     * @param code 操作者代码
+     * @param perm 权限 (98[密文+mac], 99[明文+mac])
+     * @param pwd 密码
+     * @return
+     */
+    default Dlt645Protocol writeBuild(String deviceSn, String address, String data, String value, String code, String perm, String pwd) {
+        Dlt645DtuMessageBody dlt645DtuMessageBody = new Dlt645DtuMessageBody().write(data, value, code, perm, pwd);
+        Dlt645MessageHead dlt645MessageHead = new Dlt645MessageHead(deviceSn, address, Dlt645ProtocolType.writeReq);
+        buildDlt645RequestMessage(dlt645MessageHead, dlt645DtuMessageBody);
+        return this.build(4);
+    }
 
-//    default Dlt645Protocol writeBuild(String deviceSn, String address) {
-//        Dlt645DtuMessageBody dlt645DtuMessageBody = new Dlt645DtuMessageBody();
-//        Dlt645MessageHead dlt645MessageHead = new Dlt645MessageHead(deviceSn, address, Dlt645ProtocolType.writeReq);
-//        buildDlt645RequestMessage(dlt645MessageHead, dlt645DtuMessageBody);
-//        return this;
-//    }
-
-    default Dlt645Protocol remBuild(String deviceSn, String address) {
-        Dlt645DtuMessageBody dlt645DtuMessageBody = new Dlt645DtuMessageBody().rem();
+    /**
+     * 电表清零
+     * @param deviceSn
+     * @param address
+     * @param pwd 6位密码
+     * @param perm 权限
+     * @param code 8位操作者代码
+     * @return
+     */
+    default Dlt645Protocol remBuild(String deviceSn, String address, String perm, String pwd, String code) {
+        Dlt645DtuMessageBody dlt645DtuMessageBody = new Dlt645DtuMessageBody().rem(perm, code, pwd);
         Dlt645MessageHead dlt645MessageHead = new Dlt645MessageHead(deviceSn, address, Dlt645ProtocolType.rem);
         buildDlt645RequestMessage(dlt645MessageHead, dlt645DtuMessageBody);
-        return this;
+        return this.build(4);
+    }
+
+
+    /**
+     * 总事件清零
+     * @param deviceSn
+     * @param address
+     * @param pwd 6位密码
+     * @param perm 权限
+     * @param code 8位操作者代码
+     * @return
+     */
+    default Dlt645Protocol recTotalBuild(String deviceSn, String address, String perm, String pwd, String code) {
+        Dlt645DtuMessageBody dlt645DtuMessageBody = new Dlt645DtuMessageBody().rec(perm, code, pwd, "FFFFFFFF");
+        Dlt645MessageHead dlt645MessageHead = new Dlt645MessageHead(deviceSn, address, Dlt645ProtocolType.rec);
+        buildDlt645RequestMessage(dlt645MessageHead, dlt645DtuMessageBody);
+        return this.build(4);
+    }
+
+    /**
+     * 分事件清零
+     * @param deviceSn
+     * @param address
+     * @param pwd 6位密码
+     * @param perm 权限
+     * @param code 8位操作者代码
+     * @param item 需以FF开头 格式FFxxxxxx
+     * @return
+     */
+    default Dlt645Protocol recItemBuild(String deviceSn, String address, String perm, String pwd, String code, String item) {
+        Dlt645DtuMessageBody dlt645DtuMessageBody = new Dlt645DtuMessageBody().rec(perm, code, pwd, item);
+        Dlt645MessageHead dlt645MessageHead = new Dlt645MessageHead(deviceSn, address, Dlt645ProtocolType.rec);
+        buildDlt645RequestMessage(dlt645MessageHead, dlt645DtuMessageBody);
+        return this.build(4);
+    }
+
+    /**
+     * 最大需量清零
+     * @param deviceSn
+     * @param address
+     * @param pwd 6位密码
+     * @param perm 权限
+     * @param code 8位操作者代码
+     * @return
+     */
+    default Dlt645Protocol rmdBuild(String deviceSn, String address, String perm, String pwd, String code) {
+        Dlt645DtuMessageBody dlt645DtuMessageBody = new Dlt645DtuMessageBody().rmd(perm, code, pwd);
+        Dlt645MessageHead dlt645MessageHead = new Dlt645MessageHead(deviceSn, address, Dlt645ProtocolType.rmd);
+        buildDlt645RequestMessage(dlt645MessageHead, dlt645DtuMessageBody);
+        return this.build(4);
     }
 
     /**
@@ -146,11 +217,12 @@ public interface Dlt645Protocol extends Protocol {
      * @return
      */
     default Dlt645Protocol build(Integer prefix) {
+        final Message requestMessage = requestMessage();
+        final Dlt645MessageHead head = (Dlt645MessageHead) requestMessage.getHead();
         if(prefix != null && (prefix > 0 && prefix <= 4)) {
-            final Message requestMessage = requestMessage();
-            final Dlt645MessageHead head = (Dlt645MessageHead) requestMessage.getHead();
             head.setPrefix(prefix);
         }
-        return this;
+
+        return this.setProtocolType(head.getType());
     }
 }

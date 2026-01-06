@@ -1,8 +1,11 @@
 package com.iteaj.framework.spi.iot;
 
 import com.iteaj.framework.spi.iot.consts.DataType;
+import com.iteaj.framework.spi.iot.data.ModelAttrDictMeta;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * 上行模型属性
@@ -53,6 +56,13 @@ public class UpModelAttr {
      */
     private String path;
 
+    /**
+     * 位属性
+     */
+    private boolean bit;
+
+    private List<? extends ModelAttrDictMeta> dictMetas;
+
     public UpModelAttr(Long id, String field, String name, DataType dataType
             , Integer accuracy, Integer gain, String resolver, String script, String path) {
         this.id = id;
@@ -64,5 +74,13 @@ public class UpModelAttr {
         this.resolver = resolver;
         this.accuracy = accuracy;
         this.dataType = dataType;
+    }
+
+    public UpModelAttr buildBit() {
+        this.bit = true; return this;
+    }
+
+    public UpModelAttr buildDict(List<? extends ModelAttrDictMeta> dictMetas) {
+        this.dictMetas = dictMetas; return this;
     }
 }

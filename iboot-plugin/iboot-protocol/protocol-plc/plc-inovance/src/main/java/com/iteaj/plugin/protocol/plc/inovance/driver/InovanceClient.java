@@ -15,6 +15,6 @@ public class InovanceClient extends PlcClientAdapter {
     @Override
     protected NetworkDoubleBase doInit(PlcConnectProperties config) {
         InovanceConnectProperties properties = (InovanceConnectProperties) config;
-        return new InovanceTcpNet(config.getHost(), config.getPort(), properties.getStation());
+        return new InovanceTcpNet(properties.getSeries(), config.getHost(), config.getPort(), properties.getStation());
     }
 }

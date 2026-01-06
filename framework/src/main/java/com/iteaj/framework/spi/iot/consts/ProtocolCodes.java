@@ -10,8 +10,11 @@ public enum ProtocolCodes {
     DTU_DLT645("DTU:DLT645"),
     SERIAL_DLT645("SERIAL:DLT645"),
 
+    DTU_PRIVATE("DTU:PRIVATE"),
+
     DTU_MODBUS_RTU("DTU:MODBUS_RTU"),
     DTU_MODBUS_TCP("DTU:MODBUS_TCP"),
+    DTU_MODBUS_OVER_MQTT("DTU:MODBUS_OVER_MQTT"),
 
     PLC_MELSEC("PLC_MELSEC"),
     PLC_OMRON_TCP("PLC_OMRON_TCP"),
@@ -41,5 +44,14 @@ public enum ProtocolCodes {
      */
     public static boolean isModbus(String protocolCode) {
         return protocolCode.contains("MODBUS");
+    }
+
+    /**
+     * 是否是plc协议
+     * @param protocolCode 协议码
+     * @return true or false
+     */
+    public static boolean isPLC(String protocolCode) {
+        return protocolCode.contains("PLC");
     }
 }

@@ -18,11 +18,13 @@ public class IBootThreadManger implements DisposableBean, InitializingBean {
     private static IBootThreadManger instance;
     private final ThreadPoolTaskScheduler scheduler;
     private final ThreadPoolTaskExecutor taskExecutor;
+    private final ThreadPoolTaskExecutor collectExecutor;
     private ScheduledExecutorService deviceStatusScheduler;
 
-    protected IBootThreadManger(ThreadPoolTaskScheduler scheduler, ThreadPoolTaskExecutor taskExecutor) {
+    protected IBootThreadManger(ThreadPoolTaskScheduler scheduler, ThreadPoolTaskExecutor taskExecutor, ThreadPoolTaskExecutor collectExecutor) {
         this.scheduler = scheduler;
         this.taskExecutor = taskExecutor;
+        this.collectExecutor = collectExecutor;
     }
 
     public static IBootThreadManger getInstance() {
@@ -33,9 +35,10 @@ public class IBootThreadManger implements DisposableBean, InitializingBean {
         return instance;
     }
 
-    public static IBootThreadManger build(ThreadPoolTaskScheduler scheduler, ThreadPoolTaskExecutor taskExecutor) {
+    public static IBootThreadManger build(ThreadPoolTaskScheduler scheduler
+            , ThreadPoolTaskExecutor taskExecutor, ThreadPoolTaskExecutor collectExecutor) {
         if(instance == null) {
-            instance = new IBootThreadManger(scheduler, taskExecutor);
+            instance = new IBootThreadManger(scheduler, taskExecutor, collectExecutor);
         }
 
         return instance;
@@ -44,6 +47,7 @@ public class IBootThreadManger implements DisposableBean, InitializingBean {
     @Override
     public void destroy() throws Exception {
         scheduler.destroy();
+        collectExecutor.destroy();
         if(deviceStatusScheduler != null && !deviceStatusScheduler.isShutdown()) {
             deviceStatusScheduler.shutdownNow();
         }
@@ -52,6 +56,7 @@ public class IBootThreadManger implements DisposableBean, InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         scheduler.initialize();
+        collectExecutor.initialize();
         DefaultThreadFactory factory = new DefaultThreadFactory("IDS-");
         deviceStatusScheduler = Executors.newScheduledThreadPool(2, factory);
     }

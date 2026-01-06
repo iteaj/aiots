@@ -18,6 +18,7 @@ import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.event.CombinedEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -27,13 +28,12 @@ import java.util.Date;
  * 设备上下线状态事件监听
  */
 @Component
-public class DeviceStatusListener implements CombinedEventListener, ApplicationReadyListener, IotListener<RealtimeStatus> {
+public class DeviceStatusListener implements CombinedEventListener, InitializingBean, IotListener<RealtimeStatus> {
 
     private final IotCacheManager cacheManager;
     private final IDeviceService deviceService;
     private final FrameworkProperties properties;
     private final IBootThreadManger bootThreadManger;
-    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public DeviceStatusListener(IotCacheManager cacheManager, IDeviceService deviceService
             , FrameworkProperties properties, IBootThreadManger bootThreadManger) {
@@ -45,46 +45,45 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
 
     @Override
     public void online(String source, FrameworkComponent component) {
-        // 设备上线事件
-        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
-        if(supplier != null) {
-            RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), source);
-            if(device != null) {
-                device.setStatus(DeviceStatus.online);
-                deviceService.updateDeviceStatus(device);
+        if(!isSkip(source, component)) {
+            // 设备上线事件
+            DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
+            if(supplier != null) {
+                RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), source);
+                if(device != null) {
+                    device.setStatus(DeviceStatus.online);
+                    this.onIotEvent(IotEventType.DeviceStatus, device);
+                } else {
+                    IotLogger.warn(DeviceStatus.online, null, "设备上线 更新失败(设备不存在) - 设备编号: {} - 驱动: {}", source, supplier.getDesc());
+                }
             } else {
-                IotLogger.warn(DeviceStatus.online, null, "设备上线 更新失败(设备不存在) - 设备编号: {} - 驱动: {}", source, supplier.getDesc());
+                IotLogger.warn(DeviceStatus.online, null, "设备上线 更新失败(未找到驱动) - 设备编号: {} - 网关: {}", source, component.getName());
             }
-        } else {
-            IotLogger.warn(DeviceStatus.online, null, "设备上线 更新失败(未找到驱动) - 设备编号: {} - 协议类: {}", source, component.getMessageClass().getSimpleName());
         }
     }
 
     @Override
     public void offline(String source, FrameworkComponent component) {
-        // 设备掉线事件
-        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
-        if(supplier != null) {
-            RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), source);
-            if(device != null) {
-                device.setStatus(DeviceStatus.offline);
-                deviceService.updateDeviceStatus(device);
+        if(!isSkip(source, component)) {
+            // 设备掉线事件
+            DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
+            if(supplier != null) {
+                RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), source);
+                if(device != null) {
+                    device.setStatus(DeviceStatus.offline);
+                    this.onIotEvent(IotEventType.DeviceStatus, device);
+                } else {
+                    IotLogger.warn(DeviceStatus.offline, null, "设备离线 更新失败(设备不存在) - 设备编号: {} - 驱动: {}", source, supplier.getDesc());
+                }
             } else {
-                IotLogger.warn(DeviceStatus.offline, null, "设备离线 更新失败(设备不存在) - 设备编号: {} - 驱动: {}", source, supplier.getDesc());
+                IotLogger.warn(DeviceStatus.online, null, "设备离线 更新失败(未找到驱动) - 设备编号: {} - 网关: {}", source, component.getName());
             }
-        } else {
-            IotLogger.warn(DeviceStatus.online, null, "设备离线 更新失败(未找到驱动) - 设备编号: {} - 协议类: {}", source, component.getMessageClass().getSimpleName());
         }
     }
 
-    @Override
-    public void started(ApplicationContext context) {
-        if(!properties.isCluster()) {
-            // 系统重启时 更新所有的设备状态到离线
-            deviceService.update(Wrappers.<Device>lambdaUpdate()
-                    .set(Device::getStatus, DeviceStatus.offline)
-                    .set(Device::getSwitchTime, new Date()));
-        }
+    public boolean isSkip(String source, FrameworkComponent component) {
+        String name = component.getName();
+        return name.equals("MQTT(Gateway)") || name.equals("EDGE_SERVER");
     }
 
     @Override
@@ -101,5 +100,15 @@ public class DeviceStatusListener implements CombinedEventListener, ApplicationR
     @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 1000;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if(!properties.isCluster()) {
+            // 系统重启时 更新所有的设备状态到离线
+            deviceService.update(Wrappers.<Device>lambdaUpdate()
+                    .set(Device::getStatus, DeviceStatus.offline)
+                    .set(Device::getSwitchTime, new Date()));
+        }
     }
 }

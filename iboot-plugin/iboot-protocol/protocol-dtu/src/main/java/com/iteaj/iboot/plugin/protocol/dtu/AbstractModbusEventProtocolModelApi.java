@@ -100,7 +100,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
     public abstract ModbusCommonProtocol buildRead03(String equipCode, int device, int start, int num);
     public abstract ModbusCommonProtocol buildRead04(String equipCode, int device, int start, int num);
 
-    private int getNum(ProtocolModelApiInvokeParam arg, String dataType) {
+    protected int getNum(ProtocolModelApiInvokeParam arg, String dataType) {
         switch (dataType) {
             case "short":
             case "ushort":
@@ -187,30 +187,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
                     arg.addConfig("isBatch", Boolean.TRUE);
                     doInvoke(protocol, arg, (result) -> {
                         try {
-                            batchResult.setStatus(result.getStatus());
-                            if(result.getStatus() == ExecStatus.success) {
-                                final Payload payload = protocol.getPayload();
-                                final int startAddress = Integer.parseInt(splitPoints.get(0).getAddress());
-                                splitPoints.forEach(point -> {
-                                    final int address = Integer.parseInt(point.getAddress());
-                                    if(payload instanceof ReadPayload) {
-                                        final String dataType = endPoint.getDownConfig(AbstractDtuForModbusProtocolSupplier.dataType);
-                                        final String strNum = point.getDownConfig(PointProtocolConfig.POINT_NUMBER);
-                                        final Object pointValue = resolverValue(payload, Integer.valueOf(strNum), address, dataType);
-                                        final Object resolverValue = DataValueResolverFactory.resolver(point.getModelAttr(), pointValue);
-                                        dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), resolverValue);
-                                    } else {
-                                        int readNum = address - startAddress;
-                                        final ModbusBitStatus status = payload.readStatus(readNum);
-                                        dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), status == ModbusBitStatus.ON ? true : false);
-                                    }
-                                });
-                            } else {
-                                splitPoints.forEach(point -> {
-                                    dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), CollectStatus.from(result.getStatus()));
-                                });
-                            }
-
+                            handleBatchResult(splitPoints, result, batchResult, protocol, endPoint, dataSupplier);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -223,6 +200,40 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
             consumer.accept(new BatchResult("解析设备编号失败["+e.getMessage()+"]", ExecStatus.fail));
         } catch (Exception e) {
             consumer.accept(new BatchResult("未知异常["+e.getMessage()+"]", ExecStatus.fail));
+        }
+    }
+
+    protected void handleBatchResult(List<BatchOfPoint> splitPoints, InvokeResult result, BatchResult batchResult, ModbusCommonProtocol protocol, BatchOfPoint endPoint, DataSupplier dataSupplier) {
+        batchResult.setStatus(result.getStatus());
+        if(result.getStatus() == ExecStatus.success) {
+            final Payload payload = protocol.getPayload();
+            final int startAddress = Integer.parseInt(splitPoints.get(0).getAddress());
+            splitPoints.forEach(point -> {
+                final int address = Integer.parseInt(point.getAddress());
+                if(payload instanceof ReadPayload) {
+                    final String dataType = point.getDownConfig(AbstractDtuForModbusProtocolSupplier.dataType);
+                    final String strNum = point.getDownConfig(PointProtocolConfig.POINT_NUMBER);
+                    final Object pointValue = resolverValue(payload, Integer.valueOf(strNum), address, dataType);
+                    if(point.getBitAttrs() != null) {
+                        point.getBitAttrs().forEach(bitAttr -> {
+                            final Object resolverBit = IotUtil.resolverBit(bitAttr, pointValue);
+                            final Object resolver = DataValueResolverFactory.resolver(bitAttr, resolverBit);
+                            dataSupplier.addValue(bitAttr.getId(), point.getAddress(), bitAttr.getField(), resolver);
+                        });
+                    } else {
+                        final Object resolverValue = DataValueResolverFactory.resolver(point.getModelAttr(), pointValue);
+                        dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), resolverValue);
+                    }
+                } else {
+                    int readNum = address - startAddress;
+                    final ModbusBitStatus status = payload.readStatus(readNum);
+                    dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), status == ModbusBitStatus.ON);
+                }
+            });
+        } else {
+            splitPoints.forEach(point -> {
+                dataSupplier.addValue(point.getAttrId(), point.getAddress(), point.getAttrField(), CollectStatus.from(result.getStatus()));
+            });
         }
     }
 
@@ -292,7 +303,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
         return resolverValue(payload, num, start, dataType);
     }
 
-    private Object resolverValue(Payload payload, Integer num, int start, String dataType) {
+    protected Object resolverValue(Payload payload, Integer num, int start, String dataType) {
         switch (dataType) {
             case "short":
                 return payload.readShort(start);
@@ -320,7 +331,7 @@ public abstract class AbstractModbusEventProtocolModelApi extends AbstractEventP
     }
 
     @Override
-    protected void setProtocolModel(ProtocolModel protocolModel) {
+    public void setProtocolModel(ProtocolModel protocolModel) {
         super.setProtocolModel(protocolModel);
     }
 }

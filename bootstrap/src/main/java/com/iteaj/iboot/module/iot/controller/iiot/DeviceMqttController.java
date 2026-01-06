@@ -8,6 +8,7 @@ import com.iteaj.framework.result.DetailResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.DeviceTypeAlias;
@@ -32,6 +33,8 @@ public class DeviceMqttController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IProductService productService;
+    private final static String[] MqttCodes = {ProtocolCodes.MQTT_DEFAULT_IMPL.getValue()
+            , ProtocolCodes.DTU_MODBUS_OVER_MQTT.getValue()};
 
     public DeviceMqttController(IDeviceService deviceService
             , IProductService productService) {
@@ -47,7 +50,7 @@ public class DeviceMqttController extends BaseController {
     @GetMapping("/view")
     @CheckPermission({"iot:mqtt:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
-        entity.setProtocol(TransportProtocol.MQTT);
+        entity.setProtocolCodes(MqttCodes).setAlias(TransportProtocol.MQTT.name());
         return this.deviceService.pageOfDetail(page, entity);
     }
 
@@ -84,13 +87,13 @@ public class DeviceMqttController extends BaseController {
                         deviceSn = "gwd_mqtt_" + entity.getProductId() + "_0001";
                     }
 
-                    entity.setDeviceSn(deviceSn);
+                    entity.setDeviceSn(deviceSn).setAlias("MQTT");
                     return this.deviceService.saveOrUpdate(entity);
                 }
             }
         }
 
-        return this.deviceService.saveOrUpdate(entity);
+        return this.deviceService.saveOrUpdate(entity.setAlias("MQTT"));
     }
 
     /**
@@ -111,7 +114,7 @@ public class DeviceMqttController extends BaseController {
      */
     @GetMapping("/products")
     public Result<List<Product>> products(DeviceType deviceType) {
-        return this.productService.listOfProtocolCodes(deviceType, null, TransportProtocol.MQTT);
+        return this.productService.listOfProtocolCodes(deviceType, MqttCodes, null);
     }
 }
 

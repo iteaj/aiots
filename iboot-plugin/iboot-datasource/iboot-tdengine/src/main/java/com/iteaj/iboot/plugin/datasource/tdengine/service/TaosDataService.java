@@ -9,6 +9,7 @@ import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.consts.CollectSearchType;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.*;
+import com.iteaj.framework.spi.iot.view.chart.ChartSqlCondition;
 import com.iteaj.iboot.plugin.datasource.tdengine.mapper.TaosCollectDataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -113,5 +114,31 @@ public class TaosDataService implements RealtimeCollectDataService {
         }
 
         return values;
+    }
+
+    @Override
+    public PageResult productOfPage(Page page, RealtimeCollectData entity) {
+        Page<RealtimeCollectData> product = collectDataMapper.productOfPage(page, entity);
+        if(CollectionUtil.isNotEmpty(product.getRecords())) {
+            List<DefaultRealtimeData> datas = collectDataMapper.listProductData(page.getRecords());
+            Map<String, List<DefaultRealtimeData>> collect = datas.stream().collect(Collectors.groupingBy(item -> item.getCid() + item.getUid()));
+            List<RealtimeCollectData> collected = collect.values().stream().map((value) -> {
+                DefaultRealtimeData realtimeData = value.get(0);
+                String joinValue = value.stream()
+                        .map(item -> item.getField() + "=" + (item.getStatus() ? item.getValue() : item.getReason()))
+                        .collect(Collectors.joining(":::"));
+                return realtimeData.setValue(joinValue);
+            }).sorted((a, b) -> Math.toIntExact(b.getCollectTime().getTime() - a.getCollectTime().getTime()))
+                    .collect(Collectors.toList());
+
+            product.setRecords(collected);
+        }
+
+        return new PageResult(product);
+    }
+
+    @Override
+    public List<BaseEchartsCount> countOfView(ChartSqlCondition condition) {
+        return null;
     }
 }

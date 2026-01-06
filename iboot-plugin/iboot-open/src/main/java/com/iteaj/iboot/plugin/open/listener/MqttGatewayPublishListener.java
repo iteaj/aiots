@@ -14,6 +14,7 @@ import com.iteaj.iboot.plugin.open.service.INorthwardService;
 import com.iteaj.iot.client.mqtt.MqttClient;
 import com.iteaj.iot.client.mqtt.gateway.*;
 import com.iteaj.iot.message.DefaultMessageBody;
+import io.netty.handler.codec.mqtt.MqttQoS;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -38,7 +39,7 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
     @Override
     public void doIotEvent(IotEventType eventType, RealtimePayload value) {
         final String type = value.getType();
-        if(isFilter(type, value)) { // 实时推送
+        if(isFilter(type, value) && CollectionUtil.isNotEmpty(value.getPayload())) { // 实时推送
             List<Northward> northwards = northwardService.listByType("mqtt_publish");
             if(CollectionUtil.isNotEmpty(northwards)) {
 
@@ -48,8 +49,7 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
 
                 northwards.forEach(item -> {
                     if(Boolean.TRUE.equals(item.getStatus())) {
-                        final JSONObject config = item.getConfig();
-                        MqttGatewayConnectProperties connectProperties = getClientProperties(config);
+                        MqttGatewayConnectProperties connectProperties = getClientProperties(item);
                         final MqttGatewayMessage gatewayMessage = new MqttGatewayMessage(gatewayHead, messageBody
                                 , connectProperties.getQoS(), connectProperties.getTopic());
                         new MqttGatewayProtocol(gatewayMessage).request(connectProperties);
@@ -110,14 +110,20 @@ public class MqttGatewayPublishListener implements IotAsyncListener<RealtimePayl
         return array;
     }
 
-    private MqttGatewayConnectProperties getClientProperties(JSONObject config) {
-        final String clientId = config.getString("clientId");
-        final MqttClient client = mqttGatewayComponent.getClient(clientId);
+    private MqttGatewayConnectProperties getClientProperties(Northward northward) {
+        final MqttClient client = mqttGatewayComponent.getClient(northward.getConnectKey());
         if(client == null) {
+            JSONObject config = northward.getConfig();
+            final String qos = config.getString("qos");
             final String host = config.getString("host");
             final Integer port = config.getInteger("port");
             final String topic = config.getString("topic");
-            return new MqttGatewayConnectProperties(host, port, clientId, topic);
+            final String clientId = config.getString("clientId");
+            MqttGatewayConnectProperties properties = new MqttGatewayConnectProperties(host, port, clientId, topic, MqttQoS.valueOf(Integer.parseInt(qos)));
+            properties.setUsername(config.getString("username"));
+            properties.setPassword(config.getString("password"));
+            properties.setConnectKey(northward.getConnectKey());
+            return properties;
         } else {
             return (MqttGatewayConnectProperties) client.getConfig();
         }

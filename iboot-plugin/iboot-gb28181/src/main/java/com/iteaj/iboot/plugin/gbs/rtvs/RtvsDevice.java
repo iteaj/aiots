@@ -2,6 +2,7 @@ package com.iteaj.iboot.plugin.gbs.rtvs;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -11,90 +12,89 @@ import lombok.Data;
 import java.util.Locale;
 
 @Data
-@TableName("T_DeviceInfo")
 public class RtvsDevice {
     /**
      * 设备国标编号
      */
-    @TableId("DeviceId")
+    @JSONField(name = "DeviceId")
     private String deviceId;
 
     /**
      * 设备名
      */
-    @TableField("DeviceName")
+    @JSONField(name = "DeviceName")
     private String name;
 
     /**
      * 生产厂商
      */
-    @TableField("Manufacturer")
+    @JSONField(name = "Manufacturer")
     private String manufacturer;
 
     /**
      * 型号
      */
-    @TableField("Model")
+    @JSONField(name = "Model")
     private String model;
 
     /**
      * 固件版本
      */
-    @TableField("Firmware")
+    @JSONField(name = "Firmware")
     private String firmware;
 
     /**
      * wan地址
      */
-    @TableField("RemoteInfo")
+    @JSONField(name = "RemoteInfo")
     private String remoteInfo;
 
     /**
      * 是否在线，true为在线，false为离线
      */
-    @TableField("Online")
+    @JSONField(name = "Online")
     private Boolean online;
 
     /**
      * 注册时间
      */
-    @TableField("OnlineTime")
+    @JSONField(name = "OnlineTime")
     private String registerTime;
 
     /**
      * 心跳时间
      */
-    @TableField("KeepAliveTime")
+    @JSONField(name = "KeepAliveTime")
     private String keepaliveTime;
 
     /**
      * 通道个数
      */
-    @TableField("CatalogChannel")
+    @JSONField(name = "CatalogChannel")
     private Integer channelCount;
 
     /**
      * 注册有效期
      */
-    @TableField("SubscribeExpires")
+    @JSONField(name = "SubscribeExpires")
     private Integer expires;
 
     /**
      * 创建时间
      */
-    @TableField("CreateTime")
+    @JSONField(name = "CreateTime")
     private String createTime;
 
     /**
      * 更新时间
      */
-    @TableField("UpTime")
+    @JSONField(name = "UpTime")
     private String updateTime;
 
-    @TableField("NickName")
+    @JSONField(name = "NickName")
     private String nickName;
 
-    @TableField("HasAlarm")
+    @JSONField(name = "HasAlarm")
     private Boolean hasAlarm;
 
     public GbsDevice convert() {
