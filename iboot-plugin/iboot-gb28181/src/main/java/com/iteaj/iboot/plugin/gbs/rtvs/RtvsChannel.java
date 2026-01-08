@@ -1,7 +1,7 @@
 package com.iteaj.iboot.plugin.gbs.rtvs;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.iteaj.iboot.plugin.gbs.entity.GbsChannel;
 import lombok.Data;
 import lombok.experimental.Accessors;

@@ -156,7 +156,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
         byte[] message = protocol.requestMessage().getMessage();
         JSONObject jsonObject = JSONObject.parseObject(new String(message, StandardCharsets.UTF_8));
         if(config.getCollectTime() != null) {
-            date = config.getCollectTime().eval(jsonObject, Date.class);
+            date = (Date) config.getCollectTime().eval(jsonObject);
         }
 
         Date finalDate = date;
@@ -234,7 +234,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                                 }
                             } else if("collectTime".equals(config.getProtocolAttrField())) {
                                 if(!"{now}".equals(config.getValue())) {
-                                    collectTimePath = JSONPath.compile(config.getValue(), true);
+                                    collectTimePath = JSONPath.compile(config.getValue(), Date.class);
                                 }
                             } else {
                                 isWill = Boolean.parseBoolean(config.getValue());

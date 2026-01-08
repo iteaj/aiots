@@ -1,8 +1,8 @@
 package com.iteaj.iboot.plugin.iotview.listener;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.iteaj.framework.spi.iot.data.*;
 import com.iteaj.framework.spi.iot.listener.*;
 import com.iteaj.framework.spi.iot.view.DataItemOption;

@@ -45,7 +45,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
 
     @Override
     public GbsDevice getByDeviceId(String deviceId) {
-        JSON json = invokeGetRequest("/api/DeviceInfo/GetDeviceInfo?DeviceId=" + deviceId);
+        JSONObject json = invokeGetRequest("/api/DeviceInfo/GetDeviceInfo?DeviceId=" + deviceId);
         return json.toJavaObject(RtvsDevice.class).convert();
     }
 
@@ -119,7 +119,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
 
     @Override
     public boolean update(GbsDevice device) {
-        JSON body = (JSON) JSONObject.toJSON(device.toRtvsDevice());
+        JSONObject body = (JSONObject) JSON.toJSON(device.toRtvsDevice());
         JSONObject jsonObject = invokePostRequest("/api/DeviceInfo/UpdateDevice", body);
         return jsonObject.getBoolean("data");
     }
@@ -128,7 +128,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
     public boolean update(GbsChannel channel) {
         RtvsChannel rtvsChannel = new RtvsChannel().setChannelId(channel.getChannelId()).setDeviceId(channel.getDeviceId())
                 .setNickName(channel.getNickName());
-        JSONObject jsonObject = invokePostRequest("/api/Channel/UpdateChannel", (JSON) JSONObject.toJSON(rtvsChannel));
+        JSONObject jsonObject = invokePostRequest("/api/Channel/UpdateChannel", (JSONObject) JSON.toJSON(rtvsChannel));
         return jsonObject.getBoolean("data");
     }
 
@@ -199,7 +199,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
 
     @Override
     public GbsChannel getByDeviceIdAndChannelId(String deviceId, String channelId) {
-        JSON response = invokeGetRequest(String.format("/api/Channel/GetChannel?DeviceId=%s&ChannelId=%s", deviceId, channelId));
+        JSONObject response = invokeGetRequest(String.format("/api/Channel/GetChannel?DeviceId=%s&ChannelId=%s", deviceId, channelId));
         return response.toJavaObject(RtvsChannel.class).convert();
     }
 
@@ -247,7 +247,7 @@ public class RtvsDeviceServiceImpl implements GbsDeviceService {
         }
     }
 
-    private JSONObject invokePostRequest(String url, JSON body) {
+    private JSONObject invokePostRequest(String url, JSONObject body) {
         doAuthorization();
         String apiUri = properties.getSip().getApiUri();
         try (HttpResponse httpResponse = HttpUtil.createPost(apiUri + url)

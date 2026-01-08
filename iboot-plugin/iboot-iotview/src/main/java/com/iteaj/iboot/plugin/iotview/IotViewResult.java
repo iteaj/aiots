@@ -1,6 +1,5 @@
 package com.iteaj.iboot.plugin.iotview;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.result.AbstractResult;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.result.Result;

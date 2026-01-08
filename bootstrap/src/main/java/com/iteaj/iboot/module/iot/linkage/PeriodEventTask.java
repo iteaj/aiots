@@ -1,8 +1,6 @@
 package com.iteaj.iboot.module.iot.linkage;
 
-import com.alibaba.fastjson.JSONArray;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * 执行器定时任务
