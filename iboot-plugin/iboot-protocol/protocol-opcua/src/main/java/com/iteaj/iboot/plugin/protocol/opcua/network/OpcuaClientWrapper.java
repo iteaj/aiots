@@ -66,7 +66,7 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
 
                 builder.setEndpoint(endpoint)
                     .setConnectTimeout(UInteger.valueOf(properties.getConnectTimeout()))
-                    .setApplicationName(new LocalizedText(Locale.CHINA.getLanguage(), "IBOOT"));
+                    .setApplicationName(new LocalizedText(Locale.CHINA.getLanguage(), "AIots"));
 
                 if(StrUtil.isNotBlank(properties.getUsername())) {
                     builder.setIdentityProvider(new UsernameProvider(properties.getUsername(), properties.getPassword()));
@@ -91,7 +91,7 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
     @Override
     public synchronized void reconnection() {
         long reconnect = getConfig().getReconnect();
-        if(opcUaClient == null) {
+        if(opcUaClient == null && reconnect > 0) {
             IotThreadManager.instance().getExecutorService().schedule(() -> {
                 if(getClientComponent().getClient(getConfig()) != null) {
                     this.init(null); // 重新初始化
@@ -105,6 +105,10 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
 
     @Override
     public ChannelFuture connect() {
+        if(this.getOpcUaClient() == null) {
+            init(getConfig());
+        }
+
         OpcuaClientConfig config = getConfig();
         try {
             opcUaClient.connect().get(config.getConnectTimeout(), TimeUnit.MILLISECONDS);
@@ -126,32 +130,41 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
 
     @Override
     public ChannelFuture close() {
-        return disconnect().addListener(future -> {
-            if (future.isSuccess()) {
-                getClientComponent().removeClient(getConfig());
-            }
-        });
+        if(opcUaClient != null) {
+            return disconnect().addListener(future -> {
+                if (future.isSuccess()) {
+                    getClientComponent().removeClient(getConfig());
+                }
+            });
+        } else {
+            getClientComponent().removeClient(getConfig());
+            return null;
+        }
     }
 
     @Override
     public ChannelFuture disconnect() {
-        ChannelPromise channelPromise = getChannel().newPromise();
+        if(opcUaClient != null) {
+            ChannelPromise channelPromise = getChannel().newPromise();
 
-        try {
-            opcUaClient.disconnect().whenCompleteAsync((client, e) -> {
-                if(e != null) {
-                    channelPromise.setFailure(e);
-                } else {
-                    channelPromise.setSuccess();
-                }
-            });
-        } catch (Exception e) {
-            return getChannel().newFailedFuture(e);
+            try {
+                opcUaClient.disconnect().whenCompleteAsync((client, e) -> {
+                    if(e != null) {
+                        channelPromise.setFailure(e);
+                    } else {
+                        channelPromise.setSuccess();
+                    }
+                });
+            } catch (Exception e) {
+                return getChannel().newFailedFuture(e);
+            }
+
+            // 发布客户端离线事件
+            FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.offline, getClientComponent()));
+            return channelPromise;
+        } else {
+            return null;
         }
-
-        // 发布客户端离线事件
-        FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.offline, getClientComponent()));
-        return channelPromise;
     }
 
     public DataValue read(NodeId nodeId) {
