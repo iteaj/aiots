@@ -15,6 +15,9 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 public abstract class OpcuaProtocol extends ClientInitiativeProtocol<OpcuaMessage> {
 
@@ -29,6 +32,11 @@ public abstract class OpcuaProtocol extends ClientInitiativeProtocol<OpcuaMessag
     private String address;
 
     /**
+     * 批量地址
+     */
+    private List<String> addresses;
+
+    /**
      * 协议类型
      */
     private ProtocolType protocolType;
@@ -37,6 +45,12 @@ public abstract class OpcuaProtocol extends ClientInitiativeProtocol<OpcuaMessag
 
     protected OpcuaProtocol(String address, ProtocolType protocolType) {
         this(address, null, protocolType);
+    }
+
+    protected OpcuaProtocol(List<String> addresses, ProtocolType protocolType) {
+        this.addresses = addresses;
+        this.requestMessage = message;
+        this.protocolType = protocolType;
     }
 
     protected OpcuaProtocol(String address, Object value, ProtocolType protocolType) {
@@ -82,13 +96,20 @@ public abstract class OpcuaProtocol extends ClientInitiativeProtocol<OpcuaMessag
          * 执行指令并且获取返回值
          */
         try {
-            this.value = doInvoke((OpcuaClientWrapper) client, NodeId.parse(getAddress()));
+            if(address != null) {
+                this.value = doInvoke((OpcuaClientWrapper) client, NodeId.parse(getAddress()));
+            } else {
+                List<NodeId> nodeIds = addresses.stream().map(NodeId::parse).collect(Collectors.toList());
+                this.value = doInvoke((OpcuaClientWrapper) client, nodeIds);
+            }
         } catch (UaRuntimeException e) {
             throw new ProtocolInvokeException("地址格式错误["+getAddress()+"] 格式 ns=命名索引;s=标签地址");
         }
     }
 
     protected abstract Object doInvoke(OpcuaClientWrapper client, NodeId nodeId) throws OpcuaException;
+
+    protected abstract Object doInvoke(OpcuaClientWrapper client, List<NodeId> nodeIds) throws OpcuaException;
 
     @Override
     public ProtocolType protocolType() {

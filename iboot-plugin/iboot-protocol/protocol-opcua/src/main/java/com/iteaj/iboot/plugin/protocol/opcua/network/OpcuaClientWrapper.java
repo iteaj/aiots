@@ -37,6 +37,7 @@ import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -89,29 +90,40 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
     }
 
     @Override
+    public boolean isConnect() {
+        try {
+            return getOpcUaClient() != null && getOpcUaClient().getSession().get() != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     public synchronized void reconnection() {
         long reconnect = getConfig().getReconnect();
-        if(opcUaClient == null && reconnect > 0) {
-            IotThreadManager.instance().getExecutorService().schedule(() -> {
-                if(getClientComponent().getClient(getConfig()) != null) {
-                    this.init(null); // 重新初始化
-                    if(this.getOpcUaClient() != null) {
-                        this.connect(); // 连接
+        if(reconnect > 0) {
+            if(getClientComponent().getClient(getConfig()) != null) {
+                logger.error("OpcUa客户端将在{}秒之后重连({}) 客户端: {}", reconnect, getClientComponent().getName(), getConfig());
+                IotThreadManager.instance().getExecutorService().schedule(() -> {
+                    if(getClientComponent().getClient(getConfig()) != null && !isConnect()) {
+                        if(getOpcUaClient() == null) {
+                            this.init(getConfig()); // 重新初始化
+                        }
+
+                        if(this.getOpcUaClient() != null) {
+                            this.connect(); // 连接
+                        }
                     }
-                }
-            }, reconnect, TimeUnit.SECONDS);
+                }, reconnect, TimeUnit.SECONDS);
+            }
         }
     }
 
     @Override
     public ChannelFuture connect() {
-        if(this.getOpcUaClient() == null) {
-            init(getConfig());
-        }
-
         OpcuaClientConfig config = getConfig();
         try {
-            opcUaClient.connect().get(config.getConnectTimeout(), TimeUnit.MILLISECONDS);
+            getOpcUaClient().connect().get(config.getConnectTimeout(), TimeUnit.MILLISECONDS);
             UaTransport transport = getOpcUaClient().getStackClient().getTransport();
             if(transport instanceof OpcTcpTransport) {
                 ((OpcTcpTransport) transport).channelFsm().addTransitionListener(this);
@@ -121,16 +133,19 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
             finishedConnect(channelFuture); return channelFuture;
         } catch (Exception e) {
             if(e instanceof TimeoutException) {
-                throw new OpcuaException("连接超时("+config.getConnectTimeout()+"ms)", e);
+                logger.error("OpcUa客户端连接超时({}) 客户端: {}", getClientComponent().getName(), getConfig());
+            } else {
+                logger.error("OpcUa客户端连接失败({}) 客户端: {}", getClientComponent().getName(), getConfig(), e);
             }
 
-            throw new OpcuaException("连接失败", e);
+            reconnection();
+            return getChannel() != null ? getChannel().newFailedFuture(e) : null;
         }
     }
 
     @Override
     public ChannelFuture close() {
-        if(opcUaClient != null) {
+        if(getOpcUaClient() != null) {
             return disconnect().addListener(future -> {
                 if (future.isSuccess()) {
                     getClientComponent().removeClient(getConfig());
@@ -144,7 +159,7 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
 
     @Override
     public ChannelFuture disconnect() {
-        if(opcUaClient != null) {
+        if(getOpcUaClient() != null) {
             ChannelPromise channelPromise = getChannel().newPromise();
 
             try {
@@ -159,8 +174,6 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
                 return getChannel().newFailedFuture(e);
             }
 
-            // 发布客户端离线事件
-            FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.offline, getClientComponent()));
             return channelPromise;
         } else {
             return null;
@@ -281,7 +294,7 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
 
     @Override
     public void onStateTransition(State state, State state1, Event event) {
-        if(event instanceof Event.ChannelInactive) {
+        if(event instanceof Event.ChannelInactive || event instanceof Event.DisconnectSuccess) {
             FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.offline, getClientComponent()));
         } else if(event instanceof Event.ConnectSuccess) {
             FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.online, getClientComponent()));

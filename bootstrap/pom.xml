@@ -112,6 +112,11 @@
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
+            <artifactId>protocol-opcua</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
             <artifactId>iboot-le5le</artifactId>
             <version>${project.version}</version>
         </dependency>
