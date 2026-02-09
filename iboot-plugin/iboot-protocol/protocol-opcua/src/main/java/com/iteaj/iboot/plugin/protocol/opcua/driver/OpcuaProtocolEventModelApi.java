@@ -97,6 +97,7 @@ public class OpcuaProtocolEventModelApi extends AbstractEventProtocolModelApi im
             if(direct.equals(OpcuaProtocol.OpcuaProtocolType.READ.name())) {
                 DataSupplier dataSupplier = new DataSupplier(getProtocolModel().getCode(), arg.buildKey());
                 BatchResult batchResult = new BatchResult(dataSupplier);
+                batchResult.setStatus(ExecStatus.fail); // 默认失败
                 Integer limit = arg.getDeviceConfig("limit");
                 List<BatchOfPoint> allPoints = value.get(0);
                 List<List<BatchOfPoint>> splits = BatchUtils.splitStrAddress(allPoints, limit);
@@ -114,6 +115,7 @@ public class OpcuaProtocolEventModelApi extends AbstractEventProtocolModelApi im
                             DataValue dataValue = dataValues.get(i);
                             BatchOfPoint ofPoint = batchOfPoints.get(i);
                             if(dataValue.getStatusCode() == StatusCode.GOOD) {
+                                batchResult.setStatus(ExecStatus.success); // 只要有一个点成功说明设备在线
                                 Object resolver = DataValueResolverFactory.resolver(ofPoint.getModelAttr(), OpcuaProtocolSupplier.getValue(dataValue));
                                 dataSupplier.addValue(ofPoint.getModelAttr().getId(), address, ofPoint.getAttrField(), resolver);
                             } else {
