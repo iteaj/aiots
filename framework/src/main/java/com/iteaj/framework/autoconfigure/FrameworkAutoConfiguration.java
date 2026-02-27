@@ -12,8 +12,8 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.task.TaskExecutorBuilder;
-import org.springframework.boot.task.TaskSchedulerBuilder;
+import org.springframework.boot.task.ThreadPoolTaskExecutorBuilder;
+import org.springframework.boot.task.ThreadPoolTaskSchedulerBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -51,7 +51,7 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
     }
 
     @Bean
-    public ThreadPoolTaskScheduler taskScheduler(TaskSchedulerBuilder builder) {
+    public ThreadPoolTaskScheduler taskScheduler(ThreadPoolTaskSchedulerBuilder builder) {
         return builder.build();
     }
 
@@ -60,7 +60,7 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
         ThreadPoolTaskExecutor collectExecutor;
         ThreadPoolTaskScheduler collectScheduler;
         if(properties.getTask() != null) { // 单独配置了采集任务调度器
-            collectExecutor = new TaskExecutorBuilder()
+            collectExecutor = new ThreadPoolTaskExecutorBuilder()
                     .awaitTermination(true)
                     .corePoolSize(properties.getTask().getPoolSize())
                     .maxPoolSize(properties.getTask().getMaxPoolSize())
@@ -70,7 +70,7 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
         }
 
         if(properties.getScheduling() != null) {
-            collectScheduler = new TaskSchedulerBuilder()
+            collectScheduler = new ThreadPoolTaskSchedulerBuilder()
                     .awaitTermination(false)
                     .poolSize(properties.getScheduling().getPoolSize())
                     .threadNamePrefix(properties.getScheduling().getThreadNamePrefix())

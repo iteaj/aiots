@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <version>3.3.3</version>
+        <version>3.5.10</version>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
     </parent>
@@ -22,10 +22,9 @@
         <module>iboot-plugin</module>
     </modules>
     <properties>
-        <reversion>3.1.0</reversion>
+        <reversion>3.2.0</reversion>
         <p6spy.version>3.8.6</p6spy.version>
         <kaptcha.version>2.3.2</kaptcha.version>
-        <servlet.version>3.1.0</servlet.version>
 
         <iot.version>3.2.0</iot.version>
         <sms4j.version>3.3.4</sms4j.version>
@@ -35,7 +34,7 @@
         <fastjson.version>2.0.57</fastjson.version>
         <JustAuth.version>1.16.5</JustAuth.version>
         <izone.boot.version>1.2.1</izone.boot.version>
-        <springboot.version>3.3.3</springboot.version>
+        <springboot.version>3.5.10</springboot.version>
         <mybatis.plus.version>3.5.7</mybatis.plus.version>
         <langchain4j.version>1.0.0-beta3</langchain4j.version>
         <mybatis.plus.ds.version>4.3.0</mybatis.plus.ds.version>
