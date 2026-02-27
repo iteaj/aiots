@@ -3,7 +3,6 @@ package com.iteaj.iboot.module.iot.entity;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.spi.iot.consts.AttrType;
@@ -17,6 +16,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.beans.Transient;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -136,7 +136,7 @@ public class ModelAttr extends BaseEntity implements ModelAttrMeta {
     private List<ModelAttrDict> dicts;
 
     @Override
-    @JsonIgnore
+    @Transient
     public List<? extends ModelAttrDictMeta> getDictMetas() {
         return dicts;
     }
