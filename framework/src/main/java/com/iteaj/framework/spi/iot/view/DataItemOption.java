@@ -88,8 +88,7 @@ public class DataItemOption implements Cloneable{
     }
 
     public boolean getIsLeaf() {
-        if(isLeaf) return true;
-        return CollectionUtil.isEmpty(children);
+        return isLeaf;
     }
 
     @Override

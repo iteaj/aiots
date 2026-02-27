@@ -196,7 +196,7 @@ public class DeviceCtrlController extends BaseController {
                 if(modelApi.getFuncType() == FuncType.R && item.getValue() != null) {
                     final DataSupplier dataSupplier = supplier.getDataSupplier(item.getProtocol(), param, item.getValue());
                     final String value = dataSupplier.getValues().stream()
-                            .map(fieldValue -> String.format("%s=%s", fieldValue.getSignalOrField(), fieldValue.getValue().toString()))
+                            .map(SignalOrFieldValue::toString)
                             .collect(Collectors.joining(", "));
                     debugRespDto.setValue(value);
                 }

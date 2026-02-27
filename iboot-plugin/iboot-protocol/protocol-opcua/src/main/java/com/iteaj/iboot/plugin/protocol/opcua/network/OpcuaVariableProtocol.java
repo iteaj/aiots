@@ -7,10 +7,16 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.*;
 
+import java.util.List;
+
 public class OpcuaVariableProtocol extends OpcuaProtocol{
 
     protected OpcuaVariableProtocol(String address, OpcuaProtocolType protocolType) {
         super(address, protocolType);
+    }
+
+    public OpcuaVariableProtocol(List<String> addresses, ProtocolType protocolType) {
+        super(addresses, protocolType);
     }
 
     protected OpcuaVariableProtocol(String address, Object value, ProtocolType protocolType) {
@@ -21,6 +27,10 @@ public class OpcuaVariableProtocol extends OpcuaProtocol{
         return new OpcuaVariableProtocol(address, OpcuaProtocolType.READ);
     }
 
+    public static OpcuaVariableProtocol read(List<String> addresses) {
+        return new OpcuaVariableProtocol(addresses, OpcuaProtocolType.READ);
+    }
+
     public static OpcuaVariableProtocol write(String address, Object value) {
         return new OpcuaVariableProtocol(address, value, OpcuaProtocolType.WRITE);
     }
@@ -29,12 +39,7 @@ public class OpcuaVariableProtocol extends OpcuaProtocol{
     protected Object doInvoke(OpcuaClientWrapper client, NodeId nodeId) throws OpcuaException {
         ProtocolType type = getProtocolType();
         if(type == OpcuaProtocolType.READ){
-            DataValue read = client.read(nodeId);
-            if(read.getStatusCode() == StatusCode.GOOD) {
-                return getValue(read);
-            }
-
-            throw new OpcuaException("获取数据失败[status="+read.getStatusCode()+"]");
+            return client.read(nodeId);
         } else if(type == OpcuaProtocolType.WRITE){
             client.write(nodeId, getValue());
             return this.getValue();
@@ -43,22 +48,8 @@ public class OpcuaVariableProtocol extends OpcuaProtocol{
         }
     }
 
-    private Object getValue(DataValue read) {
-        Object value = read.getValue().getValue();
-        if(value instanceof UNumber) {
-            if(value instanceof UByte) {
-                return ((UByte) value).shortValue();
-            } else if(value instanceof UShort) {
-                return ((UShort) value).intValue();
-            } else if(value instanceof UInteger) {
-                return ((UInteger) value).longValue();
-            } else if(value instanceof ULong) {
-                return ((ULong) value).longValue();
-            }
-        } else if(value instanceof DateTime) {
-            return ((DateTime) value).getJavaDate();
-        }
-
-        return value;
+    @Override
+    protected Object doInvoke(OpcuaClientWrapper client, List<NodeId> nodeIds) throws OpcuaException {
+        return client.read(0, nodeIds);
     }
 }

@@ -37,6 +37,7 @@ import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -66,7 +67,7 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
 
                 builder.setEndpoint(endpoint)
                     .setConnectTimeout(UInteger.valueOf(properties.getConnectTimeout()))
-                    .setApplicationName(new LocalizedText(Locale.CHINA.getLanguage(), "IBOOT"));
+                    .setApplicationName(new LocalizedText(Locale.CHINA.getLanguage(), "AIots"));
 
                 if(StrUtil.isNotBlank(properties.getUsername())) {
                     builder.setIdentityProvider(new UsernameProvider(properties.getUsername(), properties.getPassword()));
@@ -89,17 +90,32 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
     }
 
     @Override
+    public boolean isConnect() {
+        try {
+            return getOpcUaClient() != null && getOpcUaClient().getSession().get() != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     public synchronized void reconnection() {
         long reconnect = getConfig().getReconnect();
-        if(opcUaClient == null) {
-            IotThreadManager.instance().getExecutorService().schedule(() -> {
-                if(getClientComponent().getClient(getConfig()) != null) {
-                    this.init(null); // 重新初始化
-                    if(this.getOpcUaClient() != null) {
-                        this.connect(); // 连接
+        if(reconnect > 0) {
+            if(getClientComponent().getClient(getConfig()) != null) {
+                logger.error("OpcUa客户端将在{}秒之后重连({}) 客户端: {}", reconnect, getClientComponent().getName(), getConfig());
+                IotThreadManager.instance().getExecutorService().schedule(() -> {
+                    if(getClientComponent().getClient(getConfig()) != null && !isConnect()) {
+                        if(getOpcUaClient() == null) {
+                            this.init(getConfig()); // 重新初始化
+                        }
+
+                        if(this.getOpcUaClient() != null) {
+                            this.connect(); // 连接
+                        }
                     }
-                }
-            }, reconnect, TimeUnit.SECONDS);
+                }, reconnect, TimeUnit.SECONDS);
+            }
         }
     }
 
@@ -107,7 +123,7 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
     public ChannelFuture connect() {
         OpcuaClientConfig config = getConfig();
         try {
-            opcUaClient.connect().get(config.getConnectTimeout(), TimeUnit.MILLISECONDS);
+            getOpcUaClient().connect().get(config.getConnectTimeout(), TimeUnit.MILLISECONDS);
             UaTransport transport = getOpcUaClient().getStackClient().getTransport();
             if(transport instanceof OpcTcpTransport) {
                 ((OpcTcpTransport) transport).channelFsm().addTransitionListener(this);
@@ -117,41 +133,51 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
             finishedConnect(channelFuture); return channelFuture;
         } catch (Exception e) {
             if(e instanceof TimeoutException) {
-                throw new OpcuaException("连接超时("+config.getConnectTimeout()+"ms)", e);
+                logger.error("OpcUa客户端连接超时({}) 客户端: {}", getClientComponent().getName(), getConfig());
+            } else {
+                logger.error("OpcUa客户端连接失败({}) 客户端: {}", getClientComponent().getName(), getConfig(), e);
             }
 
-            throw new OpcuaException("连接失败", e);
+            reconnection();
+            return getChannel() != null ? getChannel().newFailedFuture(e) : null;
         }
     }
 
     @Override
     public ChannelFuture close() {
-        return disconnect().addListener(future -> {
-            if (future.isSuccess()) {
-                getClientComponent().removeClient(getConfig());
-            }
-        });
+        if(getOpcUaClient() != null) {
+            return disconnect().addListener(future -> {
+                if (future.isSuccess()) {
+                    getClientComponent().removeClient(getConfig());
+                }
+            });
+        } else {
+            getClientComponent().removeClient(getConfig());
+            return null;
+        }
     }
 
     @Override
     public ChannelFuture disconnect() {
-        ChannelPromise channelPromise = getChannel().newPromise();
+        if(getOpcUaClient() != null) {
+            ChannelPromise channelPromise = getChannel().newPromise();
 
-        try {
-            opcUaClient.disconnect().whenCompleteAsync((client, e) -> {
-                if(e != null) {
-                    channelPromise.setFailure(e);
-                } else {
-                    channelPromise.setSuccess();
-                }
-            });
-        } catch (Exception e) {
-            return getChannel().newFailedFuture(e);
+            try {
+                opcUaClient.disconnect().whenCompleteAsync((client, e) -> {
+                    if(e != null) {
+                        channelPromise.setFailure(e);
+                    } else {
+                        channelPromise.setSuccess();
+                    }
+                });
+            } catch (Exception e) {
+                return getChannel().newFailedFuture(e);
+            }
+
+            return channelPromise;
+        } else {
+            return null;
         }
-
-        // 发布客户端离线事件
-        FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.offline, getClientComponent()));
-        return channelPromise;
     }
 
     public DataValue read(NodeId nodeId) {
@@ -268,7 +294,7 @@ public class OpcuaClientWrapper extends TcpSocketClient implements ChannelFsm.Tr
 
     @Override
     public void onStateTransition(State state, State state1, Event event) {
-        if(event instanceof Event.ChannelInactive) {
+        if(event instanceof Event.ChannelInactive || event instanceof Event.DisconnectSuccess) {
             FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.offline, getClientComponent()));
         } else if(event instanceof Event.ConnectSuccess) {
             FrameworkManager.publishEvent(new StatusEvent(this, ClientStatus.online, getClientComponent()));

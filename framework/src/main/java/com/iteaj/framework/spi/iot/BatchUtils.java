@@ -36,4 +36,23 @@ public class BatchUtils {
 
         return result;
     }
+
+    public static List<List<BatchOfPoint>> splitStrAddress(List<BatchOfPoint> points, int limit) {
+        List<List<BatchOfPoint>> result = new ArrayList<>();
+        if(points.size() <= limit) {
+            result.add(points);
+        } else {
+            int i = points.size() % limit;
+            int i1 = points.size() / limit;
+            for (int j = 0; j < i1; j++) {
+                result.add(points.subList(j * limit, (j + 1) * limit));
+            }
+
+            if(i != 0) { // 非倍数关系
+                result.add(points.subList(i1 * limit, points.size()));
+            }
+        }
+
+        return result;
+    }
 }
