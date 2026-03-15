@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.data.ProductMeta;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.framework.spi.iot.consts.GatewayType;
@@ -32,7 +33,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_product")
-public class Product extends BaseEntity {
+public class Product extends BaseEntity implements ProductMeta {
 
     private static final long serialVersionUID = 1L;
 

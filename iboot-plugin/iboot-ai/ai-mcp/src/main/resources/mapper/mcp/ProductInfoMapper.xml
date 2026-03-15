@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.ai.mcp.mapper.ProductInfoMapper">
+
+    <select id="getProductInfo" resultType="com.iteaj.iboot.plugin.ai.mcp.entity.ProductInfo">
+#         select * from iot_product left join iot_device where code = #{productCode}
+    </select>
+</mapper>

@@ -40,6 +40,8 @@ public interface ProductMapper extends BaseMapper<Product> {
 
     ProductDto joinDetailById(Long productId);
 
+    ProductDto joinDetailByCode(String productCode);
+
     /**
      * 获取点位协议的产品列表
      * @return

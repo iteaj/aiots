@@ -42,6 +42,8 @@
         <!--大屏/组态插件-->
         <module>iboot-iotview</module>
         <module>iboot-edge</module>
+        <!--ai模块-->
+        <module>iboot-ai</module>
     </modules>
 
     <dependencies>
