@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * 产品物模型相关服务, 包括提供模型属性, 模型接口, 产品信息, 设备信息等数据
  */
-public interface ProductModelService extends ModelAttrMetaService{
+public interface ProductModelService {
 
     /**
      * 获取产品列表

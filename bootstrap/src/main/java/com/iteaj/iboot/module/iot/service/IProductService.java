@@ -66,6 +66,8 @@ public interface IProductService extends IBaseService<Product> {
 
     DetailResult<ProductDto> joinDetailById(Long productId);
 
+    DetailResult<ProductDto> joinDetailByCode(String productCode);
+
     DetailResult<ProductDto> debugById(Long productId);
 
     /**

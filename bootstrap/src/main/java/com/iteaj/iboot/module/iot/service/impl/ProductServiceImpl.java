@@ -13,6 +13,10 @@ import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.IotUtil;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.*;
+import com.iteaj.framework.spi.iot.data.ModelApiMeta;
+import com.iteaj.framework.spi.iot.data.ModelDirectMeta;
+import com.iteaj.framework.spi.iot.data.ProductMeta;
+import com.iteaj.framework.spi.iot.data.ProductModelService;
 import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
@@ -47,8 +51,8 @@ import java.util.stream.Collectors;
  * @since 2022-07-22
  */
 @Service
-@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_PRODUCT})
-public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> implements IProductService {
+@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_PRODUCT, CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL})
+public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> implements IProductService, ProductModelService {
 
     private final CacheManager cacheManager;
     private final IotCacheManager iotCacheManager;
@@ -132,8 +136,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             throw new ServiceException("网关子设备产品需绑定父产品");
         }
 
-        return super.updateById(entity).ifPresentAndTrue(item -> cacheManager
-                .getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT).evict(entity.getId()));
+        return super.updateById(entity).ifPresentAndTrue(item -> {
+            Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT)).evict(entity.getId());
+            Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL)).evict(entity.getCode());
+        });
     }
 
     private void saveProtocolToModel(Product entity) {
@@ -177,8 +183,8 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         // 是否已经有绑定设备
         this.hasBind(idList).ifPresentAndTrueThrow("此产品已被设备绑定");
 
-        this.getOne(Wrappers.<Product>lambdaQuery().in(Product::getId, idList).last("limit 1"))
-                .ifPresent(item -> {
+        DetailResult<Product> result = this.getOne(Wrappers.<Product>lambdaQuery().in(Product::getId, idList).last("limit 1"));
+        result.ifPresent(item -> {
             if(item.getStatus() == FuncStatus.enabled) {
                 throw new ServiceException("请先停用产品");
             }
@@ -188,6 +194,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             // 先移除缓存
             modelApiService.list(Wrappers.<ModelApi>lambdaQuery().eq(ModelApi::getProductId, id))
                     .forEach(modelApi -> Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API)).evict(modelApi.getCode()));
+
+            result.ifPresent(product -> {
+                Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT)).evict(product.getId());
+                Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL)).evict(product.getCode());
+            });
 
             // 移除所有物模型配置
             this.removeModel((Long) id);
@@ -322,6 +333,19 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     @Override
+    public DetailResult<ProductDto> joinDetailByCode(String productCode) {
+        Cache cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL);
+        Cache.ValueWrapper valueWrapper = cache.get(productCode);
+        if(valueWrapper != null) {
+            return new DetailResult<>((ProductDto) valueWrapper.get());
+        }
+
+        ProductDto productDto = getBaseMapper().joinDetailByCode(productCode);
+        cache.put(productCode, productDto);
+        return new DetailResult<>(productDto);
+    }
+
+    @Override
     public DetailResult<ProductDto> debugById(Long productId) {
         ProductDto productDto = getBaseMapper().joinDetailById(productId);
         if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
@@ -444,14 +468,15 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                     }
                 }
 
-                /**
-                 * 发布产品状态切换事件
-                 */
-                IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item.setStatus(status)));
+                // 清除缓存
                 Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT)).evict(id); // 移除缓存
+                Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL)).evict(item.getCode()); // 移除缓存
                 if(item.getDeviceType() != DeviceType.Gateway && status == FuncStatus.disabled) {
                     modelApiService.cleanCache(item.getCode()); // 禁用的时候移除所有接口缓存
                 }
+
+                // 发布状态切换事件
+                IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item.setStatus(status)));
             });
     }
 
@@ -624,5 +649,44 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 .setDirection(config.getDirection())
                 .setDataType(attr.getDataType().getValue())
                 .setProtocolDataType(attr.getDataType().getValue());
+    }
+
+    @Override
+    public List<? extends ProductMeta> listProducts() {
+        return this.list(Wrappers.<Product>lambdaQuery().ne(Product::getDeviceType, DeviceType.Gateway)).getData();
+    }
+
+    @Override
+    public List<? extends ModelDirectMeta> listDirectMeta(String productCode) {
+        List<ModelDirectMeta> result = new ArrayList<>();
+        this.joinDetailByCode(productCode).ifPresent(productDto -> {
+            if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                productDto.getFuncApis().stream()
+                        .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                        .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+            }
+
+            if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                productDto.getEventApis().stream()
+                        .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                        .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+            }
+        });
+
+        return result;
+    }
+
+    @Override
+    public List<? extends ModelApiMeta> listModelApiMeta(String productCode) {
+        List<ModelApiMeta> results = new ArrayList<>();
+        joinDetailByCode(productCode).ifPresent(productDto -> {
+            List<ModelApi> funcApis = productDto.getFuncApis();
+            List<ModelApi> eventApis = productDto.getEventApis();
+
+            if(funcApis != null) results.addAll(funcApis);
+            if(eventApis != null) results.addAll(eventApis);
+        });
+
+        return results;
     }
 }

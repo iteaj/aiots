@@ -78,5 +78,4 @@ public interface ModelApiMeta {
      */
     Boolean getAsStatus();
 
-    List<? extends ModelDirectMeta> resolverCommand(String uid, List<? extends ModelAttrMeta> attrs);
 }
