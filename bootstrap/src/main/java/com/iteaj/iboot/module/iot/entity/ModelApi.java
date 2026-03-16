@@ -17,6 +17,8 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
+import com.iteaj.framework.spi.iot.data.ModelApiMeta;
+import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandViewDto;
@@ -40,7 +42,7 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_model_api")
-public class ModelApi extends BaseEntity {
+public class ModelApi extends BaseEntity implements ModelApiMeta {
 
     private static final long serialVersionUID = 1L;
 
@@ -207,7 +209,7 @@ public class ModelApi extends BaseEntity {
         return Collections.EMPTY_LIST;
     }
 
-    public List<DeviceCommandDto> resolverCommand(String uid, List<ModelAttr> attrs) {
+    public List<DeviceCommandDto> resolverCommand(String uid, List<? extends ModelAttrMeta> attrs) {
         if(!CollectionUtils.isEmpty(downConfig)) {
             List<ModelApiConfig> configs = downConfig.stream()
                     .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
@@ -218,9 +220,9 @@ public class ModelApi extends BaseEntity {
                     throw new ServiceException("参数错误[物模型属性为空]");
                 }
 
-                Map<Long, ModelAttr> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttr::getId, item -> item));
+                Map<Long, ? extends ModelAttrMeta> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttrMeta::getId, item -> item));
                 List<List<ModelAttrDict>> collect = configs.stream()
-                        .map(item -> item.getDicts())
+                        .map(ModelApiConfig::getDicts)
                         .collect(Collectors.toList());
 
                 StringBuilder configValue = new StringBuilder(), configName = new StringBuilder();
@@ -234,7 +236,7 @@ public class ModelApi extends BaseEntity {
                     StringBuilder sb = new StringBuilder(configName.toString());
                     StringBuilder valueSb = new StringBuilder(configValue.toString());
                     item.forEach(dict -> {
-                        ModelAttr modelAttr = attrMap.get(dict.getModelAttrId());
+                        ModelAttrMeta modelAttr = attrMap.get(dict.getModelAttrId());
                         if(modelAttr != null) {
                             sb.append(modelAttr.getName()).append("->").append(dict.getDictName()).append(";");
                             downConfig.forEach(config -> {
@@ -299,14 +301,14 @@ public class ModelApi extends BaseEntity {
         return new DeviceCommandViewDto(getName(), null, getCode()).setLeaf(true).setRemark(getRemark());
     }
 
-    private List<List<ModelAttrDict>> cartesianProduct(List<List<ModelAttrDict>> lists, Map<Long, ModelAttr> attrMap) {
+    private List<List<ModelAttrDict>> cartesianProduct(List<List<ModelAttrDict>> lists, Map<Long, ? extends ModelAttrMeta> attrMap) {
         List<List<ModelAttrDict>> result = new ArrayList<>();
         cartesianProductHelper(lists, 0, new ArrayList<>(), result, attrMap);
         return result;
     }
 
     private void cartesianProductHelper(List<List<ModelAttrDict>> lists, int index, List<ModelAttrDict> current
-            , List<List<ModelAttrDict>> result, Map<Long, ModelAttr> attrMap) {
+            , List<List<ModelAttrDict>> result, Map<Long, ? extends ModelAttrMeta> attrMap) {
         if (index == lists.size()) {
             result.add(new ArrayList<>(current));
             return;
@@ -314,7 +316,7 @@ public class ModelApi extends BaseEntity {
 
         List<ModelAttrDict> list = lists.get(index);
         for (ModelAttrDict value : list) {
-            ModelAttr modelAttr = attrMap.get(value.getModelAttrId());
+            ModelAttrMeta modelAttr = attrMap.get(value.getModelAttrId());
             if(modelAttr != null) {
                 current.add(value);
             }

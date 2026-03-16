@@ -1,12 +1,13 @@
 package com.iteaj.iboot.module.iot.consts;
 
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.spi.iot.consts.DeviceTypeEnum;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public enum DeviceType {
+public enum DeviceType implements DeviceTypeEnum {
 
     Direct("设备直连"),
     Gateway("边缘网关"),
