@@ -221,6 +221,13 @@
         </where>
         group by a.id order by a.create_time desc
     </select>
+    <select id="joinDetailByCode" resultMap="JoinDetailMap">
+        select a.*, ig.id gateway_id, ig.name gateway_name, ip.ctrl_mode, ip.name protocol_name, ip.type transport_protocol
+             , ip.code protocol_code, ig.status gateway_status, ig.type gateway_type from iot_product a
+            left join iot_gateway ig on a.gateway_id=ig.id
+            left join iot_protocol ip on ip.id = a.protocol_id
+        where a.protocol_code=#{protocolCode}
+    </select>
 
     <delete id="removeModel">
         delete from iot_model_api where product_id=#{productId};
