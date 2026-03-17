@@ -3,6 +3,7 @@ package com.iteaj.framework.spi.iot.data;
 import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.consts.DeviceTypeEnum;
+import com.iteaj.framework.spi.iot.consts.FuncStatusEnum;
 import com.iteaj.framework.spi.iot.consts.GatewayType;
 
 import java.util.Date;
@@ -17,6 +18,12 @@ public interface ProductMeta {
      * @return 产品代码
      */
     String getCode();
+
+    /**
+     * 产品状态
+     * @return 产品状态
+     */
+    FuncStatusEnum getStatus();
 
     /**
      * 设备类型

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -652,8 +653,36 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     @Override
-    public List<? extends ProductMeta> listProducts() {
-        return this.list(Wrappers.<Product>lambdaQuery().ne(Product::getDeviceType, DeviceType.Gateway)).getData();
+    public List<? extends ProductMeta> listProducts(ProductMeta product) {
+        Product entity = new Product();
+        BeanUtils.copyProperties(product, entity);
+        return this.list(Wrappers.lambdaQuery(entity)
+                .ne(product.getDeviceType() == null, Product::getDeviceType, DeviceType.Gateway))
+                .getData();
+    }
+
+    @Override
+    public ProductModel getProductModel(String productCode) {
+        return joinDetailByCode(productCode).ofNullable().map(productDto -> {
+            List<ModelApiMeta> apiMetas = new ArrayList<>();
+            List<ModelDirectMeta> directMetas = new ArrayList<>();
+            if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                apiMetas.addAll(productDto.getFuncApis());
+                productDto.getFuncApis().stream()
+                        .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                        .forEach(api -> directMetas.addAll(api.resolverCommand(null, productDto.getAttrs())));
+            }
+
+            if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                apiMetas.addAll(productDto.getEventApis());
+                productDto.getEventApis().stream()
+                        .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                        .forEach(api -> directMetas.addAll(api.resolverCommand(null, productDto.getAttrs())));
+            }
+
+            return new ProductModel(productDto.getName(), productDto.getCode(), productDto.getRemark()
+                    , productDto.getStatus().getDesc(), directMetas, apiMetas);
+        }).orElse(null);
     }
 
     @Override

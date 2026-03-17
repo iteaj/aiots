@@ -133,6 +133,11 @@ public class RedisRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
+    public Collection<RealtimeDeviceStatus> listByProductCode(String productCode) {
+        return List.of();
+    }
+
+    @Override
     public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn) {
         return null;
     }

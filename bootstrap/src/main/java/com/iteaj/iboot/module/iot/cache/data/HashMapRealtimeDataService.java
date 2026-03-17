@@ -154,6 +154,11 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
+    public Collection<? extends RealtimeDeviceStatus> listByProductCode(String productCode) {
+        return cacheManager.listByProductCode(productCode);
+    }
+
+    @Override
     public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn) {
         return cacheManager.get(protocolCode, deviceSn);
     }

@@ -1,5 +1,7 @@
 package com.iteaj.framework.spi.iot.data;
 
+import java.util.Collection;
+
 public interface IModelAttrRealtimeDataService {
 
     /**
@@ -16,6 +18,13 @@ public interface IModelAttrRealtimeDataService {
      * @return 设备实时状态数据
      */
     RealtimeDeviceStatus getDeviceStatus(String uid);
+
+    /**
+     * 获取指定产品下面的设备列表
+     * @param productCode 产品码
+     * @return 设备列表
+     */
+    Collection<? extends RealtimeDeviceStatus> listByProductCode(String productCode);
 
     /**
      * 根据协议码和设备编号获取设备信息

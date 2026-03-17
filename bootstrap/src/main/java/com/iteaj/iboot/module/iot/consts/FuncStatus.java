@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.consts;
 
-public enum FuncStatus {
+import com.iteaj.framework.spi.iot.consts.FuncStatusEnum;
+
+public enum FuncStatus implements FuncStatusEnum {
 
     enabled("启用"), // 启用
     disabled("停用") // 禁用
