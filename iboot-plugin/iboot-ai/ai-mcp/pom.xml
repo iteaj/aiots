@@ -18,6 +18,12 @@
             <version>1.1.2</version> <!-- 使用最新稳定版 -->
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springaicommunity</groupId>
+                    <artifactId>mcp-annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
