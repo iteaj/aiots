@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.iteaj</groupId>
+        <artifactId>iboot-ai</artifactId>
+        <version>${reversion}</version>
+    </parent>
+
+    <name>iboot:ai:vision</name>
+    <artifactId>ai-vision</artifactId>
+    <description>AI图形检测插件</description>
+
+    <properties>
+        <djl.version>0.35.0</djl.version>
+    </properties>
+
+    <dependencies>
+        <!-- DJL 核心 API -->
+        <dependency>
+            <groupId>ai.djl</groupId>
+            <artifactId>api</artifactId>
+            <version>${djl.version}</version>
+        </dependency>
+
+        <!-- 引擎一：PyTorch（支持 .pt / .torchscript 模型，需要时去掉注释） -->
+        <!--
+        <dependency>
+            <groupId>ai.djl.pytorch</groupId>
+            <artifactId>pytorch-engine</artifactId>
+            <version>${djl.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>ai.djl.pytorch</groupId>
+            <artifactId>pytorch-native-auto</artifactId>
+            <version>2.5.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        -->
+
+        <!-- 引擎二：ONNX Runtime（支持 .onnx 模型，推荐用于 YOLO 推理，默认启用） -->
+        <dependency>
+            <groupId>ai.djl.onnxruntime</groupId>
+            <artifactId>onnxruntime-engine</artifactId>
+            <version>${djl.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.onnxruntime</groupId>
+            <artifactId>onnxruntime</artifactId>
+            <version>1.21.1</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- 引擎三：TensorFlow（支持 SavedModel，需要时去掉注释） -->
+        <!--
+        <dependency>
+            <groupId>ai.djl.tensorflow</groupId>
+            <artifactId>tensorflow-engine</artifactId>
+            <version>${djl.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        -->
+    </dependencies>
+
+</project>
