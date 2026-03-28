@@ -10,7 +10,6 @@
     </parent>
     <modules>
         <module>ai-mcp</module>
-        <module>ai-vision</module>
     </modules>
 
     <packaging>pom</packaging>
