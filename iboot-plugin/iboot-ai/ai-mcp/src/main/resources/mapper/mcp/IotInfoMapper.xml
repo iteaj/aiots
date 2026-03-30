@@ -20,4 +20,7 @@
     <select id="listDeviceProtocol" resultType="com.iteaj.iboot.plugin.ai.mcp.dto.DeviceDriverDto">
         select name, code, ctrl_mode, type, remark, version, gateway_type, connection_type from iot_protocol
     </select>
+    <select id="listProductAttrCatalog" resultType="com.iteaj.iboot.plugin.ai.mcp.dto.ApiMetaDto">
+        select code as id, name, 'attr' as catalog, remark from iot_product;
+    </select>
 </mapper>

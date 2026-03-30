@@ -13,6 +13,7 @@ import com.iteaj.iboot.module.core.exception.AsyncExceptionHandler;
 import com.iteaj.iboot.module.core.listener.LoggerListener;
 import com.iteaj.iboot.module.core.service.impl.SysResourceManager;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -82,6 +83,15 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
         return new OrderFilterChainDefinition()
                 .addAnon("/core/login", "/js/**", "/css/**", "/img/**"
                         , "/libs/**", "/doc/**", "/favicon.ico");
+    }
+
+    @Bean
+    public GroupedOpenApi coreApi() {
+        return GroupedOpenApi.builder()
+                .group("core").displayName("系统管理模块")          // 分组名
+                .packagesToScan("com.iteaj.iboot.module.core.controller") // 指定扫描的包
+//                .pathsToMatch("/core/**")                 // 匹配的路径
+                .build();
     }
 
     @Bean

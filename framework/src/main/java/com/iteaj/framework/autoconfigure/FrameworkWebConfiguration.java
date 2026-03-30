@@ -27,7 +27,8 @@ import java.util.List;
  * web项目配置
  */
 @ImportAutoConfiguration({
-        FrameworkAutoConfiguration.class
+        FrameworkAutoConfiguration.class,
+        OpenApiAutoConfiguration.class,
 })
 public class FrameworkWebConfiguration implements WebMvcConfigurer {
 

@@ -1,5 +1,6 @@
 package com.iteaj.iboot.plugin.ai.mcp.service.impl;
 
+import com.iteaj.iboot.plugin.ai.mcp.dto.ApiMetaDto;
 import com.iteaj.iboot.plugin.ai.mcp.dto.DeviceDriverDto;
 import com.iteaj.iboot.plugin.ai.mcp.dto.DeviceGroupInfoDto;
 import com.iteaj.iboot.plugin.ai.mcp.entity.ProductInfo;
@@ -32,5 +33,10 @@ public class IotInfoServiceImpl implements IotInfoService {
     @Override
     public List<DeviceDriverDto> listDeviceProtocol() {
         return iotInfoMapper.listDeviceProtocol();
+    }
+
+    @Override
+    public List<ApiMetaDto> listProductAttrCatalog() {
+        return iotInfoMapper.listProductAttrCatalog();
     }
 }

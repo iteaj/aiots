@@ -4,7 +4,7 @@ import com.iteaj.framework.spi.admin.Module;
 import com.iteaj.framework.spi.iot.data.ModelAttrMetaService;
 import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.framework.spring.condition.ConditionalOnRedis;
-import com.iteaj.framework.thread.IBootThreadManger;
+import com.iteaj.framework.spring.doc.OpenApiDocService;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.IotLocalCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
@@ -21,6 +21,7 @@ import com.iteaj.iboot.module.iot.linkage.warn.RDBMSPersistenceWarnListener;
 import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -48,6 +49,15 @@ public class IotAutoConfiguration {
     @Bean
     public Module iotModule() {
         return Module.module("iot", "物联网模块", 55555);
+    }
+
+    @Bean
+    public GroupedOpenApi iotGroupApi() {
+        return GroupedOpenApi.builder()
+                .group("iot").displayName("物联网模块")
+                .packagesToScan("com.iteaj.iboot.module.iot.controller") // 指定扫描的包
+//                .pathsToMatch("/core/**")                 // 匹配的路径
+                .build();
     }
 
     @Bean

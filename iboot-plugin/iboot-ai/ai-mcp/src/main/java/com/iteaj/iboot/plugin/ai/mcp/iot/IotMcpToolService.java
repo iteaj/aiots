@@ -5,6 +5,8 @@ import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.spring.doc.OpenApiDocService;
+import com.iteaj.iboot.plugin.ai.mcp.dto.ApiMetaDto;
 import com.iteaj.iboot.plugin.ai.mcp.dto.DeviceDriverDto;
 import com.iteaj.iboot.plugin.ai.mcp.dto.DeviceGroupInfoDto;
 import com.iteaj.iboot.plugin.ai.mcp.dto.ProductAiDto;
@@ -12,6 +14,8 @@ import com.iteaj.iboot.plugin.ai.mcp.service.IotInfoService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
@@ -30,13 +34,15 @@ import java.util.*;
 @RequestMapping("/ai/mcp")
 public class IotMcpToolService {
 
+    private final OpenApiDocService apiDocService;
     private final IotInfoService iotInfoService;
     private final Configuration freemarkerConfig;
     private final ProductModelService productModelService;
     private final IModelAttrRealtimeDataService modelAttrRealtimeDataService;
     private final Logger logger = LoggerFactory.getLogger(IotMcpToolService.class);
-    public IotMcpToolService(IotInfoService iotInfoService, ProductModelService productModelService, Configuration freemarkerConfig
+    public IotMcpToolService(OpenApiDocService apiDocService, IotInfoService iotInfoService, ProductModelService productModelService, Configuration freemarkerConfig
             , IModelAttrRealtimeDataService modelAttrRealtimeDataService) {
+        this.apiDocService = apiDocService;
         this.iotInfoService = iotInfoService;
         this.freemarkerConfig = freemarkerConfig;
         this.productModelService = productModelService;
@@ -164,7 +170,7 @@ public class IotMcpToolService {
     /**
      * 查询系统所有驱动
      */
-    @Tool(name = "queryDrivers", description = "用于查询aiots(iboot)物联网系统下所有设备驱动信息")
+    @Tool(name = "queryDrivers", description = "用于查询aiots系统下所有设备驱动信息")
     public String queryDrivers() {
         try {
             List<? extends DeviceDriverDto> deviceProtocolMetas = iotInfoService.listDeviceProtocol();
@@ -179,5 +185,45 @@ public class IotMcpToolService {
             logger.error("获取驱动信息列表失败", e);
             return "获取驱动信息列表失败";
         }
+    }
+
+    @Tool(name = "getMobileApis", description = "用于查询aiots系统有哪些可用的移动端功能(接口), 给人员或者ai在思考和开发功能时提供更多的数据比如: 当前系统提供了哪些功能,这些功能在设计页面时有哪些可展示的数据及前端如何定义接口的数据类型(typescript)")
+    public String getMobileApis() {
+        List<ApiMetaDto> apiMetaDtos = new ArrayList<>();
+
+        return apiDocService.getOpenApi("iot").map(openApi -> {
+            try {
+                Paths paths = openApi.getPaths();
+                paths.forEach((key, value) -> {
+                    String method = value.getGet() != null ? "GET" : value.getPost() != null ? "POST" : "DELETE";
+                    apiMetaDtos.add(new ApiMetaDto(key, value.getSummary(), method, value.getDescription()));
+                });
+
+                Map<String, Object> context = new HashMap<>();
+                context.put("entityList", apiMetaDtos);
+                return resolverTemplate("iot/tableEntity.ftl", context);
+            } catch (Exception e) {
+                logger.error("获取接口信息列表失败", e);
+                return "获取接口信息列表失败";
+            }
+        }).orElse("未找到任何移动端接口");
+
+    }
+
+    @Tool(name = "getMobileApiDetail", description = "用于查询aiots系统移动端功能(接口)的详细信息, 包含了接口的请求参数、响应参数、参数字段、参数类型等信息用于在设计页面时提供可展示的数据及前端如何定义接口请求和响应参数的数据类型(typescript)")
+    public String getMobileApiDetail(String url) {
+        return apiDocService.getOpenApi("iot").map(openApi -> {
+            try {
+                Paths paths = openApi.getPaths();
+                PathItem pathItem = paths.get(url);
+
+                Map<String, Object> context = new HashMap<>();
+                context.put("detail", pathItem);
+                return resolverTemplate("iot/tableEntity.ftl", context);
+            } catch (Exception e) {
+                logger.error("获取接口详情失败", e);
+                return "获取接口详情失败";
+            }
+        }).orElse("未找到任何移动端接口");
     }
 }
