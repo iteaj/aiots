@@ -1,2 +1,19 @@
 /view/view.iml
 /service/service.iml
+.DS_Store
+app/node_modules/
+app/unpackage/
+app/dist/
+
+# Log files
+npm-debug.log*
+
+# Editor directories and files
+.project
+.idea
+.hbuilderx
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
