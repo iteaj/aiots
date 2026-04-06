@@ -5,25 +5,27 @@ import lombok.Getter;
 import lombok.Setter;
 import com.iteaj.framework;
 import lombok.experimental.Accessors;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 
 /**
- * Xxx实体
+ * Xxx数据模型
  */
 @Getter
 @Setter
 @Accessors(chain = true)
 @TableName("xxx")
-public class XxxEntity extends BaseEntity {
+@ApiModel(description = "Xxx数据模型")
+public class Xxx extends BaseEntity {
 
     /** 名称 */
+    @TableField("name")
+    @ApiModelProperty(description = "名称")
     private String name;
 
     // 非数据库字段必须标注 @TableField(exist = false)
-    /** 子节点列表 */
-    @TableField(exist = false)
-    private List<XxxEntity> children;
 }
 
 
