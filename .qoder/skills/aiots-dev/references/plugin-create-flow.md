@@ -44,7 +44,22 @@
 
 ### 步骤四:开发移动端接口(可选)
 
-**如插件需要支持移动端,推荐将移动端代码放在插件内,实现模块化管理:**
+**如插件需要支持移动端,根据开发类型自动选择生成位置:**
+
+#### 自动判断规则
+
+| 开发类型 | 生成位置 | 包路径 | 说明 |
+|---------|---------|--------|------|
+| **独立插件模块** | 插件项目内 | `com.iteaj.iboot.plugin.xxx.app.controller` | 插件独立管理 |
+| **主项目功能模块** | 启动项目module/app | `com.iteaj.iboot.module.app.controller` | 非插件模块 |
+
+**判断依据:**
+- 在 `iboot-plugin/` 目录下开发 → 生成到插件内
+- 在 `bootstrap/` 目录下开发 → 生成到主项目module/app
+
+---
+
+#### 策略一:生成到插件内(独立插件模块)
 
 **包路径规范:**
 - **管理端** - `com.iteaj.iboot.plugin.xxx.controller`
@@ -68,10 +83,38 @@ iboot-plugin/iboot-xxx/
 └── XxxAutoConfiguration.java
 ```
 
+**优势:**
+- 模块独立,插件包含完整功能
+- 便于插件单独开发、测试、维护
+- 移动端和管理端共用Service层
+
+#### 策略二:生成到主项目module/app下(主项目功能)
+
+**包路径规范:**
+- **移动端** - `com.iteaj.iboot.module.app.controller`
+- **移动端DTO** - `com.iteaj.iboot.module.app.dto`
+
+**API路径规范:**
+- **移动端** - `/m/xxx` (如 `/m/vision`)
+
+**目录结构:**
+```
+bootstrap/src/main/java/
+└── com/iteaj/iboot/module/app/
+    └── controller/
+        └── AppXxxController.java
+```
+
+**优势:**
+- 所有移动端接口集中管理
+- 便于跨模块功能整合
+- 移动端统一版本控制
+
 **依赖关系:**
 - 移动端Controller和管理端Controller共用同一个Service层
 - 通过构造器注入插件的Service
 - 移动端可使用专门的DTO进行数据转换
+- **如选择策略二**, 需在主项目注入插件的Service
 
 **移动端Controller模板:** [AppControllerTemplate.java](./AppControllerTemplate.java)
 

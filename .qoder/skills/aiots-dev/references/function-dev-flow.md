@@ -25,10 +25,82 @@
 | 移动端后端功能模块 | app  | 终端 | /m    | 移动端功能接口     | [接口列表明细](./app-module-reference.md) |
 
 ## app后端模块代码生成策略
-- 一个功能既需要管理端也需要移动端 要求如下：
-  - 在对应的业务模块下面生成CRUD代码
-  - 在移动端模块下生成移动端的控制层代码(AppControllerTemplate.java)
-  - 移动端后端接口的包路径: com.iteaj.iboot.module.app
+
+**当功能需要移动端时，根据开发类型自动选择生成位置:**
+
+### 自动判断规则
+
+| 开发类型 | 生成位置 | 包路径 | 说明 |
+|---------|---------|--------|------|
+| **独立插件模块** | 插件项目内 | `com.iteaj.iboot.plugin.{插件简写}.app.controller` | 插件独立管理 |
+| **主项目功能模块** | 启动项目module/app | `com.iteaj.iboot.module.app.controller` | 非插件模块 |
+
+### 判断依据
+
+**属于独立插件模块:**
+- 在 `iboot-plugin/` 目录下开发
+- 有独立的 `pom.xml` 和自动配置类
+- 遵循插件开发规范
+- 例如：`iboot-plugin/iboot-ai/ai-vision/`
+
+**属于主项目功能模块:**
+- 在 `bootstrap/` 目录下开发
+- 直接使用主项目的模块结构
+- 不创建独立的插件模块
+- 例如：`bootstrap/src/main/java/com/iteaj/iboot/module/core/`
+
+---
+
+### 策略一：生成到插件项目内（独立插件开发模式）
+
+**适用场景:** 开发独立插件，需要模块化管理
+
+**包路径:** `com.iteaj.iboot.plugin.{插件简写}.app.controller`
+
+**目录结构:**
+```
+iboot-plugin/iboot-xxx/
+├── controller/                      # 管理端Controller
+│   └── XxxController.java          # /xxx/view, /xxx/list
+└── app/
+    └── controller/                  # 移动端Controller
+        └── AppXxxController.java   # /m/xxx/*
+```
+
+**API前缀:** `/m/xxx` (如 `/m/vision`)
+
+**优势:**
+- 模块独立，插件包含完整功能
+- 便于插件单独开发、测试、维护
+- 移动端和管理端共用Service层
+
+### 策略二：生成到启动项目的module/app下（主项目方式）
+
+**适用场景:** 在主项目中直接开发功能，不创建独立插件
+
+**包路径:** `com.iteaj.iboot.module.app.controller`
+
+**目录结构:**
+```
+bootstrap/src/main/java/
+└── com/iteaj/iboot/module/app/
+    └── controller/
+        └── AppXxxController.java   # /m/xxx/*
+```
+
+**API前缀:** `/m/xxx` (如 `/m/vision`)
+
+**优势:**
+- 所有移动端接口集中管理
+- 便于跨模块功能整合
+- 移动端统一版本控制
+
+### 生成时确认项
+
+开发移动端前需确认:
+1. **开发类型** - 独立插件模块 或 主项目功能模块 [需确认]
+2. **生成位置** - 根据开发类型自动确定 [自动]
+3. **包路径** - 根据生成类型确定完整包路径 [自动]
 
 ## CRUD代码模板
 - 实体类模板: [EntityTemplate.java](./EntityTemplate.java)
