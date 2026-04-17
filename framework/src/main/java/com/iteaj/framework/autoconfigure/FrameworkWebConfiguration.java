@@ -28,7 +28,6 @@ import java.util.List;
  */
 @ImportAutoConfiguration({
         FrameworkAutoConfiguration.class,
-        OpenApiAutoConfiguration.class,
 })
 public class FrameworkWebConfiguration implements WebMvcConfigurer {
 

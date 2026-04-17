@@ -144,3 +144,27 @@ bootstrap/src/main/java/
 3. 返回类型统一使用 `Result` 封装
 4. 遵循统一的命名规范和代码风格
 5. 添加适当的日志记录和权限控制
+6. **表关联处理规范** [重要]
+   - **DTO定义**：详见 [EntityDtoTemplate.java](./EntityDtoTemplate.java)
+     - 一对一关联：添加实体类字段（如：`private User user;`）
+     - 一对多关联：添加实体列表字段（如：`private List<Device> devices;`）
+   
+   - **XML实现**：详见 [MapperTemplate.xml](./MapperTemplate.xml)
+     - 统一使用columnPrefix方式简化映射
+     - 一对一：`<association>` + `columnPrefix`
+     - 一对多：`<collection>` + `column` + `columnPrefix`
+   
+   - **填充时机**：
+     - 列表查询（view/list）：不填充关联数据
+     - 详情查询（detail）：填充一对一和一对多关联数据
+     - 编辑查询（edit）：仅填充基本信息，不填充关联数据
+   
+   - **性能注意**：
+     - 避免N+1查询问题（列表查询不使用关联）
+     - 一对多关联在分页时会导致数据重复，需特殊处理
+     - 使用批量查询或JOIN优化性能
+   
+   - **命名规范**：
+     - 一对一：使用单数形式（如：`user`、`product`）
+     - 一对多：使用复数形式（如：`users`、`devices`）
+

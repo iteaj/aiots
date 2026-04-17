@@ -1,6 +1,5 @@
 package com.iteaj.iboot.boot;
 
-import com.iteaj.iboot.module.app.AppAutoConfiguration;
 import com.iteaj.iboot.module.core.CoreAutoConfiguration;
 import com.iteaj.iboot.module.iot.IotAutoConfiguration;
 import org.springframework.boot.SpringApplication;
@@ -18,7 +17,6 @@ import org.springframework.context.annotation.ComponentScan;
  *     2. 直接注释掉
  */
 @ImportAutoConfiguration(value = {
-        AppAutoConfiguration.class, // 移动端模块
         IotAutoConfiguration.class, // 物联网模块
 
         // 以下是IBoot的核心配置(必须启用)

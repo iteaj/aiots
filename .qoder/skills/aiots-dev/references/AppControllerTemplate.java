@@ -12,8 +12,6 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import com.iteaj.framework.entity.Xxx;
@@ -27,7 +25,6 @@ import com.iteaj.framework.service.IXxxService;
  */
 @RestController
 @RequestMapping("/m/xxx")
-@Tag(tags = "Xxx功能", description = "移动端Xxx相关操作接口")
 public class AppXxxController extends BaseController {
 
     private final IXxxService xxxService;
@@ -41,7 +38,6 @@ public class AppXxxController extends BaseController {
      */
     @Logger("分页查询列表")
     @GetMapping("/page")
-    @Operation(summary = "分页查询列表", description = "根据查询条件分页查询列表")
     public Result<IPage<Xxx>> page(Page page, XxxDto xxx) {
         return this.xxxService.page(page, xxx); 
         // 当需要多表关联查询时使用 this.xxxService.pageOfDetail(page, xxx)
@@ -53,7 +49,6 @@ public class AppXxxController extends BaseController {
     @Logger("列表查询")
     @GetMapping("/list")
     @CheckPermission("module:resource:view")
-    @Operation(summary = "列表查询", description = "根据查询条件查询列表")
     public Result<List<Xxx>> list(Xxx xxx) {
         return xxxService.list(xxx);
     }
@@ -63,7 +58,6 @@ public class AppXxxController extends BaseController {
      */
     @Logger("获取编辑记录")
     @GetMapping("/edit")
-    @Operation(summary = "获取编辑记录", description = "根据编辑记录ID获取编辑记录")
     public Result<Xxx> edit(Long id) {
         return this.xxxService.getById(id);
     }
@@ -74,7 +68,6 @@ public class AppXxxController extends BaseController {
      */
     @Logger("获取记录详情")
     @GetMapping("/detail")
-    @Operation(summary = "获取记录详情", description = "根据记录ID获取记录详情(包含关联数据)")
     public Result<XxxDto> detail(Long id) {
         return this.xxxService.detailById(id);
     }
