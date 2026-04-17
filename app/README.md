@@ -13,7 +13,6 @@ _一次开发，全端运行 - 为您的创新想法提供最强大的技术底�
 [![Last commit](https://img.shields.io/github/last-commit/cool-team-official/cool-unix?style=flat-square&color=red)](https://github.com/cool-team-official/cool-unix/commits)
 
 </div>
-
 ### 项目概述
 
 Cool Unix 是一个高效的项目脚手架。它内置了 UI 组件库、Service 请求、TailwindCSS 插件、多语言一键翻译等多种实用功能，极大提升了开发者的开发效率与体验。
