@@ -2,6 +2,8 @@ package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.captcha.CaptchaType;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.io.File;
@@ -32,6 +34,16 @@ public class FrameworkProperties {
      * web环境配置
      */
     private Web web = new Web();
+
+    /**
+     * 采集调度配置
+     */
+    private CollectTask task = new CollectTask();
+
+    /**
+     * 数据采集调度
+     */
+    private CollectScheduling scheduling = new CollectScheduling();
 
     /**
      * 启用的模块
@@ -125,5 +137,44 @@ public class FrameworkProperties {
         private long expire = 1 * 60;
 
         private CaptchaType type = CaptchaType.Math;
+    }
+
+    /**
+     * 采集任务配置
+     */
+    @Getter
+    @Setter
+    public static class CollectTask {
+        /**
+         * 核心线程池大小
+         */
+        private Integer poolSize = 8;
+
+        /**
+         * 最大线程池大小
+         */
+        private Integer maxPoolSize = 16;
+
+        /**
+         * 线程池前缀
+         */
+        private String threadNamePrefix = "ICT-";
+    }
+
+    /**
+     * 采集任务调度
+     */
+    @Getter
+    @Setter
+    public static class CollectScheduling {
+        /**
+         * 核心线程池大小
+         */
+        private Integer poolSize = 3;
+
+        /**
+         * 线程池前缀
+         */
+        private String threadNamePrefix = "ICS-";
     }
 }
