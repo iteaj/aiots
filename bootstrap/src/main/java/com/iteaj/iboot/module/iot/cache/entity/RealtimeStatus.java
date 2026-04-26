@@ -3,7 +3,6 @@ package com.iteaj.iboot.module.iot.cache.entity;
 import com.alibaba.fastjson.JSONObject;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
-import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import lombok.Data;
@@ -20,7 +19,7 @@ import static com.iteaj.framework.spi.iot.DeviceKey.DEVICE_SPILT;
  */
 @Data
 @Accessors(chain = true)
-public class RealtimeStatus implements RealtimeDeviceStatus, IotEventPayload {
+public class RealtimeStatus implements RealtimeDeviceStatus {
 
     private Long id;
 
@@ -130,6 +129,12 @@ public class RealtimeStatus implements RealtimeDeviceStatus, IotEventPayload {
         RealtimeStatus other = (RealtimeStatus) o;
         return Objects.equals(this.getProtocolCode(), other.getProtocolCode())
                 && Objects.equals(this.buildDeviceKey(), other.buildDeviceKey());
+    }
+
+    @Override
+    public String triggerStatus() {
+        this.status = this.status == DeviceStatus.online ? DeviceStatus.offline : DeviceStatus.online;
+        return this.status.name();
     }
 
     @Override
