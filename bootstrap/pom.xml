@@ -136,22 +136,7 @@
         <dependency>
             <groupId>com.iteaj</groupId>
             <version>${project.version}</version>
-            <artifactId>protocol-dlt645</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
             <artifactId>protocol-opcua</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>protocol-iec104</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <version>${project.version}</version>
-            <artifactId>protocol-hj212</artifactId>
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>

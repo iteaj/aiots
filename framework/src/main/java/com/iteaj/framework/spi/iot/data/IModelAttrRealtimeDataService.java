@@ -2,6 +2,11 @@ package com.iteaj.framework.spi.iot.data;
 
 import java.util.Collection;
 
+/**
+ * 模型属性实时数据服务主要用于：
+ * 1. 获取设备的实时数据
+ * 2. 获取设备的实时状态
+ */
 public interface IModelAttrRealtimeDataService {
 
     /**

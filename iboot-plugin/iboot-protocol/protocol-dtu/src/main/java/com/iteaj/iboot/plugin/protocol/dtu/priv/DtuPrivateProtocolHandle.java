@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 public class DtuPrivateProtocolHandle implements ServerProtocolHandle<DtuInitiativeProtocol> {
@@ -32,6 +33,7 @@ public class DtuPrivateProtocolHandle implements ServerProtocolHandle<DtuInitiat
             logger.info("DTU主动上报数据 >>> 设备编号: {} - 数据: {}", protocol.getEquipCode(), ByteUtil.bytesToHexByFormat(serverMessage.getMessage()));
         }
 
+        Date collectTime = new Date(); // fixed: 修复采集时间为null的问题
         DeviceKey deviceKey = DeviceKey.build("1", protocol.getEquipCode());
         RealtimeDeviceStatus deviceStatus = modelAttrRealtimeDataService.getDeviceStatus(ProtocolCodes.DTU_PRIVATE.getValue(), "1", protocol.getEquipCode());
         if(deviceStatus != null) {
@@ -44,7 +46,7 @@ public class DtuPrivateProtocolHandle implements ServerProtocolHandle<DtuInitiat
 
                     Object resolver = DataValueResolverFactory.resolver(upModelAttr, serverMessage.getMessage());
                     if(resolver != null && !(resolver instanceof byte[])) {
-                        dataSupplier.addValue(value.getId(), null, value.getField(), resolver);
+                        dataSupplier.addValue(value.getId(), null, value.getField(), resolver).build(collectTime);
                     }
                 });
 

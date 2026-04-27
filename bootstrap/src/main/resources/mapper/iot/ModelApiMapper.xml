@@ -18,6 +18,7 @@
         <result column="product_id" property="productId" />
         <result column="trigger_mode" property="triggerMode" />
         <result column="create_time" property="createTime" />
+        <result column="collect_tag_id" property="collectTagId" />
     </resultMap>
 
     <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.ModelApi" extends="BaseResultMap">

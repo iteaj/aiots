@@ -96,6 +96,18 @@ public class EventSource extends BaseEntity {
     private JSONArray deviceGroupIds;
 
     /**
+     * 包含的采集标签ID列表（白名单）
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray includeCollectTagIds;
+
+    /**
+     * 排除的采集标签ID列表（黑名单）
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray excludeCollectTagIds;
+
+    /**
      * 模型接口列表
      */
     @TableField(exist = false)
