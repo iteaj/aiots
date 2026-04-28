@@ -33,10 +33,10 @@ public class DtuPrivateProtocolHandle implements ServerProtocolHandle<DtuInitiat
             logger.info("DTU主动上报数据 >>> 设备编号: {} - 数据: {}", protocol.getEquipCode(), ByteUtil.bytesToHexByFormat(serverMessage.getMessage()));
         }
 
-        Date collectTime = new Date(); // fixed: 修复采集时间为null的问题
         DeviceKey deviceKey = DeviceKey.build("1", protocol.getEquipCode());
         RealtimeDeviceStatus deviceStatus = modelAttrRealtimeDataService.getDeviceStatus(ProtocolCodes.DTU_PRIVATE.getValue(), "1", protocol.getEquipCode());
         if(deviceStatus != null) {
+            Date collectTime = new Date();
             Map<Serializable, ModelAttrMeta> attrMetas = getModelAttrMetaService.getAttrMetas(deviceStatus.getProductCode());
             if(CollectionUtil.isNotEmpty(attrMetas)) {
                 DataSupplier dataSupplier = new DataSupplier(ProtocolCodes.DTU_PRIVATE.getValue(), deviceKey);
@@ -46,11 +46,11 @@ public class DtuPrivateProtocolHandle implements ServerProtocolHandle<DtuInitiat
 
                     Object resolver = DataValueResolverFactory.resolver(upModelAttr, serverMessage.getMessage());
                     if(resolver != null && !(resolver instanceof byte[])) {
-                        dataSupplier.addValue(value.getId(), null, value.getField(), resolver).build(collectTime);
+                        dataSupplier.addValue(value.getId(), null, value.getField(), resolver);
                     }
                 });
 
-                dataCollectPublishService.publish(dataSupplier, deviceStatus);
+                dataCollectPublishService.publish(dataSupplier.build(collectTime), deviceStatus);
             }
         } else {
             logger.warn("DTU私有驱动 >>> 查找不到设备: {}", deviceKey);

@@ -4,7 +4,9 @@
 app/node_modules/
 app/unpackage/
 app/dist/
-
+admin-ui/node_modules/
+admin-ui/unpackage/
+admin-ui/dist/
 # Log files
 npm-debug.log*
 
