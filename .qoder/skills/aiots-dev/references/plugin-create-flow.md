@@ -193,3 +193,40 @@ com.iteaj.iboot.plugin.{插件简写}/
 
 **开发CRUD功能时，直接跳转执行:** [CRUD开发流程](./function-dev-flow.md)
 
+---
+
+## 代码模板元素保留原则 [严格]
+
+### 插件结构
+- **包名规范**：`com.iteaj.iboot.plugin.{插件简写}.{子模块}`
+- **自动配置类**：imports 方式直接放根目录，autoconfig 方式放子包
+- **pom.xml**：parent 指向父模块，在父模块 `<modules>` 中注册
+
+### CRUD 代码（如有）
+- **继承关系**：必须与 CRUD 模板一致
+- **注解要求**：包含所有必需注解
+- **方法签名**：标准 CRUD 方法无遗漏
+- **构造器注入**：禁止字段注入
+
+### 移动端接口（如有）
+- **包路径**：插件内 `com.iteaj.iboot.plugin.xxx.app.controller` 或主项目 `com.iteaj.iboot.module.app.controller`
+- **API 前缀**：`/m/xxx`
+- **共用 Service**：通过构造器注入插件的 Service
+
+---
+
+## 代码生成检查清单
+
+生成插件代码前必须逐项检查：
+
+- [ ] 插件名称、功能描述、父模块已确认
+- [ ] pom.xml 已创建，parent 指向正确
+- [ ] 自动配置类已创建（@ComponentScan / @MapperScan）
+- [ ] 自动配置类加载方式正确（imports 或 autoconfig）
+- [ ] 父模块 pom.xml 已注册新子模块
+- [ ] 包名符合规范（`com.iteaj.iboot.plugin.{插件简写}`）
+- [ ] 如有 CRUD，已严格执行 [CRUD检查清单](./function-dev-flow.md#代码生成检查清单)
+- [ ] 如有移动端，生成位置正确（插件内 或 主项目）
+- [ ] 移动端 API 前缀为 `/m/xxx`
+- [ ] 移动端通过构造器注入 Service
+

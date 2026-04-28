@@ -1,4 +1,5 @@
 // ===== 普通实体示例（继承 BaseEntity）=====
+import com.baomidou.mybatisplus.annotation.SqlCondition;  // 模糊搜索时需导入，注意从annotation包导入
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;

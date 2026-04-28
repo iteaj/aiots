@@ -14,6 +14,10 @@
 4. **根据模板生成代码**
    - 生成代码: 严格按模板[CRUD模板](#crud代码模板)
 
+5. **生成sql文件**
+   - 生成sql文件: 包括创建表sql和需要的菜单sql
+   - 将sql写到docs/sql/patch.sql文件中, 标上日期，方便后续回滚
+
 ## 业务模块和对应的接口列表
 - 项目: bootstrap
 - 模块包路径: com.iteaj.iboot.module
@@ -103,68 +107,59 @@ bootstrap/src/main/java/
 3. **包路径** - 根据生成类型确定完整包路径 [自动]
 
 ## CRUD代码模板
-- 实体类模板: [EntityTemplate.java](./EntityTemplate.java)
-- 实体类Dto模板: [EntityDtoTemplate.java](./EntityDtoTemplate.java)
-- Mapper接口类模板: [MapperTemplate.java](./MapperTemplate.java)
-- xml模板: [MapperTemplate.xml](./MapperTemplate.xml)
-- Service接口类模板: [ServiceTemplate.java](./ServiceTemplate.java)
-- ServiceImpl实现类模板: [ServiceImplTemplate.java](./ServiceImplTemplate.java)
-- 管理端Controller类模板: [ControllerTemplate.java](./ControllerTemplate.java)
-- 移动端前端Controller类模板(开发移动端时生成): [AppControllerTemplate.java](AppControllerTemplate.java)
+
+生成CRUD代码时必须严格按照以下模板：
+
+| 层 | 模板文件 |
+|----|----------|
+| Entity | [EntityTemplate.java](./EntityTemplate.java) |
+| DTO | [EntityDtoTemplate.java](./EntityDtoTemplate.java) |
+| Mapper | [MapperTemplate.java](./MapperTemplate.java) + [MapperTemplate.xml](./MapperTemplate.xml) |
+| Service | [ServiceTemplate.java](./ServiceTemplate.java) |
+| ServiceImpl | [ServiceImplTemplate.java](./ServiceImplTemplate.java) |
+| 管理端Controller | [ControllerTemplate.java](./ControllerTemplate.java) |
+| 移动端Controller | [AppControllerTemplate.java](./AppControllerTemplate.java)（开发移动端时生成） |
 
 ## 接口规范
-1. CRUD模板文件强制遵循 [重要]
-- 生成的 CRUD 代码必须严格按照 CRUD 模板文件来生成
-- 模板文件位置：`references\`
-  - EntityTemplate.java
-  - EntityDtoTemplate.java
-  - MapperTemplate.java
-  - MapperTemplate.xml
-  - ServiceTemplate.java
-  - ServiceImplTemplate.java
-  - ControllerTemplate.java
-  - AppControllerTemplate.java
 
-2. **接口路径规范**
-   - 分页查询：`/view`（GET）
-   - 列表查询：`/list`（GET）
-   - 新增和修改：`/saveOrUpdate`（POST）
-   - 获取记录详情：`/edit`（GET）
-   - 获取记录详细(包括关联的数据)：`/detail`（GET）
-   - 删除：`/del`（POST，请求体 `List<Long> ids`）
+> 接口路径、代码分层、注解、权限编码等速查内容见 [crud-quick-ref.md](./crud-quick-ref.md)
 
-3. **权限编码规范**
-   - 格式：`模块:资源:操作`
-   - 示例：`iot:device:view`、`core:user:add`
+## 表关联处理规范
 
-## 注意事项
+> 关联类型速查见 [crud-quick-ref.md](./crud-quick-ref.md)，以下补充详细规范：
 
-1. 所有类和方法必须添加 Javadoc 注释
-2. 使用构造器注入，避免字段注入
-3. 返回类型统一使用 `Result` 封装
-4. 遵循统一的命名规范和代码风格
-5. 添加适当的日志记录和权限控制
-6. **表关联处理规范** [重要]
-   - **DTO定义**：详见 [EntityDtoTemplate.java](./EntityDtoTemplate.java)
-     - 一对一关联：添加实体类字段（如：`private User user;`）
-     - 一对多关联：添加实体列表字段（如：`private List<Device> devices;`）
-   
-   - **XML实现**：详见 [MapperTemplate.xml](./MapperTemplate.xml)
-     - 统一使用columnPrefix方式简化映射
-     - 一对一：`<association>` + `columnPrefix`
-     - 一对多：`<collection>` + `column` + `columnPrefix`
-   
-   - **填充时机**：
-     - 列表查询（view/list）：不填充关联数据
-     - 详情查询（detail）：填充一对一和一对多关联数据
-     - 编辑查询（edit）：仅填充基本信息，不填充关联数据
-   
-   - **性能注意**：
-     - 避免N+1查询问题（列表查询不使用关联）
-     - 一对多关联在分页时会导致数据重复，需特殊处理
-     - 使用批量查询或JOIN优化性能
-   
-   - **命名规范**：
-     - 一对一：使用单数形式（如：`user`、`product`）
-     - 一对多：使用复数形式（如：`users`、`devices`）
+- **DTO定义**：详见 [EntityDtoTemplate.java](./EntityDtoTemplate.java)
+  - 一对一关联：添加实体类字段（如：`private User user;`）
+  - 一对多关联：添加实体列表字段（如：`private List<Device> devices;`）
+
+- **XML实现**：详见 [MapperTemplate.xml](./MapperTemplate.xml)
+  - 统一使用columnPrefix方式简化映射
+
+- **性能注意**：
+  - 避免N+1查询问题（列表查询不使用关联）
+  - 一对多关联在分页时会导致数据重复，需特殊处理
+  - 使用批量查询或JOIN优化性能
+
+- **命名规范**：
+  - 一对一：使用单数形式（如：`user`、`product`）
+  - 一对多：使用复数形式（如：`users`、`devices`）
+
+---
+
+## 代码生成检查清单
+
+生成代码前必须逐项检查，以下规则与模板同等约束力，违反即需修正：
+
+- [ ] 已读取并理解对应的模板文件（Entity/Mapper/Service/Controller等8个）
+- [ ] **继承关系**与模板一致（Entity → BaseEntity，ServiceImpl → ServiceImpl<Mapper, Entity>）
+- [ ] **注解完整**（@TableName/@Getter/@Setter/@Service/@RestController等模板注解不可遗漏）
+- [ ] **标准方法无遗漏**（view/list/edit/detail/saveOrUpdate/del）
+- [ ] **返回值类型正确**（ListResult/PageResult/DetailResult，与模板一致）
+- [ ] **接口路径规范**（/view /list /saveOrUpdate /edit /detail /del）
+- [ ] **权限编码正确**（格式：模块:资源:操作）
+- [ ] **构造器注入**（禁止 @Autowired 字段注入）
+- [ ] **POST接口请求体**（所有 POST 接口统一使用 `@RequestBody` 接收 JSON 格式参数）
+- [ ] **Service接口去重**（仅定义自定义方法，禁止重复IBaseService已有方法）
+- [ ] **Mapper.xml空条件判断**（`<where><if>` 防止全表查询）
+- [ ] **Javadoc注释**（所有类和方法）
 

@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.logger.Logger;
+import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.security.CheckPermission;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,7 +65,6 @@ public class XxxController extends BaseController {
         return this.xxxService.getById(id);
     }
 
-
     /**
      * 获取记录详情
      */
@@ -79,7 +79,7 @@ public class XxxController extends BaseController {
      */
     @Logger("新增或者更新记录")
     @PostMapping("/saveOrUpdate")
-    @CheckPermission("module:resource:saveOrUpdate")
+    @CheckPermission(value = {"module:resource:edit", "module:resource:add"}, logical = Logical.OR)
     public Result<Boolean> saveOrUpdate(@RequestBody Xxx xxx) {
         return this.xxxService.saveOrUpdate(xxx);
     }

@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface XxxMapper extends BaseMapper<Xxx> {
 
-    DetailResult<XxxDto> detailById(Serializable id);
+    XxxDto detailById(Serializable id);
 
     IPage<XxxDto> pageOfDetail(Page<Xxx> page, XxxDto dto);
 }
