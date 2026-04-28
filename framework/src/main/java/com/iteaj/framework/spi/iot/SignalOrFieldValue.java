@@ -85,4 +85,9 @@ public class SignalOrFieldValue {
     public static SignalOrFieldValue build(Long id, String signalOrField, Date collectTime, CollectStatus status, String address) {
         return new SignalOrFieldValue(id, signalOrField, collectTime, status).setAddress(address);
     }
+
+    @Override
+    public String toString() {
+        return getSignalOrField() + "=" + (value != null ? value.toString() : "");
+    }
 }

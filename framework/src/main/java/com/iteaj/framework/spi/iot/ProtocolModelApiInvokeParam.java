@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.iot;
 
 import com.alibaba.fastjson.JSONObject;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.ProtocolModelApi;
 
@@ -35,6 +36,7 @@ public class ProtocolModelApiInvokeParam {
     private Map config;
 
     public static final Long DEFAULT_TIMEOUT = 3600L;
+    public static final String INVOKE_DEVICE = "_Device";
     public static final String INVOKE_API = "_InvokeApi";
     public static final String DEVICE_CONFIG = "_DeviceConfig";
     public static final String INVOKE_API_CODE = "_InvokeApiCode";
@@ -151,6 +153,15 @@ public class ProtocolModelApiInvokeParam {
 
     public void setConfig(Map config) {
         this.config = config;
+    }
+
+    public RealtimeDeviceStatus getDevice() {
+        return this.getConfig(INVOKE_DEVICE);
+    }
+
+    public ProtocolModelApiInvokeParam addDevice(RealtimeDeviceStatus device) {
+        this.addConfig(INVOKE_DEVICE, device);
+        return this;
     }
 
     public String getApiCode() {
