@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.ai.mapper.AiTrainTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.plugin.ai.entity.AiTrainTask">
+        <id column="id" property="id" />
+        <result column="task_name" property="taskName" />
+        <result column="model_id" property="modelId" />
+        <result column="dataset_id" property="datasetId" />
+        <result column="config" property="config" />
+        <result column="status" property="status" />
+        <result column="progress" property="progress" />
+        <result column="current_epoch" property="currentEpoch" />
+        <result column="total_epochs" property="totalEpochs" />
+        <result column="input_dim" property="inputDim" />
+        <result column="dropout" property="dropout" />
+        <result column="lr" property="lr" />
+        <result column="batch_size" property="batchSize" />
+        <result column="num_classes" property="numClasses" />
+        <result column="trained_model_path" property="trainedModelPath" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="error_msg" property="errorMsg" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- DTO 映射结果（含模型名称） -->
+    <resultMap id="AiTrainTaskDtoResultMap" type="com.iteaj.iboot.plugin.ai.dto.AiTrainTaskDto" extends="BaseResultMap">
+        <result column="model_name" property="modelName" />
+    </resultMap>
+
+    <!-- DTO 详情映射结果（含模型名称 + 训练指标列表） -->
+    <resultMap id="AiTrainTaskDetailDtoResultMap" type="com.iteaj.iboot.plugin.ai.dto.AiTrainTaskDto" extends="AiTrainTaskDtoResultMap">
+        <collection property="metrics" ofType="com.iteaj.iboot.plugin.ai.entity.AiTrainMetric">
+            <id  column="tm_id"            property="id" />
+            <result column="tm_task_id"    property="taskId" />
+            <result column="tm_epoch"      property="epoch" />
+            <result column="tm_train_loss" property="trainLoss" />
+            <result column="tm_val_loss"   property="valLoss" />
+            <result column="tm_train_acc"  property="trainAcc" />
+            <result column="tm_val_acc"    property="valAcc" />
+            <result column="tm_lr"         property="learningRate" />
+            <result column="tm_record_time" property="recordTime" />
+        </collection>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        t.id, t.task_name, t.model_id, t.config, t.status, t.progress,
+        t.current_epoch, t.total_epochs, t.input_dim, t.dropout, t.lr,
+        t.batch_size, t.num_classes, t.trained_model_path, t.dataset_id,
+        t.start_time, t.end_time, t.error_msg, t.remark,
+        t.create_time, t.update_time,
+        m.name AS model_name
+    </sql>
+
+    <!-- detailById 查询（LEFT JOIN ai_model + LEFT JOIN ai_train_metric） -->
+    <select id="detailById" resultMap="AiTrainTaskDetailDtoResultMap">
+        SELECT
+            <include refid="Base_Column_List" />,
+            tm.id           AS tm_id,
+            tm.task_id      AS tm_task_id,
+            tm.epoch        AS tm_epoch,
+            tm.train_loss   AS tm_train_loss,
+            tm.val_loss     AS tm_val_loss,
+            tm.train_acc    AS tm_train_acc,
+            tm.val_acc      AS tm_val_acc,
+            tm.learning_rate AS tm_lr,
+            tm.record_time  AS tm_record_time
+        FROM ai_train_task t
+        LEFT JOIN ai_model m ON m.id = t.model_id
+        LEFT JOIN ai_train_metric tm ON tm.task_id = t.id
+        WHERE t.id = #{id}
+        ORDER BY tm.epoch ASC
+    </select>
+
+    <!-- pageOfDetail 查询（LEFT JOIN ai_model，携带模型名称） -->
+    <select id="pageOfDetail" resultMap="AiTrainTaskDtoResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM ai_train_task t
+        LEFT JOIN ai_model m ON m.id = t.model_id
+        <where>
+            <if test="entity.taskName != null and entity.taskName != ''">
+                AND t.task_name LIKE CONCAT('%', #{entity.taskName}, '%')
+            </if>
+            <if test="entity.modelId != null">
+                AND t.model_id = #{entity.modelId}
+            </if>
+            <if test="entity.status != null and entity.status != ''">
+                AND t.status = #{entity.status}
+            </if>
+        </where>
+        ORDER BY t.create_time DESC
+    </select>
+
+</mapper>
+

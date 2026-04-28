@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.ai.mapper.AiTrainMetricMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.plugin.ai.entity.AiTrainMetric">
+        <id column="id" property="id" />
+        <result column="task_id" property="taskId" />
+        <result column="epoch" property="epoch" />
+        <result column="train_loss" property="trainLoss" />
+        <result column="val_loss" property="valLoss" />
+        <result column="train_acc" property="trainAcc" />
+        <result column="val_acc" property="valAcc" />
+        <result column="learning_rate" property="learningRate" />
+        <result column="record_time" property="recordTime" />
+    </resultMap>
+
+</mapper>

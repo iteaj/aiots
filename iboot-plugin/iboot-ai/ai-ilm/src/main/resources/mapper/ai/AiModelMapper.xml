@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.ai.mapper.AiModelMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.plugin.ai.entity.AiModel">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="model_type" property="modelType" />
+        <result column="modality" property="modality" />
+        <result column="task_type" property="taskType" />
+        <result column="model_path" property="modelPath" />
+        <result column="version" property="version" />
+        <result column="status" property="status" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- DTO 映射结果（含参数列表） -->
+    <resultMap id="AiModelDtoResultMap" type="com.iteaj.iboot.plugin.ai.dto.AiModelDto" extends="BaseResultMap">
+        <collection property="params" ofType="com.iteaj.iboot.plugin.ai.entity.AiModelParam">
+            <id  column="mp_id"           property="id" />
+            <result column="mp_model_id"   property="modelId" />
+            <result column="mp_param_name" property="paramName" />
+            <result column="mp_param_key"  property="paramKey" />
+            <result column="mp_param_value" property="paramValue" />
+            <result column="mp_remark"     property="remark" />
+            <result column="mp_sort"       property="sort" />
+            <result column="mp_create_time" property="createTime" />
+            <result column="mp_update_time" property="updateTime" />
+        </collection>
+    </resultMap>
+
+    <!-- detailById 查询（LEFT JOIN ai_model_param） -->
+    <select id="detailById" resultMap="AiModelDtoResultMap">
+        SELECT
+            m.id, m.name, m.model_type, m.modality, m.task_type, m.model_path, m.version, m.status,
+            m.remark, m.create_time, m.update_time,
+            p.id           AS mp_id,
+            p.model_id     AS mp_model_id,
+            p.param_name   AS mp_param_name,
+            p.param_key    AS mp_param_key,
+            p.param_value  AS mp_param_value,
+            p.remark       AS mp_remark,
+            p.sort         AS mp_sort,
+            p.create_time  AS mp_create_time,
+            p.update_time  AS mp_update_time
+        FROM ai_model m
+        LEFT JOIN ai_model_param p ON p.model_id = m.id
+        WHERE m.id = #{id}
+        ORDER BY p.sort ASC
+    </select>
+
+
+</mapper>
+

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package ai;
+
+option java_multiple_files = true;
+option java_package = "com.iteaj.iboot.plugin.ai.grpc";
+option java_outer_classname = "AiServiceProto";
+
+// AI训练和测试任务管理服务
+service AiTrainService {
+  // 启动训练任务
+  rpc StartTrain(TaskRequest) returns (TaskResponse);
+  // 停止训练任务
+  rpc StopTrain(TaskRequest) returns (TaskResponse);
+}
+
+service AiTestService {
+  // 启动测试任务
+  rpc StartTest(TaskRequest) returns (TaskResponse);
+  // 停止测试任务
+  rpc StopTest(TaskRequest) returns (TaskResponse);
+}
+
+// 任务请求参数（Python端通过task_id从数据库读取其余信息）
+message TaskRequest {
+  int64 task_id = 1;
+}
+
+// 统一响应
+message TaskResponse {
+  bool success = 1;
+  string message = 2;
+}

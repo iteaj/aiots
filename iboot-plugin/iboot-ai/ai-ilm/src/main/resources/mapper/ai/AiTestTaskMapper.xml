@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.ai.mapper.AiTestTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.plugin.ai.entity.AiTestTask">
+        <id column="id" property="id" />
+        <result column="task_name" property="taskName" />
+        <result column="train_task_id" property="trainTaskId" />
+        <result column="status" property="status" />
+        <result column="accuracy" property="accuracy" />
+        <result column="precision_rate" property="precisionRate" />
+        <result column="recall" property="recall" />
+        <result column="test_report" property="testReport" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="error_msg" property="errorMsg" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- DTO 映射结果（含训练任务名称） -->
+    <resultMap id="AiTestTaskDtoResultMap" type="com.iteaj.iboot.plugin.ai.dto.AiTestTaskDto" extends="BaseResultMap">
+        <result column="train_task_name" property="trainTaskName" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        t.id, t.task_name, t.train_task_id, t.status,
+        t.accuracy, t.precision_rate, t.recall, t.test_report,
+        t.start_time, t.end_time, t.error_msg, t.remark,
+        t.create_time, t.update_time,
+        tt.task_name AS train_task_name
+    </sql>
+
+    <!-- detailById 查询（LEFT JOIN ai_train_task） -->
+    <select id="detailById" resultMap="AiTestTaskDtoResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM ai_test_task t
+        LEFT JOIN ai_train_task tt ON tt.id = t.train_task_id
+        WHERE t.id = #{id}
+    </select>
+
+    <!-- pageOfDetail 查询（LEFT JOIN ai_train_task，携带训练任务名称） -->
+    <select id="pageOfDetail" resultMap="AiTestTaskDtoResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM ai_test_task t
+        LEFT JOIN ai_train_task tt ON tt.id = t.train_task_id
+        <where>
+            <if test="entity.taskName != null and entity.taskName != ''">
+                AND t.task_name LIKE CONCAT('%', #{entity.taskName}, '%')
+            </if>
+            <if test="entity.trainTaskId != null">
+                AND t.train_task_id = #{entity.trainTaskId}
+            </if>
+            <if test="entity.status != null and entity.status != ''">
+                AND t.status = #{entity.status}
+            </if>
+        </where>
+        ORDER BY t.create_time DESC
+    </select>
+
+</mapper>
+
