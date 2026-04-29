@@ -101,9 +101,7 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     @Override
     public void put(List<DataSupplier> suppliers) {
         suppliers.forEach(item -> {
-            item.getValues().forEach(value -> {
-                this.put(item.getProtocolCode(), item.getKey(), value);
-            });
+            this.put(item);
         });
     }
 
@@ -153,5 +151,20 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     @Override
     public RealtimeDeviceStatus getDeviceStatus(String uid) {
         return cacheManager.getByUid(uid);
+    }
+
+    @Override
+    public Collection<? extends RealtimeDeviceStatus> listByProductCode(String productCode) {
+        return cacheManager.listByProductCode(productCode);
+    }
+
+    @Override
+    public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn) {
+        return cacheManager.get(protocolCode, deviceSn);
+    }
+
+    @Override
+    public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn) {
+        return cacheManager.get(protocolCode, deviceSn, parentDeviceSn);
     }
 }
