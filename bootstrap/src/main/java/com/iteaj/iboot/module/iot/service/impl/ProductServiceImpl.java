@@ -588,7 +588,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         modelApi.setAsStatus(false).setProductId(entity.getProductId())
                 .setTriggerMode(protocolApi.getTriggerMode()).setProtocol(false).setDebug(true)
                 .setDirect(entity.getDirect()).setFuncType(FuncType.R).setType(protocolApi.getType())
-                .setName("获取"+entity.getName()).setCode(apiCode);
+                .setName("获取"+entity.getName()).setCode(apiCode).setCollectTag(entity.getCollectTag());
         List<ModelApiConfig> upConfigs = new ArrayList<>();
         protocolApi.getUpConfig().forEach((direct, config) -> {
             final ProtocolModelAttr modelAttr = protocol.getAttr(config.getProtocolModelAttrField());

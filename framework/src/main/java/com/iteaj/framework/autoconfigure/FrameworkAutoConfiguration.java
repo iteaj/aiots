@@ -57,30 +57,7 @@ public class FrameworkAutoConfiguration implements ApplicationListener<Applicati
 
     @Bean
     public IBootThreadManger iBootThreadManger(FrameworkProperties properties, @Autowired(required = false) ThreadPoolTaskExecutor taskExecutor) {
-        ThreadPoolTaskExecutor collectExecutor;
-        ThreadPoolTaskScheduler collectScheduler;
-        if(properties.getTask() != null) { // 单独配置了采集任务调度器
-            collectExecutor = new ThreadPoolTaskExecutorBuilder()
-                    .awaitTermination(true)
-                    .corePoolSize(properties.getTask().getPoolSize())
-                    .maxPoolSize(properties.getTask().getMaxPoolSize())
-                    .threadNamePrefix(properties.getTask().getThreadNamePrefix()).build();
-        } else {
-            throw new BeanCreationException("未指定采集任务配置(framework.task.[poolSize, maxPoolSize])");
-        }
-
-        if(properties.getScheduling() != null) {
-            collectScheduler = new ThreadPoolTaskSchedulerBuilder()
-                    .awaitTermination(false)
-                    .poolSize(properties.getScheduling().getPoolSize())
-                    .threadNamePrefix(properties.getScheduling().getThreadNamePrefix())
-                    .build();
-        } else {
-            throw new BeanCreationException("未指定采集任务调度配置(framework.scheduling.poolSize)");
-        }
-
-        taskExecutor = taskExecutor == null ? collectExecutor : taskExecutor;
-        return IBootThreadManger.build(collectScheduler, taskExecutor, collectExecutor);
+        return IBootThreadManger.build(properties, taskExecutor);
     }
 
     @Override

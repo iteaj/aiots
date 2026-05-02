@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.util.List;
 
+import com.iteaj.framework.mybatis.handler.FastjsonLongTypeHandler;
 import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.iboot.module.iot.consts.EventSourceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
@@ -86,26 +87,20 @@ public class EventSource extends BaseEntity {
     /**
      * 操作的产品
      */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
+    @TableField(typeHandler = FastjsonLongTypeHandler.class)
     private JSONArray productIds;
 
     /**
      * 设备组
      */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
+    @TableField(typeHandler = FastjsonLongTypeHandler.class)
     private JSONArray deviceGroupIds;
 
     /**
-     * 包含的采集标签ID列表（白名单）
+     * 频率标签范围（多选，用于过滤ModelApi）
      */
     @TableField(typeHandler = FastjsonTypeHandler.class)
-    private JSONArray includeCollectTagIds;
-
-    /**
-     * 排除的采集标签ID列表（黑名单）
-     */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
-    private JSONArray excludeCollectTagIds;
+    private JSONArray frequencyTags;
 
     /**
      * 模型接口列表

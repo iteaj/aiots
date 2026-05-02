@@ -4,7 +4,7 @@ framework:
     pool-size: 3
     max-pool-size: 8
   scheduling: # 采集任务调度
-    pool-size: 3
+    pool-size: 1
 ---
 spring:
   config:

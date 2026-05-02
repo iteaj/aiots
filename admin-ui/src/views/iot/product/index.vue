@@ -223,7 +223,7 @@
                   <USelectItem label="协议指令" field="direct" v-model:source="eventApis" labelField="name" valueField="code" required
                                url="/iot/protocol/apis?id={protocolId}&type=event" @change="apiChange" @loaded="funcApisLoaded" :disabled="eventEditModel['id'] != null"/>
                   <URadioItem label="触发方式" field="triggerMode" :options="triggerModeOptions" :disabled="true" />
-                  <URadioItem label="是否调试" field="debug" :options="debugOptions" :defaultValue="false" :disabled="eventEditModel?.['triggerMode']=='active'" />
+                  <USelectItem label="频率标签" field="collectTag" :options="collectTagOptions" defaultValue="DEFAULT" required/>
                   <UInputItem label="事件说明" field="remark" :maxlength="64"/>
                   <a-divider dashed>指令配置(可用@提及属性)</a-divider>
                   <a-tabs v-model:activeKey="apiConfigActiveKey" style="width: 873px">
@@ -323,9 +323,10 @@
     <ADrawer v-model:open="batchActive" :title="`批量物模型配置(${modelDetailModel.name})`" placement="bottom" height="100%"
              :bodyStyle="{padding: '6px'}">
       <UChildView uid="batchModel">
-        <UViewSearch style="margin-bottom: 0px;" v-model="batchSearchModel">
+        <UViewSearch style="margin-bottom: 0;" v-model="batchSearchModel">
           <UInputItem label="属性名称" field="name"/>
           <UInputItem label="属性字段" field="field"/>
+          <USelectItem label="频率标签" field="collectTag" :options="collectTagOptions" allowClear style="width: 180px"/>
           <UButton func="query" url="/iot/product/listBatchModel" ref="batchModelQueryRef">查询</UButton>
           <UButton func="add">新增</UButton>
         </UViewSearch>
@@ -378,6 +379,12 @@ export default {
     let triggerModeOptions = ref([
       {label: '主动触发', value: 'active'},
       {label: '被动触发', value: 'passive'},
+    ]);
+    let collectTagOptions = ref([
+      {label: '默认', value: 'DEFAULT'},
+      {label: '低频', value: 'LOW'},
+      {label: '中频', value: 'MEDIUM'},
+      {label: '高频', value: 'HIGH'},
     ]);
     let columns = ref([
       {field: "name", title: "产品名称", resizable: true, width: 180},
@@ -561,10 +568,10 @@ export default {
     let batchCommonColumns = ref([
       {field: "name", title: "属性名称*", width: 120, resizable: true, editable: true},
       {field: "field", title: "属性字段*", width: 120, resizable: true, editable: true},
-      // {field: "defaultValue", title: "默认值", width: 100},
       {field: "dataType", title: "数据类型*", width: 120, options: dataType.value, editable: true},
       {field: "attrType", title: "属性类型*", width: 80, options: attrType.value, editable: true},
       {field: "resolver", title: "解析器*", width: 150, resizable: true, url: "/iot/product/resolvers", editable: true},
+      {field: "collectTag", title: "频率标签", width: 120, editable: true, options: collectTagOptions},
       {field: "unit", title: "单位", width: 80, editable: true},
       {field: "accuracy", title: "精度", width: 80, formType: 'number', min: 0, max: 8, editable: true},
       {field: "gain", title: "增益", width: 80, formType: 'number', min: 0, editable: true},
@@ -653,7 +660,7 @@ export default {
     return {searchRef, columns, rules, activeKey, apiConfigActiveKey, editModel, searchModel, modelDetailModel, attrColumns, funcApis, funcApiDownConfig, eventApis, attrDictSearchModel, attrComputeColumns
       , apiColumns, eventColumns, dataType, attrType, protocolColumns, apiConfigStatus, apiType, attrValueColumns, attrDetailModel, attrModelQueryRef, funcEditModel, funcDownConfigColumns, attrFieldOptions
       , funcUpConfigColumns, eventDownConfigColumns, eventUpConfigColumns, eventEditModel, eventApiDownConfig, ModelAttrList, debugOptions, statusOptions, funcTypeOptions, triggerModeOptions, attrRules
-      , apiRules, modelAttrDictList, batchActive, protocolBatchColumnsMap, batchColumns, batchCommonColumns, batchModelQueryRef, batchSearchModel, cmdColumns, copyValue, configMentionsOptions}
+      , apiRules, modelAttrDictList, batchActive, protocolBatchColumnsMap, batchColumns, batchCommonColumns, batchModelQueryRef, batchSearchModel, cmdColumns, copyValue, configMentionsOptions, collectTagOptions}
   },
   mounted() {
     this.initBatchProtocolColumn();

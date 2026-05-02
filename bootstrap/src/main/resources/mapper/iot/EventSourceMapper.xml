@@ -13,12 +13,10 @@
         <result column="has_passive" property="hasPassive" />
         <result column="create_time" property="createTime" />
         <result column="product_ids" property="productIds"
-                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"/>
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonLongTypeHandler"/>
         <result column="device_group_ids" property="deviceGroupIds"
-                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
-        <result column="include_collect_tag_ids" property="includeCollectTagIds"
-                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
-        <result column="exclude_collect_tag_ids" property="excludeCollectTagIds"
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonLongTypeHandler" />
+        <result column="frequency_tags" property="frequencyTags"
                 typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
     </resultMap>
     <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.EventSource" extends="BaseResultMap">
@@ -29,7 +27,7 @@
     <resultMap id="DetailCollectResultMap" type="com.iteaj.iboot.module.iot.dto.EventSourceDto" extends="BaseResultMap">
         <collection property="apis" resultMap="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.DetailResultMap"
                     columnPrefix="ma_" foreignColumn="id"/>
-        <collection property="groups" resultMap="com.iteaj.iboot.module.iot.mapper.DeviceGroupMapper.BaseResultMap" columnPrefix="dg_" />
+<!--        <collection property="groups" resultMap="com.iteaj.iboot.module.iot.mapper.DeviceGroupMapper.BaseResultMap" columnPrefix="dg_" />-->
     </resultMap>
     <delete id="removeAllByIds">
         delete f,b,c,d,e from iot_event_source f
@@ -89,22 +87,15 @@
     <select id="collectDetailById" resultMap="DetailCollectResultMap">
         select a.*, ma.id ma_id, ma.type ma_type, ma.code ma_code, ma.direct ma_direct, ma.product_id ma_product_id
              , ma.name ma_name, ma.status ma_status, ma.func_type ma_func_type, ma.trigger_mode ma_trigger_mode
-             , ma.collect_tag_id ma_collect_tag_id
-             , dg.id dg_id, dg.name dg_name, dg.pid dg_pid
+             , ma.collect_tag ma_collect_tag
         from iot_event_source a
-            left join iot_device_group dg on json_contains(a.device_group_ids, concat('', dg.id))
-            left join iot_model_api ma on ma.func_type='R' and ma.trigger_mode='passive' 
+            left join iot_model_api ma on ma.func_type='R' and ma.trigger_mode='passive'
                 and json_contains(a.product_ids, concat('', ma.product_id))
+                and (
+                  /* 频率标签过滤：频率范围为空或包含该标签 */
+                  ma.collect_tag is not null and a.frequency_tags is not null and json_contains(a.frequency_tags, json_quote(ma.collect_tag))
+                )
         where a.id=#{id}
-            and (
-                /* 白名单过滤：白名单为空或包含该标签 */
-                (json_length(a.include_collect_tag_ids) = 0 or a.include_collect_tag_ids is null 
-                 or (ma.collect_tag_id is not null and json_contains(a.include_collect_tag_ids, concat('', ma.collect_tag_id))))
-                and
-                /* 黑名单过滤：黑名单为空或不包含该标签 */
-                (json_length(a.exclude_collect_tag_ids) = 0 or a.exclude_collect_tag_ids is null 
-                 or (ma.collect_tag_id is null or not json_contains(a.exclude_collect_tag_ids, concat('', ma.collect_tag_id))))
-            )
     </select>
 
     <select id="listProductById" resultType="com.iteaj.iboot.module.iot.entity.Product">

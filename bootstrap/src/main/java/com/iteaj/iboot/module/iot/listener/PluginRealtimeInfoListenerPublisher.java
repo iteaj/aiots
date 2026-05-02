@@ -90,7 +90,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
                                 .setField(value.getSignalOrField())
                                 .setProductCode(device.getProductCode())
                                 .setProtocolCode(device.getProtocolCode())
-                                .setDeviceGroupId(info.getGroup().getId())
+                                .setDeviceGroupId(device.getDeviceGroupId())
                                 .setFieldName(value.getSignalOrField())
                                 .setCollectTime(supplier.getCollectTime())
                                 .setTaskId(info.getSource().getId())

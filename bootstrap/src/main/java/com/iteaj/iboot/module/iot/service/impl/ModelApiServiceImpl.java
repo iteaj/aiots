@@ -57,6 +57,9 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     public BooleanResult save(ModelApi entity) {
         entity.setCreateTime(new Date());
         this.getByCode(entity.getCode()).ifPresentThrow("接口码已存在["+entity.getCode()+"]");
+        if(entity.getDebug() == null) {
+            entity.setDebug(true); // 默认开启调试
+        }
 
         if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
             entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));

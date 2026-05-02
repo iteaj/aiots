@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
@@ -89,6 +90,12 @@ public class EventSourceCollectService implements ApplicationReadyListener {
         if(StrUtil.isBlank(source.getCron())) {
             throw new ServiceException("请输入正确的采集周期(cron或者毫秒值)");
         }
+
+        if(CollectionUtil.isEmpty(source.getApis()))
+            throw new ServiceException("未包含任何采集接口");
+
+        if(CollectionUtil.isEmpty(source.getGroups()))
+            throw new ServiceException("未包含任何采集组");
 
         ScheduledFuture<?> scheduledFuture = futures.get(id);
         if(status == FuncStatus.enabled) { // 启用

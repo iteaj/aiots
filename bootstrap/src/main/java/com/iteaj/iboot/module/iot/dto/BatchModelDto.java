@@ -97,6 +97,11 @@ public class BatchModelDto {
      */
     private String productCode;
 
+    /**
+     * 频率标签（如：默认、低频、中频、高频）
+     */
+    private String collectTag;
+
     @Transient
     private String apiDownConfig;
 

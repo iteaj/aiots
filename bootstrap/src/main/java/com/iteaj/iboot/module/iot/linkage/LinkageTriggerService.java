@@ -500,16 +500,16 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     }
 
     public void trigger(CollectInfo info) {
-        try {
-            if(CollectionUtil.isNotEmpty(info.getInfos())) {
-                Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(info.getSource().getId(), info.getGroup().getId());
-                if(CollectionUtil.isNotEmpty(linkageItems) && CollectionUtil.isNotEmpty(info.getInfos())) {
-                    this.invokeLinkage(linkageItems, null, info.getInfos().get(0));
-                }
-            }
-        } catch (Exception e) {
-            logger.error("联动触发失败 事件源触发 - 事件源: {} - 触发组: {}", info.getSource().getName(), info.getGroup().getName());
-        }
+//        try {
+//            if(CollectionUtil.isNotEmpty(info.getInfos())) {
+//                Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(info.getSource().getId(), info.getGroup().getId());
+//                if(CollectionUtil.isNotEmpty(linkageItems) && CollectionUtil.isNotEmpty(info.getInfos())) {
+//                    this.invokeLinkage(linkageItems, null, info.getInfos().get(0));
+//                }
+//            }
+//        } catch (Exception e) {
+//            logger.error("联动触发失败 事件源触发 - 事件源: {} - 触发组: {}", info.getSource().getName(), info.getGroup().getName());
+//        }
     }
 
     @Override

@@ -51,9 +51,10 @@ export default defineComponent({
     typeCall: {type: Function, default: (filter) => true}
   },
   setup(props) {
-    let level = ref(10);
+    let level = ref(20);
     let filter = ref([]);
     let content = ref(null);
+    let limit = ref(level.value * 20);
     let loggerConfig = store.getters['sys/loggerConfig'];
     let filterOptions = ref(loggerConfig.filters);
     if(loggerConfig.websocket == null) {
@@ -67,20 +68,22 @@ export default defineComponent({
         let row = 1, id = 0;
         let logger = JSON.parse(message.data);
         if(loggerConfig.loggers.length > 0) {
-          id = loggerConfig.loggers[loggerConfig.loggers.length - 1].id + 1;
+          logger.id = loggerConfig.loggers[loggerConfig.loggers.length - 1].id + 1;
+        } else {
+          logger.id = id;
         }
 
         logger['timestamp'] = dayjs(parseInt(logger['timestamp'])).format('HH:mm:ss')
-        loggerConfig.loggers.push({id, ...logger});
+        loggerConfig.loggers.push(logger);
         if(logger['stackTrace'] instanceof Array) {
           logger['stackTrace'].forEach(exception => {
             row ++;
             loggerConfig.loggers.push({id: ++id, level: logger.level, exception: `<span style="margin-left: 32px">${exception}</span>`})
           })
         }
-
-        if(loggerConfig.loggers.length >= 1000) {
+        if(loggerConfig.loggers.length >= limit.value) {
           loggerConfig.loggers.splice(0, row)
+          console.log('limit', loggerConfig.loggers.length);
         }
       }
     }
@@ -90,6 +93,7 @@ export default defineComponent({
     }
 
     watch([level, filter], (newValue) => {
+      limit.value = level.value * 20;
       loggerConfig.websocket.send(JSON.stringify({level: level.value, filter: filter.value}));
     })
 

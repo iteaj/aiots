@@ -1681,6 +1681,8 @@ export function LinkContext(uid, viewContext, parent) {
      * @return {EditContext | SearchContext | DetailContext | TableContext | VisibleContext}
      */
     this.getChildrenContext = function (uid) {
+        if(!uid) return null;
+
         // 1. 先在本地LinkView内查找 (兼容现有行为)
         let context = this.childContextMaps[this.uid+":"+uid];
         if(context) return context;

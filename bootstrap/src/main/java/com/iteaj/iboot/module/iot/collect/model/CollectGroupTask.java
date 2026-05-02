@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+@Deprecated
 public class CollectGroupTask implements Runnable{
 
     private DeviceGroup group;
@@ -49,11 +50,11 @@ public class CollectGroupTask implements Runnable{
         }
 
         String prevParentDeviceSn = null;
-        CollectInfo info = new CollectInfo(source, group);
+        CollectInfo info = new CollectInfo(source);
         Collection<RealtimeStatus> devices = cacheManager.listByGroupId(group.getId());
         for (RealtimeStatus device : devices) {
             // 当前设备的产品不在事件源包含的产品里面
-            if (device.getProductId() == null || !source.getProductIds().contains(device.getProductId().intValue())) {
+            if (device.getProductId() == null || !source.getProductIds().contains(device.getProductId())) {
                 continue;
             }
 

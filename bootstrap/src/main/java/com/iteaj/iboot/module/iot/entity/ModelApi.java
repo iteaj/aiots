@@ -119,6 +119,11 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
     private TriggerMode triggerMode;
 
     /**
+     * 频率标签（如：默认、低频、中频、高频）
+     */
+    private String collectTag;
+
+    /**
      * 指令参数
      */
     @TableField(typeHandler = FastjsonTypeHandler.class)

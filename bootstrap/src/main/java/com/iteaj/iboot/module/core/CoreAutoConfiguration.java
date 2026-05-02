@@ -9,17 +9,14 @@ import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.excel.ExcelDictHandle;
 import com.iteaj.framework.spi.excel.IExcelService;
 import com.iteaj.iboot.module.core.config.listener.OnlineUserListener;
-import com.iteaj.iboot.module.core.exception.AsyncExceptionHandler;
 import com.iteaj.iboot.module.core.listener.LoggerListener;
 import com.iteaj.iboot.module.core.service.impl.SysResourceManager;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -37,7 +34,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan({"com.iteaj.iboot.module.core"})
 @MapperScan({"com.iteaj.iboot.module.core.mapper"})
 @EnableConfigurationProperties(CoreProperties.class)
-public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer {
+public class CoreAutoConfiguration implements WebMvcConfigurer {
 
     private final CoreProperties coreProperties;
 
@@ -93,10 +90,5 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     @Bean
     public IExcelDictHandler excelDictHandler(IExcelService excelService) {
         return new ExcelDictHandle(excelService);
-    }
-
-    @Override
-    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return new AsyncExceptionHandler();
     }
 }

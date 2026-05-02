@@ -76,6 +76,10 @@
                          :span="24" :labelCol="{span: 2}" :wrapperCol="{span: 22}" :disabled="editModel['hasBindLinkage']"
                    extra="用于限定触发事件和执行动作的设备范围" @loaded="deviceGroupLoaded" mode="multiple" :maxTagCount="10">
         </USelectItem>
+        <USelectItem field="frequencyTags" label="频率范围" :defaultValue="['DEFAULT']" :options="collectTagOptions"
+                     :span="24" :labelCol="{span: 2}" :wrapperCol="{span: 22}" mode="multiple" :maxTagCount="10"
+                     extra="用于过滤物模型接口，只采集指定频率的接口" required>
+        </USelectItem>
       </URow>
       <template #footer>
         <UButton func="cancel">取消</UButton>
@@ -131,10 +135,15 @@ export default {
       productIds: {required: true, message: '产品列表必填'},
       deviceGroupIds: {required: true, message: '设备组必填'},
     })
-
+    let collectTagOptions = ref([
+      {label: '默认', value: 'DEFAULT'},
+      {label: '低频', value: 'LOW'},
+      {label: '中频', value: 'MEDIUM'},
+      {label: '高频', value: 'HIGH'},
+    ]);
     let editModel = ref({});
     let searchModel = ref({});
-    return {columns, rules, editModel, searchModel, leftColumns, rightColumns}
+    return {columns, rules, editModel, searchModel, leftColumns, rightColumns, collectTagOptions}
   },
   methods: {
     modelApiIdsChange(targetKeys, targetItems, direction, moveKeys) {

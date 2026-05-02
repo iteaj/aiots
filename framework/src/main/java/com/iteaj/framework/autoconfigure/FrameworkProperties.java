@@ -159,6 +159,16 @@ public class FrameworkProperties {
          * 线程池前缀
          */
         private String threadNamePrefix = "ICT-";
+
+        /**
+         * 是否启用虚拟线程(true)
+         */
+        private boolean virtualThread = true;
+
+        /**
+         * 并发限制
+         */
+        private Integer concurrencyLimit;
     }
 
     /**
