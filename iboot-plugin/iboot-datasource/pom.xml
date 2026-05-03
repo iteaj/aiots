@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <version>${mybatis.plus.ds.version}</version>
-            <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+            <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
         </dependency>
     </dependencies>
 </project>
