@@ -10,39 +10,26 @@ import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.system.JavaVersion;
-import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 public class EventSourceTask implements Runnable {
 
-    private Executor executor;
     private boolean initialized;
-    private EventSourceDto source;
-    private JavaVersion runtimeVersion;
-    private IotCacheManager cacheManager;
-    private Map<Long, List<ModelApi>> productApis = new HashMap<>(8);
-    private Map<Long, Map<String, List<List<BatchOfPoint>>>> productPoints = new HashMap<>(8);
-    private static Logger logger = LoggerFactory.getLogger(EventSourceTask.class);
+    private final Executor executor;
+    private final EventSourceDto source;
+    private final IotCacheManager cacheManager;
+    private Map<Long, List<ModelApi>> productApis;
+    private final Map<Long, Map<String, List<List<BatchOfPoint>>>> productPoints = new HashMap<>(8);
 
     public EventSourceTask(Executor executor, EventSourceDto source, IotCacheManager cacheManager) {
         this.executor = executor;
         this.source = source;
         this.cacheManager = cacheManager;
-        this.runtimeVersion = JavaVersion.getJavaVersion();
     }
 
     @Override
@@ -51,8 +38,9 @@ public class EventSourceTask implements Runnable {
 
         CollectInfo collectInfo = new CollectInfo(source);
         // >=jdk21使用虚拟线程
-        if(runtimeVersion.isEqualOrNewerThan(JavaVersion.TWENTY_ONE)) {
+        if(IBootThreadManger.isVirtualThreadSupported()) {
             source.getGroups().forEach(group -> {
+                // 注: 由于设备可以实时更新所以获取的设备对象不能再次缓存
                 cacheManager.listByGroupId(group.getId()).forEach(device -> {
                     if(source.getProductIds().contains(device.getProductId())) {
                         List<ModelApi> modelApis = productApis.get(device.getProductId());
@@ -93,7 +81,7 @@ public class EventSourceTask implements Runnable {
         this.productApis.forEach((key, value) -> {
             String protocolCode = source.getProductToProtocolMap().get(key);
             if(protocolCode != null) {
-                DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
+                DeviceProtocolSupplier<?,?> supplier = ProtocolSupplierManager.get(protocolCode);
                 if(supplier instanceof BatchProtocolSupplier) {
                     List<BatchOfPoint> batchOfPoints = resolveModelApiToPoints(value);
                     final BatchEventModelApi batchEventModelApi = ((BatchProtocolSupplier) supplier).getBatchEventModelApi();

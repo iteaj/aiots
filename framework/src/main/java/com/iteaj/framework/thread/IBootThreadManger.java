@@ -30,6 +30,11 @@ public class IBootThreadManger implements DisposableBean, InitializingBean {
     private final AsyncTaskExecutor taskExecutor;
     private ScheduledExecutorService deviceStatusScheduler;
     private final static JavaVersion jdkVersion = JavaVersion.getJavaVersion();
+    /**
+     * 是否支持虚拟线程
+     */
+    @Getter
+    private final static boolean virtualThreadSupported = jdkVersion.isEqualOrNewerThan(JavaVersion.TWENTY_ONE);
 
     protected IBootThreadManger(ThreadPoolTaskScheduler scheduler, AsyncTaskExecutor taskExecutor, AsyncTaskExecutor collectExecutor) {
         this.scheduler = scheduler;
