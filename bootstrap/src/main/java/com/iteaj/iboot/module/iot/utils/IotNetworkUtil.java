@@ -45,14 +45,11 @@ public class IotNetworkUtil {
      * @param status 连接还是断开
      */
     public static Object networkCtrl(DeviceProtocolSupplier supplier, Device device, FuncStatus status) {
-        IotClient client = null;
         NetworkConfig networkConfig = createClientConfig(supplier, device);
-        try {
-            client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
-        } finally {
-            // 处理网关产品设备的状态
-            return resolveGatewayProductClientStatus(client, device, status, supplier.getComponent());
-        }
+
+        IotClient client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
+        // 处理网关产品设备的状态
+        return resolveGatewayProductClientStatus(client, device, status, supplier.getComponent());
     }
 
     private static NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, Device device) {

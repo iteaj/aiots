@@ -78,7 +78,7 @@
         </USelectItem>
         <USelectItem field="frequencyTags" label="频率范围" :defaultValue="['DEFAULT']" :options="collectTagOptions"
                      :span="24" :labelCol="{span: 2}" :wrapperCol="{span: 22}" mode="multiple" :maxTagCount="10"
-                     extra="用于过滤物模型接口，只采集指定频率的接口" required>
+                     extra="用于过滤物模型接口，只采集指定频率的接口" required :disabled="editModel['type'] == 'period'">
         </USelectItem>
       </URow>
       <template #footer>

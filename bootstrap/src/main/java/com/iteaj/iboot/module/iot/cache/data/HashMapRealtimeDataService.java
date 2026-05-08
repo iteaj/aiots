@@ -100,9 +100,7 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
 
     @Override
     public void put(List<DataSupplier> suppliers) {
-        suppliers.forEach(item -> {
-            this.put(item);
-        });
+        suppliers.forEach(this::put);
     }
 
     @Override
@@ -151,6 +149,11 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     @Override
     public RealtimeDeviceStatus getDeviceStatus(String uid) {
         return cacheManager.getByUid(uid);
+    }
+
+    @Override
+    public Collection<? extends RealtimeDeviceStatus> listByGroupId(Long groupId) {
+        return cacheManager.listByGroupId(groupId);
     }
 
     @Override

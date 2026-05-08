@@ -6,8 +6,10 @@ public interface IotAsyncListener<V> extends IotListener<V> {
 
     /**
      * 监听事件
-     * @param eventType
-     * @param value
+     * @param eventType 事件类型
+     * @param value 事件值
      */
-    default void onIotEvent(IotEventType eventType, V value, Consumer callback) {}
+    default void onIotEvent(IotEventType eventType, V value, Consumer<Object> callback) {
+        onIotEvent(eventType, value);
+    }
 }

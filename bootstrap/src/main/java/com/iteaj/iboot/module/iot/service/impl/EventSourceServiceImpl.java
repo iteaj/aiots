@@ -142,12 +142,6 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
             eventSourceDto.setGroups(deviceGroups == null ? Collections.emptyList() : deviceGroups);
         }
 
-        if(eventSourceDto != null) {
-            Map<Long, String> productToProtocolMap = listProductById(eventSourceDto.getId(), null)
-                    .stream()
-                    .collect(Collectors.toMap(BaseEntity::getId, Product::getProtocolCode));
-            eventSourceDto.setProductToProtocolMap(productToProtocolMap);
-        }
         return new DetailResult<>(eventSourceDto);
     }
 

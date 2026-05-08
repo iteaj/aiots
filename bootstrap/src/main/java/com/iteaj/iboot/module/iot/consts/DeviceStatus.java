@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.consts;
 
-public enum DeviceStatus {
+import com.iteaj.framework.spi.iot.consts.DeviceStatusEnum;
+
+public enum DeviceStatus implements DeviceStatusEnum {
 
     online("在线"), // 在线
     offline("离线") // 离线

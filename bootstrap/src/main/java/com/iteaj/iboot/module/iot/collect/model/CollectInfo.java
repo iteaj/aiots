@@ -1,10 +1,8 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
 import com.iteaj.framework.spi.iot.DataSupplier;
-import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.entity.DeviceGroup;
-import com.iteaj.iboot.module.iot.entity.EventSource;
+import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iot.consts.ExecStatus;
 import com.iteaj.iot.utils.UniqueIdGen;
@@ -24,7 +22,7 @@ public class CollectInfo {
     /**
      * 此次采集的事件源
      */
-    private EventSource source;
+    private EventSourceDto source;
 
     /**
      * 采集时间
@@ -38,15 +36,14 @@ public class CollectInfo {
      */
     private List<DeviceInfo> infos = new ArrayList<>();
 
-    public CollectInfo(EventSource source) {
+    public CollectInfo(EventSourceDto source) {
         this.source = source;
         this.collectTime = new Date();
         this.cid = String.valueOf(UniqueIdGen.nextLong());
     }
 
     public DeviceInfo addDeviceInfo(RealtimeStatus device) {
-        DeviceInfo deviceInfo = new DeviceInfo(null, device, new DataSupplier(device.getProtocolCode(), device.buildKey()));
-        this.infos.add(deviceInfo); return deviceInfo;
+        return addDeviceInfo(device, null, new DataSupplier(device.getProtocolCode(), device.buildKey()));
     }
 
     public DeviceInfo addDeviceInfo(RealtimeStatus device, ModelApi api, DataSupplier supplier) {
@@ -96,7 +93,7 @@ public class CollectInfo {
         }
 
         /**
-         * 合并执行状态(有一个接口采集成功则代码成功)
+         * 合并执行状态(有一个接口采集成功则代表成功)
          * @param status 执行状态
          * @return 当前设备信息
          */

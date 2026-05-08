@@ -90,7 +90,7 @@
                     </UInputNumberItem>
                     <UInputItem label="属性备注" field="remark" :maxlength="64"/>
                   </URow>
-                  <a-divider dashed>属性值配置(适用于枚举、json、bit、group类型)</a-divider>
+                  <a-divider dashed style="margin: 0;">属性值配置(适用于枚举、json、bit、group类型)</a-divider>
                   <UChildView uid="attrValue">
                     <UViewSearch v-model="attrDictSearchModel">
                       <UInputItem label="名称" field="dictName"/>
@@ -130,14 +130,6 @@
                   </div>
                 </template>
               </UViewDrawer>
-            </UChildView>
-          </a-tab-pane>
-          <a-tab-pane key="protocol" tab="协议指令">
-            <UChildView uid="protocol">
-<!--              <UViewSearch>-->
-                <UButton func="query" :url="`/iot/protocol/apis?id=${modelDetailModel['protocolId']}`" v-show="false">查询</UButton>
-<!--              </UViewSearch>-->
-              <UViewTable :columns="protocolColumns" rowKey="code" :pagination="false" size="small" />
             </UChildView>
           </a-tab-pane>
           <a-tab-pane key="func" tab="功能模型">
@@ -280,6 +272,31 @@
               </UViewTable>
             </UChildView>
           </a-tab-pane>
+          <a-tab-pane key="calcAttr" tab="计算属性">
+            <ARow>
+              <ACol span="16">
+                <AceScriptEditor style="min-height: 320px;" v-model:value="modelDetailModel.config.calcScript"  :completions="calcAttrCompletions"></AceScriptEditor>
+              </ACol>
+              <ACol span="8" style="background-color: #f8f8f8; position: relative">
+                <div style="padding: 8px; font-size: 12px; color: #8e8e8e;">
+                  <div>适用场景：有些属性可以通过对采集的值进行计算后得到</div>
+                  <div style="color: #1c79f4">使用方法：通过methods对象提供如下方法：</div>
+                  <div style="height: 220px; overflow-y: auto;">
+                    <div class="method-item" v-for="(item, index) in calcAttrCompletions" :key="index">
+                      <span class="method-value">{{item.value}}</span><span class="method-label">{{item.meta}}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="position: absolute; bottom: 8px; text-align: center; width: 100%;">
+                  <ARadioGroup button-style="solid" v-model:value="modelDetailModel.config['calcLanguage']" @change="updateCalcScript">
+                    <ARadioButton value="javascript">javascript</ARadioButton>
+                    <ARadioButton value="disabled">禁用</ARadioButton>
+                  </ARadioGroup>
+                  <AButton type="primary" style="margin-left: 8px;" @click="updateCalcScript">保存</AButton>
+                </div>
+              </ACol>
+            </ARow>
+          </a-tab-pane>
           <a-tab-pane key="commands" tab="指令集">
             <UTable uid="cmdTable" :columns="cmdColumns" :pagination="false" ref="cmdTable" size="small" :scroll="{y: 360}">
               <template #title>
@@ -297,6 +314,18 @@
                 </a-typography-paragraph>
               </template>
             </UTable>
+          </a-tab-pane>
+          <a-tab-pane key="protocol" tab="协议指令">
+            <UChildView uid="protocol">
+              <!--              <UViewSearch>-->
+              <UButton func="query" :url="`/iot/protocol/apis?id=${modelDetailModel['protocolId']}`" v-show="false">查询</UButton>
+              <!--              </UViewSearch>-->
+              <UViewTable :columns="protocolColumns" rowKey="code" :pagination="false" size="small">
+                <template #title>
+                  <span style="color: #a8a8a8;">注: 以下协议列表由产品所属驱动({{modelDetailModel['protocolName']}})提供</span>
+                </template>
+              </UViewTable>
+            </UChildView>
           </a-tab-pane>
         </a-tabs>
       </div>
@@ -352,9 +381,10 @@ import {QuestionCircleOutlined} from "@ant-design/icons-vue";
 import {USelect} from "@/components/form/basic";
 import {Input, InputNumber} from "ant-design-vue";
 import {getMetaValue, setMetaValue} from "@/utils/MetaUtils";
+import AceScriptEditor from "@/components/code/AceScriptEditor.vue";
 export default {
   name: "Product",
-  components: {QuestionCircleOutlined},
+  components: {AceScriptEditor, QuestionCircleOutlined},
   setup() {
     let route = useRoute();
     let attrModelQueryRef = ref(null);
@@ -461,6 +491,7 @@ export default {
       {field: "remark", title: "属性说明", ellipsis: true, width: 220, resizable: true},
       {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 260},
     ])
+    let calcAttrCompletions = ref([]);
     let attrDetailModel = ref({}); // 物模型属性详情
     let ModelAttrList = ref([]); // 物模型属性列表
     let modelAttrDictList = ref([]);
@@ -660,10 +691,20 @@ export default {
     return {searchRef, columns, rules, activeKey, apiConfigActiveKey, editModel, searchModel, modelDetailModel, attrColumns, funcApis, funcApiDownConfig, eventApis, attrDictSearchModel, attrComputeColumns
       , apiColumns, eventColumns, dataType, attrType, protocolColumns, apiConfigStatus, apiType, attrValueColumns, attrDetailModel, attrModelQueryRef, funcEditModel, funcDownConfigColumns, attrFieldOptions
       , funcUpConfigColumns, eventDownConfigColumns, eventUpConfigColumns, eventEditModel, eventApiDownConfig, ModelAttrList, debugOptions, statusOptions, funcTypeOptions, triggerModeOptions, attrRules
-      , apiRules, modelAttrDictList, batchActive, protocolBatchColumnsMap, batchColumns, batchCommonColumns, batchModelQueryRef, batchSearchModel, cmdColumns, copyValue, configMentionsOptions, collectTagOptions}
+      , apiRules, modelAttrDictList, batchActive, protocolBatchColumnsMap, batchColumns, batchCommonColumns, batchModelQueryRef, batchSearchModel, cmdColumns, copyValue, configMentionsOptions, collectTagOptions
+      , calcAttrCompletions}
   },
   mounted() {
     this.initBatchProtocolColumn();
+    this.$http.get("/iot/product/calcScriptMethods").then(({code, message, data}) => {
+      if(code == CoreConsts.SuccessCode) {
+        if(data && data.length > 0) {
+          data.forEach(item => this.calcAttrCompletions.push(item))
+        }
+      } else {
+        console.error(message);
+      }
+    });
   },
   methods: {
     parentChange(value, model) {
@@ -1056,8 +1097,28 @@ export default {
       if(cmdTableRef) {
         cmdTableRef.getTableContext().setDataSource([]);
       }
+    },
+    updateCalcScript() {
+      this.$http.post(`/iot/product/updateCalcScript`, this.modelDetailModel).then(({code, message}) => {
+        if(code == CoreConsts.SuccessCode) {
+          this.$msg.success(message);
+        } else {
+          this.$msg.error(message);
+        }
+      })
     }
   }
 }
 </script>
-<style scoped> </style>
+<style scoped>
+.method-item .method-value, .method-item .method-label {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-left: 12px;
+}
+.method-item .method-value {
+  width: 45%;
+}
+</style>

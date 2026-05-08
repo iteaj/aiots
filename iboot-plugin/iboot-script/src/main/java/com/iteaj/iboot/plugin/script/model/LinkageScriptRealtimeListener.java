@@ -2,27 +2,19 @@ package com.iteaj.iboot.plugin.script.model;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.script.*;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
-import com.iteaj.framework.spi.iot.listener.IotAsyncListener;
-import com.iteaj.framework.spi.iot.listener.IotEventType;
-import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
-import com.iteaj.framework.spi.iot.listener.RealtimePayload;
+import com.iteaj.framework.spi.iot.listener.*;
 import com.oracle.truffle.polyglot.*;
-import org.graalvm.polyglot.Value;
-
-import javax.script.Bindings;
 import java.util.*;
 
 /**
  * 监听实时数据时间, 通过脚本引擎做场景联动
  */
-public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotAsyncListener<RealtimePayload> {
+public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotListener<RealtimePayload> {
 
     private final static String SPEC = ":";
     private final static String ALL_FIELD = ":*";
@@ -35,18 +27,12 @@ public class LinkageScriptRealtimeListener implements RealtimeInfoListener, IotA
         if(value.isData() || value.isStatus() || value.isDataActive()) {
             if(!keyAttrMaps.isEmpty() && CollectionUtil.isNotEmpty(value.getPayload())) {
                 keyAttrMaps.forEach((key, attrs) -> {
-                    try {
-                        if(value.isStatus()) {
-                            statusHandle(key, value.getPayload(), attrs);
-                        } else {
-                            dataHandle(key, value.getPayload(), attrs);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if(value.isStatus()) {
+                        statusHandle(key, value.getPayload(), attrs);
+                    } else {
+                        dataHandle(key, value.getPayload(), attrs);
                     }
                 });
-            } else {
-                LinkageScriptMethodsProvider.INSTANCE.debug(value.getUid(), "没有配置联动脚本");
             }
         }
     }

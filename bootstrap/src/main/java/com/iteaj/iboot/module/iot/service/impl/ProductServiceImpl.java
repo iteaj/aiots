@@ -1,6 +1,5 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -17,7 +16,6 @@ import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.data.ModelApiMeta;
 import com.iteaj.framework.spi.iot.data.ModelDirectMeta;
 import com.iteaj.framework.spi.iot.data.ProductMeta;
-import com.iteaj.framework.spi.iot.data.ProductModelService;
 import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
@@ -53,7 +51,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_PRODUCT, CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL})
-public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> implements IProductService, ProductModelService {
+public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> implements IProductService {
 
     private final CacheManager cacheManager;
     private final IotCacheManager iotCacheManager;
@@ -650,6 +648,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 .setDirection(config.getDirection())
                 .setDataType(attr.getDataType().getValue())
                 .setProtocolDataType(attr.getDataType().getValue());
+    }
+
+    @Override
+    public ProductMeta getProductByCache(Long productId) {
+        return this.detailById(productId).getData();
     }
 
     @Override

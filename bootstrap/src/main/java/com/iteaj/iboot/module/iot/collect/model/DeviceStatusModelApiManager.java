@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  * 物模型的设备在线状态协议管理
  * 一般用于网关子设备的状态采集
  */
+@Deprecated(since = "3.3.0")
 public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyListener {
 
     private IotCacheManager cacheManager;
@@ -204,15 +205,15 @@ public class DeviceStatusModelApiManager implements Runnable, ApplicationReadyLi
 
     @Override
     public void started(ApplicationContext context) {
-        this.cacheManager = context.getBean(IotCacheManager.class);
-        this.bootThreadManger = context.getBean(IBootThreadManger.class);
-        IModelApiService modelApiService = context.getBean(IModelApiService.class);
-        modelApiService.listAsStatusModelApi().forEach(this::register);
-
-        /**
-         * 10分钟执行一次
-         */
-        bootThreadManger.getDeviceStatusScheduler()
-                .scheduleWithFixedDelay(this, 30, 10 * 60, TimeUnit.SECONDS);
+//        this.cacheManager = context.getBean(IotCacheManager.class);
+//        this.bootThreadManger = context.getBean(IBootThreadManger.class);
+//        IModelApiService modelApiService = context.getBean(IModelApiService.class);
+//        modelApiService.listAsStatusModelApi().forEach(this::register);
+//
+//        /**
+//         * 10分钟执行一次
+//         */
+//        bootThreadManger.getDeviceStatusScheduler()
+//                .scheduleWithFixedDelay(this, 30, 10 * 60, TimeUnit.SECONDS);
     }
 }

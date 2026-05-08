@@ -5,9 +5,7 @@ import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @Setter
@@ -31,16 +29,32 @@ public class DataSupplier {
     /**
      * 点位或者字段列表值
      */
-    private List<SignalOrFieldValue> values;
+    private Map<String, SignalOrFieldValue> values;
 
     public DataSupplier(String protocolCode, DeviceKey key) {
         this.key = key;
-        this.values = new ArrayList<>();
         this.protocolCode = protocolCode;
+        this.values = new LinkedHashMap<>();
+    }
+
+    public SignalOrFieldValue getFieldValue(String field) {
+        return values.get(field);
+    }
+
+    public Collection<SignalOrFieldValue> getValues() {
+        return values.values();
+    }
+
+    public DataSupplier setValues(Collection<SignalOrFieldValue> values) {
+        if(CollectionUtil.isNotEmpty(values)) {
+            values.forEach(this::addValue);
+        }
+
+        return this;
     }
 
     public DataSupplier addValue(SignalOrFieldValue value) {
-        values.add(value); return this;
+        values.put(value.getSignalOrField(), value); return this;
     }
 
     public DataSupplier addValue(Long id, String signalOrField, Object value) {

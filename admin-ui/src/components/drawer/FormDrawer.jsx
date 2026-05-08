@@ -85,7 +85,7 @@ export default defineComponent({
         }
 
         return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]} rootStyle={{position: 'absolute'}}
-                {...this.$props} v-slots={this.slotProxy} getContainer=".u-main-task" ref="ADrawerRef"
+                {...this.$props} v-slots={this.slotProxy} getContainer=".u-page-view" ref="ADrawerRef"
                 rootClassName="iv-drawer u-edit-form iv-form-drawer" destroyOnClose={false} forceRender={true}>
             <ASpin size="small" tip={this.spinTip} spinning={this.spinning}>
                 <UForm {...this.$attrs} ref="iemFormRef">

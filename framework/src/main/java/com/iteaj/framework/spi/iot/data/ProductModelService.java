@@ -11,6 +11,13 @@ import java.util.List;
 public interface ProductModelService {
 
     /**
+     * 根据产品Id获取产品信息
+     * @param productId 产品Id
+     * @return 产品信息
+     */
+    ProductMeta getProductByCache(Long productId);
+
+    /**
      * 获取产品列表
      * @param product 产品条件
      * @return 产品列表

@@ -5,6 +5,7 @@
 <script>
 import {ref, watch} from "vue";
 import {VAceEditor} from 'vue3-ace-editor'
+import 'ace-builds/esm-resolver';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-language_tools'; // 引入代码提示扩展

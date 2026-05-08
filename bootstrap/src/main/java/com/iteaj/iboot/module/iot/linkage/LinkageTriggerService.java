@@ -514,7 +514,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
     @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
-        List<SignalOrFieldValue> values = supplier.getValues();
+        Collection<SignalOrFieldValue> values = supplier.getValues();
         if(CollectionUtil.isNotEmpty(values)) {
             values.forEach(item -> {
                 Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), item.getSignalOrField());

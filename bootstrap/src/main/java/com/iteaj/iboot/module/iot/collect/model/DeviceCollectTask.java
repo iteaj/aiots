@@ -3,10 +3,11 @@ package com.iteaj.iboot.module.iot.collect.model;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.script.CalcAttrScriptMethodProvide;
 import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.data.IModelAttrRealtimeDataService;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
-import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -27,17 +28,15 @@ public class DeviceCollectTask implements Runnable {
     private final List<ModelApi> apis;
     private final RealtimeStatus device;
     private final CollectInfo collectInfo;
-    private final IotCacheManager cacheManager;
     // direct -> 批量点位
     private final Map<String, List<List<BatchOfPoint>>> batchOfPoints;
 
-    public DeviceCollectTask(RealtimeStatus device, DeviceGroup group, CollectInfo collectInfo, List<ModelApi> apis
-            , Map<String, List<List<BatchOfPoint>>> batchOfPoints, IotCacheManager cacheManager) {
+    public DeviceCollectTask(RealtimeStatus device, DeviceGroup group, CollectInfo collectInfo
+            , List<ModelApi> apis, Map<String, List<List<BatchOfPoint>>> batchOfPoints) {
         this.apis = apis;
         this.group = group;
         this.device = device;
         this.collectInfo = collectInfo;
-        this.cacheManager = cacheManager;
         this.batchOfPoints = batchOfPoints;
     }
 
@@ -46,7 +45,7 @@ public class DeviceCollectTask implements Runnable {
         RealtimeStatus parent = null;
         EventSource source = collectInfo.getSource();
         if (device.getType() == DeviceType.Child) {
-            parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
+            parent = (RealtimeStatus) IotCoreApiService.getDeviceStatus(device.getProtocolCode(), device.getParentDeviceSn());
             if(parent == null) {
                 IotLogger.warn(source, device.getUid(), "放弃设备采集任务 父设备不存在({}) - 设备组: {} - 设备编号: {}"
                         , device.getParentDeviceSn(), group.getName(), device.buildKey());
@@ -86,7 +85,7 @@ public class DeviceCollectTask implements Runnable {
                 dataPublish(deviceInfo, device);
             }
         } else {
-            DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(device.getProtocolCode());
+            DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(device.getProtocolCode());
             final ProtocolModelApiInvokeParam invokeParam = ProtocolInvokeUtil.createModelApiInvokeParam(device, parent);
             try {
                 ((BatchProtocolSupplier) supplier).getBatchEventModelApi().invoke(invokeParam, batchOfPoints, result -> {
@@ -140,6 +139,10 @@ public class DeviceCollectTask implements Runnable {
 
     protected void dataPublish(CollectInfo.DeviceInfo deviceInfo, RealtimeStatus device) {
         if(CollectionUtil.isNotEmpty(deviceInfo.getSupplier().getValues())) {
+            // 调用计算脚本
+            CalcAttrScriptMethodProvide.invokeCalcScript(deviceInfo.getSupplier(), device);
+
+            // 发布设备采集事件
             CollectListenerManager.getInstance().eventGroupPublish(item -> {
                 try {
                     item.supplier(collectInfo.getSource(), group, deviceInfo);

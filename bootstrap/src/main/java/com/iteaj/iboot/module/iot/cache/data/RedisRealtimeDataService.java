@@ -133,6 +133,11 @@ public class RedisRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
+    public Collection<? extends RealtimeDeviceStatus> listByGroupId(Long groupId) {
+        return List.of();
+    }
+
+    @Override
     public Collection<RealtimeDeviceStatus> listByProductCode(String productCode) {
         return List.of();
     }

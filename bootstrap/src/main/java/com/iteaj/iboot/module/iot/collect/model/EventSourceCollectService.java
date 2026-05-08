@@ -6,16 +6,17 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
+import com.iteaj.framework.spi.iot.data.IModelAttrRealtimeDataService;
 import com.iteaj.framework.thread.IBootThreadManger;
-import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.consts.EventSourceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.EventSource;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.linkage.LinkageTriggerService;
 import com.iteaj.iboot.module.iot.linkage.PeriodEventTask;
-import com.iteaj.iboot.module.iot.service.IDeviceGroupService;
 import com.iteaj.iboot.module.iot.service.IEventSourceService;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +24,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
@@ -30,17 +32,14 @@ import java.util.concurrent.ScheduledFuture;
 @Component
 public class EventSourceCollectService implements ApplicationReadyListener {
 
-    private final IotCacheManager cacheManager;
     private final IBootThreadManger threadManger;
     private final LinkageTriggerService triggerService;
     private final IEventSourceService eventSourceService;
-    private Logger logger = LoggerFactory.getLogger(getClass());
-    private final Map<Long, ScheduledFuture> futures = new ConcurrentHashMap<>(128);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Map<Long, ScheduledFuture<?>> futures = new ConcurrentHashMap<>(128);
 
-    public EventSourceCollectService(IotCacheManager cacheManager
-            , IBootThreadManger threadManger, LinkageTriggerService triggerService
-            , IEventSourceService eventSourceService) {
-        this.cacheManager = cacheManager;
+    public EventSourceCollectService(IBootThreadManger threadManger
+            , LinkageTriggerService triggerService, IEventSourceService eventSourceService) {
         this.threadManger = threadManger;
         this.triggerService = triggerService;
         this.eventSourceService = eventSourceService;
@@ -99,11 +98,19 @@ public class EventSourceCollectService implements ApplicationReadyListener {
 
         ScheduledFuture<?> scheduledFuture = futures.get(id);
         if(status == FuncStatus.enabled) { // 启用
+            Map<Long, Product> productMap = new HashMap<>(8);
             this.eventSourceService.listProductById(source.getId(), null).forEach(product -> {
                 if(product.getStatus() == FuncStatus.disabled) {
                     throw new ServiceException("产品["+product.getName()+"]未启用");
                 }
+
+                productMap.put(product.getId(), product);
             });
+
+            source.setProductMaps(productMap);
+            if(productMap.size() != source.getProductIds().size()) {
+                throw new ServiceException("事件源配置的某些产品已被删除");
+            }
 
             if(scheduledFuture != null) { // 已经存在则先移除并取消
                 futures.remove(id).cancel(true);
@@ -115,9 +122,9 @@ public class EventSourceCollectService implements ApplicationReadyListener {
                 ScheduledFuture<?> schedule;
                 if(source.getType() == EventSourceType.event) {
                     schedule = scheduler.schedule(new EventSourceTask(
-                            threadManger.getCollectExecutor(), source, cacheManager), trigger);
+                            threadManger.getCollectExecutor(), source), trigger);
                 } else {
-                    schedule = scheduler.schedule(new PeriodEventTask(source, triggerService), trigger);
+                    schedule = scheduler.schedule(() -> IBootThreadManger.execute(new PeriodEventTask(source, triggerService)), trigger);
                 }
 
                 futures.put(id, schedule);
@@ -127,8 +134,13 @@ public class EventSourceCollectService implements ApplicationReadyListener {
                     throw new ServiceException("采集毫秒值必须大于0");
                 }
 
-                ScheduledFuture<?> schedule = scheduler.scheduleAtFixedRate(new EventSourceTask(threadManger
-                        .getCollectExecutor(), source, cacheManager), timeMills);
+                ScheduledFuture<?> schedule;
+                if(source.getType() == EventSourceType.event) {
+                    schedule = scheduler.scheduleAtFixedRate(() -> IBootThreadManger.execute(new EventSourceTask(threadManger.getCollectExecutor(), source)), timeMills);
+                } else {
+                    schedule = scheduler.scheduleAtFixedRate(() -> IBootThreadManger.execute(new PeriodEventTask(source, triggerService)), timeMills);
+                }
+
                 futures.put(id, schedule);
             }
 

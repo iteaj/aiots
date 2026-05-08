@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.*;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.data.ProductModelService;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
@@ -24,7 +25,7 @@ import java.util.List;
  * @author iteaj
  * @since 2022-07-22
  */
-public interface IProductService extends IBaseService<Product> {
+public interface IProductService extends IBaseService<Product>, ProductModelService {
 
     PageResult<IPage<ProductDto>> pageOfDetail(Page page, Product entity);
 

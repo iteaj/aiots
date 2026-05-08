@@ -18,7 +18,8 @@ public class ScriptLoggerFilter implements LoggerFilter {
             new IVOption("脚本联动", "脚本联动"),
             new IVOption(ValueConvertProvide.NAME, ValueConvertProvide.NAME),
             new IVOption(RealtimeMethodProvide.NAME, RealtimeMethodProvide.NAME),
-            new IVOption(ScriptCmdMethodsProvider.NAME, ScriptCmdMethodsProvider.NAME)
+            new IVOption(ScriptCmdMethodsProvider.NAME, ScriptCmdMethodsProvider.NAME),
+            new IVOption(CalcAttrScriptMethodProvide.NAME, CalcAttrScriptMethodProvide.NAME)
     );
 
     @Override

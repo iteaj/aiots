@@ -55,7 +55,7 @@ export default defineComponent({
     },
     render() {
         return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]} rootClassName="iv-drawer iv-basic-drawer" rootStyle={{position: 'absolute'}}
-                {...this.$props} v-slots={this.$slots} getContainer=".u-main-task" forceRender={true}/>)
+                {...this.$props} v-slots={this.$slots} getContainer=".u-page-view" forceRender={true}/>)
     },
     mounted() {
         this.routerCall = this.$router.beforeEach((from, to, next) => {

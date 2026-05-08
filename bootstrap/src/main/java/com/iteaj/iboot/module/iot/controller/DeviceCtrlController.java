@@ -319,9 +319,7 @@ public class DeviceCtrlController extends BaseController {
                     }
                 }
 
-                ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, realtimeStatus, result -> {
-                    item.success(result);
-                });
+                ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, realtimeStatus, item::success);
             } catch (ProtocolInvokeException e) {
                 e.printStackTrace();
                 item.success(InvokeResult.fail(e.getMessage(), null));

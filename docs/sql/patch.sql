@@ -7,3 +7,11 @@ ALTER TABLE iot_event_source ADD COLUMN frequency_tags JSON COMMENT '频率标�
 -- 初始化现有数据默认值
 UPDATE iot_model_api SET collect_tag = 'DEFAULT' WHERE collect_tag IS NULL;
 UPDATE iot_event_source SET frequency_tags = CAST('["DEFAULT"]' AS JSON) WHERE frequency_tags IS NULL;
+
+
+-- 2026-05-05 新增产品config字段配置
+
+-- 初始化现有产品的calcScript和calcStatus配置
+UPDATE iot_product 
+SET config = JSON_SET(IFNULL(config, JSON_OBJECT()), '$.calcScript', '', '$.calcLanguage', 'disabled')
+WHERE config IS NULL OR JSON_EXTRACT(config, '$.calcScript') IS NULL OR JSON_EXTRACT(config, '$.calcLanguage') IS NULL;

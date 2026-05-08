@@ -26,7 +26,8 @@ import java.util.concurrent.ScheduledFuture;
 /**
  * 数据采集服务
  */
-@Service
+//@Service
+@Deprecated
 public class CollectTaskListenerService implements ApplicationReadyListener {
 
     private final IBootThreadManger threadManger;

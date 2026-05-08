@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot;
 
 import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.framework.spi.iot.IotCoreApiService;
 import com.iteaj.framework.spi.iot.data.ModelAttrMetaService;
 import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.framework.spring.condition.ConditionalOnRedis;
@@ -47,6 +48,14 @@ public class IotAutoConfiguration {
     @Bean
     public Module iotModule() {
         return Module.module("iot", "物联网模块", 55555);
+    }
+
+    /**
+     * iot核心接口服务
+     */
+    @Bean
+    public IotCoreApiService iotCoreApiService() {
+        return IotCoreApiService.newInstance();
     }
 
     @Bean

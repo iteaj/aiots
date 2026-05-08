@@ -4,8 +4,10 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.PointProtocolConfig;
+import com.iteaj.framework.spi.iot.data.IModelAttrRealtimeDataService;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.thread.IBootThreadManger;
-import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
@@ -22,14 +24,12 @@ public class EventSourceTask implements Runnable {
     private boolean initialized;
     private final Executor executor;
     private final EventSourceDto source;
-    private final IotCacheManager cacheManager;
     private Map<Long, List<ModelApi>> productApis;
     private final Map<Long, Map<String, List<List<BatchOfPoint>>>> productPoints = new HashMap<>(8);
 
-    public EventSourceTask(Executor executor, EventSourceDto source, IotCacheManager cacheManager) {
+    public EventSourceTask(Executor executor, EventSourceDto source) {
         this.executor = executor;
         this.source = source;
-        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -41,18 +41,34 @@ public class EventSourceTask implements Runnable {
         if(IBootThreadManger.isVirtualThreadSupported()) {
             source.getGroups().forEach(group -> {
                 // 注: 由于设备可以实时更新所以获取的设备对象不能再次缓存
-                cacheManager.listByGroupId(group.getId()).forEach(device -> {
+                IotCoreApiService.listByGroupId(group.getId()).forEach(device -> {
                     if(source.getProductIds().contains(device.getProductId())) {
                         List<ModelApi> modelApis = productApis.get(device.getProductId());
                         Map<String, List<List<BatchOfPoint>>> productPoints = this.productPoints.get(device.getProductId());
-                        executor.execute(new DeviceCollectTask(device, group, collectInfo, modelApis, productPoints, cacheManager));
+                        executor.execute(new DeviceCollectTask((RealtimeStatus) device, group, collectInfo, modelApis, productPoints));
                     }
                 });
             });
         } else {
             if(CollectionUtil.isNotEmpty(source.getGroups())) {
-                source.getGroups().forEach(group -> executor
-                        .execute(new BatchGroupTask(group, collectInfo, productApis, productPoints, cacheManager)));
+                source.getGroups().forEach(group -> { // 按组采集
+                    executor.execute(() -> {
+                        // 获取当前组下的所有设备
+                        Collection<? extends RealtimeDeviceStatus> devices = IotCoreApiService.listByGroupId(group.getId());
+                        for (RealtimeDeviceStatus device : devices) {
+                            // 当前设备的产品不在事件源包含的产品里面
+                            if (!source.getProductIds().contains(device.getProductId())) {
+                                continue;
+                            }
+
+                            // 获取设备对应的产品模型接口
+                            List<ModelApi> modelApis = productApis.get(device.getProductId());
+                            // 获取设备对应的产品模型批量采集点
+                            Map<String, List<List<BatchOfPoint>>> batchOfPoints = productPoints.get(device.getProductId());
+                            new DeviceCollectTask((RealtimeStatus) device, group, collectInfo, modelApis, batchOfPoints).run();
+                        }
+                    });
+                });
             }
         }
 
@@ -79,7 +95,7 @@ public class EventSourceTask implements Runnable {
                 .stream().collect(Collectors.groupingBy(ModelApi::getProductId));
 
         this.productApis.forEach((key, value) -> {
-            String protocolCode = source.getProductToProtocolMap().get(key);
+            String protocolCode = source.getProductMaps().get(key).getProtocolCode();
             if(protocolCode != null) {
                 DeviceProtocolSupplier<?,?> supplier = ProtocolSupplierManager.get(protocolCode);
                 if(supplier instanceof BatchProtocolSupplier) {

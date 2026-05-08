@@ -36,17 +36,10 @@ public class IotEvenPublisher {
     public static void publish(IotEventType type, IotEventPayload value) {
         listeners.stream().filter(item -> item.isEventMatcher(type)).forEach(item -> {
             if(item instanceof IotAsyncListener) {
-                IBootThreadManger.getInstance().getTaskExecutor().execute(() -> {
-                    try {
-                        doPublish(type, value, item);
-                    } catch (Exception e) {
-                        logger.error("<<< IOT异步事件发布异常({}) {} - 发布值: {} - 监听对象: {}"
-                                , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
-                    }
-                });
+                asyncPublish(type, value, null, (IotAsyncListener) item);
             } else {
                 try {
-                    doPublish(type, value, item);
+                    item.onIotEvent(type, value);
                 } catch (Exception e) {
                     logger.error("<<< IOT事件发布异常({}) {} - 发布值: {} - 监听对象: {}"
                             , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
@@ -55,30 +48,30 @@ public class IotEvenPublisher {
         });
     }
 
-    private static void doPublish(IotEventType type, IotEventPayload value, IotListener item) {
-        item.onIotEvent(type, value);
-    }
-
     /**
      * 异步发布
      * @param type
      * @param value
      * @param callback
      */
-    public static void publish(IotEventType type, IotEventPayload value, Consumer callback) {
-        listeners.stream().filter(item -> item instanceof IotAsyncListener && item.isEventMatcher(type)).forEach(item -> {
-            IBootThreadManger.getInstance().getTaskExecutor().execute(() -> {
-                try {
-                    ((IotAsyncListener) item).onIotEvent(type, value, callback);
-                } catch (Exception e) {
-                    if(callback != null) {
-                        callback.accept(e);
-                    }
+    public static void publish(IotEventType type, IotEventPayload value, Consumer<Object> callback) {
+        listeners.stream()
+                .filter(item -> item instanceof IotAsyncListener && item.isEventMatcher(type))
+                .forEach(item -> asyncPublish(type, value, callback, (IotAsyncListener) item));
+    }
 
-                    logger.error("<<< IOT异步事件发布异常({}) {} - 发布值: {} - 监听对象: {}"
-                            , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
+    private static void asyncPublish(IotEventType type, IotEventPayload value, Consumer<Object> callback, IotAsyncListener item) {
+        IBootThreadManger.execute(() -> {
+            try {
+                item.onIotEvent(type, value, callback);
+            } catch (Exception e) {
+                if(callback != null) {
+                    callback.accept(e);
                 }
-            });
+
+                logger.error("<<< IOT异步事件发布异常({}) {} - 发布值: {} - 监听对象: {}"
+                        , type, type.getDesc(), value, item.getClass().getSimpleName(), e);
+            }
         });
     }
 }

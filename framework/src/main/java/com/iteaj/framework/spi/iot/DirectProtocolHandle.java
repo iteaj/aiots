@@ -1,6 +1,8 @@
 package com.iteaj.framework.spi.iot;
 
 import com.iteaj.framework.spi.iot.data.*;
+import com.iteaj.framework.spi.iot.listener.RealtimePayload;
+import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.ProtocolHandle;
 
@@ -17,26 +19,21 @@ public interface DirectProtocolHandle<T extends Protocol> extends ProtocolHandle
     String LOGGER_TYPE = "数据采集";
     String LOGGER_SUB_TYPE = "直连上报";
 
-    ModelAttrMetaService getModelAttrMetaService();
-
-    IModelAttrRealtimeDataService getRealtimeDataService();
-
-    DataCollectPublishService getDataCollectPublishService();
-
     @Override
     default Object handle(T protocol) {
-        Object result = doHandle(protocol);
+        Object result = null;
         String equipCode = protocol.getEquipCode();
         try {
+            result = doHandle(protocol);
             DeviceProtocolSupplier<?, ?> protocolSupplier = ProtocolSupplierManager.get(protocol.requestMessage().getClass());
-            RealtimeDeviceStatus deviceStatus = getRealtimeDataService().getDeviceStatus(protocolSupplier.getProtocol().getCode(), equipCode);
-            if(deviceStatus != null) {
-                Map<Serializable, ModelAttrMeta> attrMetas = getModelAttrMetaService().getAttrMetas(deviceStatus.getProductCode());
-                ProtocolModelApiInvokeParam param = new ProtocolModelApiInvokeParam(deviceStatus.getUid())
-                        .setDeviceSn(deviceStatus.getDeviceSn()).addDevice(deviceStatus);
+            RealtimeDeviceStatus device = IotCoreApiService.getDeviceStatus(protocolSupplier.getProtocol().getCode(), equipCode);
+            if(device != null) {
+                Map<Serializable, ModelAttrMeta> attrMetas = IotCoreApiService.getAttrMetas(device.getProductCode());
+                ProtocolModelApiInvokeParam param = new ProtocolModelApiInvokeParam(device.getUid())
+                        .setDeviceSn(device.getDeviceSn()).addDevice(device);
                 DataSupplier dataSupplier = protocolSupplier.getDataSupplier(protocol, param, attrMetas);
-                if(dataSupplier != null && dataSupplier.getValues() != null) {
-                    getDataCollectPublishService().publish(dataSupplier, deviceStatus);
+                if(dataSupplier != null && !dataSupplier.getValues().isEmpty()) {
+                    IBootThreadManger.execute(() -> IotCoreApiService.publish(dataSupplier, device, RealtimePayload.TYPE_DATA_ACTIVE));
                 }
             }
         } catch (Exception e) {

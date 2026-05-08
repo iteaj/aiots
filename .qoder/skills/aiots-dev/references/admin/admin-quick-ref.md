@@ -300,6 +300,104 @@ function productLoaded(map) {
 
 ---
 
+## 代码编辑器组件速查
+
+### AceScriptEditor - 代码脚本编辑器
+
+用于编辑JavaScript、Java、SQL等编程语言的代码片段，支持代码补全和语法高亮。
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `value` / `v-model:value` | string | '' | 编辑器的初始内容 |
+| `completions` | array | [] | 代码补全建议数组 |
+| `theme` | string | 'monokai' | 编辑器主题 |
+| `lang` | string | 'javascript' | 编程语言 |
+| `options` | object | {} | ACE编辑器配置选项 |
+
+基本用法：
+```vue
+<AceScriptEditor v-model:value="scriptCode" style="height: 420px"/>
+```
+
+高级用法 - 代码补全：
+```vue
+<AceScriptEditor v-model:value="scriptCode" :completions="completions" />
+<script>
+import {ref} from "vue";
+export default {
+  setup() {
+    let scriptCode = ref('');
+    let completions = ref([
+      {name: 'console', value: 'console.log()', score: 100, meta: 'console'},
+      {name: 'alert', value: 'alert()', score: 95, meta: 'alert'},
+      {name: 'fetch', value: 'fetch(url)', score: 90, meta: 'fetch'}
+    ]);
+    return {scriptCode, completions}
+  }
+}
+</script>
+```
+
+实际应用示例 - 多语言脚本编辑：
+```vue
+<ATabs v-model:activeKey="languageKey" tab-position="left">
+  <a-tab-pane :tab="language.language">
+    <AceScriptEditor v-model:value="language.script" 
+                     :completions="completions" 
+                     style="height: 420px"/>
+  </a-tab-pane>
+</ATabs>
+```
+
+### UEditor - 富文本编辑器
+
+用于编辑富文本内容，支持HTML格式，基于wangeditor实现。
+
+```vue
+<UEditor v-model="htmlContent" />
+```
+
+### UMarkdown - Markdown编辑器
+
+用于编辑Markdown格式文档，基于md-editor-v3实现。
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `placeholder` | string | '' | 输入提示文字 |
+| `showCodeRowNumber` | boolean | true | 是否显示代码行号 |
+| `toolbarsExclude` | array | ['github', 'mermaid', 'save', 'catalog'] | 排除的工具栏按钮 |
+
+```vue
+<UMarkdown v-model="markdownContent" />
+```
+
+### 表单中的编辑器用法
+
+在 `UViewDrawer` 或 `UViewModal` 中使用编辑器：
+```vue
+<UViewDrawer v-model="editModel" title="脚本管理" :rules="rules" @edit="openEdit" placement="top" height="100%">
+  <template #default="{model}">
+    <URow col="drawer">
+      <UInputItem field="name" label="名称"/>
+      <URadioItem field="language" label="语言" :options="languageOptions" />
+    </URow>
+    <ATabs v-model:activeKey="languageKey" tab-position="left">
+      <a-tab-pane :tab="lang" v-for="lang in ['JavaScript', 'Python', 'SQL']">
+        <div style="height: 320px">
+          <AceScriptEditor v-model:value="model.scripts[lang]" 
+                           :completions="completions[lang]"/>
+        </div>
+      </a-tab-pane>
+    </ATabs>
+  </template>
+</UViewDrawer>
+```
+
+> **注意**：编辑器组件需要在 `main.js` 中注册为全局组件。所有编辑器组件都支持 v-model 双向绑定。
+
+
+---
+
 ## URow 布局速查
 
 | 用法 | 属性 | 说明 |

@@ -86,9 +86,28 @@ public class IBootThreadManger implements DisposableBean, InitializingBean {
         return instance;
     }
 
+    public static void execute(Runnable task) {
+        if(isVirtualThreadSupported()) {
+            instance.getCollectExecutor().execute(task);
+        } else {
+            ThreadPoolTaskExecutor collectExecutor = (ThreadPoolTaskExecutor) instance.getCollectExecutor();
+            ThreadPoolTaskExecutor poolTaskExecutor = (ThreadPoolTaskExecutor) instance.getTaskExecutor();
+            if(collectExecutor == poolTaskExecutor) { // 同一个对象
+                collectExecutor.execute(task);
+            } else if(collectExecutor.getQueueSize() - poolTaskExecutor.getQueueSize() > 0){ // 采集任务数量大于其他自行其任务数量
+                poolTaskExecutor.execute(task);
+            } else { // 使用采集任务执行器
+                collectExecutor.execute(task);
+            }
+        }
+    }
+
     @Override
     public void destroy() throws Exception {
-        scheduler.destroy();
+        if(scheduler != null) {
+            scheduler.destroy();
+        }
+
         if(this.collectExecutor instanceof DisposableBean) {
             ((DisposableBean) collectExecutor).destroy();
         }

@@ -14,6 +14,7 @@ import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 import com.iteaj.framework.spi.iot.listener.filter.RealtimeMethodProvide;
+import com.iteaj.framework.thread.IBootThreadManger;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -25,7 +26,7 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
 
     private final static String Split = ":";
     private final static String NAME = "脚本联动";
-    private Map<String, Long> interval = new ConcurrentHashMap<>();
+    private final Map<String, Long> interval = new ConcurrentHashMap<>(256);
 
     public static List<ScriptComplete> completes;
     public static LinkageScriptMethodsProvider INSTANCE = new LinkageScriptMethodsProvider();
@@ -34,6 +35,7 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         completes = new ArrayList<>(Arrays.asList(
                 new ScriptComplete("methods.invoke(cmd)", "执行指令(设备指令集指令)",1),
                 new ScriptComplete("methods.invoke(cmd, uid)", "执行指令(产品指令集指令)",1),
+                new ScriptComplete("methods.asyncInvoke(cmd, uid)", "异步执行指令(产品指令集指令)",1),
                 new ScriptComplete("methods.warn(warnMsgId, uid, field, value, content)", "发送告警",1),
                 new ScriptComplete("methods.statusWarn(msgTempId, uid, content)", "发送状态告警",1),
                 new ScriptComplete("methods.fatalWarn(msgTempId, uid, field, value, content)", "发送严重告警",1),
@@ -83,6 +85,18 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
         }
 
         IotEvenPublisher.publish(IotEventType.ScriptInvoke, ScriptInvokePayload.build(uid, cmdCode));
+    }
+
+    public void asyncInvoke(String cmdCode, String uid) {
+        if(StrUtil.isBlank(cmdCode)) {
+            throw new ScriptExecException("指令参数必填");
+        }
+
+        if(StrUtil.isBlank(uid)) {
+            throw new ScriptExecException("设备uid必填");
+        }
+
+        IBootThreadManger.execute(() -> IotEvenPublisher.publish(IotEventType.ScriptInvoke, ScriptInvokePayload.build(uid, cmdCode)));
     }
 
     public void warn(Long warnMsgId, String uid, String field, Object value, String content) {
