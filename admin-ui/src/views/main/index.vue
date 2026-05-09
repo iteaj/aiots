@@ -1,10 +1,10 @@
 <template>
     <a-layout class="u-layout iv-primary">
-      <!--侧边菜单栏-->
-      <LayoutSider />
+      <!--右侧头栏-->
+      <LayoutHeader />
       <a-layout class="u-layout-view">
-        <!--右侧头栏-->
-        <LayoutHeader />
+        <!--侧边菜单栏-->
+        <LayoutSider />
         <!--右侧视图页-->
         <a-layout-content class="u-main-container">
           <!--  任务栏  -->

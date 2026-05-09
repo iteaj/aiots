@@ -3,11 +3,7 @@
       v-model:collapsed="sys.collapsed" collapsible :collapsedWidth="68" :theme="themeConfig.style">
     <!--侧边菜单-->
     <div class="u-sider-menu">
-      <div class="iv-header u-logo iv-primary-divider">
-          <a-avatar :size="36" :src="sysLogo"></a-avatar>
-          <span class="u-logo-title">{{sysName}}</span>
-      </div>
-      <a-menu @select="selectMenu" :mode="menuMode" :openKeys="openKeys" :items="items" style="height: calc(100% - 64px); overflow: hidden auto;"
+      <a-menu @select="selectMenu" :mode="menuMode" :openKeys="openKeys" :items="items" style="height: calc(100% - 0px); overflow: hidden auto;"
               v-model:selectedKeys="sys.selectedKeys" @openChange="openChange" :theme="themeConfig.style" />
     </div>
   </a-layout-sider>
@@ -116,22 +112,6 @@ export default {
 </script>
 
 <style>
-.u-logo {
-    height: var(--header-height);
-    line-height: var(--header-height);
-    overflow: hidden;
-    text-align: center;
-    white-space: nowrap;
-    text-overflow:ellipsis;
-    vertical-align: middle;
-    color: var(--header-color);
-    background-color: var(--header-logo-background-color);
-}
-.u-logo-title {
-    font-size: 18px;
-    margin-left: 8px;
-    vertical-align: bottom;
-}
 .ant-layout-sider-collapsed .u-logo-title {
     display: none;
 }

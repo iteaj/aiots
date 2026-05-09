@@ -1,23 +1,17 @@
 <template>
   <a-layout-header class="iv-header u-header-bar iv-primary-divider">
-    <ARow class="iv-header-row">
+    <ARow class="iv-header-row" justify="space-between">
       <!--头部菜单-->
-      <ACol class="u-header-col u-header-col-left" :xs="0" :sm="0" :md="10" :lg="10" :xl="8">
-        <a-breadcrumb :routes="breadcrumbRoutes" class="iv-header-breadcrumb">
-          <template #itemRender="{ route, paths }">
-            <router-link v-if="route.index == 0" :to="route.url">
-              <HomeOutlined />
-            </router-link>
-            <router-link v-else-if="route.url" :to="route.url">
-              {{ route.name }}
-            </router-link>
-            <span v-else>
-              {{ route.name }}
-            </span>
-          </template>
-        </a-breadcrumb>
+      <ACol class="u-header-col u-header-col-left" :xs="0" :sm="0" :md="8" :lg="6" :xl="8">
+        <div class="iv-header u-logo iv-primary-divider">
+          <a-avatar :size="36" :src="sysLogo"></a-avatar>
+          <span class="u-logo-title">{{sysName}}</span>
+        </div>
       </ACol>
-      <ACol class="u-header-col ivz-header-col-right" :xs="24" :sm="24" :md="14" :lg="14" :xl="16">
+      <ACol :xs="12" :sm="12" :md="8" :lg="9" :xl="10">
+        <span>sdf</span>
+      </ACol>
+      <ACol class="u-header-col ivz-header-col-right" flex="auto" :xs="12" :sm="12" :md="8" :lg="10" :xl="8">
         <ASpace :size="0">
           <a-tooltip title="全局搜索">
             <div @click="() => searchStatus = true" class="u-opera-col">
@@ -253,9 +247,21 @@ export default {
     color: var(--header-color);
     background-color: var(--header-background-color);
 }
-.iv-header-breadcrumb {
+.u-logo {
   height: var(--header-height);
   line-height: var(--header-height);
+  padding: 0 13px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow:ellipsis;
+  vertical-align: middle;
+  color: var(--header-color);
+  background-color: var(--header-logo-background-color);
+}
+.u-logo-title {
+  font-size: 18px;
+  margin-left: 8px;
+  vertical-align: bottom;
 }
 .u-header-bar * {
   color: var(--header-color);
@@ -354,6 +360,7 @@ export default {
 }
 .u-header-col-left {
   text-align: left;
+  max-width: 238px;
 }
 .ivz-header-col-right {
   right: 8px;
