@@ -1,6 +1,6 @@
 ---
 name: app
-description: 移动端代码编写技能，用于指导编写移动端代码流程规范 (包括但不限于 ts 参数类型定义 (包括请求、响应、分页参数等)、接口定义逻辑、业务逻辑、数据模型、后端接口对接等)。与 Cool Unix 技能配合使用，Cool Unix 负责 UI 组件，App 技能负责页面开发、业务领域和数据模型。
+description: 移动端前端开发技能。用于uni-app x移动端页面开发(.uvue)、UTS脚本开发、TypeScript类型定义、API接口对接、数据模型定义。当需要开发移动端页面、编写移动端业务逻辑、定义请求参数和响应参数、对接移动端后端接口时使用此技能。与cool ui技能配合使用，本技能负责页面逻辑和数据，cool ui技能负责UI组件。
 role: App 端开发工程师
 ---
 
@@ -23,6 +23,11 @@ role: App 端开发工程师
 ### 2.2 代码模板
 - [类型声明模板](./references/TypeTemplat.type.ts)
 - [接口声明模板](./references/ApiTemplate.api.ts)
+
+### 2.3 App模块后端速查
+- [App模块速查文档](./references/app-module-quick-ref.md) - 移动端后端接口规范、Controller模板、认证流程
+- [App模块接口清单](./references/app-module-reference.md) - App模块完整Controller清单
+- [移动端项目介绍](./references/app-intro.md) - 技术栈/目录结构/核心模块说明
 
 ## 3. 代码结构规范
 

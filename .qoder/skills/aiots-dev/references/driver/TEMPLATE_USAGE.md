@@ -508,7 +508,7 @@ public ParamMeta[] getDeviceConfig() {
 
 ## 🔗 相关资源
 
-- **设备驱动开发流程**: [driver-dev-flow.md](../driver-dev-flow.md)
+- **设备驱动开发流程**: [driver-dev-flow.md](driver-dev-flow.md)
 - **SPI接口文档**: `spi-iot-data-model.md`
 - **数据服务文档**: `spi-iot-data-services.md`
 - **事件监听文档**: `spi-iot-event-listener.md`

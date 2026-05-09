@@ -1,6 +1,6 @@
 ---
-name: cool ui skill
-description: 基于 uni-app x 的跨端(安卓/IOS/H5/小程序)UI组件库，提供Cool UI组件库使用指导、功能域组件映射、TailwindCSS 样式规范、多语言支持、PassThrough API 等开发能力，帮助 Agent 正确理解项目架构并高效完成开发任务。设计页面时所有的标签优先使用Cool Unix组件。
+name: cool ui
+description: Cool UI组件库使用技能。用于uni-app x跨端UI开发，提供70+组件(cl-button/cl-form/cl-list/cl-popup等)、TailwindCSS样式、多语言支持、PassThrough API。当需要设计页面布局、选择UI组件、实现表单/列表/弹窗/导航等交互、调整样式和多语言时使用此技能。所有页面标签优先使用Cool UI组件。与app技能配合使用，本技能负责UI组件，app技能负责页面逻辑和数据。
 ---
 
 # Cool Unix 移动端开发技能

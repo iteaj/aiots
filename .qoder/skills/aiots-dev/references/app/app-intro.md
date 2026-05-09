@@ -18,14 +18,14 @@
 | 分类 | 技术 | 版本 |
 |------|------|------|
 | **跨端框架** | uni-app x | 最新版 |
-| **开发语言** | UTS（跨平台强类型语言，类似 TypeScript）+ Vue 3.x | - |
+| **开发语言** | UTS(跨平台强类型语言，类似 TypeScript) + Vue 3.x | - |
 | **核心框架** | @cool-vue/unix (Cool Unix) | 1.1.0-beta.6 |
-| **UI 组件库** | Cool UI（`uni_modules/cool-ui`，基于 uni-app x） | - |
+| **UI 组件库** | Cool UI(`uni_modules/cool-ui`，基于 uni-app x) | - |
 | **样式方案** | TailwindCSS | 3.4.17 |
 | **构建工具** | Vite + @dcloudio/vite-plugin-uni | 6.3.x |
-| **国际化** | 内置多语言（zh-cn / en / ja / ko / es / fr / zh-tw） | - |
+| **国际化** | 内置多语言(zh-cn / en / ja / ko / es / fr / zh-tw) | - |
 | **微信 SDK** | weixin-js-sdk | 1.6.x |
-| **触摸模拟** | hammer-touchemulator（开发调试用） | 0.0.2 |
+| **触摸模拟** | hammer-touchemulator(开发调试用) | 0.0.2 |
 
 ---
 
@@ -33,8 +33,8 @@
 
 - Android App
 - iOS App
-- H5（Web）
-- 微信小程序（及其他小程序平台）
+- H5(Web)
+- 微信小程序(及其他小程序平台)
 
 ---
 
@@ -42,18 +42,18 @@
 
 ```
 app/
-├── .cool/              # Cool Unix 核心框架模块（勿随意修改）
+├── .cool/              # Cool Unix 核心框架模块(勿随意修改)
 │   ├── aiots/          # aiots 物联网相关
 │   ├── animation/      # 动画
 │   ├── ctx/            # 上下文
-│   ├── hooks/          # 组合式函数（pager、refs、cache、long-press 等）
+│   ├── hooks/          # 组合式函数(pager、refs、cache、long-press 等)
 │   ├── icons/          # 图标
 │   ├── locale/         # 国际化
 │   ├── page/           # 页面基础
 │   ├── router/         # 路由
 │   ├── scroller/       # 滚动
 │   ├── service/        # HTTP 请求封装
-│   ├── store/          # 状态管理（user、dict）
+│   ├── store/          # 状态管理(user、dict)
 │   ├── theme/          # 主题
 │   ├── types/          # 类型定义
 │   ├── upload/         # 文件上传
@@ -67,10 +67,10 @@ app/
 ├── locales/            # 国际化语言包
 ├── pages/              # 业务页面
 │   ├── index/          # 首页
-│   ├── user/           # 用户相关（登录、注册、个人资料等）
+│   ├── user/           # 用户相关(登录、注册、个人资料等)
 │   ├── set/            # 设置
 │   └── template/       # 页面模板
-├── plugins/            # 插件（emitter、locale、router、touch）
+├── plugins/            # 插件(emitter、locale、router、touch)
 ├── static/             # 静态资源
 ├── uni_modules/        # uni-app 模块
 │   ├── cool-ui/        # Cool UI 组件库
@@ -80,41 +80,41 @@ app/
 │   ├── cool-svg/       # SVG 组件
 │   ├── cool-unix/      # Cool Unix 模块
 │   └── cool-vibrate/   # 震动
-├── pages.json          # 页面路由注册（所有页面必须在此注册）
-└── manifest.json       # 应用配置（AppID、平台权限等）
+├── pages.json          # 页面路由注册(所有页面必须在此注册)
+└── manifest.json       # 应用配置(AppID、平台权限等)
 ```
 
 ---
 
-## 核心模块说明（.cool/）
+## 核心模块说明(.cool/)
 
-### HTTP 请求（service/index.ts）
-- **请求函数**：`request(options: RequestOptions): Promise<any>`
-- **Token 机制**：自动从 store 读取 token，注入 `Authorization` 请求头
-- **Token 刷新**：token 过期自动刷新，刷新期间请求进入队列等待
-- **响应码处理**：
+### HTTP 请求(service/index.ts)
+- **请求函数**:`request(options: RequestOptions): Promise<any>`
+- **Token 机制**:自动从 store 读取 token，注入 `Authorization` 请求头
+- **Token 刷新**:token 过期自动刷新，刷新期间请求进入队列等待
+- **响应码处理**:
   - `code: 1000` → 成功，resolve data
   - `401` → 退出登录，跳转登录页
   - `502` → 服务异常
   - `404` → 接口不存在
-- **语言头**：自动注入 `language` 请求头（国际化）
+- **语言头**:自动注入 `language` 请求头(国际化)
 
-### 状态管理（store/）
-- **user**：用户信息单例（`User` 类）
-  - `user.token`：当前 token
-  - `user.info`：用户信息（响应式 ref）
-  - `user.setToken()`：设置并持久化 token（含 refreshToken）
-  - `user.refreshToken()`：刷新 token（调用 `/app/user/login/refreshToken`）
-  - `user.logout()`：退出登录并跳转登录页
-  - `user.get()`：从服务端拉取用户信息（接口：`/app/user/info/person`）
-  - `user.update()`：更新用户信息（接口：`/app/user/info/updatePerson`）
-- **dict**：数据字典缓存
+### 状态管理(store/)
+- **user**:用户信息单例(`User` 类)
+  - `user.token`:当前 token
+  - `user.info`:用户信息(响应式 ref)
+  - `user.setToken()`:设置并持久化 token(含 refreshToken)
+  - `user.refreshToken()`:刷新 token(调用 `/app/user/login/refreshToken`)
+  - `user.logout()`:退出登录并跳转登录页
+  - `user.get()`:从服务端拉取用户信息(接口:`/app/user/info/person`)
+  - `user.update()`:更新用户信息(接口:`/app/user/info/updatePerson`)
+- **dict**:数据字典缓存
 
-### 路由（router/）
+### 路由(router/)
 - 使用 uni-app x 原生路由，配合 Cool Unix 的 `router` 封装
 - `router.login()` 跳转登录页
 
-### Hooks（hooks/）
+### Hooks(hooks/)
 | Hook | 说明 |
 |------|------|
 | `pager.ts` | 分页数据加载逻辑 |
@@ -128,26 +128,26 @@ app/
 
 ## 页面开发规范
 
-- **文件后缀**：页面使用 `.uvue`，脚本使用 `.ts`
-- **页面注册**：所有页面必须在 `pages.json` 中注册，否则无法访问
-- **滚动容器**：可滚动页面需使用 `<scroll-view style="flex:1">` 等滚动容器
-- **平台条件编译**：平台专用代码使用 `#ifdef APP / #ifdef H5` 等条件编译
-- **UI 组件**：优先使用 Cool UI 组件（`uni_modules/cool-ui`），样式使用 TailwindCSS
-- **类型严格**：UTS 强类型，禁止隐式类型转换，所有参数需明确类型
+- **文件后缀**:页面使用 `.uvue`，脚本使用 `.ts`
+- **页面注册**:所有页面必须在 `pages.json` 中注册，否则无法访问
+- **滚动容器**:可滚动页面需使用 `<scroll-view style="flex:1">` 等滚动容器
+- **平台条件编译**:平台专用代码使用 `#ifdef APP / #ifdef H5` 等条件编译
+- **UI 组件**:优先使用 Cool UI 组件(`uni_modules/cool-ui`)，样式使用 TailwindCSS
+- **类型严格**:UTS 强类型，禁止隐式类型转换，所有参数需明确类型
 
 ---
 
 ## 接口规范
 
-- **移动端接口前缀**：`/app/`（对应后端 `com.iteaj.iboot.module.app.controller`）
-- **用户信息接口**：`GET /app/user/info/person`
-- **更新用户接口**：`POST /app/user/info/updatePerson`
-- **Token 刷新接口**：`POST /app/user/login/refreshToken`
+- **移动端接口前缀**:`/app/`(对应后端 `com.iteaj.iboot.module.app.controller`)
+- **用户信息接口**:`GET /app/user/info/person`
+- **更新用户接口**:`POST /app/user/info/updatePerson`
+- **Token 刷新接口**:`POST /app/user/login/refreshToken`
 
 ---
 
 ## 国际化
 
-- 语言包位于 `locales/` 目录（zh-cn、en、ja、ko、es、fr、zh-tw）
-- 默认语言通过 `config/index.ts` 的 `locale` 字段配置（当前：`zh-tw`）
-- 翻译函数：从 `.cool/locale` 导入 `t(key)` 使用
+- 语言包位于 `locales/` 目录(zh-cn、en、ja、ko、es、fr、zh-tw)
+- 默认语言通过 `config/index.ts` 的 `locale` 字段配置(当前:`zh-tw`)
+- 翻译函数:从 `.cool/locale` 导入 `t(key)` 使用

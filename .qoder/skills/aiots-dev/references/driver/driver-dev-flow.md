@@ -5,7 +5,7 @@
 > - 不得修改方法签名和类继承关系
 > - 必须在TODO标记处填充实现
 > - 必须保留所有Javadoc注释
-> - 详见 [模板使用说明](./driver/TEMPLATE_USAGE.md)
+> - 详见 [模板使用说明](TEMPLATE_USAGE.md)
 
 ## 📋 概述
 
@@ -288,7 +288,7 @@ iboot-plugin/iboot-protocol/protocol-modbus/
 
 ### 步骤3: 实现ProtocolSupplier
 
-> ⚠️ **必须严格遵循模板文件**: [StaticClientProtocolSupplierTemplate.java](./driver/StaticClientProtocolSupplierTemplate.java) 或 [StaticServerProtocolSupplierTemplate.java](./driver/StaticServerProtocolSupplierTemplate.java)
+> ⚠️ **必须严格遵循模板文件**: [StaticClientProtocolSupplierTemplate.java](StaticClientProtocolSupplierTemplate.java) 或 [StaticServerProtocolSupplierTemplate.java](StaticServerProtocolSupplierTemplate.java)
 
 **关键实现点**:
 
@@ -403,7 +403,7 @@ public DataSupplier getDataSupplier(Protocol protocol,
 
 ### 步骤5: 实现功能接口
 
-> ⚠️ **必须严格遵循模板文件**: [FuncProtocolModelApiTemplate.java](./driver/FuncProtocolModelApiTemplate.java)
+> ⚠️ **必须严格遵循模板文件**: [FuncProtocolModelApiTemplate.java](FuncProtocolModelApiTemplate.java)
 
 **核心方法**:
 
@@ -424,7 +424,7 @@ public DataSupplier getDataSupplier(Protocol protocol,
 
 ### 步骤6: 实现事件接口
 
-> ⚠️ **必须严格遵循模板文件**: [EventProtocolModelApiTemplate.java](./driver/EventProtocolModelApiTemplate.java)
+> ⚠️ **必须严格遵循模板文件**: [EventProtocolModelApiTemplate.java](EventProtocolModelApiTemplate.java)
 
 **核心概念**:
 
@@ -494,6 +494,19 @@ public DataSupplier getDataSupplier(Protocol protocol,
 
 **使用示例**: 请查看模板文件中的doCreateClient()方法实现。
 
+### 关键枚举速查
+
+| 枚举 | 值 | 说明 |
+|------|---|------|
+| `GatewayType` | `Direct` / `Gateway` | 设备直连 / 边缘网关 |
+| `ConnectionType` | `Server` / `Client` | 服务端 / 客户端 |
+| `ProtocolImplMode` | `Internal` / `Jar` / `Custom` | 内置 / Jar / 自定义 |
+| `CtrlMode` | `COMMON` / `POINT` | 常用控制 / 点位控制 |
+| `TransportProtocol` | `TCP/MQTT/UDP/HTTP/WEBSOCKET/SERIAL` | 传输协议类型 |
+| `TriggerMode` | `active` / `passive` | 设备主动 / 平台主动 |
+| `FuncType` | `R` / `W` | 读操作 / 写操作 |
+| `ProtocolApiType` | `func` / `event` | 功能接口 / 事件接口 |
+
 ## ✅ 开发检查清单
 
 - [ ] 选择正确的基类(Server/Client/Direct)
@@ -515,7 +528,7 @@ public DataSupplier getDataSupplier(Protocol protocol,
   - StaticServerProtocolSupplier模板
   - FuncProtocolModelApi模板
   - EventProtocolModelApi模板
-  - [模板使用说明](./driver/TEMPLATE_USAGE.md)
+  - [模板使用说明](TEMPLATE_USAGE.md)
 - **示例驱动**: 
   - Modbus TCP: `iboot-plugin/protocol-modbus/modbus-tcp`
   - MQTT: `iboot-plugin/protocol-mqtt`
