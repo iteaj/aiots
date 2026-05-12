@@ -33,7 +33,9 @@ public interface ScriptConfigService {
      * @return
      */
     default ScriptConfig getScriptConfig(FunctionScript script) {
-        return (script != null && script.getLanguage() != null && script.getConfigs() != null) ?
+        return (script != null && script.getLanguage() != null
+                && !script.getLanguage().equals("disabled")
+                && script.getConfigs() != null) ?
                 script.getConfigs().stream()
                         .filter(item -> Objects.equals(item.getLanguage(), script.getLanguage()))
                         .findFirst().orElse(null) : null;

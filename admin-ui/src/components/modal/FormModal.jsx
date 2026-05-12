@@ -8,16 +8,15 @@ export default defineComponent({
   name: 'UFormModal',
   props: {
     title: String,
-    bodyStyle: Object,
     span: {type: Array}, // labelCol 和wrapperCol简写 如：[6, 18]
     afterClose: Function,
     width: {default: 520},
-    destroyOnClose: Boolean,
     getContainer: {type: Function},
     maskClosable: {default: true},
     centered: {type: Boolean, default: true},
     closable: {type: Boolean, default: false},
-    forceRender: {type: Boolean, default: true},
+    forceRender: {type: Boolean, default: false},
+    destroyOnHidden: {type: Boolean, default: false},
     wrapClassName: {type: String, default: 'u-form-modal'},
     uid: {type: String, required: true, default: CoreConsts.DefaultEditUid}
   },
@@ -74,9 +73,8 @@ export default defineComponent({
       footer: () => this.$slots.footer ? this.$slots.footer({model, context}) : null
     }
 
-    return <AModal v-model={[this.visible, 'open', ["modifier"]]}
-                   {...this.$props} v-slots={slots} forceRender={true} ref="iemRef">
-      <ASpin size="small" tip={this.spinTip} spinning={this.spinning}>
+    return <AModal v-model={[this.visible, 'open', ["modifier"]]} {...this.$props} v-slots={slots} ref="iemRef">
+      <ASpin size="small" description={this.spinTip} spinning={this.spinning}>
         <UForm {...this.$attrs} labelCol={this.labelCol} wrapperCol={this.wrapperCol} ref="iemFormRef">
           {this.$slots.default ? this.$slots.default({model, context}) : []}
         </UForm>

@@ -25,7 +25,7 @@
         </ARow>
       </div>
       <div style="margin-top: 8px">
-        <ASpin :spinning="spinning" tip="数据加载中...">
+        <ASpin :spinning="spinning" description="数据加载中...">
           <ACard class="u-row" size="small">
             <template #title>
               <AFlex style="width: 100%; font-weight: unset; padding: 5px 0;">

@@ -37,9 +37,9 @@
       </AFlex>
     </div>
     <div style="padding: 16px 8px;">
-      <ASpin :spinning="spinning" :tip="tipText" size="large">
+      <ASpin :spinning="spinning" :description="tipText" size="large">
         <AFlex style="max-height: 270px; " justify="space-between" gap="small">
-          <ACard size="small" style="min-width: 250px" :head-style="{padding: '0'}">
+          <ACard size="small" style="min-width: 250px" :styles="{head: {padding: '0'}}">
             <template #title>
               <div class="iv-api-contain-head">
                 <span>事件模型</span>
@@ -60,7 +60,7 @@
           </ACard>
           <a-row style="max-height: 270px; overflow: auto" justify="center" align="middle" wrap>
             <a-col v-for="attr in realtimeData" :key="attr.id" :span="3" class="iv-attr-item">
-              <a-card :bordered="false" hoverable size="small" :class="activeAttrId==attr.id? 'active' : ''" @click="() => onAttrClick(attr)" :headStyle="{minHeight: '28px'}" :bodyStyle="{padding: '6px'}">
+              <a-card variant="borderless" hoverable size="small" :class="activeAttrId==attr.id? 'active' : ''" @click="() => onAttrClick(attr)" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
                 <template #title>
                   <AFlex gap="10" justify="space-between">
                     <div>
@@ -81,7 +81,7 @@
               </a-card>
             </a-col>
           </a-row>
-          <ACard size="small" style="min-width: 250px" :head-style="{padding: '0'}">
+          <ACard size="small" style="min-width: 250px" :styles="{head: {padding: '0'}}">
             <template #title>
               <div class="iv-api-contain-head">
                 <span>功能模型</span>
@@ -102,7 +102,7 @@
           </ACard>
         </AFlex>
       </ASpin>
-      <ACard size="small" style="margin-top: 12px;" :body-style="{padding: '8px 3px'}">
+      <ACard size="small" style="margin-top: 12px;" :styles="{body: {padding: '8px 3px'}}">
         <template #title>
           <AFlex style="width: 100%; font-weight: unset; padding: 5px 0;">
             <div style="">
@@ -126,7 +126,7 @@
             </div>
           </AFlex>
         </template>
-        <a-tabs v-model:activeKey="activeKey" tabPosition="left">
+        <a-tabs v-model:activeKey="activeKey" tabPlacement="left">
           <a-tab-pane key="chart" tab="图表">
             <ARow :gutter="8">
               <ACol :span="15" id="iv-echarts-line" style="height: 280px"></ACol>
@@ -170,7 +170,7 @@ import {GET, POST, urlConfig} from "@/utils/request";
 import {msgError, msgSuccess, msgWarn} from "@/utils/message";
 import {useRoute} from "vue-router";
 import dayjs from "dayjs";
-import {SendOutlined, HistoryOutlined} from '@ant-design/icons-vue'
+import {SendOutlined, HistoryOutlined} from '@antdv-next/icons'
 import UTable from "@/components/table/BasicTable";
 echarts.use([CanvasRenderer, TitleComponent, GridComponent, VisualMapComponent, LineChart
   , UniversalTransition, TooltipComponent, LegendComponent, DatasetComponent, ToolboxComponent, DataZoomComponent])
@@ -193,7 +193,6 @@ echarts.use([CanvasRenderer, TitleComponent, GridComponent, VisualMapComponent, 
  */
 let realtimeSocket = null;
   let searchModel = ref({current: 1, size: 12});
-  let bodyStyle = ref({padding: '12px 8px 12px', height: '78px'});
   let fieldColumns = ref([
     {title: '名称', dataIndex: 'fieldName', align: 'center', width: 100, ellipsis: true, resizable: true},
     {title: '值', dataIndex: 'value', align: 'center', ellipsis: true, width: 100, resizable: true},

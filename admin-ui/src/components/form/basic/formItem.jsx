@@ -2,9 +2,6 @@ import {computed, defineAsyncComponent, defineComponent, h, inject, ref, resolve
 import MixinsFormItem from "@/components/form/basic/MixinsFormItem";
 import MixinsOptionsItem from "@/components/form/basic/MixinsOptionsItem";
 import CoreConsts from "@/components/CoreConsts";
-import ACol from "ant-design-vue/es/grid/Col";
-import AFormItem from "ant-design-vue/es/form/FormItem";
-import {useInjectFormItemContext} from "ant-design-vue/es/form";
 
 const UEditor = defineAsyncComponent(() => import('@/components/form/editor/editor.jsx'))
 const UMarkdown = defineAsyncComponent(() => import('@/components/form/editor/markdown.jsx'))
@@ -15,9 +12,9 @@ export const UInputItem = defineComponent({
     render() {
         let props = this.getFormItemProps();
         return <a-col {...this.getColProps()}>
-            <AFormItem {...props}>
+            <a-form-item {...props}>
                 {<a-input {...this.getFormAttrs()} v-slots={this.$slots}></a-input>}
-            </AFormItem>
+            </a-form-item>
         </a-col>
     }
 
@@ -57,9 +54,9 @@ const UInputGroupWrapper = defineComponent({
         return {formContext};
     },
     render() {
-        return <a-input-group {...this.$attrs} compact>
+        return <a-space-compact {...this.$attrs}>
             {this.$slots.default ? this.$slots.default(this.formContext.getEditModel()) : []}
-        </a-input-group>
+        </a-space-compact>
     }
 })
 

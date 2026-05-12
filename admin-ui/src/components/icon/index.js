@@ -1,4 +1,4 @@
-import {createFromIconfontCN} from '@ant-design/icons-vue';
+import {createFromIconfontCN} from '@antdv-next/icons';
 
 let baseurl = import.meta.env.BASE_URL;
 baseurl = baseurl.endsWith("/") ? baseurl.substring(0, baseurl.length - 1) : baseurl;

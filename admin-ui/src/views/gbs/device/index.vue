@@ -10,7 +10,7 @@
 <!--        <UButton func="add" url="/gbs/device/add" v-auth="'gbs:device:add'">新增</UButton>-->
       </URow>
     </UViewSearch>
-    <UViewModal title="管理" :span="[7, 14]" v-model="editModel" width="680px" :rules="rules">
+    <UViewModal title="管理" :span="[7, 14]" v-model="editModel" size="680px" :rules="rules">
       <template #default="{model}">
         <URow :gutter="12" :responsive="2">
           <UInputItem field="deviceId" label="国标编号" disabled/>
@@ -35,7 +35,7 @@
         <UTag func="del" :data="record" url="/gbs/device/del" v-auth="'gbs:device:del'">删除</UTag>
       </template>
     </UViewTable>
-    <UDrawer uid="channel" v-model:source="channelDeviceModel" placement="top" height="100%"
+    <UDrawer uid="channel" v-model:source="channelDeviceModel" placement="top" size="100%"
              :title="'通道列表('+(channelDeviceModel['nickName'] || channelDeviceModel.name)+')'" @open="channelOpenHandle">
       <UChildView uid="channelView">
         <UViewSearch v-model="channelSearchModel">
@@ -46,7 +46,7 @@
             <UButton func="reset">重置</UButton>
           </URow>
         </UViewSearch>
-        <UViewModal title="通道管理" :span="[7, 14]" width="680px">
+        <UViewModal title="通道管理" :span="[7, 14]" size="680px">
           <template #default="{model}">
             <UInputItem field="deviceId" label="国标编号" disabled/>
             <UInputItem field="channelId" label="通道编号" disabled/>

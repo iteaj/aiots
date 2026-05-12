@@ -1,9 +1,30 @@
 /*功能按钮样式*/
 .u-func {
     cursor: pointer;
+    margin: 0 3px;
 }
-
+.u-page-view .ant-drawer-open.ant-drawer-bottom, .u-page-view .ant-drawer-open.ant-drawer-top, .u-page-view .ant-drawer-open.ant-drawer-left {
+    border-top: 1px solid var(--ant-layout-color-bg-body);
+    border-left: 1px solid var(--ant-layout-color-bg-body);
+}
+.u-task-bar .ant-tabs-card.ant-tabs-small >.ant-tabs-nav .ant-tabs-tab {
+    padding: 4px 16px 4px 8px;
+}
 /* ant-vue style */
 .u-form-modal .ant-modal-footer {
     text-align: center;
+}
+.iv-view-search {
+    margin-bottom: 8px;
+}
+.iv-view-border {
+    padding: 8px;
+    border-radius: 8px;
+    background-color: var(--iv-color-bg-container);
+}
+
+.iv-text-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

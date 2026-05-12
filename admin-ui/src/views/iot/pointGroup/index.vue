@@ -1,6 +1,6 @@
 <template>
   <UView name="点位组">
-    <UViewDrawer title="点位组管理" :span="[2, 22]" v-model="editModel" :rules="rules" placement="top" height="100%" @edit="edit">
+    <UViewDrawer title="点位组管理" :span="[2, 22]" v-model="editModel" :rules="rules" placement="top" size="100%" @edit="edit">
       <template #default="{model}">
         <UInputItem field="name" label="组名称" />
         <USelectItem field="productIds" label="所属产品" mode="multiple" :defaultValue="[]"

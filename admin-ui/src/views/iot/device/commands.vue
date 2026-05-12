@@ -7,7 +7,7 @@
         <span style="margin-right: 24px; color: #a8a8a8; font-weight: 0; font-size: 12px;">注: 点击指令进行复制</span>
       </AFlex>
     </template>
-    <ASpin :tip="tipText" :spinning="spinning">
+    <ASpin :description="tipText" :spinning="spinning">
       <UTable uid="cmdTable" :columns="columns" :pagination="false" ref="cmdTable" size="small">
         <template #commandValue="{record}">
           <a-typography-paragraph :copyable="{text: record.commandValue, tooltip: false, onCopy: () => copy(record)}" style="margin-bottom: 0px">

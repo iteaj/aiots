@@ -12,7 +12,7 @@
         <UTag func="open" uid="channel" :data="record">通道列表</UTag>
       </template>
     </UViewTable>
-    <UDrawer uid="channel" title="通道列表" v-model:source="selectModel" placement="top" height="100%">
+    <UDrawer uid="channel" title="通道列表" v-model:source="selectModel" placement="top" size="100%">
       <ULinkView uid="channelView">
         <UViewTable :columns="channelColumns" :dataSource="channelData">
           <template #action="{record}">

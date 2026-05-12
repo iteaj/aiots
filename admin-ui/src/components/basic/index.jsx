@@ -5,8 +5,8 @@ import {Config, DetailContext, EditContext, FuncConfig, SearchContext, TableCont
 import {mapGetters} from "vuex";
 import CoreConsts from "@/components/CoreConsts";
 import {useRouter} from "vue-router";
-import {InboxOutlined} from "@ant-design/icons-vue";
-import {UploadDragger} from "ant-design-vue";
+import {InboxOutlined} from "@antdv-next/icons";
+import {UploadDragger} from "antdv-next";
 import SysUtils from "@/utils/SysUtils";
 import {GET} from "@/utils/request";
 
@@ -129,6 +129,7 @@ export const UFuncTag = defineComponent({
         data: {type: Object}, // 行数据
         method: {type: String},
         params: {default: null},
+        variant: {default: 'solid'},
         reload: {default: true}, // 重新加载列表
         disabled: {default: null}, // 是否禁用
         config: {type: Object, default: () => { return {}}}, // 配置
@@ -209,8 +210,8 @@ export const UFuncTag = defineComponent({
 
         let tagColor = this.disabledComputed ? '#d8d8d8' : this.tagColor;
         let disabledClass = this.disabledComputed ? 'iv-func-disabled' : 'iv-func-tag'
-        return <ATag closable={false} class={disabledClass} class="u-func" bordered={false}
-                     color={tagColor} onClick={this.clickProxy} v-slots={this.$slots} />
+        return <ATag closable={false} class={disabledClass} class="u-func" bordered={false} variant={this.variant}
+                     color={tagColor} {...this.$attrs} onClick={this.clickProxy} v-slots={this.$slots} />
     },
     deactivated() {
         if(this['modalRef']) {

@@ -3,7 +3,6 @@ import {getMetaValue, initMetaValue, setMetaValue, removeMeta} from "@/utils/Met
 import {FormContext} from "@/components/form/basic/FormContext";
 import SysUtils from "@/utils/SysUtils";
 
-
 export default defineComponent({
     name: 'UForm',
     props: {
@@ -17,7 +16,7 @@ export default defineComponent({
             console.warn("UForm不支持[:model] 请使用[v-model]替代")
         }
 
-        let formRef;
+        let formRef = ref();
         let initModel = modelValue;
         let editModel = ref(initModel);
         let isFormMount = ref(false);
@@ -43,8 +42,6 @@ export default defineComponent({
         return {formContext, formRef, initModel, editModel, isFormMount}
     },
     created() {
-        this.formRef = this.$refs['formRef']
-
         this.formContext.getRules = this.getRules;
         this.formContext.validate = this.validate;
         this.formContext.resetFields = this.resetFields;
@@ -60,6 +57,9 @@ export default defineComponent({
         // 此处必须重新克隆initModel
         this.initModel = this.getInitModel();
         // this.$emit('update:modelValue', this.editModel);
+    },
+    unmounted() {
+        console.warn('表单被卸载')
     },
     render() {
         let editModel = this.editModel;
@@ -120,6 +120,8 @@ export default defineComponent({
 
             this.editModel = editModel;
             this.$emit('update:modelValue', editModel);
+            // 再触发编辑事件
+            this.$emit('edit', editModel);
         }
     }
 })

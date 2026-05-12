@@ -1,18 +1,42 @@
-export function IVTheme(headerBackgroundColor, headerColor, logoBackgroundColor) {
-    this.headerColor = headerColor;
-    this.logoBackgroundColor = logoBackgroundColor;
-    this.headerBackgroundColor = headerBackgroundColor;
-}
+import dayjs from "dayjs";
+import { theme } from 'antdv-next'
 
+const themeClassPrefix = "iv-theme-";
+export function IVTheme(themeType) {
+    this.theme = themeType;
+    this.getTheme = () => {
+        switch (themeType) {
+            case 'auto': {
+                let current = dayjs().hour();
+                return current >= 6&& current <18 ? 'light' : 'dark';
+            }
+            default: return themeType;
+        }
+    }
+
+    this.getAlgorithm = () => {
+        switch (themeType) {
+            case 'dark': return theme.darkAlgorithm;
+            case 'light': return theme.defaultAlgorithm;
+            case 'compact': return theme.compactAlgorithm;
+            case 'auto': {
+                let current = dayjs().hour();
+                return current >= 6 && current <18 ? theme.defaultAlgorithm : theme.darkAlgorithm;
+            }
+        }
+    };
+}
 // 默认样式
-const defaultStyle = 'light';
+const defaultStyle = 'auto';
 // 纯白主题颜色配置
-const light = new IVTheme('#ffffff', 'rgba(0, 0, 0, 0.88)', '#ffffff');
-const dark = new IVTheme('#ffffff', 'rgba(0, 0, 0, 0.88)', '#001529');
-const themeMaps = {light, dark}
+const light = new IVTheme( "light");
+const dark = new IVTheme("dark");
+const compact = new IVTheme("compact");
+const auto = new IVTheme("auto");
+const themeMaps = {light, dark, compact, auto}
 export function IVThemeConfig() {
 
-    this.style = 'light'; // dark
+    this.themeType = [defaultStyle]; // dark
 
     /**
      * 配置Drawer开关状态
@@ -25,20 +49,7 @@ export function IVThemeConfig() {
      */
     this.theme = light;
 
-    /**
-     * 头字体颜色
-     */
-    this.headerColor = this.theme.headerColor;
-
-    /**
-     * 头背景颜色
-     */
-    this.headerBackgroundColor = this.theme.headerBackgroundColor;
-
-    /**
-     * logo栏背景颜色
-     */
-    this.logoBackgroundColor = this.theme.logoBackgroundColor;
+    this.algorithm = null;
 
     /**
      * 主颜色
@@ -53,11 +64,6 @@ export function IVThemeConfig() {
     this.candidateColorPrimary = [{value: '#1677FF'}, {value: '#00B96B'}, {value: '#722ED1'}, {value: '#FA541C'}];
 
     /**
-     * 主颜色底色
-     */
-    this.colorBackgroundPrimary = this.colorPrimary
-
-    /**
      * 顶栏用主题色
      * @type {boolean}
      */
@@ -70,13 +76,22 @@ export function IVThemeConfig() {
         this.open = !this.open;
     }
 
-    /**
-     * 切换主题风格
-     * @param style {String}
-     */
-    this.switchStyle = function (style) {
-        this.style = style;
-        this.theme = themeMaps[style];
+    this.switchTheme = function (themeType) {
+        let number = this.themeType.indexOf("compact");
+        if(themeType == 'compact') {
+            if(number > -1) {
+                this.themeType.splice(number, 1);
+            } else {
+                this.themeType.push(themeType);
+            }
+        } else {
+            this.themeType = [themeType]
+            this.theme = themeMaps[themeType];
+            if(number > -1) this.themeType.push("compact");
+            document.documentElement.className = themeClassPrefix + this.theme.getTheme();
+        }
+
+        this.algorithm = this.themeType.map(item => themeMaps[item].getAlgorithm());
         this.switchColorPrimary(this.colorPrimary);
     }
 
@@ -95,15 +110,6 @@ export function IVThemeConfig() {
      */
     this.switchHeaderColorPrimary = function (value) {
         this.headerColorPrimary = value;
-        if(this.headerColorPrimary) {
-            this.headerColor = '#ffffff'
-            this.logoBackgroundColor = this.headerBackgroundColor = this.colorPrimary;
-        } else {
-            this.headerColor = this.theme.headerColor;
-            this.logoBackgroundColor = this.theme.logoBackgroundColor;
-            this.headerBackgroundColor = this.theme.headerBackgroundColor;
-        }
-
         // 存储配置信息
         localStorage.setItem("localThemeConfig", JSON.stringify(this));
     }
@@ -116,15 +122,16 @@ export function IVThemeConfig() {
 
         if(typeof localThemeConfig === 'string') {
             localThemeConfig = JSON.parse(localThemeConfig);
+            this.themeType = localThemeConfig.themeType;
             this.colorPrimary = localThemeConfig.colorPrimary;
             this.headerColorPrimary = localThemeConfig.headerColorPrimary;
         } else {
-            localThemeConfig = {style: defaultStyle};
             localStorage.setItem("localThemeConfig", JSON.stringify(this));
         }
 
+        document.documentElement.className = themeClassPrefix + themeMaps[this.themeType[0]].getTheme();
         // 切换样式
-        this.switchStyle(localThemeConfig.style);
+        this.algorithm = this.themeType.map(item => themeMaps[item].getAlgorithm());
     }
 
     this.loadingConfigFormStorage();

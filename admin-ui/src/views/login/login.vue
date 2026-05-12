@@ -3,22 +3,22 @@
     <div class="iz-login-card">
       <a-card :bordered="false" @keyup.enter.native="submit()">
         <img slot="title" src="/img/login_logo.png" style="margin-bottom: 12px"/>
-        <a-form layout="horizontal" :label-col="labelCol" :wrapper-col="wrapperCol">
-          <a-form-item has-feedback v-bind="validateInfos.username">
+        <a-form layout="horizontal" ref="formRef" :model="user" :rules="rules" :label-col="labelCol" :wrapper-col="wrapperCol">
+          <a-form-item has-feedback name="username">
             <a-input placeholder="请输入用户名" size="large" v-model:value="user.username">
               <template #prefix>
                 <UIcon type="iz-icon-account" />
               </template>
             </a-input>
           </a-form-item>
-          <a-form-item has-feedback v-bind="validateInfos.password">
+          <a-form-item has-feedback name="password">
             <a-input placeholder="请输入密码" type="password" size="large" v-model:value="user.password">
               <template #prefix>
                 <UIcon type="iz-icon-password" />
               </template>
             </a-input>
           </a-form-item>
-          <a-form-item name="captcha" v-bind="validateInfos.captcha">
+          <a-form-item name="captcha">
             <a-input placeholder="请输入验证码" size="large" v-model:value="user.captcha"
                      class="ivz-form-valid">
               <UIcon slot="prefix" type="iz-icon-validate"></UIcon>
@@ -57,8 +57,7 @@
   </div>
 </template>
 <script>
-import {reactive} from 'vue'
-import {Form} from 'ant-design-vue'
+import {reactive, shallowRef} from 'vue'
 import {getCode, login, oauth2, captchaUri} from '@/api'
 import CoreConsts from "@/components/CoreConsts";
 import SysUtils from "@/utils/SysUtils";
@@ -81,6 +80,7 @@ export default {
       password: 'iteaj123456'
     });
     const rules = reactive({
+      captcha: [{type: 'string', required: true, message: ''}],
       username: [{type: 'string', required: true, message: ''}],
       password: [{type: 'string', required: true, message: ''}],
     });
@@ -92,8 +92,13 @@ export default {
       captchaImg: null,
       class: 'iz-login-tip-error'
     });
-    const {validateInfos, validate, validateField} = Form.useForm(user, rules);
-
+    const formRef = shallowRef()
+    const validate = () => {
+      return formRef.value.validate();
+    };
+    const validateInfos = () => {
+      return formRef.value.validateInfos;
+    }
     const clickImg = () => {
       getCode().then(({message, code, data}) => {
         if(code == CoreConsts.SuccessCode) {
@@ -106,7 +111,7 @@ export default {
     }
 
     clickImg();
-    return {user, labelCol, wrapperCol, validateInfos, loginModel, clickImg, validate}
+    return {user, labelCol, wrapperCol, validateInfos, loginModel, clickImg, validate, formRef, rules}
   },
   methods: {
     oauth2Login(type) {

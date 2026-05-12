@@ -1,6 +1,6 @@
 import {useStore} from "vuex";
 import dayjs from "dayjs";
-import {computed, defineComponent, inject, provide, reactive, ref, watch} from "vue";
+import {computed, defineComponent, inject, onMounted, onUnmounted, provide, reactive, ref, watch} from "vue";
 import {MetaConst} from "@/utils/MetaUtils";
 import {FuncContextKey, LinkViewContextKey, ViewContextKey} from "@/utils/ProvideKeys";
 import {TableContext} from "@/components/view/Context";
@@ -55,7 +55,6 @@ function initColumnFormatterSlot(column) {
 
     let formatter = column.formatter;
     if(formatter instanceof Function) {
-        debugger
         // 对formatter创建代理, 新增返回label值
         column.formatter = ({text, record, column}) => {
             let label = column['__valueLabelMap'][text];
@@ -173,7 +172,7 @@ export default defineComponent({
         let dataSourceRef = ref(props.dataSource);
         let {columns, expandedRowKeys} = props;
         let unfoldRowKeys = ref(expandedRowKeys);
-        let loading = reactive({spinning: false, tip: '数据加载中...'});
+        let loading = reactive({spinning: false, description: '数据加载中...'});
 
         /**
          * @type {LinkContext}
@@ -240,7 +239,7 @@ export default defineComponent({
 
         let setLoading = (status, tip) => {
             loading.spinning = status;
-            loading.tip = tip || CoreConsts.TableSpinLoadingTip;
+            loading.description = tip || CoreConsts.TableSpinLoadingTip;
         }
         let setSticky = (status) => stickyRef.value = status
         let setDataSource = (ds) => {
@@ -255,7 +254,13 @@ export default defineComponent({
 
         if(linkContext) {
             tableContext.uid = props.uid;
-            linkContext.addChildrenContext(tableContext);
+
+            onMounted(() => {
+                linkContext.addChildrenContext(tableContext);
+            })
+            onUnmounted(() => {
+                linkContext.removeChildrenContext(tableContext);
+            })
 
             tableContext['setSticky'] = setSticky
             tableContext['setLoading'] = setLoading;

@@ -30,7 +30,7 @@
 
       </ACol>
       <ACol span="17" style="padding: 12px; background: #ffffff" class="iv-main-border radius">
-        <a-spin size="large" :spinning="spinning" tip="数据加载中">
+        <a-spin size="large" :spinning="spinning" description="数据加载中">
           <a-empty v-if="device['id'] == null" description="请先选择要调试的设备" style="margin-top: 160px;"/>
           <div v-else>
             <a-descriptions bordered :column="{xs: 1, sm: 2, md: 3, lg: 3, xl: 4}" size="small">
@@ -197,7 +197,7 @@
 <!-- 设备功能 -->
 <script>
 import {ref, reactive, watch, computed} from "vue";
-import {FolderFilled} from "@ant-design/icons-vue";
+import {FolderFilled} from "@antdv-next/icons";
 import CoreConsts from "@/components/CoreConsts";
 export default {
   name: "Debug",

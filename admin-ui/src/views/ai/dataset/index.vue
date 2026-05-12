@@ -36,7 +36,7 @@
     </UViewModal>
 
     <!-- 数据集明细抽屉 -->
-    <UDrawerView uid="itemView" title="数据集明细" width="100%" @open="onOpenItemView">
+    <UDrawerView uid="itemView" title="数据集明细" size="100%" @open="onOpenItemView">
       <a-tabs v-model:activeKey="activeKey">
         <!-- 数据库类型 -->
         <a-tab-pane key="db" tab="模型数据集" :disabled="activeKey !== 'db'">
@@ -53,7 +53,7 @@
                 <UTag func="del"  :data="record" url="/ai/dataset/item/del"  v-auth="'ai:dataset:del'">删除</UTag>
               </template>
             </UViewTable>
-            <UViewDrawer title="物模型属性数据项" v-model="itemEditModel" :rules="itemRules" width="960" :span="[6, 18]" @edit="itemEdit">
+            <UViewDrawer title="物模型属性数据项" v-model="itemEditModel" :rules="itemRules" size="960" :span="[6, 18]" @edit="itemEdit">
               <template #default="{model}">
                 <URow :responsive="3">
                   <USelectItem field="config.productId" url="/iot/product/listByNonGateway" labelField="name" valueField="id" label="产品编码" required @change="onProductChange"/>
@@ -96,7 +96,7 @@
                 <UTag func="del"  :data="record" url="/ai/dataset/item/del"  v-auth="'ai:dataset:del'">删除</UTag>
               </template>
             </UViewTable>
-            <UViewDrawer title="图像数据项" v-model="itemEditModel" :rules="itemRules" width="680" :span="[6, 18]" @edit="itemEdit">
+            <UViewDrawer title="图像数据项" v-model="itemEditModel" :rules="itemRules" size="680" :span="[6, 18]" @edit="itemEdit">
               <template #default="{model}">
                 <URow :responsive="2">
                   <UInputItem field="name" label="名称" required/>
@@ -132,7 +132,7 @@
                 <UTag func="del"  :data="record" url="/ai/dataset/item/del"  v-auth="'ai:dataset:del'">删除</UTag>
               </template>
             </UViewTable>
-            <UViewDrawer title="文本数据项" v-model="itemEditModel" :rules="itemRules" width="680" :span="[6, 18]" @edit="itemEdit">
+            <UViewDrawer title="文本数据项" v-model="itemEditModel" :rules="itemRules" size="680" :span="[6, 18]" @edit="itemEdit">
               <template #default="{model}">
                 <URow :responsive="2">
                   <UInputItem field="name" label="名称" required/>

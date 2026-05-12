@@ -11,7 +11,7 @@ export default defineComponent({
         afterClose: Function,
         width: {default: 452},
         height: {default: 452},
-        destroyOnClose: Boolean,
+        destroyOnHidden: Boolean,
         zIndex: {default: 1000},
         keyboard: {default: true},
         placement: {default: 'right'},

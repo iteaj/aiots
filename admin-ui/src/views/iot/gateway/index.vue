@@ -11,7 +11,7 @@
         <UButton func="add" url="/iot/gateway/add" v-auth="'iot:gateway:add'">新增</UButton>
       </URow>
     </UViewSearch>
-    <UViewDrawer title="协议网关管理" v-model="editModel" :rules="rules" placement="left" width="860" :span="[7, 16]" @edit="editHandle">
+    <UViewDrawer title="协议网关管理" v-model="editModel" :rules="rules" placement="left" size="860" :span="[7, 16]" @edit="editHandle">
         <template #default="{model}">
           <URow :gutter="12" :responsive="2">
             <UInputItem field="name" label="网关名称" :maxlength="32"/>

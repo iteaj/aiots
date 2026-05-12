@@ -26,7 +26,7 @@
               >{{ record.status === 'running' ? '取消' : '开始' }}</UTag>
             </template>
           </UViewTable>
-          <UViewDrawer title="训练任务" v-model="editModel" width="920" :rules="rules" :span="[6, 16]" @edit="onOpenEdit">
+          <UViewDrawer title="训练任务" v-model="editModel" size="920" :rules="rules" :span="[6, 16]" @edit="onOpenEdit">
             <template #default="{model}">
               <URow :responsive="3">
                 <UInputItem field="taskName" label="任务名称" required/>
@@ -102,7 +102,7 @@
     </a-tabs>
 
     <!-- 训练指标抽屉 -->
-    <UDrawerView uid="metricDrawer" :title="'训练指标 - ' + currentTaskName" :width="1200" @open="onMetricDrawerOpen" rowKey="id">
+    <UDrawerView uid="metricDrawer" :title="'训练指标 - ' + currentTaskName" :size="1200" @open="onMetricDrawerOpen" rowKey="id">
       <UViewSearch v-model="metricSearchModel">
         <URow col="search">
           <UInputNumberItem field="epoch" label="轮次" :min="1" :step="1"/>

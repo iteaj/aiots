@@ -1,6 +1,6 @@
 <template>
   <AModal :title="title" :maskClosable="false" :height="height" :width="width" :footer="null" wrapClassName="iv-rtvs-modal"
-          @cancel="cancelHandle" destroyOnClose :body-style="{height: height + 'px', width: (width - 48) + 'px', position: 'relative'}">
+          @cancel="cancelHandle" destroyOnHidden :styles="{body: {height: height + 'px', width: (width - 48) + 'px', position: 'relative'}}">
     <div v-if="ptz != null" class="iv-rtvs-modal-ptz">
       <PTZ :zoom="ptz.zoom != false" @voice="voice" @ctrl="ptzCamera" ref="ptzRef"/>
       <div class="iv-icon-ptz">

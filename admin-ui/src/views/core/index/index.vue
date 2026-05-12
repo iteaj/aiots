@@ -91,7 +91,7 @@
       <ACard title="产品设备数量统计" class="u-row" size="small" style="width: 45%">
         <div id="iv-index-product" style="height: 270px"></div>
       </ACard>
-      <div class="u-row" size="small" style="width: 55%; padding: 10px; background-color: #ffffff; border-radius: 8px;">
+      <div class="u-row" size="small" style="width: 55%; padding: 10px; border-radius: 8px;">
         <ATable :columns="warnColumns" :dataSource="warnData" size="small" bordered :pagination="false"></ATable>
       </div>
     </AFlex>

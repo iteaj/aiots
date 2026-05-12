@@ -119,31 +119,23 @@ export default {
   padding: 12px;
   overflow: auto;
 }
+
 body ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
 }
 
 body ::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-    background: hsl(0deg 0% 0% / 22%);
-    -webkit-box-shadow: inset 0 0 5px hsl(0deg 0% 100% / 5%);
+    border-radius: 4px;
+    background-clip: padding-box;
+    border: 3px solid rgb(168 168 168 / 0);
+    background: var(--iv-color-bgt-container);
 }
 
 body ::-webkit-scrollbar-track {
-    border-radius: 3px;
-    background: hsl(0deg 0% 83%);
-    -webkit-box-shadow: inset 0 0 5px rgb(37 37 37 / 5%);
-}
-
-.ivz-theme-dark .ivz-avatar {
-    background-color: #001529;
-}
-.ivz-theme-dark .ivz-avatar .ivz-avatar-name {
-    color: #ffffff;
-}
-.ivz-theme-dark .ivz-avatar .ant-avatar {
-    background-color: #ffffff;
+    border-radius: 4px;
+    width: 10px;
+    //background: hsl(0deg 0% 90%);;
 }
 
 /*动画*/

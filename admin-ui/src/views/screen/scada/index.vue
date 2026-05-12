@@ -54,7 +54,7 @@
         </template>
         <ARow :gutter="16">
           <ACol style="margin-bottom: 16px; cursor: pointer" @click="() => openDeploy({id: null, path: null})">
-            <a-card style="width: 220px; background-color: #fefefe" :bodyStyle="{height: '300px'}">
+            <a-card style="width: 220px; background-color: #fefefe" :styles="{body: {height: '300px'}}">
               <div style="text-align: center; padding-top: 58px">
                 <plus-outlined style="font-size: 120px; color: rgba(152,152,152,0.76)"></plus-outlined>
                 <div class="ant-upload-text">点击安装</div>
@@ -131,7 +131,7 @@
 import {ref, reactive} from "vue";
 import screenfull from "screenfull";
 import CoreConsts from "@/components/CoreConsts";
-import {EyeFilled, StarFilled, EditOutlined, InboxOutlined, PlusOutlined, DeleteOutlined} from "@ant-design/icons-vue";
+import {EyeFilled, StarFilled, EditOutlined, InboxOutlined, PlusOutlined, DeleteOutlined} from "@antdv-next/icons";
 import {confirm} from "@/utils/message";
 export default {
   name: "Scada",

@@ -28,7 +28,7 @@
             :data="record" v-auth="'core:role:perm'">分配权限</UTag>
       </template>
     </UViewTable>
-    <UFormDrawer v-model="permModel" uid="funcPerm" title="分配功能权限" placement="left" width="580">
+    <UFormDrawer v-model="permModel" uid="funcPerm" title="分配功能权限" placement="left" size="580">
       <template #default="{model}">
         &nbsp;<a-button @click="() => expanded('close')">折叠</a-button>
         &nbsp;<a-button type="primary" @click="() => expanded('open')">展开</a-button>

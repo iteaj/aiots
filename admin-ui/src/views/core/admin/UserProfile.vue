@@ -65,7 +65,7 @@ import {
   PhoneFilled,
   SettingOutlined,
   UserOutlined
-} from '@ant-design/icons-vue'
+} from '@antdv-next/icons'
 import {mapGetters, useStore} from "vuex";
 import {computed, reactive, ref, watch} from "vue";
 import {urlConfig} from "@/utils/request";

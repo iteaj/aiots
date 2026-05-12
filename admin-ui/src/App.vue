@@ -1,6 +1,8 @@
 <template>
   <a-config-provider :locale="zhCN" :theme="theme">
-    <router-view />
+    <a-app class="iv-theme-var iv-app">
+      <router-view />
+    </a-app>
   </a-config-provider>
 </template>
 
@@ -9,7 +11,7 @@ import './theme/index.css'
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import ThemeConfig from './theme/index.js'
-import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import zhCN from 'antdv-next/locale/zh_CN';
 import {computed, provide, reactive} from "vue";
 import {GlobalConfigKey, ThemeConfigKey} from "@/utils/ProvideKeys";
 
@@ -20,11 +22,11 @@ export default {
   setup() {
 
     let themeConfig = reactive(ThemeConfig);
-    let colorPrimary = computed(() => themeConfig.colorPrimary)
+    let algorithm = computed(() => {
+      return themeConfig.algorithm
+    })
     let theme = reactive({
-      token: {
-        colorPrimary: colorPrimary
-      }
+      algorithm
     })
     /**
      * ivzone全局配置
@@ -51,43 +53,35 @@ export default {
 </script>
 
 <style>
+.iv-app {
+  height: 100%;
+}
+.iv-theme-var {
+  --header-height: 64px;
+  --divider-basic-color: var(--ant-color-split);
+  --divider-color: var(--ant-color-bg-elevated);
+  --iv-color-bg-container: color-mix(in srgb, var(--ant-color-bg-container), transparent 20%);
+  --iv-color-bgt-container: var(--ant-color-bg-elevated);
+}
 .iv-primary {
-  --divider-color: #d9d9d9;
   --primary-radius: 8px;
   --primary-color: v-bind('themeConfig.colorPrimary');
   --primary-background-color: v-bind('themeConfig.colorBackgroundPrimary');
 }
 
 .iv-header {
-  --header-height: 64px;
-  --header-color: v-bind('themeConfig.headerColor');
-  --header-background-color: v-bind('themeConfig.headerBackgroundColor');
-  --header-logo-background-color: v-bind('themeConfig.logoBackgroundColor');
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  background-color: color-mix(in srgb, var(--iv-color-bg-container), transparent 20%)
 }
 .iv-primary-divider {
   border-bottom: 1px solid var(--divider-color);
 }
-.iv-view-search {
-  margin-bottom: 8px;
-}
-.iv-view-border {
-  padding: 8px;
-  background-color: #ffffff;
-  border-radius: 8px;
-}
 
-.iv-text-ellipsis {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .iv-group-addon-padding-0 .ant-input-number-group-addon {
   padding: 0px 0px;
 }
-.iv-drawer .ant-drawer-content-wrapper {
-  background: #ffffff;
-  border-left: 1px solid #f0f0f0;
-}
+
 .ant-drawer-open.iv-basic-drawer .ant-drawer-content-wrapper, .ant-drawer-open.iv-form-drawer .ant-drawer-content-wrapper {
   border-top: 1px dashed var(--primary-background-color);
 }

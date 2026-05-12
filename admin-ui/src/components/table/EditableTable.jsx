@@ -214,7 +214,7 @@ export default defineComponent({
         let dataSourceRef = ref(props.dataSource);
         let {columns, expandedRowKeys} = props;
         let unfoldRowKeys = ref(expandedRowKeys);
-        let loading = reactive({spinning: false, tip: '数据加载中...'});
+        let loading = reactive({spinning: false, description: '数据加载中...'});
 
         /**
          * @type {LinkContext}
@@ -289,7 +289,7 @@ export default defineComponent({
         }
         let setLoading = (status, tip) => {
             loading.spinning = status;
-            loading.tip = tip || CoreConsts.TableSpinLoadingTip;
+            loading.description = tip || CoreConsts.TableSpinLoadingTip;
         }
         let setSticky = (status) => stickyRef.value = status
         let setDataSource = (ds) => {

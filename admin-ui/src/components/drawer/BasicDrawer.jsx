@@ -7,11 +7,9 @@ export default defineComponent({
     name: 'UDrawer',
     props: {
         title: String,
-        bodyStyle: Object,
         centered: Boolean,
         afterClose: Function,
-        width: {default: 680},
-        height: {default: 452},
+        size: {default: 680},
         zIndex: {default: 1000},
         keyboard: {default: true},
         closable: {default: true},
@@ -19,12 +17,15 @@ export default defineComponent({
         forceRender: {default: true},
         placement: {default: 'right'},
         maskClosable: {default: false},
-        headerStyle: {type: Object},
-        destroyOnClose: {default: true},
+        destroyOnHidden: {default: true},
         uid: {type: String, required: true},
         modelValue: {type: Object},
         'onUpdate:modelValue': {type: Function},
-        footerStyle: {type: Object, default: () => { return {textAlign: 'center'}}}
+        rootStyle: {type: Object, default: () => { return {position: 'absolute'}}},
+        styles: {type: Object, default: () => { return {
+                footer: {textAlign: 'center'},
+            }
+        }},
     },
     mixins: [MixinsVisible],
     setup(props, {attrs}) {
@@ -54,8 +55,8 @@ export default defineComponent({
         return {formRef, spinning, spinTip, visible, routerCall, linkContext, visibleContext}
     },
     render() {
-        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]} rootClassName="iv-drawer iv-basic-drawer" rootStyle={{position: 'absolute'}}
-                {...this.$props} v-slots={this.$slots} getContainer=".u-page-view" forceRender={true}/>)
+        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]} rootClassName="iv-drawer iv-basic-drawer"
+                {...this.$props} v-slots={this.$slots} getContainer=".u-page-view"/>)
     },
     mounted() {
         this.routerCall = this.$router.beforeEach((from, to, next) => {

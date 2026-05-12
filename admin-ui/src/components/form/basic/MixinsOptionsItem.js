@@ -40,7 +40,8 @@ export default defineComponent({
                 this.dataSource = ref(options); this.valueModelMap = valueModelMap;
             } else if(this.url) {// 实现动态级联获取 /test?type={typeId}
                 let url = this.url;
-                let fields = this.url.match(/\{([^}]+)\}/g);
+                let fields = this.url.match(/\{([^}]+)}/g);
+
                 if(fields instanceof Array) {
                     let editModel = ref({})
                     if(formContext instanceof FormContext) {

@@ -22,7 +22,7 @@
         <UButton func="reset">重置</UButton>
       </template>
     </UViewModal>
-    <UDrawer uid="config" v-model:source="detailModel" title="采集任务配置" placement="top" height="100%" @open="onOpenDetail">
+    <UDrawer uid="config" v-model:source="detailModel" title="采集任务配置" placement="top" size="100%" @open="onOpenDetail">
       <ULinkView uid="configView">
         <UViewSearch v-model="detailSearchModel">
           <URow col="search">
@@ -32,7 +32,7 @@
             <UButton func="add">新增</UButton>
           </URow>
         </UViewSearch>
-        <UViewModal title="任务详情管理" width="820px" :span="[7, 14]" v-model="detailEditModel" :rules="detailRules" @edit="onDetail">
+        <UViewModal title="任务详情管理" size="820px" :span="[7, 14]" v-model="detailEditModel" :rules="detailRules" @edit="onDetail">
           <template #default="{model}">
             <URow col="modal">
               <USelectItem field="pointGroupId" label="点位组" labelField="name" valueField="id" url="/iot/pointGroup/list"/>

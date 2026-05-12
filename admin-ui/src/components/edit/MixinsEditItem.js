@@ -49,9 +49,10 @@ export default defineComponent({
             this.$emit("open", row);
             // 暴露编辑的数据
             this.$emit('update:source', row);
-            return new Promise((resolve, reject) => {
-                return resolve(this);
-            })
+
+            return this.$nextTick().then(() => {
+                    this.formRef = this.$refs['iemFormRef']; return this;
+                })
         },
 
         getEditModel() {

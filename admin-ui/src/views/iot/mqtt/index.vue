@@ -65,7 +65,7 @@
         <UFuncTag func="del" :data="record" url="/iot/mqtt/del" v-auth="'iot:mqtt:del'">删除</UFuncTag>
       </template>
     </UViewTable>
-    <UDrawer uid="child" placement="top" :title="'子设备管理('+editModel.name+')'" @open="childOpen" height="100%">
+    <UDrawer uid="child" placement="top" :title="'子设备管理('+editModel.name+')'" @open="childOpen" size="100%">
       <ULinkView uid="childView">
         <UViewSearch v-model="childSearchModel">
           <URow col="search">

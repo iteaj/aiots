@@ -1,8 +1,8 @@
 <template>
-    <a-drawer :visible="visible" :height="'100%'" @close="closeHandle" placement="top" closable
+    <a-drawer :visible="visible" :size="'100%'" @close="closeHandle" placement="top" closable
               :get-container="false" @afterOpenChange="afterVisibleChange"
               class="ivz-user-info" style="position: absolute"
-              :bodyStyle="{height: '0%', padding: '0px'}">
+              :styles="{body: {height: '0%', padding: '0px'}}">
         <template #title>
             <div class="ivz-uic-info">
                 <a-tabs :activeKey="activeKey" @change="tabChange">

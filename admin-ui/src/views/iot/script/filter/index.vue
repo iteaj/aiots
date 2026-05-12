@@ -1,13 +1,13 @@
 <template>
   <div class="iv-view-border">
-      <ATabs v-model:activeKey="typeKey" centered animated>
+      <ATabs v-model:activeKey="typeKey" centered>
         <template v-for="(item, index) in filters" :key="item.name">
           <a-tab-pane :tab="item.name">
-            <ASpin tip="数据保存中..." :spinning="spinning">
-              <ATabs v-model:activeKey="languageKey" tab-position="left">
+            <ASpin description="数据保存中..." :spinning="spinning">
+              <ATabs v-model:activeKey="languageKey" tabPlacement="left">
                 <template v-for="language in item['script']" :key="language.language">
                   <a-tab-pane :tab="language.language">
-                    <AceScriptEditor v-model:value="language.script" :completions="item['completes']" style="height: 420px"></AceScriptEditor>
+                    <AceScriptEditor v-model:value="language.script" :completions="item['completes']" style="height: 450px"></AceScriptEditor>
                   </a-tab-pane>
                 </template>
               </ATabs>
@@ -16,7 +16,7 @@
                   <template v-for="language in item['script']" :key="language.language">
                     <ARadioButton :value="language.language">{{language.language}}</ARadioButton>
                   </template>
-                  <ARadioButton :value="null">禁用</ARadioButton>
+                  <ARadioButton value="disabled">禁用</ARadioButton>
                 </ARadioGroup>
                 <AButton type="dashed" style="margin-left: 8px" @click="() => submit(item)">保存</AButton>
               </div>
@@ -24,7 +24,7 @@
           </a-tab-pane>
         </template>
         <a-tab-pane tab="运行日志" key="logger">
-          <URunningLogger style="min-height: 560px; max-height: 640px; padding: 8px;"/>
+          <URunningLogger style="min-height: 490px; max-height: 640px; padding: 8px;"/>
         </a-tab-pane>
       </ATabs>
   </div>

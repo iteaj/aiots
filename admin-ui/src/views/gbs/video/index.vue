@@ -35,7 +35,7 @@
 <script>
 import {defineAsyncComponent, reactive, ref, watch} from "vue";
 import {difference} from "lodash";
-import {FolderFilled} from "@ant-design/icons-vue";
+import {FolderFilled} from "@antdv-next/icons";
 import {RealTimeVideoConfig} from "@/components/video";
 import PTZ from "@/components/video/PTZ.vue";
 import CoreConsts from "@/components/CoreConsts";

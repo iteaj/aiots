@@ -14,7 +14,7 @@
       </URow>
     </UViewSearch>
     <UDrawerLogger uid="running"/>
-<!--    <UFormDrawer uid="sourceConfig" title="事件源管理" :span="[6, 16]" v-model="editModel" :rules="rules" width="100%">-->
+<!--    <UFormDrawer uid="sourceConfig" title="事件源管理" :span="[6, 16]" v-model="editModel" :rules="rules" size="100%">-->
 <!--      <template #extra>-->
 <!--        <div>注：同一事件源下的被动模型事件接口将统一采集</div>-->
 <!--      </template>-->
@@ -54,7 +54,7 @@
 <!--        <UButton func="reset">重置</UButton>-->
 <!--      </template>-->
 <!--    </UFormDrawer>-->
-    <UViewDrawer title="事件源管理" :span="[6, 16]" :rules="rules" v-model="editModel" width="100%">
+    <UViewDrawer title="事件源管理" :span="[6, 16]" :rules="rules" v-model="editModel" size="100%">
       <URow :responsive="3">
         <UInputItem field="name" label="事件名称" />
         <URadioItem field="type" label="事件类型" url="/iot/eventSource/types" optionType="button"

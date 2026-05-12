@@ -9,21 +9,23 @@ export default defineComponent({
     name: 'UFormDrawer',
     props: {
         title: String,
-        bodyStyle: Object,
         centered: Boolean,
         afterClose: Function,
-        width: {default: 680},
-        height: {default: 452},
         zIndex: {default: 1000},
         keyboard: {default: true},
         closable: {default: true},
-        forceRender: {default: true},
+        size: {default: 'default'},
+        forceRender: {default: false},
         placement: {default: 'right'},
         maskClosable: {default: true},
-        headerStyle: {type: Object},
-        destroyOnClose: {default: false},
+        destroyOnHidden: {default: false},
         uid: {type: String, required: true},
-        footerStyle: {type: Object, default: () => { return {textAlign: 'center'}}}
+        loading: {type: Boolean, default: false},
+        rootStyle: {type: Object, default: () => { return {position: 'absolute'}}},
+        styles: {type: Object, default: () => { return {
+                footer: {textAlign: 'center'},
+            }
+        }},
     },
     mixins: [MixinsEditItem],
     setup(props, {attrs, slots}) {
@@ -84,10 +86,10 @@ export default defineComponent({
             this.formRef = this.$refs['iemFormRef'];
         }
 
-        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]} rootStyle={{position: 'absolute'}}
-                {...this.$props} v-slots={this.slotProxy} getContainer=".u-page-view" ref="ADrawerRef"
-                rootClassName="iv-drawer u-edit-form iv-form-drawer" destroyOnClose={false} forceRender={true}>
-            <ASpin size="small" tip={this.spinTip} spinning={this.spinning}>
+        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]}
+                {...this.$props} v-slots={this.slotProxy} getContainer=".u-page-view"
+                rootClassName="iv-drawer u-edit-form iv-form-drawer" ref="ADrawerRef">
+            <ASpin size="small" description={this.spinTip} spinning={this.spinning}>
                 <UForm {...this.$attrs} ref="iemFormRef">
                     {this.$slots.default ? this.$slots.default({model, context}) : []}
                 </UForm>

@@ -48,8 +48,7 @@
 /*搜索栏样式*/
 .u-bs-search .u-search-form {
     padding: 10px 5px 0px;
-    border-radius: 5px;
-    border: 1px dashed #f9f9f9;
+    border-radius: 8px;
 }
 .u-bread-search {
     padding: 0px;
@@ -58,16 +57,13 @@
 .u-bread-search .u-search-form {
     /*padding: 8px;*/
     margin-bottom: 8px;
-    background: #ffffff;
 }
 .u-bread-search .u-search-form .u-row {
     border-radius: 5px;
     padding: 10px 5px 0px;
-    border: 1px dashed #eeeeee;
 }
 .u-bread-search .u-is-fun {
     padding: 8px 8px 0px;
-    background: #fefefe;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
 }
@@ -78,4 +74,8 @@
 .iv-condition-modal .ant-tree-node-selected, .iv-action-modal .ant-tree-node-selected {
     color: #ffffff;
     background-color: #19B0FE!important;
+}
+
+.iv-theme-light .iv-task-container .ant-drawer .iv-view-border {
+    background-color: var(--ant-layout-body-bg);
 }

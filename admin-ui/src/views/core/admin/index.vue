@@ -36,7 +36,7 @@
       </template>
     </U2Col>
 
-    <UViewDrawer width="780" layout="vertical" :rules="rules" placement="left" title="用户管理" @edit="editOpen">
+    <UViewDrawer size="780" layout="vertical" :rules="rules" placement="left" title="用户管理" @edit="editOpen">
       <template #default="{model}">
         <URow :gutter="16" col="drawer">
           <UInputItem field="account" label="用户帐号" :disabled="model.id != null" :maxlength="20"/>

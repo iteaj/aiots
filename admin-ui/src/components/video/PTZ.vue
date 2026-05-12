@@ -43,7 +43,7 @@
 </template>
 <!--云控制台组件-->
 <script>
-import {CaretUpOutlined, ZoomInOutlined, ZoomOutOutlined, CaretDownOutlined, CaretLeftOutlined, CaretRightOutlined} from "@ant-design/icons-vue";
+import {CaretUpOutlined, ZoomInOutlined, ZoomOutOutlined, CaretDownOutlined, CaretLeftOutlined, CaretRightOutlined} from "@antdv-next/icons";
 import {reactive, ref} from "vue";
 
 export default {

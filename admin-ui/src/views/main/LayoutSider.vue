@@ -15,7 +15,7 @@ import {computed, h, inject} from "vue";
 import {mapGetters, mapMutations} from "vuex";
 import {ThemeConfigKey} from "@/utils/ProvideKeys";
 import store from "@/store";
-import {MenuFoldOutlined, MenuUnfoldOutlined} from "@ant-design/icons-vue";
+import {MenuFoldOutlined, MenuUnfoldOutlined} from "@antdv-next/icons";
 
 export default {
   name: "LayoutSider",
@@ -112,12 +112,6 @@ export default {
 </script>
 
 <style>
-.ant-layout-sider-collapsed .u-logo-title {
-    display: none;
-}
-.ant-layout-sider-dark .u-logo-title {
-    color: #ffffff;
-}
 .u-sider .ant-layout-sider-children {
   height: 100%;
   display: flex;
@@ -129,9 +123,5 @@ export default {
 /*侧边菜单栏滚动条样式*/
 .u-sider .ant-layout-sider-collapsed .ant-menu-inline-collapsed {
   width: 72px;
-}
-.u-sider .ant-layout-sider-children ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
 }
 </style>

@@ -1,8 +1,11 @@
 import {resolve} from 'path'
+import {fileURLToPath} from 'url'
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 // https://github.com/vuejs/jsx-next#syntax
 import vueJsx from '@vitejs/plugin-vue-jsx'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 // https://vitejs.dev/config/
 export default defineConfig((env)=>{

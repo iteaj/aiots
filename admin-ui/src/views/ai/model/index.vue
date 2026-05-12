@@ -234,7 +234,7 @@
     </a-tabs>
 
     <!-- 模型参数抽屉 -->
-    <UDrawerView uid="paramDrawer" :title="'模型参数 - ' + currentModelName" width="1200" @open="onParamDrawerOpen" rowKey="id">
+    <UDrawerView uid="paramDrawer" :title="'模型参数 - ' + currentModelName" size="1200" @open="onParamDrawerOpen" rowKey="id">
       <UViewSearch v-model="paramSearchModel">
         <URow :responsive="2">
           <UInputItem field="paramName" label="参数名称"/>

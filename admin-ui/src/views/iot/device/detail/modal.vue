@@ -1,8 +1,8 @@
 <template>
   <AModal placement="left" width="860px" centered :footer="null"
-          :bodyStyle="{padding: '0px', height: '380px', overflow: 'auto'}" destroy-on-close>
+          :styles="{body: {padding: '0px', height: '380px', overflow: 'auto'}}" destroyOnHidden>
     <template #title>
-      <AFlex justify="space-evenly" style="padding: 0 0 12px; border-bottom: 1px solid #f0f0f0">
+      <AFlex justify="space-evenly" class="iv-device-dt">
         <div>
           设备名称: {{selectDevice.name}}
         </div>
@@ -20,12 +20,12 @@
         </div>
       </AFlex>
     </template>
-    <ASpin :spinning="spinning" tip="数据加载中..." style="height: 100%" wrapperClassName="iv-emap-spin">
-      <ATabs v-model:active-key="activeKey" tab-position="left">
+    <ASpin :spinning="spinning" description="数据加载中..." style="height: 100%" :classes="{root: 'iv-emap-spin'}">
+      <ATabs v-model:active-key="activeKey" tabPlacement="left">
         <ATabPane key="attr" tab="最新数据">
           <a-row justify="start" align="middle" wrap>
             <a-col v-for="attr in modelAttrs" :key="attr.id" style="min-width: 170px; padding: 3px; margin: 5px 0; height: 85px;">
-              <a-card :bordered="false" hoverable size="small" :headStyle="{minHeight: '28px'}" :bodyStyle="{padding: '6px'}">
+              <a-card variant="borderless" hoverable size="small" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
                 <template #title>
                   <AFlex gap="10" justify="space-between">
                     <div>
@@ -78,7 +78,7 @@ import {ref, watch, defineComponent, getCurrentInstance} from "vue";
 import {GET, POST, urlConfig} from "@/utils/request";
 import CoreConsts from "@/components/CoreConsts";
 import {msgError, msgSuccess} from "@/utils/message";
-import {SendOutlined} from "@ant-design/icons-vue";
+import {SendOutlined} from "@antdv-next/icons";
 
 export default defineComponent({
   name: "DeviceDetailModal",
@@ -230,6 +230,10 @@ export default defineComponent({
   padding: 6px 0;
   position: relative;
   border-bottom: 1px dashed #d9d9d9;
+}
+.iv-device-dt {
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--ant-color-split);
 }
 .iv-api-item .iv-cmd-desc, .iv-minor-text {
   font-size: 12px;

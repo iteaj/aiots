@@ -5,7 +5,7 @@ import SysUtils from "@/utils/SysUtils";
 import CoreConsts from "@/components/CoreConsts";
 import {GET, urlConfig} from "@/utils/request";
 import dayjs from "dayjs";
-import {Modal} from "ant-design-vue";
+import {Modal} from "antdv-next";
 import {createVNode, defineComponent, reactive} from "vue";
 import {ImportUpload} from "@/components/basic";
 
@@ -152,17 +152,15 @@ export function $View(context) {
 
         try {
             editContext.openType = 'add';
-            let formContext = editContext.getFormContext();
-            let formModel = formContext.getInitModel();
-
-            this.getRequestParams({data, formModel}, params, funcPath).then((editModel) => {
-                editContext.asyncVisible(data, true).then((edit) => {
+            editContext.asyncVisible(data, true).then((edit) => {
+                let formContext = editContext.getFormContext();
+                let formModel = formContext.getInitModel();
+                this.getRequestParams({data, formModel}, params, funcPath).then((editModel) => {
                     // 先触发v-model事件
                     formContext.setEditModel(editModel)
-                    // 再触发编辑事件
-                    edit.$emit('edit', editModel);
                 })
             })
+
         } catch (e) {
             console.error(e);
         }
@@ -253,28 +251,24 @@ export function $View(context) {
         let formModel = null;
         editContext.openType = 'edit';
         if(url) {
-            this.getRequestParams({data, formModel}, params, funcPath).then((reqParam) => {
-                editContext.asyncVisible(data, false).then((edit) => {
+            editContext.asyncVisible(data, false).then((edit) => {
+                this.getRequestParams({data, formModel}, params, funcPath).then((reqParam) => {
                     editContext.setLoading(true, CoreConsts.FormSpinLoadingTip);
                     this.getRequestMethod({func, method})(url, reqParam)
                         .then(({code, message, data}) => {
                             if(code == CoreConsts.SuccessCode) {
                                 // 先触发v-model事件
                                 editContext.getFormContext().setEditModel(data)
-                                // 再触发编辑事件
-                                edit.$emit('edit', data);
                             } else {
                                 msgError(message);
                             }
-                        }).finally(() => editContext.setLoading(false, null))
+                    }).finally(() => editContext.setLoading(false, null))
                 })
             })
         } else {
             editContext.asyncVisible(data, false).then((edit) => {
                 // 先触发v-model事件
                 editContext.getFormContext().setEditModel(data)
-                // 再触发编辑事件
-                edit.$emit('edit', data);
             })
         }
     }
@@ -1493,6 +1487,20 @@ export function ViewContext(props) {
     }
 
     /**
+     * 移除上下文
+     * @param fullUid = prefix:uid
+     */
+    this.removeContextByUid = function (fullUid) {
+        if(fullUid) {
+            if(this.uidContextMaps[fullUid]) {
+                delete this.uidContextMaps[fullUid];
+            }
+        } else {
+            console.error(`移除Context失败, 错误的参数[fullUid or context]`)
+        }
+    }
+
+    /**
      * @param uid {String}
      * @param context {LinkContext}
      */
@@ -1710,6 +1718,16 @@ export function LinkContext(uid, viewContext, parent) {
             this.getViewContext().addContextByUid(fullUid, childContext);
         } else {
             console.warn(`已经存在同名的组件[${fullUid}]`)
+        }
+    }
+
+    this.removeChildrenContext = function (childContext) {
+        if(childContext.uid) {
+            let fullUid = this.uid + ":" + childContext.uid;
+            if(this.childContextMaps[fullUid]) {
+                delete this.childContextMaps[fullUid];
+                this.getViewContext().removeContextByUid(fullUid);
+            }
         }
     }
 

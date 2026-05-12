@@ -30,7 +30,7 @@
           <UTag func="del" :data="record" url="/iot/product/del" v-auth="'iot:product:del'">删除</UTag>
         </template>
       </UViewTable>
-    <UDrawer uid="model" :title="'物模型配置['+modelDetailModel['code']+']'" placement="bottom" height="100%" v-model:source="modelDetailModel" :push="false" @close="modelClose">
+    <UDrawer uid="model" :title="'物模型配置['+modelDetailModel['code']+']'" placement="bottom" size="100%" v-model:source="modelDetailModel" :push="false" @close="modelClose">
       <template #extra>
         <span style="color: #fc804a; font-size: 13px;">所有修改将在重启产品后生效</span>
 <!--        <UButton size="small" v-auth="'iot:product:switch'" :url="`/iot/product/switch/${modelDetailModel['id']}/disabled`" danger-->
@@ -71,8 +71,7 @@
                   <UTag func="del" :data="record" url="/iot/modelAttr/del" v-auth="'iot:modelAttr:del'" :disabled="record['origin']=='Protocol'">删除</UTag>
                 </template>
               </UViewTable>
-              <UViewDrawer title="物模型属性配置" placement="right" @edit="attrEdit" v-model="attrDetailModel"
-                           width="920px" :span="[7, 17]" :rules="attrRules">
+              <UViewDrawer title="物模型属性配置" placement="right" @edit="attrEdit" v-model="attrDetailModel" size="920" :span="[7, 17]" :rules="attrRules">
                 <template #default="{model}">
                   <URow :gutter="6" :responsive="3">
                     <UInputItem label="属性名称" field="name" :maxlength="18"/>
@@ -142,7 +141,6 @@
               </UViewSearch>
               <UViewModal :title="`功能配置[${modelDetailModel['code']}]`" :span="[7, 15]" width="920px" v-model="funcEditModel" :centered="false" @edit="apiOpenEdit" :rules="apiRules">
                 <URow :responsive="2">
-                  <a-divider style="margin-bottom: 2px" dashed>功能配置</a-divider>
                   <UInputItem label="功能名称" field="name" required :maxlength="18" />
                   <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="funcEditModel['id'] != null" />
                   <USelectItem label="协议指令" field="direct" v-model:source="funcApis" labelField="name" valueField="code" required
@@ -209,7 +207,6 @@
               </UViewSearch>
               <UViewModal :title="`事件配置[${modelDetailModel['code']}]`" :span="[7, 15]" width="920px" v-model="eventEditModel" :centered="false" @edit="apiOpenEdit" :rules="apiRules">
                 <URow :responsive="2">
-                  <a-divider style="margin-bottom: 2px" dashed>功能配置</a-divider>
                   <UInputItem label="事件名称" field="name" required :maxlength="18" />
                   <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="eventEditModel['id'] != null"/>
                   <USelectItem label="协议指令" field="direct" v-model:source="eventApis" labelField="name" valueField="code" required
@@ -272,12 +269,12 @@
               </UViewTable>
             </UChildView>
           </a-tab-pane>
-          <a-tab-pane key="calcAttr" tab="计算属性">
+          <a-tab-pane key="calcAttr" tab="计算属性" v-if="modelDetailModel?.config?.calcLanguage">
             <ARow>
               <ACol span="16">
                 <AceScriptEditor style="min-height: 320px;" v-model:value="modelDetailModel.config.calcScript"  :completions="calcAttrCompletions"></AceScriptEditor>
               </ACol>
-              <ACol span="8" style="background-color: #f8f8f8; position: relative">
+              <ACol span="8" style="position: relative">
                 <div style="padding: 8px; font-size: 12px; color: #8e8e8e;">
                   <div>适用场景：有些属性可以通过对采集的值进行计算后得到</div>
                   <div style="color: #1c79f4">使用方法：通过methods对象提供如下方法：</div>
@@ -308,17 +305,15 @@
               </template>
               <template #commandValue="{record}">
                 <a-typography-paragraph :copyable="{text: record.commandValue, tooltip: false, onCopy: () => copy(record)}" style="margin-bottom: 0px">
-                  <template #copyableIcon>
-                    <span>{{record.commandName}}</span>
-                  </template>
+                  {{record.commandName}}
                 </a-typography-paragraph>
               </template>
             </UTable>
           </a-tab-pane>
-          <a-tab-pane key="protocol" tab="协议指令">
+          <a-tab-pane key="protocol" tab="协议列表">
             <UChildView uid="protocol">
               <!--              <UViewSearch>-->
-              <UButton func="query" :url="`/iot/protocol/apis?id=${modelDetailModel['protocolId']}`" v-show="false">查询</UButton>
+              <UButton func="query" :url="`/iot/protocol/apis?id=${modelDetailModel['protocolId'] || ''}`" v-show="false">查询</UButton>
               <!--              </UViewSearch>-->
               <UViewTable :columns="protocolColumns" rowKey="code" :pagination="false" size="small">
                 <template #title>
@@ -349,8 +344,8 @@
         <UButton func="reset">重置</UButton>
       </template>
     </UViewModal>
-    <ADrawer v-model:open="batchActive" :title="`批量物模型配置(${modelDetailModel.name})`" placement="bottom" height="100%"
-             :bodyStyle="{padding: '6px'}">
+    <ADrawer v-model:open="batchActive" :title="`批量物模型配置(${modelDetailModel.name})`" placement="bottom" size="100%"
+             :styles="{body: {padding: '6px'}}">
       <UChildView uid="batchModel">
         <UViewSearch style="margin-bottom: 0;" v-model="batchSearchModel">
           <UInputItem label="属性名称" field="name"/>
@@ -377,9 +372,9 @@ import {ref, reactive, watch, watchEffect, computed, h} from "vue";
 import CoreConsts from "@/components/CoreConsts";
 import {useRoute} from "vue-router";
 import {GET} from "@/utils/request";
-import {QuestionCircleOutlined} from "@ant-design/icons-vue";
+import {QuestionCircleOutlined} from "@antdv-next/icons";
 import {USelect} from "@/components/form/basic";
-import {Input, InputNumber} from "ant-design-vue";
+import {Input, InputNumber} from "antdv-next";
 import {getMetaValue, setMetaValue} from "@/utils/MetaUtils";
 import AceScriptEditor from "@/components/code/AceScriptEditor.vue";
 export default {
@@ -576,8 +571,8 @@ export default {
     ]);
 
     let protocolColumns = ref([
-      {field: "name", title: "指令名称", width: 220},
-      {field: "code", title: "指令代码", width: 220},
+      {field: "name", title: "协议名称", width: 220},
+      {field: "code", title: "协议代码", width: 220},
       {field: "type", title: "接口类型", width: 100, options: apiType},
       {field: "triggerMode", title: "触发方式", width: 120, options: triggerModeOptions},
       {field: "remark", title: "功能说明"},
@@ -610,7 +605,7 @@ export default {
       {field: "apiName", title: "接口名称", width: 160, resizable: true},
     ]);
     let cmdColumns = ref([
-      {field: "apiName", title: "接口名称", width: 180, resizable: true},
+      {field: "apiName", title: "接口名称", width: 260, resizable: true},
       {field: "commandValue", title: "指令"},
       {field: "remark", title: "指令说明", width: 320, resizable: true},
       {field: "apiTypeName", title: "接口类型", width: 80},

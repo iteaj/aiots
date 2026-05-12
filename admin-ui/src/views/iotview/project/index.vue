@@ -46,7 +46,7 @@
 import {ref, reactive} from "vue";
 import screenfull from "screenfull";
 import CoreConsts from "@/components/CoreConsts";
-import {EyeFilled, StarFilled, EditOutlined, InboxOutlined, PlusOutlined, DeleteOutlined} from "@ant-design/icons-vue";
+import {EyeFilled, StarFilled, EditOutlined, InboxOutlined, PlusOutlined, DeleteOutlined} from "@antdv-next/icons";
 import {confirm} from "@/utils/message";
 export default {
   name: "Scada",

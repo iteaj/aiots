@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 24px 100px 64px; background: #ffffff">
-    <ASpin :spinning="spinning" tip="数据保存中...">
+    <ASpin :spinning="spinning" description="数据保存中...">
       <a-tabs v-model:activeKey="activeKey" centered>
         <template v-for="(item, index) in northwards" :key="item.name">
           <a-tab-pane v-if="item['type']=='mqtt_publish'" :key="item.name" :tab="item.name">

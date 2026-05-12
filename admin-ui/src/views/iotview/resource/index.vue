@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100%; height: 100%; background: #fff; padding: 16px 8px;" class="u-border-radius">
     <AFlex style="height: 100%" class="iv-flex">
-      <ACard style="min-width: 226px;" :bodyStyle="{padding: '6px'}" >
+      <ACard style="min-width: 226px;" :styles="{body: {padding: '6px'}}" >
         <template #title>
           <div style="text-align: center;">素材类型</div>
         </template>
@@ -13,7 +13,7 @@
           </div>
         </AFlex>
       </ACard>
-      <ASpin :spinning="spinning" :tip="tipText" wrapperClassName="iv-spin">
+      <ASpin :spinning="spinning" :description="tipText" :classes="{root: 'iv-spin'}">
         <ARow :gutter="10" style="width: 100%; height: calc(100% - 0px); overflow: auto; padding: 0 8px;">
           <ACol>
             <a-upload multiple v-model:file-list="fileList" list-type="picture-card" class="avatar-uploader"
@@ -23,7 +23,7 @@
           </ACol>
           <template v-for="resource in resources" :key="resource.id">
             <ACol style="width: 200px; margin: 2px 0">
-              <a-card :bodyStyle="{padding: '3px'}">
+              <a-card :styles="{body: {padding: '3px'}}">
                 <template #cover>
                   <img alt="example" style="object-fit: contain;" height="150" :src="$apiUrl + resource.url"/>
                 </template>
@@ -58,7 +58,7 @@
 <script>
 import {ref, watch} from "vue";
 import CoreConsts from "@/components/CoreConsts";
-import {DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import {DeleteOutlined, EditOutlined, PlusOutlined} from '@antdv-next/icons'
 export default {
   name: "Resource",
   components: {DeleteOutlined, EditOutlined, PlusOutlined},

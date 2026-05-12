@@ -1,6 +1,6 @@
 <template>
   <a-modal v-model:open="visible" :closable="false" :title="title" @cancel="cancel">
-    <a-spin size="small" :tip="tip" :spinning="spinning">
+    <a-spin size="small" :description="tip" :spinning="spinning">
       <a-upload-dragger @change="fileUploadChange" :accept="upload.accept"
           :fileList="fileList" :beforeUpload="beforeUpload" :multiple="upload.multiple"
           :remove="removeHandle" :disabled="upload.disabled">
@@ -25,7 +25,7 @@
 
 <script>
 import {reactive, ref} from "vue";
-import {CloudUploadOutlined} from "@ant-design/icons-vue";
+import {CloudUploadOutlined} from "@antdv-next/icons";
 import {msgError, msgWarn} from "@/utils/message";
 import {POST} from "@/utils/request";
 

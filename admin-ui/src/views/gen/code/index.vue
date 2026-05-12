@@ -45,7 +45,7 @@
       </template>
     </UFormModal>
 
-    <ADrawer v-model:open="visible" title="生成代码预览" width="980" :bodyStyle="{paddingTop: '0px'}">
+    <ADrawer v-model:open="visible" title="生成代码预览" size="980" :styles="{body: {paddingTop: '0px'}}">
       <template #extra>
         <a-typography-paragraph :copyable="copyable">点击复制</a-typography-paragraph>
       </template>

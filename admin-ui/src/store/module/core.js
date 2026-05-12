@@ -48,6 +48,7 @@ function resolverMenuMaps(menus) {
     let doResolverMenuMaps = (menus) => {
         for(let i=0; i < menus.length; i++) {
             let menu = menus[i];
+            menu['id'] = menu['id'] + ''; // 转成字符串
             idMenuMap[menu.id] = menu;
             if (menu['type'] === 'V') { // 视图类型
                 urlMenuMap[menu.url] = menu;

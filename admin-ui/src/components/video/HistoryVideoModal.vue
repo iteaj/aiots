@@ -1,6 +1,6 @@
 <template>
   <UModal :uid="uid" :title="title" :maskClosable="false" v-model:source="channelModel" :height="height" :width="width"
-          :footer="null" @cancel="cancelHandle" :destroyOnClose="true">
+          :footer="null" @cancel="cancelHandle" :destroyOnHidden="true">
 <!--      <Jessibuca v-if="media=='wvp'" ref="mediaRef" :videoUrl="videoUrl" :error="videoError" :message="videoError" :hasAudio="hasAudio" fluent autoplay live></Jessibuca>-->
     <ARow :gutter="8" style="height: 100%; background-color: #ffffff">
       <ACol span="8" style="padding: 16px;">
@@ -37,7 +37,7 @@ import Rtvs from "@/components/video/Rtvs.vue";
 import {watch, ref, nextTick} from "vue";
 import {GET} from "@/utils/request";
 import CoreConsts from "@/components/CoreConsts";
-import {CaretUpOutlined, ZoomOutOutlined, ZoomInOutlined} from '@ant-design/icons-vue'
+import {CaretUpOutlined, ZoomOutOutlined, ZoomInOutlined} from '@antdv-next/icons'
 import {mapGetters, useStore} from "vuex";
 import {RealTimeVideoConfig} from "@/components/video/index";
 export default {

@@ -51,7 +51,7 @@
 <script>
 import {reactive, ref} from "vue";
 import {TableContext} from "@/components/view/Context";
-import {FullscreenOutlined, UnorderedListOutlined, SyncOutlined} from '@ant-design/icons-vue'
+import {FullscreenOutlined, UnorderedListOutlined, SyncOutlined} from '@antdv-next/icons'
 
 export default {
   name: "TableFuncHeader",

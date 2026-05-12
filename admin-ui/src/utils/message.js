@@ -1,6 +1,6 @@
-import {message, Modal, notification} from 'ant-design-vue'
+import {message, Modal, notification} from 'antdv-next'
 import {createVNode} from "vue";
-import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
+import {ExclamationCircleOutlined} from "@antdv-next/icons";
 
 message.config({
     top: `100px`,

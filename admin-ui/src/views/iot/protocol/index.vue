@@ -28,10 +28,10 @@
         </USelectItem>
         <UUploadItem v-if="editModel['implMode'] == 'Jar'" field="jarPath" label="jar文件" :withCredentials="true"
                      :action="`${$apiUrl}/iot/protocol/loadProtocol`" filename="file" accept=".jar" :maxCount="1" @change="uploadChange">
-          <a-input-group compact>
+          <a-space-compact>
             <AInput v-model:value="editModel['jarPath']" disabled style="width: 60%"/>
             <AButton><UIcon type="iz-icon-upload" /> 点击上传</AButton>
-          </a-input-group>
+          </a-space-compact>
         </UUploadItem>
         <UInputItem field="version" label="协议版本" :disabled="model['implMode'] != 'Custom'" />
         <USelectItem field="type" label="传输协议" :refresh="false" url="/iot/gateway/transportProtocol" :disabled="model['implMode'] != 'Custom'" />
@@ -59,7 +59,7 @@
         <UTag func="del" :data="record" url="/iot/protocol/del" v-auth="'iot:protocol:del'">删除</UTag>
       </template>
     </UViewTable>
-    <UDrawer uid="config" placement="top" height="100%" v-model:source="protocolDetail" title="协议配置">
+    <UDrawer uid="config" placement="top" size="100%" v-model:source="protocolDetail" title="协议配置">
       <div>
         <a-descriptions title="协议基础信息" bordered :column="{xs: 1, sm: 2, md: 3, lg: 3, xl: 5}">
           <a-descriptions-item label="协议名称">{{protocolDetail.name}}</a-descriptions-item>

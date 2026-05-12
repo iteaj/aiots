@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100%; height: 100%">
     <slot />
-    <ADrawer v-if="drawer" v-model:open="drawer.open" :title="drawer.title" :width="drawer.width" destroyOnClose>
+    <ADrawer v-if="drawer" v-model:open="drawer.open" :title="drawer.title" :size="drawer.width" destroyOnHidden>
       <div id="view-panel"></div>
     </ADrawer>
   </div>

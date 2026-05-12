@@ -12,15 +12,15 @@
         <UTag func="open" :data="record" uid="channel">通道列表</UTag>
       </template>
     </UViewTable>
-    <UDrawer uid="channel" title="通道列表" v-model:source="selectModel" placement="top" height="100%">
+    <UDrawer uid="channel" title="通道列表" v-model:source="selectModel" placement="top" size="100%">
       <ULinkView uid="channelView">
         <UViewTable :columns="channelColumns" :dataSource="channelData">
           <template #action="{record}">
             <UTag func="open" uid="play" :data="record">播放</UTag>
           </template>
         </UViewTable>
-        <UModal uid="play" :title="selectChannel['channelName']" width="720px" :bodyStyle="{height: '460px'}" v-model:source="selectChannel"
-                destroyOnClose :footer="null">
+        <UModal uid="play" :title="selectChannel['channelName']" width="720px" :styles="{body: {height: '460px'}}" v-model:source="selectChannel"
+                destroyOnHidden :footer="null">
           <IccPlay :channels="[{id: selectChannel['channelCode']}]"/>
         </UModal>
       </ULinkView>

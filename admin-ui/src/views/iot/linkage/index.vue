@@ -28,7 +28,7 @@
         <UButton func="reset">重置</UButton>
       </template>
     </UViewModal>
-    <UDrawer uid="ruleConfig" v-model:source="detailModel" width="100%" @open="openRuleConfig">
+    <UDrawer uid="ruleConfig" v-model:source="detailModel" size="100%" @open="openRuleConfig">
       <template #title>
         <AFlex justify="space-between">
           <div>场景联动规则配置</div>
@@ -41,7 +41,7 @@
           </div>
         </AFlex>
       </template>
-      <ASpin tip="数据处理中..." :spinning="loadingSpinning">
+      <ASpin description="数据处理中..." :spinning="loadingSpinning">
         <div class="iv-linkage-config" v-for="(item, index) in detailModel.items" :key="index">
           <AFlex class="iv-linkage-item" gap="small" vertical>
           <AFlex class="iv-li-header" :gap="18" justify="space-between">
@@ -159,7 +159,7 @@
       </ASpin>
     </UDrawer>
     <AModal v-model:open="openConditionItemModal" width="80%" class="iv-condition-modal"
-            :footer="null" @cancel="cancelModal" :bodyStyle="{overflowX: 'auto'}" centered>
+            :footer="null" @cancel="cancelModal" :styles="{body: {overflowX: 'auto'}}" centered>
       <template #title>
         <AFlex justify="space-between" gap="1">
           <div>条件项配置</div>
@@ -174,7 +174,7 @@
           <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
         </AFlex>
       </template>
-      <ASpin :spinning="modalLoadingSpinning" tip="数据加载中...">
+      <ASpin :spinning="modalLoadingSpinning" description="数据加载中...">
         <AFlex gap="3" align="stretch" style="height: 520px; min-width: 1130px;">
           <div style="min-width: 210px;" class="iv-config-item">
             <div class="iv-item-title">请选择产品</div>
@@ -238,7 +238,7 @@
       </ASpin>
     </AModal>
     <AModal v-model:open="openActionItemModal" width="830px" class="iv-action-modal" :footer="null"
-            @cancel="cancelActionModal" :bodyStyle="{overflowX: 'auto'}" centered>
+            @cancel="cancelActionModal" :styles="{body: {overflowX: 'auto'}}" centered>
       <template #title>
         <AFlex justify="space-between">
           <div>场景动作项配置</div>
@@ -250,7 +250,7 @@
           <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
         </AFlex>
       </template>
-      <ASpin :spinning="modalLoadingSpinning" tip="数据加载中...">
+      <ASpin :spinning="modalLoadingSpinning" description="数据加载中...">
         <AFlex gap="small" align="stretch" style="height: 520px; min-width: 780px">
           <div style="min-width: 200px;" class="iv-config-item">
             <div class="iv-item-title">请选择产品</div>

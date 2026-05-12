@@ -22,7 +22,7 @@
 
 <script>
 import {mapGetters, mapMutations} from "vuex";
-import {ReloadOutlined, MenuFoldOutlined, MenuUnfoldOutlined} from "@ant-design/icons-vue";
+import {ReloadOutlined, MenuFoldOutlined, MenuUnfoldOutlined} from "@antdv-next/icons";
 import {computed, inject, ref} from "vue";
 import {GlobalConfigKey, ThemeConfigKey} from "@/utils/ProvideKeys";
 
@@ -118,8 +118,10 @@ export default {
 
 <style>
 .u-task-bar {
-    background: #ffffff;
     box-shadow: 0 3px 3px rgba(0,21,41,.08);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  background-color: color-mix(in srgb, var(--iv-color-bgt-container), transparent 20%)
 }
 .u-task-more {
   left: 0px;
@@ -150,7 +152,6 @@ export default {
 }
 .u-task-bar .u-task-tabs, .u-task-bar .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
   border: unset;
-  background: #f0f2f5;
   border-radius: 6px!important;
 }
 .u-task-bar .ant-tabs-top > .ant-tabs-nav {
@@ -162,9 +163,6 @@ export default {
 .u-task-bar .ant-tabs-tab {
   height: 30px;
   margin: 5px 4px 0px 0px!important;
-}
-.u-task-bar .ant-tabs-nav {
-  background: #ffffff;
 }
 .u-task-bar .ant-tabs-top > .ant-tabs-nav::before {
   border-bottom: unset;
@@ -191,7 +189,6 @@ export default {
   display: inline-block;
 }
 .u-tba-title {
-  color: #000000;
   margin-left: 3px;
 }
 
@@ -201,9 +198,6 @@ export default {
 }
 .ant-tabs-tab-active .u-tba-dot {
   background: var(--primary-color);
-}
-.ant-tabs-tab-active .u-tba-title {
-  color: #3e3e3e;
 }
 
 :root .ant-tabs-tab-prev-icon-target, :root .ant-tabs-tab-next-icon-target {

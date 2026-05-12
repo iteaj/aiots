@@ -38,7 +38,7 @@
         </UViewTable>
       </template>
     </U2Col>
-    <UViewDrawer :rules="rules" width="720" title="菜单管理" v-model="editModel"
+    <UViewDrawer :rules="rules" size="720" title="菜单管理" v-model="editModel"
                  layout="vertical" placement="left" @edit="edit">
       <URow :gutter="12" col="drawer">
         <UInputItem field="name" label="菜单名称" :maxlength="20" />

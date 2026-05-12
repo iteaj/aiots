@@ -27,23 +27,21 @@
       </UTable>
     </UModal>
     <UDrawerLogger uid="logger"/>
-    <UViewDrawer v-model="editModel" title="解析器管理" :rules="rules" @edit="openEdit" placement="top" height="100%">
+    <UViewDrawer v-model="editModel" title="解析器管理" :rules="rules" @edit="openEdit" placement="top" size="100%">
       <template #default="{model}">
         <URow col="drawer">
           <UInputItem field="name" label="解析器名称"/>
-          <URadioItem v-if="configs.length > 0" field="language" label="使用语言" :options="configs" required
-                      labelField="language" valueField="language" optionType="button" buttonStyle="solid"/>
+          <URadioItem v-if="configs.length > 0" field="language" label="脚本语言" :options="scriptOptions"
+                      optionType="button" buttonStyle="solid"/>
           <UInputItem field="remark" label="备注"/>
         </URow>
-        <ATabs v-model:activeKey="languageKey" tab-position="left">
-          <template v-for="language in model['script']" :key="language.language">
-            <a-tab-pane :tab="language.language">
-              <div style="height: 320px">
-                <AceScriptEditor v-model:value="language.script" :completions="completions"></AceScriptEditor>
-              </div>
-            </a-tab-pane>
+        <a-tabs v-model:activeKey="languageKey" tab-placement="left" :items="model['script']">
+          <template #contentRender="{item}">
+            <div style="height: 380px">
+              <AceScriptEditor v-model:value="item.script" :completions="completions"></AceScriptEditor>
+            </div>
           </template>
-        </ATabs>
+        </a-tabs>
       </template>
       <template #footer="{model}">
         <UFuncBtn func="cancel">取消</UFuncBtn>
@@ -62,9 +60,11 @@ export default {
   name: "AttrScript",
   components: {AceScriptEditor},
   setup() {
+    let scriptOptions = ref([{label: '禁用', value: 'disabled'}]);
+
     let columns = [
       {field: 'name', title: '配置名称', width: 250},
-      {field: 'language', title: '语言', width: 120},
+      {field: 'language', title: '语言', width: 120, options: scriptOptions.value},
       {field: 'remark', title: '备注'},
       {field: 'updateTime', title: '更新时间', type: 'date', format: 'YYYY-MM-DD HH:mm', width: 130},
       {field: 'action', type: 'action', title: '操作', width: 200}
@@ -77,14 +77,14 @@ export default {
     ]
     let rules = {
       name: {required: true, message: '解析器名称必填'},
-      language: {required: true, message: '使用语言必填'},
+      language: {required: true, message: '脚本语言必填'},
     }
     let bindDataSource = ref([]);
-    let editModel = ref({});
+    let editModel = ref({language: 'disabled'});
     let configs = ref([]);
     let languageKey = ref("");
     let completions = ref([]);
-    return {editModel, columns, rules, completions, languageKey, configs, bindColumns, bindDataSource}
+    return {editModel, columns, rules, completions, languageKey, configs, bindColumns, bindDataSource, scriptOptions}
   },
   mounted() {
     this.$http.get("/iot/script/attr/completes").then(({code, message, data}) => {
@@ -101,6 +101,10 @@ export default {
         this.configs = data;
         if(data && data.length > 0) {
           this.languageKey = data?.[0]?.language;
+          data.forEach(item => {
+            item['key'] = item['label'] = item.language;
+            this.scriptOptions.push({label: item.language, value: item.language});
+          })
         }
       } else {
         this.$msg.error(message);
@@ -111,6 +115,12 @@ export default {
     openEdit(model) {
       if(!model.id) {
         model['script'] = JSON.parse(JSON.stringify(this.configs));
+      } else {
+        model['script'].forEach(item => {
+          item['label'] = item['language'];
+          item['key'] = model['id'] + ":" + item['language'];
+        })
+        this.languageKey = model['script'][0].key
       }
     }
   }

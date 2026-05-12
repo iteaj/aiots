@@ -9,7 +9,7 @@
         <UButton func="add" url="/core/messageSource/add" v-auth="'core:messageSource:add'">新增</UButton>
       </URow>
     </UViewSearch>
-    <UViewModal title="消息源管理" :span="[6, 18]" v-model="editModel" :rules="rules" width="600px" @edit="editHandle">
+    <UViewModal title="消息源管理" :span="[6, 18]" v-model="editModel" :rules="rules" size="600px" @edit="editHandle">
       <template #default="{model}">
         <UInputItem field="name" label="消息源名称" />
         <URadioItem field="type" label="消息类型" url="/core/messageSource/types" optionType="button" buttonStyle="solid"

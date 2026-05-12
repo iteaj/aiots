@@ -11,8 +11,8 @@ import {
     Rate,
     Slider,
     Switch,
-    Textarea
-} from "ant-design-vue/es/components";
+    TextArea
+} from "antdv-next";
 
 const UEditor = defineAsyncComponent(() => import('@/components/form/editor/editor.jsx'))
 const UMarkdown = defineAsyncComponent(() => import('@/components/form/editor/markdown.jsx'))
@@ -195,7 +195,7 @@ export default {
         })
 
         app.component("UInput", Input);
-        app.component("UTextarea", Textarea);
+        app.component("UTextarea", TextArea);
         app.component("UInputGroup", InputGroup);
         app.component("UInputNumber", InputNumber);
         app.component("UInputPassword", InputPassword);

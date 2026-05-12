@@ -5,8 +5,8 @@ import Router from './router'
 import {http, env} from "@/utils/request"
 import "@/plugin" // 系统插件
 // import '@/doc' // 文档教程 不需要请注释掉
-import 'ant-design-vue/dist/reset.css'
-import Antd, {message, notification} from 'ant-design-vue'
+import 'antdv-next/dist/reset.css'
+import Antd, {message, notification} from 'antdv-next'
 import IvzComponents from '@/components'
 import Authority from '@/components/directive/authority'
 

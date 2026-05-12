@@ -49,7 +49,7 @@
 import {ref} from "vue";
 import {mapGetters, mapMutations, useStore} from "vuex";
 import {avatarUploadUri, editUser} from '@/api'
-import {UserOutlined} from "@ant-design/icons-vue"
+import {UserOutlined} from "@antdv-next/icons"
 import {msgSuccess} from "@/utils/message";
 import CoreConsts from "@/components/CoreConsts";
 

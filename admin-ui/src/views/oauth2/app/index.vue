@@ -24,17 +24,13 @@
     </UViewModal>
     <UViewTable :columns="columns" :scroll="{x: 1200}">
       <template #clientId="{record}">
-        <a-typography-paragraph :copyable="{text: record.clientId, tooltip: true}" style="margin-bottom: 0px">
-          <template #copyableIcon>
-            <span>{{record.clientId}}</span>
-          </template>
+        <a-typography-paragraph :ellipsis="true" code :copyable="{text: record.clientId, tooltip: true}" style="margin-bottom: 0px">
+          {{record.clientId}}
         </a-typography-paragraph>
       </template>
       <template #clientSecret="{record}">
-        <a-typography-paragraph :copyable="{text: record.clientSecret, tooltip: true}" style="margin-bottom: 0px">
-          <template #copyableIcon>
-            <span>{{record.clientSecret}}</span>
-          </template>
+        <a-typography-paragraph :ellipsis="true" code :copyable="{text: record.clientSecret, tooltip: true}" style="margin-bottom: 0px">
+          {{record.clientSecret}}
         </a-typography-paragraph>
       </template>
       <template #status="{record}">

@@ -1,9 +1,9 @@
 <template>
-  <a-layout-header class="iv-header u-header-bar iv-primary-divider">
+  <a-layout-header class="iv-header u-header-bar">
     <ARow class="iv-header-row" justify="space-between">
       <!--头部菜单-->
       <ACol class="u-header-col u-header-col-left" :xs="0" :sm="0" :md="8" :lg="6" :xl="8">
-        <div class="iv-header u-logo iv-primary-divider">
+        <div class="u-logo">
           <a-avatar :size="36" :src="sysLogo"></a-avatar>
           <span class="u-logo-title">{{sysName}}</span>
         </div>
@@ -13,45 +13,66 @@
       </ACol>
       <ACol class="u-header-col ivz-header-col-right" flex="auto" :xs="12" :sm="12" :md="8" :lg="10" :xl="8">
         <ASpace :size="0">
-          <a-tooltip title="全局搜索">
-            <div @click="() => searchStatus = true" class="u-opera-col">
-              <SearchOutlined :style="{fontSize: '14px'}" />
-              <AModal class="iv-global-search" v-model:open="searchStatus" :closable="false" :footer="null">
-                <template #title>
-                  <div style="font-size: 14px">
-                    <span>全局搜索</span>
-                    <span style="font-size: 12px; color: #d1d1d1; float: right; font-weight: normal;">快捷键(shift + shift)</span>
-                  </div>
-                </template>
-                <AInput placeholder="请输入要搜索的关键字" @change="searchKeywordHandle" autocomplete="off" />
-                <div class="iv-search-content">
-                  <template v-for="item in searchResultModel" :key="item.key">
-                    <div class="iv-context-item" @click.native="() => searchRecordClickHandle(item)">
-                      <span>{{item.label}}</span>
-                      <span style="float: right; color: #959595; font-size: 12px">{{item.filter.name}}</span>
-                    </div>
-                  </template>
+          <AModal class="iv-global-search" v-model:open="searchStatus" :closable="false" :footer="null">
+            <template #title>
+              <div style="font-size: 14px">
+                <span>全局搜索</span>
+                <span style="font-size: 12px; color: #d1d1d1; float: right; font-weight: normal;">快捷键(shift + shift)</span>
+              </div>
+            </template>
+            <AInput placeholder="请输入要搜索的关键字" @change="searchKeywordHandle" autocomplete="off" />
+            <div class="iv-search-content">
+              <template v-for="item in searchResultModel" :key="item.key">
+                <div class="iv-context-item" @click.native="() => searchRecordClickHandle(item)">
+                  <span>{{item.label}}</span>
+                  <span style="float: right; color: #959595; font-size: 12px">{{item.filter.name}}</span>
                 </div>
-                <a-divider dashed>
-                  <span style="font-size: 12px; color: #d1d1d1">搜索历史</span>
-                </a-divider>
-                <div class="iv-search-history">
-
-                </div>
-              </AModal>
+              </template>
             </div>
+            <a-divider dashed>
+              <span style="font-size: 12px; color: #d1d1d1">搜索历史</span>
+            </a-divider>
+            <div class="iv-search-history">
+
+            </div>
+          </AModal>
+          <a-tooltip title="全局搜索">
+            <a-button @click="() => searchStatus = true" type="text">
+              <template #icon>
+                <SearchOutlined :style="{fontSize: '14px'}" />
+              </template>
+            </a-button>
           </a-tooltip>
           <a-tooltip title="全屏">
-            <div @click="fullScreen" class="u-opera-col">
-              <FullscreenOutlined :style="{fontSize: '14px'}"/>
-            </div>
+            <a-button @click="fullScreen" type="text">
+              <template #icon>
+                <FullscreenOutlined :style="{fontSize: '14px'}"/>
+              </template>
+            </a-button>
           </a-tooltip>
+          <a-dropdown :menu="{items: themes, multiple: true}" placement="bottom" @menuClick="switchTheme">
+            <a-button type="text">
+              <template #icon>
+                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" class="">
+                  <title>主题</title>
+                  <g fill-rule="evenodd">
+                    <g fill-rule="nonzero">
+                      <path d="M7.02 3.635l12.518 12.518a1.863 1.863 0 010 2.635l-1.317 1.318a1.863 1.863 0 01-2.635 0L3.068 7.588A2.795 2.795 0 117.02 3.635zm2.09 14.428a.932.932 0 110 1.864.932.932 0 010-1.864zm-.043-9.747L7.75 9.635l9.154 9.153 1.318-1.317-9.154-9.155zM3.52 12.473c.514 0 .931.417.931.931v.932h.932a.932.932 0 110 1.864h-.932v.931a.932.932 0 01-1.863 0l-.001-.931h-.93a.932.932 0 010-1.864h.93v-.932c0-.514.418-.931.933-.931zm15.374-3.727a1.398 1.398 0 110 2.795 1.398 1.398 0 010-2.795zM4.385 4.953a.932.932 0 000 1.317l2.046 2.047L7.75 7 5.703 4.953a.932.932 0 00-1.318 0zM14.701.36a.932.932 0 01.931.932v.931h.932a.932.932 0 010 1.864h-.933l.001.932a.932.932 0 11-1.863 0l-.001-.932h-.93a.932.932 0 110-1.864h.93v-.931a.932.932 0 01.933-.932z"></path>
+                    </g>
+                  </g>
+                </svg>
+              </template>
+            </a-button>
+            <template #extraRender="item">
+              <span v-if="themeConfig.themeType.indexOf(item.key) > -1" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: rgb(22, 119, 255);"></span>
+            </template>
+          </a-dropdown>
           <div class="u-opera-col">
             <a-dropdown placement="bottom">
               <a-avatar :src="$apiUrl + user.avatar" :size="32">
                 <template #icon><UserOutlined /></template>
               </a-avatar>
-              <template #overlay>
+              <template #popupRender>
                 <a-menu @click="quickOpera">
                   <AMenuItem style="text-align: center; cursor: auto;">
                     <span class="iv-header-username">{{user.name}}</span>
@@ -80,7 +101,7 @@
       </ACol>
     </ARow>
     <a-drawer v-model:open="themeConfig['open']" placement="right" :closable="false">
-      <a-divider dashed orientation="left">系统主题风格</a-divider>
+      <a-divider dashed orientation="left">系统风格</a-divider>
       <div style="margin: 8px 0px 24px 0px; display: flex">
         <ATooltip title="纯白风格" class="iv-style-item iv-style-item-light">
           <div @click="() => themeConfig.switchStyle('light')">
@@ -117,6 +138,10 @@ import screenfull from 'screenfull'
 import {msgError} from "@/utils/message";
 import {mapGetters, mapMutations} from "vuex";
 import {
+  SyncOutlined,
+  SunOutlined,
+  MoonOutlined,
+  CompressOutlined,
   UserOutlined,
   CheckOutlined,
   DownOutlined,
@@ -128,7 +153,7 @@ import {
   ReloadOutlined,
   LayoutOutlined,
   SearchOutlined,
-} from '@ant-design/icons-vue'
+} from '@antdv-next/icons'
 import {inject, reactive, ref} from "vue";
 import {GlobalConfigKey, ThemeConfigKey} from "@/utils/ProvideKeys";
 
@@ -150,12 +175,19 @@ export default {
   },
   components: {
     ReloadOutlined, LockFilled, LogoutOutlined, DownOutlined, CheckOutlined, UserOutlined
-    , HomeOutlined, NotificationFilled, FullscreenOutlined, LayoutOutlined, SearchOutlined},
+    , HomeOutlined, NotificationFilled, FullscreenOutlined, LayoutOutlined, SearchOutlined
+    , SyncOutlined, SunOutlined, MoonOutlined},
   setup() {
     let msgCount = 0
     let waitCount = 0;
     let workMenu = {};
-
+    let themes = [
+      {key: 'auto', label: '跟随系统', icon: SyncOutlined},
+      {key: 'light', label: '浅色主题', icon: SunOutlined},
+      {key: 'dark', label: '暗色主题', icon: MoonOutlined},
+      {type: 'divider'},
+      {key: 'compact', label: '紧凑主题', icon: CompressOutlined},
+    ]
     let searchStatus = ref(false);
     let themeConfig = inject(ThemeConfigKey);
     let colorData =themeConfig.candidateColorPrimary;
@@ -175,7 +207,7 @@ export default {
         }
       }
     })
-    return {workMenu, msgCount, waitCount, themeConfig, colorData, searchStatus}
+    return {workMenu, msgCount, waitCount, themeConfig, colorData, searchStatus, themes}
   },
   methods: {
     ...mapMutations({
@@ -186,8 +218,8 @@ export default {
       switchActiveViewTo: 'sys/switchActiveViewTo',
       pushAndSwitchTask: 'sys/pushAndSwitchTask',
     }),
-    switchTask (url) { // 切换任务菜单处理
-      this.pushAndSwitchTask(url);
+    switchTheme(menu) {
+      this.themeConfig.switchTheme(menu.key)
     },
     fullScreen() {
       screenfull.toggle()
@@ -243,9 +275,7 @@ export default {
 .u-header-bar {
     height: var(--header-height);
     line-height: var(--header-height);
-    padding-inline: 0px;
-    color: var(--header-color);
-    background-color: var(--header-background-color);
+    padding-inline: 0;
 }
 .u-logo {
   height: var(--header-height);
@@ -255,16 +285,11 @@ export default {
   white-space: nowrap;
   text-overflow:ellipsis;
   vertical-align: middle;
-  color: var(--header-color);
-  background-color: var(--header-logo-background-color);
 }
 .u-logo-title {
   font-size: 18px;
   margin-left: 8px;
   vertical-align: bottom;
-}
-.u-header-bar * {
-  color: var(--header-color);
 }
 .iv-header-row {
   height: var(--header-height);

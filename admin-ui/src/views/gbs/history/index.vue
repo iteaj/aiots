@@ -30,7 +30,7 @@
 <!-- 功能 -->
 <script>
 import {defineAsyncComponent, getCurrentInstance, reactive, ref, watch} from "vue";
-import {FolderFilled} from "@ant-design/icons-vue";
+import {FolderFilled} from "@antdv-next/icons";
 import dayjs from "dayjs";
 import {DownloadFmp4Config, PlaybackVideoConfig, QueryFileConfig} from "@/components/video";
 
