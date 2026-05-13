@@ -4,6 +4,8 @@ import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 // https://github.com/vuejs/jsx-next#syntax
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import { AntdvNextResolver } from '@antdv-next/auto-import-resolver'
+import Components from 'unplugin-vue-components/vite'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
@@ -13,6 +15,9 @@ export default defineConfig((env)=>{
     plugins: [
       vue(),
       vueJsx(),
+      Components({
+        resolvers: [AntdvNextResolver()],
+      }),
     ],
     resolve: {
       alias: {
