@@ -1,8 +1,10 @@
 <template>
   <a-config-provider :locale="zhCN" :theme="theme">
+    <ThemeProvider>
     <a-app class="iv-theme-var iv-app">
       <router-view />
     </a-app>
+    </ThemeProvider>
   </a-config-provider>
 </template>
 
@@ -10,24 +12,19 @@
 import './theme/index.css'
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
-import ThemeConfig from './theme/index.js'
+import ThemeConfig, {useIVTheme} from './theme/index.js'
 import zhCN from 'antdv-next/locale/zh_CN';
 import {computed, provide, reactive} from "vue";
+import {ThemeProvider} from "antdv-style"
 import {GlobalConfigKey, ThemeConfigKey} from "@/utils/ProvideKeys";
 
 dayjs.locale('zh-cn');
 
 export default {
   name: 'App',
+  components: {ThemeProvider},
   setup() {
-
-    let themeConfig = reactive(ThemeConfig);
-    let algorithm = computed(() => {
-      return themeConfig.algorithm
-    })
-    let theme = reactive({
-      algorithm
-    })
+    let theme = useIVTheme()
     /**
      * ivzone全局配置
      */
@@ -46,8 +43,8 @@ export default {
     provide(GlobalConfigKey, globalConfig)
 
     // 提供主题配置
-    provide(ThemeConfigKey, themeConfig)
-    return {zhCN, theme, themeConfig}
+    provide(ThemeConfigKey, ThemeConfig)
+    return {zhCN, theme, themeConfig: ThemeConfig}
   }
 }
 </script>
@@ -70,9 +67,9 @@ export default {
 }
 
 .iv-header {
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  background-color: color-mix(in srgb, var(--iv-color-bg-container), transparent 20%)
+  //-webkit-backdrop-filter: blur(8px);
+  //backdrop-filter: blur(8px);
+  background-color: var(--iv-color-bgt-container);
 }
 .iv-primary-divider {
   border-bottom: 1px solid var(--divider-color);

@@ -1,5 +1,5 @@
 <template>
-  <div style=" background-color: #fafafa; height: 100%; overflow: hidden auto">
+  <div class="iv-dd-view">
     <div class="iv-design-header">
       <div class="title">
         <span>设备运行总览</span>
@@ -36,7 +36,7 @@
         </div>
       </AFlex>
     </div>
-    <div style="padding: 16px 8px;">
+    <div class="iv-design-body" style="padding: 16px 8px;">
       <ASpin :spinning="spinning" :description="tipText" size="large">
         <AFlex style="max-height: 270px; " justify="space-between" gap="small">
           <ACard size="small" style="min-width: 250px" :styles="{head: {padding: '0'}}">
@@ -614,11 +614,17 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
   })
 </script>
 <style scoped>
+.iv-dd-view {
+  background-color: var(--iv-color-bgt-container);
+  height: 100%;
+}
+.iv-theme-light .iv-dd-view {
+  background-color: var(--iv-color-bg-container);
+}
 .iv-design-header {
   width: 100%;
   height: 58px;
   position: relative;
-  background-color: #ffffff;
   background-image: url("/img/iot/大标题背景框6.png");
 }
 .iv-design-header .iv-header-content {
@@ -657,8 +663,8 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
 }
 .iv-design-body {
   height: 100%;
-  color: #d9d9d9;
   min-width: 1400px;
+  overflow: hidden auto;
   padding: 16px 28px 8px;
 }
 .iv-content-title {
@@ -717,6 +723,6 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
   height: 85px;
 }
 .iv-attr-item .active {
-  box-shadow: 0 1px 2px -2px rgba(0, 129, 251, 0.55),0 3px 6px 0 rgba(45, 159, 250, 0.46),0 5px 12px 4px rgba(185, 211, 251, 0.43)
+  box-shadow: 0 0 2px -2px rgb(0 129 251 / 61%), 0 0 8px 0 rgb(45 159 250 / 61%), 0 1px 12px 0 rgb(185 211 251 / 75%)
 }
 </style>

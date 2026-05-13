@@ -1,5 +1,5 @@
 <template>
-  <AModal :closable="false" :mask-closable="false" destroy-on-close :width="width">
+  <AModal :closable="false" :mask-closable="false" destroyOnHidden :width="width">
     <template #title>
       <AFlex justify="space-between" style="font-weight: 200">
         <div>

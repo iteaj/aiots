@@ -11,7 +11,7 @@
         <UButton func="add" url="/iot/protocol/add" v-auth="'iot:protocol:add'">新增</UButton>
       </URow>
     </UViewSearch>
-    <UViewDrawer title="报文协议管理" :span="[6, 16]" v-model="editModel" :rules="rules">
+    <UViewDrawer title="报文协议管理" :span="[6, 16]" v-model="editModel" :rules="rules" size="580">
       <template #default="{model}">
         <UInputItem field="name" label="协议名称" :maxlength="32" />
         <URadioItem field="implMode" label="实现方式" url="/iot/protocol/implModes" :refresh="false"  defaultValue="Jar" optionType="button" buttonStyle="solid"/>

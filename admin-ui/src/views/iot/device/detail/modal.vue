@@ -233,7 +233,7 @@ export default defineComponent({
 }
 .iv-device-dt {
   padding: 0 0 12px;
-  border-bottom: 1px solid var(--ant-color-split);
+  border-bottom: var(--ant-line-width) var(--ant-line-type) var(--ant-color-split);
 }
 .iv-api-item .iv-cmd-desc, .iv-minor-text {
   font-size: 12px;

@@ -2,16 +2,16 @@
   <a-layout-header class="iv-header u-header-bar">
     <ARow class="iv-header-row" justify="space-between">
       <!--头部菜单-->
-      <ACol class="u-header-col u-header-col-left" :xs="0" :sm="0" :md="8" :lg="6" :xl="8">
+      <ACol class="u-header-col u-header-col-left" :xs="0" :sm="0" :md="6" :lg="6" :xl="6">
         <div class="u-logo">
           <a-avatar :size="36" :src="sysLogo"></a-avatar>
           <span class="u-logo-title">{{sysName}}</span>
         </div>
       </ACol>
-      <ACol :xs="12" :sm="12" :md="8" :lg="9" :xl="10">
-        <span>sdf</span>
+      <ACol :xs="12" :sm="14" :md="14" :lg="10" :xl="10">
+        <span>&nbsp;</span>
       </ACol>
-      <ACol class="u-header-col ivz-header-col-right" flex="auto" :xs="12" :sm="12" :md="8" :lg="10" :xl="8">
+      <ACol class="u-header-col ivz-header-col-right" flex="auto" :xs="12" :sm="10" :md="6" :lg="8" :xl="8">
         <ASpace :size="0">
           <AModal class="iv-global-search" v-model:open="searchStatus" :closable="false" :footer="null">
             <template #title>
@@ -50,7 +50,7 @@
               </template>
             </a-button>
           </a-tooltip>
-          <a-dropdown :menu="{items: themes, multiple: true}" placement="bottom" @menuClick="switchTheme">
+          <a-dropdown :menu="{items: themeMenus, multiple: true}" placement="bottom" @menuClick="switchTheme">
             <a-button type="text">
               <template #icon>
                 <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" class="">
@@ -92,43 +92,30 @@
               </template>
             </a-dropdown>
           </div>
-          <a-tooltip title="风格配置" class="u-opera-col">
-            <div class="u-opera-col" @click="themeConfig['switchOpen']">
-              <LayoutOutlined style="font-size: 14px"/>
-            </div>
-          </a-tooltip>
+<!--          <a-tooltip title="风格配置" class="u-opera-col">-->
+<!--            <div class="u-opera-col" @click="themeConfig['switchOpen']">-->
+<!--              <LayoutOutlined style="font-size: 14px"/>-->
+<!--            </div>-->
+<!--          </a-tooltip>-->
         </ASpace>
       </ACol>
     </ARow>
-    <a-drawer v-model:open="themeConfig['open']" placement="right" :closable="false">
-      <a-divider dashed orientation="left">系统风格</a-divider>
-      <div style="margin: 8px 0px 24px 0px; display: flex">
-        <ATooltip title="纯白风格" class="iv-style-item iv-style-item-light">
-          <div @click="() => themeConfig.switchStyle('light')">
-            <CheckOutlined class="iv-style-item-checkbox-icon" v-show="themeConfig.style == 'light'"/>
-          </div>
-        </ATooltip>
-        <ATooltip title="暗黑风格" class="iv-style-item iv-style-item-dark">
-          <div @click="() => themeConfig.switchStyle('dark')">
-            <CheckOutlined class="iv-style-item-checkbox-icon" v-show="themeConfig.style == 'dark'"/>
-          </div>
-        </ATooltip>
-      </div>
-      <a-divider dashed orientation="left">
-        系统主题颜色
-      </a-divider>
-      <div>
-        <a-segmented v-model:value="themeConfig.colorPrimary" :options="themeConfig.candidateColorPrimary" @change="colorPrimaryChange">
-          <template #label="{value}">
-            <span :style="{background: value, color: '#ffffff', padding: '2px', borderRadius: '3px'}">{{value}}</span>
-          </template>
-        </a-segmented>
-        <h4 style="margin-top: 36px">
-          顶栏应用主题色：
-          <a-switch v-model:checked="themeConfig.headerColorPrimary" @change="headerColorPrimaryChange"/>
-        </h4>
-      </div>
-    </a-drawer>
+<!--    <a-drawer v-model:open="themeConfig['open']" placement="right" :closable="false">-->
+<!--      <a-divider dashed orientation="left">-->
+<!--        系统主题颜色-->
+<!--      </a-divider>-->
+<!--      <div>-->
+<!--        <a-segmented v-model:value="themeConfig.colorPrimary" :options="themeConfig.candidateColorPrimary" @change="colorPrimaryChange">-->
+<!--          <template #label="{value}">-->
+<!--            <span :style="{background: value, color: '#ffffff', padding: '2px', borderRadius: '3px'}">{{value}}</span>-->
+<!--          </template>-->
+<!--        </a-segmented>-->
+<!--        <h4 style="margin-top: 36px">-->
+<!--          顶栏应用主题色：-->
+<!--          <a-switch v-model:checked="themeConfig.headerColorPrimary" @change="headerColorPrimaryChange"/>-->
+<!--        </h4>-->
+<!--      </div>-->
+<!--    </a-drawer>-->
   </a-layout-header>
 </template>
 
@@ -155,7 +142,9 @@ import {
   SearchOutlined,
 } from '@antdv-next/icons'
 import {inject, reactive, ref} from "vue";
+import {createStyles} from 'antdv-style'
 import {GlobalConfigKey, ThemeConfigKey} from "@/utils/ProvideKeys";
+import {themeMenus, registerThemeConfig, cartoon, illustration, useCartoonTheme, useIllustrationTheme} from "@/theme/index.js";
 
 export default {
   name: "LayoutHeader",
@@ -181,16 +170,69 @@ export default {
     let msgCount = 0
     let waitCount = 0;
     let workMenu = {};
-    let themes = [
-      {key: 'auto', label: '跟随系统', icon: SyncOutlined},
-      {key: 'light', label: '浅色主题', icon: SunOutlined},
-      {key: 'dark', label: '暗色主题', icon: MoonOutlined},
-      {type: 'divider'},
-      {key: 'compact', label: '紧凑主题', icon: CompressOutlined},
-    ]
     let searchStatus = ref(false);
     let themeConfig = inject(ThemeConfigKey);
     let colorData =themeConfig.candidateColorPrimary;
+
+    // 注册其他主题
+    const useStyles = createStyles(({ cssVar, css }) => {
+      const sharedBorder = {
+        border: `${cssVar.lineWidth}px ${cssVar.lineType} ${cssVar.colorBorder}`,
+      }
+
+      return {
+        sharedBorder: css(sharedBorder),
+        progressTrack: css({
+          ...sharedBorder,
+          marginInlineStart: `calc(-1 * ${cssVar.lineWidth}px)`,
+          marginBlockStart: `calc(-1 * ${cssVar.lineWidth}px)`,
+        }),
+      }
+    })
+    const useIllustrationStyles = createStyles(({ css, cssVar }) => {
+      const illustrationBorder = {
+        border: `${cssVar.lineWidth} solid ${cssVar.colorBorder}`,
+      }
+
+      const illustrationBox = {
+        ...illustrationBorder,
+        boxShadow: `4px 4px 0 ${cssVar.colorBorder}`,
+      }
+
+      return {
+        illustrationBorder: css(illustrationBorder),
+        illustrationBox: css(illustrationBox),
+        buttonRoot: css({
+          ...illustrationBox,
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
+        }),
+        modalContainer: css({
+          ...illustrationBox,
+        }),
+        tooltipRoot: css({
+          padding: cssVar.padding,
+        }),
+        popupBox: css({
+          ...illustrationBox,
+          borderRadius: cssVar.borderRadiusLG,
+          backgroundColor: cssVar.colorBgContainer,
+        }),
+        progressRail: css({
+          border: `${cssVar.lineWidth} solid ${cssVar.colorBorder}`,
+          boxShadow: `2px 2px 0 ${cssVar.colorBorder}`,
+        }),
+        progressTrack: css({
+          border: 'none',
+        }),
+        inputNumberActions: css({
+          width: '12px',
+        }),
+      }
+    })
+    registerThemeConfig(cartoon, useCartoonTheme(useStyles()));
+    registerThemeConfig(illustration, useIllustrationTheme(useIllustrationStyles()));
 
     // 监听shift + shift
     let shiftCountRef = ref(0);
@@ -207,7 +249,7 @@ export default {
         }
       }
     })
-    return {workMenu, msgCount, waitCount, themeConfig, colorData, searchStatus, themes}
+    return {workMenu, msgCount, waitCount, themeConfig, colorData, searchStatus, themeMenus}
   },
   methods: {
     ...mapMutations({
@@ -294,67 +336,7 @@ export default {
 .iv-header-row {
   height: var(--header-height);
 }
-.iv-style-item-checkbox-icon {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  color: #1890ff;
-  font-weight: 700;
-  font-size: 14px;
-  pointer-events: none;
-}
-.iv-style-item {
-  position: relative;
-  width: 44px;
-  height: 36px;
-  margin-right: 16px;
-  overflow: hidden;
-  background-color: #ebeef1;
-  border-radius: 2px;
-  box-shadow: 0 1px 2.5px #0000002e;
-  cursor: pointer;
-}
-.iv-style-item:before {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 33%;
-  height: 100%;
-  background-color: #fff;
-  content: "";
-}
-.iv-style-item-dark {
-  z-index: 1;
-  content: "";
-  background-color: #ebeef1;
-}
-.iv-style-item-dark:before {
-  z-index: 1;
-  background-color: #001529;
-  content: "";
-}
-.iv-style-item-dark:after {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 25%;
-  background-color: #fff;
-  content: "";
-}
-.iv-style-item-light:before {
-  content: "";
-  background-color: #fff;
-}
-.iv-style-item-light:after {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 25%;
-  background-color: #fff;
-  content: "";
-}
+
 .iv-header-username {
   font-size: 15px!important;
 }

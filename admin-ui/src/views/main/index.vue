@@ -128,14 +128,17 @@ body ::-webkit-scrollbar {
 body ::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background-clip: padding-box;
-    border: 3px solid rgb(168 168 168 / 0);
-    background: var(--iv-color-bgt-container);
-}
+    //border: 3px solid rgb(168 168 168 / 0);
+    background: var(--ant-color-split);
 
+  //scrollbar-color: var(--ant-table-sticky-scroll-bar-bg) var(--ant-color-split);
+}
+body ::-webkit-scrollbar-thumb:hover {
+  background: var(--iv-color-bg-container);
+}
 body ::-webkit-scrollbar-track {
     border-radius: 4px;
-    width: 10px;
-    //background: hsl(0deg 0% 90%);;
+    background: var(--ant-color-split);
 }
 
 /*动画*/

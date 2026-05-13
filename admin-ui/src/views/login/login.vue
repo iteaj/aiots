@@ -172,7 +172,6 @@ export default {
   right: 10%;
   width: 342px;
   position: absolute;
-  background-color: rgba(255, 255, 255, 0);
 }
 .iz-login .ant-input {
   padding-left: 12px!important;
@@ -193,13 +192,17 @@ export default {
   vertical-align: top;
 }
 .iz-login-card .ant-card {
-  background-color: rgba(255, 255, 255, 0);
+  background:  color-mix(in srgb, var(--iv-color-bgt-container), transparent 68%);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);                   /* 核心：背后区域模糊10像素 */
 }
 .iz-login-card .ant-card-body {
   padding: 8px 24px 16px;
   text-align: center;
   border-radius: 12px;
-  background-color: #ffffffb5;
+}
+.iz-login-card .ant-card-body {
+
 }
 .iz-login-card .ant-card-head {
   line-height: 48px;

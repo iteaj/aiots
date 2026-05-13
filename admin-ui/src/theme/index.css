@@ -47,11 +47,11 @@
 }
 /*搜索栏样式*/
 .u-bs-search .u-search-form {
-    padding: 10px 5px 0px;
+    padding: 10px 2px 0 16px;
     border-radius: 8px;
 }
 .u-bread-search {
-    padding: 0px;
+    padding: 0;
     position: relative;
 }
 .u-bread-search .u-search-form {
@@ -78,4 +78,7 @@
 
 .iv-theme-light .iv-task-container .ant-drawer .iv-view-border {
     background-color: var(--ant-layout-body-bg);
+}
+.u-sider .ant-menu-light, .u-sider .ant-menu-light>.ant-menu{
+    background-color: var(--iv-color-bgt-container);
 }

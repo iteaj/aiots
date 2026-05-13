@@ -1,16 +1,27 @@
 import dayjs from "dayjs";
-import { theme } from 'antdv-next'
+import {theme} from 'antdv-next'
+import {computed, reactive, ref} from "vue";
+import useIllustrationTheme from "@/theme/illustrationTheme.js";
+import {CompressOutlined, MoonOutlined, SunOutlined, SyncOutlined,} from '@antdv-next/icons'
+import useCartoonTheme from "@/theme/cartoonTheme.js";
 
 const themeClassPrefix = "iv-theme-";
-export function IVTheme(themeType) {
-    this.theme = themeType;
+const otherThemeMaps = {}
+
+export function IVTheme(themeType, themeName) {
+    this.themeType = themeType;
+    this.themeName = themeName;
+
     this.getTheme = () => {
         switch (themeType) {
             case 'auto': {
                 let current = dayjs().hour();
                 return current >= 6&& current <18 ? 'light' : 'dark';
             }
-            default: return themeType;
+
+            case 'light':
+            case 'dark': return themeType;
+            default: return 'light';
         }
     }
 
@@ -23,17 +34,41 @@ export function IVTheme(themeType) {
                 let current = dayjs().hour();
                 return current >= 6 && current <18 ? theme.defaultAlgorithm : theme.darkAlgorithm;
             }
+
+            default: return theme.defaultAlgorithm;
         }
+    };
+
+    this.getThemeConfig = () => {
+        return otherThemeMaps[themeType];
     };
 }
 // 默认样式
 const defaultStyle = 'auto';
 // 纯白主题颜色配置
-const light = new IVTheme( "light");
-const dark = new IVTheme("dark");
-const compact = new IVTheme("compact");
-const auto = new IVTheme("auto");
-const themeMaps = {light, dark, compact, auto}
+const light = new IVTheme( "light", "浅色主题");
+const dark = new IVTheme("dark", "暗黑主题");
+const compact = new IVTheme("compact", "紧凑主题");
+const auto = new IVTheme("auto", "跟随系统");
+const cartoon = new IVTheme("cartoon", "卡通风格");
+const illustration = new IVTheme("illustration", "插画风格");
+/**
+ * @type {Ref<UnwrapRef<IVTheme[]>, UnwrapRef<IVTheme[]> | *[]>}
+ */
+let selectThemes = ref(null);
+const themeMaps = {light, dark, compact, auto, cartoon, illustration}
+
+export const themeMenus = [
+    {key: auto.themeType, label: auto.themeName, icon: SyncOutlined},
+    {key: light.themeType, label: light.themeName, icon: SunOutlined},
+    {key: dark.themeType, label: dark.themeName, icon: MoonOutlined},
+    {type: 'divider'},
+    {key: cartoon.themeType, label: cartoon.themeName, icon: SunOutlined},
+    {key: illustration.themeType, label: illustration.themeName, icon: SunOutlined},
+    {type: 'divider'},
+    {key: compact.themeType, label: compact.themeName, icon: CompressOutlined},
+]
+
 export function IVThemeConfig() {
 
     this.themeType = [defaultStyle]; // dark
@@ -48,8 +83,6 @@ export function IVThemeConfig() {
      * @type {IVTheme}
      */
     this.theme = light;
-
-    this.algorithm = null;
 
     /**
      * 主颜色
@@ -91,7 +124,7 @@ export function IVThemeConfig() {
             document.documentElement.className = themeClassPrefix + this.theme.getTheme();
         }
 
-        this.algorithm = this.themeType.map(item => themeMaps[item].getAlgorithm());
+        selectThemes.value = this.themeType.map(item => themeMaps[item]);
         this.switchColorPrimary(this.colorPrimary);
     }
 
@@ -131,11 +164,33 @@ export function IVThemeConfig() {
 
         document.documentElement.className = themeClassPrefix + themeMaps[this.themeType[0]].getTheme();
         // 切换样式
-        this.algorithm = this.themeType.map(item => themeMaps[item].getAlgorithm());
+        selectThemes.value = this.themeType.map(item => themeMaps[item]);
     }
 
     this.loadingConfigFormStorage();
 
 }
+export {useCartoonTheme, useIllustrationTheme, illustration, cartoon}
+const themeConfig = reactive(new IVThemeConfig());
 
-export default new IVThemeConfig();
+/**
+ * @param {IVTheme} theme
+ * @param {Object} themeStyleConfig
+ */
+export const registerThemeConfig = (theme, themeStyleConfig) => {
+    otherThemeMaps[theme.themeType] = themeStyleConfig;
+    // 切换样式
+    selectThemes.value = themeConfig.themeType.map(item => themeMaps[item]);
+}
+
+export const useIVTheme = () => {
+    return computed(() => {
+        let theme = selectThemes.value.find(item => item.getThemeConfig());
+        let algorithm = selectThemes.value.map(item => item.getAlgorithm());
+
+        let themeConfig = theme != null ? theme.getThemeConfig() : {};
+        return {algorithm, ...themeConfig}
+    })
+}
+
+export default themeConfig;

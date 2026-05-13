@@ -118,10 +118,18 @@ export default {
 
 <style>
 .u-task-bar {
-    box-shadow: 0 3px 3px rgba(0,21,41,.08);
+  z-index: 3;
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  background-color: color-mix(in srgb, var(--iv-color-bgt-container), transparent 20%)
+  //opacity: 0.5;
+}
+.iv-theme-light .u-task-bar{
+  //box-shadow: 2px 8px 12px -4px rgb(255 255 255 / 50%);
+  background-color: color-mix(in srgb, var(--ant-color-bg-container), transparent 22%);
+}
+.iv-theme-dark .u-task-bar {
+  //box-shadow: 2px 8px 12px -4px rgb(242 243 244 / 25%);
+  background-color: color-mix(in srgb, var(--ant-color-bg-container), transparent 10%);
 }
 .u-task-more {
   left: 0px;

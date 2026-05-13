@@ -597,7 +597,7 @@ export default {
       {field: "dataType", title: "数据类型*", width: 120, options: dataType.value, editable: true},
       {field: "attrType", title: "属性类型*", width: 80, options: attrType.value, editable: true},
       {field: "resolver", title: "解析器*", width: 150, resizable: true, url: "/iot/product/resolvers", editable: true},
-      {field: "collectTag", title: "频率标签", width: 120, editable: true, options: collectTagOptions},
+      {field: "collectTag", title: "频率标签*", width: 120, editable: true, options: collectTagOptions},
       {field: "unit", title: "单位", width: 80, editable: true},
       {field: "accuracy", title: "精度", width: 80, formType: 'number', min: 0, max: 8, editable: true},
       {field: "gain", title: "增益", width: 80, formType: 'number', min: 0, editable: true},
@@ -994,6 +994,7 @@ export default {
       if(!editRow.id) {
         editRow['attrType'] = 'R';
         editRow['resolver'] = 'DEFAULT';
+        editRow['collectTag'] = 'DEFAULT';
       }
       if(!editRow.config) {
         editRow.config = {};

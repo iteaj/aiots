@@ -23,6 +23,7 @@
     "@wangeditor/editor": "^5.1.23",
     "@wangeditor/editor-for-vue": "^5.1.12",
     "antdv-next": "^1.2.2",
+    "antdv-style": "^0.1.0-alpha.1",
     "axios": "^1.4.0",
     "dayjs": "^1.11.10",
     "echarts": "^5.3.3",
