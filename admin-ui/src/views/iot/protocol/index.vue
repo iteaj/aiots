@@ -27,7 +27,7 @@
           </template>
         </USelectItem>
         <UUploadItem v-if="editModel['implMode'] == 'Jar'" field="jarPath" label="jar文件" :withCredentials="true"
-                     :action="`${$apiUrl}/iot/protocol/loadProtocol`" filename="file" accept=".jar" :maxCount="1" @change="uploadChange">
+                     :action="`${$env.http.httpUrl}/iot/protocol/loadProtocol`" filename="file" accept=".jar" :maxCount="1" @change="uploadChange">
           <a-space-compact>
             <AInput v-model:value="editModel['jarPath']" disabled style="width: 60%"/>
             <AButton><UIcon type="iz-icon-upload" /> 点击上传</AButton>

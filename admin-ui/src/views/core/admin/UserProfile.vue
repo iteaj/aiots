@@ -23,7 +23,7 @@
       </div>
     </ACol>
     <ACol span="18" class="iv-profile-config">
-      <div style="background: #ffffff; padding: 16px">
+      <div style="padding: 16px">
         <ATabs v-model:activeKey="activeKey">
           <a-tab-pane key="profile" tab="基本信息">
             <UForm v-model="user" :span="[2, 8]">
@@ -198,7 +198,6 @@ export default {
 .u-user-profile {
   padding: 16px;
   margin: 16px;
-  background-color: #ffffff;
   border-radius: var(--primary-radius);
 }
 .u-user-name {

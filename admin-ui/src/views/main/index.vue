@@ -121,23 +121,21 @@ export default {
 }
 
 body ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 body ::-webkit-scrollbar-thumb {
-    border-radius: 4px;
+    border-radius: 3px;
     background-clip: padding-box;
     //border: 3px solid rgb(168 168 168 / 0);
     background: var(--ant-color-split);
-
-  //scrollbar-color: var(--ant-table-sticky-scroll-bar-bg) var(--ant-color-split);
 }
-body ::-webkit-scrollbar-thumb:hover {
+:not(.iv-theme-light, .iv-theme-dark) ::-webkit-scrollbar-thumb {
   background: var(--iv-color-bg-container);
 }
 body ::-webkit-scrollbar-track {
-    border-radius: 4px;
+    border-radius: 3px;
     background: var(--ant-color-split);
 }
 
