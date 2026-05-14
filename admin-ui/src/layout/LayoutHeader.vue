@@ -92,30 +92,9 @@
               </template>
             </a-dropdown>
           </div>
-<!--          <a-tooltip title="风格配置" class="u-opera-col">-->
-<!--            <div class="u-opera-col" @click="themeConfig['switchOpen']">-->
-<!--              <LayoutOutlined style="font-size: 14px"/>-->
-<!--            </div>-->
-<!--          </a-tooltip>-->
         </ASpace>
       </ACol>
     </ARow>
-<!--    <a-drawer v-model:open="themeConfig['open']" placement="right" :closable="false">-->
-<!--      <a-divider dashed orientation="left">-->
-<!--        系统主题颜色-->
-<!--      </a-divider>-->
-<!--      <div>-->
-<!--        <a-segmented v-model:value="themeConfig.colorPrimary" :options="themeConfig.candidateColorPrimary" @change="colorPrimaryChange">-->
-<!--          <template #label="{value}">-->
-<!--            <span :style="{background: value, color: '#ffffff', padding: '2px', borderRadius: '3px'}">{{value}}</span>-->
-<!--          </template>-->
-<!--        </a-segmented>-->
-<!--        <h4 style="margin-top: 36px">-->
-<!--          顶栏应用主题色：-->
-<!--          <a-switch v-model:checked="themeConfig.headerColorPrimary" @change="headerColorPrimaryChange"/>-->
-<!--        </h4>-->
-<!--      </div>-->
-<!--    </a-drawer>-->
   </a-layout-header>
 </template>
 
@@ -141,9 +120,9 @@ import {
   LayoutOutlined,
   SearchOutlined,
 } from '@antdv-next/icons'
-import {inject, reactive, ref} from "vue";
+import {inject, ref} from "vue";
 import {createStyles} from 'antdv-style'
-import {GlobalConfigKey, ThemeConfigKey} from "@/utils/ProvideKeys";
+import {ThemeConfigKey} from "@/utils/ProvideKeys";
 import {themeMenus, registerThemeConfig, cartoon, illustration, useCartoonTheme, useIllustrationTheme} from "@/theme/index.js";
 
 export default {
@@ -370,7 +349,7 @@ export default {
   max-width: 238px;
 }
 .ivz-header-col-right {
-  right: 8px;
+  right: 18px;
   text-align: right;
 }
 .ivz-header-col-right .anticon {

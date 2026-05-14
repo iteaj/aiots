@@ -11,9 +11,9 @@
       <div v-if="total > 0">
         <AFlex wrap="wrap" gap="small" justify="space-between">
           <template v-for="({device, options, values}, index) in devices" :key="device['uid']">
-            <a-card :bordered="false" class="iv-device-card" :headStyle="{minHeight: '50px', padding: '0 8px'}" hoverable style="min-width: 240px">
+            <a-card variant="borderless" class="iv-device-card" :styles="{header: {minHeight: '50px', padding: '0 8px'}}" hoverable style="min-width: 240px">
               <template #title>
-                <div class="iv-header">
+                <div class="iv-pd-header">
                   <AFlex gap="10" justify="space-between">
                     <div style="font-weight: normal; color: #6a6a6a" :title="device.name"><span>{{device.switchTime}}</span></div>
 <!--                    <div class="iv-device-sn" :title="device['deviceSn']">{{device['deviceSn']}}</div>-->
@@ -143,7 +143,7 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.iv-header .iv-device-status {
+.iv-pd-header .iv-device-status {
   position: absolute;
   top: 13px;
   right: -13px;

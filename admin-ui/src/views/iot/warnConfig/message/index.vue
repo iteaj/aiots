@@ -28,10 +28,8 @@
     </UViewModal>
     <UViewTable :columns="columns" :scroll="{x: 1100}">
       <template #id="{record}">
-        <a-typography-paragraph :copyable="{text: record.id, tooltip: true}" style="margin-bottom: 0px">
-          <template #copyableIcon>
-            <span>{{record.id}}</span>
-          </template>
+        <a-typography-paragraph :copyable="{text: record.id, tooltip: true}" style="margin-bottom: 0">
+          {{record.id}}
         </a-typography-paragraph>
       </template>
       <template #title>
@@ -54,15 +52,15 @@ export default {
   name: "WarnMessageTemplate",
   setup() {
     let columns = ref([
-      {field: "id", title: "消息模板ID"},
+      {field: "id", title: "消息模板ID", width: 120},
       {field: "templateName", title: "消息模板名称", width: 160},
       {field: "templateId", title: "短信模板编号", width: 160},
-          {field: "acceptNames", title: "接收人", width: 280, resizable: true},
-          // {field: "content", title: "发送内容"},
-          {field: "remark", title: "备注", width: 280, resizable: true},
-          {field: "createTime", title: "创建时间", width: 150},
-          {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 120},
-      ]);
+      {field: "acceptNames", title: "接收人", width: 280, resizable: true},
+      // {field: "content", title: "发送内容"},
+      {field: "remark", title: "备注", width: 280, resizable: true},
+      {field: "createTime", title: "创建时间", width: 150},
+      {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 120},
+    ]);
 
     let rules = reactive({
       accepts: {required: true, message: '接收人必填'},

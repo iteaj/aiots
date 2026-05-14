@@ -1,6 +1,7 @@
 import store from "@/store";
 import {computed, watch} from 'vue'
-import Main from '@msn/main/index.vue'
+import IVLayout from '@/layout/index.vue'
+import Default from '@/layout/default/ContentLayout.vue'
 import Login from '@msn/login/login.vue'
 import NotFound from '@msn/error/404.vue'
 import Refresh from "@msn/main/Refresh.vue";
@@ -12,39 +13,41 @@ const MainName = "Main";
 
 const router = createRouter({
     routes: [
-        {path: '/', component: Main, name: MainName,
+        {path: '/', component: IVLayout, name: "IVLayout",
             children: [
-                {path: '', component: Index, name: '工作台', meta: {closable: false, keepAlive: 'Index'}},
-                {path: 'refresh', name: 'refresh', component: Refresh}, // 页面刷新功能中做路由中转
-                {path: 'profile', component: () => import("@msn/core/admin/UserProfile.vue"), name: '个人资料', meta: {closable: true}},
-                {path: 'search/result/:type', component: () => import("@msn/main/search/index.vue"), name: '搜索结果', meta: {closable: true}},
-                {path: 'core/dict/data', component: () => import("@msn/core/dict/data/index.vue"), name: '字典数据', meta: {keepAlive: 'DictData', closable: true}},
-                {path: 'gbs/device/history', component: () => import("@msn/gbs/history/index.vue"), name: '历史视频', meta: {keepAlive: 'History', closable: true}},
-                {path:'/:chapters+', name: '404', component: NotFound, beforeEnter(to, from, next) {
-                        let path = to.path;
-                        let init = store.getters["sys/init"];
-                        // 用来处理整个页面刷新时, 动态菜单还没有生成路由报404的问题
-                        if(!init) { // 判断当前系统是否初始化, 如果没有初始化则监听初始化状态
-                            // 先移除任务, 用来把首页放在任务栏第一个位置
-                            store.commit('sys/removeTask', path);
-                            init = computed(() => store.getters["sys/init"]);
-                            watch(init, (val) => {
-                                // 系统初始化完成之后, 跳到刷新时所在的页面
-                                let urlMenuMaps = store.getters['sys/urlMenuMaps'];
-                                let menu = urlMenuMaps[path];
-                                if(menu) { // 当前url对应的菜单, 如果存在激活
-                                    router.push(path).catch(reason => console.error(`${reason}`))
-                                }
-                            });
+                {path: '/', component: Default, name: MainName, children: [
+                    {path: '', component: Index, name: '工作台', meta: {closable: false, keepAlive: 'Index'}},
+                    {path: 'refresh', name: 'refresh', component: Refresh}, // 页面刷新功能中做路由中转
+                    {path: 'profile', component: () => import("@msn/core/admin/UserProfile.vue"), name: '个人资料', meta: {closable: true}},
+                    {path: 'search/result/:type', component: () => import("@msn/main/search/index.vue"), name: '搜索结果', meta: {closable: true}},
+                    {path: 'core/dict/data', component: () => import("@msn/core/dict/data/index.vue"), name: '字典数据', meta: {keepAlive: 'DictData', closable: true}},
+                    {path: 'gbs/device/history', component: () => import("@msn/gbs/history/index.vue"), name: '历史视频', meta: {keepAlive: 'History', closable: true}},
+                    {path:'/:chapters+', name: '404', component: NotFound, beforeEnter(to, from, next) {
+                            let path = to.path;
+                            let init = store.getters["sys/init"];
+                            // 用来处理整个页面刷新时, 动态菜单还没有生成路由报404的问题
+                            if(!init) { // 判断当前系统是否初始化, 如果没有初始化则监听初始化状态
+                                // 先移除任务, 用来把首页放在任务栏第一个位置
+                                store.commit('sys/removeTask', path);
+                                init = computed(() => store.getters["sys/init"]);
+                                watch(init, (val) => {
+                                    // 系统初始化完成之后, 跳到刷新时所在的页面
+                                    let urlMenuMaps = store.getters['sys/urlMenuMaps'];
+                                    let menu = urlMenuMaps[path];
+                                    if(menu) { // 当前url对应的菜单, 如果存在激活
+                                        router.push(path).catch(reason => console.error(`${reason}`))
+                                    }
+                                });
 
-                            // 跳到首页进行初始化
-                            next({path: '/'})
+                                // 跳到首页进行初始化
+                                next({path: '/'})
 
-                        } else {
-                            next();
+                            } else {
+                                next();
+                            }
                         }
                     }
-                }
+                ]}
             ]
         },
         {path: '/iot/device/detail/:uid', component: () => import("@msn/iot/device/detail/index.vue"), name: "设备详情", meta: {taskBar: false}},

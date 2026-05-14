@@ -23,7 +23,7 @@
 <script>
 import {mapGetters, mapMutations} from "vuex";
 import {ReloadOutlined, MenuFoldOutlined, MenuUnfoldOutlined} from "@antdv-next/icons";
-import {computed, inject, ref} from "vue";
+import {inject} from "vue";
 import {GlobalConfigKey, ThemeConfigKey} from "@/utils/ProvideKeys";
 
 export default {

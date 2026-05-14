@@ -2,46 +2,20 @@
     <a-layout class="u-layout iv-primary">
       <!--右侧头栏-->
       <LayoutHeader />
-      <a-layout class="u-layout-view">
-        <!--侧边菜单栏-->
-        <LayoutSider />
-        <!--右侧视图页-->
-        <a-layout-content class="u-main-container">
-          <!--  任务栏  -->
-          <TaskBar></TaskBar>
-          <div class="u-main-task">
-            <div class="iv-task-container">
-            <router-view v-slot="{ Component }">
-              <transition name="slide-fade" mode="out-in">
-                <keep-alive :include="alive">
-                  <component :is="Component" />
-                </keep-alive>
-              </transition>
-            </router-view>
-            </div>
-          </div>
-
-          <!-- 用户中心 -->
-          <UserCenter />
-
-        </a-layout-content>
-
-      </a-layout>
+      <!-- 视图页 -->
+      <router-view />
     </a-layout>
 </template>
 
 <script>
-import {provide, reactive, ref} from 'vue'
+import {provide, ref} from 'vue'
 import { mapGetters, useStore } from "vuex";
-import LayoutSider from "@msn/main/LayoutSider.vue";
-import LayoutHeader from "@msn/main/LayoutHeader.vue";
-import UserCenter from "@msn/main/UserCenter.vue";
-import {GlobalConfigKey, RowContextKey, ViewContextKey} from "@/utils/ProvideKeys";
-import TaskBar from "@msn/main/TaskBar.vue";
+import LayoutHeader from "@/layout/LayoutHeader.vue";
+import {RowContextKey, ViewContextKey} from "@/utils/ProvideKeys";
 
 export default {
     name: "index",
-    components: {TaskBar, UserCenter, LayoutSider, LayoutHeader },
+    components: { LayoutHeader },
     setup () {
 
         // 初始化后台菜单信息到路由
@@ -75,7 +49,6 @@ export default {
 
     computed: {
         ...mapGetters({
-            theme: 'sys/theme',
             taskBarData: 'sys/taskBarData',
         }),
         // 用于缓存视图页

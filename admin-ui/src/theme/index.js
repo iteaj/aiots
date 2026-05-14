@@ -111,21 +111,32 @@ export function IVThemeConfig() {
 
     this.switchTheme = function (themeType) {
         let number = this.themeType.indexOf("compact");
-        if(themeType == 'compact') {
-            if(number > -1) {
-                this.themeType.splice(number, 1);
-            } else {
-                this.themeType.push(themeType);
-            }
-        } else {
-            this.themeType = [themeType]
-            this.theme = themeMaps[themeType];
-            if(number > -1) this.themeType.push("compact");
-            document.documentElement.className = themeClassPrefix + this.theme.getTheme();
-        }
 
-        selectThemes.value = this.themeType.map(item => themeMaps[item]);
-        this.switchColorPrimary(this.colorPrimary);
+        // 主题切换的实际逻辑
+        const updateTheme = () => {
+            if(themeType == 'compact') {
+                if(number > -1) {
+                    this.themeType.splice(number, 1);
+                } else {
+                    this.themeType.push(themeType);
+                }
+            } else {
+                this.themeType = [themeType]
+                this.theme = themeMaps[themeType];
+                if(number > -1) this.themeType.push("compact");
+                document.documentElement.className = themeClassPrefix + this.theme.getTheme();
+            }
+
+            selectThemes.value = this.themeType.map(item => themeMaps[item]);
+            this.switchColorPrimary(this.colorPrimary);
+        };
+
+        // 使用 View Transitions API 实现主题切换动效
+        if (document.startViewTransition) {
+            document.startViewTransition(() => updateTheme());
+        } else {
+            updateTheme();
+        }
     }
 
     /**

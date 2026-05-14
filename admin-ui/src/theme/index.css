@@ -82,3 +82,24 @@
 .u-sider .ant-menu-light, .u-sider .ant-menu-light>.ant-menu{
     background-color: var(--iv-color-bgt-container);
 }
+
+/* -------------- 主题切换动效 ----------------------*/
+/* 旧视图不做动画，直接保留 */
+::view-transition-old(root) {
+    animation: none;
+}
+
+/* 新视图从右上角以波纹扩散的方式展开 */
+::view-transition-new(root) {
+    animation: theme-ripple 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+@keyframes theme-ripple {
+    from {
+        clip-path: circle(0% at calc(100% - 50px) 38px);
+    }
+    to {
+        clip-path: circle(150% at calc(100% - 50px) 38px);
+    }
+}

@@ -1,9 +1,9 @@
 <template>
   <a-config-provider :locale="zhCN" :theme="theme">
     <ThemeProvider>
-    <a-app class="iv-theme-var iv-app">
-      <router-view />
-    </a-app>
+      <a-app class="iv-theme-var iv-app">
+        <router-view />
+      </a-app>
     </ThemeProvider>
   </a-config-provider>
 </template>
