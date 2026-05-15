@@ -118,22 +118,27 @@ export default {
 
 <style>
 .u-task-bar {
-  z-index: 3;
+  z-index: 8;
+  position: sticky;
+  top: 0;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  //border-bottom: var(--iv-color-split);
-  //opacity: 0.5;
+  background-color: color-mix(in srgb, var(--ant-color-bg-container), transparent 20%);
 }
-.iv-theme-light .u-task-bar{
-  //box-shadow: 2px 8px 12px -4px rgb(255 255 255 / 50%);
-  background-color: color-mix(in srgb, var(--ant-color-bg-container), transparent 22%);
-}
-.iv-theme-dark .u-task-bar {
-  //box-shadow: 2px 8px 12px -4px rgb(242 243 244 / 25%);
-  background-color: color-mix(in srgb, var(--ant-color-bg-container), transparent 10%);
+
+/* 底部阴影分隔 */
+.u-task-bar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 6px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.08), transparent);
+  pointer-events: none;
 }
 .u-task-more {
-  left: 0px;
+  left: 0;
   width: 72px;
   z-index: 10;
   line-height: 40px;
@@ -206,7 +211,7 @@ export default {
   font-size: 19px;
 }
 .ant-tabs-tab-active .u-tba-dot {
-  background: var(--primary-color);
+  background: var(--ant-color-primary);
 }
 
 :root .ant-tabs-tab-prev-icon-target, :root .ant-tabs-tab-next-icon-target {

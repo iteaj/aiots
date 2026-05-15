@@ -6,16 +6,14 @@
     <a-layout-content class="u-main-container">
       <!--  任务栏  -->
       <TaskBar></TaskBar>
-      <div class="u-main-task">
-        <div class="iv-task-container">
-          <router-view v-slot="{ Component }">
-            <transition name="slide-fade" mode="out-in">
-              <keep-alive :include="alive">
-                <component :is="Component" />
-              </keep-alive>
-            </transition>
-          </router-view>
-        </div>
+      <div class="iv-task-container">
+        <router-view v-slot="{ Component }">
+          <transition name="slide-fade" mode="out-in">
+            <keep-alive :include="alive">
+              <component :is="Component" />
+            </keep-alive>
+          </transition>
+        </router-view>
       </div>
 
       <!-- 用户中心 -->
@@ -48,5 +46,20 @@ export default {
 }
 </script>
 <style scoped>
-
+/*任务栏样式*/
+.u-main-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  display: -webkit-flex;
+  flex-direction: column;
+  overflow: auto; /* 自身作为滚动容器，sticky 才能生效 */
+}
+.iv-task-container {
+  flex: 1;         /* 填充剩余空间 */
+  min-height: 0;   /* 允许在 flex 中收缩 */
+  padding: 12px;
+  //overflow: auto;
+  position: relative;
+}
 </style>

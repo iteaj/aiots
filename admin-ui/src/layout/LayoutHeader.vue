@@ -8,12 +8,12 @@
           <span class="u-logo-title">{{sysName}}</span>
         </div>
       </ACol>
-      <ACol class="u-header-col" :xs="0" :sm="14" :md="14" :lg="10" :xl="10">
+      <ACol class="u-header-col" :xs="12" :sm="12" :md="12" :lg="10" :xl="10">
         <!-- 顶部一级导航菜单 -->
         <a-menu mode="horizontal" :selectedKeys="[activeTopMenu?.id]" :items="topMenuItems"
           @select="handleTopMenuSelect" class="u-top-nav-menu" />
       </ACol>
-      <ACol class="u-header-col ivz-header-col-right" flex="auto" :xs="12" :sm="10" :md="6" :lg="8" :xl="8">
+      <ACol class="u-header-col ivz-header-col-right" :xs="12" :sm="12" :md="6" :lg="8" :xl="8">
         <ASpace :size="0">
           <AModal class="iv-global-search" v-model:open="searchStatus" :closable="false" :footer="null">
             <template #title>
@@ -314,7 +314,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .iv-header {
   //-webkit-backdrop-filter: blur(8px);
   //backdrop-filter: blur(8px);
@@ -405,9 +405,6 @@ export default {
   margin: 0 4px !important;
   padding: 0 16px !important;
   border: none !important;
-}
-.u-top-nav-menu .ant-menu-item-selected {
-  background: transparent !important;
 }
 .u-top-nav-icon {
   font-size: 16px;

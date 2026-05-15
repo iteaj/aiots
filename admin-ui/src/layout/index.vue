@@ -68,32 +68,6 @@ export default {
   --iv-layout-header-bg: var(--ant-color-bg-elevated);
 }
 
-/*任务栏样式*/
-.u-main-container {
-  width: 100%;
-  height: 100%;
-  //display: flex;
-  //display: -webkit-flex;
-  position: relative;
-  flex-direction: column;
-}
-.u-main-task {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  overflow: auto;
-  display: -ms-flex;
-  position: relative;
-  flex-direction: column;
-  display: -webkit-flex; /* Safari */
-  justify-content: flex-start;
-}
-.iv-task-container {
-  height: 100%;
-  padding: 12px;
-  overflow: auto;
-}
-
 body ::-webkit-scrollbar {
     width: 6px;
     height: 6px;

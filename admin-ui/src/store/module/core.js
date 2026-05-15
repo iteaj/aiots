@@ -522,12 +522,16 @@ const registerSysModule = function (store) {
                  return getMenus().then((resp) => {
                      if(resp) {
                          let {data} = resp;
-                         state.views = data;
-                         // state.topMenus = [data[0], data[1], data[2]];
+
                          // state.activeView = state.views[0];
                          let {urlMenuMap, idMenuMap} = resolverMenuMaps(data);
+                         state.views = data;
                          state.idMenuMaps = idMenuMap;
-
+                         state.topMenus = data.filter(item => item['pid'] == '-1');
+                         if(state.topMenus.length > 0) {
+                             state.activeTopMenu = state.topMenus[0];
+                             state.views = state.topMenus[0].children;
+                         }
                          // 加入到菜单列表
                          if(urlMenuMap != null) {
                              Object.keys(urlMenuMap).forEach(key => {

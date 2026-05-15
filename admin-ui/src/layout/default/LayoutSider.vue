@@ -127,10 +127,10 @@ export default {
 .ant-menu-root.ant-menu-inline .ant-menu-sub.ant-menu-inline {
   background-color: var(--ant-menu-sub-menu-item-bg);
 }
-.ant-menu-root .ant-menu-item-selected {
+.ant-menu-root .ant-menu-item-selected, .ant-menu-submenu-popup .ant-menu-item-selected {
   background-color: var(--iv-primary-color-bgt);
 }
-.ant-menu-root .ant-menu-item:hover {
+.ant-menu-root .ant-menu-item:hover, .ant-menu .ant-menu-submenu-title:hover {
   background-color: var(--ant-menu-item-hover-bg);
 }
 .iv-sider-menu .ant-layout-sider-children {

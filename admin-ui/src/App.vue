@@ -100,4 +100,9 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Drawer 打开时锁定容器滚动，关闭自动恢复, 防止抽屉打开时随下层容器滚动 */
+.iv-task-container:has(.ant-drawer-open) {
+  overflow: hidden !important;
+}
 </style>
