@@ -101,6 +101,10 @@ const registerSysModule = function (store) {
             optionsInfo: {/*dict -> data | url -> data*/}, // 字典和url的数据信息
             breadcrumbRoutes: [{url: '/', name: '首页', index: 0}], // 面包屑路由信息
 
+            // 顶部导航相关
+            topMenus: [], // 顶部一级菜单列表
+            activeTopMenu: null, // 当前选中的顶部一级菜单
+
             /**
              * 后端运行日志信息
              */
@@ -169,6 +173,10 @@ const registerSysModule = function (store) {
             selectedKeys: state => state.selectedKeys,
             //系统菜单
             menus: state => state.views,
+            // 顶部一级菜单
+            topMenus: state => state.topMenus,
+            // 当前选中的顶部菜单
+            activeTopMenu: state => state.activeTopMenu,
             getSearchResultModel: state => {
                 return state.searchResultModel;
             },
@@ -392,6 +400,15 @@ const registerSysModule = function (store) {
             switchActiveViewTo: (state, view) => {
                 state.activeView = view;
             },
+            // 切换顶部一级菜单
+            switchActiveTopMenu: (state, topMenu) => {
+                state.activeTopMenu = topMenu;
+                // 更新左侧菜单为当前顶部菜单的子菜单
+                state.views = topMenu && topMenu.children ? topMenu.children : [];
+                // 清空侧边栏选中状态
+                state.selectedKeys = [];
+                state.openKeys = [];
+            },
             switchOpenSubMenuTo: (state, openKeys) => {
                 state.openKeys = openKeys
             },
@@ -506,6 +523,7 @@ const registerSysModule = function (store) {
                      if(resp) {
                          let {data} = resp;
                          state.views = data;
+                         // state.topMenus = [data[0], data[1], data[2]];
                          // state.activeView = state.views[0];
                          let {urlMenuMap, idMenuMap} = resolverMenuMaps(data);
                          state.idMenuMaps = idMenuMap;

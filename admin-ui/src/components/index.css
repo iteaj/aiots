@@ -5,8 +5,8 @@
 }
 
 .u-page-view .ant-drawer-open.ant-drawer-bottom, .u-page-view .ant-drawer-open.ant-drawer-top, .u-page-view .ant-drawer-open.ant-drawer-left {
-    border-top: var(--ant-line-width) var(--ant-line-type) var(--ant-color-split);
-    border-left: var(--ant-line-width) var(--ant-line-type) var(--ant-color-split);
+    border-top: var(--iv-theme-split);
+    /*border-left: var(--ant-line-width) var(--ant-line-type) var(--ant-color-split);*/
 }
 .iv-theme-dark .u-page-view .ant-drawer-open.ant-drawer-bottom,
 .iv-theme-dark .u-page-view .ant-drawer-open.ant-drawer-top,

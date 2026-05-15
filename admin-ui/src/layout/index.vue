@@ -1,5 +1,5 @@
 <template>
-    <a-layout class="u-layout iv-primary">
+    <a-layout class="iv-layout iv-primary">
       <!--右侧头栏-->
       <LayoutHeader />
       <!-- 视图页 -->
@@ -62,17 +62,18 @@ export default {
 </script>
 
 <style>
-.u-layout {
-    width: 100%;
-    height: 100%;
+.iv-layout {
+  width: 100%;
+  height: 100%;
+  --iv-layout-header-bg: var(--ant-color-bg-elevated);
 }
 
 /*任务栏样式*/
 .u-main-container {
   width: 100%;
   height: 100%;
-  display: flex;
-  display: -webkit-flex;
+  //display: flex;
+  //display: -webkit-flex;
   position: relative;
   flex-direction: column;
 }
@@ -97,19 +98,28 @@ body ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
-
+/*滚动滑块样式*/
 body ::-webkit-scrollbar-thumb {
     border-radius: 3px;
     background-clip: padding-box;
     //border: 3px solid rgb(168 168 168 / 0);
-    background: var(--ant-color-split);
+  background: var(--iv-primary-color-bgt);
 }
-:not(.iv-theme-light, .iv-theme-dark) ::-webkit-scrollbar-thumb {
-  background: var(--iv-color-bg-container);
+
+html.iv-theme-light ::-webkit-scrollbar-thumb,
+html.iv-theme-dark ::-webkit-scrollbar-thumb {
+  background: var(--ant-color-split);
 }
+
+/*滚动槽样式*/
 body ::-webkit-scrollbar-track {
     border-radius: 3px;
-    background: var(--ant-color-split);
+  background: var(--iv-primary-color-bgt);
+}
+
+.iv-theme-light *::-webkit-scrollbar-track,
+.iv-theme-dark *::-webkit-scrollbar-track {
+  background: var(--ant-color-split);
 }
 
 /*动画*/

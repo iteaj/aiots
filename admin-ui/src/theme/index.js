@@ -19,9 +19,7 @@ export function IVTheme(themeType, themeName) {
                 return current >= 6&& current <18 ? 'light' : 'dark';
             }
 
-            case 'light':
-            case 'dark': return themeType;
-            default: return 'light';
+            default: return themeType;
         }
     }
 
@@ -166,6 +164,8 @@ export function IVThemeConfig() {
 
         if(typeof localThemeConfig === 'string') {
             localThemeConfig = JSON.parse(localThemeConfig);
+
+            this.theme = localThemeConfig.theme;
             this.themeType = localThemeConfig.themeType;
             this.colorPrimary = localThemeConfig.colorPrimary;
             this.headerColorPrimary = localThemeConfig.headerColorPrimary;

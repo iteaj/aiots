@@ -1,10 +1,11 @@
 <template>
-  <a-layout-sider class="u-sider" :width="238" breakpoint="lg" :trigger="null"
-      v-model:collapsed="sys.collapsed" collapsible :collapsedWidth="68" :theme="themeConfig.style">
+  <a-layout-sider class="iv-sider-menu" :width="238" breakpoint="lg" :trigger="null"
+      v-model:collapsed="sys.collapsed" collapsible :collapsedWidth="68" :theme="themeConfig.theme.themeType">
     <!--侧边菜单-->
     <div class="u-sider-menu">
       <a-menu @select="selectMenu" :mode="menuMode" :openKeys="openKeys" :items="items" style="height: calc(100% - 0px); overflow: hidden auto;"
-              v-model:selectedKeys="sys.selectedKeys" @openChange="openChange" :theme="themeConfig.style" />
+              v-model:selectedKeys="sys.selectedKeys" @openChange="openChange"
+              :theme="themeConfig.theme.themeType" :getPopupContainer="getPopupContainer"/>
     </div>
   </a-layout-sider>
 </template>
@@ -94,7 +95,9 @@ export default {
         }).catch(reason => console.error(`路由跳转失败[${reason}]`))
       }
     },
-
+    getPopupContainer() {
+      return document.getElementsByClassName('iv-sider-menu')[0];
+    },
     openChange(openKeys) {
       if(this.sysMenuLevel == 'one') {
         const latestOpenKey = openKeys.find(key => this.openKeys.indexOf(key) === -1);
@@ -112,16 +115,34 @@ export default {
 </script>
 
 <style>
-.u-sider .ant-layout-sider-children {
+.iv-sider-menu {
+  border-right: var(--iv-theme-split);
+  background-color: var(--iv-layout-header-bg);
+}
+.iv-sider-menu .ant-menu-dark
+, .iv-sider-menu .ant-menu-dark>.ant-menu
+, .ant-menu-submenu.ant-menu-submenu-popup>.ant-menu {
+  background-color: var(--iv-layout-header-bg);
+}
+.ant-menu-root.ant-menu-inline .ant-menu-sub.ant-menu-inline {
+  background-color: var(--ant-menu-sub-menu-item-bg);
+}
+.ant-menu-root .ant-menu-item-selected {
+  background-color: var(--iv-primary-color-bgt);
+}
+.ant-menu-root .ant-menu-item:hover {
+  background-color: var(--ant-menu-item-hover-bg);
+}
+.iv-sider-menu .ant-layout-sider-children {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
-.u-sider .u-sider-menu {
+.iv-sider-menu .u-sider-menu {
   height: 100%;
 }
 /*侧边菜单栏滚动条样式*/
-.u-sider .ant-layout-sider-collapsed .ant-menu-inline-collapsed {
+.iv-sider-menu .ant-layout-sider-collapsed .ant-menu-inline-collapsed {
   width: 72px;
 }
 </style>

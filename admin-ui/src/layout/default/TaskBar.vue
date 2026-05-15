@@ -119,8 +119,9 @@ export default {
 <style>
 .u-task-bar {
   z-index: 3;
-  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  //border-bottom: var(--iv-color-split);
   //opacity: 0.5;
 }
 .iv-theme-light .u-task-bar{
@@ -142,7 +143,7 @@ export default {
   margin: 0px 6px;
 }
 .u-task-bar .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab.ant-tabs-tab-active {
-  background: var(--primary-background-color);
+  background-color: var(--iv-primary-color-bgt);
 }
 .u-task-bar .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab .ant-tabs-tab-remove {
   margin-left: 3px;

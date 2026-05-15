@@ -59,6 +59,7 @@ const router = createRouter({
 
 /**
  * 1. 切换路由时同步切换任务栏
+ * 2. 同步顶部导航状态
  */
 router.beforeResolve((to, form, next) => {
     // 刷新页面不放到任务栏, 只做页面中转处理
@@ -75,10 +76,44 @@ router.beforeResolve((to, form, next) => {
         } else {
             store.commit('sys/openOrSwitchTask', to)
         }
+
+        // 同步顶部导航状态：根据当前路由找到对应的一级菜单
+        syncTopMenuByRoute(to);
     }
 
     next();
 });
+
+// 根据路由同步顶部菜单
+function syncTopMenuByRoute(to) {
+    const urlMenuMaps = store.getters['sys/urlMenuMaps'];
+    const idMenuMaps = store.getters['sys/idMenuMaps'];
+    const topMenus = store.getters['sys/topMenus'];
+    
+    if (!urlMenuMaps || !topMenus || topMenus.length === 0) {
+        return;
+    }
+
+    // 找到当前路由对应的菜单
+    const currentMenu = urlMenuMaps[to.path];
+    if (!currentMenu) {
+        return;
+    }
+
+    // 向上查找该菜单所属的一级菜单
+    let parentMenu = currentMenu;
+    while (parentMenu && parentMenu.pid) {
+        parentMenu = idMenuMaps[parentMenu.pid];
+    }
+
+    // 如果找到了一级菜单，且与当前选中的不同，则切换
+    if (parentMenu && topMenus.find(m => m.id === parentMenu.id)) {
+        const activeTopMenu = store.getters['sys/activeTopMenu'];
+        if (!activeTopMenu || activeTopMenu.id !== parentMenu.id) {
+            store.commit('sys/switchActiveTopMenu', parentMenu);
+        }
+    }
+}
 
 // 动态菜单生成路由
 function importLocale(path, menu, route) {

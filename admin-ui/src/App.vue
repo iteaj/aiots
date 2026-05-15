@@ -55,8 +55,12 @@ export default {
 }
 .iv-theme-var {
   --header-height: 64px;
+  --iv-color-split: var(--ant-line-width) var(--ant-line-type) var(--ant-color-split);
+  --iv-theme-split: var(--ant-line-width) var(--ant-line-type) var(--ant-color-split);
   --divider-basic-color: var(--ant-color-split);
   --divider-color: var(--ant-color-bg-elevated);
+  /*背景颜色为带透明的主颜色*/
+  --iv-primary-color-bgt: color-mix(in srgb, var(--ant-color-primary), transparent 92%);
   --iv-color-bg-container: color-mix(in srgb, var(--ant-color-bg-container), transparent 20%);
   --iv-color-bgt-container: var(--ant-color-bg-elevated);
 }
@@ -66,11 +70,6 @@ export default {
   --primary-background-color: v-bind('themeConfig.colorBackgroundPrimary');
 }
 
-.iv-header {
-  //-webkit-backdrop-filter: blur(8px);
-  //backdrop-filter: blur(8px);
-  background-color: var(--iv-color-bgt-container);
-}
 .iv-primary-divider {
   border-bottom: 1px solid var(--divider-color);
 }

@@ -8,8 +8,10 @@
           <span class="u-logo-title">{{sysName}}</span>
         </div>
       </ACol>
-      <ACol :xs="12" :sm="14" :md="14" :lg="10" :xl="10">
-        <span>&nbsp;</span>
+      <ACol class="u-header-col" :xs="0" :sm="14" :md="14" :lg="10" :xl="10">
+        <!-- 顶部一级导航菜单 -->
+        <a-menu mode="horizontal" :selectedKeys="[activeTopMenu?.id]" :items="topMenuItems"
+          @select="handleTopMenuSelect" class="u-top-nav-menu" />
       </ACol>
       <ACol class="u-header-col ivz-header-col-right" flex="auto" :xs="12" :sm="10" :md="6" :lg="8" :xl="8">
         <ASpace :size="0">
@@ -120,7 +122,8 @@ import {
   LayoutOutlined,
   SearchOutlined,
 } from '@antdv-next/icons'
-import {inject, ref} from "vue";
+import {inject, ref, h} from "vue";
+import {UIcon} from "@/components/icon";
 import {createStyles} from 'antdv-style'
 import {ThemeConfigKey} from "@/utils/ProvideKeys";
 import {themeMenus, registerThemeConfig, cartoon, illustration, useCartoonTheme, useIllustrationTheme} from "@/theme/index.js";
@@ -139,7 +142,17 @@ export default {
       activityView: 'sys/activityView',
       breadcrumbRoutes: 'sys/breadcrumbRoutes',
       searchResultModel: 'sys/getSearchResultModel',
-    })
+      topMenus: 'sys/topMenus',
+      activeTopMenu: 'sys/activeTopMenu',
+    }),
+    // 顶部导航菜单项
+    topMenuItems() {
+      return this.topMenus.map(menu => ({
+        label: menu.name,
+        key: menu.id,
+        icon: menu.icon ? () => h(UIcon, {type: menu.icon, class: "iv-top-nav-icon"}) : undefined
+      }));
+    }
   },
   components: {
     ReloadOutlined, LockFilled, LogoutOutlined, DownOutlined, CheckOutlined, UserOutlined
@@ -238,6 +251,7 @@ export default {
       toggleUserVisible: 'sys/toggleUserVisible',
       switchActiveViewTo: 'sys/switchActiveViewTo',
       pushAndSwitchTask: 'sys/pushAndSwitchTask',
+      switchActiveTopMenu: 'sys/switchActiveTopMenu',
     }),
     switchTheme(menu) {
       this.themeConfig.switchTheme(menu.key)
@@ -287,12 +301,26 @@ export default {
 
     headerColorPrimaryChange(value) {
       this.themeConfig.switchHeaderColorPrimary(value);
+    },
+
+    // 处理顶部菜单选择
+    handleTopMenuSelect({key}) {
+      const topMenu = this.topMenus.find(menu => menu.id === key);
+      if (topMenu) {
+        this.switchActiveTopMenu(topMenu);
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+.iv-header {
+  //-webkit-backdrop-filter: blur(8px);
+  //backdrop-filter: blur(8px);
+  border-bottom: var(--iv-color-split);
+  background-color: var(--iv-layout-header-bg);
+}
 .u-header-bar {
     height: var(--header-height);
     line-height: var(--header-height);
@@ -357,6 +385,33 @@ export default {
 }
 .ivz-header-col-right .u-opera-col {
   float: right;
+}
+
+/* 顶部导航栏样式 */
+.u-header-col-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.u-top-nav-menu {
+  background: transparent !important;
+  border: none !important;
+  line-height: var(--header-height) !important;
+}
+.u-top-nav-menu.ant-menu-horizontal {
+  border-bottom: none !important;
+}
+.u-top-nav-menu .ant-menu-item {
+  margin: 0 4px !important;
+  padding: 0 16px !important;
+  border: none !important;
+}
+.u-top-nav-menu .ant-menu-item-selected {
+  background: transparent !important;
+}
+.u-top-nav-icon {
+  font-size: 16px;
+  margin-right: 6px;
 }
 
 </style>
