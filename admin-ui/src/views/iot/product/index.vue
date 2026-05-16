@@ -65,8 +65,8 @@
               </UViewSearch>
               <UViewTable :columns="attrColumns" v-model:source="ModelAttrList" size="small" :scroll="{x: 1080}">
                 <template #action="{record, editing}">
-                  <UTag func="ajax" :data="{id: record['id'], status: !record['ctrlStatus']}" :url="`/iot/modelAttr/ctrlStatus`"
-                        :disabled="record['attrType'] == 'R'">控制属性</UTag>
+<!--                  <UTag func="ajax" :data="{id: record['id'], status: !record['ctrlStatus']}" :url="`/iot/modelAttr/ctrlStatus`"-->
+<!--                        :disabled="record['attrType'] == 'R'">控制属性</UTag>-->
                   <UTag func="edit" :data="record" url="/iot/modelAttr/edit" v-auth="'iot:modelAttr:edit'" :disabled="record['origin']=='Protocol'">修改</UTag>
                   <UTag func="del" :data="record" url="/iot/modelAttr/del" v-auth="'iot:modelAttr:del'" :disabled="record['origin']=='Protocol'">删除</UTag>
                 </template>
@@ -185,12 +185,9 @@
               </UViewModal>
               <UViewTable :columns="apiColumns" size="small" :scroll="{x: 1080}">
                 <template #action="{record}">
-                  <UTag func="ajax:confirm" v-if="record['triggerMode']=='passive' && record['funcType']=='W'" :data="{}"
-                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`" :disabled="record['asStatus']"
-                        :config="{confirmTitle: '确认将此接口作为控制设备开/关等接口?', confirmContent: '声明此接口将用于控制设备的开启、关闭等'}">控制状态</UTag>
-                  <UTag func="ajax:confirm" v-else-if="record['triggerMode']=='passive' && record['funcType']=='R' && modelDetailModel['deviceType'] == 'Child'" :data="{}"
-                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`" :disabled="record['asStatus']"
-                        :config="{confirmTitle: '确认将此接口作为在线状态接口?', confirmContent: '声明此接口将用于采集设备的状态(在线/离线)'}">在线状态</UTag>
+<!--                  <UTag func="ajax:confirm" v-if="record['triggerMode']=='passive' && record['funcType']=='W'" :data="{}"-->
+<!--                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`" :disabled="record['asStatus']"-->
+<!--                        :config="{confirmTitle: '确认将此接口作为控制设备开/关等接口?', confirmContent: '声明此接口将用于控制设备的开启、关闭等'}">控制状态</UTag>-->
                   <UTag func="edit" :data="record" url="/iot/modelApi/edit" v-auth="'iot:modelApi:edit'">修改</UTag>
                   <UTag func="del" :data="record" url="/iot/modelApi/del" :disabled="record.protocol === true" v-auth="'iot:modelApi:del'">删除</UTag>
                 </template>
@@ -260,9 +257,9 @@
               <UViewTable :columns="eventColumns" size="small" :scroll="{x: 1080}">
                 <template #action="{record}">
                   <!--  点位控制的网关子设备  -->
-                  <UTag func="ajax:confirm" v-if="modelDetailModel['deviceType'] == 'Child'" :data="{}"
-                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`" :disabled="record['asStatus']"
-                        :config="{confirmTitle: '确认将此接口作为在线状态接口?', confirmContent: '声明此接口将用于采集设备的状态(在线/离线)'}">在线状态</UTag>
+<!--                  <UTag func="ajax:confirm" v-if="modelDetailModel['deviceType'] == 'Child'" :data="{}"-->
+<!--                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`" :disabled="record['asStatus']"-->
+<!--                        :config="{confirmTitle: '确认将此接口作为在线状态接口?', confirmContent: '声明此接口将用于采集设备的状态(在线/离线)'}">在线状态</UTag>-->
                   <UTag func="edit" :data="record" url="/iot/modelApi/edit" v-auth="'iot:modelApi:edit'">修改</UTag>
                   <UTag func="del" :data="record" url="/iot/modelApi/del" v-auth="'iot:modelApi:del'">删除</UTag>
                 </template>
@@ -484,7 +481,7 @@ export default {
       {field: "gain", title: "增益", width: 80},
       {field: "resolver", title: "解析器", width: 160, resizable: true},
       {field: "remark", title: "属性说明", ellipsis: true, width: 220, resizable: true},
-      {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 260},
+      {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 200},
     ])
     let calcAttrCompletions = ref([]);
     let attrDetailModel = ref({}); // 物模型属性详情

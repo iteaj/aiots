@@ -36,61 +36,62 @@
         </div>
       </AFlex>
     </div>
-    <div class="iv-design-body" style="padding: 16px 8px;">
-      <ASpin :spinning="spinning" :description="tipText" size="large">
-        <AFlex style="max-height: 270px; " justify="space-between" gap="small">
-          <ACard size="small" style="min-width: 250px" :styles="{head: {padding: '0'}}">
-            <template #title>
-              <div class="iv-api-contain-head">
-                <span>事件模型</span>
-              </div>
-            </template>
-            <div style="height: 220px; overflow: auto;" v-if="eventApis && eventApis.length > 0">
-              <div class="iv-api-item" v-for="item in eventApis" :key="item.code">
-                <div class="iv-text-ellipsis">{{item.apiName}}</div>
-                <div class="iv-text-ellipsis iv-cmd-desc" :title="item.remark">{{item.remark}}</div>
-                <div class="iv-api-exec">
-                  <AButton type="dashed" shape="circle" @click="() => apiCmdClick(item)">
-                    <template #icon><SendOutlined style="color: #1c79f4"/></template>
-                  </AButton>
+    <div class="iv-design-body">
+      <div class="iv-body-top">
+        <ASpin :spinning="spinning" :description="tipText" size="large" style="height: 100%">
+          <AFlex style="height: 100%" justify="space-between" gap="small" wrap="wrap">
+            <ACard size="small" style="min-width: 250px; height: 100%" :styles="{head: {padding: '0'}, body: {height: 'calc(100% - 38px)'}}">
+              <template #title>
+                <div class="iv-api-contain-head">
+                  <span>事件模型</span>
+                </div>
+              </template>
+              <div style="height: 100%; overflow: auto;" v-if="eventApis && eventApis.length > 0">
+                <div class="iv-api-item" v-for="item in eventApis" :key="item.code">
+                  <div class="iv-text-ellipsis">{{item.apiName}}</div>
+                  <div class="iv-text-ellipsis iv-cmd-desc" :title="item.remark">{{item.remark || '-'}}</div>
+                  <div class="iv-api-exec">
+                    <AButton type="dashed" shape="circle" @click="() => apiCmdClick(item)">
+                      <template #icon><SendOutlined style="color: #1c79f4"/></template>
+                    </AButton>
+                  </div>
                 </div>
               </div>
-            </div>
-            <AEmpty v-else description="暂无事件接口" />
-          </ACard>
-          <a-row style="max-height: 270px; overflow: auto" justify="center" align="middle" wrap>
-            <a-col v-for="attr in realtimeData" :key="attr.id" :span="3" class="iv-attr-item">
-              <a-card variant="borderless" hoverable size="small" :class="activeAttrId==attr.id? 'active' : ''" @click="() => onAttrClick(attr)" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
-                <template #title>
-                  <AFlex gap="10" justify="space-between">
-                    <div>
-                      <span style="font-weight: normal;">{{attr.name}}</span>
-                    </div>
-                    <div>
-                      <a-badge :status="attr.__type" />
-                    </div>
-                  </AFlex>
-                </template>
-                <div>
-                  <span style="font-weight: bold; font-size: 14px;">{{attr.value != null ? attr.value : '-'}}</span>
-                  <span class="iv-minor-text">&nbsp;{{attr.unit ? `(${attr.unit})` : ''}}</span>
-                </div>
-                <div style="font-size: 12px; color: #818181; padding-top: 6px; border-top: 1px dashed #d6d6d6">
-                  <span>{{attr.collectTime || '暂未采集'}}</span>
-                </div>
-              </a-card>
-            </a-col>
-          </a-row>
-          <ACard size="small" style="min-width: 250px" :styles="{head: {padding: '0'}}">
+              <AEmpty v-else description="暂无事件接口" />
+            </ACard>
+            <a-row class="iv-attr-container" justify="center" align="middle">
+              <a-col v-for="attr in realtimeData" :key="attr.id" :span="3" class="iv-attr-item">
+                <a-card variant="borderless" hoverable size="small" :class="activeAttrId==attr.id? 'active' : ''" @click="() => onAttrClick(attr)" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
+                  <template #title>
+                    <AFlex gap="10" justify="space-between">
+                      <div>
+                        <span style="font-weight: normal;">{{attr.name}}</span>
+                      </div>
+                      <div>
+                        <a-badge :status="attr.__type" />
+                      </div>
+                    </AFlex>
+                  </template>
+                  <div>
+                    <span style="font-weight: bold; font-size: 14px;">{{attr.value != null ? attr.value : '-'}}</span>
+                    <span class="iv-minor-text">&nbsp;{{attr.unit ? `(${attr.unit})` : ''}}</span>
+                  </div>
+                  <div style="font-size: 12px; color: #818181; padding-top: 6px; border-top: 1px dashed #d6d6d6">
+                    <span>{{attr.collectTime || '暂未采集'}}</span>
+                  </div>
+                </a-card>
+              </a-col>
+            </a-row>
+            <ACard size="small" style="min-width: 250px; height: 100%" :styles="{head: {padding: '0'}, body: {height: 'calc(100% - 38px)'}}">
             <template #title>
               <div class="iv-api-contain-head">
                 <span>功能模型</span>
               </div>
             </template>
-            <div style="height: 220px; overflow: auto;"  v-if="funcApis && funcApis.length > 0">
+            <div style="height: 100%; overflow: auto;"  v-if="funcApis && funcApis.length > 0">
               <div class="iv-api-item" v-for="item in funcApis" :key="item.code">
                 <div class="iv-text-ellipsis">{{item.apiName}}</div>
-                <div class="iv-text-ellipsis iv-cmd-desc" :title="item.remark">{{item.remark}}</div>
+                <div class="iv-text-ellipsis iv-cmd-desc" :title="item.remark">{{item.remark || '-'}}</div>
                 <div class="iv-api-exec">
                   <AButton type="dashed" shape="circle" @click="() => apiCmdClick(item)">
                     <template #icon><SendOutlined style="color: #1c79f4"/></template>
@@ -100,52 +101,54 @@
             </div>
             <AEmpty v-else description="暂无功能接口" />
           </ACard>
-        </AFlex>
-      </ASpin>
-      <ACard size="small" style="margin-top: 12px;" :styles="{body: {padding: '8px 3px'}}">
-        <template #title>
-          <AFlex style="width: 100%; font-weight: unset; padding: 5px 0;">
-            <div style="">
-              <ARadioGroup v-model:value="selectCountType" button-style="solid" optionType="button">
-                <a-radio-button value="all">采集值</a-radio-button>
-                <a-radio-button value="count">采集量</a-radio-button>
-                <a-radio-button value="avg">平均值</a-radio-button>
-                <a-radio-button value="max">最大值</a-radio-button>
-                <a-radio-button value="min">最小值</a-radio-button>
-              </ARadioGroup>
-            </div>
-            <div style="flex-grow: 1; text-align: right; margin-right: 36px;">
-              <ARadioGroup v-model:value="selectTimeType" button-style="solid" optionType="button">
-                <a-radio-button value="week">近一周</a-radio-button>
-                <a-radio-button value="month">近一月</a-radio-button>
-                <a-radio-button value="current">当月</a-radio-button>
-                <a-radio-button value="prevMonth">上个月</a-radio-button>
-                <a-radio-button value="cus">自定义</a-radio-button>
-              </ARadioGroup>
-              <a-range-picker style="margin-left: 8px;" v-model:value="selectTime" show-time />
-            </div>
           </AFlex>
-        </template>
-        <a-tabs v-model:activeKey="activeKey" tabPlacement="left">
-          <a-tab-pane key="chart" tab="图表">
-            <ARow :gutter="8">
-              <ACol :span="15" id="iv-echarts-line" style="height: 280px"></ACol>
-              <ACol :span="9" id="iv-echarts-warn" style="height: 280px"></ACol>
-            </ARow>
-          </a-tab-pane>
-          <a-tab-pane key="table" tab="列表">
-            <ARow :gutter="8">
-              <ACol :span="12"  style="height: 280px">
-                <ATable :columns="fieldColumns" :bordered="true" size="small" :pagination="dataPagination" :data-source="attrListData"></ATable>
-              </ACol>
-              <ACol :span="12" style="height: 280px">
-                <ATable :columns="warnColumns" :bordered="true" size="small" :pagination="warnPagination" :data-source="warnListData"></ATable>
-              </ACol>
-            </ARow>
-          </a-tab-pane>
-        </a-tabs>
-
+        </ASpin>
+      </div>
+      <div class="iv-body-bottom">
+        <ACard size="small" :styles="{body: {padding: '8px 3px'}}">
+          <template #title>
+            <AFlex style="width: 100%; font-weight: unset; padding: 5px 0;">
+              <div style="">
+                <ARadioGroup v-model:value="selectCountType" button-style="solid" optionType="button">
+                  <a-radio-button value="all">采集值</a-radio-button>
+                  <a-radio-button value="count">采集量</a-radio-button>
+                  <a-radio-button value="avg">平均值</a-radio-button>
+                  <a-radio-button value="max">最大值</a-radio-button>
+                  <a-radio-button value="min">最小值</a-radio-button>
+                </ARadioGroup>
+              </div>
+              <div style="flex-grow: 1; text-align: right; margin-right: 36px;">
+                <ARadioGroup v-model:value="selectTimeType" button-style="solid" optionType="button">
+                  <a-radio-button value="week">近一周</a-radio-button>
+                  <a-radio-button value="month">近一月</a-radio-button>
+                  <a-radio-button value="current">当月</a-radio-button>
+                  <a-radio-button value="prevMonth">上个月</a-radio-button>
+                  <a-radio-button value="cus">自定义</a-radio-button>
+                </ARadioGroup>
+                <a-range-picker style="margin-left: 8px;" v-model:value="selectTime" show-time />
+              </div>
+            </AFlex>
+          </template>
+          <a-tabs v-model:activeKey="activeKey" tabPlacement="left">
+            <a-tab-pane key="chart" tab="图表">
+              <ARow :gutter="8">
+                <ACol :span="15" id="iv-echarts-line" style="height: 280px"></ACol>
+                <ACol :span="9" id="iv-echarts-warn" style="height: 280px"></ACol>
+              </ARow>
+            </a-tab-pane>
+            <a-tab-pane key="table" tab="列表">
+              <ARow :gutter="8">
+                <ACol :span="12"  style="height: 280px">
+                  <ATable :columns="fieldColumns" :bordered="true" size="small" :pagination="dataPagination" :data-source="attrListData"></ATable>
+                </ACol>
+                <ACol :span="12" style="height: 280px">
+                  <ATable :columns="warnColumns" :bordered="true" size="small" :pagination="warnPagination" :data-source="warnListData"></ATable>
+                </ACol>
+              </ARow>
+            </a-tab-pane>
+          </a-tabs>
       </ACard>
+      </div>
     </div>
   </div>
 </template>
@@ -387,7 +390,7 @@ let collectDataOptions = ref({
     }
   },
   grid: {
-    top: '12%',
+    top: '18%',
     left: '5%',
     right: '5%',
     bottom: '2%',
@@ -446,7 +449,7 @@ let warnDataOptions = ref({
     }
   },
   grid: {
-    top: '12%',
+    top: '18%',
     left: '5%',
     right: '5%',
     bottom: '2%',
@@ -615,8 +618,10 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
 </script>
 <style scoped>
 .iv-dd-view {
-  background-color: var(--iv-color-bgt-container);
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--iv-color-bgt-container);
 }
 .iv-theme-light .iv-dd-view {
   background-color: var(--iv-color-bg-container);
@@ -624,6 +629,7 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
 .iv-design-header {
   width: 100%;
   height: 58px;
+  flex-shrink: 0;
   position: relative;
   background-image: url("/img/iot/大标题背景框6.png");
 }
@@ -662,10 +668,18 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
   background-image: url("/img/iot/圆形装饰.svg");
 }
 .iv-design-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: auto auto;
+  padding: 10px;
+}
+.iv-body-top {
+  flex-shrink: 0;
+}
+.iv-body-top:deep(.ant-spin-container) {
   height: 100%;
-  min-width: 1400px;
-  overflow: hidden auto;
-  padding: 16px 28px 8px;
 }
 .iv-content-title {
   height: 28px;
@@ -721,8 +735,21 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
   min-width: 180px;
   padding: 3px;
   height: 85px;
+  margin: 9px 0;
 }
 .iv-attr-item .active {
   box-shadow: 0 0 2px -2px rgb(0 129 251 / 61%), 0 0 8px 0 rgb(45 159 250 / 61%), 0 1px 12px 0 rgb(185 211 251 / 75%)
+}
+.iv-body-bottom {
+  margin-top: 8px;
+}
+.iv-attr-container {
+  flex: 1;
+  overflow: auto;
+  padding: 10px;
+}
+.iv-attr-container, .iv-body-top {
+  min-height: 270px;
+  height: calc(100% - 350px);
 }
 </style>
