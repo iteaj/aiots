@@ -181,50 +181,9 @@ export default {
         }),
       }
     })
-    const useIllustrationStyles = createStyles(({ css, cssVar }) => {
-      const illustrationBorder = {
-        border: `${cssVar.lineWidth} solid ${cssVar.colorBorder}`,
-      }
 
-      const illustrationBox = {
-        ...illustrationBorder,
-        boxShadow: `4px 4px 0 ${cssVar.colorBorder}`,
-      }
-
-      return {
-        illustrationBorder: css(illustrationBorder),
-        illustrationBox: css(illustrationBox),
-        buttonRoot: css({
-          ...illustrationBox,
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px',
-        }),
-        modalContainer: css({
-          ...illustrationBox,
-        }),
-        tooltipRoot: css({
-          padding: cssVar.padding,
-        }),
-        popupBox: css({
-          ...illustrationBox,
-          borderRadius: cssVar.borderRadiusLG,
-          backgroundColor: cssVar.colorBgContainer,
-        }),
-        progressRail: css({
-          border: `${cssVar.lineWidth} solid ${cssVar.colorBorder}`,
-          boxShadow: `2px 2px 0 ${cssVar.colorBorder}`,
-        }),
-        progressTrack: css({
-          border: 'none',
-        }),
-        inputNumberActions: css({
-          width: '12px',
-        }),
-      }
-    })
     registerThemeConfig(cartoon, useCartoonTheme(useStyles()));
-    registerThemeConfig(illustration, useIllustrationTheme(useIllustrationStyles()));
+    registerThemeConfig(illustration, useIllustrationTheme({}));
 
     // 监听shift + shift
     let shiftCountRef = ref(0);

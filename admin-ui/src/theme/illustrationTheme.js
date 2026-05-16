@@ -1,244 +1,88 @@
 // ========== illustrationTheme.ts ==========
 
-import { theme } from 'antdv-next'
-
-const themeConfig = {
-    token: {
-        colorText: '#2C2C2C',
-        colorPrimary: '#52C41A',
-        colorSuccess: '#51CF66',
-        colorWarning: '#FFD93D',
-        colorError: '#FA5252',
-        colorInfo: '#4DABF7',
-        colorBorder: '#2C2C2C',
-        colorBorderSecondary: '#2C2C2C',
-        lineWidth: 3,
-        lineWidthBold: 3,
-        borderRadius: 12,
-        borderRadiusLG: 16,
-        borderRadiusSM: 8,
-        controlHeight: 40,
-        controlHeightSM: 34,
-        controlHeightLG: 48,
-        fontSize: 15,
-        fontWeightStrong: 600,
-        colorBgBase: '#FFF9F0',
-        colorBgContainer: '#FFFFFF',
-    },
-    components: {
-        Button: {
-            primaryShadow: 'none',
-            dangerShadow: 'none',
-            defaultShadow: 'none',
-            fontWeight: 600,
-        },
-        Modal: {
-            boxShadow: 'none',
-        },
-        Card: {
-            boxShadow: '4px 4px 0 #2C2C2C',
-            colorBgContainer: '#FFF0F6',
-        },
-        Tooltip: {
-            colorBorder: '#2C2C2C',
-            colorBgSpotlight: 'rgba(100, 100, 100, 0.95)',
-            borderRadius: 8,
-        },
-        Select: {
-            optionSelectedBg: 'transparent',
-        },
-        Slider: {
-            dotBorderColor: '#237804',
-            dotActiveBorderColor: '#237804',
-            colorPrimaryBorder: '#237804',
-            colorPrimaryBorderHover: '#237804',
-        },
-    }
-}
-
 function useIllustrationTheme(useStyles) {
-    const { styles } = useStyles
 
     return {
-        theme: {
-            token: {
-                colorText: '#2C2C2C',
-                colorPrimary: '#52C41A',
-                colorSuccess: '#51CF66',
-                colorWarning: '#FFD93D',
-                colorError: '#FA5252',
-                colorInfo: '#4DABF7',
-                colorBorder: '#2C2C2C',
-                colorBorderSecondary: '#2C2C2C',
-                lineWidth: 3,
-                lineWidthBold: 3,
-                borderRadius: 12,
-                borderRadiusLG: 16,
-                borderRadiusSM: 8,
-                controlHeight: 40,
-                controlHeightSM: 34,
-                controlHeightLG: 48,
-                fontSize: 15,
-                fontWeightStrong: 600,
-                colorBgBase: '#FFF9F0',
-                colorBgContainer: '#FFFFFF',
-            },
-            components: {
-                Button: {
-                    primaryShadow: 'none',
-                    dangerShadow: 'none',
-                    defaultShadow: 'none',
-                    fontWeight: 600,
-                },
-                Modal: {
-                    boxShadow: 'none',
-                },
-                Card: {
-                    boxShadow: '4px 4px 0 #2C2C2C',
-                    colorBgContainer: '#FFF0F6',
-                },
-                Tooltip: {
-                    colorBorder: '#2C2C2C',
-                    colorBgSpotlight: 'rgba(100, 100, 100, 0.95)',
-                    borderRadius: 8,
-                },
-                Select: {
-                    optionSelectedBg: 'transparent',
-                },
-                Slider: {
-                    dotBorderColor: '#237804',
-                    dotActiveBorderColor: '#237804',
-                    colorPrimaryBorder: '#237804',
-                    colorPrimaryBorderHover: '#237804',
-                },
-            },
-        },
-        button: {
-            classes: {
-                root: styles.buttonRoot,
-            },
-        },
-        modal: {
-            classes: {
-                container: styles.modalContainer,
-            },
-        },
-        alert: {
-            classes: {
-                root: styles.illustrationBorder,
-            },
-        },
-        colorPicker: {
-            arrow: false,
-            classes: {
-                root: styles.illustrationBox,
-            },
-        },
-        popover: {
-            arrow: false,
-            classes: {
-                container: styles.illustrationBox,
-            },
-        },
-        tooltip: {
-            arrow: false,
-            classes: {
-                root: styles.tooltipRoot,
-                container: styles.illustrationBox,
-            },
-        },
-        dropdown: {
-            classes: {
-                root: styles.popupBox,
-            },
-        },
-        select: {
-            classes: {
-                root: styles.illustrationBox,
-                popup: {
-                    root: styles.popupBox,
-                },
-            },
-        },
-        input: {
-            classes: {
-                root: styles.illustrationBox,
-            },
-        },
-        inputNumber: {
-            classes: {
-                root: styles.illustrationBox,
-                actions: styles.inputNumberActions,
-            },
-        },
-        progress: {
-            classes: {
-                rail: styles.progressRail,
-                track: styles.progressTrack,
-            },
-            styles: {
-                rail: {
-                    height: '16px',
-                },
-                track: {
-                    height: '10px',
-                },
-            },
-        },
         token: {
-            colorText: '#2C2C2C',
-            colorPrimary: '#52C41A',
-            colorSuccess: '#51CF66',
-            colorWarning: '#FFD93D',
-            colorError: '#FA5252',
-            colorInfo: '#4DABF7',
-            colorBorder: '#2C2C2C',
-            colorBorderSecondary: '#2C2C2C',
-            lineWidth: 3,
-            lineWidthBold: 3,
-            borderRadius: 12,
-            borderRadiusLG: 16,
+            colorPrimary: '#ff71ce',
+            colorSuccess: '#01cdfe',
+            colorWarning: '#fffb96',
+            colorError: '#ff5c8d',
+            colorInfo: '#01cdfe',
+            colorTextBase: '#a29bfe',
+            colorBgBase: '#050a30',
+            colorPrimaryBg: 'rgba(255, 113, 206, 0.15)',
+            colorPrimaryBgHover: 'rgba(255, 113, 206, 0.25)',
+            colorPrimaryBorder: '#ff71ce',
+            colorPrimaryBorderHover: '#ff8fd9',
+            colorPrimaryHover: '#ff8fd9',
+            colorPrimaryActive: '#ff53a3',
+            colorPrimaryText: '#ff71ce',
+            colorPrimaryTextHover: '#ff8fd9',
+            colorPrimaryTextActive: '#ff53a3',
+            colorSuccessBg: 'rgba(1, 205, 254, 0.15)',
+            colorSuccessBgHover: 'rgba(1, 205, 254, 0.25)',
+            colorSuccessBorder: '#01cdfe',
+            colorSuccessBorderHover: '#34d7ff',
+            colorSuccessHover: '#34d7ff',
+            colorSuccessActive: '#01a5d1',
+            colorSuccessText: '#01cdfe',
+            colorSuccessTextHover: '#34d7ff',
+            colorSuccessTextActive: '#01a5d1',
+            colorWarningBg: 'rgba(255, 251, 150, 0.15)',
+            colorWarningBgHover: 'rgba(255, 251, 150, 0.25)',
+            colorWarningBorder: '#fffb96',
+            colorWarningBorderHover: '#fffcc0',
+            colorWarningHover: '#fffcc0',
+            colorWarningActive: '#fff970',
+            colorWarningText: '#fffb96',
+            colorWarningTextHover: '#fffcc0',
+            colorWarningTextActive: '#fff970',
+            colorErrorBg: 'rgba(255, 92, 141, 0.15)',
+            colorErrorBgHover: 'rgba(255, 92, 141, 0.25)',
+            colorErrorBorder: '#ff5c8d',
+            colorErrorBorderHover: '#ff7aa3',
+            colorErrorHover: '#ff7aa3',
+            colorErrorActive: '#ff4377',
+            colorErrorText: '#ff5c8d',
+            colorErrorTextHover: '#ff7aa3',
+            colorErrorTextActive: '#ff4377',
+            colorInfoBg: 'rgba(1, 205, 254, 0.15)',
+            colorInfoBgHover: 'rgba(1, 205, 254, 0.25)',
+            colorInfoBorder: '#01cdfe',
+            colorInfoBorderHover: '#34d7ff',
+            colorInfoHover: '#34d7ff',
+            colorInfoActive: '#01a5d1',
+            colorInfoText: '#01cdfe',
+            colorInfoTextHover: '#34d7ff',
+            colorInfoTextActive: '#01a5d1',
+            colorText: 'rgba(162, 155, 254, 0.88)',
+            colorTextSecondary: 'rgba(162, 155, 254, 0.65)',
+            colorTextTertiary: 'rgba(162, 155, 254, 0.45)',
+            colorTextQuaternary: 'rgba(162, 155, 254, 0.25)',
+            colorTextDisabled: 'rgba(162, 155, 254, 0.25)',
+            colorBgContainer: '#050a30',
+            colorBgElevated: '#0c1445',
+            colorBgLayout: '#020515',
+            colorBgSpotlight: 'rgba(162, 155, 254, 0.85)',
+            colorBgMask: 'rgba(5, 10, 48, 0.75)',
+            colorBorder: '#1a1b4b',
+            colorBorderSecondary: '#0c1445',
+            borderRadius: 16,
+            borderRadiusXS: 4,
             borderRadiusSM: 8,
-            controlHeight: 40,
-            controlHeightSM: 34,
-            controlHeightLG: 48,
-            fontSize: 15,
-            fontWeightStrong: 600,
-            colorBgBase: '#FFF9F0',
-            colorBgContainer: '#FFFFFF',
+            borderRadiusLG: 24,
+            padding: 20,
+            paddingSM: 12,
+            paddingLG: 18,
+            margin: 20,
+            marginSM: 16,
+            marginLG: 28,
+            boxShadow: '0 4px 20px 0 rgba(255, 113, 206, 0.3)',
+            boxShadowSecondary: '0 8px 32px 0 rgba(1, 205, 254, 0.3)',
         },
-        components: {
-            Button: {
-                primaryShadow: 'none',
-                dangerShadow: 'none',
-                defaultShadow: 'none',
-                fontWeight: 600,
-            },
-            Modal: {
-                boxShadow: 'none',
-            },
-            Card: {
-                boxShadow: '4px 4px 0 #2C2C2C',
-                colorBgContainer: '#FFF0F6',
-            },
-            Tooltip: {
-                colorBorder: '#2C2C2C',
-                colorBgSpotlight: 'rgba(100, 100, 100, 0.95)',
-                borderRadius: 8,
-            },
-            Select: {
-                optionSelectedBg: 'transparent',
-            },
-            Slider: {
-                dotBorderColor: '#237804',
-                dotActiveBorderColor: '#237804',
-                colorPrimaryBorder: '#237804',
-                colorPrimaryBorderHover: '#237804',
-            },
-        }
     }
 
-    // return {...IllustrationTheme, theme: themeConfig}
 }
 
 export default useIllustrationTheme

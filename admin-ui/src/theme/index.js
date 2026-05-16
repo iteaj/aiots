@@ -49,7 +49,7 @@ const dark = new IVTheme("dark", "暗黑主题");
 const compact = new IVTheme("compact", "紧凑主题");
 const auto = new IVTheme("auto", "跟随系统");
 const cartoon = new IVTheme("cartoon", "卡通风格");
-const illustration = new IVTheme("illustration", "插画风格");
+const illustration = new IVTheme("illustration", "暗粉风格");
 /**
  * @type {Ref<UnwrapRef<IVTheme[]>, UnwrapRef<IVTheme[]> | *[]>}
  */

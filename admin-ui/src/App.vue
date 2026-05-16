@@ -78,9 +78,6 @@ export default {
   padding: 0px 0px;
 }
 
-.ant-drawer-open.iv-basic-drawer .ant-drawer-content-wrapper, .ant-drawer-open.iv-form-drawer .ant-drawer-content-wrapper {
-  border-top: 1px dashed var(--primary-background-color);
-}
 .ant-menu-inline-collapsed >.ant-menu-submenu>.ant-menu-submenu-title {
     padding-inline: calc(50% - 14px);
 }

@@ -21,6 +21,7 @@ export default defineComponent({
         uid: {type: String, required: true},
         modelValue: {type: Object},
         'onUpdate:modelValue': {type: Function},
+        rootClass: {type: String, default: 'iv-drawer iv-basic-drawer'},
         rootStyle: {type: Object, default: () => { return {position: 'absolute'}}},
         styles: {type: Object, default: () => { return {
                 footer: {textAlign: 'center'},
@@ -55,7 +56,7 @@ export default defineComponent({
         return {formRef, spinning, spinTip, visible, routerCall, linkContext, visibleContext}
     },
     render() {
-        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]} rootClassName="iv-drawer iv-basic-drawer"
+        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]}
                 {...this.$props} v-slots={this.$slots} getContainer=".u-page-view"/>)
     },
     mounted() {

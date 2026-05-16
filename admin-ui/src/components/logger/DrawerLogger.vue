@@ -1,5 +1,5 @@
 <template>
-  <UDrawer title="运行日志" placement="bottom" :maskClosable="true" size="80%">
+  <UDrawer title="运行日志" placement="bottom" :maskClosable="true" size="80%" :resizable="true">
     <URunningLogger />
   </UDrawer>
 </template>

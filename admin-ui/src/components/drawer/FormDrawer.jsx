@@ -18,10 +18,12 @@ export default defineComponent({
         forceRender: {default: false},
         placement: {default: 'right'},
         maskClosable: {default: true},
+        afterOpenChange: Function,
         destroyOnHidden: {default: false},
         uid: {type: String, required: true},
         loading: {type: Boolean, default: false},
         rootStyle: {type: Object, default: () => { return {position: 'absolute'}}},
+        rootClass: {type: String, default: 'iv-drawer iv-form-drawer'},
         styles: {type: Object, default: () => { return {
                 footer: {textAlign: 'center'},
             }
@@ -87,8 +89,7 @@ export default defineComponent({
         }
 
         return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]}
-                {...this.$props} v-slots={this.slotProxy} getContainer=".u-page-view"
-                rootClassName="iv-drawer u-edit-form iv-form-drawer" ref="ADrawerRef">
+                {...this.$props} v-slots={this.slotProxy} getContainer=".u-page-view" ref="ADrawerRef">
             <ASpin size="small" description={this.spinTip} spinning={this.spinning}>
                 <UForm {...this.$attrs} ref="iemFormRef">
                     {this.$slots.default ? this.$slots.default({model, context}) : []}
