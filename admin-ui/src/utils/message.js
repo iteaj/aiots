@@ -16,7 +16,7 @@ notification.config({
 });
 
 const msgInfo = message.info
-const msgWarn = message.warn
+const msgWarn = message.warning
 const msgError = message.error
 const msgSuccess = message.success
 const msgLoading = message.loading
@@ -27,7 +27,7 @@ const modalWarn = ({title, content, onCancel, onOk}) => Modal.warn({title, conte
 const modalError = ({title, content, onCancel, onOk}) => Modal.error({title, content, onCancel, onOk, width, cancelText, okText});
 const confirm = ({title, content, onCancel, onOk}) => Modal.confirm({title, content, onCancel, onOk, width, cancelText, okText, icon: createVNode(ExclamationCircleOutlined)});
 const info = (message, description, onClose, options) => notification.info({message, description, onClose, ...options});
-const warn = (message, description, onClose, options) => notification.warn({message, description, onClose, ...options});
+const warn = (message, description, onClose, options) => notification.warning({message, description, onClose, ...options});
 const error = (message, description, onClose, options) => notification.error({message, description, onClose, ...options});
 const success = (message, description, onClose, options) => notification.success({message, description, onClose, ...options});
 
