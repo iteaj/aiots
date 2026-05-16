@@ -82,11 +82,8 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         this.protocolService.getById(entity.getProtocolId())
                 .ifNotPresentThrow("协议不存在")
                 .ifPresent(item -> entity.setProtocolCode(item.getCode()));
-        if(entity.getConfig() == null) {
-            entity.setConfig(new JSONObject()); // 放入空json
-        }
 
-        BooleanResult save = super.save(entity);
+        BooleanResult save = super.save(entity.buildCalc());
         // 保存协议对应的指令到物模型
         saveProtocolToModel(entity);
 

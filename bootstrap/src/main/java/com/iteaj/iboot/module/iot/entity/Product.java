@@ -170,4 +170,20 @@ public class Product extends BaseEntity implements ProductMeta {
     public String getGatewayTypeName() {
         return this.gatewayType != null ? this.gatewayType.getDesc() : null;
     }
+
+    /**
+     * 默认计算脚本配置
+     * @return Product
+     */
+    public Product buildCalc() {
+        if(this.getConfig() == null) {
+            this.config = new JSONObject();
+        }
+
+        if(!this.config.containsKey("calcLanguage")) {
+            this.config.put("calcScript", "");
+            this.config.put("calcLanguage", "disabled");
+        }
+        return this;
+    }
 }
