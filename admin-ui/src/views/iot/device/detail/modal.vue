@@ -24,7 +24,7 @@
       <ATabs v-model:active-key="activeKey" tabPlacement="left">
         <ATabPane key="attr" tab="最新数据">
           <a-row justify="start" align="middle" wrap>
-            <a-col v-for="attr in modelAttrs" :key="attr.id" style="min-width: 170px; padding: 3px; margin: 5px 0; height: 85px;">
+            <a-col v-for="attr in modelAttrs" :key="attr.id" style="min-width: 170px; padding: 3px; margin: 5px 0; height: 93px;">
               <a-card variant="borderless" hoverable size="small" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
                 <template #title>
                   <AFlex gap="10" justify="space-between">

@@ -25,11 +25,11 @@ role: 产品+架构师+全栈开发+测试
 
 **三端协同**物联网平台：
 
-| 端 | 目录 | 技术栈 | 核心职责 |
-|---|------|--------|---------|
-| **后端** | `bootstrap/` `framework/` `iboot-plugin/` | Java 1.8 + Spring Boot 2.7 + Netty | 设备接入、数据采集、业务逻辑、API |
-| **管理端** | `admin-ui/` | Vue 3 + Ant Design Vue 4 + Vite | 运维配置、监控分析、可视化大屏 |
-| **移动端** | `app/` | uni-app x + UTS + Cool Unix | 现场操作、数据查看、告警处理 |
+| 端 | 目录 | 技术栈                               | 核心职责                 |
+|---|------|-----------------------------------|----------------------|
+| **后端** | `bootstrap/` `framework/` `iboot-plugin/` | Java 1.8 + Spring Boot 2.7 + Netty | 设备接入、数据采集、业务逻辑、API   |
+| **管理端** | `admin-ui/` | Vue 3 + antdv-next + Vite         | 管理端配置、运维配置、监控分析 |
+| **移动端** | `app/` | uni-app x + UTS + Cool Unix       | 现场操作、数据查看、告警处理       |
 
 **数据流向**：`设备 → 后端服务 → 管理端/移动端`
 

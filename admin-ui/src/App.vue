@@ -10,6 +10,7 @@
 
 <script>
 import './theme/index.css'
+import 'antdv-next/dist/reset.css'
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import ThemeConfig, {useIVTheme} from './theme/index.js'
