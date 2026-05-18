@@ -76,7 +76,7 @@ export default {
 }
 
 .iv-group-addon-padding-0 .ant-input-number-group-addon {
-  padding: 0px 0px;
+  padding: 0;
 }
 
 .ant-menu-inline-collapsed >.ant-menu-submenu>.ant-menu-submenu-title {

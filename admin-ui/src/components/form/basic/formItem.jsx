@@ -25,11 +25,40 @@ export const UInputNumberItem = defineComponent({
     mixins: [MixinsFormItem],
     render() {
         let props = this.getFormItemProps();
-        return <a-col {...this.getColProps()}>
-            <AFormItem {...props}>
-                {<a-input-number {...this.getFormAttrs()} v-slots={this.$slots} style="width: 100%"></a-input-number>}
-            </AFormItem>
-        </a-col>
+        if(!this.$slots.addonAfter && !this.$slots.addonBefore) {
+            return <a-col {...this.getColProps()}>
+                <AFormItem {...props}>
+                    {<a-input-number {...this.getFormAttrs()} v-slots={this.$slots} style="width: 100%"></a-input-number>}
+                </AFormItem>
+            </a-col>
+        } else if(this.$slots.addonAfter && this.$slots.addonBefore) {
+            return <a-col {...this.getColProps()}>
+                <AFormItem {...props}>
+                    {this.$slots.addonBefore()}
+                    {<a-input-number {...this.getFormAttrs()} v-slots={this.$slots} style="width: 100%"></a-input-number>}
+                    {this.$slots.addonAfter()}
+                </AFormItem>
+            </a-col>
+        } else if(this.$slots.addonAfter) {
+            return <a-col {...this.getColProps()}>
+                <AFormItem {...props}>
+                    <a-space-compact block>
+                        <a-input-number {...this.getFormAttrs()} v-slots={this.$slots} />
+                        {this.$slots.addonAfter()}
+                    </a-space-compact>
+                </AFormItem>
+            </a-col>
+        } else {
+            return <a-col {...this.getColProps()}>
+                <AFormItem {...props}>
+                    <a-space-compact block>
+                        {this.$slots.addonBefore()}
+                        <a-input-number {...this.getFormAttrs()} v-slots={this.$slots} />
+                    </a-space-compact>
+                </AFormItem>
+            </a-col>
+        }
+
     }
 
 })

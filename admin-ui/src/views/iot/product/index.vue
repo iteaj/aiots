@@ -81,10 +81,9 @@
                     <UInputItem label="默认值" field="defaultValue" :disabled="attrDetailModel['attrType'] == 'R'" :maxlength="430"/>
                     <UInputItem label="属性单位" field="unit" :maxlength="18"/>
                     <USelectItem label="值解析器" required field="resolver" url="/iot/product/resolvers" defaultValue="DEFAULT" />
-                    <UInputNumberItem label="精度/增益" class="iv-group-addon-padding-0" field="accuracy" placeholder="精度值" :min="0" :max="5" :step="1" :precision="0">
+                    <UInputNumberItem label="精度/增益" class="iv-group-addon-padding-0" field="accuracy" placeholder="精度值" :min="0" :max="8" :step="1" :precision="0">
                       <template #addonAfter>
-                        <AInputNumber v-model:value="model['gain']" placeholder="增益值" :bordered="false" :step="1" :precision="5"
-                                      :min="0" :max="10000" style="width: 110px; background-color: #ffffff;" />
+                        <AInputNumber v-model:value="model['gain']" placeholder="增益值" :min="0.00001" :max="10000" style="width: 110px;" />
                       </template>
                     </UInputNumberItem>
                     <UInputItem label="属性备注" field="remark" :maxlength="64"/>
