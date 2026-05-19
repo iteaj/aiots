@@ -9,6 +9,7 @@ admin-ui/node_modules/
 admin-ui/unpackage/
 admin-ui/dist/
 # Temp files
+temp/
 *.timestamp-*.mjs
 
 # Log files
