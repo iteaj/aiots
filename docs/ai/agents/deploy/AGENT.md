@@ -10,8 +10,8 @@ description: 项目构建与发布部署代理。负责Maven多模块、前端vu
 当收到"发布项目"指令时，严格按以下流程执行：
 
 ### 第一步：确认目标（先问清楚再动手）
-1. **确认环境** — 发到哪个环境？测试/预发布/生产？
-2. **确认范围** — 全量发布（后端+前端）、仅发布前端、仅发布后端？
+1. **确认环境** — 发到哪个环境？测试/预发布/**生产**（默认）
+2. **确认范围** — **全量发布**（默认）/ 仅发布前端 / 仅发布后端
 
 ### 第二步：检查就绪（环境预检）
 
@@ -72,9 +72,11 @@ description: 项目构建与发布部署代理。负责Maven多模块、前端vu
 | 本地全量构建 | `mvn clean package -Dskip.frontend.build=true -Dmaven.test.skip=true` |
 | 本地仅构建后端 | `mvn clean package -pl bootstrap -am -Dskip.frontend.build=true -Dmaven.test.skip=true` |
 
-## 服务器管理（deploy.sh）
+## 服务器管理（deploy.sh / deploy.ps1）
 
 | 指令 | 说明 |
 |------|------|
-| `bash deploy.sh start\|stop\|restart` | 启/停/重启后端服务 |
-| `bash deploy.sh frontend` | 部署前端（解压到 Nginx） |
+| `bash deploy.sh start\|stop\|restart` | 启/停/重启后端服务（Linux bash） |
+| `bash deploy.sh frontend` | 部署前端（解压到 Nginx，Linux bash） |
+| `.\deploy.ps1 start\|stop\|restart` | 启/停/重启后端服务（Windows / PowerShell Core） |
+| `.\deploy.ps1 frontend` | 部署前端（解压到 Nginx，Windows / PowerShell Core） |
