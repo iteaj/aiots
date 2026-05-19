@@ -29,6 +29,10 @@ target/
 .flattened-pom.xml
 *.iml
 
-# Claude Code project config (track settings.json, ignore local overrides and worktrees)
-.claude/*
-!.claude/settings.json
+# ai-dev project config (track settings.json, ignore local overrides and worktrees)
+.claude
+.cursor
+.qoder
+.codex
+.trae
+

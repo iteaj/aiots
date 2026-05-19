@@ -322,6 +322,10 @@
     <profiles>
         <profile>
             <id>deploy</id>
+            <properties>
+                <!-- true: 仅发布前端(不传jar、不重启后端); false: 全量发布 -->
+                <skip.backend.deploy>false</skip.backend.deploy>
+            </properties>
             <build>
                 <plugins>
                     <!-- 前端构建：使用本地 npm 构建 -->
@@ -382,7 +386,7 @@
                                     </target>
                                 </configuration>
                             </execution>
-                            <!-- 5. SCP 上传 jar -->
+                            <!-- 3. SCP 上传 jar（仅全量发布时执行） -->
                             <execution>
                                 <id>scp-upload-jar</id>
                                 <phase>verify</phase>
@@ -390,6 +394,7 @@
                                     <goal>run</goal>
                                 </goals>
                                 <configuration>
+                                    <skip>${skip.backend.deploy}</skip>
                                     <target>
                                         <echo message="上传文件 bootstrap.jar 到 ${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/" level="info"/>
                                         <scp file="${project.build.directory}/bootstrap.jar"
@@ -398,7 +403,7 @@
                                     </target>
                                 </configuration>
                             </execution>
-                            <!-- 6. SCP 上传前端 zip -->
+                            <!-- 4. SCP 上传前端 zip -->
                             <execution>
                                 <id>scp-upload-frontend</id>
                                 <phase>verify</phase>
@@ -415,7 +420,7 @@
                                     </target>
                                 </configuration>
                             </execution>
-                            <!-- 7. SCP 上传部署脚本 -->
+                            <!-- 5. SCP 上传部署脚本 -->
                             <execution>
                                 <id>scp-upload-deploy-script</id>
                                 <phase>verify</phase>
@@ -431,21 +436,43 @@
                                     </target>
                                 </configuration>
                             </execution>
-                            <!-- 8. SSH 执行部署脚本 -->
+                            <!-- 6. SSH 解压前端 -->
                             <execution>
-                                <id>ssh-deploy</id>
+                                <id>ssh-deploy-frontend</id>
                                 <phase>verify</phase>
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
                                 <configuration>
+                                    <skip>${skip.frontend.build}</skip>
                                     <target>
-                                        <echo message="开始在 ${deploy.server.host} 服务器上执行部署脚本..." level="info"/>
+                                        <echo message="开始在 ${deploy.server.host} 服务器上部署前端..." level="info"/>
                                         <sshexec
                                             host="${deploy.server.host}"
                                             username="${deploy.server.user}"
                                             password="${deploy.server.password}"
-                                            command="cd ${deploy.server.path} &amp;&amp; bash deploy.sh frontend &amp;&amp; bash deploy.sh restart"
+                                            command="cd ${deploy.server.path} &amp;&amp; bash deploy.sh frontend"
+                                            output="${project.build.directory}/deploy-remote.log"
+                                            append="true" trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 7. SSH 重启后端服务（仅全量发布时执行） -->
+                            <execution>
+                                <id>ssh-restart-backend</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.backend.deploy}</skip>
+                                    <target>
+                                        <echo message="重启 ${deploy.server.host} 服务器后端服务..." level="info"/>
+                                        <sshexec
+                                            host="${deploy.server.host}"
+                                            username="${deploy.server.user}"
+                                            password="${deploy.server.password}"
+                                            command="cd ${deploy.server.path} &amp;&amp; bash deploy.sh restart"
                                             output="${project.build.directory}/deploy-remote.log"
                                             append="true" trust="true"/>
                                     </target>
