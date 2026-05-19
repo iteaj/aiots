@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node --max_old_space_size=4096",
+    "build": "vite build",
     "serve": "vite preview"
   },
   "dependencies": {

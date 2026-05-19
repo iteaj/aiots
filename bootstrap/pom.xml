@@ -315,6 +315,146 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>deploy</id>
+            <build>
+                <plugins>
+                    <!-- 前端构建：使用本地 npm 构建 -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>npm-build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.frontend.build}</skip>
+                                    <workingDirectory>${project.basedir}/../admin-ui</workingDirectory>
+                                    <executable>npm</executable>
+                                    <arguments>
+                                        <argument>run</argument>
+                                        <argument>build</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- 打包前端 + 复制部署脚本(+ SCP上传 + SSH执行) -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <!-- 1. 压缩前端构建产物 -->
+                            <execution>
+                                <id>zip-frontend-dist</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.frontend.build}</skip>
+                                    <target>
+                                        <zip destfile="${project.build.directory}/admin-ui.zip" basedir="${project.basedir}/../admin-ui/dist"/>
+                                        <echo message="admin-ui构建成功并压缩到 ${project.build.directory}/admin-ui.zip" level="info"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 2. 复制部署脚本到 target -->
+                            <execution>
+                                <id>copy-deploy-script</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <copy file="${project.basedir}/../docs/script/deploy.sh"
+                                              todir="${project.build.directory}" overwrite="true"/>
+                                        <echo message="成功将部署脚本复制到 ${project.build.directory}/deploy.sh" level="info"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 5. SCP 上传 jar -->
+                            <execution>
+                                <id>scp-upload-jar</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo message="上传文件 bootstrap.jar 到 ${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/" level="info"/>
+                                        <scp file="${project.build.directory}/bootstrap.jar"
+                                            todir="${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/"
+                                            password="${deploy.server.password}" trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 6. SCP 上传前端 zip -->
+                            <execution>
+                                <id>scp-upload-frontend</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.frontend.build}</skip>
+                                    <target>
+                                        <echo message="上传文件 admin-ui.zip 到 ${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/" level="info"/>
+                                        <scp file="${project.build.directory}/admin-ui.zip"
+                                            todir="${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/"
+                                            password="${deploy.server.password}" trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 7. SCP 上传部署脚本 -->
+                            <execution>
+                                <id>scp-upload-deploy-script</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo message="上传部署脚本 deploy.sh 到 ${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/" level="info"/>
+                                        <scp file="${project.build.directory}/deploy.sh"
+                                                todir="${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/"
+                                                password="${deploy.server.password}" trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 8. SSH 执行部署脚本 -->
+                            <execution>
+                                <id>ssh-deploy</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo message="开始在 ${deploy.server.host} 服务器上执行部署脚本..." level="info"/>
+                                        <sshexec
+                                            host="${deploy.server.host}"
+                                            username="${deploy.server.user}"
+                                            password="${deploy.server.password}"
+                                            command="cd ${deploy.server.path} &amp;&amp; bash deploy.sh frontend &amp;&amp; bash deploy.sh restart"
+                                            output="${project.build.directory}/deploy-remote.log"
+                                            append="true" trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

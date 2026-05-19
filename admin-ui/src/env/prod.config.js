@@ -9,9 +9,9 @@ export default new EnvConfig({
     }),
 
     http: new Http({
-        httpUrl: "http://192.168.10.64/api",
-        viewUrl: "http://192.168.10.64/usv",
-        websocketUrl: 'ws://192.168.10.64'
+        httpUrl: "/api",
+        viewUrl: "/usv",
+        // websocketPort: ''
     }),
 
     rtvs: {

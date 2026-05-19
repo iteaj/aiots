@@ -4,9 +4,13 @@
 app/node_modules/
 app/unpackage/
 app/dist/
+admin-ui/node/
 admin-ui/node_modules/
 admin-ui/unpackage/
 admin-ui/dist/
+# Temp files
+*.timestamp-*.mjs
+
 # Log files
 npm-debug.log*
 
@@ -19,3 +23,12 @@ npm-debug.log*
 *.njsproj
 *.sln
 *.sw*
+
+# Maven build targets
+target/
+.flattened-pom.xml
+*.iml
+
+# Claude Code project config (track settings.json, ignore local overrides and worktrees)
+.claude/*
+!.claude/settings.json
