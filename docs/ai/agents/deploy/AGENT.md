@@ -15,17 +15,14 @@ description: 项目构建与发布部署代理。负责Maven多模块、前端vu
 
 ### 第二步：检查就绪（环境预检）
 
-> **条件不符处理原则**：任何预检条件不满足时（如 JDK 版本不匹配、缺失配置、构建工具不可用等），必须向用户说明具体不符项及可选的替代方案（如跳过特定步骤、改用其他工具链、手动执行等），由用户决定**取消发布**还是**采用替代方案**继续，禁止自行跳过或擅自变更方案。
-1. **JDK 版本** — 从根目录 `pom.xml` 中读取 `<maven.compiler.source>` 值确定所需 JDK 版本，检查 `JAVA_HOME` 是否匹配，如不符则寻找系统已安装的正确版本
-2. **构建工具** — 检查项目根目录的 `mvnw` 是否存在并可执行
-3. **Node.js 环境**（需要前端构建时）— 检查 `npm` 是否可用
-4. **settings.xml 配置** — 检查 `~/.m2/settings.xml` 中是否已配置以下参数：
-   - `<deploy.server.host>` — 服务器地址
-   - `<deploy.server.user>` — SSH 用户
-   - `<deploy.server.password>` — SSH 密码
-   - `<deploy.server.path>` — 部署路径
-   
-   如果配置缺失，**提示用户补充**，不代替用户填写。
+> **条件不符处理原则**：任何预检条件不满足时，必须向用户说明具体不符项及可选的替代方案，由用户决定**取消发布**还是**采用替代方案**继续，禁止自行跳过或擅自变更方案。
+
+> **环境缓存优化**：先读取 `docs/ai/agents/deploy/DEPLOY_ENV.md` 查看缓存的运行环境状态，**仅当用户确认环境发生变更时**才重新执行实际检测。未变更则跳过重复检测，直接使用缓存结果。
+
+1. **JDK 版本** — 读取 `DEPLOY_ENV.md` 中缓存的 JDK 状态，如不匹配按条件不符处理原则执行
+2. **构建工具** — 读取 `DEPLOY_ENV.md` 中缓存的 mvnw 状态
+3. **Node.js 环境**（需要前端构建时）— 读取 `DEPLOY_ENV.md` 中缓存的 Node/npm 版本
+4. **settings.xml 配置** — 检查 `~/.m2/settings.xml` 中 deploy profile 配置是否完整如果配置缺失，**提示用户补充**，不代替用户填写。
 5. **代码状态** — 检查是否有未提交的变更，询问用户是否先提交
 
 ### 第三步：列出步骤（透明实施计划）
@@ -35,14 +32,19 @@ description: 项目构建与发布部署代理。负责Maven多模块、前端vu
 2. mvnw clean verify -P deploy（构建 + SCP上传 + SSH远程部署）
    - 后端编译所有模块
    - 前端 npm run build 构建
-   - 打包 frontend.zip + 复制部署脚本
-   - SCP 上传 jar / 前端zip / 部署脚本
-   - SSH 执行解压前端 + 重启后端服务
+   - 打包 admin-ui.zip + 复制部署脚本
+   - SCP 上传运行包到后端/前端服务器
+     - bootstrap.jar → 后端服务器
+     - admin-ui.zip → 前端服务器（Nginx）
+     - deploy.sh → 后端服务器
+   - SSH 执行远程部署
+     - 前端服务器：解压 admin-ui.zip 到 Nginx 目录
+     - 后端服务器：重启后端服务
 ```
 
 ### 第四步：分步执行
 1. 提交代码（如用户同意）
-2. 设置正确的 `JAVA_HOME` 后执行构建发布命令
+2. 执行构建发布命令
 3. 监控构建过程，遇到错误及时反馈
 4. 确认部署结果：检查上传成功、服务启动状态
 
@@ -54,10 +56,16 @@ description: 项目构建与发布部署代理。负责Maven多模块、前端vu
 <profile>
   <id>deploy</id>
   <properties>
+    <!-- 后端服务器 -->
     <deploy.server.host>IP</deploy.server.host>
     <deploy.server.user>root</deploy.server.user>
     <deploy.server.password>密码</deploy.server.password>
     <deploy.server.path>/opt/app</deploy.server.path>
+    <!-- 前端服务器（Nginx） -->
+    <deploy.frontend.host>IP</deploy.frontend.host>
+    <deploy.frontend.user>root</deploy.frontend.user>
+    <deploy.frontend.password>密码</deploy.frontend.password>
+    <deploy.frontend.path>/opt/nginx/html</deploy.frontend.path>
   </properties>
 </profile>
 ```

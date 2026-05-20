@@ -323,8 +323,15 @@
         <profile>
             <id>deploy</id>
             <properties>
+                <!-- 后端服务器配置（从 settings.xml deploy profile 读取） -->
                 <!-- true: 仅发布前端(不传jar、不重启后端); false: 全量发布 -->
                 <skip.backend.deploy>false</skip.backend.deploy>
+
+                <!-- true: 跳过前端构建和上传; false: 构建并上传前端 -->
+                <skip.frontend.build>false</skip.frontend.build>
+
+                <!-- true: 跳过上传部署脚本; false: 正常上传 -->
+                <skip.deploy.script>false</skip.deploy.script>
             </properties>
             <build>
                 <plugins>
@@ -403,7 +410,7 @@
                                     </target>
                                 </configuration>
                             </execution>
-                            <!-- 4. SCP 上传前端 zip -->
+                            <!-- 4. SCP 上传前端 zip 到前端服务器 -->
                             <execution>
                                 <id>scp-upload-frontend</id>
                                 <phase>verify</phase>
@@ -413,14 +420,14 @@
                                 <configuration>
                                     <skip>${skip.frontend.build}</skip>
                                     <target>
-                                        <echo message="上传文件 admin-ui.zip 到 ${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/" level="info"/>
+                                        <echo message="上传文件 admin-ui.zip 到 ${deploy.frontend.user}@${deploy.frontend.host}:${deploy.frontend.path}/" level="info"/>
                                         <scp file="${project.build.directory}/admin-ui.zip"
-                                            todir="${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/"
-                                            password="${deploy.server.password}" trust="true"/>
+                                            todir="${deploy.frontend.user}@${deploy.frontend.host}:${deploy.frontend.path}/"
+                                            password="${deploy.frontend.password}" trust="true"/>
                                     </target>
                                 </configuration>
                             </execution>
-                            <!-- 5. SCP 上传部署脚本 -->
+                            <!-- 5. 上传部署脚本到后端服务器（先上传到临时文件，SSH条件判断，已存在则丢弃临时文件） -->
                             <execution>
                                 <id>scp-upload-deploy-script</id>
                                 <phase>verify</phase>
@@ -429,14 +436,38 @@
                                 </goals>
                                 <configuration>
                                     <target>
-                                        <echo message="上传部署脚本 deploy.sh 到 ${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/" level="info"/>
                                         <scp file="${project.build.directory}/deploy.sh"
-                                                todir="${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/"
-                                                password="${deploy.server.password}" trust="true"/>
+                                            todir="${deploy.server.user}@${deploy.server.host}:${deploy.server.path}/deploy.sh.tmp"
+                                            password="${deploy.server.password}" trust="true"/>
+                                        <sshexec host="${deploy.server.host}"
+                                            username="${deploy.server.user}"
+                                            password="${deploy.server.password}"
+                                            command="test -f '${deploy.server.path}/deploy.sh' &amp;&amp; echo '后:deploy.sh 已存在,跳过覆盖' &amp;&amp; rm '${deploy.server.path}/deploy.sh.tmp' || (mv '${deploy.server.path}/deploy.sh.tmp' '${deploy.server.path}/deploy.sh' &amp;&amp; echo '后:deploy.sh 上传完成')"
+                                            trust="true"/>
                                     </target>
                                 </configuration>
                             </execution>
-                            <!-- 6. SSH 解压前端 -->
+                            <!-- 5b. 上传部署脚本到前端服务器 -->
+                            <execution>
+                                <id>scp-upload-deploy-script-frontend</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <scp file="${project.build.directory}/deploy.sh"
+                                            todir="${deploy.frontend.user}@${deploy.frontend.host}:${deploy.frontend.path}/deploy.sh.tmp"
+                                            password="${deploy.frontend.password}" trust="true"/>
+                                        <sshexec host="${deploy.frontend.host}"
+                                            username="${deploy.frontend.user}"
+                                            password="${deploy.frontend.password}"
+                                            command="test -f '${deploy.frontend.path}/deploy.sh' &amp;&amp; echo '前:deploy.sh 已存在,跳过覆盖' &amp;&amp; rm '${deploy.frontend.path}/deploy.sh.tmp' || (mv '${deploy.frontend.path}/deploy.sh.tmp' '${deploy.frontend.path}/deploy.sh' &amp;&amp; echo '前:deploy.sh 上传完成')"
+                                            trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 6. SSH 解压前端到前端服务器 Nginx 目录 -->
                             <execution>
                                 <id>ssh-deploy-frontend</id>
                                 <phase>verify</phase>
@@ -446,12 +477,11 @@
                                 <configuration>
                                     <skip>${skip.frontend.build}</skip>
                                     <target>
-                                        <echo message="开始在 ${deploy.server.host} 服务器上部署前端..." level="info"/>
-                                        <sshexec
-                                            host="${deploy.server.host}"
-                                            username="${deploy.server.user}"
-                                            password="${deploy.server.password}"
-                                            command="cd ${deploy.server.path} &amp;&amp; bash deploy.sh frontend"
+                                        <echo message="开始在前端服务器 ${deploy.frontend.host} 上部署前端..." level="info"/>
+                                        <sshexec host="${deploy.frontend.host}"
+                                            username="${deploy.frontend.user}"
+                                            password="${deploy.frontend.password}"
+                                            command="cd ${deploy.frontend.path} &amp;&amp; bash deploy.sh frontend"
                                             output="${project.build.directory}/deploy-remote.log"
                                             append="true" trust="true"/>
                                     </target>
