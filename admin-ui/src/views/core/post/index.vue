@@ -2,7 +2,7 @@
   <UView name="岗位管理">
     <U2Col>
       <template #left>
-        <ACard :bordered="false">
+        <ACard variant="borderless">
           <UTree url="/core/org/parent" selectable blockNode showLine defaultExpandAll @select="selectParent" />
         </ACard>
       </template>

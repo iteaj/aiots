@@ -3,7 +3,7 @@
 
     <U2Col :gutter="8">
       <template #left>
-        <ACard :bordered="false">
+        <ACard variant="borderless">
           <UTree url="/core/menu/parent" selectable blockNode showLine defaultExpandAll @select="selectParent" />
         </ACard>
       </template>
@@ -193,7 +193,7 @@ export default {
       this.editModel['icon'] = item;
     },
     queryCall({code}) {
-      if(code == CoreConsts.SuccessCode) {
+      if(code == CoreConsts.SuccessCode && this.parentRef) {
         this.parentRef['refreshOptions']();
       }
     }

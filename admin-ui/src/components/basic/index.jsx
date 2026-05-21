@@ -210,7 +210,7 @@ export const UFuncTag = defineComponent({
 
         let tagColor = this.disabledComputed ? '#d8d8d8' : this.tagColor;
         let disabledClass = this.disabledComputed ? 'iv-func-disabled' : 'iv-func-tag'
-        return <ATag closable={false} class={disabledClass} class="u-func" bordered={false} variant={this.variant}
+        return <ATag closable={false} class={disabledClass} class="u-func" variant={this.variant}
                      color={tagColor} {...this.$attrs} onClick={this.clickProxy} v-slots={this.$slots} />
     },
     deactivated() {

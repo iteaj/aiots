@@ -2,7 +2,7 @@
   <UView name="产品类型">
     <U2Col :gutter="8">
       <template #left>
-        <ACard :bordered="false">
+        <ACard variant="borderless">
           <UTree url="/iot/productType/tree" selectable blockNode showLine defaultExpandAll @select="selectParent" />
         </ACard>
       </template>
@@ -79,7 +79,7 @@ export default {
       this.$refs['searchRef'].trigger();
     },
     queryCall({code}) {
-      if(code == CoreConsts.SuccessCode) {
+      if(code == CoreConsts.SuccessCode && this.productTypeParentRef) {
         this.productTypeParentRef['refreshOptions']();
       }
     }

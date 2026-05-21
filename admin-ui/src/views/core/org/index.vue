@@ -60,8 +60,9 @@ export default {
   },
   methods: {
     queryCall() {
-      this.parentOrgRef['refreshOptions']();
-      return Promise.resolve();
+      if(this.parentOrgRef) {
+        this.parentOrgRef['refreshOptions']();
+      }
     }
   }
 }

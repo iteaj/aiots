@@ -306,18 +306,21 @@ export function $View(context) {
             return console.warn(`未找到对应uid的可编辑组件[${uid}]`)
         }
 
-        // 打开编辑框并且复制pid字段
-        let formModel = editContext.getFormContext().getInitModel();
-        // 设置pid
-        formModel[pid] = data[id || this.getRowKey()];
-        this.getRequestParams({data, formModel}, params, funcPath).then(editModel => {
-            editContext.asyncVisible(data, true).then(edit => {
+        editContext.asyncVisible(data, true).then(edit => {
+            // 打开编辑框并且复制pid字段
+            let formModel = editContext.getFormContext().getInitModel();
+            // 设置pid
+            formModel[pid] = data[id || this.getRowKey()];
+
+            this.getRequestParams({data, formModel}, params, funcPath).then(editModel => {
                 // 先触发v-model事件
                 editContext.getFormContext().setEditModel(editModel)
                 // 再触发编辑事件
                 edit.$emit('edit', editModel);
             })
+
         })
+
     }
 
     /**
@@ -353,10 +356,10 @@ export function $View(context) {
         }
 
         editContext.openType = 'edit';
-        let formModel = editContext.getFormContext().getInitModel();
-        this.getRequestParams({data, formModel}, params, funcPath).then(editModel => {
-            // 打开编辑框后复制对应的字段到新的model
-            editContext.asyncVisible(data, true).then(edit => {
+        // 打开编辑框后复制对应的字段到新的model
+        editContext.asyncVisible(data, true).then(edit => {
+            let formModel = editContext.getFormContext().getInitModel();
+            this.getRequestParams({data, formModel}, params, funcPath).then(editModel => {
                 // 复制属性
                 copy.forEach(field => {
                     let fieldPath = field.split("=");
@@ -388,6 +391,7 @@ export function $View(context) {
                 edit.$emit('edit', editModel);
             })
         })
+
 
     }
 

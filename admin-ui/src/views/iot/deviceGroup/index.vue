@@ -130,7 +130,7 @@ export default {
       this.editModel['lat'] = position[1];
     },
     queryCall({code, data}) {
-      if(code == CoreConsts.SuccessCode) {
+      if(code == CoreConsts.SuccessCode && this.deviceGroupParentRef) {
         this.deviceGroupParentRef['refreshOptions']();
       }
     }
