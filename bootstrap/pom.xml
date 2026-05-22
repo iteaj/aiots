@@ -335,6 +335,25 @@
             </properties>
             <build>
                 <plugins>
+                    <!-- 加载发布配置（路径等非敏感信息） -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${project.basedir}/../docs/config/deploy-config.properties</file>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <!-- 前端构建：使用本地 npm 构建 -->
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
@@ -387,7 +406,7 @@
                                 </goals>
                                 <configuration>
                                     <target>
-                                        <copy file="${project.basedir}/../docs/script/deploy.sh"
+                                        <copy file="${project.basedir}/../${deploy.script.path}"
                                               todir="${project.build.directory}" overwrite="true"/>
                                         <echo message="成功将部署脚本复制到 ${project.build.directory}/deploy.sh" level="info"/>
                                     </target>
@@ -447,7 +466,7 @@
                                     </target>
                                 </configuration>
                             </execution>
-                            <!-- 5b. 上传部署脚本到前端服务器 -->
+                            <!-- 5b. 上传部署脚本到前端服务器（跳过前端时一并跳过） -->
                             <execution>
                                 <id>scp-upload-deploy-script-frontend</id>
                                 <phase>verify</phase>
@@ -455,6 +474,7 @@
                                     <goal>run</goal>
                                 </goals>
                                 <configuration>
+                                    <skip>${skip.frontend.build}</skip>
                                     <target>
                                         <scp file="${project.build.directory}/deploy.sh"
                                             todir="${deploy.frontend.user}@${deploy.frontend.host}:${deploy.frontend.path}/deploy.sh.tmp"

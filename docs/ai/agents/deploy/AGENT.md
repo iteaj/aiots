@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: 项目构建与发布部署代理。负责Maven多模块、前端vue3构建与远程自动部署。
+description: 项目构建与发布部署。负责Maven多模块、前端vue3构建与远程自动部署。
 ---
 
 # 构建部署代理
@@ -29,17 +29,15 @@ description: 项目构建与发布部署代理。负责Maven多模块、前端vu
 向用户完整说明将要执行的步骤，例如：
 ```
 1. git add + commit（如有未提交变更）
-2. mvnw clean verify -P deploy（构建 + SCP上传 + SSH远程部署）
-   - 后端编译所有模块
-   - 前端 npm run build 构建
-   - 打包 admin-ui.zip + 复制部署脚本
-   - SCP 上传运行包到后端/前端服务器
+2. mvnw clean verify -P deploy -pl bootstrap -am -Dskip.frontend.build=true -Dmaven.test.skip=true（仅后端构建 + SCP上传 + SSH远程部署）
+   - 只编译 bootstrap 及其依赖模块，不编译整个项目
+   - 跳过前端构建
+   - 跳过测试
+   - SCP 上传运行包到后端服务器
      - bootstrap.jar → 后端服务器
-     - admin-ui.zip → 前端服务器（Nginx）
      - deploy.sh → 后端服务器
    - SSH 执行远程部署
-     - 前端服务器：解压 admin-ui.zip 到 Nginx 目录
-     - 后端服务器：重启后端服务
+     - 重启后端服务
 ```
 
 ### 第四步：分步执行
@@ -56,27 +54,20 @@ description: 项目构建与发布部署代理。负责Maven多模块、前端vu
 <profile>
   <id>deploy</id>
   <properties>
-    <!-- 后端服务器 -->
-    <deploy.server.host>IP</deploy.server.host>
-    <deploy.server.user>root</deploy.server.user>
-    <deploy.server.password>密码</deploy.server.password>
-    <deploy.server.path>/opt/app</deploy.server.path>
-    <!-- 前端服务器（Nginx） -->
-    <deploy.frontend.host>IP</deploy.frontend.host>
-    <deploy.frontend.user>root</deploy.frontend.user>
-    <deploy.frontend.password>密码</deploy.frontend.password>
-    <deploy.frontend.path>/opt/nginx/html</deploy.frontend.path>
+    ...
   </properties>
 </profile>
 ```
 
 ## 发布指令
 
+> **原则**：所有发布命令统一使用 `-pl bootstrap -am`（只编译 bootstrap 及其依赖）和 `-Dmaven.test.skip=true`（跳过测试），避免全量编译耗时。
+
 | 场景 | 指令 |
 |------|------|
-| 全量发布（后端+前端→上传→部署） | `mvn clean verify -P deploy` |
-| 仅发布前端（构建→上传→解压，不重启后端） | `mvn clean verify -P deploy -Dskip.backend.deploy=true` |
-| 仅发布后端（跳过前端构建和上传） | `mvn clean verify -P deploy -Dskip.frontend.build=true` |
+| 全量发布（后端+前端→上传→部署） | `mvn clean verify -P deploy -pl bootstrap -am -Dmaven.test.skip=true` |
+| 仅发布前端（构建→上传→解压，不重启后端） | `mvn clean verify -P deploy -pl bootstrap -am -Dmaven.test.skip=true -Dskip.backend.deploy=true` |
+| 仅发布后端（跳过前端构建和上传） | `mvn clean verify -P deploy -pl bootstrap -am -Dmaven.test.skip=true -Dskip.frontend.build=true` |
 | 本地全量构建 | `mvn clean package -Dskip.frontend.build=true -Dmaven.test.skip=true` |
 | 本地仅构建后端 | `mvn clean package -pl bootstrap -am -Dskip.frontend.build=true -Dmaven.test.skip=true` |
 
