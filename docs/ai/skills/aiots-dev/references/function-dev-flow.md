@@ -14,10 +14,6 @@
 4. **根据模板生成代码**
    - 生成代码: 严格按模板[CRUD模板](#crud代码模板)
 
-5. **生成sql文件**
-   - 生成sql文件: 包括创建表sql和需要的菜单sql
-   - 将sql写到docs/sql/patch.sql文件中, 标上日期，方便后续回滚
-
 ## 业务模块和对应的接口列表
 - 项目: bootstrap
 - 模块包路径: com.iteaj.iboot.module

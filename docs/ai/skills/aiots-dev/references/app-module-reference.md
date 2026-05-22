@@ -32,5 +32,4 @@
 
 1. 移动端Controller命名规范:`AppXxxController`
 2. REST路径前缀:`/m/xxx`
-3. 详细开发规范见 [app-module-quick-ref.md](app-module-quick-ref.md)
-4. 移动端前端开发见 [app技能](../../../app/SKILL.md)
+3. 详细开发规范见 [app-module-quick-ref.md](./app-module-quick-ref.md)

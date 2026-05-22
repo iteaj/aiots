@@ -1,6 +1,6 @@
 ---
 name: app
-description: 移动端前端开发技能。用于uni-app x移动端页面开发(.uvue)、UTS脚本开发、TypeScript类型定义、API接口对接、数据模型定义。当需要开发移动端页面、编写移动端业务逻辑、定义请求参数和响应参数、对接移动端后端接口时使用此技能。与cool ui技能配合使用，本技能负责页面逻辑和数据，cool ui技能负责UI组件。
+description: 移动端前端开发技能。当AI需要开发uni-app x移动端页面(.uvue)、编写UTS脚本、定义TypeScript类型、对接后端接口时使用。
 role: App 端开发工程师
 ---
 
@@ -25,7 +25,7 @@ role: App 端开发工程师
 - [接口声明模板](./references/ApiTemplate.api.ts)
 
 ### 2.3 App模块后端速查
-- [App模块速查文档](./references/app-module-quick-ref.md) - 移动端后端接口规范、Controller模板、认证流程
+- [App模块速查文档](../aiots-dev/references/app-module-quick-ref.md) - 移动端后端接口规范、Controller模板、认证流程
 - [App模块接口清单](./references/app-module-reference.md) - App模块完整Controller清单
 - [移动端项目介绍](./references/app-intro.md) - 技术栈/目录结构/核心模块说明
 
