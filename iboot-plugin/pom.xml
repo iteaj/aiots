@@ -44,6 +44,8 @@
         <module>iboot-edge</module>
         <!--ai模块-->
         <module>iboot-ai</module>
+        <!--微信开发插件-->
+        <module>iboot-wechat</module>
     </modules>
 
     <dependencies>

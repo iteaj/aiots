@@ -19,8 +19,35 @@
 				}}</cl-text>
 			</view>
 
+			<!-- Tab 切换 -->
+			<view class="flex flex-row mb-6">
+				<view
+					class="flex-1 flex items-center justify-center pb-3"
+					:class="loginType == 'phone' ? 'tab-active' : ''"
+					@tap="loginType = 'phone'"
+				>
+					<cl-text
+						:size="15"
+						:pt="{ className: parseClass(['font-bold', loginType != 'phone' ? 'text-gray-400' : '']) }"
+					>{{ t("手机号登录") }}</cl-text>
+				</view>
+				<view
+					class="flex-1 flex items-center justify-center pb-3"
+					:class="loginType == 'account' ? 'tab-active' : ''"
+					@tap="loginType = 'account'"
+				>
+					<cl-text
+						:size="15"
+						:pt="{ className: parseClass(['font-bold', loginType != 'account' ? 'text-gray-400' : '']) }"
+					>{{ t("账号密码登录") }}</cl-text>
+				</view>
+			</view>
+
 			<!-- 手机号登录 -->
-			<login-phone :form="form" @success="toLogin"></login-phone>
+			<login-phone v-if="loginType == 'phone'" :form="form" @success="toLogin"></login-phone>
+
+			<!-- 账号密码登录 -->
+			<login-account v-if="loginType == 'account'" @success="toLogin"></login-account>
 
 			<!-- 微信登录 -->
 			<login-wx :ref="refs.set('loginWx')"></login-wx>
@@ -82,16 +109,20 @@
 
 <script setup lang="ts">
 import { config } from "@/config";
-import { isDark, parse, router, useRefs, useStore, type Token, t } from "@/.cool";
+import { isDark, parse, parseClass, router, useRefs, useStore, type Token, t } from "@/.cool";
 import { provide, reactive, ref } from "vue";
 import type { LoginForm } from "./types";
 import { useUi } from "@/uni_modules/cool-ui";
 import LoginPhone from "./components/login/phone.uvue";
+import LoginAccount from "./components/login/account.uvue";
 import LoginWx from "./components/login/wx.uvue";
 
 const { user } = useStore();
 const ui = useUi();
 const refs = useRefs();
+
+// 登录类型
+const loginType = ref<"phone" | "account">("phone");
 
 // 表单
 const form = reactive<LoginForm>({
@@ -135,5 +166,9 @@ provide("isAgree", isAgree);
 	&.is-dark {
 		@apply border-surface-600 bg-surface-700;
 	}
+}
+
+.tab-active {
+	border-bottom: 2px solid var(--cl-color-primary);
 }
 </style>

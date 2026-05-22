@@ -42,7 +42,7 @@ const isIgnoreToken = (url: string) => {
  * @param options 请求参数
  * @returns Promise<T>
  */
-export function request(options: RequestOptions): Promise<any | null> {
+export function request<T = any>(options: RequestOptions): Promise<T | null> {
 	let { url, method = "GET", data = {}, header = {}, timeout = 60000 } = options;
 
 	const { user } = useStore();
@@ -105,7 +105,7 @@ export function request(options: RequestOptions): Promise<any | null> {
 						if (res.data == null) {
 							resolve(null);
 						} else if (!isObject(res.data as any)) {
-							resolve(res.data);
+							resolve(res.data as T);
 						} else {
 							// 解析响应数据
 							const { code, message, data } = parse<Response>(

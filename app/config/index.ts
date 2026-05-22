@@ -6,7 +6,12 @@ import { prod } from "./prod";
 export const isDev = process.env.NODE_ENV == "development";
 
 // 忽略 token 校验的接口路径
-export const ignoreTokens: string[] = [];
+export const ignoreTokens: string[] = [
+	"/m/login",
+	"/core/login",
+	"/wechat/ma/login",
+	"/wechat/mp/bind"
+];
 
 // 根据环境导出最终配置
 export const config = {

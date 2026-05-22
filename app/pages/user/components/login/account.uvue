@@ -1,0 +1,105 @@
+<template>
+	<view class="flex flex-col mb-5">
+		<cl-text :size="18" :pt="{ className: 'font-bold' }">{{ t("您好，欢迎登录！") }}</cl-text>
+		<cl-text :pt="{ className: 'mt-2' }" color="info">{{
+			t("管理端用户可使用账号密码登录")
+		}}</cl-text>
+	</view>
+
+	<view class="flex flex-col">
+		<view class="mb-3 flex flex-row">
+			<cl-input
+				v-model="form.account"
+				prefix-icon="account-circle-fill"
+				:placeholder="t('请输入管理端账号')"
+				:border="false"
+				:pt="{
+					className: parseClass([
+						'!h-[45px] flex-1 !rounded-xl !px-4',
+						[isDark, '!bg-surface-70', '!bg-white']
+					]),
+					prefixIcon: {
+						className: 'mr-1'
+					}
+				}"
+			></cl-input>
+		</view>
+
+		<view class="mb-5 flex flex-row">
+			<cl-input
+				v-model="form.password"
+				type="password"
+				prefix-icon="lock-fill"
+				:placeholder="t('请输入密码')"
+				:border="false"
+				:pt="{
+					className: parseClass([
+						'!h-[45px] flex-1 !rounded-xl !px-4',
+						[isDark, '!bg-surface-70', '!bg-white']
+					]),
+					prefixIcon: {
+						className: 'mr-1'
+					}
+				}"
+			></cl-input>
+		</view>
+
+		<cl-button
+			:pt="{
+				className: '!h-[45px] !rounded-xl'
+			}"
+			:loading="loading"
+			:disabled="disabled"
+			@tap="toLogin"
+		>
+			{{ t("登录") }}
+		</cl-button>
+	</view>
+</template>
+
+<script setup lang="ts">
+import { computed, reactive, ref } from "vue";
+import type { AccountLoginForm } from "../../types";
+import { isDark, parseClass, request, type Response, t } from "@/.cool";
+import { useUi } from "@/uni_modules/cool-ui";
+
+const emit = defineEmits(["success"]);
+
+const { user } = useStore();
+const ui = useUi();
+
+// 表单
+const form = reactive<AccountLoginForm>({
+	account: "",
+	password: ""
+});
+
+// 是否加载中
+const loading = ref(false);
+
+// 是否禁用
+const disabled = computed(() => {
+	return form.account == "" || form.password == "";
+});
+
+// 登录
+async function toLogin() {
+	loading.value = true;
+
+	await request({
+		url: "/m/login",
+		method: "POST",
+		data: form
+	})
+		.then((res) => {
+			emit("success", res);
+		})
+		.catch((err) => {
+			ui.showToast({
+				message: (err as Response).message!
+			});
+		});
+
+	loading.value = false;
+}
+</script>
