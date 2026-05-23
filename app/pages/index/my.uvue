@@ -12,13 +12,14 @@
 					<cl-icon name="settings-line" :size="16"></cl-icon>
 				</view>
 
-				<view class="top-icon dark:!bg-surface-700" @tap="toTest">
+				<view class="top-icon dark:!bg-surface-700" @tap="toAlarm">
 					<cl-icon name="notification-4-line" :size="16"></cl-icon>
 				</view>
 			</view>
 		</cl-topbar>
 
 		<view class="p-3">
+			<!-- 用户信息 -->
 			<view class="flex flex-col justify-center items-center py-6">
 				<view class="relative overflow-visible" @tap="toEdit">
 					<cl-avatar
@@ -46,168 +47,122 @@
 				</view>
 			</view>
 
+			<!-- 设备统计 -->
 			<cl-row
 				:pt="{
 					className: 'pt-3 pb-6'
 				}"
 			>
 				<cl-col :span="6">
-					<view class="flex flex-col items-center justify-center">
-						<cl-rolling-number :size="18" :value="171"></cl-rolling-number>
+					<view class="flex flex-col items-center justify-center" @tap="toDevice">
+						<cl-rolling-number :size="18" :value="deviceCount.total"></cl-rolling-number>
 						<cl-text :size="12" :pt="{ className: 'mt-1' }" color="info">{{
-							t("总点击")
+							t("总设备")
 						}}</cl-text>
 					</view>
 				</cl-col>
 
 				<cl-col :span="6">
 					<view class="flex flex-col items-center justify-center">
-						<cl-rolling-number :size="18" :value="24"></cl-rolling-number>
-						<cl-text :size="12" :pt="{ className: 'mt-1' }" color="info">{{
-							t("赞")
+						<cl-rolling-number :size="18" :value="deviceCount.online"></cl-rolling-number>
+						<cl-text :size="12" :pt="{ className: 'mt-1' }" color="success">{{
+							t("在线")
 						}}</cl-text>
 					</view>
 				</cl-col>
 
 				<cl-col :span="6">
 					<view class="flex flex-col items-center justify-center">
-						<cl-rolling-number :size="18" :value="89"></cl-rolling-number>
-						<cl-text :size="12" :pt="{ className: 'mt-1' }" color="info">{{
-							t("收藏")
+						<cl-rolling-number :size="18" :value="deviceCount.alarm"></cl-rolling-number>
+						<cl-text :size="12" :pt="{ className: 'mt-1' }" color="danger">{{
+							t("告警")
 						}}</cl-text>
 					</view>
 				</cl-col>
 
 				<cl-col :span="6">
 					<view class="flex flex-col items-center justify-center">
-						<cl-rolling-number :size="18" :value="653"></cl-rolling-number>
+						<cl-rolling-number :size="18" :value="deviceCount.offline"></cl-rolling-number>
 						<cl-text :size="12" :pt="{ className: 'mt-1' }" color="info">{{
-							t("粉丝")
+							t("离线")
 						}}</cl-text>
 					</view>
 				</cl-col>
 			</cl-row>
 
-			<cl-row :gutter="20" :pt="{ className: 'mb-3' }">
-				<cl-col :span="12">
-					<view class="bg-white dark:!bg-surface-800 p-4 rounded-2xl flex flex-row">
-						<view class="flex flex-col mr-auto">
-							<cl-text
-								ellipsis
-								:pt="{
-									className: '!w-[90px]'
-								}"
-								>{{ t("接单模式") }}</cl-text
-							>
-							<cl-text :size="12" :pt="{ className: 'mt-1' }" color="info">{{
-								t("已关闭")
-							}}</cl-text>
-						</view>
-
-						<cl-switch></cl-switch>
-					</view>
-				</cl-col>
-
-				<cl-col :span="12">
-					<view class="bg-white dark:!bg-surface-800 p-4 rounded-2xl flex flex-row">
-						<view class="flex flex-col mr-auto">
-							<cl-text
-								ellipsis
-								:pt="{
-									className: '!w-[90px]'
-								}"
-								>{{ t("消息通知") }}</cl-text
-							>
-							<cl-text :size="12" :pt="{ className: 'mt-1' }" color="info">{{
-								t("已关闭")
-							}}</cl-text>
-						</view>
-
-						<cl-switch></cl-switch>
-					</view>
-				</cl-col>
-			</cl-row>
-
-			<view class="bg-white dark:!bg-surface-800 py-5 rounded-2xl mb-3 h-[80px]">
+			<!-- 快捷入口 -->
+			<view class="bg-white dark:!bg-surface-800 py-5 rounded-2xl mb-3">
 				<cl-row :pt="{ className: 'overflow-visible' }">
 					<cl-col :span="6">
-						<view class="flex flex-col justify-center items-center px-2">
-							<cl-icon name="money-cny-circle-line" :size="24"></cl-icon>
+						<view class="flex flex-col justify-center items-center px-2" @tap="toDevice">
+							<cl-icon name="computer-line" :size="24"></cl-icon>
 							<cl-text
 								:size="12"
 								:pt="{ className: 'mt-2 text-center' }"
 								color="info"
-								>{{ t("待支付") }}</cl-text
+								>{{ t("设备管理") }}</cl-text
 							>
 						</view>
 					</cl-col>
 
 					<cl-col :span="6">
-						<view class="flex flex-col justify-center items-center px-2">
-							<cl-icon name="box-1-line" :size="24"></cl-icon>
+						<view class="flex flex-col justify-center items-center px-2" @tap="toAlarm">
+							<cl-icon name="alarm-warning-line" :size="24"></cl-icon>
 							<cl-text
 								:size="12"
 								:pt="{ className: 'mt-2 text-center' }"
 								color="info"
-								>{{ t("未发货") }}</cl-text
+								>{{ t("告警记录") }}</cl-text
 							>
 						</view>
 					</cl-col>
 
 					<cl-col :span="6">
-						<view
-							class="flex flex-col justify-center items-center relative overflow-visible px-2"
-						>
-							<cl-icon name="flight-takeoff-line" :size="24"></cl-icon>
+						<view class="flex flex-col justify-center items-center px-2" @tap="toGroup">
+							<cl-icon name="layout-grid-line" :size="24"></cl-icon>
 							<cl-text
 								:size="12"
 								:pt="{ className: 'mt-2 text-center' }"
 								color="info"
-								>{{ t("已发货") }}</cl-text
+								>{{ t("设备分组") }}</cl-text
 							>
-
-							<cl-badge
-								type="primary"
-								:value="3"
-								position
-								:pt="{ className: '!right-6' }"
-							></cl-badge>
 						</view>
 					</cl-col>
 
 					<cl-col :span="6">
-						<view class="flex flex-col justify-center items-center px-2">
-							<cl-icon name="exchange-cny-line" :size="24"></cl-icon>
+						<view class="flex flex-col justify-center items-center px-2" @tap="toWechat">
+							<cl-icon name="wechat-line" :size="24" color="#00b223"></cl-icon>
 							<cl-text
 								:size="12"
 								:pt="{ className: 'mt-2 text-center' }"
 								color="info"
-								>{{ t("售后 / 退款") }}</cl-text
+								>{{ t("微信绑定") }}</cl-text
 							>
 						</view>
 					</cl-col>
 				</cl-row>
 			</view>
 
+			<!-- 功能列表 -->
 			<cl-list :pt="{ className: 'mb-3' }">
 				<cl-list-item
-					:label="t('我的钱包')"
-					icon="wallet-line"
+					:label="t('实时数据')"
+					icon="dashboard-line"
 					arrow
 					hoverable
 					@tap="toTest"
 				>
 				</cl-list-item>
 				<cl-list-item
-					:label="t('数据看板')"
-					icon="pie-chart-line"
+					:label="t('采集任务')"
+					icon="cloud-line"
 					arrow
 					hoverable
 					@tap="toTest"
 				>
 				</cl-list-item>
 				<cl-list-item
-					:label="t('历史记录')"
+					:label="t('历史数据')"
 					icon="history-line"
 					arrow
 					hoverable
@@ -215,8 +170,8 @@
 				>
 				</cl-list-item>
 				<cl-list-item
-					:label="t('邀请好友')"
-					icon="share-line"
+					:label="t('操作日志')"
+					icon="file-list-line"
 					arrow
 					hoverable
 					@tap="toTest"
@@ -224,6 +179,7 @@
 				</cl-list-item>
 			</cl-list>
 
+			<!-- 设置 -->
 			<cl-list>
 				<cl-list-item :label="t('设置')" icon="settings-line" arrow hoverable @tap="toSet">
 				</cl-list-item>
@@ -237,11 +193,20 @@
 
 <script setup lang="ts">
 import { router, userInfo, useStore, t } from "@/.cool";
+import { reactive } from "vue";
 import { useUi } from "@/uni_modules/cool-ui";
 import CustomTabbar from "./components/tabbar.uvue";
 
 const { user } = useStore();
 const ui = useUi();
+
+// 设备统计（后续对接接口）
+const deviceCount = reactive({
+	total: 0,
+	online: 0,
+	offline: 0,
+	alarm: 0
+});
 
 function toTest() {
 	ui.showToast({
@@ -255,6 +220,30 @@ function toSet() {
 
 function toEdit() {
 	router.to("/pages/user/edit");
+}
+
+function toDevice() {
+	ui.showToast({
+		message: t("开发中，敬请期待")
+	});
+}
+
+function toAlarm() {
+	ui.showToast({
+		message: t("开发中，敬请期待")
+	});
+}
+
+function toGroup() {
+	ui.showToast({
+		message: t("开发中，敬请期待")
+	});
+}
+
+function toWechat() {
+	ui.showToast({
+		message: t("开发中，敬请期待")
+	});
 }
 
 onReady(() => {

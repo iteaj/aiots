@@ -1,12 +1,14 @@
-package com.iteaj.iboot.plugin.wechat.mp;
+package com.iteaj.iboot.plugin.wechat.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityException;
 import com.iteaj.framework.security.SecurityToken;
 import com.iteaj.framework.security.SecurityUtil;
+import com.iteaj.iboot.plugin.wechat.mp.MpService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/wechat/mp/bind")
+@ConditionalOnProperty(prefix = "wechat.mp", name = "app-id")
 public class MpBindController extends BaseController {
 
     private final MpService mpService;

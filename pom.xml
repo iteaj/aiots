@@ -42,7 +42,7 @@
         <!--插件依赖版本-->
         <knife4j.version>4.5.0</knife4j.version>
         <SaToken.version>1.39.0</SaToken.version>
-        <weixin.java.version>4.6.0</weixin.java.version>
+        <weixin.java.version>4.8.0</weixin.java.version>
 
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>

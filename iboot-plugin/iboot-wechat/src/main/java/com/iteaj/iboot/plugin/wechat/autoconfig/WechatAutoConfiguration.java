@@ -4,16 +4,18 @@ import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.api.impl.WxMaServiceImpl;
 import cn.binarywang.wx.miniapp.config.WxMaConfig;
 import cn.binarywang.wx.miniapp.config.impl.WxMaDefaultConfigImpl;
+import com.iteaj.framework.ProfilesInclude;
 import com.iteaj.framework.security.OrderFilterChainDefinition;
-import com.iteaj.iboot.plugin.wechat.config.WechatProperties;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.api.impl.WxMpServiceImpl;
 import me.chanjar.weixin.mp.config.WxMpConfigStorage;
 import me.chanjar.weixin.mp.config.impl.WxMpDefaultConfigImpl;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.mybatis.spring.annotation.MapperScan;
 
@@ -22,63 +24,75 @@ import org.mybatis.spring.annotation.MapperScan;
  * @author iteaj
  */
 @AutoConfiguration
+@ProfilesInclude("wechat")
 @ComponentScan({"com.iteaj.iboot.plugin.wechat"})
 @MapperScan({"com.iteaj.iboot.plugin.wechat.mapper"})
 @EnableConfigurationProperties(WechatProperties.class)
 public class WechatAutoConfiguration {
 
     /**
-     * 公众号配置存储
+     * 公众号配置存储和服务（只有在配置了 wechat.mp.app-id 时启用）
      */
-    @Bean
-    public WxMpConfigStorage wxMpConfigStorage(WechatProperties properties) {
-        WxMpDefaultConfigImpl config = new WxMpDefaultConfigImpl();
-        config.setAppId(properties.getMp().getAppId());
-        config.setSecret(properties.getMp().getAppSecret());
-        config.setToken(properties.getMp().getToken());
-        config.setAesKey(properties.getMp().getAesKey());
-        return config;
+    @Configuration
+    @ConditionalOnProperty(prefix = "wechat.mp", name = "app-id")
+    static class MpBeans {
+
+        @Bean
+        public WxMpConfigStorage wxMpConfigStorage(WechatProperties properties) {
+            WxMpDefaultConfigImpl config = new WxMpDefaultConfigImpl();
+            config.setAppId(properties.getMp().getAppId());
+            config.setSecret(properties.getMp().getAppSecret());
+            config.setToken(properties.getMp().getToken());
+            config.setAesKey(properties.getMp().getAesKey());
+            return config;
+        }
+
+        @Bean
+        public WxMpService wxMpService(WxMpConfigStorage configStorage) {
+            WxMpService wxMpService = new WxMpServiceImpl();
+            wxMpService.setWxMpConfigStorage(configStorage);
+            return wxMpService;
+        }
     }
 
     /**
-     * 公众号服务
+     * 小程序配置和服务（只有在配置了 wechat.ma.app-id 时启用）
      */
-    @Bean
-    public WxMpService wxMpService(WxMpConfigStorage configStorage) {
-        WxMpService wxMpService = new WxMpServiceImpl();
-        wxMpService.setWxMpConfigStorage(configStorage);
-        return wxMpService;
+    @Configuration
+    @ConditionalOnProperty(prefix = "wechat.ma", name = "app-id")
+    static class MaBeans {
+
+        @Bean
+        public WxMaConfig wxMaConfig(WechatProperties properties) {
+            WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl();
+            config.setAppid(properties.getMa().getAppId());
+            config.setSecret(properties.getMa().getAppSecret());
+            return config;
+        }
+
+        @Bean
+        public WxMaService wxMaService(WxMaConfig config) {
+            WxMaService wxMaService = new WxMaServiceImpl();
+            wxMaService.setWxMaConfig(config);
+            return wxMaService;
+        }
     }
 
     /**
-     * 小程序配置
-     */
-    @Bean
-    public WxMaConfig wxMaConfig(WechatProperties properties) {
-        WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl();
-        config.setAppid(properties.getMa().getAppId());
-        config.setSecret(properties.getMa().getAppSecret());
-        return config;
-    }
-
-    /**
-     * 小程序服务
-     */
-    @Bean
-    public WxMaService wxMaService(WxMaConfig config) {
-        WxMaService wxMaService = new WxMaServiceImpl();
-        wxMaService.setWxMaConfig(config);
-        return wxMaService;
-    }
-
-    /**
-     * 微信开放接口无需认证（授权回调、消息推送、绑定页面）
+     * 微信开放接口无需认证（根据配置动态添加路径）
      */
     @Bean
     @Order(value = 15)
-    public OrderFilterChainDefinition wechatFilterChainDefinition() {
-        return new OrderFilterChainDefinition()
-                .addAnon("/wechat/mp/callback", "/wechat/mp/webhook", "/wechat/mp/bind/**"
-                        , "/wechat/ma/**", "/m/login");
+    public OrderFilterChainDefinition wechatFilterChainDefinition(
+            WechatProperties properties) {
+        OrderFilterChainDefinition def = new OrderFilterChainDefinition();
+
+        if (properties.getMp().getAppId() != null) {
+            def.addAnon("/wechat/mp/callback", "/wechat/mp/webhook", "/wechat/mp/bind/**");
+        }
+        if (properties.getMa().getAppId() != null) {
+            def.addAnon("/wechat/ma/**");
+        }
+        return def;
     }
 }

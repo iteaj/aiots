@@ -1,4 +1,4 @@
-package com.iteaj.iboot.plugin.wechat.config;
+package com.iteaj.iboot.plugin.wechat.autoconfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import lombok.Data;

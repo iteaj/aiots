@@ -1,11 +1,13 @@
-package com.iteaj.iboot.plugin.wechat.mp;
+package com.iteaj.iboot.plugin.wechat.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
-import com.iteaj.iboot.plugin.wechat.config.WechatProperties;
+import com.iteaj.iboot.plugin.wechat.autoconfig.WechatProperties;
 import com.iteaj.iboot.plugin.wechat.entity.WechatUser;
+import com.iteaj.iboot.plugin.wechat.mp.MpService;
 import jakarta.servlet.http.HttpServletResponse;
 import me.chanjar.weixin.common.error.WxErrorException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -18,6 +20,7 @@ import java.nio.charset.StandardCharsets;
  */
 @RestController
 @RequestMapping("/wechat/mp")
+@ConditionalOnProperty(prefix = "wechat.mp", name = "app-id")
 public class MpController extends BaseController {
 
     private final MpService mpService;

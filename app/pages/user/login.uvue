@@ -98,10 +98,6 @@
 				>
 					<cl-icon name="wechat-fill" :size="18" color="#00b223"></cl-icon>
 				</view>
-
-				<view class="login-item" :class="{ 'is-dark': isDark }">
-					<cl-icon name="apple-fill" :size="18"></cl-icon>
-				</view>
 			</view>
 		</view>
 	</cl-page>
@@ -136,7 +132,7 @@ const agree = ref(false);
 // 登录成功
 async function toLogin(res: any) {
 	user.setToken(parse<Token>(res)!);
-	user.get();
+	await user.get();
 	router.nextLogin();
 }
 

@@ -253,10 +253,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-wechat</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -267,6 +273,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.iteaj.iboot.boot.IBootApplication</mainClass>
+
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

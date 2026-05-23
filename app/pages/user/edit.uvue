@@ -164,10 +164,10 @@ const genderText = computed(() => {
 function onGenderChange(val: number) {
 	user.update({
 		gender: val
-	});
-
-	ui.showToast({
-		message: t("性别设置成功")
+	}).then(() => {
+		ui.showToast({
+			message: t("性别设置成功")
+		});
 	});
 }
 
@@ -175,11 +175,11 @@ function onGenderChange(val: number) {
 function onBirthdayChange(val: string) {
 	user.update({
 		birthday: val
-	});
-
-	ui.showToast({
-		message: t("生日设置成功")
-	});
+	}).then(() => {
+		ui.showToast({
+			message: t("生日设置成功")
+		});
+	})
 }
 
 // 地区选项
@@ -198,10 +198,10 @@ function onRegionChange(arr: string[]) {
 		province: arr[0],
 		city: arr[1],
 		district: arr[2]
-	});
-
-	ui.showToast({
-		message: t("地区设置成功")
+	}).then(() => {
+		ui.showToast({
+			message: t("地区设置成功")
+		});
 	});
 }
 

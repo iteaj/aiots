@@ -45,7 +45,7 @@ export class User {
 	async get() {
 		if (this.token != null) {
 			await request({
-				url: "/app/user/info/person"
+				url: "/m/user/info/person"
 			})
 				.then((res) => {
 					if (res != null) {
@@ -90,7 +90,7 @@ export class User {
 
 		// 同步到服务端
 		await request({
-			url: "/app/user/info/updatePerson",
+			url: "/m/user/info/updatePerson",
 			method: "POST",
 			data
 		});

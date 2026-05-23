@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.iboot.plugin.wechat.entity.WechatUser;
 import com.iteaj.iboot.plugin.wechat.service.IWechatUserService;
 import me.chanjar.weixin.common.error.WxErrorException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
  * @author iteaj
  */
 @Service
+@ConditionalOnProperty(prefix = "wechat.ma", name = "app-id")
 public class MaService {
 
     private final WxMaService wxMaService;

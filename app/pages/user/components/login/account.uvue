@@ -65,7 +65,6 @@ import { useUi } from "@/uni_modules/cool-ui";
 
 const emit = defineEmits(["success"]);
 
-const { user } = useStore();
 const ui = useUi();
 
 // 表单

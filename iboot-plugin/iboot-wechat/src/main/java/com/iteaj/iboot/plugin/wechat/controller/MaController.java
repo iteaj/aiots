@@ -1,9 +1,11 @@
-package com.iteaj.iboot.plugin.wechat.ma;
+package com.iteaj.iboot.plugin.wechat.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.plugin.wechat.entity.WechatUser;
+import com.iteaj.iboot.plugin.wechat.ma.MaService;
 import me.chanjar.weixin.common.error.WxErrorException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/wechat/ma")
+@ConditionalOnProperty(prefix = "wechat.ma", name = "app-id")
 public class MaController extends BaseController {
 
     private final MaService maService;

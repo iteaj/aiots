@@ -1,1 +1,10 @@
-{}
+{
+  "agents": {
+    "deploy": {
+      "description": "部署代理。负责将代码部署到服务器。"
+    },
+    "test": {
+      "description": "全功能自动化测试代理。负责后端(Spring Boot API)、移动端(H5)、管理端(Vue3)的编译验证、服务健康检查和接口回归测试。"
+    }
+  }
+}

@@ -1,10 +1,10 @@
-package com.iteaj.iboot.plugin.wechat.app;
+package com.iteaj.iboot.module.app.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.result.Result;
 import com.iteaj.framework.Entity;
+import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.AuthenticationService;
 import com.iteaj.framework.security.SecurityException;
 import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
@@ -58,7 +58,7 @@ public class AppLoginController extends BaseController {
                 return fail("密码不匹配");
             }
 
-            StpUtil.login(((Entity<Long>) user).getId());
+            StpUtil.login(((Entity<Long>) user).getId(), "app");
 
             String tokenValue = StpUtil.getTokenValue();
             long tokenTimeout = StpUtil.getTokenTimeout();

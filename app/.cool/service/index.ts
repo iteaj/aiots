@@ -80,57 +80,59 @@ export function request<T = any>(options: RequestOptions): Promise<T | null> {
 				timeout,
 
 				success(res) {
-					// 401 无权限
+					// 401 无权限 - 需要退出登录
 					if (res.statusCode == 401) {
 						user.logout();
+						uni.showToast({ title: t("无权限"), icon: "none" });
 						reject({ message: t("无权限") } as Response);
 					}
 
 					// 502 服务异常
 					else if (res.statusCode == 502) {
-						reject({
-							message: t("服务异常")
-						} as Response);
+						uni.showToast({ title: t("服务异常"), icon: "none" });
+						reject({ message: t("服务异常") } as Response);
 					}
 
 					// 404 未找到
 					else if (res.statusCode == 404) {
-						return reject({
-							message: `[404] ${url}`
-						} as Response);
+						uni.showToast({ title: `[404] ${url}`, icon: "none" });
+						return reject({ message: `[404] ${url}` } as Response);
 					}
 
-					// 200 正常响应
-					else if (res.statusCode == 200) {
-						if (res.data == null) {
-							resolve(null);
-						} else if (!isObject(res.data as any)) {
-							resolve(res.data as T);
-						} else {
-							// 解析响应数据
-							const { code, message, data } = parse<Response>(
-								res.data ?? { code: 0 }
-							)!;
+					// 优先解析body中的业务状态码（不依赖HTTP状态码）
+					if (res.statusCode == 200 && res.data != null && isObject(res.data as any)) {
+						const { code, message, data } = parse<Response>(
+							res.data ?? { code: 0 }
+						)!;
 
-							switch (code) {
-								case 1000:
-									resolve(data);
-									break;
-								default:
-									reject({ message, code } as Response);
-									break;
-							}
+						switch (code) {
+							case 1000:
+							case 200:
+								resolve(data);
+								break;
+							default:
+								uni.showToast({ title: message || t("服务异常"), icon: "none" });
+								reject({ message, code } as Response);
+								break;
 						}
+						return;
+					}
+
+					// body为null或非对象类型（纯文本等）
+					if (res.statusCode == 200) {
+						resolve(res.data as T);
 					} else {
+						uni.showToast({ title: t("服务异常"), icon: "none" });
 						reject({ message: t("服务异常") } as Response);
 					}
 				},
 
 				// 网络请求失败
 				fail(err) {
+					uni.showToast({ title: err.errMsg, icon: "none" });
 					reject({ message: err.errMsg } as Response);
 				}
-			});
+				});
 		};
 
 		// 非刷新token接口才进行token有效性校验
