@@ -1,9 +1,16 @@
 {
   "mcpServers": {
     "idea": {
-      "type": "streamable-http",
-      "url": "http://127.0.0.1:64342/stream",
-      "headers": {}
+      "type": "stdio",
+      "env": {
+        "IJ_MCP_SERVER_PORT": "64342"
+      },
+      "command": "D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\jbr\\bin\\java",
+      "args": [
+        "-classpath",
+        "D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\mcpserver\\lib\\mcpserver-frontend.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\util-8.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\intellij.libraries.kotlinx.coroutines.core.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\intellij.libraries.ktor.client.cio.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\intellij.libraries.ktor.client.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\intellij.libraries.ktor.network.tls.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\intellij.libraries.ktor.io.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\intellij.libraries.ktor.utils.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\intellij.libraries.kotlinx.io.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\intellij.libraries.kotlinx.serialization.core.jar;D:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\lib\\intellij.libraries.kotlinx.serialization.json.jar",
+        "com.intellij.mcpserver.stdio.McpStdioRunnerKt"
+      ]
     },
     "uni-app-x": {
       "command": "npx",

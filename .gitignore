@@ -9,9 +9,9 @@ admin-ui/node_modules/
 admin-ui/unpackage/
 admin-ui/dist/
 # Temp files
-temp/
+tmp/
 *.timestamp-*.mjs
-
+.playwright-cli
 # Log files
 npm-debug.log*
 
