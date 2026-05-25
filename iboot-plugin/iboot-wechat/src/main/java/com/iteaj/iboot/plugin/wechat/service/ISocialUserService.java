@@ -1,6 +1,6 @@
 package com.iteaj.iboot.plugin.wechat.service;
 
-import com.iteaj.iboot.plugin.wechat.entity.WechatUser;
+import com.iteaj.iboot.plugin.wechat.entity.SocialUser;
 import com.iteaj.framework.IBaseService;
 
 /**
@@ -8,6 +8,6 @@ import com.iteaj.framework.IBaseService;
  * @author iteaj
  * @since 2026-05-22
  */
-public interface IWechatUserService extends IBaseService<WechatUser> {
+public interface ISocialUserService extends IBaseService<SocialUser> {
 
 }

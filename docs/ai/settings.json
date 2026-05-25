@@ -1,12 +1,4 @@
 {
-  "agents": {
-    "deploy": {
-      "description": "部署代理。负责将代码部署到服务器。"
-    },
-    "test": {
-      "description": "全功能自动化测试代理。负责后端(Spring Boot API)、移动端(H5)、管理端(Vue3)的编译验证、服务健康检查和接口回归测试。"
-    }
-  },
   "permissions": {
     "allow": [
       "Read",
@@ -16,6 +8,8 @@
       "Bash(npm *)",
       "Bash(git *)",
       "Bash(mvn *)",
+      "Bash(mvnw *)",
+      "Bash(curl *)",
       "mcp__idea__build_project",
       "mcp__idea__create_new_file",
       "mcp__idea__execute_run_configuration",
@@ -59,6 +53,13 @@
       "mcp__idea__xdebug_set_breakpoint",
       "mcp__idea__xdebug_set_variable",
       "mcp__idea__xdebug_start_debugger_session"
+    ],
+    "ask": [
+      "Bash(git rm:*)",
+      "Bash(git clean:*)",
+      "Bash(git branch -D:*)",
+      "Bash(git push --delete:*)",
+      "Bash(git push origin :*)"
     ]
   }
 }

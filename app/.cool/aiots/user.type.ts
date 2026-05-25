@@ -45,22 +45,20 @@ export interface MpBindParam {
 }
 
 /**
- * 微信用户信息
+ * 第三方社交用户信息
  */
-export interface WechatUserInfo {
+export interface SocialUserInfo {
   /** 主键 */
   id: number;
-  /** 应用类型：1-公众号 2-小程序 */
-  userType: number;
-  /** 微信openId */
+  /** 平台标识 */
+  platform: string;
+  /** 平台用户唯一标识 */
   openId: string;
-  /** 微信unionId */
+  /** 平台统一标识 */
   unionId?: string;
   /** 关联系统用户ID */
   systemUserId?: number;
-  /** 用户类别：1-管理端 2-会员端 */
-  userCategory?: number;
-  /** 微信昵称 */
+  /** 昵称 */
   nickname?: string;
   /** 头像 */
   avatar?: string;

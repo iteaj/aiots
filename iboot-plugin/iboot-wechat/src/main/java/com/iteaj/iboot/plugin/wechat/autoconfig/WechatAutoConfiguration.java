@@ -83,15 +83,14 @@ public class WechatAutoConfiguration {
      */
     @Bean
     @Order(value = 15)
-    public OrderFilterChainDefinition wechatFilterChainDefinition(
-            WechatProperties properties) {
+    public OrderFilterChainDefinition wechatFilterChainDefinition(WechatProperties properties) {
         OrderFilterChainDefinition def = new OrderFilterChainDefinition();
 
         if (properties.getMp().getAppId() != null) {
-            def.addAnon("/wechat/mp/callback", "/wechat/mp/webhook", "/wechat/mp/bind/**");
+            def.addAnon("/wx/mp/callback", "/wx/mp/webhook", "/wx/mp/bind/**");
         }
         if (properties.getMa().getAppId() != null) {
-            def.addAnon("/wechat/ma/**");
+            def.addAnon("/wx/ma/**");
         }
         return def;
     }

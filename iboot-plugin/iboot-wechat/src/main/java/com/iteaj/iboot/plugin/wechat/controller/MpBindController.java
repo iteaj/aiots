@@ -21,7 +21,7 @@ import java.util.Map;
  * @author iteaj
  */
 @RestController
-@RequestMapping("/wechat/mp/bind")
+@RequestMapping("/wx/mp/bind")
 @ConditionalOnProperty(prefix = "wechat.mp", name = "app-id")
 public class MpBindController extends BaseController {
 

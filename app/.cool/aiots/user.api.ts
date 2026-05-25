@@ -27,7 +27,7 @@ export const UserApi = {
    */
   maLogin(params: WechatMaLoginParam): Promise<any> {
     return request({
-      url: "/wechat/ma/login",
+      url: "/wx/ma/login",
       method: "POST",
       data: params
     });
@@ -40,7 +40,7 @@ export const UserApi = {
    */
   bindMp(data: MpBindParam): Promise<any> {
     return request({
-      url: "/wechat/mp/bind",
+      url: "/wx/mp/bind",
       method: "POST",
       data
     });

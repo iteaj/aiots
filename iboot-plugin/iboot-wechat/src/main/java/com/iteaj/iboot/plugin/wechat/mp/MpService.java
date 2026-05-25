@@ -1,8 +1,8 @@
 package com.iteaj.iboot.plugin.wechat.mp;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.iteaj.iboot.plugin.wechat.entity.WechatUser;
-import com.iteaj.iboot.plugin.wechat.service.IWechatUserService;
+import com.iteaj.iboot.plugin.wechat.entity.SocialUser;
+import com.iteaj.iboot.plugin.wechat.service.ISocialUserService;
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
@@ -20,11 +20,11 @@ import org.springframework.stereotype.Service;
 public class MpService {
 
     private final WxMpService wxMpService;
-    private final IWechatUserService wechatUserService;
+    private final ISocialUserService socialUserService;
 
-    public MpService(WxMpService wxMpService, IWechatUserService wechatUserService) {
+    public MpService(WxMpService wxMpService, ISocialUserService socialUserService) {
         this.wxMpService = wxMpService;
-        this.wechatUserService = wechatUserService;
+        this.socialUserService = socialUserService;
     }
 
     /**
@@ -46,34 +46,34 @@ public class MpService {
      * @param code 授权码
      * @return 微信用户
      */
-    public WechatUser handleCallback(String code) throws WxErrorException {
+    public SocialUser handleCallback(String code) throws WxErrorException {
         WxOAuth2AccessToken token = wxMpService.getOAuth2Service().getAccessToken(code);
         WxOAuth2UserInfo userInfo = wxMpService.getOAuth2Service().getUserInfo(token, null);
 
         // 查询或创建微信用户绑定
-        WechatUser wechatUser = wechatUserService.getOne(
-                Wrappers.<WechatUser>lambdaQuery()
-                        .eq(WechatUser::getUserType, 1)
-                        .eq(WechatUser::getOpenId, userInfo.getOpenid())
+        SocialUser socialUser = socialUserService.getOne(
+                Wrappers.<SocialUser>lambdaQuery()
+                        .eq(SocialUser::getPlatform, "WECHAT_MP")
+                        .eq(SocialUser::getOpenId, userInfo.getOpenid())
         ).getData();
 
-        if (wechatUser != null) {
-            wechatUser.setNickname(userInfo.getNickname())
+        if (socialUser != null) {
+            socialUser.setNickname(userInfo.getNickname())
                     .setAvatar(userInfo.getHeadImgUrl())
                     .setGender(userInfo.getSex());
-            wechatUserService.updateById(wechatUser);
+            socialUserService.updateById(socialUser);
         } else {
-            wechatUser = new WechatUser();
-            wechatUser.setUserType(1)
+            socialUser = new SocialUser();
+            socialUser.setPlatform("WECHAT_MP")
                     .setOpenId(userInfo.getOpenid())
                     .setUnionId(userInfo.getUnionId())
                     .setNickname(userInfo.getNickname())
                     .setAvatar(userInfo.getHeadImgUrl())
                     .setGender(userInfo.getSex());
-            wechatUserService.save(wechatUser);
+            socialUserService.save(socialUser);
         }
 
-        return wechatUser;
+        return socialUser;
     }
 
     /**
@@ -82,12 +82,11 @@ public class MpService {
      * @param systemUserId 系统用户ID
      */
     public void bindSystemUser(String openId, Long systemUserId) {
-        wechatUserService.update(
-                Wrappers.<WechatUser>lambdaUpdate()
-                        .eq(WechatUser::getUserType, 1)
-                        .eq(WechatUser::getOpenId, openId)
-                        .set(WechatUser::getSystemUserId, systemUserId)
-                        .set(WechatUser::getUserCategory, 1)
+        socialUserService.update(
+                Wrappers.<SocialUser>lambdaUpdate()
+                        .eq(SocialUser::getPlatform, "WECHAT_MP")
+                        .eq(SocialUser::getOpenId, openId)
+                        .set(SocialUser::getSystemUserId, systemUserId)
         );
     }
 

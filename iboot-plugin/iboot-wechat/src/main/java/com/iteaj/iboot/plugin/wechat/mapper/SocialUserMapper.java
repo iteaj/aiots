@@ -1,7 +1,7 @@
 package com.iteaj.iboot.plugin.wechat.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.iteaj.iboot.plugin.wechat.entity.WechatUser;
+import com.iteaj.iboot.plugin.wechat.entity.SocialUser;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -10,6 +10,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2026-05-22
  */
 @Mapper
-public interface WechatUserMapper extends BaseMapper<WechatUser> {
+public interface SocialUserMapper extends BaseMapper<SocialUser> {
 
 }

@@ -1,5 +1,7 @@
 package com.iteaj.iboot.plugin.wechat.autoconfig;
 
+import cn.hutool.core.util.StrUtil;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import lombok.Data;
 
@@ -9,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @ConfigurationProperties(prefix = "wechat")
-public class WechatProperties {
+public class WechatProperties implements InitializingBean {
 
     /**
      * 公众号配置
@@ -35,6 +37,17 @@ public class WechatProperties {
         private String bindPageUrl;
         /** 绑定成功后跳转URL */
         private String successPageUrl;
+    }
+
+    /**
+     * 校验配置：至少需要配置小程序或公众号的appId
+     */
+    @Override
+    public void afterPropertiesSet() {
+        if (StrUtil.isBlank(mp.appId) && StrUtil.isBlank(ma.appId)) {
+            throw new IllegalStateException(
+                    "微信开发配置缺失：请配置 wechat.mp.app-id（公众号）或 wechat.ma.app-id（小程序）");
+        }
     }
 
     @Data

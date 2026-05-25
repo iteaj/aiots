@@ -176,7 +176,7 @@ export class Wx {
 				lang: "zh_CN",
 				desc: t("授权信息仅用于用户登录"),
 				success: ({ iv, encryptedData, signature, rawData }) => {
-					const next = () => {
+					this.getCode().then(() => {
 						resolve({
 							iv,
 							encryptedData,
@@ -184,18 +184,6 @@ export class Wx {
 							rawData,
 							code: this.code.value
 						});
-					};
-
-					// 检查登录状态是否过期
-					uni.checkSession({
-						success: () => {
-							next();
-						},
-						fail: () => {
-							this.getCode().then(() => {
-								next();
-							});
-						}
 					});
 				},
 				fail: (err) => {

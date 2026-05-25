@@ -57,6 +57,40 @@
 			</view>
 		</view>
 	</cl-popup>
+
+	<!-- 管理端绑定弹窗 -->
+	<cl-popup
+		v-model="bindVisible"
+		direction="center"
+		:title="t('绑定管理端账号')"
+		size="80%"
+	>
+		<view class="p-4 pt-0">
+			<cl-text color="info">{{ t("请绑定管理端账号以完成登录") }}</cl-text>
+
+			<cl-input
+				v-model="bindForm.account"
+				:placeholder="t('请输入账号')"
+				class="mt-3"
+			></cl-input>
+
+			<cl-input
+				v-model="bindForm.password"
+				type="password"
+				:placeholder="t('请输入密码')"
+				class="mt-3"
+			></cl-input>
+
+			<view class="flex flex-row mt-4">
+				<cl-button size="large" text border type="light" fluid @tap="bindVisible = false">{{
+					t("取消")
+				}}</cl-button>
+				<cl-button size="large" fluid :loading="bindLoading" @tap="bindSave">{{
+					t("绑定")
+				}}</cl-button>
+			</view>
+		</view>
+	</cl-popup>
 </template>
 
 <script setup lang="ts">
@@ -87,10 +121,37 @@ const editVisible = ref(false);
 // 是否保存中
 const editLoading = ref(false);
 
+// 是否显示绑定弹窗
+const bindVisible = ref(false);
+
+// 是否绑定中
+const bindLoading = ref(false);
+
+// 待绑定的openId
+const bindOpenId = ref("");
+
+// 绑定表单
+type BindForm = {
+	account: string;
+	password: string;
+};
+const bindForm = reactive<BindForm>({
+	account: "",
+	password: ""
+});
+
 // 编辑表单
 type EditForm = {
 	avatarUrl: string;
 	nickName: string;
+};
+
+// 微信授权登录响应
+type WechatAuthVo = {
+	token?: string;
+	openId?: string;
+	nickname?: string;
+	avatar?: string;
 };
 const editForm = reactive<EditForm>({
 	avatarUrl: "",
@@ -154,6 +215,43 @@ async function editSave() {
 	editLoading.value = false;
 }
 
+// 绑定保存
+async function bindSave() {
+	if (bindForm.account == "") {
+		ui.showToast({ message: t("请输入账号") });
+		return;
+	}
+	if (bindForm.password == "") {
+		ui.showToast({ message: t("请输入密码") });
+		return;
+	}
+
+	bindLoading.value = true;
+
+	await request({
+		url: "/wx/ma/bind",
+		method: "POST",
+		data: {
+			openId: bindOpenId.value,
+			account: bindForm.account,
+			password: bindForm.password
+		}
+	})
+		.then(async (res) => {
+			user.setToken(parse<Token>(res)!);
+			await user.get();
+			bindVisible.value = false;
+			router.nextLogin();
+		})
+		.catch((err) => {
+			ui.showToast({
+				message: (err as Response).message!
+			});
+		});
+
+	bindLoading.value = false;
+}
+
 // 编辑选择头像
 function onEditChooseAvatar(e: UniEvent) {
 	// #ifdef MP-WEIXIN
@@ -173,24 +271,33 @@ async function miniLogin() {
 
 	await wx.miniLogin().then(async (data) => {
 		await request({
-			url: "/app/user/login/mini",
+			url: "/wx/ma/authorize",
 			method: "POST",
-			data
+			data: {
+				code: data.code,
+				iv: data.iv,
+				encryptedData: data.encryptedData,
+				userCategory: 1
+			}
 		})
 			.then(async (res) => {
-				// 设置token
-				user.setToken(parse<Token>(res)!);
+				const authVo = res as WechatAuthVo;
 
-				// 获取用户信息
-				await user.get();
+				if (authVo.token) {
+					// 已绑定/会员端：设置token并登录
+					user.setToken(parse<Token>(res)!);
+					await user.get();
 
-				// 是否首次注册，根据业务情况调整判断逻辑
-				if (userInfo.value?.nickName == "微信用户") {
-					// 打开编辑弹窗
-					editOpen();
+					if (userInfo.value?.nickName == "微信用户") {
+						editOpen();
+					} else {
+						router.nextLogin();
+					}
 				} else {
-					// 跳转首页
-					router.nextLogin();
+					// 管理端未绑定：记录openId并显示绑定弹窗
+					bindOpenId.value = authVo.openId;
+					ui.showToast({ title: t("请先绑定管理端账号") });
+					bindVisible.value = true;
 				}
 			})
 			.catch((err) => {

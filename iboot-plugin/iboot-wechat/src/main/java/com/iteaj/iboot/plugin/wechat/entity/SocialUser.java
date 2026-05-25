@@ -9,23 +9,23 @@ import lombok.experimental.Accessors;
 import java.util.Date;
 
 /**
- * 微信用户绑定
+ * 第三方社交用户绑定
  * @author iteaj
  * @since 2026-05-22
  */
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("wechat_user")
-public class WechatUser extends BaseEntity {
+@TableName("social_user")
+public class SocialUser extends BaseEntity {
 
-    /** 应用类型：1-公众号 2-小程序 */
-    private Integer userType;
+    /** 平台标识：WECHAT_MA-微信小程序 WECHAT_MP-微信公众号 ALIPAY-支付宝 */
+    private String platform;
 
-    /** 微信openId */
+    /** 平台用户唯一标识（微信openId等） */
     private String openId;
 
-    /** 微信unionId */
+    /** 平台统一标识 */
     private String unionId;
 
     /** 小程序sessionKey */
@@ -33,9 +33,6 @@ public class WechatUser extends BaseEntity {
 
     /** 关联系统用户ID */
     private Long systemUserId;
-
-    /** 用户类别：1-管理端 2-会员端 */
-    private Integer userCategory;
 
     /** 微信昵称 */
     private String nickname;

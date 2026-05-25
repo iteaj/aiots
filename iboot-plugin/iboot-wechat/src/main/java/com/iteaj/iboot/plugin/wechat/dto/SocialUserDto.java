@@ -1,6 +1,6 @@
 package com.iteaj.iboot.plugin.wechat.dto;
 
-import com.iteaj.iboot.plugin.wechat.entity.WechatUser;
+import com.iteaj.iboot.plugin.wechat.entity.SocialUser;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -15,7 +15,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class WechatUserDto extends WechatUser {
+public class SocialUserDto extends SocialUser {
 
     /** 开始时间 */
     private Date startTime;

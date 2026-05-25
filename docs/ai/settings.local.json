@@ -1,0 +1,13 @@
+{
+  "enabledMcpjsonServers": [
+    "idea"
+  ],
+  "permissions": {
+    "allow": [
+      "Bash(ls -la mvnw*)",
+      "Bash(which java *)",
+      "Bash(java -version)",
+      "Bash(ls .cc-connect/)"
+    ]
+  }
+}

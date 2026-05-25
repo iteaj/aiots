@@ -9,8 +9,10 @@ export const isDev = process.env.NODE_ENV == "development";
 export const ignoreTokens: string[] = [
 	"/m/login",
 	"/core/login",
-	"/wechat/ma/login",
-	"/wechat/mp/bind"
+	"/wx/ma/authorize",
+	"/wx/ma/login",
+	"/wx/ma/bind",
+	"/wx/mp/bind"
 ];
 
 // 根据环境导出最终配置

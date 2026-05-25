@@ -3,7 +3,7 @@ package com.iteaj.iboot.plugin.wechat.controller;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.plugin.wechat.autoconfig.WechatProperties;
-import com.iteaj.iboot.plugin.wechat.entity.WechatUser;
+import com.iteaj.iboot.plugin.wechat.entity.SocialUser;
 import com.iteaj.iboot.plugin.wechat.mp.MpService;
 import jakarta.servlet.http.HttpServletResponse;
 import me.chanjar.weixin.common.error.WxErrorException;
@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
  * @author iteaj
  */
 @RestController
-@RequestMapping("/wechat/mp")
+@RequestMapping("/wx/mp")
 @ConditionalOnProperty(prefix = "wechat.mp", name = "app-id")
 public class MpController extends BaseController {
 
@@ -53,12 +53,12 @@ public class MpController extends BaseController {
     @GetMapping("/callback")
     public void callback(String code, String state, HttpServletResponse response) throws IOException {
         try {
-            WechatUser wechatUser = mpService.handleCallback(code);
+            SocialUser socialUser = mpService.handleCallback(code);
 
             if (state != null && state.startsWith("bind_")) {
                 // 从管理端发起的绑定（state包含用户ID）
                 Long userId = Long.parseLong(state.substring(5));
-                mpService.bindSystemUser(wechatUser.getOpenId(), userId);
+                mpService.bindSystemUser(socialUser.getOpenId(), userId);
 
                 String successUrl = wechatProperties.getMp().getSuccessPageUrl();
                 if (successUrl != null && !successUrl.isEmpty()) {
@@ -72,7 +72,7 @@ public class MpController extends BaseController {
                 if (bindPageUrl != null && !bindPageUrl.isEmpty()) {
                     String redirectUrl = bindPageUrl
                             + (bindPageUrl.contains("?") ? "&" : "?")
-                            + "openId=" + URLEncoder.encode(wechatUser.getOpenId(), StandardCharsets.UTF_8);
+                            + "openId=" + URLEncoder.encode(socialUser.getOpenId(), StandardCharsets.UTF_8);
                     response.sendRedirect(redirectUrl);
                 } else {
                     response.getWriter().write("请配置 wechat.mp.bind-page-url");
