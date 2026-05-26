@@ -12,7 +12,7 @@ role: App 端开发工程师
 - 业务逻辑：根据页面草图和具体功能实现编写业务逻辑 (.uvue 的 script setup 部分)。
 - TypeScript 类型定义：根据后端接口声明定义请求参数、响应参数、分页参数等 ts 参数类型。
 - 后端接口对接：了解请求方法、请求参数、响应参数等；
-- 类型文件路径：什么类型的文件应该在哪个目录下 (参考第 3 章代码结构规范)。
+- 模块文件路径：URL 地址和类型定义合并为一个 {模块}.ts 放在页面目录下 (参考第 3 章代码结构规范)。
 - Cool UI 组件选型：什么功能选择什么组件，组件包含哪些属性、事件、样式、方法、插槽等。
 
 ## 2. 开发流程规范 [重要]
@@ -21,8 +21,7 @@ role: App 端开发工程师
 详细开发流程请参考：[移动端开发流程](./references/mobile-dev-flow.md)
 
 ### 2.2 代码模板
-- [类型声明模板](./references/TypeTemplat.type.ts)
-- [接口声明模板](./references/ApiTemplate.api.ts)
+- [模块模板](./references/ApiTemplate.api.ts)（`UserApi` 地址 + 类型定义合并为一个文件）
 
 ### 2.3 App模块后端速查
 - [App模块速查文档](../aiots-dev/references/app-module-quick-ref.md) - 移动端后端接口规范、Controller模板、认证流程
@@ -35,22 +34,24 @@ role: App 端开发工程师
 ```
 app/
 ├── .cool/
-│   ├── aiots/              # 类型声明和接口声明
-│   │   ├── xxx.type.ts     # 类型声明文件
-│   │   └── xxx.api.ts      # 接口声明文件
-│   ├── service/            # 服务层
-│   └── store/              # 状态管理
-├── pages/                  # 页面文件
-├── components/             # 自定义组件
-└── uni_modules/            # uni-app 插件模块
-    └── cool-ui/           # Cool UI 组件库
+│   ├── types/                # 全局共享类型
+│   ├── service/              # HTTP 请求封装
+│   └── store/                # 状态管理
+├── pages/                    # 业务页面（含 {模块}.ts）
+│   ├── user/
+│   │   ├── user.ts           # UserApi 地址 + 类型定义
+│   │   ├── login.uvue
+│   │   └── components/
+│   └── ...
+├── components/               # 公共组件
+└── uni_modules/              # uni-app 插件模块
+    └── cool-ui/              # Cool UI 组件库
 ```
 
 ### 3.2 命名规范
-- **类型声明文件**：`{功能名}.type.ts`
-- **接口声明文件**：`{功能名}.api.ts`
+- **模块文件**：`{模块名}.ts`，如 `user.ts`（URL 地址 + 类型定义合并）
 - **页面文件**：小写 + 连字符，如 `device-list.uvue`
-- **组件文件**：大驼峰命名，如 `DeviceCard.uvue`
+- **组件文件**：小写 + 连字符，如 `device-card.uvue`
 
 ## 4. Cool UI 组件库特别说明
 - UI 优先使用 cool-ui 组件库，在 cool-ui 组件库中没有的组件，再考虑 uni-app x 的内置组件。
@@ -70,20 +71,14 @@ app/
 - 移动端接口统一使用 `/m` 前缀
 - 示例：`/m/xxx/list`，`/m/xxx/page`
 
-### 6.1 类型声明检查
-- [ ] 类型文件路径正确（`app/.cool/aiots/xxx.type.ts`）
+### 6.1 模块文件检查
+- [ ] 文件路径正确（`app/pages/{模块}/{模块}.ts`）
+- [ ] `UserApi` 对象包含所有接口地址
 - [ ] 字段与后端实体类保持一致
 - [ ] 包含所有必要的类型（实体、请求参数、响应参数）
 - [ ] 使用 TypeScript 严格类型检查
 
-### 6.2 接口声明检查
-- [ ] 接口文件路径正确（`app/.cool/aiots/xxx.api.ts`）
-- [ ] 接口路径与后端一致
-- [ ] 请求方法与后端一致（GET、POST 等）
-- [ ] 参数类型定义正确
-- [ ] 返回值类型定义正确
-
-### 6.3 页面开发检查
+### 6.2 页面开发检查
 - [ ] 页面文件使用 `.uvue` 后缀
 - [ ] 页面已在 `pages.json` 中注册
 - [ ] 使用了合适的滚动容器

@@ -58,12 +58,15 @@ export function request<T = any>(options: RequestOptions): Promise<T | null> {
 	}
 
 	// 获取当前token
-	let Authorization: string | null = user.token;
+	let satoken: string | null = user.token;
 
 	// 如果是忽略token的接口，则不携带token
 	if (isIgnoreToken(url)) {
-		Authorization = null;
+		satoken = null;
 	}
+
+	// tokenName默认satoken
+	const tokenName = user.tokenName || "satoken";
 
 	return new Promise((resolve, reject) => {
 		// 发起请求的实际函数
@@ -73,7 +76,7 @@ export function request<T = any>(options: RequestOptions): Promise<T | null> {
 				method,
 				data,
 				header: {
-					Authorization,
+					[tokenName]: satoken,
 					language: locale.value,
 					...(header as UTSJSONObject)
 				},
@@ -137,7 +140,7 @@ export function request<T = any>(options: RequestOptions): Promise<T | null> {
 
 		// 非刷新token接口才进行token有效性校验
 		if (!options.url.includes("/refreshToken")) {
-			if (!isNull(Authorization)) {
+			if (!isNull(satoken)) {
 				// 判断token是否过期
 				if (storage.isExpired("token")) {
 					// 判断refreshToken是否过期
@@ -167,7 +170,7 @@ export function request<T = any>(options: RequestOptions): Promise<T | null> {
 					new Promise((resolve) => {
 						requests.push((token: string) => {
 							// 重新设置token
-							Authorization = token;
+							satoken = token;
 							next();
 							resolve(true);
 						});

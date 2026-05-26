@@ -9,6 +9,7 @@ export type Token = {
 	expire: number; // token过期时间（秒）
 	refreshToken: string; // 刷新token
 	refreshExpire: number; // 刷新token过期时间（秒）
+	tokenName: string; // token名称，用于请求头
 };
 
 export class User {
@@ -22,6 +23,11 @@ export class User {
 	 */
 	token: string | null = null;
 
+	/**
+	 * token名称，用于请求头，默认satoken
+	 */
+	tokenName: string = "satoken";
+
 	constructor() {
 		// 获取本地用户信息
 		const userInfo = storage.get("userInfo");
@@ -31,6 +37,12 @@ export class User {
 
 		// 如果token为空字符串则置为null
 		this.token = token == "" ? null : token;
+
+		// 获取本地tokenName
+		const tokenName = storage.get("tokenName") as string | null;
+		if (tokenName != null) {
+			this.tokenName = tokenName;
+		}
 
 		// 初始化用户信息
 		if (userInfo != null && isObject(userInfo)) {
@@ -119,7 +131,9 @@ export class User {
 		storage.remove("userInfo");
 		storage.remove("token");
 		storage.remove("refreshToken");
+		storage.remove("tokenName");
 		this.token = null;
+		this.tokenName = "satoken";
 		this.remove();
 	}
 
@@ -137,11 +151,14 @@ export class User {
 	 */
 	setToken(data: Token) {
 		this.token = data.token;
+		this.tokenName = data.tokenName;
 
 		// 访问token，提前5秒过期，防止边界问题
 		storage.set("token", data.token, data.expire - 5);
 		// 刷新token，提前5秒过期
 		storage.set("refreshToken", data.refreshToken, data.refreshExpire - 5);
+		// tokenName本地持久化（不过期）
+		storage.set("tokenName", data.tokenName, 0);
 	}
 
 	/**

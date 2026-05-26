@@ -18,7 +18,7 @@ WHERE config IS NULL OR JSON_EXTRACT(config, '$.calcScript') IS NULL OR JSON_EXT
 
 
 -- 2026-05-22 创建第三方社交用户绑定表
-CREATE TABLE `social_user` (
+CREATE TABLE `m_user` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `platform` varchar(20) NOT NULL COMMENT '平台标识：WECHAT_MA-微信小程序 WECHAT_MP-微信公众号 ALIPAY-支付宝',
   `open_id` varchar(100) NOT NULL COMMENT '平台用户唯一标识',
@@ -37,3 +37,6 @@ CREATE TABLE `social_user` (
   UNIQUE KEY `uk_platform_openid` (`platform`, `open_id`),
   KEY `idx_system_user` (`system_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='第三方社交用户绑定表';
+
+-- 2026-05-25 系统用户头像字段长度改为500
+ALTER TABLE sys_admin MODIFY COLUMN `avatar` varchar(500) DEFAULT '' COMMENT '头像路径';

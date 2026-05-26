@@ -70,7 +70,8 @@
 
 <script setup lang="ts">
 import { computed, inject, ref, type PropType } from "vue";
-import type { LoginForm } from "../../types";
+import type { LoginForm } from "../../user";
+import { UserApi } from "@/pages/user/user";
 import SmsBtn from "../sms-btn.uvue";
 import { isDark, parseClass, request, useRefs, type Response, t } from "@/.cool";
 import { useUi } from "@/uni_modules/cool-ui";
@@ -112,7 +113,7 @@ async function toLogin() {
 	loading.value = true;
 
 	await request({
-		url: "/app/user/login/phone",
+		url: UserApi.PHONE_LOGIN,
 		method: "POST",
 		data: {
 			phone,

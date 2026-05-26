@@ -107,7 +107,7 @@
 import { config } from "@/config";
 import { isDark, parse, parseClass, router, useRefs, useStore, type Token, t } from "@/.cool";
 import { provide, reactive, ref } from "vue";
-import type { LoginForm } from "./types";
+import type { LoginForm } from "./user";
 import { useUi } from "@/uni_modules/cool-ui";
 import LoginPhone from "./components/login/phone.uvue";
 import LoginAccount from "./components/login/account.uvue";

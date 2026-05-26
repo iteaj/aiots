@@ -58,6 +58,7 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from "vue";
 import { useUi } from "@/uni_modules/cool-ui";
+import { UserApi } from "@/pages/user/user";
 import { request, type Response, isDark, t, $t, parse } from "@/.cool";
 
 const props = defineProps({
@@ -144,7 +145,7 @@ async function getCaptcha() {
 	};
 
 	await request({
-		url: "/app/user/login/captcha",
+		url: UserApi.CAPTCHA,
 		data: {
 			color: isDark.value ? "#ffffff" : "#2c3142",
 			phone: props.phone,
@@ -177,7 +178,7 @@ async function send() {
 		captcha.sending = true;
 
 		await request({
-			url: "/app/user/login/smsCode",
+			url: UserApi.SMS_CODE,
 			method: "POST",
 			data: {
 				phone: props.phone,

@@ -4,7 +4,7 @@
 
 | 属性 | 说明 |
 |------|------|
-| **项目目录** | `d:/idea/business/iucy-ai/app` |
+| **项目目录** | `/app` |
 | **项目名称** | cool-unix |
 | **版本** | 8.1.0 |
 | **开发服务器端口** | 9900 |
@@ -43,7 +43,7 @@
 ```
 app/
 ├── .cool/              # Cool Unix 核心框架模块(勿随意修改)
-│   ├── aiots/          # aiots 物联网相关
+│   ├── types/          # 全局共享类型(UserInfo, UserCategory, Page<T> 等)
 │   ├── animation/      # 动画
 │   ├── ctx/            # 上下文
 │   ├── hooks/          # 组合式函数(pager、refs、cache、long-press 等)
@@ -55,7 +55,6 @@ app/
 │   ├── service/        # HTTP 请求封装
 │   ├── store/          # 状态管理(user、dict)
 │   ├── theme/          # 主题
-│   ├── types/          # 类型定义
 │   ├── upload/         # 文件上传
 │   └── utils/          # 工具函数
 ├── components/         # 公共页面组件
@@ -65,7 +64,7 @@ app/
 │   ├── prod.ts         # 生产环境配置
 │   └── proxy.ts        # 代理配置
 ├── locales/            # 国际化语言包
-├── pages/              # 业务页面
+├── pages/              # 业务页面（各功能下含 {模块}.ts）
 │   ├── index/          # 首页
 │   ├── user/           # 用户相关(登录、注册、个人资料等)
 │   ├── set/            # 设置
@@ -114,6 +113,20 @@ app/
 - 使用 uni-app x 原生路由，配合 Cool Unix 的 `router` 封装
 - `router.login()` 跳转登录页
 
+### AppSecurityUtil
+
+后端 `AppSecurityUtil` 为移动端用户登录安全工具类，提供功能：
+
+| 方法 | 说明 |
+|------|------|
+| `login(SocialUser)` | 登录，自动加 `APP:` 前缀隔离管理端ID |
+| `getLoginId()` | 获取当前登录用户ID（已去前缀） |
+| `isLogin()` | 判断当前是否已登录 |
+| `logout()` | 登出 |
+| `getTokenValue()` | 获取当前Token值 |
+| `getTokenTimeout()` | 获取Token过期时间 |
+| `getTokenName()` | 获取Token名称（用于前端请求头） |
+
 ### Hooks(hooks/)
 | Hook | 说明 |
 |------|------|
@@ -135,14 +148,25 @@ app/
 - **UI 组件**:优先使用 Cool UI 组件(`uni_modules/cool-ui`)，样式使用 TailwindCSS
 - **类型严格**:UTS 强类型，禁止隐式类型转换，所有参数需明确类型
 
+## 模块文件规范
+
+- **全局共享类型**放在 `app/.cool/types/` 下（如 `UserInfo`、`UserCategory`、`Page<T>`）
+- **功能模块文件**合并为一个 `{模块}.ts`，放在对应页面目录下
+  - 如 `app/pages/user/user.ts`（同时包含 `UserApi` 地址常量和类型定义）
+  - `UserApi` 对象导出所有接口地址，页面中通过 `request({ url: UserApi.xxx, ... })` 调用
+  - 类型定义直接导出，支持按需导入
+- **导入路径**统一使用 `@/` 别名，禁止使用 `../` 相对路径
+  - 导入类型：`import type { LoginForm } from "@/pages/user/user"`
+  - 导入地址：`import { UserApi } from "@/pages/user/user"`
+
 ---
 
 ## 接口规范
 
-- **移动端接口前缀**:`/app/`(对应后端 `com.iteaj.iboot.module.app.controller`)
-- **用户信息接口**:`GET /app/user/info/person`
-- **更新用户接口**:`POST /app/user/info/updatePerson`
-- **Token 刷新接口**:`POST /app/user/login/refreshToken`
+- **移动端接口前缀**:`/m/`(对应后端 `com.iteaj.iboot.module.app.controller`)
+- **用户信息接口**:`GET /m/user/info/person`
+- **更新用户接口**:`POST /m/user/info/updatePerson`
+- **Token 刷新接口**:`POST /m/user/login/refreshToken`
 
 ---
 

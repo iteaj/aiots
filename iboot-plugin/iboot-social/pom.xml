@@ -15,6 +15,7 @@
     <description>社交登录插件（微信、支付宝、头条等第三方登录）</description>
 
     <modules>
+        <module>social-core</module>
         <module>iboot-wechat</module>
     </modules>
 </project>

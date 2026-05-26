@@ -1,7 +1,9 @@
 package com.iteaj.framework.security;
 
+import cn.hutool.crypto.SecureUtil;
 import com.iteaj.framework.Entity;
 import com.iteaj.framework.consts.CoreConst;
+import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
 import eu.bitwalker.useragentutils.UserAgent;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class SecurityUtil {
@@ -215,5 +218,27 @@ public class SecurityUtil {
      */
     public static boolean isCurrentUser(Object sessionId) {
         return securityService.isCurrentUser(sessionId);
+    }
+
+    /**
+     * 校验密码是否匹配
+     * @param rawPassword 明文密码
+     * @param encodedPassword 已加密的密码（数据库中存储的）
+     * @return true 如果匹配
+     */
+    public static boolean verifyPassword(String rawPassword, String encodedPassword) {
+        return Objects.equals(SecureUtil.md5(rawPassword), encodedPassword);
+    }
+
+    /**
+     * 校验密码，不匹配则抛出异常
+     * @param user 用户认证信息
+     * @param rawPassword 明文密码
+     * @throws SecurityException 密码不匹配时抛出
+     */
+    public static void checkPassword(AuthenticationUser user, String rawPassword) throws SecurityException {
+        if (!verifyPassword(rawPassword, user.getPassword())) {
+            throw new SecurityException("密码不匹配");
+        }
     }
 }

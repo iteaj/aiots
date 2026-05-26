@@ -11,7 +11,7 @@
 			<cl-input
 				v-model="form.account"
 				prefix-icon="account-circle-fill"
-				:placeholder="t('请输入管理端账号')"
+				:placeholder="t('请输入账号')"
 				:border="false"
 				:pt="{
 					className: parseClass([
@@ -59,7 +59,8 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
-import type { AccountLoginForm } from "../../types";
+import type { AccountLoginForm } from "../../user";
+import { UserApi } from "@/pages/user/user";
 import { isDark, parseClass, request, type Response, t } from "@/.cool";
 import { useUi } from "@/uni_modules/cool-ui";
 
@@ -86,7 +87,7 @@ async function toLogin() {
 	loading.value = true;
 
 	await request({
-		url: "/m/login",
+		url: UserApi.ACCOUNT_LOGIN,
 		method: "POST",
 		data: form
 	})

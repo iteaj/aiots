@@ -1,0 +1,217 @@
+<template>
+	<cl-page>
+		<cl-topbar
+			fixed
+			:height="44"
+			:show-back="false"
+			safe-area-top
+			background-color="transparent"
+		>
+			<view class="flex flex-row items-center w-full flex-1 px-3">
+				<cl-text :size="18" :pt="{ className: 'font-bold' }">{{
+					t("设备")
+				}}</cl-text>
+			</view>
+		</cl-topbar>
+
+		<view class="p-3">
+			<!-- 设备统计 -->
+			<view class="bg-white dark:!bg-surface-800 rounded-2xl p-4 mb-3">
+				<cl-row>
+					<cl-col :span="6">
+						<view class="flex flex-col items-center justify-center">
+							<cl-text
+								:size="20"
+								:pt="{ className: 'font-bold' }"
+								color="primary"
+								>{{ deviceCount.total }}</cl-text
+							>
+							<cl-text
+								:size="12"
+								:pt="{ className: 'mt-1' }"
+								color="info"
+								>{{ t("设备总数") }}</cl-text
+							>
+						</view>
+					</cl-col>
+
+					<cl-col :span="6">
+						<view class="flex flex-col items-center justify-center">
+							<cl-text
+								:size="20"
+								:pt="{ className: 'font-bold' }"
+								color="success"
+								>{{ deviceCount.online }}</cl-text
+							>
+							<cl-text
+								:size="12"
+								:pt="{ className: 'mt-1' }"
+								color="success"
+								>{{ t("在线设备") }}</cl-text
+							>
+						</view>
+					</cl-col>
+
+					<cl-col :span="6">
+						<view class="flex flex-col items-center justify-center">
+							<cl-text
+								:size="20"
+								:pt="{ className: 'font-bold' }"
+								color="danger"
+								>{{ deviceCount.alarm }}</cl-text
+							>
+							<cl-text
+								:size="12"
+								:pt="{ className: 'mt-1' }"
+								color="danger"
+								>{{ t("告警设备") }}</cl-text
+							>
+						</view>
+					</cl-col>
+
+					<cl-col :span="6">
+						<view class="flex flex-col items-center justify-center">
+							<cl-text
+								:size="20"
+								:pt="{ className: 'font-bold' }"
+								>{{ deviceCount.offline }}</cl-text
+							>
+							<cl-text
+								:size="12"
+								:pt="{ className: 'mt-1' }"
+								color="info"
+								>{{ t("离线设备") }}</cl-text
+							>
+						</view>
+					</cl-col>
+				</cl-row>
+			</view>
+
+			<!-- 快捷入口 -->
+			<view class="bg-white dark:!bg-surface-800 py-5 rounded-2xl mb-3">
+				<cl-row>
+					<cl-col :span="8">
+						<view
+							class="flex flex-col justify-center items-center px-2"
+							@tap="toDeviceList"
+						>
+							<cl-icon name="computer-line" :size="24"></cl-icon>
+							<cl-text
+								:size="12"
+								:pt="{ className: 'mt-2 text-center' }"
+								color="info"
+								>{{ t("设备列表") }}</cl-text
+							>
+						</view>
+					</cl-col>
+
+					<cl-col :span="8">
+						<view
+							class="flex flex-col justify-center items-center px-2"
+							@tap="toAlarmRecords"
+						>
+							<cl-icon
+								name="alarm-warning-line"
+								:size="24"
+							></cl-icon>
+							<cl-text
+								:size="12"
+								:pt="{ className: 'mt-2 text-center' }"
+								color="info"
+								>{{ t("告警记录") }}</cl-text
+							>
+						</view>
+					</cl-col>
+
+					<cl-col :span="8">
+						<view
+							class="flex flex-col justify-center items-center px-2"
+							@tap="toDeviceGroups"
+						>
+							<cl-icon name="layout-grid-line" :size="24"></cl-icon>
+							<cl-text
+								:size="12"
+								:pt="{ className: 'mt-2 text-center' }"
+								color="info"
+								>{{ t("设备分组") }}</cl-text
+							>
+						</view>
+					</cl-col>
+				</cl-row>
+			</view>
+
+			<!-- 设备列表 -->
+			<view class="bg-white dark:!bg-surface-800 rounded-2xl p-4 mb-3">
+				<view class="flex flex-row items-center justify-between mb-3">
+					<cl-text :size="14" :pt="{ className: 'font-bold' }">{{
+						t("全部设备")
+					}}</cl-text>
+				</view>
+
+				<view class="flex flex-col items-center justify-center py-10">
+					<cl-icon
+						name="computer-line"
+						:size="48"
+						color="info"
+					></cl-icon>
+					<cl-text
+						:size="13"
+						color="info"
+						:pt="{ className: 'mt-2' }"
+						>{{ t("暂无设备") }}</cl-text
+					>
+					<cl-text :size="12" color="info">{{
+						t("开发中，敬请期待")
+					}}</cl-text>
+				</view>
+			</view>
+		</view>
+
+		<!-- 自定义底部导航栏 -->
+		<custom-tabbar></custom-tabbar>
+	</cl-page>
+</template>
+
+<script setup lang="ts">
+import { t, router } from "@/.cool";
+import { reactive } from "vue";
+import { useUi } from "@/uni_modules/cool-ui";
+import CustomTabbar from "./components/tabbar.uvue";
+
+const ui = useUi();
+
+type DeviceCount = {
+	total: number;
+	online: number;
+	offline: number;
+	alarm: number;
+};
+
+// 设备统计（后续对接接口）
+const deviceCount = reactive<DeviceCount>({
+	total: 0,
+	online: 0,
+	offline: 0,
+	alarm: 0
+});
+
+function toDeviceList() {
+	ui.showToast({
+		message: t("开发中，敬请期待")
+	});
+}
+
+function toAlarmRecords() {
+	ui.showToast({
+		message: t("开发中，敬请期待")
+	});
+}
+
+function toDeviceGroups() {
+	ui.showToast({
+		message: t("开发中，敬请期待")
+	});
+}
+</script>
+
+<style lang="scss" scoped></style>

@@ -2,28 +2,37 @@
 
 ## 文件命名规范
 
-- **类型声明文件**：`xxx.type.ts`，如 `device.type.ts`
-- **接口声明文件**：`xxx.api.ts`，如 `device.api.ts`
+- **功能模块文件**：`{模块名}.ts`，如 `user.ts`（同时包含 `UserApi` 地址和类型定义）
 - **页面文件**：使用小写 + 连字符，如 `device-list.uvue`
 - **组件文件**：使用小写 + 连字符，如 `device-card.uvue`
 
 ## 文件目录规范
-- **类型声明和接口声明文件(.ts)** `app/pages/{业务模块标识}/xxx/`
-- **页面文件(.uvue)** `app/pages/{业务模块标识}/xxx/`
-- **页面独立组件(.uvue)** `app/pages/{业务模块标识}/components/`
+- **功能模块文件(.ts)**：放在 `app/pages/{业务模块标识}/` 下，与页面文件平级
+  - 例如：`app/pages/user/user.ts`（`UserApi` 地址 + 类型合并为一个文件）
+- **页面文件(.uvue)**：`app/pages/{业务模块标识}/`
+- **页面独立组件(.uvue)**：`app/pages/{业务模块标识}/components/`
+- **全局共享类型**：`app/.cool/types/`
 
-## 类型和接口声明文件规范
+## 导入路径规范 [重要]
+- 统一使用 `@/` 别名，禁止使用 `../` 相对路径
+- 导入类型：`import type { LoginForm } from "@/pages/user/user"`
+- 导入地址：`import { UserApi } from "@/pages/user/user"`
+- 全局导入：`import type { UserCategory } from "@/.cool"`
+- request 导入：`import { request } from "@/.cool"`
 
-- **字段类型映射**: 比如 int,float,shot,double,byte -> number
-- **前后端字段一致性**: 类型声明的字段要和后端的字段保持一致, 包括字段名, 字段类型
-- **参数一致性**: 请求参数和响应参数要和后端接口保持一致, 包括字段名，字段类型
+## 模块文件规范
+
+- **字段类型映射**: int,float,shot,double,byte → number
+- **前后端字段一致性**: 类型字段与后端实体类保持一致
+- **接口地址**: 以 `UserApi` 对象统一管理，页面中通过 `request({ url: UserApi.xxx, ... })` 调用
+- **分页响应**: 使用 `Page<T>` 泛型（从 `@/.cool` 导入）
 
 
-## 类型声明和接口声明模板文件强制遵循 [重要]
-- 生成的代码需要严格遵循声明模板文件来生产
+## 模板文件强制遵循 [重要]
+- 生成的代码需要严格遵循模板文件来生产
 - 模板文件位置：`references\`
-  - **类型模板**：[TypeTemplate.type.ts](./TypeTemplate.type.ts)
-  - **接口模板**：[ApiTemplate.api.ts](./ApiTemplate.api.ts)
+  - **模块模板**：[ApiTemplate.api.ts](./ApiTemplate.api.ts)（`UserApi` 地址 + 类型定义合并为一个文件）
+  - **类型模板参考**：[TypeTemplate.type.ts](./TypeTemplate.type.ts)（仅类型定义参考）
 
 
 ## 移动端页面草图要求

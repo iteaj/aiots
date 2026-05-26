@@ -11,7 +11,7 @@ export const ignoreTokens: string[] = [
 	"/core/login",
 	"/wx/ma/authorize",
 	"/wx/ma/login",
-	"/wx/ma/bind",
+	"/m/login/bind",
 	"/wx/mp/bind"
 ];
 

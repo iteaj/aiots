@@ -1,55 +1,45 @@
-// =====接口声明模板文件 =====
-// - 请根据实际情况修改模板中的xxx为实际功能名称
-// - api接口要和后端接口保持一致包括: 接口路径、请求方法、请求参数、响应参数等
-/**
- * xxx模块接口声明文件
- */
-import type { Xxx, XxxReqParams, XxxDetail } from './xxx.type';
-import { Page, PageParams } from './common.type';
-import { request } from "../service";
+// =====模块模板文件 =====
+// - 根据实际情况修改 xxx 为实际功能名称
+// - 字段、URL 需与后端保持一致
+
+import type { Page } from "@/.cool";
+
+// ====== 接口地址 ======
+
+/** 获取xxx列表 */
+export const URL_XXX_LIST = "/m/xxx/list";
+/** 获取xxx详情 */
+export const URL_XXX_DETAIL = "/m/xxx/detail";
+
+// ====== 类型定义 ======
 
 /**
- * xxx模块接口
+ * xxx实体
  */
-export const xxxApi = {
-  /**
-   * 获取xxx列表
-   * @param params 查询参数
-   * @returns xxx列表响应
-   */
-  getXxxList(params: XxxReqParams): Promise<Xxx[]> {
-    return request({
-      url: '/m/xxx/list',
-      method: 'GET',
-      data: params
-    });
-  },
+export interface Xxx {
+  /** 实体类字段列表 */
 
-  /**
-   * 获取xxx列表
-   * @param params 查询参数
-   * @returns xxx列表响应
-   */
-  getXxxPage(params: XxxReqParams & PageParams): Promise<Page<Xxx>> {
-    return request({
-      url: '/m/xxx/page',
-      method: 'GET',
-      data: params
-    });
-  },
+}
 
-  /**
-   * 获取xxx详情
-   * @param id xxxID
-   * @returns xxx详情响应
-   */
-  getXxxDetail(id: string): Promise<XxxDetail> {
-    return request({
-      url: '/m/xxx/detail',
-      method: 'GET',  
-      data: {
-        id
-      }
-    });
-  },
+/**
+ * xxx列表请求参数
+ */
+export interface XxxReqParams {
+  /** 请求参数字段列表 */
+}
+
+/**
+ * xxx详情响应数据
+ */
+export interface XxxDetail extends Xxx {
+  /** 响应数据字段列表 */
+
+}
+
+/**
+ * xxx分页响应
+ */
+export interface XxxPage {
+  total: number;
+  records: Xxx[];
 }

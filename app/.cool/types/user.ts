@@ -15,3 +15,22 @@ export type UserInfo = {
 	createTime: string; // 创建时间
 	updateTime: string; // 更新时间
 };
+
+/**
+ * 用户类别：ADMIN-管理端 MEMBER-会员端
+ */
+export type UserCategory = "ADMIN" | "MEMBER";
+
+/**
+ * 平台标识
+ */
+export const Platform = {
+  /** 原生 */
+  NATIVE: "NATIVE",
+  /** 微信小程序 */
+  WECHAT_MA: "WECHAT_MA",
+  /** 微信公众号 */
+  WECHAT_MP: "WECHAT_MP",
+  /** 支付宝 */
+  ALIPAY: "ALIPAY",
+} as const;
