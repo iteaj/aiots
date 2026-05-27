@@ -173,7 +173,7 @@
 					<cl-col :span="6" v-for="fn in quickFunctions" :key="fn.key">
 						<view
 							class="flex flex-col items-center justify-center py-2"
-							@tap="toStub"
+							@tap="onQuickClick(fn.key)"
 						>
 							<cl-icon :name="fn.icon" :size="24"></cl-icon>
 							<cl-text
@@ -253,10 +253,18 @@ function toAlarm() {
 	});
 }
 
-function toStub() {
-	ui.showToast({
-		message: t("开发中，敬请期待")
-	});
+function toLog() {
+	router.to("/pages/iot/device-cmd-log");
+}
+
+function onQuickClick(key: string) {
+	if (key === "log") {
+		router.to("/pages/iot/device-cmd-log");
+	} else {
+		ui.showToast({
+			message: t("开发中，敬请期待")
+		});
+	}
 }
 
 function setLocale() {

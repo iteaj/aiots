@@ -62,6 +62,20 @@
 			]
 		},
 		{
+			"root": "pages/iot",
+			"pages": [
+				{
+					"path": "device-cmd-log",
+					"style": {
+						"navigationStyle": "custom"
+					},
+					"meta": {
+						"isAuth": true
+					}
+				}
+			]
+		},
+		{
 			"root": "pages/user",
 			"pages": [
 				{

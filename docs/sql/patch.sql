@@ -40,3 +40,42 @@ CREATE TABLE `m_user` (
 
 -- 2026-05-25 系统用户头像字段长度改为500
 ALTER TABLE sys_admin MODIFY COLUMN `avatar` varchar(500) DEFAULT '' COMMENT '头像路径';
+
+-- 2026-05-26 创建设备指令下发日志表
+CREATE TABLE `iot_device_cmd_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `uid` varchar(36) DEFAULT NULL COMMENT '设备标识',
+  `config` json DEFAULT NULL COMMENT '指令配置（含指令名称/编码/参数等）',
+  `status` varchar(20) DEFAULT NULL COMMENT '执行状态：SUCCESS-成功 FAILURE-失败',
+  `result_msg` varchar(128) DEFAULT NULL COMMENT '结果描述',
+  `result_data` json DEFAULT NULL COMMENT '响应数据',
+  `elapsed` bigint(20) DEFAULT NULL COMMENT '执行时间(毫秒)',
+  `method` varchar(20) DEFAULT NULL COMMENT '下发方式：大屏/调试/脚本/场景联动/移动端',
+  `cmd_type` varchar(20) DEFAULT NULL COMMENT '指令类型：控制指令/事件指令',
+  `operator` varchar(100) DEFAULT NULL COMMENT '操作人',
+  `operator_id` bigint(20) DEFAULT NULL COMMENT '操作人ID',
+  `create_time` datetime DEFAULT NULL COMMENT '下发时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_uid` (`uid`) USING BTREE,
+  KEY `idx_create_time` (`create_time`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备指令下发日志';
+
+-- 2026-05-26 设备指令日志菜单权限
+
+-- 设备指令日志菜单（父菜单ID 1406 是"设备维护"）
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time)
+VALUES ('设备指令日志', 1406, 310, '/iot/deviceCmdLog', 'iot', 'V', 'enabled', 'iot:deviceCmdLog:view', 'iz-icon-log', '设备指令下发日志', '_self', now(), now());
+
+-- 获取刚插入的菜单ID
+set @pid = (select last_insert_id());
+
+-- 查询权限
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time)
+VALUES ('查询', @pid, 5, '/iot/deviceCmdLog/view', 'iot', 'A', 'enabled', 'iot:deviceCmdLog:view', '#', '查询设备指令日志', '_self', now(), now());
+
+-- 删除权限
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time)
+VALUES ('删除', @pid, 10, '/iot/deviceCmdLog/del', 'iot', 'A', 'enabled', 'iot:deviceCmdLog:del', '#', '删除设备指令日志', '_self', now(), now());
+
+-- 2026-05-26 设备指令日志增加设备名称字段
+ALTER TABLE iot_device_cmd_log ADD COLUMN `device_name` varchar(200) DEFAULT NULL COMMENT '设备名称' AFTER `uid`;

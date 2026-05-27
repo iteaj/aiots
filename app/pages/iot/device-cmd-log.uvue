@@ -1,0 +1,129 @@
+<template>
+	<cl-page>
+		<cl-topbar fixed :height="44" safe-area-top background-color="transparent">
+			<view class="flex flex-row items-center w-full flex-1 px-3">
+				<cl-text :size="18" :pt="{ className: 'font-bold' }">{{
+					t("操作日志")
+				}}</cl-text>
+			</view>
+		</cl-topbar>
+
+		<scroll-view scroll-y class="flex-1">
+			<view class="p-3">
+				<!-- 空状态 -->
+				<view
+					v-if="list.length === 0 && !loading"
+					class="flex flex-col items-center justify-center py-20"
+				>
+					<cl-icon name="file-list-line" :size="48" color="info"></cl-icon>
+					<cl-text
+						:size="13"
+						color="info"
+						:pt="{ className: 'mt-2' }"
+						>{{ t("暂无日志") }}</cl-text
+					>
+				</view>
+
+				<!-- 日志列表 -->
+				<view v-for="item in list" :key="item.id" class="mb-3">
+					<view
+						class="bg-white dark:!bg-surface-800 rounded-2xl p-4"
+						@tap="showDetail(item)"
+					>
+						<!-- 顶部：设备标识 + 状态 -->
+						<view class="flex flex-row items-center justify-between mb-2">
+							<cl-text :size="14" :pt="{ className: 'font-bold flex-1' }">{{
+								item.uid
+							}}</cl-text>
+							<cl-text
+								:size="12"
+								:color="item.status === 'SUCCESS' ? 'success' : 'danger'"
+							>{{
+								item.status === "SUCCESS" ? t("成功") : t("失败")
+							}}</cl-text>
+						</view>
+
+						<!-- 指令类型 + 下发方式 -->
+						<view class="flex flex-row items-center mb-1">
+							<cl-text :size="12" color="info">{{ t("类型") }}：</cl-text>
+							<cl-text :size="12">{{ item.cmdType || "-" }}</cl-text>
+							<cl-text :size="12" color="info" :pt="{ className: 'ml-3' }">{{ t("方式") }}：</cl-text>
+							<cl-text :size="12">{{ item.method || "-" }}</cl-text>
+						</view>
+
+						<!-- 下发时间 + 耗时 -->
+						<view class="flex flex-row items-center">
+							<cl-text :size="12" color="info">{{ item.createTime }}</cl-text>
+							<cl-text v-if="item.elapsed != null" :size="12" color="info" :pt="{ className: 'ml-2' }">{{
+								item.elapsed + "ms"
+							}}</cl-text>
+						</view>
+					</view>
+				</view>
+			</view>
+		</scroll-view>
+	</cl-page>
+</template>
+
+<script setup lang="ts">
+import { reactive, ref } from "vue";
+import { request, t } from "@/.cool";
+import { useUi } from "@/uni_modules/cool-ui";
+
+const ui = useUi();
+
+type CmdLogItem = {
+	id: number;
+	uid: string;
+	status: string;
+	resultMsg: string;
+	resultData: any;
+	elapsed: number;
+	method: string;
+	cmdType: string;
+	operator: string;
+	createTime: string;
+};
+
+const list = reactive<CmdLogItem[]>([]);
+const loading = ref(false);
+const page = ref(1);
+
+// 加载日志列表
+async function loadData() {
+	loading.value = true;
+
+	try {
+		const res = await request<{ records: CmdLogItem[] }>({
+			url: "/iot/deviceCmdLog/view",
+			method: "GET",
+			data: {
+				current: page.value,
+				size: 20
+			}
+		});
+
+		if (res?.records) {
+			list.length = 0;
+			list.push(...res.records);
+		}
+	} catch (err) {
+		// ignore
+	} finally {
+		loading.value = false;
+	}
+}
+
+// 查看详情
+function showDetail(item: CmdLogItem) {
+	ui.showToast({
+		message: item.resultMsg || t("执行成功")
+	});
+}
+
+onReady(() => {
+	loadData();
+});
+</script>
+
+<style lang="scss" scoped></style>
