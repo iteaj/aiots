@@ -2,16 +2,14 @@ package com.iteaj.iboot.module.iot.listener;
 
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.*;
-import com.iteaj.framework.spi.iot.listener.CmdInvokeListener;
-import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
-import com.iteaj.framework.spi.iot.listener.IotEventType;
-import com.iteaj.framework.spi.iot.listener.RealtimePayload;
+import com.iteaj.framework.spi.iot.listener.*;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.entity.DeviceCmdLog;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
@@ -39,11 +37,16 @@ public class IotViewCmdListener implements CmdInvokeListener {
     @Override
     public void onIotEvent(IotEventType eventType, CmdInvokePayload value) {
         ProtocolModelApiInvokeParam invokeParam = null;
+        DeviceCmdLog cmdLog = new DeviceCmdLog().setOperator("-").putCmdName(value.getName())
+                .setMethod(value.getScenario()).setCreateTime(new Date());
         try {
             invokeParam = IotUtil.createParamByCmdCode(value.getCode(), value.getUid());
+            cmdLog.setUid(invokeParam.getUid());
             RealtimeStatus device = cacheManager.getByUid(invokeParam.getUid());
             if(device == null) {
+                cmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg("设备不存在");
                 value.getCallback().accept(InvokeResult.fail("设备不存在["+value.getUid()+"]", null));
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, cmdLog);
                 return;
             }
 
@@ -56,34 +59,53 @@ public class IotViewCmdListener implements CmdInvokeListener {
                     .ifNotPresentThrow("接口代码不存在[apiCode=" + invokeParam.getApiCode() + "]")
                     .getData();
 
+            cmdLog.setDeviceName(device.getDeviceName()).setCmdType(modelApi.getType().name());
             ProductDto product = this.productService.detailById(modelApi.getProductId())
                     .ifNotPresentThrow("未找到所属产品").getData();
 
             if(product.getStatus() == FuncStatus.disabled) {
+                cmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg("产品未启用");
                 value.getCallback().accept(InvokeResult.fail("产品未启用["+product.getName()+"]", null));
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, cmdLog);
+                return;
             }
 
             final String uid = invokeParam.getUid();
-            DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(device.getProtocolCode());
+            DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(device.getProtocolCode());
             ProtocolModelApiInvokeParam finalInvokeParam = invokeParam;
             ProtocolInvokeUtil.invoke(supplier, modelApi, invokeParam, device, result -> {
                 value.getCallback().accept(result);
                 if(result.getStatus() == ExecStatus.success) {
+                    cmdLog.setStatus(DeviceCmdLog.STATUS_SUCCESS).setResultMsg("下发成功")
+                            .setElapsed(System.currentTimeMillis() - cmdLog.getCreateTime().getTime());
+
                     DataSupplier dataSupplier = supplier.getDataSupplier(result.getProtocol(), finalInvokeParam, result.getValue());
                     CollectListenerManager.getInstance().publish(dataSupplier.build(new Date()), device, RealtimePayload.TYPE_DATA_CMD);
                     IotLogger.info(IotLogger.NAME, "指令调用", uid
                             , "指令下发成功 指令: {} - 设备: {}", modelApi.getName(), device.buildDeviceKey());
                 } else {
-                    IotLogger.warn(IotLogger.NAME, "指令调用", uid
-                            , "指令下发失败({}) 指令: {} - 设备: {}", result.getReason(), modelApi.getName(), device.buildDeviceKey());
+                    cmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(result.getReason())
+                            .setElapsed(System.currentTimeMillis() - cmdLog.getCreateTime().getTime());
+                    IotLogger.warn(IotLogger.NAME, "指令调用", uid, "指令下发失败({}) 指令: {} - 设备: {}"
+                            , result.getReason(), modelApi.getName(), device.buildDeviceKey());
                 }
+
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, cmdLog);
             });
 
         } catch (ServiceException e) {
-            IotLogger.error(IotLogger.NAME, "指令调用", invokeParam != null ? invokeParam.getUid() : null, e.getMessage());
+            cmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(e.getMessage())
+                    .setElapsed(System.currentTimeMillis() - cmdLog.getCreateTime().getTime());
             value.getCallback().accept(InvokeResult.fail(e.getMessage(), null));
+
+            IotEvenPublisher.publish(IotEventType.DeviceCmdLog, cmdLog);
+            IotLogger.error(IotLogger.NAME, "指令调用", invokeParam != null ? invokeParam.getUid() : null, e.getMessage());
         } catch (Exception e) {
+            cmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg("未知异常")
+                    .setElapsed(System.currentTimeMillis() - cmdLog.getCreateTime().getTime());
             value.getCallback().accept(InvokeResult.fail("未知异常", null));
+
+            IotEvenPublisher.publish(IotEventType.DeviceCmdLog, cmdLog);
             IotLogger.error(IotLogger.NAME, "指令调用", invokeParam != null ? invokeParam.getUid() : null, e.getMessage());
         }
     }

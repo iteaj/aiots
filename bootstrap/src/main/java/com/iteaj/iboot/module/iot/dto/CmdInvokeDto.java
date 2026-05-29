@@ -13,6 +13,11 @@ public class CmdInvokeDto {
     private String code;
 
     /**
+     * 指令名称
+     */
+    private String name;
+
+    /**
      * 设备uid
      */
     private String uid;

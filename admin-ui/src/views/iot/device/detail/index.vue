@@ -271,7 +271,7 @@ let warnPagination = ref({total: 0, showSizeChanger: false, current: 1, onChange
   const apiCmdClick = (api) => {
     spinning.value = true;
     tipText.value = "执行指令中...";
-    POST(`/iot/instruct/command/invoke`, {code: api.commandValue}).then(({code, data, message}) => {
+    POST(`/iot/instruct/command/invoke`, {code: api.commandValue, name: api.apiName}).then(({code, data, message}) => {
       if(code != CoreConsts.SuccessCode) {
         msgError(message);
       } else {

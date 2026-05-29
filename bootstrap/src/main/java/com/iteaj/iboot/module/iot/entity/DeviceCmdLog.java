@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
+import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -19,7 +20,19 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_device_cmd_log")
-public class DeviceCmdLog extends BaseEntity {
+public class DeviceCmdLog extends BaseEntity implements IotEventPayload {
+
+    // ========== 执行状态常量 ==========
+    public static final String STATUS_SUCCESS = "SUCCESS";
+    public static final String STATUS_FAILURE = "FAILURE";
+
+    // ========== 下发方式常量 ==========
+    public static final String METHOD_AI = "AI";
+    public static final String METHOD_SCREEN = "SCREEN";
+    public static final String METHOD_DEBUG = "DEBUG";
+    public static final String METHOD_SCRIPT = "SCRIPT";
+    public static final String METHOD_LINKAGE = "LINKAGE";
+    public static final String METHOD_APP = "APP";
 
     /** 设备标识 */
     private String uid;
@@ -59,4 +72,17 @@ public class DeviceCmdLog extends BaseEntity {
 
     /** 下发时间 */
     private Date createTime;
+
+    public DeviceCmdLog putCmdName(String cmdName) {
+        return this.putConfig("cmdName", cmdName);
+    }
+
+    public DeviceCmdLog putConfig(String key, Object value) {
+        if(this.config == null) {
+            this.config = new JSONObject();
+        }
+
+        this.config.put(key, value);
+        return this;
+    }
 }

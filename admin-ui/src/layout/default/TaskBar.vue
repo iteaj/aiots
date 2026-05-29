@@ -123,7 +123,7 @@ export default {
   top: 0;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background-color: color-mix(in srgb, var(--ant-color-bg-container), transparent 20%);
+  background-color: color-mix(in srgb, var(--iv-layout-header-bg), transparent 12%);
 }
 
 /* 底部阴影分隔 */

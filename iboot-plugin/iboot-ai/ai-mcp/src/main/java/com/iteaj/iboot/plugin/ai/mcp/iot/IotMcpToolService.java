@@ -56,7 +56,7 @@ public class IotMcpToolService {
     @Tool(name = "direct", description = "用于调用aiots(iboot)物联网系统的设备指令, 要求指令码和设备uid必须是系统真实存在的不能凭空捏造")
     public String direct(@ToolParam(description = "指令码") String code, @ToolParam(description = "设备uid") String uid) {
 
-        CmdInvokePayload cmd = new CmdInvokePayload(uid, code, 15 * 1000);
+        CmdInvokePayload cmd = new CmdInvokePayload(uid, code, 15 * 1000).setScenario(CmdInvokePayload.SCENARIO_AI);
         final WaitLock waitLock = new WaitLock();
         IotEvenPublisher.publish(IotEventType.CmdInvoke, cmd.build(invokeResult -> {
             if(waitLock.status != null) {

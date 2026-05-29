@@ -145,9 +145,9 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
         Map<String, String> attrValueMap = new HashMap<>();
         if(StrUtil.isNotBlank(value) && value.contains("::")) {
             String[] split = value.split(",");
-            for (int i = 0; i < split.length; i++) {
-                String[] fieldValueMap = split[i].split("::");
-                if(fieldValueMap.length == 2) {
+            for (String s : split) {
+                String[] fieldValueMap = s.split("::");
+                if (fieldValueMap.length == 2) {
                     attrValueMap.put(fieldValueMap[0], fieldValueMap[1]);
                 }
             }
@@ -185,7 +185,7 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
 
                 Map<Long, ModelAttr> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttr::getId, item -> item));
                 List<List<ModelAttrDict>> collect = configs.stream()
-                        .map(item -> item.getDicts())
+                        .map(ModelApiConfig::getDicts)
                         .collect(Collectors.toList());
 
                 // 计算笛卡尔积
@@ -270,11 +270,11 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
                 sb.deleteCharAt(sb.length() - 1);
                 valueSb.deleteCharAt(valueSb.length() - 1);
 
-                return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                return Collections.singletonList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
                         .setCommandValue(valueSb.toString()).setCommandName(sb.toString()).setRemark(getRemark()).setCode(getCode()));
             }
         } else {
-            return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+            return Collections.singletonList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
                     .setCommandValue(null).setCommandName("-").setRemark(getRemark()).setCode(getCode()));
         }
     }
@@ -295,10 +295,9 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
                 final List<DeviceCommandViewDto.ViewConfig> dictList = dicts.stream()
                         .map(item -> new DeviceCommandViewDto.ViewConfig(item.getDictName(), item.getDictValue()))
                         .collect(Collectors.toList());
-                StringBuilder configValue = new StringBuilder();
 
-                configValue.append(apiConfig.getProtocolAttrField()).append("->#{}");
-                return new DeviceCommandViewDto(getName(), configValue.toString(), getCode()).setLeaf(true).setRemark(getRemark()).setConfigs(dictList);
+                return new DeviceCommandViewDto(getName(), apiConfig.getProtocolAttrField() + "->#{}"
+                        , getCode()).setLeaf(true).setRemark(getRemark()).setConfigs(dictList);
             }
         }
 

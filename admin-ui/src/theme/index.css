@@ -5,6 +5,9 @@
     fill: currentColor;
     overflow: hidden;
 }
+.iv-main-border {
+    background-color: var(--iv-color-bg-container);
+}
 .iv-main-border.radius {
     border-radius: 6px;
 }

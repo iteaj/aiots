@@ -58,7 +58,7 @@ export default {
 .iv-task-container {
   flex: 1;         /* 填充剩余空间 */
   min-height: 0;   /* 允许在 flex 中收缩 */
-  padding: 12px;
+  padding: 3px;
   //overflow: auto;
   position: relative;
 }

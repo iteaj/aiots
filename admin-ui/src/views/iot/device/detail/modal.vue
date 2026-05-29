@@ -168,7 +168,7 @@ export default defineComponent({
     apiCmdClick(api) {
       this.spinning = true;
       this.tipText = "执行指令中...";
-      this.$http.post(`/iot/instruct/command/invoke`, {code: api.commandValue}).then(({code, data, message}) => {
+      this.$http.post(`/iot/instruct/command/invoke`, {code: api.commandValue, name: api.apiName}).then(({code, data, message}) => {
         if(code != CoreConsts.SuccessCode) {
           this.$msg.error(message);
         } else {

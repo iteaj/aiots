@@ -71,9 +71,9 @@ public class DeviceCtrlController extends BaseController {
     @Logger("模型接口调用")
     @CheckPermission(value = {"iot:model:invoke", "iot:open:invoke"}, logical = Logical.OR)
     @PostMapping("/ctrl/{modelApiCode}")
-    public Mono<Result> ctrl(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
+    public Mono<Result<?>> ctrl(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
         Object[] objects = this.getProtocolModelApi(modelApiCode, param);
-        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
+        DeviceProtocolSupplier<?, ?> supplier = (DeviceProtocolSupplier<?, ?>) objects[3];
 
         return Mono.<InvokeResult>create(item -> {
             try {
@@ -123,7 +123,7 @@ public class DeviceCtrlController extends BaseController {
         if(product.getStatus() == FuncStatus.disabled) {
             return Mono.error(new ServiceException("产品未启用"));
         }
-        DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
+        DeviceProtocolSupplier<?, ?> protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
         if(protocolSupplier == null) {
             return Mono.error(new ServiceException("未找到驱动["+product.getProtocolCode()+"]"));
         }
@@ -174,7 +174,7 @@ public class DeviceCtrlController extends BaseController {
         // 获取协议模型接口
         Object[] objects = this.getProtocolModelApi(modelApiCode, param);
         ModelApi modelApi = (ModelApi) objects[1];
-        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
+        DeviceProtocolSupplier<?, ?> supplier = (DeviceProtocolSupplier<?, ?>) objects[3];
 
         DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
         return Mono.<InvokeResult>create(item -> {
@@ -240,7 +240,7 @@ public class DeviceCtrlController extends BaseController {
             }
         }
 
-        DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
+        DeviceProtocolSupplier<?, ?> protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
         if(protocolSupplier == null) {
             throw new ServiceException("没有找到协议[protocol=" + product.getProtocolCode() + "]");
         }
@@ -293,17 +293,17 @@ public class DeviceCtrlController extends BaseController {
     @Logger("指令接口调用")
     @CheckPermission({"iot:cmd:invoke"})
     @PostMapping("/command/invoke")
-    public Mono<Result> invoke(@RequestBody CmdInvokeDto cmd) {
+    public Mono<Result<?>> invoke(@RequestBody CmdInvokeDto cmd) {
 
         ProtocolModelApiInvokeParam param;
         try {
             param = IotUtil.createParamByCmdCode(cmd.getCode(), cmd.getUid());
         } catch (Exception e) {
-            return Mono.create((t) -> t.success(fail(e.getMessage())));
+            return Mono.create((t) -> t.success(fail("指令码格式错误")));
         }
 
         Object[] objects = this.getProtocolModelApi(param.getApiCode(), param);
-        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
+        DeviceProtocolSupplier<?, ?> supplier = (DeviceProtocolSupplier<?, ?>) objects[3];
 
         return Mono.<InvokeResult>create(item -> {
             try {

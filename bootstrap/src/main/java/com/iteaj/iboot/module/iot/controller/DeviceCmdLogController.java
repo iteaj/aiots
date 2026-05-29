@@ -6,6 +6,7 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.collect.CollectOption;
 import com.iteaj.iboot.module.iot.entity.DeviceCmdLog;
 import com.iteaj.iboot.module.iot.service.IDeviceCmdLogService;
@@ -62,8 +63,8 @@ public class DeviceCmdLogController extends BaseController {
     @GetMapping("/statusList")
     public Result<List<CollectOption>> statusList() {
         return success(Arrays.asList(
-                new CollectOption("成功", "SUCCESS"),
-                new CollectOption("失败", "FAILURE")
+                new CollectOption("成功", DeviceCmdLog.STATUS_SUCCESS),
+                new CollectOption("失败", DeviceCmdLog.STATUS_FAILURE)
         ));
     }
 
@@ -73,11 +74,12 @@ public class DeviceCmdLogController extends BaseController {
     @GetMapping("/methodList")
     public Result<List<CollectOption>> methodList() {
         return success(Arrays.asList(
-                new CollectOption("大屏", "SCREEN"),
-                new CollectOption("调试", "DEBUG"),
-                new CollectOption("脚本", "SCRIPT"),
-                new CollectOption("场景联动", "LINKAGE"),
-                new CollectOption("移动端", "APP")
+                new CollectOption("智能体", DeviceCmdLog.METHOD_AI),
+                new CollectOption("大屏", DeviceCmdLog.METHOD_SCREEN),
+                new CollectOption("调试", DeviceCmdLog.METHOD_DEBUG),
+                new CollectOption("脚本", DeviceCmdLog.METHOD_SCRIPT),
+                new CollectOption("场景联动", DeviceCmdLog.METHOD_LINKAGE),
+                new CollectOption("移动端", DeviceCmdLog.METHOD_APP)
         ));
     }
 
@@ -87,8 +89,8 @@ public class DeviceCmdLogController extends BaseController {
     @GetMapping("/cmdTypeList")
     public Result<List<CollectOption>> cmdTypeList() {
         return success(Arrays.asList(
-                new CollectOption("控制指令", "CONTROL"),
-                new CollectOption("事件指令", "EVENT")
+                new CollectOption("控制指令", ProtocolApiType.func.name()),
+                new CollectOption("事件指令", ProtocolApiType.event.name())
         ));
     }
 }

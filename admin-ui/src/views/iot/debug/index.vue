@@ -29,7 +29,7 @@
         </div>
 
       </ACol>
-      <ACol span="17" style="padding: 12px; background: #ffffff" class="iv-main-border radius">
+      <ACol span="17" style="padding: 12px;" class="iv-main-border radius">
         <a-spin size="large" :spinning="spinning" description="数据加载中">
           <a-empty v-if="device['id'] == null" description="请先选择要调试的设备" style="margin-top: 160px;"/>
           <div v-else>
@@ -62,10 +62,10 @@
               </a-descriptions-item>
 <!--              <a-descriptions-item label="备注" span="3">{{device['remark']}}</a-descriptions-item>-->
             </a-descriptions>
-            <div style="border-top: 1px dashed #e3e3e3; border-bottom: 1px dashed #e3e3e3; margin-top: 8px">
+            <div style="margin-top: 8px" class="iv-debug-tabs">
               <a-tabs v-model:activeKey="activeKey" size="small">
                 <a-tab-pane key="cus" tab="自定义">
-                  <div style="padding-bottom: 8px; border-bottom: 1px dashed #e3e3e3;">
+                  <div style="padding-bottom: 8px; ">
                       <span type="ghost">请选择指令: </span>
                       <USelect :options="directs" v-model:value="directDebugParam.direct" style="width: 180px; margin-right: 32px;" @change="selectDirect"></USelect>
                       <AButton type="primary" @click="cusDebug">调试</AButton>
@@ -141,12 +141,12 @@
                 </a-tab-pane>
               </a-tabs>
             </div>
-            <AFlex style="height: 24px; margin-top: 10px;">
-              <div style="flex-grow: 1" class="iv-debug-header">调试参数</div>
-              <div style="width: 250px;border-left: 1px dashed #e3e3e3;" class="iv-debug-header">请求参数</div>
+            <AFlex style="height: 26px; margin-top: 10px;" class="iv-debug-header">
+              <div style="flex-grow: 1">调试参数</div>
+              <div style="width: 280px;">请求参数</div>
             </AFlex>
             <AFlex >
-              <div style="overflow: auto; flex-grow: 1">
+              <div class="iv-debug-container" style="overflow: auto; flex-grow: 1">
                 <div v-if="debugResult">
                   <div class="iv-debug result">
                     <span class="status-item">
@@ -183,7 +183,7 @@
                 </div>
                 <AEmpty v-else description="暂无调试参数" style="margin-top: 16px"/>
               </div>
-              <div style="border-left: 1px dashed #e3e3e3; min-width: 250px;">
+              <div style="border-left: var(--iv-color-split); min-width: 280px;">
                 <pre v-if="requestParamCompute">{{requestParamCompute}}</pre>
                 <AEmpty v-else description="暂无请求参数" style="margin-top: 16px"/>
               </div>
@@ -319,13 +319,12 @@ export default {
       // data['disableCheckbox'] = !data['status'];
     },
     deviceSelect(data, {node}) {
-      let dataRef = node['dataRef'];
-      if(dataRef['type'] == 'device') {
+      if(node['type'] == 'device') {
         this.spinning = true;
         this.debugParam = null;
         this.requestParam = null;
         this.debugResult = null;
-        this.$http.get(`/iot/debug/detail?deviceId=${dataRef['id']}`).then(({code, message, data}) => {
+        this.$http.get(`/iot/debug/detail?deviceId=${node['id']}`).then(({code, message, data}) => {
           if(code == CoreConsts.SuccessCode) {
             this.device = data['device'];
             this.product = data['product']
@@ -381,11 +380,18 @@ export default {
   overflow-y: auto;
   overflow-x: hidden;
 }
+.iv-debug-tabs {
+  padding: 6px;
+  border-radius: 6px;
+  background-color: var(--iv-color-bgt-container);
+}
 
 .iv-debug-header {
-  padding: 3px 0px;
-  background: #e3e3e3;
+  padding: 1px 0;
   text-align: center;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  background-color: var(--iv-color-bgt-container);
 }
 .iv-debug.result {
   padding: 1px;

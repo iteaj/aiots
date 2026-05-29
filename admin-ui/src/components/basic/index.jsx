@@ -358,13 +358,14 @@ export const UTree = defineComponent({
         // childUrl说明需要动态加载子节点
         if(props.childUrl && !(props.loadData instanceof Function)) {
             loadDataRef.value = (node) => {
-                let children = node.dataRef[props.fieldNames.children];
+                let oriNode = treeDataMap.value[node[props.fieldNames.key]];
+                let children = oriNode[props.fieldNames.children];
                 if(!children || children.length == 0) {
-                    let newUrl = SysUtils.resolverPlaceholderUrl(props.childUrl, node.dataRef);
+                    let newUrl = SysUtils.resolverPlaceholderUrl(props.childUrl, node);
                     return new Promise((resolve, reject) => {
                         GET(newUrl).then(({code, message, data}) => {
                             if(code == CoreConsts.SuccessCode) {
-                                node.dataRef[props.fieldNames.children] = data;
+                                oriNode[props.fieldNames.children] = data;
                                 allKeys.value = []; // 重置所有key
                                 treeDataMap.value = {}; //
                                 initAllKeys(treeData.value);
