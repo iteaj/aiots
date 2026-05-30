@@ -256,7 +256,7 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
 
                     String dict = item.isEmpty() ? null : item.get(0).getDictName();
                     String apiName = dict == null ? getName() : getName() + "->" + dict;
-                    return new DeviceCommandDto().setApiName(apiName).setApiType(getType()).setUid(uid)
+                    return new DeviceCommandDto().setApiName(apiName).setApiType(getType()).setUid(uid).setDirect(getDirect())
                             .setCommandValue(valueSb.toString()).setRemark(getRemark()).setCommandName(sb.toString()).setCode(getCode());
                 }).collect(Collectors.toList());
             } else {
@@ -270,12 +270,12 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
                 sb.deleteCharAt(sb.length() - 1);
                 valueSb.deleteCharAt(valueSb.length() - 1);
 
-                return Collections.singletonList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                return Collections.singletonList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid).setDirect(getDirect())
                         .setCommandValue(valueSb.toString()).setCommandName(sb.toString()).setRemark(getRemark()).setCode(getCode()));
             }
         } else {
             return Collections.singletonList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
-                    .setCommandValue(null).setCommandName("-").setRemark(getRemark()).setCode(getCode()));
+                    .setCommandValue(null).setCommandName("-").setRemark(getRemark()).setCode(getCode()).setDirect(getDirect()));
         }
     }
 

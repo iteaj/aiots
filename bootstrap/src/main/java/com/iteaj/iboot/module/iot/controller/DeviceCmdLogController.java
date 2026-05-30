@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.logger.Logger;
@@ -35,7 +36,7 @@ public class DeviceCmdLogController extends BaseController {
     @Logger("浏览设备指令下发日志")
     @CheckPermission({"iot:deviceCmdLog:view"})
     public Result<IPage<DeviceCmdLog>> list(Page<DeviceCmdLog> page, DeviceCmdLog entity) {
-        return this.deviceCmdLogService.page(page, entity);
+        return this.deviceCmdLogService.page(page.addOrder(OrderItem.desc("create_time")), entity);
     }
 
     /**

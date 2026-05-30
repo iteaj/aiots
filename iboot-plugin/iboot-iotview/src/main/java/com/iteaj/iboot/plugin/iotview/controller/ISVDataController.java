@@ -336,7 +336,7 @@ public class ISVDataController extends BaseController {
     public Mono<Result<?>> cmd(@RequestBody CmdInvokePayload cmd) {
         return Mono.<InvokeResult>create(item -> {
             try {
-                IotEvenPublisher.publish(IotEventType.CmdInvoke, cmd.of(CmdInvokePayload.SCENARIO_SCREEN).build(item::success));
+                IotEvenPublisher.publish(IotEventType.CmdInvoke, cmd.setScenario(CmdInvokePayload.SCENARIO_SCREEN).build(item::success));
             } catch (ProtocolInvokeException e) {
                 item.success(InvokeResult.fail(e.getMessage(), null));
             }

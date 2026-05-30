@@ -45,6 +45,7 @@ ALTER TABLE sys_admin MODIFY COLUMN `avatar` varchar(500) DEFAULT '' COMMENT '�
 CREATE TABLE `iot_device_cmd_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `uid` varchar(36) DEFAULT NULL COMMENT '设备标识',
+  `device_name` varchar(64) DEFAULT NULL COMMENT '设备名称',
   `config` json DEFAULT NULL COMMENT '指令配置（含指令名称/编码/参数等）',
   `status` varchar(20) DEFAULT NULL COMMENT '执行状态：SUCCESS-成功 FAILURE-失败',
   `result_msg` varchar(128) DEFAULT NULL COMMENT '结果描述',

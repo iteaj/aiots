@@ -4,6 +4,7 @@ import com.iteaj.framework.IVOption;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,13 +26,11 @@ public class DebugDto {
     /**
      * 接口调试参数
      */
-    private Map<String, List<IVOption>> apiCodeDebugMap;
+    private List<DeviceCommandDto> apiCodeDebugMap = new ArrayList<>();
 
-    public void addApiDebugParam(String apiCode, List<IVOption> params) {
-        if(apiCodeDebugMap == null) {
-            apiCodeDebugMap = new HashMap<>();
+    public void addApiDebugParam(List<DeviceCommandDto> params) {
+        if(params != null && !params.isEmpty()) {
+            apiCodeDebugMap.addAll(params);
         }
-
-        apiCodeDebugMap.put(apiCode, params);
     }
 }

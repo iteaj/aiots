@@ -14,6 +14,8 @@ public class DeviceCommandDto implements ModelDirectMeta {
 
     private String code;
 
+    private String direct;
+
     private String apiName;
 
     private String remark;

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
+import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
 import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,12 +28,12 @@ public class DeviceCmdLog extends BaseEntity implements IotEventPayload {
     public static final String STATUS_FAILURE = "FAILURE";
 
     // ========== 下发方式常量 ==========
-    public static final String METHOD_AI = "AI";
-    public static final String METHOD_SCREEN = "SCREEN";
-    public static final String METHOD_DEBUG = "DEBUG";
-    public static final String METHOD_SCRIPT = "SCRIPT";
-    public static final String METHOD_LINKAGE = "LINKAGE";
-    public static final String METHOD_APP = "APP";
+    public static final String METHOD_AI = CmdInvokePayload.SCENARIO_AI;
+    public static final String METHOD_SCREEN = CmdInvokePayload.SCENARIO_SCREEN;
+    public static final String METHOD_DEBUG = CmdInvokePayload.SCENARIO_DEBUG;
+    public static final String METHOD_SCRIPT = CmdInvokePayload.SCENARIO_SCRIPT;
+    public static final String METHOD_LINKAGE = CmdInvokePayload.SCENARIO_LINKAGE;
+    public static final String METHOD_APP = CmdInvokePayload.SCENARIO_APP;
 
     /** 设备标识 */
     private String uid;
@@ -75,6 +76,10 @@ public class DeviceCmdLog extends BaseEntity implements IotEventPayload {
 
     public DeviceCmdLog putCmdName(String cmdName) {
         return this.putConfig("cmdName", cmdName);
+    }
+
+    public DeviceCmdLog putCmdParams(Object cmdParams) {
+        return this.putConfig("cmdParams", cmdParams);
     }
 
     public DeviceCmdLog putConfig(String key, Object value) {

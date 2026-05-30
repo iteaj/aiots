@@ -116,10 +116,16 @@ public class DeviceDebugController extends BaseController {
                 .ifNotPresentThrow("此设备数据不完整["+item.getName()+"]")
                 .ifPresent(productDto -> {
                     debugDto.setProduct(productDto);
+                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                        productDto.getEventApis().forEach(api -> debugDto.addApiDebugParam(api.resolverCommand(null, productDto.getAttrs())));
+                    }
+
                     if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
-                        productDto.getFuncApis().forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
+                        productDto.getFuncApis().forEach(api -> debugDto.addApiDebugParam(api.resolverCommand(null, productDto.getAttrs())));
                     }
                     productDto.setAttrs(null);
+                    productDto.setFuncApis(null);
+                    productDto.setEventApis(null);
                 });
         });
 

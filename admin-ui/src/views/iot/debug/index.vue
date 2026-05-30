@@ -87,22 +87,13 @@
                   <ATabs v-if="funcApis.length > 0" class="iv-api-item">
                     <ATabPane v-for="item in funcApis" :key="item['code']" class="iv-api-func">
                       <template #tab>
-                        <div style="width: 230px">
-                          <a-card :bordered="true" class="iv-model-api" hoverable>
+                        <div style="padding: 0 0 6px">
+                          <a-card variant="bordered" class="iv-model-api" hoverable size="small">
                             <template #title>
-                              <UIcon type="iz-icon-debug-api" :style="{marginRight: '3px'}"/>{{item.name}}
+                              <UIcon type="iz-icon-debug-api" :style="{marginRight: '3px'}"/>{{item.apiName}}
                             </template>
-                            <div style="text-align: center">
-                              {{item['code']}}
-                              <p>{{item['remark']}}</p>
-                            </div>
                             <template #actions>
-                              <a-input-group compact v-if="apiCodeDebugMap[item['code']]?.length > 0">
-                                <ASelect v-model:value="item.debugParam" :options="apiCodeDebugMap[item['code']]" style="width: 140px;"
-                                         placement="topRight" :dropdownMatchSelectWidth="false"/>
-                                <AButton type="primary" @click="() => submitDebug(item, true)">调试</AButton>
-                              </a-input-group>
-                              <AButton v-else block type="primary" @click="() => submitDebug(item, false)">调试</AButton>
+                              <AButton block type="primary" @click="() => submitDebug(item, false)">调试</AButton>
                             </template>
                           </a-card>
                         </div>
@@ -115,22 +106,13 @@
                   <ATabs v-if="eventApis.length > 0" class="iv-api-item">
                     <ATabPane v-for="item in eventApis" :key="item['code']" class="iv-api-func">
                       <template #tab>
-                        <div style="width: 230px">
-                          <a-card :bordered="true" class="iv-model-api" hoverable>
+                        <div style="padding: 0 0 6px">
+                          <a-card variant="bordered" class="iv-model-api" hoverable size="small">
                             <template #title>
-                              <UIcon type="iz-icon-debug-api" :style="{marginRight: '3px'}"/>{{item.name}}
+                              <UIcon type="iz-icon-debug-api" :style="{marginRight: '3px'}"/>{{item.apiName}}
                             </template>
-                            <div>
-                              {{item['code']}}
-                              <p>{{item['remark']}}</p>
-                            </div>
                             <template #actions>
-                              <a-input-group compact v-if="apiCodeDebugMap[item['code']]?.length > 0">
-                                <ASelect v-model:value="item.debugParam" :options="apiCodeDebugMap[item['code']]" style="width: 140px;"
-                                         placement="topRight" :dropdownMatchSelectWidth="false"/>
-                                <AButton type="primary" @click="() => submitDebug(item, true)">调试</AButton>
-                              </a-input-group>
-                              <AButton v-else block type="primary" @click="() => submitDebug(item, false)">调试</AButton>
+                              <AButton block type="primary" @click="() => submitDebug(item, false)">调试</AButton>
                             </template>
                           </a-card>
                         </div>
@@ -216,7 +198,7 @@ export default {
     let requestParam = ref(null);
     let activeKey = ref('cus');
     let currentDebugApi = ref(null);
-    let apiCodeDebugMap = ref({});
+    let apiCodeDebugMap = ref([]);
     let directs = ref([]);
     let directModel = ref({});
     let directDebugParam = ref({});
@@ -265,49 +247,19 @@ export default {
         }
       }).finally(() => this.spinning = false)
     },
-    submitDebug(api, hasParam) {
-      let debugParam = api['debugParam'];
-      if(hasParam && !debugParam) {
-        return this.$msg.error("请先选择调试参数");
-      }
-
-      let paramsValueMap = {};
-      if(hasParam) {
-        let paramsValueSplit = debugParam.split(",");
-        paramsValueSplit.forEach(item => {
-          let valueSplit = item.split("::");
-          paramsValueMap[valueSplit[0]] = valueSplit[1];
-        })
-      }
+    submitDebug(api) {
 
       this.spinning =true;
       this.currentDebugApi = api;
       let uid = this.device['uid'];
-      let requestParams = {uid, param: {}};
-      let downConfig = api['downConfig'];
-      if(downConfig && downConfig.length > 0) {
-        downConfig.forEach(item => {
-          let value = item['value'];
-          if(value) { // @开头
-            if(value.indexOf("@") == 0) {
-              let name = value.substring(1);
-              value = paramsValueMap[name];
-              if(value == undefined) {
-                value = null;
-                console.error(`没有属性[${name}]`)
-              }
-            } else if(value.startsWith('#')) {
-              value = null;
-            }
-          }
+      let {commandValue, apiName} = api
+      this.requestParam = {};
+      commandValue.split('&').forEach(item => {
+        let [key, value] = item.split('->');
+        this.requestParam[key] = value
+      });
 
-          let protocolField = item['protocolAttrField'];
-          requestParams.param[protocolField] = value
-        });
-
-        this.requestParam = requestParams.param;
-      }
-      this.$http.post(`/iot/instruct/debug/${api.code}`, requestParams).then(({data, message, code}) => {
+      this.$http.post(`/iot/instruct/debug/${api.code}`, {uid, param: this.requestParam, config: {apiName}}).then(({data, message, code}) => {
         if(code == CoreConsts.SuccessCode) {
           this.debugResult = data;
         } else {
@@ -328,9 +280,10 @@ export default {
           if(code == CoreConsts.SuccessCode) {
             this.device = data['device'];
             this.product = data['product']
-            this.funcApis = this.product['funcApis'] || [];
-            this.eventApis = this.product['eventApis'] || [];
-            this.apiCodeDebugMap = data['apiCodeDebugMap'] || {};
+
+            this.apiCodeDebugMap = data['apiCodeDebugMap'] || [];
+            this.funcApis = this.apiCodeDebugMap.filter(item => item['apiType'] == 'func');
+            this.eventApis = this.apiCodeDebugMap.filter(item => item['apiType'] == 'event');
 
             this.$http.get(`/iot/protocol/apis?id=${data.product.protocolId}`).then(({code, message, data}) => {
               if(code == CoreConsts.SuccessCode) {

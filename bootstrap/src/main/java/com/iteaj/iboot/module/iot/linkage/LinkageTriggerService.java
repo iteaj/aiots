@@ -5,8 +5,11 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
@@ -293,15 +296,25 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     }
 
     private void doInvokeAction(LinkageActionExecDto linkageAction, ModelApi api, RealtimeStatus device) {
+        DeviceCmdLog deviceCmdLog = new DeviceCmdLog().setMethod(DeviceCmdLog.METHOD_LINKAGE)
+                .setOperator("场景联动").setCreateTime(new Date()).setCmdType(api.getType().name())
+                .putCmdName(api.getName()).setDeviceName(device.getDeviceName()).setUid(device.getUid());
+
         if(device.getType() == DeviceType.Child) { // 获取网关设备并且校验网关设备是否在线
             RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
             if(parent == null || parent.getStatus() == DeviceStatus.offline) {
+                deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg("网关设备不在线["+device.getParentDeviceSn()+"]");
+                deviceCmdLog.setElapsed(System.currentTimeMillis() - deviceCmdLog.getCreateTime().getTime());
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
                 logger.error("执行联动动作失败 父网关设备不存在或不在线({}) - 接口: {}/{} - 设备: {}"
                         , device.getParentDeviceSn(), api.getName(), api.getCode(), device.buildKey());
                 return;
             }
         } else if(device.getType() == DeviceType.Direct) {
             if(device.getStatus() == DeviceStatus.offline) {
+                deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg("设备不在线["+device.getDeviceSn()+"]");
+                deviceCmdLog.setElapsed(System.currentTimeMillis() - deviceCmdLog.getCreateTime().getTime());
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
                 logger.error("执行联动动作失败 设备不在线 - 接口: {}/{} - 设备: {}", api.getName(), api.getCode(), device.buildKey());
                 return;
             }
@@ -309,12 +322,18 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
         try {
             ProtocolModelApiInvokeParam param = createInvokeParam(linkageAction, device);
+            deviceCmdLog.putCmdParams(param.getParam());
             ProtocolInvokeUtil.invoke(api, param, device, (result) -> {
                 if(result.getStatus() != ExecStatus.success) {
+                    deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(result.getReason());
                     logger.warn("执行联动动作失败 {} - 接口: {}/{} - 设备: {}"
                             , result.getStatus(), api.getName(), api.getCode(), device.buildKey());
+                } else {
+                    deviceCmdLog.setStatus(DeviceCmdLog.STATUS_SUCCESS).setResultMsg("执行成功");
                 }
 
+                deviceCmdLog.setElapsed(System.currentTimeMillis() - deviceCmdLog.getCreateTime().getTime());
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
                 CollectListenerManager.getInstance().publish(item -> {
                     if(item instanceof LinkageActionListener) {
                         ((LinkageActionListener) item).apiInvoke(api, device, result);
@@ -322,6 +341,8 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 });
             });
         } catch (Exception e) {
+            deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(e.getMessage())
+                    .setElapsed(System.currentTimeMillis() - deviceCmdLog.getCreateTime().getTime());
             logger.error("执行联动动作失败 调用物模型接口异常 - 接口: {}/{} - 设备: {}", api.getName(), api.getCode(), device.buildKey(), e);
         }
 
@@ -334,12 +355,9 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
             invokeParam.setDeviceSn(device.getDeviceSn()).setParentDeviceSn(device.getParentDeviceSn());
             return invokeParam;
         } else {
-            logger.error("执行联动动作异常 api没有下行配置 - api: {}/{} - 设备: {}"
-                    , linkageAction.getApi().getName(), linkageAction.getApi().getCode()
-                    , device != null ? device.buildKey() : null);
+            throw new ServiceException("api没有下行配置");
         }
 
-        return null;
     }
 
     protected boolean validateCondition(LinkageItem item, DataSupplier dataSupplier, Object deviceOrGroup, Map<String, SuccessDeviceAndField> validateSuccessField) {

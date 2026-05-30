@@ -7,11 +7,16 @@ import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.iboot.module.core.entity.Admin;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
@@ -23,6 +28,7 @@ import com.iteaj.iboot.module.iot.dto.DebugRespDto;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Device;
+import com.iteaj.iboot.module.iot.entity.DeviceCmdLog;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
@@ -37,6 +43,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -118,50 +125,67 @@ public class DeviceCtrlController extends BaseController {
     @CheckPermission(value = {"iot:model:debug", "iot:open:debug"}, logical = Logical.OR)
     @PostMapping("/debug")
     public Mono<Result<DebugRespDto>> debug(@RequestBody ProtocolModelApiInvokeParam param) {
-        Device device = deviceService.getByUid(param.getUid()).ifNotPresentThrow("设备不存在").getData();
-        Product product = productService.getById(device.getProductId()).ifNotPresentThrow("产品不存在").getData();
-        if(product.getStatus() == FuncStatus.disabled) {
-            return Mono.error(new ServiceException("产品未启用"));
-        }
-        DeviceProtocolSupplier<?, ?> protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
-        if(protocolSupplier == null) {
-            return Mono.error(new ServiceException("未找到驱动["+product.getProtocolCode()+"]"));
-        }
-
-        DebugRespDto debugRespDto = new DebugRespDto(device.getDeviceSn());
-        RealtimeStatus parent = null;
-        RealtimeStatus byUid = cacheManager.getByUid(param.getUid());
-        if(byUid.getType() == DeviceType.Child) {
-            parent = cacheManager.get(product.getProtocolCode(), byUid.getParentDeviceSn());
-        }
-
-        String direct = param.getString("direct");
-        AbstractProtocolModelApi modelApi = protocolSupplier.getProtocol().getApi(direct);
-        if(modelApi == null) {
-            throw new ServiceException("指令不存在["+direct+"]");
-        }
-
-        ProtocolModelApiInvokeParam modelApiInvokeParam = ProtocolInvokeUtil.createModelApiInvokeParam(byUid, parent);
-        modelApiInvokeParam.setParam(param.getParam()); modelApiInvokeParam.setTimeout(6000L);
-        return Mono.<InvokeResult>create(item -> {
-            try {
-                modelApi.invoke(modelApiInvokeParam, item::success);
-            } catch (Exception e) {
-                e.printStackTrace();
-                item.success(InvokeResult.fail(e.getMessage(), null));
+        DeviceCmdLog deviceCmdLog = new DeviceCmdLog().setUid(param.getUid())
+                .setMethod(DeviceCmdLog.METHOD_DEBUG).putCmdParams(param.getParam())
+                .setOperator(((Admin) SecurityUtil.getLoginUser().orElse(new Admin())).getName())
+                .setOperatorId(SecurityUtil.getLoginId().orElse(null)).setCreateTime(new Date());
+        try {
+            Device device = deviceService.getByUid(param.getUid()).ifNotPresentThrow("设备不存在").getData();
+            deviceCmdLog.setDeviceName(device.getName());
+            Product product = productService.getById(device.getProductId()).ifNotPresentThrow("产品不存在").getData();
+            if(product.getStatus() == FuncStatus.disabled) {
+                throw new ServiceException("产品未启用");
             }
-        }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
-            debugRespDto.setStatus(item.getStatus());
-            debugRespDto.setRespTime(System.currentTimeMillis());
-            debugRespDto.setReqMsg(item.getRequestMessage().toString());
-            debugRespDto.setRespMsg(item.getResponseMessage().toString());
-            if(item.getStatus() == ExecStatus.success) {
-                debugRespDto.setValue(item.getValue());
-                return success(debugRespDto);
-            } else {
-                return success(debugRespDto.setReason(item.getReason()));
+            DeviceProtocolSupplier<?, ?> protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
+            if(protocolSupplier == null) {
+                throw new ServiceException("未找到驱动[" + product.getProtocolCode() + "]");
             }
-        });
+
+            DebugRespDto debugRespDto = new DebugRespDto(device.getDeviceSn());
+            RealtimeStatus parent = null;
+            RealtimeStatus byUid = cacheManager.getByUid(param.getUid());
+            if(byUid.getType() == DeviceType.Child) {
+                parent = cacheManager.get(product.getProtocolCode(), byUid.getParentDeviceSn());
+            }
+
+            String direct = param.getString("direct");
+            AbstractProtocolModelApi modelApi = protocolSupplier.getProtocol().getApi(direct);
+            if(modelApi == null) {
+                throw new ServiceException("指令不存在["+direct+"]");
+            }
+
+            deviceCmdLog.setCmdType(modelApi.getType().name()).putCmdName(modelApi.getName() + " -> 自定义调试");
+            ProtocolModelApiInvokeParam modelApiInvokeParam = ProtocolInvokeUtil.createModelApiInvokeParam(byUid, parent);
+            modelApiInvokeParam.setParam(param.getParam());
+            modelApiInvokeParam.setTimeout(6000L);
+            return Mono.<InvokeResult>create(item -> {
+                try {
+                    modelApi.invoke(modelApiInvokeParam, item::success);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    item.success(InvokeResult.fail(e.getMessage(), null));
+                }
+            }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
+                debugRespDto.setStatus(item.getStatus());
+                debugRespDto.setRespTime(System.currentTimeMillis());
+                debugRespDto.setReqMsg(item.getRequestMessage().toString());
+                debugRespDto.setRespMsg(item.getResponseMessage().toString());
+                if(item.getStatus() == ExecStatus.success) {
+                    debugRespDto.setValue(item.getValue());
+                    deviceCmdLog.setStatus(DeviceCmdLog.STATUS_SUCCESS).setResultMsg("执行成功");
+                    IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
+                    return success(debugRespDto);
+                } else {
+                    deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(item.getReason());
+                    IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
+                    return success(debugRespDto.setReason(item.getReason()));
+                }
+            });
+        } catch (ServiceException e) {
+            deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(e.getMessage());
+            IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
+            return Mono.just(fail(e.getMessage()));
+        }
     }
     /**
      * 设备调试接口
@@ -171,10 +195,20 @@ public class DeviceCtrlController extends BaseController {
     @CheckPermission(value = {"iot:model:debug", "iot:open:debug"}, logical = Logical.OR)
     @PostMapping("/debug/{modelApiCode}")
     public Mono<Result<DebugRespDto>> debug(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
+        // 记录日志
+        DeviceCmdLog deviceCmdLog = new DeviceCmdLog().setUid(param.getUid())
+                .setMethod(DeviceCmdLog.METHOD_DEBUG)
+                .putCmdName(param.getConfig("apiName")).putCmdParams(param.getParam())
+                .setOperator(((Admin) SecurityUtil.getLoginUser().orElse(new Admin())).getName())
+                .setOperatorId(SecurityUtil.getLoginId().orElse(null)).setCreateTime(new Date());
+
         // 获取协议模型接口
         Object[] objects = this.getProtocolModelApi(modelApiCode, param);
         ModelApi modelApi = (ModelApi) objects[1];
+        RealtimeStatus device = (RealtimeStatus) objects[4];
         DeviceProtocolSupplier<?, ?> supplier = (DeviceProtocolSupplier<?, ?>) objects[3];
+
+        deviceCmdLog.setDeviceName(device.getDeviceName()).setCmdType(modelApi.getType().name());
 
         DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
         return Mono.<InvokeResult>create(item -> {
@@ -191,8 +225,10 @@ public class DeviceCtrlController extends BaseController {
             debugRespDto.setRespTime(System.currentTimeMillis());
             debugRespDto.setReqMsg(item.getRequestMessage().toString());
             debugRespDto.setRespMsg(item.getResponseMessage().toString());
+            deviceCmdLog.setElapsed(System.currentTimeMillis() - deviceCmdLog.getCreateTime().getTime());
             if(item.getStatus() == ExecStatus.success) {
                 debugRespDto.setValue(item.getValue());
+                deviceCmdLog.setStatus(DeviceCmdLog.STATUS_SUCCESS).setResultMsg("执行成功");
                 if(modelApi.getFuncType() == FuncType.R && item.getValue() != null) {
                     final DataSupplier dataSupplier = supplier.getDataSupplier(item.getProtocol(), param, item.getValue());
                     final String value = dataSupplier.getValues().stream()
@@ -201,10 +237,15 @@ public class DeviceCtrlController extends BaseController {
                     debugRespDto.setValue(value);
                 }
 
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
                 return success(debugRespDto);
             } else {
+                deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(item.getReason());
+
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
                 return success(debugRespDto.setReason(item.getReason()));
             }
+
         });
     }
 
@@ -251,7 +292,7 @@ public class DeviceCtrlController extends BaseController {
             throw new ServiceException("没有找到接口[apiCode="+modelApi.getDirect()+"]");
         }
 
-        return new Object[]{protocolModelApi, modelApi, product, protocolSupplier};
+        return new Object[]{protocolModelApi, modelApi, product, protocolSupplier, device};
     }
 
     /**

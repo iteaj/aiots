@@ -41,7 +41,7 @@ public class IotViewCmdListener implements CmdInvokeListener {
                 .setMethod(value.getScenario()).setCreateTime(new Date());
         try {
             invokeParam = IotUtil.createParamByCmdCode(value.getCode(), value.getUid());
-            cmdLog.setUid(invokeParam.getUid());
+            cmdLog.setUid(invokeParam.getUid()).putCmdParams(invokeParam.getParam());
             RealtimeStatus device = cacheManager.getByUid(invokeParam.getUid());
             if(device == null) {
                 cmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg("设备不存在");
