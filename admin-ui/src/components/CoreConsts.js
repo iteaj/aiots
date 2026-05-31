@@ -124,11 +124,11 @@ export default {
         CONFIRM: 'CONFIRM', // 确认
     },
     FuncBtnTypeMaps: { // 功能按钮的默认配置
-        ADD: {variant: 'filled', color: 'primary'},
+        ADD: {variant: 'filled', color: 'cyan'},
         DEL: {type: 'primary', danger: true},
         EDIT: {variant: 'solid', color: 'pink'},
-        QUERY: {type: 'primary'}, // 查询
-        VIEW: {type: 'primary'}, // 查询 和query选其一
+        QUERY: {color: 'primary', variant: 'filled'}, // 查询
+        VIEW: {color: 'primary', variant: 'filled'}, // 查询 和query选其一
         IMPORT: {type: 'primary', shape: 'round'},
         EXPORT: {type: 'dashed', shape: 'round'},
         EXPAND: {type: 'primary', ghost: true},

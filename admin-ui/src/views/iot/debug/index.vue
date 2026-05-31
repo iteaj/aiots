@@ -349,9 +349,6 @@ export default {
 .iv-debug.result {
   padding: 1px;
 }
-.iv-debug .status-item .title {
-  color: #282727;
-}
 .iv-debug .status-item .value {
   margin-left: 3px;
 }
