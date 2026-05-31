@@ -12,6 +12,7 @@ admin-ui/dist/
 tmp/
 *.timestamp-*.mjs
 .playwright-cli
+.cc-connect
 # Log files
 npm-debug.log*
 
