@@ -74,7 +74,6 @@ public class IotViewCmdListener implements CmdInvokeListener {
             DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(device.getProtocolCode());
             ProtocolModelApiInvokeParam finalInvokeParam = invokeParam;
             ProtocolInvokeUtil.invoke(supplier, modelApi, invokeParam, device, result -> {
-                value.getCallback().accept(result);
                 if(result.getStatus() == ExecStatus.success) {
                     cmdLog.setStatus(DeviceCmdLog.STATUS_SUCCESS).setResultMsg("下发成功")
                             .setElapsed(System.currentTimeMillis() - cmdLog.getCreateTime().getTime());
@@ -91,6 +90,7 @@ public class IotViewCmdListener implements CmdInvokeListener {
                 }
 
                 IotEvenPublisher.publish(IotEventType.DeviceCmdLog, cmdLog);
+                value.getCallback().accept(result);
             });
 
         } catch (ServiceException e) {
