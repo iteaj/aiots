@@ -2,6 +2,8 @@ package com.iteaj.framework.spi.iot.resolver;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.spi.iot.DataValueResolver;
 import com.iteaj.framework.spi.iot.UpModelAttr;
 import com.iteaj.framework.spi.iot.consts.DataType;
@@ -41,6 +43,10 @@ public class DefaultResolver implements DataValueResolver {
                     return doResolverNumberValue(attr, Double.valueOf(value.toString()));
                 } else if(isInteger(dataType)) {
                     return doResolverNumberValue(attr, Long.valueOf(value.toString()));
+                }
+            } else if(value != null){
+                if(dataType == DataType.t_json || dataType == DataType.t_group) {
+                    return JSON.toJSONString(value);
                 }
             }
         } catch (Exception e) {
