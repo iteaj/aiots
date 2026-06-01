@@ -38,6 +38,16 @@
 
             </div>
           </AModal>
+          <a-dropdown forceRender :classes="{root: 'iv-header-notify'}" placement="bottomRight" :getPopupContainer="getPopupContainer">
+            <a-button type="text">
+              <a-badge :count="notifyCount" size="small" :offset="[3, 0]">
+                <BellOutlined />
+              </a-badge>
+            </a-button>
+            <template #popupRender>
+              <Notify v-model="notifyCount"/>
+            </template>
+          </a-dropdown>
           <a-tooltip title="全局搜索">
             <a-button @click="() => searchStatus = true" type="text">
               <template #icon>
@@ -55,7 +65,8 @@
           <a-dropdown :menu="{items: themeMenus, multiple: true}" placement="bottom" @menuClick="switchTheme">
             <a-button type="text">
               <template #icon>
-                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" class="">
+                <span class="anticon">
+                  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" class="">
                   <title>主题</title>
                   <g fill-rule="evenodd">
                     <g fill-rule="nonzero">
@@ -63,6 +74,7 @@
                     </g>
                   </g>
                 </svg>
+                </span>
               </template>
             </a-button>
             <template #extraRender="item">
@@ -121,11 +133,13 @@ import {
   ReloadOutlined,
   LayoutOutlined,
   SearchOutlined,
+  BellOutlined
 } from '@antdv-next/icons'
 import {inject, ref, h} from "vue";
 import {UIcon} from "@/components/icon";
 import {createStyles} from 'antdv-style'
 import {ThemeConfigKey} from "@/utils/ProvideKeys";
+import Notify  from "@/layout/Notify.vue";
 import {themeMenus, registerThemeConfig, cartoon, illustration, useCartoonTheme, useIllustrationTheme} from "@/theme/index.js";
 
 export default {
@@ -157,11 +171,12 @@ export default {
   components: {
     ReloadOutlined, LockFilled, LogoutOutlined, DownOutlined, CheckOutlined, UserOutlined
     , HomeOutlined, NotificationFilled, FullscreenOutlined, LayoutOutlined, SearchOutlined
-    , SyncOutlined, SunOutlined, MoonOutlined},
+    , SyncOutlined, SunOutlined, MoonOutlined, BellOutlined, Notify},
   setup() {
     let msgCount = 0
     let waitCount = 0;
     let workMenu = {};
+    let notifyCount = ref(0);
     let searchStatus = ref(false);
     let themeConfig = inject(ThemeConfigKey);
     let colorData =themeConfig.candidateColorPrimary;
@@ -200,7 +215,7 @@ export default {
         }
       }
     })
-    return {workMenu, msgCount, waitCount, themeConfig, colorData, searchStatus, themeMenus}
+    return {workMenu, msgCount, waitCount, themeConfig, colorData, searchStatus, themeMenus, notifyCount}
   },
   methods: {
     ...mapMutations({
@@ -268,6 +283,9 @@ export default {
       if (topMenu) {
         this.switchActiveTopMenu(topMenu);
       }
+    },
+    getPopupContainer() {
+      return document.getElementsByClassName("iv-header")[0];
     }
   }
 }
@@ -340,7 +358,10 @@ export default {
   text-align: right;
 }
 .ivz-header-col-right .anticon {
-  font-size: 18px;
+  font-size: 15px!important;
+}
+.ivz-header-col-right .ant-btn {
+  margin: 0 3px;
 }
 .ivz-header-col-right .u-opera-col {
   float: right;
@@ -369,5 +390,7 @@ export default {
   font-size: 16px;
   margin-right: 6px;
 }
-
+.iv-header-notify .ant-dropdown-menu .ant-dropdown-menu-item:hover {
+  background-color: unset!important;
+}
 </style>

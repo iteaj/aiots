@@ -199,6 +199,7 @@ export default {
   padding: 16px;
   margin: 16px;
   border-radius: var(--primary-radius);
+  background-color: var(--iv-color-bgt-container);
 }
 .u-user-name {
   font-size: 24px;
@@ -210,7 +211,7 @@ export default {
 }
 .iv-profile-config {
   padding-left: 36px;
-  border-left: 1px solid var(--divider-color);
+  border-left: var(--iv-color-split);
 }
 .iv-user-list {
   margin-top: 32px;

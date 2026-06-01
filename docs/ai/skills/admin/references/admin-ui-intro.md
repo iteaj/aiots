@@ -24,7 +24,6 @@
 | **HTTP 请求** | Axios | 1.4.x |
 | **图表** | ECharts | 5.3.x |
 | **可视化组态** | @meta2d/core (le5le) | 1.0.x |
-| **富文本编辑器** | WangEditor | 5.1.x |
 | **Markdown 编辑器** | md-editor-v3 | 4.3.x |
 | **代码编辑器** | vue3-ace-editor | 2.2.x |
 | **地图** | 高德地图 @amap/amap-jsapi-loader | 1.0.x |
