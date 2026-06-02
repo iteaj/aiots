@@ -138,7 +138,7 @@ public class DeviceController extends BaseController {
      */
 
     @PostMapping("connect/{status}")
-    @CheckPermission(value = {"iot:modbus:connect", "iot:mqtt:connect", "iot:device:gateway:connect", "iot:plc:connect", "iot:dlt645:connect", "iot:opcua:connect"}, logical = Logical.OR)
+    @CheckPermission(value = {"iot:modbus:connect", "iot:mqtt:connect", "iot:device:gateway:connect", "iot:plc:connect", "iot:dlt645:connect", "iot:opcua:connect", "iot:direct:connect"}, logical = Logical.OR)
     public Result connect(@RequestBody Device device, @PathVariable DeviceStatus status) {
         if(status == null) {
             return fail("未指定连接状态");
@@ -160,6 +160,8 @@ public class DeviceController extends BaseController {
             Object networkCtrl = IotNetworkUtil.networkCtrl(entity.getProtocolCode(), entity, funcStatus);
             if(networkCtrl instanceof ChannelFuture) {
                 ((ChannelFuture) networkCtrl).get(10, TimeUnit.SECONDS);
+            } else if(Boolean.FALSE.equals(networkCtrl)) {
+                return fail("连接失败");
             }
         } catch (Throwable e) {
             e.printStackTrace();

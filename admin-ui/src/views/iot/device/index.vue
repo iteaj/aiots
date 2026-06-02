@@ -68,7 +68,11 @@
       <template #action="{record}">
         <UTag func="edit" :data="record" url="/iot/device/edit" v-auth="'iot:device:edit'">修改</UTag>
         <UTag func="del" :data="record" url="/iot/device/del" v-auth="'iot:device:del'">删除</UTag>
-        <ATag color="#108ee9" style="cursor: pointer" @click="() => openDetail(record)">详情</ATag>
+        <UTag func="ajax" :disabled="record['connectType'] != 'Client'" :data="record" color="#55acee"
+              v-auth="'iot:direct:connect'" :url="'/iot/device/connect/'+(record.status=='online' ? 'offline' : 'online')">
+          {{record.status=='online' ? '断开' : '连接'}}
+        </UTag>
+        <ATag color="#108ee9" style="cursor: pointer; margin-left: 3px" @click="() => openDetail(record)">详情</ATag>
       </template>
     </UViewTable>
     <DeviceDetailModal v-model:open="openStatus" :device="detailDevice"/>
@@ -101,7 +105,7 @@ export default {
       {field: "createTime", title: "创建时间", type: 'date', width: 100, format: 'YYYY-MM-DD'},
       {field: "switchTime", title: "上/下线时间", type: 'date', width: 160},
       {field: "status", title: "设备状态", dict: 'iot_device_status', width: 80, fixed: 'right'},
-      {field: 'action', title: '操作', type: 'action' , width: 180, fixed: 'right'},
+      {field: 'action', title: '操作', type: 'action' , width: 220, fixed: 'right'},
     ]);
 
     let rules = reactive({
