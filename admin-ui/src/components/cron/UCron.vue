@@ -137,14 +137,14 @@
                 {{text.Day.intervalDay[2]}}
               </ARadio>
             </div>
-            <div class="iv-cron-item">
-              <ARadio value="4">{{text.Day.cycle[0]}}
-                <AInputNumber size="small" v-model:value="day.rangeStart" :min="1" :max="31"></AInputNumber>
-                {{text.Day.cycle[1]}}
-                <AInputNumber size="small" v-model:value="day.rangeEnd" :min="day.rangeStart ? parseInt(day.rangeStart) + 1 : 1" :max="31"></AInputNumber>
-                {{text.Day.cycle[2]}}
-              </ARadio>
-            </div>
+<!--            <div class="iv-cron-item">-->
+<!--              <ARadio value="4">{{text.Day.cycle[0]}}-->
+<!--                <AInputNumber size="small" v-model:value="day.rangeStart" :min="1" :max="31"></AInputNumber>-->
+<!--                {{text.Day.cycle[1]}}-->
+<!--                <AInputNumber size="small" v-model:value="day.rangeEnd" :min="day.rangeStart ? parseInt(day.rangeStart) + 1 : 1" :max="31"></AInputNumber>-->
+<!--                {{text.Day.cycle[2]}}-->
+<!--              </ARadio>-->
+<!--            </div>-->
             <div class="iv-cron-item">
               <ARadio value="5">{{text.Day.none}}</ARadio>
             </div>

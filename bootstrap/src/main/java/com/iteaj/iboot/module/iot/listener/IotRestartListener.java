@@ -42,7 +42,7 @@ public class IotRestartListener implements ApplicationReadyListener {
 
     public IotRestartListener(IGatewayService gatewayService
             , IDeviceService deviceService, IProductService productService
-            , IotCacheManager iotCacheManager, @Autowired(required = false) List<IotListener> list) {
+            , IotCacheManager iotCacheManager, @Autowired(required = false) List<IotListener<?>> list) {
         this.gatewayService = gatewayService;
         this.deviceService = deviceService;
         this.productService = productService;
@@ -50,7 +50,7 @@ public class IotRestartListener implements ApplicationReadyListener {
 
         // 注册事件监听器
         if(list != null) {
-            list.forEach(item -> IotEvenPublisher.register(item));
+            list.forEach(IotEvenPublisher::register);
         }
     }
 
@@ -67,9 +67,7 @@ public class IotRestartListener implements ApplicationReadyListener {
     }
 
     private void cacheDevice() {
-        this.deviceService.listDeviceStatus().forEach(item -> {
-            iotCacheManager.cache(item);
-        });
+        this.deviceService.listDeviceStatus().forEach(iotCacheManager::cache);
     }
 
     private void initGateway() {
@@ -94,8 +92,8 @@ public class IotRestartListener implements ApplicationReadyListener {
                 return;
             }
 
-            if(item.getDeviceType() == DeviceType.Gateway) { // 启用边缘网关下面所有的设备
-                DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
+            if(item.getDeviceType() == DeviceType.Gateway || item.getDeviceType() == DeviceType.Direct) { // 启用边缘网关和直连的所有的客户端设备
+                DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(item.getProtocolCode());
                 if(supplier == null) {
                     logger.warn("<<< 启动产品[{}]失败, 未提供协议[code={}]", item.getName(), item.getProtocolCode());
                     return; // 保存产品启动信息

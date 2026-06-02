@@ -59,6 +59,13 @@ public class DeviceCollectTask implements Runnable {
 
                 return;
             }
+        } else if(device.getType() == DeviceType.Direct) {
+            if(device.getStatus() == DeviceStatus.offline) {
+                IotLogger.warn(source, device.getUid(), "放弃设备采集任务 设备不在线({}) - 设备组: {} - 设备编号: {}"
+                        , device.getDeviceSn(), group.getName(), device.buildKey());
+
+                return;
+            }
         }
 
         CollectInfo.DeviceInfo deviceInfo = collectInfo.addDeviceInfo(device);
