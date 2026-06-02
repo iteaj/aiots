@@ -391,6 +391,15 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                     if(this.hasBindEnabledEventSource(id)) {
                         throw new ServiceException("此产品正被事件源使用中, 请先禁用对应事件源");
                     }
+                } else {
+                    if(item.getGatewayStatus() == GatewayStatus.stop) {
+                        throw new ServiceException("请先启用网关["+item.getGatewayName()+"]");
+                    }
+                }
+
+                DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(item.getProtocolCode());
+                if(supplier == null && status == FuncStatus.enabled) { // 启动某个产品做驱动校验
+                    throw new ServiceException("查找不到对应的协议驱动[code="+item.getProtocolCode()+"]");
                 }
 
                 // 网关子设备的父产品是边缘网关产品
@@ -403,31 +412,9 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 //                                }
                             });
                     }
-                } else if(item.getDeviceType() == DeviceType.Gateway) { // 启用边缘网关下面所有的设备
-                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
-                    if(supplier == null) {
-                        throw new ServiceException("查找不到对应的协议提供[code="+item.getProtocolCode()+"]");
-                    }
-
-                    // 校验此网关产品下面有没有已启用的子产品
-                    if(status == FuncStatus.disabled) {
-//                        this.getOne(Wrappers.<Product>lambdaQuery()
-//                                .eq(Product::getParentId, item.getId())
-//                                .eq(Product::getStatus, FuncStatus.enabled)
-//                                .last("limit 1")).ifPresent(child -> {
-//                            throw new ServiceException("请先停用子产品["+child.getName()+"]");
-//                        });
-                    }
-
+                } else { // 连接此产品下的所有客户端设备
                     if(supplier instanceof ClientProtocolSupplier) {
-                        // 先校验产品绑定的网关是否启用
-                        if(status == FuncStatus.enabled) {
-                            if(item.getGatewayStatus() == GatewayStatus.stop) {
-                                throw new ServiceException("请先启用网关["+item.getGatewayName()+"]");
-                            }
-                        }
-
-                        // 获取此网关产品下面的所有网关设备
+                        // 获取此产品下面的所有设备并连接
                         this.getBaseMapper().listDeviceByProductId(item.getId()).forEach(device -> {
                             try {
                                 IotNetworkUtil.networkCtrl(supplier, device, status);
@@ -472,7 +459,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 }
 
                 // 发布状态切换事件
-                IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item.setStatus(status)));
+                IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload<>(item.setStatus(status)));
             });
     }
 

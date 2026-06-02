@@ -39,6 +39,15 @@
           </UInputItem>
           <UInputItem field="ip" label="设备ip"/>
           <UInputNumberItem field="port" label="设备端口"/>
+          <a-divider v-if="protocolConfig && protocolConfig.length > 0" style="margin: 0 0 6px" dashed>设备配置(重启对应产品后生效)</a-divider>
+          <template v-if="protocolConfig" v-for="item in protocolConfig" :key="item['field']">
+            <UInputItem v-if="item['type']=='string'" :field="'config.'+item['field']" :label="item['label']" :required="item['required']"
+                        :defaultValue="item['defaultValue']" :extra="item['extra']" :placeholder="item['placeholder']"/>
+            <UInputNumberItem v-else-if="item['type']=='number'" :field="'config.'+item['field']" :label="item['label']" :required="item['required']"
+                              :defaultValue="item['defaultValue']" :extra="item['extra']" :placeholder="item['placeholder']"/>
+            <USelectItem v-else-if="item['type'] == 'select'" :field="'config.'+item['field']" :label="item['label']" :required="item['required']"
+                         :defaultValue="item['defaultValue']" :extra="item['extra']" :placeholder="item['placeholder']" :options="item['options']" />
+          </template>
         </URow>
       </template>
       <template #footer="{model}">
@@ -70,6 +79,9 @@
 import {ref, reactive, watch, nextTick} from "vue";
 import {useRoute} from "vue-router";
 import DeviceDetailModal from "@msn/iot/device/detail/modal.vue";
+import {GET} from "@/utils/request.js";
+import CoreConsts from "@/components/CoreConsts.js";
+import {msgWarn} from "@/utils/message.js";
 export default {
   name: "Device",
   components: {DeviceDetailModal},
@@ -110,6 +122,7 @@ export default {
     let selectedProduct = ref({}); // 选中的产品
     let openStatus = ref(false);
     let detailDevice = ref({});
+    let protocolConfig = ref([]);
     watch(() => mapOpen.value, (newVal) => {
       if(newVal && editModel.value['lon'] && editModel.value['lat']) {
         centerPoint.value = [editModel.value['lon'], editModel.value['lat']];
@@ -121,7 +134,14 @@ export default {
     watch(() => editModel.value['productId'], (newValue) => {
       if(!newValue) {
         selectedProduct.value = {};
-        editModel.value['pid'] = null;
+      } else {
+        GET(`/iot/protocol/listProtocolConfigByProductId?type=gateway&productId=${newValue}`).then(({code, message, data}) => {
+          if(code == CoreConsts.SuccessCode) {
+            protocolConfig.value = data;
+          } else {
+            msgWarn(message);
+          }
+        })
       }
     })
 
@@ -135,7 +155,8 @@ export default {
       }
     }, {immediate: true})
 
-    return {columns, rules, editModel, searchModel, selectedProduct, productSource, searchRef, mapOpen, centerPoint, openStatus, detailDevice}
+    return {columns, rules, editModel, searchModel, selectedProduct, productSource, searchRef, mapOpen, centerPoint, openStatus
+      , detailDevice, protocolConfig}
   },
   methods: {
     productChange(value, model) {

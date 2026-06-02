@@ -30,7 +30,7 @@ public class IotNetworkUtil {
      * @param status 连接还是断开
      */
     public static Object networkCtrl(String protocolCode, Device device, FuncStatus status) {
-        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
+        DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(protocolCode);
         if(supplier == null) {
             throw new ServiceException("协议驱动["+protocolCode+"]不存在");
         }
@@ -44,7 +44,7 @@ public class IotNetworkUtil {
      * @param device
      * @param status 连接还是断开
      */
-    public static Object networkCtrl(DeviceProtocolSupplier supplier, Device device, FuncStatus status) {
+    public static Object networkCtrl(DeviceProtocolSupplier<?, ?> supplier, Device device, FuncStatus status) {
         NetworkConfig networkConfig = createClientConfig(supplier, device);
 
         IotClient client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
@@ -52,7 +52,7 @@ public class IotNetworkUtil {
         return resolveGatewayProductClientStatus(client, device, status, supplier.getComponent());
     }
 
-    private static NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, Device device) {
+    private static NetworkConfig createClientConfig(DeviceProtocolSupplier<?, ?> supplier, Device device) {
         JSONObject config = device.getConfig();
         if(config == null) {
             throw new ServiceException("设备[" + device.getName() + " / " + device.getDeviceSn() + "]缺少配置");
@@ -105,7 +105,7 @@ public class IotNetworkUtil {
 
     public static void removeClient(RealtimeStatus status) {
         String protocolCode = status.getProtocolCode();
-        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
+        DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(protocolCode);
         if(supplier instanceof ClientProtocolSupplier) {
             final IotClient client = ((ClientProtocolSupplier<?, ?, ?>) supplier).removeClient(status.getDeviceSn());
             if(client != null) {
