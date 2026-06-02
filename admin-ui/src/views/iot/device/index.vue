@@ -135,7 +135,7 @@ export default {
       if(!newValue) {
         selectedProduct.value = {};
       } else {
-        GET(`/iot/protocol/listProtocolConfigByProductId?type=gateway&productId=${newValue}`).then(({code, message, data}) => {
+        GET(`/iot/protocol/listProtocolConfigByProductId?type=direct&productId=${newValue}`).then(({code, message, data}) => {
           if(code == CoreConsts.SuccessCode) {
             protocolConfig.value = data;
           } else {
