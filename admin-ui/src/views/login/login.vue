@@ -2,7 +2,7 @@
   <div class="iz-login iz-login-bg">
     <div class="iz-login-card">
       <a-card :bordered="false" @keyup.enter.native="submit()">
-        <img slot="title" src="/img/login_logo.png" style="margin-bottom: 12px"/>
+        <span style="margin-bottom: 3px; padding: 6px 0; display: inline-block; font-size: 18px">AIots一款工业物联网首选开发平台</span>
         <a-form layout="horizontal" ref="formRef" :model="user" :rules="rules" :label-col="labelCol" :wrapper-col="wrapperCol">
           <a-form-item has-feedback name="username">
             <a-input placeholder="请输入用户名" size="large" v-model:value="user.username">

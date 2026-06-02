@@ -350,7 +350,7 @@
           <UButton func="query" url="/iot/product/listBatchModel" ref="batchModelQueryRef">查询</UButton>
           <UButton func="add">新增</UButton>
         </UViewSearch>
-        <UViewEditable :columns="batchColumns" :pagination="false" size="small" :scroll="{x: 1200}" @edit="onBatchEditModel">
+        <UViewEditable :columns="batchColumns" :pagination="false" size="small" :scroll="{x: 1200}" @edit="onBatchEditModel" position="top">
           <template #action="{record, editing}">
             <UTag func="edit" :data="record">修改</UTag>
             <UTag func="cancel" :data="record">取消</UTag>

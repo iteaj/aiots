@@ -186,6 +186,7 @@ export default defineComponent({
     props: {
         sticky: {default: false},
         dataSource: {type: Array},
+        position: {type: String, default: "bottom"}, // 插入的位置
         ellipsis: {type: Boolean, default: true},
         func: {type: Boolean, default: true},
         size: {type: String, default: "middle"},
@@ -320,7 +321,11 @@ export default defineComponent({
                 editRowData.value.editRow = newRow;
                 emit("edit", newRow);
                 if(dataSourceRef.value instanceof Array) {
-                    dataSourceRef.value.push(newRow);
+                    if(props.position == "bottom") {
+                        dataSourceRef.value.push(newRow);
+                    } else {
+                        dataSourceRef.value.unshift(newRow);
+                    }
                 } else {
                     dataSourceRef.value = [newRow];
                 }

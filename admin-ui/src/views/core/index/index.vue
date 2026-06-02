@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100%; height: 100%;" class="u-core-index">
-    <AFlex justify="space-between" gap="18" style="height: 150px;">
-      <div class="iv-work iv-work-protocol" style="width: 30%;">
+    <AFlex justify="space-between" gap="10" style="height: 150px;">
+      <div class="iv-work iv-work-protocol" style="width: 32%;">
         <div class="iv-work-bg"></div>
         <a-card size="small">
           <template #title>
@@ -20,7 +20,7 @@
           </ASpace>
         </a-card>
       </div>
-      <div class="iv-work iv-work-product" style="width: 30%;">
+      <div class="iv-work iv-work-product" style="width: 32%;">
         <a-card size="small">
           <template #title>
             <div class="iv-work-title">
@@ -42,7 +42,7 @@
           </ASpace>
         </a-card>
       </div>
-      <div class="iv-work iv-work-event" style="width: 30%;">
+      <div class="iv-work iv-work-event" style="width: 32%;">
         <a-card size="small">
           <template #title>
             <div class="iv-work-title">
@@ -64,7 +64,7 @@
           </ASpace>
         </a-card>
       </div>
-      <div class="iv-work iv-work-device" style="width: 30%;">
+      <div class="iv-work iv-work-device" style="width: 32%;">
         <a-card size="small">
           <template #title>
             <div class="iv-work-title">
@@ -87,19 +87,19 @@
         </a-card>
       </div>
     </AFlex>
-    <AFlex justify="space-between" style="height: 360px; margin-top: 14px;" gap="18">
-      <ACard title="产品设备数量统计" class="u-row" size="small" style="width: 45%">
-        <div id="iv-index-product" style="height: 270px"></div>
+    <AFlex justify="space-between" style="height: 360px;" gap="10">
+      <ACard title="类型设备数量统计" class="u-row" size="small" style="width: 50%">
+        <div id="iv-index-device-type" style="height: 270px"></div>
       </ACard>
-      <div class="u-row" size="small" style="width: 55%; padding: 10px; border-radius: 8px;">
+      <div class="u-row" size="small" style="width: 50%; border-radius: 8px;">
         <ATable :columns="warnColumns" :dataSource="warnData" size="small" bordered :pagination="false"></ATable>
       </div>
     </AFlex>
-    <AFlex justify="space-between" style="height: 360px; margin-top: 0px;" gap="18">
-      <ACard title="类型设备数量统计" class="u-row" size="small" style="width: 45%">
-        <div id="iv-index-device-type" style="height: 270px"></div>
+    <AFlex justify="space-between" style="height: 360px; " gap="10">
+      <ACard title="产品设备数量统计" class="u-row" size="small" style="width: 50%">
+        <div id="iv-index-product" style="height: 270px"></div>
       </ACard>
-      <ACard title="近一个月采集数据量" class="u-row" size="small" style="width: 55%">
+      <ACard title="近一个月采集数据量" class="u-row" size="small" style="width: 50%">
         <div id="iot-collect-data" style="height: 270px"></div>
       </ACard>
     </AFlex>
@@ -407,10 +407,10 @@ export default {
 
 <style scoped>
 .u-core-index {
- padding: 0px 12px;
+ padding: 6px;
 }
 .u-row {
-  margin: 8px 0px 16px;
+  margin: 5px 0;
 }
 .iv-work {
   overflow: hidden;
