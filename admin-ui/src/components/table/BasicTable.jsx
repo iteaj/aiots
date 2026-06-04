@@ -107,11 +107,16 @@ function initDatetimeColumnSlot(column) {
         column['__slot'] = column.formatter;
     }
 }
-function initColumn(column, slots, ellipsis) {
+function initSortableColumn(column, config) {
+    column['__slot'] = (args) => {
+        return <span class="iv-table-drag color-text-tertiary" draggable={true} onDragstart={(e) => config.onHandleDragStart(args.record, e)}>::</span>
+    }
+}
+function initColumn(column, slots, config) {
     column.align = column.align || 'center';
     column.dataIndex = column.dataIndex || column.field.split(".");
-    if(column.ellipsis == undefined && ellipsis) {
-        column.ellipsis = ellipsis;
+    if(column.ellipsis == undefined && config.ellipsis) {
+        column.ellipsis = config.ellipsis;
     }
 
     initSlot(column, slots); // 初始化插槽
@@ -120,16 +125,18 @@ function initColumn(column, slots, ellipsis) {
         initColumnFormatterSlot(column);
     } else if(column.type == 'date') {
         initDatetimeColumnSlot(column);
+    } else if(column.sortable === true) {
+        initSortableColumn(column, config);
     } else if(column.formatter instanceof Function) {
         column['__slot'] = column.formatter;
     }
 }
-function initTableColumns(columns, slots, ellipsis) {
+function initTableColumns(columns, slots, config) {
     slots = {...slots};
     columns.forEach(column => {
         if(!column['__init']) {
             column['__init'] = true;
-            initColumn(column, slots, ellipsis);
+            initColumn(column, slots, config);
             if(column['__slot'] && !slots['bodyCell']) {
                 slots['bodyCell'] = (args) => {
                     if(args.column == null) return null;
@@ -235,7 +242,7 @@ export default defineComponent({
         }
 
         // 更新列改变
-        let slotsRef = ref(initTableColumns(columns, slots, props.ellipsis));
+        let slotsRef = ref(initTableColumns(columns, slots, {ellipsis: props.ellipsis, onHandleDragStart}));
 
         let setLoading = (status, tip) => {
             loading.spinning = status;
@@ -280,13 +287,51 @@ export default defineComponent({
                 tableContext['pageSize'] = props.pagination.defaultPageSize
             }
         }
+        // 拖拽排序
+        const dragKey = ref(null)
+        function onHandleDragStart(record, event) {
+            dragKey.value = record[attrs.rowKey]
+            event.dataTransfer?.setData('text/plain', dragKey.value)
+        }
+        const onRow = record => ({
+            onDragover: (event) => {
+                event.preventDefault()
+            },
+            onDrop: () => {
+                if (!dragKey.value || dragKey.value === record[attrs.rowKey]) {
+                    return
+                }
+                const current = [...dataSourceRef.value]
+                const fromIndex = current.findIndex(item => item[attrs.rowKey] === dragKey.value)
+                const toIndex = current.findIndex(item => item[attrs.rowKey] === record[attrs.rowKey])
+                if (fromIndex === -1 || toIndex === -1) {
+                    return
+                }
+                const drop = [];
+                if(fromIndex < toIndex) {
+                    drop[0] = current[toIndex]
+                    drop[1] = current[toIndex+1]
+                } else {
+                    drop[0] = current[toIndex-1]
+                    drop[1] = current[toIndex]
+                }
+
+                const drag = current[fromIndex]
+                const [moved] = current.splice(fromIndex, 1)
+                current.splice(toIndex, 0, moved)
+                setDataSource(current)
+                dragKey.value = null
+
+                emit('sorted', {drag, drop, fromIndex, toIndex})
+            },
+        })
 
         provide(FuncContextKey, tableContext);
         // 暴露TableContext
         if(attrs['onUpdate:context'] instanceof Function) {
             attrs['onUpdate:context'](tableContext);
         }
-        return {slotsRef, selectedRows, selectedRowKeys
+        return {slotsRef, selectedRows, selectedRowKeys, onRow
             , unfoldRowKeys, loading, dataSourceRef, stickyRef, setSticky
             , setDataSource, setLoading, setTotalRows, defResizeColumn, tableContext}
     },
@@ -302,7 +347,7 @@ export default defineComponent({
             }
         }
 
-        initTableColumns(this.columns, this.slotsRef);
+        initTableColumns(this.columns, this.slotsRef, {});
         let onResizeColumn = this.$attrs['onResizeColumn'] || this.defResizeColumn;
         return (
             <div class="iv-basic-table">
@@ -315,7 +360,7 @@ export default defineComponent({
                             onClick: (e) => this.$emit('rowClick', {e, row}),       // 点击行
                             onDblclick: (e) => this.$emit('rowDblclick', {e, row}), // 行双击
                         }
-                     }}>
+                     }} on-row={this.onRow}>
                 </ATable>
             </div>)
     },

@@ -1,10 +1,12 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.data.ModelAttrDictMeta;
 import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
@@ -56,6 +58,17 @@ public class ModelAttr extends BaseEntity implements ModelAttrMeta {
     @TableField(condition = SqlCondition.LIKE)
     @NotBlank(message = "属性名称必填")
     private String name;
+
+    /**
+     * 排序
+     */
+    private Integer sort;
+
+    /**
+     * 配置
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
 
     /**
      * 数据类型

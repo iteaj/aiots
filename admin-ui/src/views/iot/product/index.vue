@@ -63,7 +63,8 @@
                 <UButton func="query" :url="`/iot/modelAttr/list?productId=${modelDetailModel['id']}`">查询</UButton>
                 <UButton func="add" v-auth="'iot:modelAttr:add'">新增</UButton>
               </UViewSearch>
-              <UViewTable :columns="attrColumns" v-model:source="ModelAttrList" size="small" :scroll="{x: 1080}">
+              <UViewTable :columns="attrColumns" v-model:source="ModelAttrList" size="small" :scroll="{x: 1080, y: 320}"
+                          :virtual="true" :pagination="false">
                 <template #action="{record, editing}">
 <!--                  <UTag func="ajax" :data="{id: record['id'], status: !record['ctrlStatus']}" :url="`/iot/modelAttr/ctrlStatus`"-->
 <!--                        :disabled="record['attrType'] == 'R'">控制属性</UTag>-->
@@ -71,16 +72,17 @@
                   <UTag func="del" :data="record" url="/iot/modelAttr/del" v-auth="'iot:modelAttr:del'" :disabled="record['origin']=='Protocol'">删除</UTag>
                 </template>
               </UViewTable>
-              <UViewDrawer title="物模型属性配置" placement="right" @edit="attrEdit" v-model="attrDetailModel" size="920" :span="[7, 17]" :rules="attrRules">
+              <UViewDrawer title="物模型属性配置" placement="right" @edit="attrEdit" v-model="attrDetailModel" size="1020" :span="[8, 16]" :rules="attrRules">
                 <template #default="{model}">
-                  <URow :gutter="6" :responsive="3">
+                  <URow :gutter="6" :responsive="4">
                     <UInputItem label="属性名称" field="name" :maxlength="18"/>
                     <UInputItem label="属性字段" field="field" :maxlength="36"/>
                     <USelectItem label="数据类型" field="dataType" :options="dataType" />
                     <USelectItem label="属性类型" field="attrType" :options="attrType" defaultValue="R"/>
+                    <USelectItem label="值解析器" required field="resolver" url="/iot/product/resolvers" defaultValue="DEFAULT" />
+                    <UInputNumberItem label="序号" required field="sort" :defaultValue="0" />
                     <UInputItem label="默认值" field="defaultValue" :disabled="attrDetailModel['attrType'] == 'R'" :maxlength="430"/>
                     <UInputItem label="属性单位" field="unit" :maxlength="18"/>
-                    <USelectItem label="值解析器" required field="resolver" url="/iot/product/resolvers" defaultValue="DEFAULT" />
                     <UInputNumberItem label="精度/增益" class="iv-group-addon-padding-0" field="accuracy" placeholder="精度值" :min="0" :max="8" :step="1" :precision="0">
                       <template #addonAfter>
                         <AInputNumber v-model:value="model['gain']" placeholder="增益值" :min="0.00001" :max="10000" style="width: 110px;" />
@@ -139,13 +141,13 @@
                 <UButton func="add" v-auth="'iot:modelApi:add'">新增</UButton>
               </UViewSearch>
               <UViewModal :title="`功能配置[${modelDetailModel['code']}]`" :span="[7, 15]" width="920px" v-model="funcEditModel" :centered="false" @edit="apiOpenEdit" :rules="apiRules">
-                <URow :responsive="2">
+                <URow :responsive="3">
                   <UInputItem label="功能名称" field="name" required :maxlength="18" />
-                  <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="funcEditModel['id'] != null" />
                   <USelectItem label="协议指令" field="direct" v-model:source="funcApis" labelField="name" valueField="code" required
                                url="/iot/protocol/apis?id={protocolId}&type=func" @change="apiChange" @loaded="funcApisLoaded" :disabled="funcEditModel['id'] != null"/>
-                  <URadioItem label="触发方式" field="triggerMode" :options="triggerModeOptions" :disabled="true" />
-                  <URadioItem label="是否调试" field="debug" :options="debugOptions" :defaultValue="false" :disabled="funcEditModel?.['triggerMode']=='active'" />
+                  <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="funcEditModel['id'] != null" />
+                  <URadioItem label="触发方式" field="triggerMode" required :options="triggerModeOptions" :disabled="true" />
+                  <UInputNumberItem label="序号" field="sort" :defaultValue="1000" required />
                   <UInputItem label="功能说明" field="remark" :maxlength="64" />
                   <a-divider dashed>指令配置(可用@提及属性、#提及执行脚本)</a-divider>
                   <a-tabs v-model:activeKey="apiConfigActiveKey" style="width: 873px">
@@ -184,9 +186,9 @@
               </UViewModal>
               <UViewTable :columns="apiColumns" size="small" :scroll="{x: 1080}">
                 <template #action="{record}">
-<!--                  <UTag func="ajax:confirm" v-if="record['triggerMode']=='passive' && record['funcType']=='W'" :data="{}"-->
-<!--                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`" :disabled="record['asStatus']"-->
-<!--                        :config="{confirmTitle: '确认将此接口作为控制设备开/关等接口?', confirmContent: '声明此接口将用于控制设备的开启、关闭等'}">控制状态</UTag>-->
+                  <UTag func="ajax:confirm" v-if="record['triggerMode']=='passive' && record['funcType']=='W'" :data="{}"
+                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`"
+                        :config="{confirmTitle: '此接口将作为管理设备的重要接口?', confirmContent: '一般用于控制设备的开关、启停等接口,放于最显眼位置,一个产品只能有一个作为状态接口'}">控制状态</UTag>
                   <UTag func="edit" :data="record" url="/iot/modelApi/edit" v-auth="'iot:modelApi:edit'">修改</UTag>
                   <UTag func="del" :data="record" url="/iot/modelApi/del" :disabled="record.protocol === true" v-auth="'iot:modelApi:del'">删除</UTag>
                 </template>
@@ -202,11 +204,11 @@
                 <UButton func="add" v-auth="'iot:modelApi:add'">新增</UButton>
               </UViewSearch>
               <UViewModal :title="`事件配置[${modelDetailModel['code']}]`" :span="[7, 15]" width="920px" v-model="eventEditModel" :centered="false" @edit="apiOpenEdit" :rules="apiRules">
-                <URow :responsive="2">
+                <URow :responsive="3">
                   <UInputItem label="事件名称" field="name" required :maxlength="18" />
-                  <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="eventEditModel['id'] != null"/>
                   <USelectItem label="协议指令" field="direct" v-model:source="eventApis" labelField="name" valueField="code" required
                                url="/iot/protocol/apis?id={protocolId}&type=event" @change="apiChange" @loaded="funcApisLoaded" :disabled="eventEditModel['id'] != null"/>
+                  <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="eventEditModel['id'] != null"/>
                   <URadioItem label="触发方式" field="triggerMode" :options="triggerModeOptions" :disabled="true" />
                   <USelectItem label="频率标签" field="collectTag" :options="collectTagOptions" defaultValue="DEFAULT" required/>
                   <UInputItem label="事件说明" field="remark" :maxlength="64"/>
@@ -350,7 +352,8 @@
           <UButton func="query" url="/iot/product/listBatchModel" ref="batchModelQueryRef">查询</UButton>
           <UButton func="add">新增</UButton>
         </UViewSearch>
-        <UViewEditable :columns="batchColumns" :pagination="false" size="small" :scroll="{x: 1200}" @edit="onBatchEditModel" position="top">
+        <UViewEditable :columns="batchColumns" :pagination="false" size="small" :scroll="{x: 1200, y:500}"
+                       @edit="onBatchEditModel" position="top" :virtual="true">
           <template #action="{record, editing}">
             <UTag func="edit" :data="record">修改</UTag>
             <UTag func="cancel" :data="record">取消</UTag>
@@ -398,8 +401,8 @@ export default {
       {label: '读写', value: 'RW'},
     ]);
     let triggerModeOptions = ref([
-      {label: '主动触发', value: 'active'},
-      {label: '被动触发', value: 'passive'},
+      {label: '主动', value: 'active'},
+      {label: '被动', value: 'passive'},
     ]);
     let collectTagOptions = ref([
       {label: '默认', value: 'DEFAULT'},
@@ -468,6 +471,7 @@ export default {
       {label: '读写', value: 'RW'},
     ]);
     let attrColumns = ref([
+      {field: 'sort', title: '序号', width: 80},
       {field: "name", title: "属性名称", width: 160, resizable: true},
       {field: "field", title: "属性字段", width: 130, resizable: true},
       {field: "origin", title: "属性来源", width: 80},
@@ -525,13 +529,14 @@ export default {
       }
     })
     let apiColumns = ref([
+      {field: 'sort', title: '序号', width: 80},
       {field: "name", title: "功能名称", width: 200},
       {field: "code", title: "接口代码", width: 200},
       {field: "direct", title: "指令代码", width: 160},
       {field: "triggerMode", title: "触发方式", width: 100, options: triggerModeOptions},
-      {field: "debug", title: "是否调试", width: 80, options: debugOptions},
-      {field: "asStatus", title: "状态位", width: 80, options: debugOptions},
+      // {field: "debug", title: "是否调试", width: 80, options: debugOptions},
       {field: "remark", title: "功能说明", ellipsis: true, width: 220, resizable: true},
+      {field: "asStatus", title: "状态位", width: 80, options: debugOptions, fixed: 'right'},
       {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 200},
     ])
 
@@ -576,18 +581,20 @@ export default {
     ])
 
     let eventColumns = ref([
+      // {field: 'sort', title: '序号', width: 80},
       {field: "name", title: "事件名称", width: 200},
       {field: "code", title: "接口代码", width: 200},
       {field: "direct", title: "指令代码", width: 160},
       {field: "triggerMode", title: "触发方式", width: 100, options: triggerModeOptions},
-      {field: "debug", title: "是否调试", width: 80, options: debugOptions},
-      {field: "asStatus", title: "状态位", width: 80, options: debugOptions},
+      // {field: "debug", title: "是否调试", width: 80, options: debugOptions},
+      // {field: "asStatus", title: "状态位", width: 80, options: debugOptions},
       {field: "remark", title: "事件说明", ellipsis: true, width: 220, resizable: true},
-      {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 200},
+      {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 160},
     ])
 
     let batchColumns = ref([])
     let batchCommonColumns = ref([
+      {field: 'sort', title: '排序', width: 100, formType: 'number', editable: true},
       {field: "name", title: "属性名称*", width: 120, resizable: true, editable: true},
       {field: "field", title: "属性字段*", width: 120, resizable: true, editable: true},
       {field: "dataType", title: "数据类型*", width: 120, options: dataType.value, editable: true},
@@ -933,7 +940,7 @@ export default {
           }
         } else if(item['formType'] === 'number') {
           item['__editableSlot'] = ({record, column}) => {
-            return h(InputNumber, {...item, style: {width: '70px'},
+            return h(InputNumber, {...item, style: {width: '80px'},
               size: 'small', value: record[column.field], 'onUpdate:value': (newValue) => {
                 record[column.field] = newValue;
               }
@@ -997,6 +1004,9 @@ export default {
       }
     },
     batchSubmitValidate(record) {
+      if(!record.sort) {
+        return Promise.reject('序号必填');
+      }
       if(!record.name) {
         return Promise.reject('属性名称必填');
       }
@@ -1098,7 +1108,7 @@ export default {
           this.$msg.error(message);
         }
       })
-    }
+    },
   }
 }
 </script>

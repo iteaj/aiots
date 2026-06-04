@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.controller;
 import java.util.Collections;
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
@@ -43,7 +44,7 @@ public class ModelAttrController extends BaseController {
     @GetMapping("/view")
     @Logger("浏览物模型属性功能")
     public Result<IPage<ModelAttr>> view(Page<ModelAttr> page, ModelAttr entity) {
-        return this.modelAttrService.page(page, entity);
+        return this.modelAttrService.page(page.addOrder(OrderItem.asc("sort")), entity);
     }
 
     /**
@@ -62,7 +63,7 @@ public class ModelAttrController extends BaseController {
      */
     @GetMapping("/list")
     public Result<List<ModelAttr>> list(ModelAttr entity) {
-        return this.modelAttrService.list(Wrappers.lambdaQuery(entity));
+        return this.modelAttrService.list(Wrappers.lambdaQuery(entity).orderByAsc(ModelAttr::getSort));
     }
 
     /**

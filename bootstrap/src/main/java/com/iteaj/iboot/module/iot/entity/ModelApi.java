@@ -69,6 +69,17 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
     private Boolean debug;
 
     /**
+     * 排序
+     */
+    private Integer sort;
+
+    /**
+     * 配置
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
+
+    /**
      * 是否为协议接口
      */
     private Boolean protocol;

@@ -27,7 +27,9 @@
     border-radius: 8px;
     background-color: var(--iv-color-bg-container);
 }
-
+.iv-table-drag {
+    cursor: move;
+}
 .iv-text-ellipsis {
     white-space: nowrap;
     overflow: hidden;

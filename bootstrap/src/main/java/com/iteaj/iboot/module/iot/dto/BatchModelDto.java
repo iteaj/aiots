@@ -36,6 +36,11 @@ public class BatchModelDto {
     private String name;
 
     /**
+     * 排序
+     */
+    private Integer sort;
+
+    /**
      * 数据类型
      */
     private String dataType;

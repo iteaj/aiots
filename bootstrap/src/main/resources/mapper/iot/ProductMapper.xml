@@ -223,7 +223,7 @@
                 and a.field like '%${field}%'
             </if>
         </where>
-        group by a.id order by a.create_time desc
+        group by a.id order by a.sort
     </select>
     <select id="joinDetailByCode" resultMap="JoinDetailMap">
         select a.*, ig.id gateway_id, ig.name gateway_name, ip.ctrl_mode, ip.name protocol_name, ip.type transport_protocol

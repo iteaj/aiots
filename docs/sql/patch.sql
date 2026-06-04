@@ -80,3 +80,16 @@ VALUES ('删除', @pid, 10, '/iot/deviceCmdLog/del', 'iot', 'A', 'enabled', 'iot
 
 -- 2026-05-26 设备指令日志增加设备名称字段
 ALTER TABLE iot_device_cmd_log ADD COLUMN `device_name` varchar(200) DEFAULT NULL COMMENT '设备名称' AFTER `uid`;
+
+-- 2026-06-03
+alter table iot_model_api
+    add sort int default 0 null comment '序号' after id;
+
+alter table iot_model_api
+    add config json null comment '配置' after sort;
+
+alter table iot_model_attr
+    add sort int default 0 null comment '排序' after name;
+
+alter table iot_model_attr
+    add config json null comment '配置' after unit;

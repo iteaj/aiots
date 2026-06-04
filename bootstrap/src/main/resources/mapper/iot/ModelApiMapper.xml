@@ -9,6 +9,8 @@
         <result column="code" property="code" />
         <result column="name" property="name" />
         <result column="debug" property="debug" />
+        <result column="sort" property="sort" />
+        <result column="config" property="config" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="status" property="status" />
         <result column="remark" property="remark" />
         <result column="direct" property="direct" />
@@ -38,11 +40,11 @@
     </delete>
 
     <select id="listFuncByProductId" resultMap="DetailResultMap">
-        select * from iot_model_api where product_id = #{productId} and type='func' order by create_time desc
+        select * from iot_model_api where product_id = #{productId} and type='func' order by sort, create_time desc
     </select>
 
     <select id="listEventByProductId" resultMap="DetailResultMap">
-        select * from iot_model_api where product_id = #{productId} and type='event' order by as_status desc, create_time desc
+        select * from iot_model_api where product_id = #{productId} and type='event' order by sort, as_status desc, create_time desc
     </select>
 
     <select id="getCtrlStatusByProductId" resultMap="DetailResultMap">
@@ -100,6 +102,6 @@
     <select id="listByProductCode" resultMap="BaseResultMap">
         select a.* from iot_model_api a
             left join iot_product b on a.product_id=b.id
-        where b.code=#{productCode}
+        where b.code=#{productCode} order by sort
     </select>
 </mapper>

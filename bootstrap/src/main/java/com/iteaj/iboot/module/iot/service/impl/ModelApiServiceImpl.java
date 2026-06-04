@@ -198,11 +198,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
                 });
             } else {
                 // 如果包含有控制状态的属性
-                if(this.getBaseMapper().hasCtrlStatus(productId, code)) {
-                    this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
-                } else {
-                    throw new ServiceException("没有包含控制属性");
-                }
+                this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
             }
         });
         return BooleanResult.buildTrue("设置状态成功");

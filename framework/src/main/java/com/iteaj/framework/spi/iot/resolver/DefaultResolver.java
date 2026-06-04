@@ -17,7 +17,7 @@ import java.util.Date;
 public class DefaultResolver implements DataValueResolver {
 
     private static final String DEFAULT_NAME = "默认";
-    private Logger logger = LoggerFactory.getLogger(DefaultResolver.class);
+    private final Logger logger = LoggerFactory.getLogger(DefaultResolver.class);
 
     @Override
     public String name() {
@@ -58,12 +58,12 @@ public class DefaultResolver implements DataValueResolver {
 
     private Object doResolverNumberValue(UpModelAttr attr, Object value) {
         if(attr.getGain() != null && attr.getGain() != 0) {
-            value = Double.valueOf(value.toString()) / attr.getGain();
+            value = Double.parseDouble(value.toString()) / attr.getGain();
         }
 
         if(attr.getAccuracy() != null && attr.getAccuracy() > 0) {
             if(attr.getDataType() == DataType.t_double || attr.getDataType() == DataType.t_float) {
-                BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(value.toString()));
+                BigDecimal bigDecimal = BigDecimal.valueOf(Double.parseDouble(value.toString()));
                 value = bigDecimal.setScale(attr.getAccuracy(), RoundingMode.DOWN).doubleValue();
             }
         }

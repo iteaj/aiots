@@ -27,7 +27,9 @@ export const URow = defineComponent({
             } else if(responsive == 2) {
                 colConfig = {xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12}
             } else if(responsive == 3) {
-                colConfig = {xs: 24, sm: 24, md: 12, lg: 12, xl: 8, xxl: 8}
+                colConfig = {xs: 24, sm: 24, md: 12, lg: 8, xl: 8, xxl: 8}
+            } else if(responsive == 4) {
+                colConfig = {xs: 24, sm: 24, md: 12, lg: 8, xl: 6, xxl: 6}
             }
         }
 

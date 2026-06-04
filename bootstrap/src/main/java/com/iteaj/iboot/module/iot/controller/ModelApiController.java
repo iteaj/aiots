@@ -37,7 +37,7 @@ public class ModelApiController extends BaseController {
     @GetMapping("/view")
     @Logger("浏览物模型接口功能")
     public Result<IPage<ModelApi>> list(Page<ModelApi> page, ModelApi entity) {
-        return this.modelApiService.page(page.addOrder(OrderItem.desc("as_status"), OrderItem.desc("create_time")), entity);
+        return this.modelApiService.page(page.addOrder(OrderItem.asc("sort")), entity);
     }
 
     /**

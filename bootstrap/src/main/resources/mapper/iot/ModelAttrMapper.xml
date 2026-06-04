@@ -8,6 +8,8 @@
         <result column="product_id" property="productId" />
         <result column="field" property="field" />
         <result column="name" property="name" />
+        <result column="sort" property="sort" />
+        <result column="config" property="config" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="data_type" property="dataType" />
         <result column="unit" property="unit" />
         <result column="gain" property="gain" />
