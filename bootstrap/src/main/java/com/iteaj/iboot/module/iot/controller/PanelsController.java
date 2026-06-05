@@ -5,7 +5,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
-import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.result.Result;
@@ -16,6 +15,7 @@ import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.data.CollectWarnDataService;
+import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
 import com.iteaj.framework.spi.iot.data.RealtimeDataParam;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
@@ -26,11 +26,9 @@ import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.*;
-import com.iteaj.iboot.module.iot.entity.CollectData;
-import com.iteaj.iboot.module.iot.entity.ModelApi;
-import com.iteaj.iboot.module.iot.entity.ModelAttr;
-import com.iteaj.iboot.module.iot.entity.WarnRecord;
+import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
+import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
@@ -49,13 +47,15 @@ public class PanelsController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IProductService productService;
+    private final IModelApiService modelApiService;
     private final IotCacheManager cacheManager;
     private final CollectWarnDataService warnRecordService;
     private final RealtimeDataService realtimeDataService;
     private final RealtimeCollectDataService collectDataService;
 
-    public PanelsController(IDeviceService deviceService, IProductService productService, IotCacheManager cacheManager
+    public PanelsController(IDeviceService deviceService, IProductService productService, IModelApiService modelApiService, IotCacheManager cacheManager
             , CollectWarnDataService warnRecordService, RealtimeDataService realtimeDataService, RealtimeCollectDataService collectDataService) {
+        this.modelApiService = modelApiService;
         this.collectDataService = collectDataService;
         this.deviceService = deviceService;
         this.productService = productService;
@@ -78,33 +78,32 @@ public class PanelsController extends BaseController {
         PageResult<IPage<DeviceDto>> pageResult = deviceService.pageOfDetail(page, device);
 
         Map<Long, String> productProtocolMap = new HashMap<>();
-        Map<Long, List<IVOption>> productOptionsMap = new HashMap<>();
+        Map<Long, CtrlCommandDto> productOptionsMap = new HashMap<>();
         Map<Long, Map<String, String>> productAttrDictsMap = new HashMap<>();
         Map<Long, List<PanelsDeviceDto.AttrValue>> productValuesMap = new HashMap<>();
 
         IPage<DeviceDto> data = pageResult.getData();
         if(CollectionUtil.isNotEmpty(data.getRecords())) {
             List<Long> productIds = data.getRecords().stream()
-                    .map(item -> item.getProductId()).distinct()
+                    .map(Device::getProductId).distinct()
                     .collect(Collectors.toList());
             List<ProductDto> list = productService.listCtrlStatusModelAttrs(productIds);
             if(CollectionUtil.isNotEmpty(list)) {
                 list.forEach(productDto -> {
-                    List<IVOption> options = new ArrayList<>();
                     List<PanelsDeviceDto.AttrValue> values = new ArrayList<>();
                     productProtocolMap.put(productDto.getId(), productDto.getProtocolCode());
+                    ModelApi ctrlModelApi = modelApiService.getCtrlStatusByProductId(productDto.getId());
+                    if(ctrlModelApi != null) {
+                        CtrlCommandDto ctrlCommandDto = ctrlModelApi.resolverSimpleCommand();
+                        productOptionsMap.put(productDto.getId(), ctrlCommandDto);
+                    }
+
                     if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
                         Map<String, String> attrDictMap = new HashMap<>();
                         productDto.getAttrs().forEach(attr -> {
                             if(attr.getAttrType() != AttrType.W) { // 读和读写
-                                if(!DataType.t_json.getValue().equals(attr.getDataType())) {
+                                if(!DataType.isContainer(attr.getDataType())) {
                                     values.add(new PanelsDeviceDto.AttrValue(attr.getField(), attr.getName(), attr.getUnit(), attr.getCtrlStatus()));
-                                }
-                            }
-
-                            if(attr.getAttrType() != AttrType.R) { // 写或者读写
-                                if(Boolean.TRUE.equals(attr.getCtrlStatus()) && CollectionUtil.isNotEmpty(attr.getDicts())) {
-                                    attr.getDicts().forEach(dict -> options.add(new IVOption(dict.getDictName(), dict.getDictValue())));
                                 }
                             }
 
@@ -115,7 +114,6 @@ public class PanelsController extends BaseController {
                         });
 
                         productValuesMap.put(productDto.getId(), values);
-                        productOptionsMap.put(productDto.getId(), options);
                         productAttrDictsMap.put(productDto.getId(), attrDictMap);
                     }
                 });
@@ -123,13 +121,20 @@ public class PanelsController extends BaseController {
                 List<PanelsDeviceDto> panelsDeviceDtos = new ArrayList<>();
                 data.getRecords().forEach(deviceDto -> {
                     deviceDto.setConfig(null);
-                    List<IVOption> options = productOptionsMap.get(deviceDto.getProductId());
+                    CtrlCommandDto ctrlCommandDto = productOptionsMap.get(deviceDto.getProductId());
                     Map<String, String> dictStringMap = productAttrDictsMap.get(deviceDto.getProductId());
                     List<PanelsDeviceDto.AttrValue> attrValues = productValuesMap.get(deviceDto.getProductId());
-//
-                    PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(options, Collections.EMPTY_LIST, deviceDto);
+
+                    PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(ctrlCommandDto, Collections.EMPTY_LIST, deviceDto);
 //                    // 获取每个属性的实时数据
                     if(CollectionUtil.isNotEmpty(attrValues)) {
+                        if(ctrlCommandDto != null) {
+                            ModelAttrRealtimeData realtimeData = realtimeDataService.getRealtimeData(deviceDto.getUid(), ctrlCommandDto.getAttrField());
+                            if(realtimeData != null && realtimeData.getRealtime() != null) {
+                                panelsDeviceDto.setCtrlValue(realtimeData.getRealtime().getValue().toString());
+                            }
+                        }
+
                         List<PanelsDeviceDto.AttrValue> copyAttrValues = attrValues.stream()
                                 .map(item -> new PanelsDeviceDto.AttrValue(item.getField(), item.getName(), item.getUnit(), item.getCtrlStatus()))
                                 .collect(Collectors.toList());
@@ -147,14 +152,10 @@ public class PanelsController extends BaseController {
 
                                     String value = realtimeData.getRealtime().getValue().toString();
                                     attrValue.setValue(value);
+                                    panelsDeviceDto.setCollectTime(realtimeData.getRealtime().getCollectTime());
 
                                     // 将采集到的值转成字典label
                                     attrValue.setLabel(dictStringMap.get(attrValue.getField() + "_" + value));
-
-                                    // 设置控制属性的值
-                                    if(Boolean.TRUE.equals(attrValue.getCtrlStatus())) {
-                                        panelsDeviceDto.setCtrlValue(value);
-                                    }
                                 }
                             }
                         });

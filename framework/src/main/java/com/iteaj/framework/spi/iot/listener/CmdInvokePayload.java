@@ -34,16 +34,15 @@ public class CmdInvokePayload implements IotEventPayload{
 
     /**
      * 调用场景
-     * 示例: SCENARIO_AI、SCENARIO_SCREEN、SCENARIO_DEBUG、SCENARIO_SCRIPT、SCENARIO_LINKAGE、SCENARIO_APP等
      */
     private String scenario;
 
     public static final String SCENARIO_AI = "AI";
-    public static final String SCENARIO_SCREEN = "SCREEN";
-    public static final String SCENARIO_DEBUG = "DEBUG";
-    public static final String SCENARIO_SCRIPT = "SCRIPT";
-    public static final String SCENARIO_LINKAGE = "LINKAGE";
-    public static final String SCENARIO_APP = "APP";
+    public static final String SCENARIO_SCREEN = "大屏";
+    public static final String SCENARIO_DEBUG = "调试";
+    public static final String SCENARIO_SCRIPT = "脚本";
+    public static final String SCENARIO_LINKAGE = "场景联动";
+    public static final String SCENARIO_APP = "移动端";
 
     private Consumer<InvokeResult> callback = def -> {};
 

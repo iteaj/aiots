@@ -52,7 +52,7 @@
     </select>
 
     <select id="listByProductId" resultMap="BaseResultMap">
-        select * from iot_model_attr where product_id=#{productId}
+        select * from iot_model_attr where product_id=#{productId} order by sort
     </select>
 
     <select id="listDetailByProductCode" resultMap="DetailResultMap">
@@ -66,6 +66,13 @@
         select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path from iot_model_attr a
             left join iot_model_attr_dict d on a.id = d.model_attr_id
         where a.product_id=#{productId} order by d.id
+    </select>
+
+    <select id="listLimitDetailByProductId" resultMap="DetailResultMap">
+        select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path
+            from (select * from iot_model_attr where product_id=#{productId} order by sort limit 4) a
+            left join iot_model_attr_dict d on a.id = d.model_attr_id
+        where a.product_id=#{productId} order by a.sort
     </select>
 
     <select id="hasBinded" resultType="java.lang.Boolean">

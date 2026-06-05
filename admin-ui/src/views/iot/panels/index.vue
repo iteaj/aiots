@@ -10,12 +10,13 @@
     <ASpin :spinning="spinning">
       <div v-if="total > 0">
         <AFlex wrap="wrap" gap="small" justify="space-between">
-          <template v-for="({device, options, values}, index) in devices" :key="device['uid']">
-            <a-card variant="borderless" class="iv-device-card" :styles="{header: {minHeight: '50px', padding: '0 8px'}}" hoverable style="min-width: 240px">
+          <template v-for="({device, ctrlCommand, values, ctrlValue}, index) in devices" :key="device['uid']">
+            <a-card variant="borderless" size="small" class="iv-device-card" @click="routeTo(device, 'device')"
+                    :styles="{header: {padding: '0 8px'}, actions: {padding: '0 8px'}}" hoverable>
               <template #title>
                 <div class="iv-pd-header">
                   <AFlex gap="10" justify="space-between">
-                    <div style="font-weight: normal; color: #6a6a6a" :title="device.name"><span>{{device.switchTime}}</span></div>
+                    <div style="font-weight: normal; color: #6a6a6a" :title="device.name"><span>{{device.name}}</span></div>
 <!--                    <div class="iv-device-sn" :title="device['deviceSn']">{{device['deviceSn']}}</div>-->
                     <div style="width: 38px"></div>
                   </AFlex>
@@ -35,20 +36,39 @@
               </template>
               <div class="card-bg-left" :class="device['status']"></div>
               <div class="card-bg-right" :class="device['status']"></div>
-              <div class="iv-device-name">{{device.name}}</div>
+              <div class="iv-device-name">
+                <AFlex gap="8" align="center" justify="space-evenly">
+                  <div style="text-align: center;" v-for="attr in values">
+                    <div>
+                      <span>{{attr.label || attr.value || '-'}}</span>
+                      <span>{{attr.unit}}</span>
+                    </div>
+                    <div style="font-size: 12px; opacity: 0.9">{{attr.name}}</div>
+                  </div>
+                </AFlex>
+              </div>
               <template #actions>
-                <ASwitch v-if="options && options.length == 2" v-model:checked="devices[index]['ctrlValue']"
-                         :checked-children="options[0]['label']" :checked-value="options[0]['value']"
-                         :un-checked-children="options[1]['label']" :un-checked-value="options[1]['value']"
-                         @change="(value) => switchCtrlStatus(value, device)">
-                </ASwitch>
-                <ASelect v-else-if="options && options.length > 2" v-model:value="devices[index]['ctrlValue']" :options="options" size="small"
-                         :bordered="false" style="width: 100%" placeholder="请选择控制项" @change="(value) => switchCtrlStatus(value, device)"></ASelect>
-                <span v-else>没有控制项</span>
-                <AButton type="dashed" shape="round" size="small">
-                  <span style="color: #0f8bc7"></span>
-                  <a :href="`/#/iot/device/detail/${device.uid}`" target="_blank">运行展板</a>
-                </AButton>
+                <div>
+                  <div style="height: 32px; line-height: 32px">
+                    <a-space-compact v-if="ctrlCommand">
+                      <template v-for="(cmd, index) in ctrlCommand.options" :key="index">
+                        <AButton variant="filled" :color="(cmd.value && cmd.value == ctrlValue) ? 'primary' : 'default'"
+                                 :style="{width: `calc(280px / ${ctrlCommand.options.length})`}" @click.stop="switchCtrlStatus(cmd, device, ctrlCommand)">
+                          {{cmd.commandName}}
+                        </AButton>
+                      </template>
+                    </a-space-compact>
+                    <span v-else>没有控制项</span>
+                    <!--                <AButton type="dashed" shape="round" size="small">-->
+                    <!--                  <span style="color: #0f8bc7"></span>-->
+                    <!--                  <a :href="`/#/iot/device/detail/${device.uid}`" target="_blank">运行展板</a>-->
+                    <!--                </AButton>-->
+                  </div>
+                  <div style="font-size: 12px;">
+                    <span style="color: var(--ant-color-primary)">{{ctrlCommand ? ctrlCommand.apiName + ' · ' : ''}}</span>
+                    采集时间: {{device['switchTime'] || '-'}}</div>
+                </div>
+
               </template>
             </a-card>
           </template>
@@ -97,11 +117,14 @@ export default {
         }
       }).finally(() => this.spinning = false)
     },
-    switchCtrlStatus(value, device) {
+    switchCtrlStatus(cmd, device, ctrl) {
       this.spinning = true;
-      this.$http.post(`/iot/panels/switchCtrlStatus`, {id: device.uid, status: value}).then(({code, message}) => {
+      const params = {uid: device.uid, value: cmd.value, field: ctrl.attrField
+        , code: cmd.commandValue, name: ctrl.apiName + "->" + cmd.commandName, scenario: '运行展板'};
+      this.$http.post(`/iot/instruct/command/invoke/update`, params).then(({code, message}) => {
         if(code == CoreConsts.SuccessCode) {
           this.search();
+          this.$msg.success(message);
         } else {
           this.search();
           this.$msg.error(message);
@@ -109,19 +132,7 @@ export default {
       }).finally(() => this.spinning = false)
     },
     routeTo(device, type) {
-      if(type == 'device') {
-        let url = '';
-        let deviceType = device['deviceType'];
-        if(deviceType == 'Child') {
-          url = '/child';
-        } else if(deviceType == 'Gateway') {
-          url = '/gateway'
-        }
-        this.$router.push(`/iot/device${url}?deviceSn=${device['deviceSn']}`);
-      } else {
-
-      }
-
+      window.open(`/#/iot/device/detail/${device.uid}`, '_blank');
     }
   }
 }
@@ -129,10 +140,11 @@ export default {
 
 <style>
 .iv-device-card {
+  width: 300px;
   overflow: hidden;
 }
 .iv-device-name,.iv-device-sn {
-  max-width: 130px;
+  //max-width: 130px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -145,7 +157,7 @@ export default {
 }
 .iv-pd-header .iv-device-status {
   position: absolute;
-  top: 13px;
+  top: 7px;
   right: -13px;
   width: 96px;
   height: 25px;
@@ -186,5 +198,8 @@ export default {
 }
 .card-bg-right.offline {
   background: linear-gradient(188.4deg, rgba(229, 0, 18, .03) 22.94%, rgba(229, 0, 18, 0) 94.62%);
+}
+.iv-device-card .ant-card-actions>li {
+  margin: 3px;
 }
 </style>

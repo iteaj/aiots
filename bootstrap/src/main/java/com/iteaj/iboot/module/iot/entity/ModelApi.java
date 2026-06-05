@@ -20,6 +20,7 @@ import com.iteaj.framework.spi.iot.data.ModelApiMeta;
 import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
+import com.iteaj.iboot.module.iot.dto.CtrlCommandDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandViewDto;
@@ -288,6 +289,36 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
             return Collections.singletonList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
                     .setCommandValue(null).setCommandName("-").setRemark(getRemark()).setCode(getCode()).setDirect(getDirect()));
         }
+    }
+
+    public CtrlCommandDto resolverSimpleCommand() {
+        CtrlCommandDto ctrlCommandDto = new CtrlCommandDto(getName());
+        if(!CollectionUtils.isEmpty(downConfig)) {
+            List<ModelApiConfig> configs = downConfig.stream()
+                    .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
+                    .collect(Collectors.toList());
+
+            if(!CollectionUtils.isEmpty(configs)) {
+                StringBuilder configValue = new StringBuilder("api->").append(getCode()).append('&');
+                downConfig.stream().filter(item -> item.getModelAttrId() == null).forEach(item -> {
+                    configValue.append(item.getProtocolAttrField()).append("->").append(item.getValue()).append('&');
+                });
+
+                ModelApiConfig modelApiConfig = configs.get(0);
+                ctrlCommandDto.setAttrField(modelApiConfig.getAttrField());
+                modelApiConfig.getDicts().forEach(dict -> ctrlCommandDto.addOption(dict.getDictName()
+                        , configValue + modelApiConfig.getProtocolAttrField() + "->" + dict.getDictValue(), dict.getDictValue()));
+            } else {
+                StringBuilder valueSb = new StringBuilder("api->").append(getCode()).append('&');
+                downConfig.forEach(config -> valueSb.append(config.getProtocolAttrField()).append("->").append(config.getValue()).append('&'));
+                valueSb.deleteCharAt(valueSb.length() - 1);
+                ctrlCommandDto.addOption(getName(), valueSb.toString(), null);
+            }
+        } else {
+            ctrlCommandDto.addOption(getName(), "api->" + getCode(), null);
+        }
+
+        return ctrlCommandDto;
     }
 
     public DeviceCommandViewDto resolverCommandOfView(List<ModelAttr> attrs) {

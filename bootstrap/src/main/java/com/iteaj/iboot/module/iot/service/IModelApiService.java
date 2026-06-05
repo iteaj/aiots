@@ -56,4 +56,6 @@ public interface IModelApiService extends IBaseService<ModelApi> {
     void removeJoinByCode(String code);
 
     void cleanCache(String productCode);
+
+    ModelApi getCtrlStatusByProductId(Long productId);
 }

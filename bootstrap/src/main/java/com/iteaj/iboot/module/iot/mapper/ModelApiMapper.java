@@ -68,4 +68,6 @@ public interface ModelApiMapper extends BaseMapper<ModelApi> {
     void removeJoinByCode(String code);
 
     List<ModelApi> listByProductCode(String productCode);
+
+    ModelApi getCtrlStatusByProductId(Long productId);
 }

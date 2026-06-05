@@ -21,4 +21,9 @@ public class CmdInvokeDto {
      * 设备uid
      */
     private String uid;
+
+    /**
+     * 调用场景
+     */
+    private String scenario;
 }

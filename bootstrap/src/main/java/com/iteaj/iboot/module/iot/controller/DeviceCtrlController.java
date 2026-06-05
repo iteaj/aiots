@@ -9,24 +9,26 @@ import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
+import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
+import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.core.entity.Admin;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
-import com.iteaj.iboot.module.iot.dto.CmdInvokeDto;
-import com.iteaj.iboot.module.iot.dto.DebugRespDto;
-import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
-import com.iteaj.iboot.module.iot.dto.ProductDto;
+import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Device;
 import com.iteaj.iboot.module.iot.entity.DeviceCmdLog;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
@@ -47,6 +49,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.iteaj.iboot.plugin.protocol.dtu.ModbusProtocolSupplierAutoConfiguration.realtimeDataService;
+
 /**
  * 设备指令接口管理
  */
@@ -59,14 +63,17 @@ public class DeviceCtrlController extends BaseController {
     private final IProductService productService;
     private final IModelApiService modelApiService;
     private final RealtimePushListener realtimeListener;
+    private final RealtimeDataService realtimeDataService;
     public DeviceCtrlController(IDeviceService deviceService
             , IProductService productService, IModelApiService modelApiService
-            , IotCacheManager cacheManager, RealtimePushListener realtimeListener) {
+            , IotCacheManager cacheManager, RealtimePushListener realtimeListener
+            , RealtimeDataService realtimeDataService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.modelApiService = modelApiService;
         this.cacheManager = cacheManager;
         this.realtimeListener = realtimeListener;
+        this.realtimeDataService = realtimeDataService;
     }
 
     /**
@@ -335,38 +342,47 @@ public class DeviceCtrlController extends BaseController {
     @CheckPermission({"iot:cmd:invoke"})
     @PostMapping("/command/invoke")
     public Mono<Result<?>> invoke(@RequestBody CmdInvokeDto cmd) {
+        CmdInvokeUpdateDto updateDto = new CmdInvokeUpdateDto().setScenario(cmd.getScenario())
+                .setCode(cmd.getCode()).setUid(cmd.getUid()).setName(cmd.getName());
+        return this.cmd(updateDto);
+    }
 
-        ProtocolModelApiInvokeParam param;
-        try {
-            param = IotUtil.createParamByCmdCode(cmd.getCode(), cmd.getUid());
-        } catch (Exception e) {
-            return Mono.create((t) -> t.success(fail("指令码格式错误")));
-        }
-
-        Object[] objects = this.getProtocolModelApi(param.getApiCode(), param);
-        DeviceProtocolSupplier<?, ?> supplier = (DeviceProtocolSupplier<?, ?>) objects[3];
-
+    /**
+     * 执行设备功能指令并且更新已写的实时数据状态
+     * @param dto 参数
+     */
+    @ResponseBody
+    @PostMapping("/command/invoke/update")
+    public Mono<Result<?>> cmd(@RequestBody CmdInvokeUpdateDto dto) {
+        CmdInvokePayload cmd = new CmdInvokePayload(dto.getUid(), dto.getCode())
+                .setScenario(dto.getScenario()).setName(dto.getName());
         return Mono.<InvokeResult>create(item -> {
             try {
-                RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
-                if(realtimeStatus.getStatus() == DeviceStatus.offline) {
-                    if(realtimeStatus.getType() == DeviceType.Direct) {
-                        item.success(InvokeResult.fail("设备不在线["+realtimeStatus.getDeviceName()+"]", null)); return;
-                    } else if(realtimeStatus.getType() == DeviceType.Child) {
-                        RealtimeStatus parent = cacheManager.get(supplier.getProtocol().getCode(), param.getParentDeviceSn());
-                        if(parent != null && parent.getStatus() == DeviceStatus.offline) {
-                            item.success(InvokeResult.fail("网关设备不在线["+parent.getDeviceName()+"]", null)); return;
-                        }
-                    }
-                }
-
-                ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, realtimeStatus, item::success);
+                IotEvenPublisher.publish(IotEventType.CmdInvoke, cmd.build(item::success));
             } catch (ProtocolInvokeException e) {
-                e.printStackTrace();
                 item.success(InvokeResult.fail(e.getMessage(), null));
             }
-        }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
+        }).timeout(Duration.ofMillis(cmd.getTimeout()), Mono.just(InvokeResult.fail("执行超时", null))).map(item -> {
             if(item.getStatus() == ExecStatus.success) {
+                if(StrUtil.isNotBlank(dto.getField())) {
+                    ProtocolModelApiInvokeParam param = IotUtil.createParamByCmdCode(cmd.getCode(), cmd.getUid());
+                    // 将实时值更新为下发的值
+                    RealtimeStatus device = cacheManager.getByUid(param.getUid());
+                    DeviceProtocolSupplier<?, ?> protocolSupplier = ProtocolSupplierManager.get(device.getProtocolCode());
+                    CtrlMode ctrlMode = protocolSupplier.getProtocol().getCtrlMode();
+                    if(ctrlMode == CtrlMode.POINT) {
+                        modelApiService.getByCode(param.getApiCode()).ifPresent(modelApi -> {
+                            if(modelApi.getType() == ProtocolApiType.func) {
+                                ModelAttrRealtimeData realtimeData = IotCoreApiService.getRealtimeData(param.getUid(), dto.getField());
+                                if(realtimeData != null && realtimeData.getRealtime() != null) {
+                                    SignalOrFieldValue realtime = realtimeData.getRealtime();
+                                    realtime.setValue(dto.getValue());
+                                    realtimeDataService.put(device.getProtocolCode(), device.buildKey(), realtime);
+                                }
+                            }
+                        });
+                    }
+                }
                 return success(item.getValue(), "执行指令成功");
             } else {
                 return fail(item.getReason());

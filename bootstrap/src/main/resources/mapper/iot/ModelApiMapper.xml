@@ -40,11 +40,11 @@
     </delete>
 
     <select id="listFuncByProductId" resultMap="DetailResultMap">
-        select * from iot_model_api where product_id = #{productId} and type='func' order by sort, create_time desc
+        select * from iot_model_api where product_id = #{productId} and type='func' order by sort
     </select>
 
     <select id="listEventByProductId" resultMap="DetailResultMap">
-        select * from iot_model_api where product_id = #{productId} and type='event' order by sort, as_status desc, create_time desc
+        select * from iot_model_api where product_id = #{productId} and type='event' order by sort
     </select>
 
     <select id="getCtrlStatusByProductId" resultMap="DetailResultMap">

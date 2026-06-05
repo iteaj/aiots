@@ -66,7 +66,7 @@ export default {
     invoke(record) {
       this.spinning = true;
       this.tipText = "执行指令中...";
-      this.$http.post(`/iot/instruct/command/invoke`, {code: record.commandValue}).then(({code, data, message}) => {
+      this.$http.post(`/iot/instruct/command/invoke`, {code: record.commandValue, name: record.apiName}).then(({code, data, message}) => {
         if(code != CoreConsts.SuccessCode) {
           this.$msg.error(message);
         } else {

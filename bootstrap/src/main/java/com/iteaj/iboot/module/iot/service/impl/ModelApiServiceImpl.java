@@ -252,4 +252,9 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
         }
     }
 
+    @Override
+    public ModelApi getCtrlStatusByProductId(Long productId) {
+        return getBaseMapper().getCtrlStatusByProductId(productId);
+    }
+
 }

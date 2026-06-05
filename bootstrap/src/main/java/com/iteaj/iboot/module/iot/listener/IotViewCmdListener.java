@@ -1,9 +1,13 @@
 package com.iteaj.iboot.module.iot.listener;
 
+import com.iteaj.framework.Entity;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.security.SecurityUtil;
 import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.listener.*;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.iboot.module.core.entity.Admin;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
@@ -40,6 +44,12 @@ public class IotViewCmdListener implements CmdInvokeListener {
         DeviceCmdLog cmdLog = new DeviceCmdLog().setOperator("-").putCmdName(value.getName())
                 .setMethod(value.getScenario()).setCreateTime(new Date());
         try {
+            if(SecurityUtil.isLogin()) {
+                if(SecurityUtil.getLoginUser().isPresent()) {
+                    Admin entity = (Admin)SecurityUtil.getLoginUser().get();
+                    cmdLog.setOperatorId(entity.getId()).setOperator(entity.getName());
+                }
+            }
             invokeParam = IotUtil.createParamByCmdCode(value.getCode(), value.getUid());
             cmdLog.setUid(invokeParam.getUid()).putCmdParams(invokeParam.getParam());
             RealtimeStatus device = cacheManager.getByUid(invokeParam.getUid());
@@ -49,6 +59,7 @@ public class IotViewCmdListener implements CmdInvokeListener {
                 IotEvenPublisher.publish(IotEventType.DeviceCmdLog, cmdLog);
                 return;
             }
+            cmdLog.setDeviceName(device.getDeviceName());
 
             if(value.getTimeout() > 0) {
                 invokeParam.setTimeout(value.getTimeout());
@@ -58,15 +69,18 @@ public class IotViewCmdListener implements CmdInvokeListener {
             ModelApi modelApi = modelApiService.detailByCode(invokeParam.getApiCode())
                     .ifNotPresentThrow("接口代码不存在[apiCode=" + invokeParam.getApiCode() + "]")
                     .getData();
+            cmdLog.setCmdType(modelApi.getType().name());
+            if(value.getName() == null) {
+                cmdLog.putCmdName(modelApi.getName());
+            }
 
-            cmdLog.setDeviceName(device.getDeviceName()).setCmdType(modelApi.getType().name());
-            ProductDto product = this.productService.detailById(modelApi.getProductId())
+            ProductDto product = this.productService.detailById(device.getProductId())
                     .ifNotPresentThrow("未找到所属产品").getData();
 
             if(product.getStatus() == FuncStatus.disabled) {
                 cmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg("产品未启用");
-                value.getCallback().accept(InvokeResult.fail("产品未启用["+product.getName()+"]", null));
                 IotEvenPublisher.publish(IotEventType.DeviceCmdLog, cmdLog);
+                value.getCallback().accept(InvokeResult.fail("产品未启用["+product.getName()+"]", null));
                 return;
             }
 
@@ -78,8 +92,11 @@ public class IotViewCmdListener implements CmdInvokeListener {
                     cmdLog.setStatus(DeviceCmdLog.STATUS_SUCCESS).setResultMsg("下发成功")
                             .setElapsed(System.currentTimeMillis() - cmdLog.getCreateTime().getTime());
 
-                    DataSupplier dataSupplier = supplier.getDataSupplier(result.getProtocol(), finalInvokeParam, result.getValue());
-                    CollectListenerManager.getInstance().publish(dataSupplier.build(new Date()), device, RealtimePayload.TYPE_DATA_CMD);
+                    if(modelApi.getFuncType() != FuncType.W && result.getValue() != null) {
+                        DataSupplier dataSupplier = supplier.getDataSupplier(result.getProtocol(), finalInvokeParam, result.getValue());
+                        CollectListenerManager.getInstance().publish(dataSupplier.build(new Date()), device, RealtimePayload.TYPE_DATA_CMD);
+                    }
+
                     IotLogger.info(IotLogger.NAME, "指令调用", uid
                             , "指令下发成功 指令: {} - 设备: {}", modelApi.getName(), device.buildDeviceKey());
                 } else {

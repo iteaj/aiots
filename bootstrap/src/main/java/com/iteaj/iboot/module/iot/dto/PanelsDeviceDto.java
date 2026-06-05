@@ -1,11 +1,11 @@
 package com.iteaj.iboot.module.iot.dto;
 
 import com.alibaba.fastjson2.annotation.JSONField;
-import com.iteaj.framework.IVOption;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -16,12 +16,17 @@ public class PanelsDeviceDto {
     /**
      * 控制设备状态控制项
      */
-    private List<IVOption> options;
+    private CtrlCommandDto ctrlCommand;
 
     /**
      * 控制值
      */
     private String ctrlValue;
+
+    /**
+     * 收集时间
+     */
+    private Date collectTime;
 
     /**
      * 各属性值
@@ -33,8 +38,8 @@ public class PanelsDeviceDto {
      */
     private DeviceDto device;
 
-    public PanelsDeviceDto(List<IVOption> options, List<AttrValue> values, DeviceDto device) {
-        this.options = options;
+    public PanelsDeviceDto(CtrlCommandDto ctrlCommand, List<AttrValue> values, DeviceDto device) {
+        this.ctrlCommand = ctrlCommand;
         this.values = values;
         this.device = device;
     }
