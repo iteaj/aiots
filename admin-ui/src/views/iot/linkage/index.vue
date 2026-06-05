@@ -952,7 +952,7 @@ export default {
       }
     },
     eventClick(selectedKeys, {node}) {
-      let dataRef = node['dataRef'];
+      let dataRef = node;
       let config = dataRef.config;
       if(dataRef['extra'] == '属性') {
         this.selectConditionItem.typeName = data['label'];
@@ -967,7 +967,7 @@ export default {
       this.selectConditionItem.linkedName = config['linkedName'];
     },
     actionSelect(selectedKeys, {node}) {
-      let data = node['dataRef'];
+      let data = node;
       let config = data.config;
 
       if(data['extra'] == '参数') {
