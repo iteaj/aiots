@@ -428,13 +428,14 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 this.update(Wrappers.<Product>lambdaUpdate().eq(Product::getId, item.getId()).set(Product::getStatus, status));
                 if(item.getDeviceType() == DeviceType.Child) {
                     if(status == FuncStatus.enabled) {
-                        // 启用的时候加入到状态定时任务
-                        this.modelApiService.getAsStatusModelApi(id).ifPresent(modelApi -> {
-                            DeviceStatusModelApiManager.getInstance().register(modelApi);
-                        });
+                        // 点位控制的子产品获取状态接口
+                        if(supplier.getProtocol().getCtrlMode() == CtrlMode.POINT) {
+                            // 启用的时候加入到状态定时任务
+                            this.modelApiService.getAsStatusModelApi(id).ifPresent(DeviceStatusModelApiManager::register);
+                        }
                     } else {
                         // 禁用的时候移除掉此产品的状态接口
-                        DeviceStatusModelApiManager.getInstance().remove(id);
+                        DeviceStatusModelApiManager.remove(id);
 
                          // 产品禁用关闭所有此产品下的设备
                         iotCacheManager.listByProductCode(item.getCode()).forEach(device -> {

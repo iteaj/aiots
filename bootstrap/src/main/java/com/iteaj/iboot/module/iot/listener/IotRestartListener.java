@@ -5,11 +5,14 @@ import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.IotListener;
+import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
@@ -17,6 +20,7 @@ import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IGatewayService;
+import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
 import org.slf4j.Logger;
@@ -37,16 +41,18 @@ public class IotRestartListener implements ApplicationReadyListener {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
-
+    private final IModelApiService modelApiService;
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     public IotRestartListener(IGatewayService gatewayService
             , IDeviceService deviceService, IProductService productService
-            , IotCacheManager iotCacheManager, @Autowired(required = false) List<IotListener<?>> list) {
+            , IotCacheManager iotCacheManager, @Autowired(required = false) List<IotListener<?>> list
+            , IModelApiService modelApiService) {
         this.gatewayService = gatewayService;
         this.deviceService = deviceService;
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
+        this.modelApiService = modelApiService;
 
         // 注册事件监听器
         if(list != null) {
@@ -85,6 +91,9 @@ public class IotRestartListener implements ApplicationReadyListener {
     }
 
     protected void initProduct() {
+        // 注册网关子设备的状态采集器
+        this.modelApiService.listAsStatusModelApi().forEach(DeviceStatusModelApiManager::register);
+
         // 启动所有已经启用的设备
         productService.listOfDetail(new Product().setStatus(FuncStatus.enabled)).forEach(item -> {
             if(item.getGatewayStatus() == GatewayStatus.stop) {
@@ -100,13 +109,15 @@ public class IotRestartListener implements ApplicationReadyListener {
                 }
 
                 if(supplier instanceof ClientProtocolSupplier) {
-                    // 先启动网关后才能启动产品
-                    this.deviceService.listByProductId(item.getId()).forEach(device -> {
-                        try {
-                            IotNetworkUtil.networkCtrl(supplier, device, FuncStatus.enabled);
-                        } catch (Exception e) {
-                            logger.error("<<< 启动产品[{}]下的网关设备[{}]失败", item.getName(), device.getName(), e);
-                        }
+                    IBootThreadManger.getInstance().getDeviceStatusScheduler().execute(() -> {
+                        // 先启动网关后才能启动产品
+                        this.deviceService.listByProductId(item.getId()).forEach(device -> {
+                            try {
+                                IotNetworkUtil.networkCtrl(supplier, device, FuncStatus.enabled);
+                            } catch (Exception e) {
+                                logger.error("<<< 启动产品[{}]下的网关设备[{}]失败", item.getName(), device.getName(), e);
+                            }
+                        });
                     });
                 }
             }

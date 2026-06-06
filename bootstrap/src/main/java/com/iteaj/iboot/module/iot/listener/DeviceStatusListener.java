@@ -5,6 +5,7 @@ import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.IotListener;
 import com.iteaj.framework.thread.IBootThreadManger;
@@ -47,12 +48,12 @@ public class DeviceStatusListener implements CombinedEventListener, Initializing
     public void online(String source, FrameworkComponent component) {
         if(!isSkip(source, component)) {
             // 设备上线事件
-            DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
+            DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(component.getMessageClass());
             if(supplier != null) {
                 RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), source);
                 if(device != null) {
                     device.setStatus(DeviceStatus.online);
-                    this.onIotEvent(IotEventType.DeviceStatus, device);
+                    IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
                 } else {
                     IotLogger.warn(DeviceStatus.online, null, "设备上线 更新失败(设备不存在) - 设备编号: {} - 驱动: {}", source, supplier.getDesc());
                 }
@@ -66,12 +67,12 @@ public class DeviceStatusListener implements CombinedEventListener, Initializing
     public void offline(String source, FrameworkComponent component) {
         if(!isSkip(source, component)) {
             // 设备掉线事件
-            DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(component.getMessageClass());
+            DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(component.getMessageClass());
             if(supplier != null) {
                 RealtimeStatus device = cacheManager.get(supplier.getProtocol().getCode(), source);
                 if(device != null) {
                     device.setStatus(DeviceStatus.offline);
-                    this.onIotEvent(IotEventType.DeviceStatus, device);
+                    IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
                 } else {
                     IotLogger.warn(DeviceStatus.offline, null, "设备离线 更新失败(设备不存在) - 设备编号: {} - 驱动: {}", source, supplier.getDesc());
                 }

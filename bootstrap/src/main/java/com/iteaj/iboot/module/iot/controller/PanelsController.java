@@ -292,9 +292,6 @@ public class PanelsController extends BaseController {
                         // 将实时值更新为下发的值
                         realtimeDataService.put(realtimeStatus.getProtocolCode(), deviceKey
                                 , SignalOrFieldValue.build(ctrlStatusAttr.getId(), ctrlStatusAttr.getField(), dto.getStatus()));
-
-                        // 触发状态更新
-                        DeviceStatusModelApiManager.getInstance().trigger(realtimeStatus.getProductCode(), realtimeStatus.getUid());
                     }
                 });
             });

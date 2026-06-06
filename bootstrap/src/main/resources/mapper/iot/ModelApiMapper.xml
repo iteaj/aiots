@@ -77,14 +77,15 @@
     </select>
 
     <select id="listAsStatusModelApi" resultMap="DetailResultMap">
-        select a.*, p.code product_code from iot_model_api a
-            inner join iot_product p on a.product_id = p.id
-        where p.status = 'enabled' and a.func_type='R' and a.as_status=true and a.trigger_mode='passive'
+        select b.* from iot_product a
+            left join iot_protocol p on a.protocol_code=p.code
+            left join iot_model_api b on a.id=b.product_id
+        where a.status='enabled' and a.device_type='Child' and p.ctrl_mode='POINT' and b.func_type='R' and b.trigger_mode='passive' group by b.product_id
     </select>
     <select id="getAsStatusModelApi" resultMap="DetailResultMap">
         select a.*, p.code product_code from iot_model_api a
              inner join iot_product p on a.product_id = p.id
-        where a.product_id=#{productId} and a.func_type='R' and a.as_status=true and a.trigger_mode='passive'
+        where a.product_id=#{productId} and a.func_type='R' and a.trigger_mode='passive' order by sort limit 1
     </select>
 
     <select id="detailByCode" resultMap="DetailResultMap">

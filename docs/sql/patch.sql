@@ -93,3 +93,9 @@ alter table iot_model_attr
 
 alter table iot_model_attr
     add config json null comment '配置' after unit;
+
+create index iot_model_api_product_id_index
+    on iot_model_api (product_id);
+
+create index iot_model_api_sort_index
+    on iot_model_api (sort);
