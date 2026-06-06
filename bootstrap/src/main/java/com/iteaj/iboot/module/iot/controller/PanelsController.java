@@ -152,7 +152,13 @@ public class PanelsController extends BaseController {
 
                                     String value = realtimeData.getRealtime().getValue().toString();
                                     attrValue.setValue(value);
-                                    panelsDeviceDto.setCollectTime(realtimeData.getRealtime().getCollectTime());
+                                    // 设置设备最新的采集时间
+                                    if(panelsDeviceDto.getCollectTime() == null) {
+                                        panelsDeviceDto.setCollectTime(realtimeData.getRealtime().getCollectTime());
+                                    } else {
+                                        boolean b = panelsDeviceDto.getCollectTime().getTime() > realtimeData.getRealtime().getCollectTime().getTime();
+                                        panelsDeviceDto.setCollectTime(b ? panelsDeviceDto.getCollectTime() : realtimeData.getRealtime().getCollectTime());
+                                    }
 
                                     // 将采集到的值转成字典label
                                     attrValue.setLabel(dictStringMap.get(attrValue.getField() + "_" + value));

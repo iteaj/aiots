@@ -97,3 +97,17 @@ create index iot_model_api_sort_index
     on iot_model_api (sort);
 create index iot_model_attr_sort_index
     on iot_model_attr (sort);
+
+create table iot_realtime_cache
+(
+    id           bigint auto_increment,
+    uid          bigint       not null comment '设备uid',
+    field_id     bigint       not null comment '模型属性id',
+    field        varchar(36)  not null comment '模型属性字段',
+    value        varchar(256) null comment '值',
+    collect_time datetime     null comment '采集时间',
+    primary key (uid, field_id),
+    constraint iot_realtime_cache_pk
+        unique (id)
+)
+    comment '实时数据缓存';

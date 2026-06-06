@@ -1,27 +1,30 @@
 package com.iteaj.iboot.module.iot.listener;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.event.ApplicationReadyListener;
 import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.framework.spi.iot.consts.CtrlMode;
+import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.IotListener;
 import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.consts.GatewayStatus;
+import com.iteaj.iboot.module.iot.entity.DeviceRealtimeCache;
 import com.iteaj.iboot.module.iot.entity.Gateway;
 import com.iteaj.iboot.module.iot.entity.Product;
-import com.iteaj.iboot.module.iot.service.IDeviceService;
-import com.iteaj.iboot.module.iot.service.IGatewayService;
-import com.iteaj.iboot.module.iot.service.IModelApiService;
-import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.service.*;
 import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * iot模块监听应用重启时的初始化
@@ -42,17 +46,21 @@ public class IotRestartListener implements ApplicationReadyListener {
     private final IProductService productService;
     private final IotCacheManager iotCacheManager;
     private final IModelApiService modelApiService;
+    private final RealtimeDataService realtimeDataService;
+    private final IDeviceRealtimeCacheService deviceRealtimeCacheService;
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     public IotRestartListener(IGatewayService gatewayService
             , IDeviceService deviceService, IProductService productService
             , IotCacheManager iotCacheManager, @Autowired(required = false) List<IotListener<?>> list
-            , IModelApiService modelApiService) {
+            , IModelApiService modelApiService, RealtimeDataService realtimeDataService, IDeviceRealtimeCacheService deviceRealtimeCacheService) {
         this.gatewayService = gatewayService;
         this.deviceService = deviceService;
         this.productService = productService;
         this.iotCacheManager = iotCacheManager;
         this.modelApiService = modelApiService;
+        this.realtimeDataService = realtimeDataService;
+        this.deviceRealtimeCacheService = deviceRealtimeCacheService;
 
         // 注册事件监听器
         if(list != null) {
@@ -65,11 +73,40 @@ public class IotRestartListener implements ApplicationReadyListener {
         // 缓存设备信息
         cacheDevice();
 
+        // 加载数据缓存
+        loadingDataCache();
+
         // 初始化网关信息
         initGateway();
 
         // 初始化产品信息
         initProduct();
+
+    }
+
+    private void loadingDataCache() {
+        if(realtimeDataService instanceof HashMapRealtimeDataService) {
+            IBootThreadManger.execute(() -> {
+                Page<DeviceRealtimeCache> page = new Page<>(1, 1000);
+                do {
+                    deviceRealtimeCacheService.page(page).ifPresent(result -> {
+                        if(CollectionUtil.isNotEmpty(result.getRecords())) {
+                            result.getRecords().stream().collect(Collectors.groupingBy(DeviceRealtimeCache::getUid))
+                                    .forEach((uid, caches) -> {
+                                        RealtimeStatus device = iotCacheManager.getByUid(uid);
+                                        if(device != null) {
+                                            caches.forEach(cache -> {
+                                                realtimeDataService.put(device.getProtocolCode(), device.buildKey()
+                                                        , new SignalOrFieldValue(cache.getFieldId(), cache.getField(), cache.getCollectTime(), cache.getValue()));
+                                            });
+                                        }
+                                    });
+                        }
+                    });
+                }
+                while (page.hasNext());
+            });
+        }
     }
 
     private void cacheDevice() {

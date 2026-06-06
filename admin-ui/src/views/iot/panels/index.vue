@@ -10,7 +10,7 @@
     <ASpin :spinning="spinning">
       <div v-if="total > 0">
         <AFlex wrap="wrap" gap="small" justify="space-between">
-          <template v-for="({device, ctrlCommand, values, ctrlValue}, index) in devices" :key="device['uid']">
+          <template v-for="({device, ctrlCommand, values, ctrlValue, collectTime}, index) in devices" :key="device['uid']">
             <a-card variant="borderless" size="small" class="iv-device-card" @click="routeTo(device, 'device')"
                     :styles="{header: {padding: '0 8px'}, actions: {padding: '0 8px'}}" hoverable>
               <template #title>
@@ -66,7 +66,7 @@
                   </div>
                   <div style="font-size: 12px;">
                     <span style="color: var(--ant-color-primary)">{{ctrlCommand ? ctrlCommand.apiName + ' · ' : ''}}</span>
-                    采集时间: {{device['switchTime'] || '-'}}</div>
+                    采集时间: {{collectTime || '暂未采集'}}</div>
                 </div>
 
               </template>

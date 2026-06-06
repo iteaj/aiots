@@ -1,6 +1,9 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.iteaj.framework.spi.iot.IotCoreApiService;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
+import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.IotListener;
@@ -9,7 +12,9 @@ import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
+import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.consts.ExecStatus;
@@ -89,7 +94,7 @@ public class DeviceStatusModelApiManager implements IotListener<Object> {
             cacheManager.listForParent(parent.getProtocolCode(), parent.getDeviceSn()).forEach((key, child) -> {
                 ModelApi modelApi = get(child.getProductId());
                 if(modelApi != null && child.getStatus() == DeviceStatus.offline) {
-                    doInvoke(modelApi, child, 3000);
+                    doInvoke(modelApi, child, 3000L);
                 }
             });
         }
@@ -112,18 +117,41 @@ public class DeviceStatusModelApiManager implements IotListener<Object> {
 
     @Override
     public boolean isEventMatcher(IotEventType eventType) {
-        return eventType == IotEventType.DeviceStatus;
+        return eventType == IotEventType.DeviceStatus || eventType == IotEventType.ProductSwitch;
     }
 
     @Override
     public void onIotEvent(IotEventType eventType, Object value) {
-        RealtimeDeviceStatus device = (RealtimeDeviceStatus) value;
-        // 有网关设备上线
-        if(device.getType() == DeviceType.Gateway && device.getStatus() == DeviceStatus.online) {
-            if(IBootThreadManger.isVirtualThreadSupported()) {
-                IBootThreadManger.execute(new GatewayDeviceStatusTask(device));
-            } else {
-                IBootThreadManger.getInstance().getDeviceStatusScheduler().execute(new GatewayDeviceStatusTask(device));
+        if(eventType == IotEventType.DeviceStatus) {
+            RealtimeDeviceStatus device = (RealtimeDeviceStatus) value;
+            // 有网关设备上线
+            if(device.getType() == DeviceType.Gateway && device.getStatus() == DeviceStatus.online) {
+                if(IBootThreadManger.isVirtualThreadSupported()) {
+                    IBootThreadManger.execute(new GatewayDeviceStatusTask(device));
+                } else {
+                    IBootThreadManger.getInstance().getDeviceStatusScheduler().execute(new GatewayDeviceStatusTask(device));
+                }
+            }
+        } else if(eventType == IotEventType.ProductSwitch) {
+            EntityPayload<Product> entityPayload = (EntityPayload<Product>) value;
+            Product payload = entityPayload.getPayload();
+            if(payload.getStatus() == FuncStatus.enabled && payload.getDeviceType() == DeviceType.Child) {
+                Collection<? extends RealtimeDeviceStatus> devices = IotCoreApiService.listByProductCode(payload.getCode());
+                if(CollectionUtil.isNotEmpty(devices)) {
+                    IBootThreadManger.getInstance().getDeviceStatusScheduler().execute(() -> {
+                        devices.forEach(device -> {
+                            if(device.getStatus() == DeviceStatus.offline) {
+                                RealtimeDeviceStatus parent = IotCoreApiService.getDeviceStatus(device.getProtocolCode(), device.getParentDeviceSn());
+                                if(parent != null && parent.getStatus() == DeviceStatus.online) {
+                                    ModelApi modelApi = get(device.getProductId());
+                                    if(modelApi != null) {
+                                        doInvoke(modelApi, (RealtimeStatus) device, 3000L);
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
             }
         }
     }
