@@ -65,7 +65,7 @@ CREATE TABLE `iot_device_cmd_log` (
 
 -- 设备指令日志菜单（父菜单ID 1406 是"设备维护"）
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time)
-VALUES ('设备指令日志', 1406, 310, '/iot/deviceCmdLog', 'iot', 'V', 'enabled', 'iot:deviceCmdLog:view', 'iz-icon-log', '设备指令下发日志', '_self', now(), now());
+VALUES ('指令日志', 1406, 310, '/iot/deviceCmdLog', 'iot', 'V', 'enabled', 'iot:deviceCmdLog:view', 'iz-icon-log', '设备指令下发日志', '_self', now(), now());
 
 -- 获取刚插入的菜单ID
 set @pid = (select last_insert_id());
@@ -77,9 +77,6 @@ VALUES ('查询', @pid, 5, '/iot/deviceCmdLog/view', 'iot', 'A', 'enabled', 'iot
 -- 删除权限
 INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time)
 VALUES ('删除', @pid, 10, '/iot/deviceCmdLog/del', 'iot', 'A', 'enabled', 'iot:deviceCmdLog:del', '#', '删除设备指令日志', '_self', now(), now());
-
--- 2026-05-26 设备指令日志增加设备名称字段
-ALTER TABLE iot_device_cmd_log ADD COLUMN `device_name` varchar(200) DEFAULT NULL COMMENT '设备名称' AFTER `uid`;
 
 -- 2026-06-03
 alter table iot_model_api
@@ -96,6 +93,7 @@ alter table iot_model_attr
 
 create index iot_model_api_product_id_index
     on iot_model_api (product_id);
-
 create index iot_model_api_sort_index
     on iot_model_api (sort);
+create index iot_model_attr_sort_index
+    on iot_model_attr (sort);
