@@ -11,7 +11,11 @@ LOG_FILE="bootstrap.log"                    # 后端日志文件
 PID_FILE="bootstrap.pid"                    # 后端进程 PID 文件
 FRONTEND_ZIP="admin-ui.zip"                 # 前端压缩包名
 # Nginx 前端静态文件发布目录（按实际路径修改）
-NGINX_WEB_ROOT="./aiots-ui"
+NGINX_WEB_ROOT="@nginx.frontend.path@"
+# 上传目录（jar + deploy.sh SCP 上传的目标目录）
+UPLOAD_PATH="@upload.server.path@"
+# 运行目录（服务实际运行的目录）
+DEPLOY_PATH="@deploy.server.path@"
 # ------------------------------------------------
 
 # 启动后端服务
@@ -36,21 +40,11 @@ stop() {
     echo "$JAR_NAME 已停止"
 }
 
-# 部署前端：备份旧版本 → 解压新版本
+# 部署前端：解压新版本到 Nginx 目录
 deploy_frontend() {
     if [ ! -f "$FRONTEND_ZIP" ]; then
         echo "未找到 $FRONTEND_ZIP, 跳过前端部署"
         return 1
-    fi
-
-    # 备份现有前端（按时间戳）
-    if [ -d "$NGINX_WEB_ROOT" ] && [ "$(ls -A "$NGINX_WEB_ROOT" 2>/dev/null)" ]; then
-        BACKUP_DIR="backup/$(date +%Y%m%d_%H%M%S)"
-        mkdir -p "$BACKUP_DIR"
-        cp -r "$NGINX_WEB_ROOT"/* "$BACKUP_DIR/"
-        echo "前端备份完成: $BACKUP_DIR"
-    else
-        echo "nginx 目录 $NGINX_WEB_ROOT 为空或无此目录, 跳过备份"
     fi
 
     # 解压新前端到 nginx 目录
@@ -58,10 +52,30 @@ deploy_frontend() {
     mkdir -p "$NGINX_WEB_ROOT"
     rm -rf "$NGINX_WEB_ROOT"/*
     unzip -o "$FRONTEND_ZIP" -d "$NGINX_WEB_ROOT"
-    rm -f "$FRONTEND_ZIP"
 
     echo "前端部署完成"
     return 0
+}
+
+# 远程部署：从上传目录部署到运行目录（由 Maven SSH 调用）
+remote_deploy() {
+    # 确保运行目录存在
+    mkdir -p "$DEPLOY_PATH"
+
+    # deploy.sh 不存在时才从上传目录复制
+    if [ ! -f "$DEPLOY_PATH/deploy.sh" ]; then
+        cp "$UPLOAD_PATH/deploy.sh" "$DEPLOY_PATH/"
+        echo "deploy.sh 已复制到 $DEPLOY_PATH"
+    fi
+
+    # 停止旧服务
+    cd "$DEPLOY_PATH" && bash deploy.sh stop
+
+    # 复制新 jar
+    cp "$UPLOAD_PATH/$JAR_NAME" "$DEPLOY_PATH/"
+
+    # 启动新服务
+    bash deploy.sh start
 }
 
 case "$1" in
@@ -78,8 +92,11 @@ case "$1" in
     frontend)
         deploy_frontend
         ;;
+    remote-deploy)
+        remote_deploy
+        ;;
     *)
-        echo "用法: $0 {start|stop|restart|frontend}"
+        echo "用法: $0 {start|stop|restart|frontend|remote-deploy}"
         exit 1
 esac
 
