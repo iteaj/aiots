@@ -45,7 +45,11 @@ public class DefaultResolver implements DataValueResolver {
                     return doResolverNumberValue(attr, Long.valueOf(value.toString()));
                 }
             } else if(value != null){
-                if(dataType == DataType.t_json || dataType == DataType.t_group) {
+                if(value instanceof Boolean || value instanceof Enum<?>) {
+                    return value;
+                } else if(dataType == DataType.t_json || dataType == DataType.t_group) {
+                    return JSON.toJSON(value);
+                } else if(dataType == DataType.t_string) {
                     return JSON.toJSONString(value);
                 }
             }
