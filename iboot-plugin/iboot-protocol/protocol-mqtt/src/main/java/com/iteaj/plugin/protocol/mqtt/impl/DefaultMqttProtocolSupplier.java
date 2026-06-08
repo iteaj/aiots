@@ -46,16 +46,15 @@ public class DefaultMqttProtocolSupplier extends StaticClientProtocolSupplier<Ne
         Integer qos = config.getQos();
         String[] split = config.getTopics().split(",");
         List<MqttTopicSubscription> subscriptions = new ArrayList<>();
-        if(split != null) {
-            MqttQoS mqttQoS = MqttQoS.valueOf(qos);
-            for (int i = 0; i < split.length; i++) {
-                subscriptions.add(new MqttTopicSubscription(split[i], mqttQoS));
-            }
+        MqttQoS mqttQoS = MqttQoS.valueOf(qos);
+        for (String s : split) {
+            subscriptions.add(new MqttTopicSubscription(s, mqttQoS));
         }
 
         DefaultMqttConnectProperties connectProperties = new DefaultMqttConnectProperties(config.getHost(), config.getPort(), config.getClientId(), subscriptions, null);
         connectProperties.setUsername(config.getUsername());
         connectProperties.setPassword(config.getPassword());
+        connectProperties.setWriterIdleTime(60 * 10); // 10分钟没写发一次心跳
         connectProperties.setConnectKey(config.getDeviceSn()); // 使用设备编号作为唯一标识
         if(config.getKeepalive() > 0) {
             connectProperties.setKeepAlive(config.getKeepalive());
