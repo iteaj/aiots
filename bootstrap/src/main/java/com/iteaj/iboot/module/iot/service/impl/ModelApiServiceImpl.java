@@ -31,6 +31,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -55,7 +56,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Override
     @Transactional
     public BooleanResult save(ModelApi entity) {
-        entity.setCreateTime(new Date());
+        entity.setCreateTime(new Date()).putConfig("attrBind", false);
         this.getByCode(entity.getCode()).ifPresentThrow("接口码已存在["+entity.getCode()+"]");
         if(entity.getDebug() == null) {
             entity.setDebug(true); // 默认开启调试
@@ -107,10 +108,15 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
                     if(config.getModelAttrId() == null || StrUtil.isBlank(config.getAttrField())) {
                         throw new ServiceException("未指定模型属性[modelAttrId或attrField]");
                     }
+
+                    entity.getConfig().put("attrBind", true);
                 } else {
+                    entity.putConfig("attrBind", false);
                     config.setModelAttrId(null).setAttrField(null).setAttrName(null);
                 }
             }
+        } else {
+            entity.putConfig("attrBind", false);
         }
     }
 
@@ -145,7 +151,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Override
     @Transactional
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
-        listByIds(idList).stream().filter(item -> item != null).forEach(item -> {
+        listByIds(idList).stream().filter(Objects::nonNull).forEach(item -> {
             if(this.getBaseMapper().isEnabled(item.getProductId())) {
                 throw new ServiceException("请先停用产品后删除");
             }
@@ -183,9 +189,16 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     }
 
     @Override
-    public BooleanResult updateAsStatus(Long productId, String code) {
-        if(productId == null || StrUtil.isBlank(code)) {
+    public BooleanResult updateAsStatus(Long productId, String code, Boolean status) {
+        if(productId == null || StrUtil.isBlank(code) || status == null) {
             return BooleanResult.buildFalse("参数错误[productId="+productId+", code="+code+"]");
+        }
+
+        if(status) {
+            Long asStatusNum = this.count(Wrappers.<ModelApi>lambdaQuery().eq(ModelApi::getProductId, productId).eq(ModelApi::getAsStatus, true)).getData();
+            if(asStatusNum > 3) {
+                return BooleanResult.buildFalse("一个产品最多只能设置4个状态接口");
+            }
         }
 
         this.getByCode(code).ifNotPresentThrow("协议不存在["+code+"]").ifPresent(api -> {
@@ -193,12 +206,13 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
                 this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
                 this.getAsStatusModelApi(productId).ifPresent(modelApi -> {
                     if(this.getBaseMapper().isEnabledOfProduct(productId)) { // 如果产品启用则放到设备状态采集管理里面
-                        DeviceStatusModelApiManager.getInstance().update(modelApi);
+                        DeviceStatusModelApiManager.update(modelApi);
                     }
                 });
             } else {
-                // 如果包含有控制状态的属性
-                this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
+                this.getBaseMapper().update(Wrappers.<ModelApi>lambdaUpdate()
+                        .eq(ModelApi::getCode, code)
+                        .set(ModelApi::getAsStatus, status));
             }
         });
         return BooleanResult.buildTrue("设置状态成功");

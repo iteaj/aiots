@@ -6,7 +6,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -16,12 +18,12 @@ public class PanelsDeviceDto {
     /**
      * 控制设备状态控制项
      */
-    private CtrlCommandDto ctrlCommand;
+    private List<CtrlCommandDto> ctrlCmds;
 
     /**
      * 控制值
      */
-    private String ctrlValue;
+    private Map<String, String> ctrlValue;
 
     /**
      * 收集时间
@@ -38,10 +40,24 @@ public class PanelsDeviceDto {
      */
     private DeviceDto device;
 
-    public PanelsDeviceDto(CtrlCommandDto ctrlCommand, List<AttrValue> values, DeviceDto device) {
-        this.ctrlCommand = ctrlCommand;
+    public PanelsDeviceDto(List<CtrlCommandDto> ctrlCmds, List<AttrValue> values, DeviceDto device) {
         this.values = values;
         this.device = device;
+        this.ctrlCmds = ctrlCmds;
+    }
+
+    public void putCtrlValue(String attrField, String string) {
+        if(this.ctrlValue == null) {
+            this.ctrlValue = new HashMap<>();
+        }
+
+        this.ctrlValue.put(attrField, string);
+    }
+
+    public int getCmdSize() {
+        return this.ctrlCmds == null ? 0 : this.ctrlCmds.stream()
+                .map(item -> item.getOptions().size())
+                .reduce(0, Integer::sum);
     }
 
     @Getter
@@ -80,4 +96,5 @@ public class PanelsDeviceDto {
             this.ctrlStatus = ctrlStatus;
         }
     }
+
 }

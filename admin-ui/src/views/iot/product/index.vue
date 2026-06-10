@@ -187,8 +187,10 @@
               <UViewTable :columns="apiColumns" size="small" :scroll="{x: 1080}">
                 <template #action="{record}">
                   <UTag func="ajax:confirm" v-if="record['triggerMode']=='passive' && record['funcType']=='W'" :data="{}"
-                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`"
-                        :config="{confirmTitle: '此接口将作为管理设备的重要接口?', confirmContent: '一般用于控制设备的开关、启停等接口,放于最显眼位置,一个产品只能有一个作为状态接口'}">控制状态</UTag>
+                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}&status=${!record.asStatus}`"
+                        :config="{confirmTitle: '此接口将作为管理设备的重要接口?', confirmContent: '一般用于控制设备的开关、启停等接口,放于最显眼位置,一个产品最多只能有4个状态接口'}">
+                    {{record.asStatus ? '取消状态' : '作为状态'}}
+                  </UTag>
                   <UTag func="edit" :data="record" url="/iot/modelApi/edit" v-auth="'iot:modelApi:edit'">修改</UTag>
                   <UTag func="del" :data="record" url="/iot/modelApi/del" :disabled="record.protocol === true" v-auth="'iot:modelApi:del'">删除</UTag>
                 </template>

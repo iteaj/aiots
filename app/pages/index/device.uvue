@@ -5,213 +5,548 @@
 			:height="44"
 			:show-back="false"
 			safe-area-top
-			background-color="transparent"
-		>
-			<view class="flex flex-row items-center w-full flex-1 px-3">
-				<cl-text :size="18" :pt="{ className: 'font-bold' }">{{
-					t("设备")
-				}}</cl-text>
-			</view>
+			:title="t('设备')">
+			<template #append>
+				<view class="pr-3" @tap="toggleSearch">
+					<cl-icon name="search-line" :size="20"></cl-icon>
+				</view>
+			</template>
 		</cl-topbar>
 
-		<view class="p-3">
-			<!-- 设备统计 -->
-			<view class="bg-white dark:!bg-surface-800 rounded-2xl p-4 mb-3">
-				<cl-row>
-					<cl-col :span="6">
-						<view class="flex flex-col items-center justify-center">
-							<cl-text
-								:size="20"
-								:pt="{ className: 'font-bold' }"
-								color="primary"
-								>{{ deviceCount.total }}</cl-text
-							>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-1' }"
-								color="info"
-								>{{ t("设备总数") }}</cl-text
-							>
+		<view>
+			<cl-sticky ref="stickyRef" :offset-top="44">
+			<!-- 搜索 + 筛选 -->
+			<view class="bg-white dark:!bg-surface-800 px-3 py-2 mb-3">
+				<!-- 搜索栏 -->
+				<view v-if="showSearch" class="mb-3">
+					<view class="flex flex-row items-center">
+						<cl-icon name="search-line" :size="16" color="info"></cl-icon>
+						<input
+							class="ml-2 flex-1"
+							:placeholder="t('搜索设备名称')"
+							v-model="keyword"
+							@confirm="onSearch"
+							@input="onSearchInput"
+						/>
+						<view v-if="keyword" @tap="clearSearch">
+							<cl-icon name="close-circle-fill" :size="16" color="info"></cl-icon>
 						</view>
-					</cl-col>
-
-					<cl-col :span="6">
-						<view class="flex flex-col items-center justify-center">
-							<cl-text
-								:size="20"
-								:pt="{ className: 'font-bold' }"
-								color="success"
-								>{{ deviceCount.online }}</cl-text
-							>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-1' }"
-								color="success"
-								>{{ t("在线设备") }}</cl-text
-							>
-						</view>
-					</cl-col>
-
-					<cl-col :span="6">
-						<view class="flex flex-col items-center justify-center">
-							<cl-text
-								:size="20"
-								:pt="{ className: 'font-bold' }"
-								color="danger"
-								>{{ deviceCount.alarm }}</cl-text
-							>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-1' }"
-								color="danger"
-								>{{ t("告警设备") }}</cl-text
-							>
-						</view>
-					</cl-col>
-
-					<cl-col :span="6">
-						<view class="flex flex-col items-center justify-center">
-							<cl-text
-								:size="20"
-								:pt="{ className: 'font-bold' }"
-								>{{ deviceCount.offline }}</cl-text
-							>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-1' }"
-								color="info"
-								>{{ t("离线设备") }}</cl-text
-							>
-						</view>
-					</cl-col>
-				</cl-row>
-			</view>
-
-			<!-- 快捷入口 -->
-			<view class="bg-white dark:!bg-surface-800 py-5 rounded-2xl mb-3">
-				<cl-row>
-					<cl-col :span="8">
-						<view
-							class="flex flex-col justify-center items-center px-2"
-							@tap="toDeviceList"
-						>
-							<cl-icon name="computer-line" :size="24"></cl-icon>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-2 text-center' }"
-								color="info"
-								>{{ t("设备列表") }}</cl-text
-							>
-						</view>
-					</cl-col>
-
-					<cl-col :span="8">
-						<view
-							class="flex flex-col justify-center items-center px-2"
-							@tap="toAlarmRecords"
-						>
-							<cl-icon
-								name="alarm-warning-line"
-								:size="24"
-							></cl-icon>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-2 text-center' }"
-								color="info"
-								>{{ t("告警记录") }}</cl-text
-							>
-						</view>
-					</cl-col>
-
-					<cl-col :span="8">
-						<view
-							class="flex flex-col justify-center items-center px-2"
-							@tap="toDeviceGroups"
-						>
-							<cl-icon name="layout-grid-line" :size="24"></cl-icon>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-2 text-center' }"
-								color="info"
-								>{{ t("设备分组") }}</cl-text
-							>
-						</view>
-					</cl-col>
-				</cl-row>
-			</view>
-
-			<!-- 设备列表 -->
-			<view class="bg-white dark:!bg-surface-800 rounded-2xl p-4 mb-3">
-				<view class="flex flex-row items-center justify-between mb-3">
-					<cl-text :size="14" :pt="{ className: 'font-bold' }">{{
-						t("全部设备")
-					}}</cl-text>
+					</view>
 				</view>
 
-				<view class="flex flex-col items-center justify-center py-10">
-					<cl-icon
-						name="computer-line"
-						:size="48"
-						color="info"
-					></cl-icon>
-					<cl-text
-						:size="13"
-						color="info"
-						:pt="{ className: 'mt-2' }"
-						>{{ t("暂无设备") }}</cl-text
-					>
-					<cl-text :size="12" color="info">{{
-						t("开发中，敬请期待")
-					}}</cl-text>
+				<!-- 设备分组 -->
+				<view class="flex flex-row items-center" v-if="groups.length > 0">
+					<cl-text :size="12" color="info" :pt="{ className: 'mr-2' }">{{ t("设备分组") }}</cl-text>
+					<scroll-view scroll-x :show-scrollbar="false" style="flex:1;">
+						<view class="flex flex-row items-center">
+							<view
+								v-for="(item, index) in groups"
+								:key="index"
+								class="px-3 py-1 mr-2 rounded-full"
+								:class="(item.id == 0 && activeGroupId == null) || activeGroupId == item.id ? 'bg-primary-500' : [isDark, '!bg-surface-700', '!bg-white']"
+								@tap="onGroupChange(item.id)">
+								<cl-text
+									:size="12"
+									:color="(item.id == 0 && activeGroupId == null) || activeGroupId == item.id ? 'white' : 'info'"
+								>{{ item.name }}</cl-text>
+							</view>
+						</view>
+					</scroll-view>
+				</view>
+
+				<!-- 设备统计 -->
+				<view class="flex flex-row items-center mt-3">
+					<view class="flex flex-col items-center justify-center flex-1" @tap="onStatusChange(null)">
+						<cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == null ? 'primary' : 'info'">{{ statistics.online + statistics.offline }}</cl-text>
+						<cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == null ? 'primary' : 'info'">{{ t("全部") }}</cl-text>
+					</view>
+					<view class="flex flex-col items-center justify-center flex-1" @tap="onStatusChange('online')">
+						<cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == 'online' ? 'success' : 'info'">{{ statistics.online }}</cl-text>
+						<cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == 'online' ? 'success' : 'info'">{{ t("在线") }}</cl-text>
+					</view>
+					<view class="flex flex-col items-center justify-center flex-1" @tap="onStatusChange('offline')">
+						<cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == 'offline' ? 'gray' : 'info'">{{ statistics.offline }}</cl-text>
+						<cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == 'offline' ? 'gray' : 'info'">{{ t("离线") }}</cl-text>
+					</view>
 				</view>
 			</view>
+			</cl-sticky>
+
+			<view class="p-3 mt-2">
+			<view v-if="cards.length === 0" class="flex flex-col items-center justify-center py-10">
+				<cl-icon name="computer-line" :size="48" color="info"></cl-icon>
+				<cl-text :size="14" color="info" :pt="{ className: 'mt-2' }">{{ t("暂无设备") }}</cl-text>
+			</view>
+
+			<view v-for="(card, idx) in cards" :key="idx"
+				class="bg-white dark:bg-surface-800 rounded-2xl pt-2 px-2 pb-2 mb-3">
+				<!-- 第一层：状态 + 名称 | 采集时间 -->
+				<view class="flex flex-row items-center pb-2 mb-2 layer1-border">
+					<view class="flex flex-row items-center flex-1">
+						<view
+							class="w-[8px] h-[8px] rounded-full mr-2"
+							:style="{ backgroundColor: card.online ? '#84fdad' : '#ff9a9a' }"
+						></view>
+						<cl-text :size="14">{{ card.deviceName }}</cl-text>
+					</view>
+					<cl-text :size="11" color="info">{{ card.collectTime ? formatTime(card.collectTime) : t("暂未采集") }}</cl-text>
+				</view>
+
+				<!-- 第二层：属性值 -->
+				<view class="mt-1 mb-1" v-if="card.values && card.values.length > 0">
+					<view class="flex flex-row items-center">
+						<view v-for="(attr, attrIdx) in card.values" :key="attrIdx" class="flex flex-col items-center justify-center flex-1">
+							<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ attr.label || attr.value }}</cl-text>
+							<cl-text :size="10" color="info">{{ attr.name }}</cl-text>
+						</view>
+					</view>
+				</view>
+
+				<!-- 阴影扩散 -->
+				<view class="shadow-up" v-if="card.ctrlCmds && card.ctrlCmds.length > 0"></view>
+				<!-- 第三层：控制指令按钮组 -->
+				<view class="py-1.5 rounded-lg border border-gray-100 dark:border-surface-600" v-if="card.ctrlCmds && card.ctrlCmds.length > 0">
+					<scroll-view scroll-x :show-scrollbar="false">
+						<view class="flex flex-row justify-center" style="gap:12rpx;">
+							<view v-for="(cmd, cmdIdx) in card.ctrlCmds" :key="cmdIdx" class="flex flex-row items-center px-1 py-0.5 rounded bg-gray-50 dark:bg-surface-700/30">
+								<!-- 绑定属性：子选项组合按钮 -->
+								<view v-if="cmd.attrField" class="flex flex-row border" style="border-radius:6rpx;" :class="[isDark, '!border-surface-600', '!border-gray-300']">
+									<view v-for="(opt, optIdx) in cmd.options" :key="optIdx"
+										class="px-5 py-2"
+										:class="[card.ctrlValue[cmd.attrField] == opt.value ? 'bg-primary-500' : '', optIdx < cmd.options.length-1 ? (isDark ? 'border-r !border-r-surface-600' : 'border-r !border-r-gray-300') : '']"
+										@tap="onCtrlCmdClick(card, cmd, opt)">
+										<cl-text :size="14" :color="card.ctrlValue[cmd.attrField] == opt.value ? 'white' : 'info'">{{ opt.commandName }}</cl-text>
+									</view>
+								</view>
+								<!-- 无绑定：单个按钮 -->
+								<view v-else class="px-5 py-2 border" style="border-radius:6rpx;" :class="[isDark, '!border-surface-600', '!border-gray-300']" @tap="onCtrlCmdClick(card, cmd, cmd.options[0])">
+									<cl-text :size="14" color="info">{{ cmd.apiName }}</cl-text>
+								</view>
+							</view>
+						</view>
+					</scroll-view>
+				</view>
+
+				<!-- 阴影扩散 -->
+				<view class="shadow-down" v-if="card.ctrlCmds && card.ctrlCmds.length > 0"></view>
+
+				<!-- 第四层：操作按钮 -->
+				<view class="flex flex-row items-center">
+					<view class="flex flex-row items-center flex-1 justify-center" @tap="onOpenCtrlCmd(card)">
+						<cl-icon name="flashlight-line" :size="16" color="primary"></cl-icon>
+						<cl-text :size="12" color="primary" :pt="{ className: 'ml-1' }">{{ t("控制指令") }}</cl-text>
+					</view>
+
+					<view class="flex flex-row items-center flex-1 justify-center" @tap="onOpenAlarm(card)">
+						<cl-icon name="alarm-warning-line" :size="16" color="info"></cl-icon>
+						<cl-text :size="12" color="info" :pt="{ className: 'ml-1' }">{{ t("今日告警") }}</cl-text>
+					</view>
+
+					<view class="flex flex-row items-center flex-1 justify-center" @tap="onMore(card)">
+						<cl-text :size="12" color="info">{{ t("更多") }}</cl-text>
+						<cl-icon name="arrow-right-s-line" :size="14" color="info"></cl-icon>
+					</view>
+				</view>
+			</view>
+
+			<!-- 加载更多 -->
+			<view v-if="hasMore && !loadingMore" class="flex flex-row items-center justify-center py-4" @tap="onReachBottom">
+				<cl-text :size="12" color="primary">{{ t("加载更多") }}</cl-text>
+			</view>
+			<cl-loadmore
+				v-else-if="loadingMore || (cards.length > 0 && !hasMore)"
+				:loading="loadingMore"
+				:finish="!hasMore"
+				:loading-text="t('加载中...')"
+				:finish-text="t('没有更多了')"
+			/>
 		</view>
+		</view>
+
+		<!-- 底部抽屉 -->
+		<cl-popup v-model="drawerVisible" direction="bottom" :title="drawerTitle">
+			<view class="p-3" style="min-height: 300px">
+				<cl-tabs :list="drawerTabs" v-model="drawerTabActive" fill @change="onDrawerTabChange"></cl-tabs>
+
+				<!-- 控制指令 Tab（开发中） -->
+				<view v-if="drawerTabActive == 0" class="mt-3">
+					<view class="flex flex-col items-center py-6">
+						<cl-icon name="flashlight-line" :size="36" color="info"></cl-icon>
+						<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("开发中，敬请期待") }}</cl-text>
+					</view>
+				</view>
+
+				<!-- 设备调试 Tab -->
+				<view v-if="drawerTabActive == 1" class="mt-3">
+					<view class="flex flex-col items-center py-6">
+						<cl-icon name="bug-line" :size="36" color="info"></cl-icon>
+						<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("开发中，敬请期待") }}</cl-text>
+					</view>
+				</view>
+
+				<!-- 告警 Tab -->
+				<view v-if="drawerTabActive == 2" class="mt-3">
+					<view
+						v-for="(warn, idx) in currentAlarms"
+						:key="idx"
+						class="py-2 border-b border-solid"
+						:class="[isDark, '!border-surface-700', '!border-gray-200']"
+					>
+						<view class="flex flex-row items-center justify-between">
+							<cl-text :size="14">{{ warn.content }}</cl-text>
+							<cl-text :size="11" color="info">{{ formatTime(warn.warnTime) }}</cl-text>
+						</view>
+					</view>
+					<view v-if="!currentAlarms || currentAlarms.length === 0" class="flex flex-col items-center py-6">
+						<cl-icon name="check-circle-line" :size="36" color="success"></cl-icon>
+						<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("今日暂无告警") }}</cl-text>
+					</view>
+				</view>
+			</view>
+		</cl-popup>
 
 		<!-- 自定义底部导航栏 -->
 		<custom-tabbar></custom-tabbar>
 	</cl-page>
 </template>
 
-<script setup lang="ts">
-import { t, router } from "@/.cool";
-import { reactive } from "vue";
+<script lang="ts" setup>
+import { request, t, dayUts, isDark } from "@/.cool";
+import { nextTick, reactive, ref } from "vue";
 import { useUi } from "@/uni_modules/cool-ui";
 import CustomTabbar from "./components/tabbar.uvue";
 
 const ui = useUi();
 
-type DeviceCount = {
-	total: number;
-	online: number;
-	offline: number;
-	alarm: number;
+const stickyRef = ref<ClStickyComponentPublicInstance | null>(null);
+
+function refreshSticky() {
+	nextTick(() => {
+		if (stickyRef.value != null) {
+			stickyRef.value!.$callMethod("getRect");
+		}
+	});
+}
+
+// 类型定义
+type DeviceGroup = {
+	id: number;
+	name: string;
 };
 
-// 设备统计（后续对接接口）
-const deviceCount = reactive<DeviceCount>({
-	total: 0,
+type AttrValueVo = {
+	field: string;
+	name: string;
+	unit: string;
+	value: string;
+	label: string | null;
+};
+
+type CmdItem = {
+    value: string;
+    commandName: string;
+    commandValue: string;
+}
+type CtrlCmdVo = {
+    apiName: string;
+    attrField: string;
+    options: CmdItem[];
+}
+type CardVo = {
+	deviceId: number;
+	uid: string;
+	deviceSn: string;
+	deviceName: string;
+	online: boolean;
+	collectTime: string | null;
+	values: AttrValueVo[];
+	ctrlCmds: CtrlCmdVo[];
+	ctrlValue: Record<string, string>;
+};
+
+type WarnRecord = {
+	content: string;
+	warnTime: string;
+	deviceSn: string;
+};
+
+// 搜索
+const showSearch = ref(false);
+const keyword = ref("");
+
+function toggleSearch() {
+	showSearch.value = !showSearch.value;
+	refreshSticky();
+}
+
+function clearSearch() {
+	keyword.value = "";
+	loadCards();
+}
+
+function onSearchInput() {
+	loadCards();
+}
+
+function onSearch() {
+	loadCards();
+}
+
+// 设备分组
+const groups = reactive<DeviceGroup[]>([]);
+const activeGroupId = ref<number | null>(null);
+const statusFilter = ref<string | null>(null);
+
+function onGroupChange(id: number) {
+	activeGroupId.value = id == 0 ? null : id;
+	loadCards();
+	loadStatistics();
+}
+
+function onStatusChange(status: string | null) {
+	statusFilter.value = status;
+	loadCards();
+}
+
+function loadGroups() {
+	request<any[]>({
+		url: "/app/device/groups"
+	}).then((data) => {
+		if (data) {
+			groups.length = 0;
+			groups.push({ id: 0, name: t("全部") });
+			for (let i = 0; i < data.length; i++) {
+				groups.push({ id: data[i].id, name: data[i].name });
+			}
+		}
+			refreshSticky();
+	});
+}
+
+// 设备统计
+const statistics = reactive({
 	online: 0,
-	offline: 0,
-	alarm: 0
+	offline: 0
 });
 
-function toDeviceList() {
+function loadStatistics() {
+	const params: Record<string, any> = {};
+	if (activeGroupId.value != null) {
+		params.deviceGroupId = activeGroupId.value;
+	}
+	request<any>({
+		url: "/app/device/statistics",
+		params: params
+	}).then((data) => {
+		if (data) {
+			statistics.online = data.online || 0;
+			statistics.offline = data.offline || 0;
+		}
+	});
+}
+
+// 设备列表
+const cards = reactive<CardVo[]>([]);
+const page = reactive({ current: 1, size: 20 });
+const hasMore = ref(true);
+const refreshing = ref(false);
+const loadingMore = ref(false);
+
+// 下拉刷新
+function onPullDownRefresh() {
+	refreshing.value = true;
+	page.current = 1;
+	loadGroups();
+	loadStatistics();
+	fetchDevices(false).then(() => {
+		refreshing.value = false;
+		uni.stopPullDownRefresh();
+	});
+}
+
+// 上拉加载更多
+function onReachBottom() {
+	if (!hasMore.value || loadingMore.value) return;
+	loadingMore.value = true;
+	page.current++;
+	fetchDevices(true).then(() => {
+		loadingMore.value = false;
+	});
+}
+
+function fetchDevices(append: boolean): Promise<void> {
+	const params: Record<string, any> = {
+		page: page.current,
+		size: page.size
+	};
+	if (activeGroupId.value != null) {
+		params.deviceGroupId = activeGroupId.value;
+	}
+	if (keyword.value) {
+		params.keyword = keyword.value;
+	}
+
+	if (statusFilter.value != null) {
+		params.status = statusFilter.value;
+	}
+
+	return new Promise((resolve) => {
+		request<any>({
+			url: "/app/device/list",
+			params: params
+		}).then((res) => {
+			if (res.records) {
+				if (!append) {
+					cards.length = 0;
+				}
+				res.records.forEach((item: any) => cards.push(item));
+				hasMore.value = res.records.length >= page.size;
+			} else {
+				if (!append) {
+					cards.length = 0;
+				}
+				hasMore.value = false;
+			}
+			resolve();
+		}).catch(() => {
+			resolve();
+		});
+	});
+}
+
+function loadCards() {
+	page.current = 1;
+	fetchDevices(false);
+}
+
+function loadMore() {
+	if (!hasMore.value) return;
+	page.current++;
+	fetchDevices(true);
+}
+
+// 控制指令点击
+function onCtrlCmdClick(card: CardVo, cmd: CtrlCmdVo, opt: CmdItem) {
+	let scenario = "小程序";
+	// #ifdef APP
+	scenario = "app";
+	// #endif
+
+    let name = cmd.attrField ? (cmd.apiName + "->" + opt.commandName) : cmd.apiName;
+    // ui.showLoading("指令执行中", true);
+	request({
+		url: "/app/device/command/invoke/update",
+		method: "POST",
+		data: {
+            name: name,
+            uid: card.uid,
+            code: opt.commandValue,
+            field: cmd.attrField,
+            value: opt.value,
+            scenario: scenario
+		}
+	}).then(() => {
+        // ui.hideLoading();
+        ui.showToast({
+			message: t("指令执行成功")
+		});
+		loadCards();
+	}).catch(() => {
+        // ui.hideLoading();
+	});
+}
+
+// 抽屉
+const drawerVisible = ref(false);
+const drawerTitle = ref("");
+const drawerTabActive = ref(0);
+const drawerTabs = reactive([
+	{ label: t("控制指令"), value: 0 },
+	{ label: t("设备调试"), value: 1 },
+	{ label: t("告警列表"), value: 2 }
+]);
+const currentDevice = ref<CardVo | null>(null);
+const currentAlarms = reactive<WarnRecord[]>([]);
+
+function onOpenCtrlCmd(card: CardVo) {
+	currentDevice.value = card;
+	drawerTitle.value = card.deviceName || "";
+	drawerTabActive.value = 0;
+	drawerVisible.value = true;
+}
+
+function onOpenAlarm(card: CardVo) {
+	currentDevice.value = card;
+	drawerTitle.value = card.deviceName || "";
+	drawerTabActive.value = 2;
+	currentAlarms.length = 0;
+	loadDeviceAlarms(card.deviceSn);
+	drawerVisible.value = true;
+}
+
+function onDrawerTabChange(index: number) {
+	drawerTabActive.value = index;
+	if (index == 2 && currentDevice.value) {
+		loadDeviceAlarms(currentDevice.value.deviceSn);
+	}
+}
+
+function loadDeviceAlarms(deviceSn: string) {
+	request<any[]>({
+		url: "/app/alarm/today",
+		params: { deviceSn: deviceSn }
+	}).then((data) => {
+		currentAlarms.length = 0;
+		if (data) {
+			data.forEach((item: any) => currentAlarms.push(item));
+		}
+	});
+}
+
+function onMore(card: CardVo) {
 	ui.showToast({
 		message: t("开发中，敬请期待")
 	});
 }
 
-function toAlarmRecords() {
-	ui.showToast({
-		message: t("开发中，敬请期待")
-	});
+// 工具函数
+function formatTime(timeStr: string | null): string {
+	if (!timeStr) return "";
+	return dayUts(timeStr).format("YYYY-MM-DD HH:mm");
 }
 
-function toDeviceGroups() {
-	ui.showToast({
-		message: t("开发中，敬请期待")
-	});
-}
+// 初始化加载
+loadGroups();
+loadStatistics();
+loadCards();
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+/* 第一层分隔线 */
+.layer1-border {
+	border-bottom: 1px solid #f3f4f6;
+}
+
+/* 第三层阴影扩散 */
+.shadow-up {
+	background: linear-gradient(to top, rgba(0,0,0,0.05), transparent);
+	height: 14px;
+}
+
+.shadow-down {
+	background: linear-gradient(to bottom, rgba(0,0,0,0.05), transparent);
+	height: 14px;
+}
+
+.is-dark .layer1-border {
+	border-bottom: 1px solid #334155;
+}
+
+.is-dark .shadow-up {
+	background: linear-gradient(to top, rgba(0,0,0,0.18), transparent);
+}
+
+.is-dark .shadow-down {
+	background: linear-gradient(to bottom, rgba(0,0,0,0.18), transparent);
+}
+</style>

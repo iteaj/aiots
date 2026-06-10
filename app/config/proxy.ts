@@ -2,7 +2,7 @@ export const proxy = {
 	// 开发环境配置
 	dev: {
 		// 本地地址
-		target: "http://127.0.0.1:8085",
+		target: "http://10.255.118.226:8085",
 		changeOrigin: true,
 		rewrite: (path: string) => path.replace("/dev", "")
 	},

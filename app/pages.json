@@ -9,7 +9,9 @@
 		{
 			"path": "pages/index/device",
 			"style": {
-				"navigationStyle": "custom"
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 80
 			}
 		},
 		{

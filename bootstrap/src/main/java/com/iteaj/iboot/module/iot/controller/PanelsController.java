@@ -70,15 +70,16 @@ public class PanelsController extends BaseController {
      * @return
      */
     @GetMapping("/devices")
-    public Result<IPage<PanelsDeviceDto>> devices(Page page, Long deviceGroupId, Long productId) {
+    public Result<IPage<PanelsDeviceDto>> devices(Page page, Long deviceGroupId, Long productId, String keyword) {
         DeviceDto device = new DeviceDto();
+        device.setName(keyword);
         device.setProductId(productId);
         device.setDeviceGroupId(deviceGroupId);
         device.setDeviceTypes(new DeviceType[]{DeviceType.Child, DeviceType.Direct});
         PageResult<IPage<DeviceDto>> pageResult = deviceService.pageOfDetail(page, device);
 
         Map<Long, String> productProtocolMap = new HashMap<>();
-        Map<Long, CtrlCommandDto> productOptionsMap = new HashMap<>();
+        Map<Long, List<CtrlCommandDto>> productOptionsMap = new HashMap<>();
         Map<Long, Map<String, String>> productAttrDictsMap = new HashMap<>();
         Map<Long, List<PanelsDeviceDto.AttrValue>> productValuesMap = new HashMap<>();
 
@@ -92,11 +93,15 @@ public class PanelsController extends BaseController {
                 list.forEach(productDto -> {
                     List<PanelsDeviceDto.AttrValue> values = new ArrayList<>();
                     productProtocolMap.put(productDto.getId(), productDto.getProtocolCode());
-                    ModelApi ctrlModelApi = modelApiService.getCtrlStatusByProductId(productDto.getId());
-                    if(ctrlModelApi != null) {
-                        CtrlCommandDto ctrlCommandDto = ctrlModelApi.resolverSimpleCommand();
-                        productOptionsMap.put(productDto.getId(), ctrlCommandDto);
-                    }
+                    List<CtrlCommandDto> commandDtos = new ArrayList<>();
+                    productDto.getFuncApis().forEach(modelApi -> {
+                        modelApiService.detailByCode(modelApi.getCode()).ifPresent(ctrlModelApi -> {
+                            if(ctrlModelApi != null) {
+                                commandDtos.add(ctrlModelApi.resolverSimpleCommand());
+                            }
+                        });
+                    });
+                    productOptionsMap.put(productDto.getId(), commandDtos);
 
                     if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
                         Map<String, String> attrDictMap = new HashMap<>();
@@ -121,17 +126,21 @@ public class PanelsController extends BaseController {
                 List<PanelsDeviceDto> panelsDeviceDtos = new ArrayList<>();
                 data.getRecords().forEach(deviceDto -> {
                     deviceDto.setConfig(null);
-                    CtrlCommandDto ctrlCommandDto = productOptionsMap.get(deviceDto.getProductId());
+                    List<CtrlCommandDto> ctrlCommandDtos = productOptionsMap.get(deviceDto.getProductId());
                     Map<String, String> dictStringMap = productAttrDictsMap.get(deviceDto.getProductId());
                     List<PanelsDeviceDto.AttrValue> attrValues = productValuesMap.get(deviceDto.getProductId());
 
-                    PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(ctrlCommandDto, Collections.EMPTY_LIST, deviceDto);
+                    PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(ctrlCommandDtos, Collections.emptyList(), deviceDto);
 //                    // 获取每个属性的实时数据
                     if(CollectionUtil.isNotEmpty(attrValues)) {
-                        if(ctrlCommandDto != null) {
-                            ModelAttrRealtimeData realtimeData = realtimeDataService.getRealtimeData(deviceDto.getUid(), ctrlCommandDto.getAttrField());
-                            if(realtimeData != null && realtimeData.getRealtime() != null) {
-                                panelsDeviceDto.setCtrlValue(realtimeData.getRealtime().getValue().toString());
+                        if(CollectionUtil.isNotEmpty(ctrlCommandDtos)) {
+                            for (CtrlCommandDto ctrlCommandDto : ctrlCommandDtos) {
+                                if (ctrlCommandDto.getAttrField() != null) {
+                                    ModelAttrRealtimeData realtimeData = realtimeDataService.getRealtimeData(deviceDto.getUid(), ctrlCommandDto.getAttrField());
+                                    if(realtimeData != null && realtimeData.getRealtime() != null) {
+                                        panelsDeviceDto.putCtrlValue(ctrlCommandDto.getAttrField(), realtimeData.getRealtime().getValue().toString());
+                                    }
+                                }
                             }
                         }
 
@@ -150,8 +159,6 @@ public class PanelsController extends BaseController {
                                 if(realtimeData != null && realtimeData.getRealtime() != null
                                         && realtimeData.getRealtime().getValue() != null) {
 
-                                    String value = realtimeData.getRealtime().getValue().toString();
-                                    attrValue.setValue(value);
                                     // 设置设备最新的采集时间
                                     if(panelsDeviceDto.getCollectTime() == null) {
                                         panelsDeviceDto.setCollectTime(realtimeData.getRealtime().getCollectTime());
@@ -161,7 +168,8 @@ public class PanelsController extends BaseController {
                                     }
 
                                     // 将采集到的值转成字典label
-                                    attrValue.setLabel(dictStringMap.get(attrValue.getField() + "_" + value));
+                                    attrValue.setValue(realtimeData.getRealtime().getValue().toString());
+                                    attrValue.setLabel(dictStringMap.get(attrValue.getField() + "_" + attrValue.getValue()));
                                 }
                             }
                         });

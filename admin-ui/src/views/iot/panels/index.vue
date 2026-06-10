@@ -9,8 +9,8 @@
     </UViewSearch>
     <ASpin :spinning="spinning">
       <div v-if="total > 0">
-        <AFlex wrap="wrap" gap="small" justify="space-between">
-          <template v-for="({device, ctrlCommand, values, ctrlValue, collectTime}, index) in devices" :key="device['uid']">
+        <AFlex wrap="wrap" gap="middle" justify="space-around">
+          <template v-for="({device, ctrlCmds, values, ctrlValue, collectTime, cmdSize}) in devices" :key="device['uid']">
             <a-card variant="borderless" size="small" class="iv-device-card" @click="routeTo(device, 'device')"
                     :styles="{header: {padding: '0 8px'}, actions: {padding: '0 8px'}}" hoverable>
               <template #title>
@@ -49,24 +49,29 @@
               </div>
               <template #actions>
                 <div>
-                  <div style="height: 32px; line-height: 32px">
-                    <a-space-compact v-if="ctrlCommand">
-                      <template v-for="(cmd, index) in ctrlCommand.options" :key="index">
-                        <AButton variant="filled" :color="(cmd.value && cmd.value == ctrlValue) ? 'primary' : 'default'"
-                                 :style="{width: `calc(280px / ${ctrlCommand.options.length})`}" @click.stop="switchCtrlStatus(cmd, device, ctrlCommand)">
-                          {{cmd.commandName}}
-                        </AButton>
-                      </template>
-                    </a-space-compact>
+                  <ASpace style="height: 32px; line-height: 32px">
+                    <template  v-if="ctrlCmds && ctrlCmds.length > 0">
+                        <template v-for="(ctrlCommand, index) in ctrlCmds" :key="index">
+                          <a-space-compact v-if="ctrlCommand.attrField">
+                            <template v-for="(cmd, cmdIndex) in ctrlCommand.options" :key="cmdIndex">
+                              <AButton variant="filled" :color="(cmd.value && cmd.value == ctrlValue?.[ctrlCommand.attrField]) ? 'primary' : 'default'"
+                                       :style="{width: `calc(280px / ${cmdSize})`}" @click.stop="switchCtrlStatus(cmd, device, ctrlCommand)">
+                                {{cmd.commandName}}
+                              </AButton>
+                            </template>
+                          </a-space-compact>
+                          <AButton v-else variant="filled" color="default" :style="{width: `calc(280px / ${cmdSize})`}"
+                                   @click.stop="switchCtrlStatus(ctrlCommand.options[0], device, ctrlCommand)">
+                            {{ctrlCommand.options[0]?.commandName}}
+                          </AButton>
+                        </template>
+                    </template>
                     <span v-else>没有控制项</span>
-                    <!--                <AButton type="dashed" shape="round" size="small">-->
-                    <!--                  <span style="color: #0f8bc7"></span>-->
-                    <!--                  <a :href="`/#/iot/device/detail/${device.uid}`" target="_blank">运行展板</a>-->
-                    <!--                </AButton>-->
-                  </div>
+                  </ASpace>
                   <div style="font-size: 12px;">
-                    <span style="color: var(--ant-color-primary)">{{ctrlCommand ? ctrlCommand.apiName + ' · ' : ''}}</span>
-                    采集时间: {{collectTime || '暂未采集'}}</div>
+                    <!--                    <span style="color: var(&#45;&#45;ant-color-primary)">{{ctrlCommand ? ctrlCommand.apiName + ' · ' : ''}}</span>-->
+                    采集时间: {{collectTime || '暂未采集'}}
+                  </div>
                 </div>
 
               </template>

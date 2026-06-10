@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.Product">
         <result column="id" property="id" />
         <result column="name" property="name" />
+        <result column="code" property="code" />
         <result column="status" property="status" />
         <result column="remark" property="remark" />
         <result column="type_name" property="typeName" />
@@ -42,6 +43,11 @@
                     select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listDetailByProductId" />
     </resultMap>
     <resultMap id="JoinAttrLimitMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
+        <collection property="funcApis" columnPrefix="b_" ofType="ModelApi">
+            <id property="id" column="id" />
+            <result property="code" column="code" />
+            <result property="name" column="name" />
+        </collection>
         <collection property="attrs" column="{productId=id}" ofType="ModelAttr"
                     select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listLimitDetailByProductId" />
     </resultMap>
@@ -161,10 +167,12 @@
         select * from iot_device where product_id = #{id}
     </select>
     <select id="listCtrlStatusModelAttrs" resultMap="JoinAttrLimitMap">
-        select a.* from iot_product a
+        select a.*, b.code b_code, b.name b_name, b.id b_id from iot_product a
+           left join iot_model_api b on b.product_id=a.id and b.as_status=true and b.func_type='W'
             where a.id in (<foreach collection="productIds" item="id" separator=",">
                 #{id}
             </foreach>)
+        order by b.sort
     </select>
     <select id="getCtrlStatusModelApi" resultMap="JoinCtrlStatusApiMap">
         select a.* from iot_product a where a.id = #{productId}

@@ -34,7 +34,7 @@ public interface IModelApiService extends IBaseService<ModelApi> {
 
     Result<ModelApi> detailById(Long id);
 
-    BooleanResult updateAsStatus(Long productId, String code);
+    BooleanResult updateAsStatus(Long productId, String code, Boolean status);
 
     CtrlMode getProtocolCtrlModelByProductId(Long productId);
 

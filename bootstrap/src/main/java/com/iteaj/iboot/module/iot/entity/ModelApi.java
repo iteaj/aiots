@@ -153,6 +153,15 @@ public class ModelApi extends BaseEntity implements ModelApiMeta {
     @TableField(exist = false)
     private List<ModelApiConfig> downConfig;
 
+    public ModelApi putConfig(String key, Object value) {
+        if(this.config == null) {
+            this.config = new JSONObject();
+        }
+
+        this.config.put(key, value);
+        return this;
+    }
+
     public JSONObject resolveStrValue(String value) {
         Map<String, String> attrValueMap = new HashMap<>();
         if(StrUtil.isNotBlank(value) && value.contains("::")) {
