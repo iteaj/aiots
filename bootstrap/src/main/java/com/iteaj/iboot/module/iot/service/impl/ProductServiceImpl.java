@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -472,6 +473,8 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
     @Override
     public List<ProductDto> listCtrlStatusModelAttrs(List<Long> productIds) {
+        if(CollectionUtil.isEmpty(productIds))
+            return Collections.emptyList();
         return this.getBaseMapper().listCtrlStatusModelAttrs(productIds);
     }
 

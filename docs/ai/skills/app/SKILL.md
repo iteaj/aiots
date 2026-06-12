@@ -52,6 +52,7 @@ app/
 - **模块文件**：`{模块名}.ts`，如 `user.ts`（URL 地址 + 类型定义合并）
 - **页面文件**：小写 + 连字符，如 `device-list.uvue`
 - **组件文件**：小写 + 连字符，如 `device-card.uvue`
+- **路径地址**：驼峰写法，如 `/app/device/command/invokeUpdate`
 
 ## 4. Cool UI 组件库特别说明
 - UI 优先使用 cool-ui 组件库，在 cool-ui 组件库中没有的组件，再考虑 uni-app x 的内置组件。
@@ -71,14 +72,96 @@ app/
 - 移动端接口统一使用 `/m` 前缀
 - 示例：`/m/xxx/list`，`/m/xxx/page`
 
-### 6.1 模块文件检查
+## 6. 列表分页开发规范
+
+### 6.1 分页请求参数
+- **请求参数名**：使用 `current`（第几页）、`size`（每页条数）
+- **示例**：`{ current: pageCurrent.value, size: pageSize }`
+
+### 6.2 分页响应参数
+- **响应字段**：`records`（数据列表）、`pages`（总页数）
+- **hasMore 计算**：`pageCurrent.value < totalPages`（用服务端返回的 `pages` 比较，避免最后一页整数倍时重复加载）
+- **page 自增时机**：仅在 API 成功响应后且 `hasMore` 为 true 时自增
+
+### 6.3 列表容器 — 优先使用 cl-list-view
+分页列表统一使用 `cl-list-view` 组件替代手动点击"加载更多"：
+
+```uvue
+<cl-list-view
+    ref="listViewRef"
+    :data="listData"
+    refresher-enabled
+    @bottom="onLoadMore"
+    @refresher-refresh="onRefresh">
+    <template #top>
+        <!-- 列表内容，v-for 渲染卡片 -->
+    </template>
+</cl-list-view>
+```
+
+- **:data**：传入虚拟数据 `reactive([{ value: null }])`，驱动列表滚动行为
+- **refresher-enabled**：开启下拉刷新
+- **@bottom**：触底自动触发加载更多（替代 onReachBottom 或手动按钮）
+- **@refresher-refresh**：下拉刷新回调
+- **\<template #top\>**：列表内容放在此插槽中
+
+### 6.4 核心状态变量
+```typescript
+const pageCurrent = ref(1);
+const pageSize = 10;
+const hasMore = ref(true);
+const loadingMore = ref(false);
+const listData = reactive<any[]>([{ value: null }]);
+const listViewRef = ref<any>(null);
+```
+
+### 6.5 onLoadMore 模板
+```typescript
+function onLoadMore(): void {
+    if (loadingMore.value || !hasMore.value) return;  // 并发防护
+    loadingMore.value = true;
+    fetchData(true).finally(() => { loadingMore.value = false; });
+}
+```
+
+### 6.6 onRefresh 模板
+```typescript
+function onRefresh(): void {
+    pageCurrent.value = 1;
+    hasMore.value = true;
+    fetchData(false).finally(() => {
+        listViewRef.value?.stopRefresh();
+    });
+}
+```
+
+### 6.7 参考实现
+- `app/pages/index/device.uvue` — 设备列表（完整分页实现）
+- `app/pages/device/detail.uvue` — 设备详情（cl-list-view 用法参考）
+
+## 7. 常用工具函数
+
+### 7.1 获取页面内容可用高度
+计算当前页面内容区域可用高度时，使用系统提供的 `getContentHeight` 方法，而非 `calc(100vh - xx)`。因为小程序和 APP 需扣除状态栏高度。
+
+```typescript
+import { getContentHeight } from "@/.cool";
+
+// 参数 deduct：需扣除的 topbar 和菜单栏高度
+// 返回：windowHeight - statusBarHeight - deduct
+const height = getContentHeight(90);
+```
+
+**位置**：`app/.cool/utils/rect.ts`
+
+### 7.2 模块文件检查
 - [ ] 文件路径正确（`app/pages/{模块}/{模块}.ts`）
 - [ ] `UserApi` 对象包含所有接口地址
 - [ ] 字段与后端实体类保持一致
 - [ ] 包含所有必要的类型（实体、请求参数、响应参数）
 - [ ] 使用 TypeScript 严格类型检查
 
-### 6.2 页面开发检查
+### 7.3 页面开发检查
 - [ ] 页面文件使用 `.uvue` 后缀
 - [ ] 页面已在 `pages.json` 中注册
 - [ ] 使用了合适的滚动容器
@@ -86,22 +169,22 @@ app/
 - [ ] 正确调用接口并处理响应
 - [ ] 添加了适当的错误处理
 
-## 7. 常见问题
+## 8. 常见问题
 
-### 7.1 类型不匹配
+### 8.1 类型不匹配
 确保前端类型声明与后端实体类字段完全一致，包括：
 - 字段名称（使用驼峰命名）
 - 字段类型（string、number、boolean 等）
 - 可选字段使用 `?` 标记
 
-### 7.2 接口调用失败
+### 8.2 接口调用失败
 检查以下内容：
 - 接口路径是否正确
 - 请求方法是否匹配
 - 参数名称和类型是否正确
 - 是否需要认证 token
 
-### 7.3 组件找不到
+### 8.3 组件找不到
 - 确认组件在 cool-ui 中存在
 - 检查组件名称拼写
 - 查看组件文档确认使用方式

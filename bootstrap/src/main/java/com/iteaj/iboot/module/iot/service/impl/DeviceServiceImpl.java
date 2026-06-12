@@ -352,6 +352,11 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     }
 
     @Override
+    public DeviceDto getDetailByUid(String uid) {
+        return this.getBaseMapper().getDetailByUid(uid);
+    }
+
+    @Override
     public DeviceStatusDto countCommonDeviceStatus(GroupAndProductParamDto param) {
         return getBaseMapper().countDeviceStatus(param);
     }
@@ -393,6 +398,11 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
             List<DeviceStatusData> dataList = this.getBaseMapper().listCommonByStatus(condition);
             return CollectValueItem.build(null, dataList);
         }
+    }
+
+    @Override
+    public PageResult<IPage<DeviceDto>> listByApp(Page page, DeviceDto device) {
+        return new PageResult<>(this.getBaseMapper().listByApp(page, device));
     }
 
     @Override

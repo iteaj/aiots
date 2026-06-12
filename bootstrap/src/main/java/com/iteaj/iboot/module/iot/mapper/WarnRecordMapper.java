@@ -10,6 +10,7 @@ import com.iteaj.iboot.module.iot.dto.CountLastWeekDto;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +26,23 @@ public interface WarnRecordMapper extends BaseMapper<WarnRecord> {
     IPage<WarnRecord> detailPage(Page page, WarnData entity);
 
     List<WarnRecord> listByDeviceGroupId(Long groupId, Integer size);
+
+    /**
+     * 通过uid和时间范围查询告警（含等级）
+     * @param uid 设备uid
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @return
+     */
+    List<WarnRecord> listByUidAndTimeRange(String uid, Date startTime, Date endTime);
+
+    /**
+     * 分页查询告警记录（按uid）
+     * @param page
+     * @param uid
+     * @return
+     */
+    IPage<WarnRecord> pageByUid(Page<WarnRecord> page, String uid);
 
     /**
      * 统计最近一周的数据

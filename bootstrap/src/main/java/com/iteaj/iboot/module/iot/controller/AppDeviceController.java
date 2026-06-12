@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.controller;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.PageResult;
@@ -11,6 +12,9 @@ import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.consts.AttrType;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
+import com.iteaj.framework.spi.iot.data.ModelAttrDictMeta;
+import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
 import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
@@ -18,11 +22,14 @@ import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.*;
+import com.iteaj.iboot.module.iot.entity.DeviceCmdLog;
 import com.iteaj.iboot.module.iot.service.*;
+import com.iteaj.iboot.module.iot.service.IModelAttrService;
 import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,21 +44,24 @@ public class AppDeviceController extends BaseController {
     private final IProductService productService;
     private final IModelApiService modelApiService;
     private final RealtimeDataService realtimeDataService;
-    private final IWarnRecordService warnRecordService;
     private final IDeviceGroupService deviceGroupService;
+    private final IModelAttrService modelAttrService;
     private final IModelApiInvokeService modelApiInvokeService;
+    private final IDeviceCmdLogService deviceCmdLogService;
 
     public AppDeviceController(IDeviceService deviceService, IProductService productService,
                                IModelApiService modelApiService, RealtimeDataService realtimeDataService,
-                               IWarnRecordService warnRecordService, IDeviceGroupService deviceGroupService,
-                               IModelApiInvokeService modelApiInvokeService) {
+                               IDeviceGroupService deviceGroupService,
+                               IModelAttrService modelAttrService, IModelApiInvokeService modelApiInvokeService,
+                               IDeviceCmdLogService deviceCmdLogService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.modelApiService = modelApiService;
         this.realtimeDataService = realtimeDataService;
-        this.warnRecordService = warnRecordService;
         this.deviceGroupService = deviceGroupService;
+        this.modelAttrService = modelAttrService;
         this.modelApiInvokeService = modelApiInvokeService;
+        this.deviceCmdLogService = deviceCmdLogService;
     }
 
     /**
@@ -91,8 +101,7 @@ public class AppDeviceController extends BaseController {
         if (status != null) {
             device.setStatus(DeviceStatus.getInstance(status));
         }
-        device.setDeviceTypes(new DeviceType[]{DeviceType.Child, DeviceType.Direct});
-        PageResult<IPage<DeviceDto>> pageResult = deviceService.pageOfDetail(page, device);
+        PageResult<IPage<DeviceDto>> pageResult = deviceService.listByApp(page, device);
 
         Map<Long, String> productProtocolMap = new HashMap<>();
         Map<Long, List<CtrlCommandDto>> productOptionsMap = new HashMap<>();
@@ -101,9 +110,21 @@ public class AppDeviceController extends BaseController {
 
         IPage<DeviceDto> data = pageResult.getData();
         if(CollectionUtil.isNotEmpty(data.getRecords())) {
+            data.getRecords().sort(Comparator.comparing((deviceDto) -> {
+                switch (deviceDto.getDeviceType()) {
+                    case Child:
+                        return 0;
+                    case Direct:
+                        return 1;
+                    default:
+                        return 2;
+                }
+            }));
             List<Long> productIds = data.getRecords().stream()
+                    .filter(item->item.getDeviceType() != DeviceType.Gateway)
                     .map(Device::getProductId).distinct()
                     .collect(Collectors.toList());
+            // 网关子设备和直连设备产品
             List<ProductDto> list = productService.listCtrlStatusModelAttrs(productIds);
             if(CollectionUtil.isNotEmpty(list)) {
                 list.forEach(productDto -> {
@@ -141,62 +162,74 @@ public class AppDeviceController extends BaseController {
 
                 List<AppDeviceCardVo> panelsDeviceDtos = new ArrayList<>();
                 data.getRecords().forEach(deviceDto -> {
-                    List<CtrlCommandDto> ctrlCommandDtos = productOptionsMap.get(deviceDto.getProductId());
-                    Map<String, String> dictStringMap = productAttrDictsMap.get(deviceDto.getProductId());
-                    List<AppDeviceCardVo.AttrValueVo> attrValues = productValuesMap.get(deviceDto.getProductId());
+                    if(deviceDto.getDeviceType() != DeviceType.Gateway) {
+                        List<CtrlCommandDto> ctrlCommandDtos = productOptionsMap.get(deviceDto.getProductId());
+                        Map<String, String> dictStringMap = productAttrDictsMap.get(deviceDto.getProductId());
+                        List<AppDeviceCardVo.AttrValueVo> attrValues = productValuesMap.get(deviceDto.getProductId());
 
-                    AppDeviceCardVo panelsDeviceDto = new AppDeviceCardVo(ctrlCommandDtos, Collections.emptyList()
-                            , deviceDto.getName(), deviceDto.getDeviceSn(), deviceDto.getUid(), deviceDto.getStatus() == DeviceStatus.online);
+                        AppDeviceCardVo panelsDeviceDto = new AppDeviceCardVo(ctrlCommandDtos, Collections.emptyList()
+                                , deviceDto.getName(), deviceDto.getDeviceSn(), deviceDto.getUid(), deviceDto.getStatus() == DeviceStatus.online);
 //                    // 获取每个属性的实时数据
-                    if(CollectionUtil.isNotEmpty(attrValues)) {
-                        if(CollectionUtil.isNotEmpty(ctrlCommandDtos)) {
-                            for (CtrlCommandDto ctrlCommandDto : ctrlCommandDtos) {
-                                if (ctrlCommandDto.getAttrField() != null) {
-                                    ModelAttrRealtimeData realtimeData = realtimeDataService.getRealtimeData(deviceDto.getUid(), ctrlCommandDto.getAttrField());
-                                    if(realtimeData != null && realtimeData.getRealtime() != null) {
-                                        panelsDeviceDto.putCtrlValue(ctrlCommandDto.getAttrField(), realtimeData.getRealtime().getValue().toString());
+                        if(CollectionUtil.isNotEmpty(attrValues)) {
+                            if(CollectionUtil.isNotEmpty(ctrlCommandDtos)) {
+                                for (CtrlCommandDto ctrlCommandDto : ctrlCommandDtos) {
+                                    if (ctrlCommandDto.getAttrField() != null) {
+                                        ModelAttrRealtimeData realtimeData = realtimeDataService.getRealtimeData(deviceDto.getUid(), ctrlCommandDto.getAttrField());
+                                        if(realtimeData != null && realtimeData.getRealtime() != null) {
+                                            panelsDeviceDto.putCtrlValue(ctrlCommandDto.getAttrField(), realtimeData.getRealtime().getValue().toString());
+                                        }
                                     }
                                 }
                             }
+
+                            List<AppDeviceCardVo.AttrValueVo> copyAttrValues = attrValues.stream()
+                                    .map(item -> new AppDeviceCardVo.AttrValueVo(item.getField(), item.getName(), item.getUnit()))
+                                    .collect(Collectors.toList());
+
+                            copyAttrValues.forEach(attrValue -> {
+                                String protocolCode = productProtocolMap.get(deviceDto.getProductId());
+                                Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(protocolCode
+                                        , DeviceKey.build(deviceDto.getDeviceSn(), deviceDto.getParentDeviceSn()));
+                                if(CollectionUtil.isNotEmpty(realtimeDataMap)) {
+
+                                    // 设置各属性的实时值
+                                    RealtimeData realtimeData = realtimeDataMap.get(attrValue.getField());
+                                    if(realtimeData != null && realtimeData.getRealtime() != null
+                                            && realtimeData.getRealtime().getValue() != null) {
+
+                                        // 设置设备最新的采集时间
+                                        if(panelsDeviceDto.getCollectTime() == null) {
+                                            panelsDeviceDto.setCollectTime(realtimeData.getRealtime().getCollectTime());
+                                        } else {
+                                            boolean b = panelsDeviceDto.getCollectTime().getTime() > realtimeData.getRealtime().getCollectTime().getTime();
+                                            panelsDeviceDto.setCollectTime(b ? panelsDeviceDto.getCollectTime() : realtimeData.getRealtime().getCollectTime());
+                                        }
+
+                                        // 将采集到的值转成字典label
+                                        attrValue.setValue(realtimeData.getRealtime().getValue().toString());
+                                        attrValue.setLabel(dictStringMap.get(attrValue.getField() + "_" + attrValue.getValue()));
+                                    }
+                                }
+                            });
+
+                            panelsDeviceDto.setValues(copyAttrValues);
                         }
 
-                        List<AppDeviceCardVo.AttrValueVo> copyAttrValues = attrValues.stream()
-                                .map(item -> new AppDeviceCardVo.AttrValueVo(item.getField(), item.getName(), item.getUnit()))
-                                .collect(Collectors.toList());
-
-                        copyAttrValues.forEach(attrValue -> {
-                            String protocolCode = productProtocolMap.get(deviceDto.getProductId());
-                            Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(protocolCode
-                                    , DeviceKey.build(deviceDto.getDeviceSn(), deviceDto.getParentDeviceSn()));
-                            if(CollectionUtil.isNotEmpty(realtimeDataMap)) {
-
-                                // 设置各属性的实时值
-                                RealtimeData realtimeData = realtimeDataMap.get(attrValue.getField());
-                                if(realtimeData != null && realtimeData.getRealtime() != null
-                                        && realtimeData.getRealtime().getValue() != null) {
-
-                                    // 设置设备最新的采集时间
-                                    if(panelsDeviceDto.getCollectTime() == null) {
-                                        panelsDeviceDto.setCollectTime(realtimeData.getRealtime().getCollectTime());
-                                    } else {
-                                        boolean b = panelsDeviceDto.getCollectTime().getTime() > realtimeData.getRealtime().getCollectTime().getTime();
-                                        panelsDeviceDto.setCollectTime(b ? panelsDeviceDto.getCollectTime() : realtimeData.getRealtime().getCollectTime());
-                                    }
-
-                                    // 将采集到的值转成字典label
-                                    attrValue.setValue(realtimeData.getRealtime().getValue().toString());
-                                    attrValue.setLabel(dictStringMap.get(attrValue.getField() + "_" + attrValue.getValue()));
-                                }
-                            }
-                        });
-
-                        panelsDeviceDto.setValues(copyAttrValues);
+                        panelsDeviceDtos.add(panelsDeviceDto);
+                    } else {
+                        panelsDeviceDtos.add(new AppDeviceCardVo(Collections.emptyList(), Collections.emptyList()
+                                , deviceDto.getName(), deviceDto.getDeviceSn(), deviceDto.getUid()
+                                , deviceDto.getStatus() == DeviceStatus.online));
                     }
-
-                    panelsDeviceDtos.add(panelsDeviceDto);
                 });
 
                 page.setRecords(panelsDeviceDtos);
+            } else { // 网关设备产品
+                List<AppDeviceCardVo> appDeviceCardVos = data.getRecords().stream().map(deviceDto ->
+                        new AppDeviceCardVo(Collections.emptyList(), Collections.emptyList()
+                        , deviceDto.getName(), deviceDto.getDeviceSn(), deviceDto.getUid()
+                        , deviceDto.getStatus() == DeviceStatus.online)).toList();
+                page.setRecords(appDeviceCardVos);
             }
         }
         return success(page);
@@ -208,6 +241,115 @@ public class AppDeviceController extends BaseController {
     @GetMapping("/groups")
     public Result<List<DeviceGroup>> groups() {
         return this.deviceGroupService.list();
+    }
+
+    /**
+     * 设备指令集列表（移动端，只返回功能指令）
+     */
+    @GetMapping("/commands")
+    public Result<List<DeviceCommandVo>> commands(String uid, ProtocolApiType apiType) {
+        List<DeviceCommandDto> commands = modelApiInvokeService.listCommands(uid, apiType);
+        return success(commands.stream().map(DeviceCommandVo::of).collect(Collectors.toList()));
+    }
+
+    /**
+     * 设备实时数据
+     */
+    @GetMapping("/realtime")
+    public Result<List<RealtimeDataVo>> realtime(String uid) {
+        Device device = deviceService.getByUid(uid).of().orElse(null);
+        if (device == null) {
+            return fail("设备不存在");
+        }
+
+        Product product = productService.detailById(device.getProductId()).of().orElse(null);
+        if (product == null) {
+            return fail("产品不存在");
+        }
+
+        Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(
+                product.getProtocolCode(), DeviceKey.build(device.getDeviceSn(), device.getParentDeviceSn()));
+
+        Map<Serializable, ModelAttrMeta> attrMetaMap = modelAttrService.getAttrMetas(product.getCode());
+
+        List<RealtimeDataVo> list = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(attrMetaMap)) {
+            int limit = 100;
+            int count = 0;
+            for (ModelAttrMeta attr : attrMetaMap.values()) {
+                if (count++ >= limit) {
+                    break;
+                }
+                if (attr.getAttrType() == AttrType.W) {
+                    continue; // 只写属性不展示
+                }
+                if (DataType.isContainer(attr.getDataType())) {
+                    continue; // 容器类型不展示
+                }
+
+                RealtimeDataVo vo = new RealtimeDataVo(attr.getField(), attr.getName(), attr.getUnit());
+                if (CollectionUtil.isNotEmpty(realtimeDataMap)) {
+                    RealtimeData rd = realtimeDataMap.get(attr.getField());
+                    if (rd != null && rd.getRealtime() != null) {
+                        if (rd.getRealtime().getValue() != null) {
+                            vo.setValue(rd.getRealtime().getValue().toString());
+                        }
+
+                        // 字典属性将值转为标签
+                        if (CollectionUtil.isNotEmpty(attr.getDictMetas())) {
+                            for (ModelAttrDictMeta dict : attr.getDictMetas()) {
+                                if (dict.getDictValue().equals(vo.getValue())) {
+                                    vo.setLabel(dict.getDictName());
+                                    break;
+                                }
+                            }
+                        }
+                        if (rd.getRealtime().getCollectTime() != null) {
+                            vo.setCollectTime(DateUtil.formatDateTime(rd.getRealtime().getCollectTime()));
+                        }
+                    }
+                }
+                list.add(vo);
+            }
+        }
+
+        return success(list);
+    }
+
+    /**
+     * 设备详情（含产品信息）
+     */
+    @GetMapping("/detail")
+    public Result<DeviceDto> detail(@RequestParam String uid) {
+        DeviceDto deviceDto = deviceService.getDetailByUid(uid);
+        if (deviceDto == null) {
+            return fail("设备不存在");
+        }
+        return success(deviceDto);
+    }
+
+    /**
+     * 指令日志分页
+     */
+    @GetMapping("/cmdLog/page")
+    public Result<IPage<DeviceCmdLogVo>> cmdLogPage(Page<DeviceCmdLog> page, @RequestParam String uid) {
+        page.addOrder(OrderItem.desc("create_time"));
+        IPage<DeviceCmdLog> result = deviceCmdLogService.lambdaQuery().eq(DeviceCmdLog::getUid, uid).page(page);
+
+        IPage<DeviceCmdLogVo> voPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
+        voPage.setRecords(result.getRecords().stream()
+                .map(DeviceCmdLogVo::of)
+                .collect(Collectors.toList()));
+
+        return success(voPage);
+    }
+
+    /**
+     * 产品列表（移动端筛选用）
+     */
+    @GetMapping("/products")
+    public Result<List<ProductDto>> products() {
+        return productService.listOfDetail(new Product());
     }
 
     /**

@@ -13,6 +13,7 @@ import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.core.entity.Admin;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
@@ -156,11 +157,13 @@ public class DeviceCtrlController extends BaseController {
 
     /**
      * 指令集列表
+     * @param uid 设备uid
+     * @param apiType 指令类型，为空获取所有
      */
     @GetMapping("commands")
     @CheckPermission("iot:cmd:list")
-    public Result<List<DeviceCommandDto>> commands(String uid) {
-        return success(modelApiInvokeService.listCommands(uid));
+    public Result<List<DeviceCommandDto>> commands(String uid, ProtocolApiType apiType) {
+        return success(modelApiInvokeService.listCommands(uid, apiType));
     }
 
     /**

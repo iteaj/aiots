@@ -118,6 +118,17 @@
             left join iot_device pd on a.pid = pd.id
         where a.uid=#{uid}
     </select>
+    <select id="getDetailByUid" resultMap="DeviceDtoMap">
+        select a.*, pd.device_sn parent_device_sn, idm.name product_name, idt.name product_type_name
+             , idm.code product_code, idm.gateway_id, idm.device_type, idm.protocol_code
+             , ig.name gateway_name, ig.connect_type, dg.name device_group_name from iot_device a
+            left join iot_device pd on a.pid = pd.id
+            left join iot_product idm on a.product_id=idm.id
+            left join iot_product_type idt on idm.product_type_id=idt.id
+            left join iot_gateway ig on idm.gateway_id=ig.id
+            left join iot_device_group dg on a.device_group_id=dg.id
+        where a.uid=#{uid}
+    </select>
     <select id="detailById" resultMap="DeviceDtoMap">
         select a.*, pd.device_sn parent_device_sn, idm.name product_name, idt.name product_type_name
              , idm.code product_code, idm.gateway_id, idm.device_type, idm.protocol_code from iot_device a
@@ -276,5 +287,29 @@
             </if>
         </where>
         order by a.status desc, a.product_id
+    </select>
+    <select id="listByApp" resultMap="DeviceDtoMap">
+        select a.*, b.device_type, pd.device_sn parent_device_sn from iot_device a
+            left join iot_product b on a.product_id = b.id
+            left join iot_device pd on a.pid = pd.id
+        <where>
+           b.id is not null
+            <if test="entity.status!=null">
+                and a.status = #{entity.status}
+            </if>
+            <if test="entity.productId!=null">
+                and a.product_id = #{entity.productId}
+            </if>
+            <if test="entity.deviceType!=null">
+                and b.device_type = #{entity.deviceType}
+            </if>
+            <if test="entity.deviceTypes!=null">
+                and (<foreach collection="entity.deviceTypes" item="deviceType" separator=" or ">b.device_type=#{deviceType}</foreach>)
+            </if>
+            <if test="entity.deviceGroupId!=null">
+                and a.device_group_id = #{entity.deviceGroupId}
+            </if>
+        </where>
+        order by a.status
     </select>
 </mapper>

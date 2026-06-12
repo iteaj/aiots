@@ -116,9 +116,23 @@
 				}
 			]
 		}
-	],
+	,
+		{
+			"root": "pages/device",
+			"pages": [
+				{
+					"path": "detail",
+					"style": {
+						"navigationStyle": "custom"
+					},
+					"meta": {
+						"isAuth": true
+					}
+				}
+			]
+		}],
 	"globalStyle": {
-		"navigationBarTitleText": "cool-unix",
+		"navigationBarTitleText": "AIots",
 		"navigationBarTextStyle": "@navTextStyle",
 		"backgroundColorContent": "@bgContentColor",
 		"backgroundColor": "@bgColor",

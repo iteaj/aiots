@@ -2,6 +2,7 @@ package com.iteaj.iboot.module.iot.service;
 
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.dto.CmdInvokeUpdateDto;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
 import com.iteaj.iboot.module.iot.dto.ModelApiInvokeContext;
@@ -26,8 +27,10 @@ public interface IModelApiInvokeService {
 
     /**
      * 获取设备指令集列表
+     * @param uid 设备uid
+     * @param apiType 指令类型，为空获取所有
      */
-    List<DeviceCommandDto> listCommands(String uid);
+    List<DeviceCommandDto> listCommands(String uid, ProtocolApiType apiType);
 
     /**
      * 通过事件发布方式执行指令调用（含实时数据更新）

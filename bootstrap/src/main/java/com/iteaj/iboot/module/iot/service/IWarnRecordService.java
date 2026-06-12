@@ -8,6 +8,7 @@ import com.iteaj.iboot.module.iot.dto.CountLastWeekDto;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.framework.IBaseService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,6 +30,23 @@ public interface IWarnRecordService extends IBaseService<WarnRecord> {
      * @return
      */
     List<WarnRecord> listByDeviceGroupId(Long groupId, Integer size);
+
+    /**
+     * 通过uid和时间范围查询告警（含等级）
+     * @param uid 设备uid
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @return
+     */
+    List<WarnRecord> listByUidAndTimeRange(String uid, Date startTime, Date endTime);
+
+    /**
+     * 分页查询告警记录
+     * @param page
+     * @param uid
+     * @return
+     */
+    PageResult<IPage<WarnRecord>> pageByUid(Page<WarnRecord> page, String uid);
 
     /**
      * 统计最近一周的数据

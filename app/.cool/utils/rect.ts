@@ -66,3 +66,13 @@ export function getTabBarHeight() {
 
 	return h;
 }
+
+/**
+ * 获取页面内容可用高度
+ * @param deduct 需扣除的高度
+ * @returns 内容区域可用高度
+ */
+export function getContentHeight(deduct: number): number {
+	const { windowHeight, statusBarHeight } = uni.getWindowInfo();
+	return windowHeight - (statusBarHeight ?? 0) - deduct;
+}

@@ -142,7 +142,7 @@ public class ModelApiInvokeServiceImpl implements IModelApiInvokeService {
     }
 
     @Override
-    public List<DeviceCommandDto> listCommands(String uid) {
+    public List<DeviceCommandDto> listCommands(String uid, ProtocolApiType apiType) {
         Device device = deviceService.getByUid(uid)
                 .ifNotPresentThrow("设备不存在[" + uid + "]").getData();
 
@@ -150,13 +150,15 @@ public class ModelApiInvokeServiceImpl implements IModelApiInvokeService {
         productService.joinDetailById(device.getProductId())
                 .ifNotPresentThrow("此设备数据不完整[" + device.getName() + "]")
                 .ifPresent(productDto -> {
-                    if (!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                    if (!CollectionUtils.isEmpty(productDto.getFuncApis())
+                            && (apiType == null || apiType == ProtocolApiType.func)) {
                         productDto.getFuncApis().stream()
                                 .filter(api -> api.getTriggerMode() == TriggerMode.passive)
                                 .forEach(api -> result.addAll(api.resolverCommand(device.getUid(), productDto.getAttrs())));
                     }
 
-                    if (!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                    if (!CollectionUtils.isEmpty(productDto.getEventApis())
+                            && (apiType == null || apiType == ProtocolApiType.event)) {
                         productDto.getEventApis().stream()
                                 .filter(api -> api.getTriggerMode() == TriggerMode.passive)
                                 .forEach(api -> result.addAll(api.resolverCommand(device.getUid(), productDto.getAttrs())));

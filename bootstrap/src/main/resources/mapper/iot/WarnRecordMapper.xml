@@ -66,6 +66,24 @@
         <if test="size != null">limit #{size}</if>
     </select>
 
+    <select id="listByUidAndTimeRange" resultMap="BaseResultMap">
+        select a.*, c.name, c.grade, d.name device_name from iot_warn_record a
+            left join iot_warn_config c on a.warn_config_id=c.id
+            left join iot_device d on a.uid = d.uid
+        <where>
+            a.uid = #{uid} and a.warn_time between #{startTime} and #{endTime}
+        </where>
+        order by a.warn_time desc
+    </select>
+
+    <select id="pageByUid" resultMap="BaseResultMap">
+        select a.*, c.name, c.grade, d.name device_name from iot_warn_record a
+            left join iot_warn_config c on a.warn_config_id=c.id
+            left join iot_device d on a.uid = d.uid
+        where a.uid = #{uid}
+        order by a.warn_time desc
+    </select>
+
     <select id="countLastWeek" resultType="com.iteaj.iboot.module.iot.dto.CountLastWeekDto">
         select count(1) value, date_format(a.warn_time, '%Y-%m-%d') time from iot_warn_record a
             left join iot_device d on a.uid = d.uid
