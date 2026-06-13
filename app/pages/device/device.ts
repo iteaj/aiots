@@ -45,6 +45,8 @@ export type DeviceDetail = {
 	protocolCode: string;
 	/** 设备类型 */
 	deviceType: string;
+	/** 设备类型名称 */
+	deviceTypeName: string;
 	/** 网关名称 */
 	gatewayName: string;
 	/** 分组名称 */

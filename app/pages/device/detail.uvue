@@ -14,35 +14,39 @@
 			<!-- Tab 0: 设备详情 -->
 			<scroll-view v-show="tabActive == 0" scroll-y class="flex-1">
 				<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mx-3 mt-3">
-					<view class="flex flex-row items-center justify-between py-3" style="border-bottom: 1px solid #e5e7eb;">
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
 						<cl-text :size="14" color="info">{{ t("设备名称") }}</cl-text>
 						<cl-text :size="14">{{ device.name || "-" }}</cl-text>
 					</view>
-					<view class="flex flex-row items-center justify-between py-3" style="border-bottom: 1px solid #e5e7eb;">
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
 						<cl-text :size="14" color="info">{{ t("设备编号") }}</cl-text>
 						<cl-text :size="14">{{ device.deviceSn || "-" }}</cl-text>
 					</view>
-					<view class="flex flex-row items-center justify-between py-3" style="border-bottom: 1px solid #e5e7eb;">
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
 						<cl-text :size="14" color="info">{{ t("设备UID") }}</cl-text>
 						<cl-text :size="14" :pt="{ className: 'flex-1 text-right' }">{{ device.uid || "-" }}</cl-text>
 					</view>
-					<view class="flex flex-row items-center justify-between py-3" style="border-bottom: 1px solid #e5e7eb;">
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
 						<cl-text :size="14" color="info">{{ t("设备状态") }}</cl-text>
 						<cl-text :size="14" :color="device.status == 'online' ? 'success' : 'info'">{{ device.status == 'online' ? t("在线") : t("离线") }}</cl-text>
 					</view>
-					<view class="flex flex-row items-center justify-between py-3" style="border-bottom: 1px solid #e5e7eb;">
+                    <view class="flex flex-row items-center justify-between py-3 border-divider">
+                        <cl-text :size="14" color="info">{{ t("设备类型") }}</cl-text>
+                        <cl-text :size="14">{{ device.deviceTypeName || "-" }}</cl-text>
+                    </view>
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
 						<cl-text :size="14" color="info">{{ t("产品名称") }}</cl-text>
 						<cl-text :size="14">{{ device.productName || "-" }}</cl-text>
 					</view>
-					<view class="flex flex-row items-center justify-between py-3" style="border-bottom: 1px solid #e5e7eb;">
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
 						<cl-text :size="14" color="info">{{ t("产品编码") }}</cl-text>
 						<cl-text :size="14">{{ device.productCode || "-" }}</cl-text>
 					</view>
-					<view class="flex flex-row items-center justify-between py-3" style="border-bottom: 1px solid #e5e7eb;">
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
 						<cl-text :size="14" color="info">{{ t("协议编码") }}</cl-text>
 						<cl-text :size="14">{{ device.protocolCode || "-" }}</cl-text>
 					</view>
-					<view class="flex flex-row items-center justify-between py-3" style="border-bottom: 1px solid #e5e7eb;">
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
 						<cl-text :size="14" color="info">{{ t("设备分组") }}</cl-text>
 						<cl-text :size="14">{{ device.deviceGroupName || "-" }}</cl-text>
 					</view>
@@ -64,8 +68,7 @@
 			>
 				<template #top>
 					<view v-if="historyList.length > 0"
-						class="flex flex-row items-center px-3 py-3 mt-3 rounded-t-xl"
-					style="border-bottom: 1px solid #e5e7eb;">
+						class="flex flex-row items-center px-3 py-3 mt-2 rounded-t-xl border-divider">
 						<cl-text :size="12" color="info" :pt="{ className: 'flex-1' }">{{ t("属性名称") }}</cl-text>
 						<cl-text :size="12" color="info" :pt="{ className: 'w-16 text-center' }">{{ t("值") }}</cl-text>
 						<cl-text :size="12" color="info" :pt="{ className: 'w-12 text-center' }">{{ t("单位") }}</cl-text>
@@ -74,7 +77,7 @@
 				</template>
 
 				<template #item="{ data, index }">
-					<view class="flex flex-row items-center px-3 py-3 bg-white dark:bg-surface-800" style="border-bottom: 1px solid #e5e7eb;">
+					<view class="flex flex-row items-center px-3 py-3 bg-white dark:bg-surface-800 border-divider">
 						<cl-text :size="13" :pt="{ className: 'flex-1' }">{{ data.fieldName || "-" }}</cl-text>
 						<cl-text :size="13" :pt="{ className: 'w-16 text-center font-bold' }">{{ data.value || "-" }}</cl-text>
 						<cl-text :size="12" color="info" :pt="{ className: 'w-12 text-center' }">{{ data.unit || "-" }}</cl-text>
@@ -88,7 +91,7 @@
 			</cl-list-view>
 
 			<!-- Tab 2: 指令集 -->
-			<scroll-view v-show="tabActive == 2" scroll-y class="flex-1">
+			<scroll-view v-show="tabActive == 2" scroll-y class="flex-1 mt-2">
 				<template v-if="commandsLoading">
 					<view class="flex flex-col items-center py-6">
 						<cl-loading></cl-loading>
@@ -98,12 +101,14 @@
 				<template v-else-if="commands.length == 0">
 					<view class="flex flex-col items-center py-6">
 						<cl-icon name="list-check-line" :size="36" color="info"></cl-icon>
-						<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("暂无指令") }}</cl-text>
+						<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">
+                            {{ device.deviceType == 'Gateway' ? t("网关设备无指令集") : t("暂无指令") }}
+                        </cl-text>
 					</view>
 				</template>
 				<template v-else>
-					<view v-for="(item, index) in commands" :key="index" class="px-3 mt-1">
-						<view class="bg-white dark:bg-surface-800 rounded-xl px-4 py-3.5 mb-1" style="box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
+					<view v-for="(item, index) in commands" :key="index">
+						<view class="bg-white dark:bg-surface-800 px-4 py-3.5 border-divider">
 							<view class="flex flex-row items-center">
 								<view class="flex-1 flex flex-col">
 									<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ item.apiName }}</cl-text>
@@ -123,10 +128,9 @@
 				:virtual="false"
 				refresher-enabled
 				@refresher-refresh="onWarnRefresh"
-				@bottom="onWarnLoadMore"
-			>
+				@bottom="onWarnLoadMore" class="mt-2">
 				<template #item="{ data }">
-					<view class="px-3 mt-1">
+					<view class="px-3">
 						<view class="bg-white dark:bg-surface-800 rounded-xl px-4 py-3 mb-1" style="box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
 							<view class="flex flex-row items-start justify-between mb-1">
 								<cl-text :size="12"
@@ -150,11 +154,10 @@
 				:virtual="false"
 				refresher-enabled
 				@refresher-refresh="onCmdLogRefresh"
-				@bottom="onCmdLogLoadMore"
-			>
+				@bottom="onCmdLogLoadMore" class="mt-2">
 				<template #item="{ data }">
-					<view class="px-2 mt-1">
-						<view class="bg-white dark:bg-surface-800 rounded-xl px-4 py-3 mb-1" style="box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
+					<view class="border-divider">
+						<view class="bg-white dark:bg-surface-800 px-4 py-3">
 							<view class="flex flex-row items-center justify-between mb-1">
 								<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ data.cmdName || "-" }}</cl-text>
 								<cl-text :size="12"
@@ -183,7 +186,10 @@
 <script lang="ts" setup>
 import { reactive, ref, computed, onMounted } from "vue";
 import { request, t, dayUts, router, getContentHeight } from "@/.cool";
+import { useUi } from "@/uni_modules/cool-ui";
 import { DeviceApi, type DeviceDetail, type CollectDataItem, type CommandItem, type WarnItem, type CmdLogItem } from "./device";
+
+const ui = useUi();
 
 // 设备数据
 const device = reactive<DeviceDetail>({} as DeviceDetail);
@@ -306,34 +312,30 @@ function loadCommands() {
 
 // 执行指令
 function onExecCommand(item: CommandItem) {
-	uni.showModal({
+	ui.showConfirm({
 		title: t("确认执行"),
-		content: `${t("执行")}：${item.apiName}指令吗`,
-		success: (res) => {
-			if (res.confirm) {
-				let scenario = "小程序";
-				// #ifdef APP
-				scenario = "app";
-				// #endif
-				request({
-					url: DeviceApi.COMMAND_INVOKE,
-					method: "POST",
-					data: {
-						code: item.commandValue,
-						name: item.apiName,
-						uid: uid.value,
-						scenario: scenario
-					}
-				}).then((res: any) => {
-                    uni.showToast({ title: t("指令执行成功") });
-				}).catch(() => {
-					uni.showToast({ title: t("执行失败"), icon: "error" });
-				});
-			}
+		message: t("执行") + "「" + item.apiName + "」命令吗",
+		callback(action) {
+			if (action != "confirm") return;
+			let scenario = "小程序";
+			// #ifdef APP
+			scenario = "app";
+			// #endif
+			request({
+				url: DeviceApi.COMMAND_INVOKE,
+				method: "POST",
+				data: {
+					code: item.commandValue,
+					name: item.apiName,
+					uid: uid.value,
+					scenario: scenario
+				}
+			}).then(() => {
+				ui.showToast({ message: t("指令执行成功") });
+			});
 		}
 	});
 }
-
 // 告警信息（分页）
 function loadWarns(reset: boolean = false): Promise<void> {
 	return new Promise<void>((resolve) => {
@@ -459,4 +461,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.border-divider {
+	border-bottom: 1px solid #e5e7eb;
+}
 </style>

@@ -365,21 +365,4 @@ public class AppDeviceController extends BaseController {
             }
         });
     }
-
-    /**
-     * 属性定义（内部使用）
-     */
-    private static class AttrDef {
-        final String field;
-        final String name;
-        final String unit;
-        final Boolean ctrlStatus;
-
-        AttrDef(String field, String name, String unit, Boolean ctrlStatus) {
-            this.field = field;
-            this.name = name;
-            this.unit = unit;
-            this.ctrlStatus = ctrlStatus;
-        }
-    }
 }
