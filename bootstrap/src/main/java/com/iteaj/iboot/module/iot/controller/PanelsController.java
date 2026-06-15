@@ -28,6 +28,7 @@ import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
+import com.iteaj.iboot.module.iot.service.IModelApiInvokeService;
 import com.iteaj.iboot.module.iot.service.IModelApiService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
@@ -51,11 +52,13 @@ public class PanelsController extends BaseController {
     private final IotCacheManager cacheManager;
     private final CollectWarnDataService warnRecordService;
     private final RealtimeDataService realtimeDataService;
+    private final IModelApiInvokeService modelApiInvokeService;
     private final RealtimeCollectDataService collectDataService;
 
     public PanelsController(IDeviceService deviceService, IProductService productService, IModelApiService modelApiService, IotCacheManager cacheManager
-            , CollectWarnDataService warnRecordService, RealtimeDataService realtimeDataService, RealtimeCollectDataService collectDataService) {
+            , CollectWarnDataService warnRecordService, RealtimeDataService realtimeDataService, IModelApiInvokeService modelApiInvokeService, RealtimeCollectDataService collectDataService) {
         this.modelApiService = modelApiService;
+        this.modelApiInvokeService = modelApiInvokeService;
         this.collectDataService = collectDataService;
         this.deviceService = deviceService;
         this.productService = productService;
@@ -78,10 +81,8 @@ public class PanelsController extends BaseController {
         device.setDeviceTypes(new DeviceType[]{DeviceType.Child, DeviceType.Direct});
         PageResult<IPage<DeviceDto>> pageResult = deviceService.pageOfDetail(page, device);
 
-        Map<Long, String> productProtocolMap = new HashMap<>();
         Map<Long, List<CtrlCommandDto>> productOptionsMap = new HashMap<>();
-        Map<Long, Map<String, String>> productAttrDictsMap = new HashMap<>();
-        Map<Long, List<PanelsDeviceDto.AttrValue>> productValuesMap = new HashMap<>();
+        Map<Long, ModelAttrContext> productValuesMap = new HashMap<>();
 
         IPage<DeviceDto> data = pageResult.getData();
         if(CollectionUtil.isNotEmpty(data.getRecords())) {
@@ -91,8 +92,6 @@ public class PanelsController extends BaseController {
             List<ProductDto> list = productService.listCtrlStatusModelAttrs(productIds);
             if(CollectionUtil.isNotEmpty(list)) {
                 list.forEach(productDto -> {
-                    List<PanelsDeviceDto.AttrValue> values = new ArrayList<>();
-                    productProtocolMap.put(productDto.getId(), productDto.getProtocolCode());
                     List<CtrlCommandDto> commandDtos = new ArrayList<>();
                     productDto.getFuncApis().forEach(modelApi -> {
                         modelApiService.detailByCode(modelApi.getCode()).ifPresent(ctrlModelApi -> {
@@ -103,36 +102,18 @@ public class PanelsController extends BaseController {
                     });
                     productOptionsMap.put(productDto.getId(), commandDtos);
 
-                    if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
-                        Map<String, String> attrDictMap = new HashMap<>();
-                        productDto.getAttrs().forEach(attr -> {
-                            if(attr.getAttrType() != AttrType.W) { // 读和读写
-                                if(!DataType.isContainer(attr.getDataType())) {
-                                    values.add(new PanelsDeviceDto.AttrValue(attr.getField(), attr.getName(), attr.getUnit(), attr.getCtrlStatus()));
-                                }
-                            }
-
-                            if(CollectionUtil.isNotEmpty(attr.getDicts())
-                                    && !DataType.isContainer(attr.getDataType())) {
-                                attr.getDicts().forEach(dict -> attrDictMap.put(attr.getField()+"_"+dict.getDictValue(), dict.getDictName()));
-                            }
-                        });
-
-                        productValuesMap.put(productDto.getId(), values);
-                        productAttrDictsMap.put(productDto.getId(), attrDictMap);
-                    }
+                    ModelAttrContext modelAttrContext = modelApiInvokeService.resolver(productDto.getAttrs());
+                    productValuesMap.put(productDto.getId(), modelAttrContext);
                 });
 
                 List<PanelsDeviceDto> panelsDeviceDtos = new ArrayList<>();
                 data.getRecords().forEach(deviceDto -> {
                     deviceDto.setConfig(null);
                     List<CtrlCommandDto> ctrlCommandDtos = productOptionsMap.get(deviceDto.getProductId());
-                    Map<String, String> dictStringMap = productAttrDictsMap.get(deviceDto.getProductId());
-                    List<PanelsDeviceDto.AttrValue> attrValues = productValuesMap.get(deviceDto.getProductId());
+                    ModelAttrContext context = productValuesMap.get(deviceDto.getProductId());
 
                     PanelsDeviceDto panelsDeviceDto = new PanelsDeviceDto(ctrlCommandDtos, Collections.emptyList(), deviceDto);
-//                    // 获取每个属性的实时数据
-                    if(CollectionUtil.isNotEmpty(attrValues)) {
+                    if(CollectionUtil.isNotEmpty(context.getValues())) {
                         if(CollectionUtil.isNotEmpty(ctrlCommandDtos)) {
                             for (CtrlCommandDto ctrlCommandDto : ctrlCommandDtos) {
                                 if (ctrlCommandDto.getAttrField() != null) {
@@ -144,37 +125,16 @@ public class PanelsController extends BaseController {
                             }
                         }
 
-                        List<PanelsDeviceDto.AttrValue> copyAttrValues = attrValues.stream()
-                                .map(item -> new PanelsDeviceDto.AttrValue(item.getField(), item.getName(), item.getUnit(), item.getCtrlStatus()))
-                                .collect(Collectors.toList());
-
-                        copyAttrValues.forEach(attrValue -> {
-                            String protocolCode = productProtocolMap.get(deviceDto.getProductId());
-                            Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(protocolCode
-                                    , DeviceKey.build(deviceDto.getDeviceSn(), deviceDto.getParentDeviceSn()));
-                            if(CollectionUtil.isNotEmpty(realtimeDataMap)) {
-
-                                // 设置各属性的实时值
-                                RealtimeData realtimeData = realtimeDataMap.get(attrValue.getField());
-                                if(realtimeData != null && realtimeData.getRealtime() != null
-                                        && realtimeData.getRealtime().getValue() != null) {
-
-                                    // 设置设备最新的采集时间
-                                    if(panelsDeviceDto.getCollectTime() == null) {
-                                        panelsDeviceDto.setCollectTime(realtimeData.getRealtime().getCollectTime());
-                                    } else {
-                                        boolean b = panelsDeviceDto.getCollectTime().getTime() > realtimeData.getRealtime().getCollectTime().getTime();
-                                        panelsDeviceDto.setCollectTime(b ? panelsDeviceDto.getCollectTime() : realtimeData.getRealtime().getCollectTime());
-                                    }
-
-                                    // 将采集到的值转成字典label
-                                    attrValue.setValue(realtimeData.getRealtime().getValue().toString());
-                                    attrValue.setLabel(dictStringMap.get(attrValue.getField() + "_" + attrValue.getValue()));
-                                }
+                        List<ModelAttrContext.ModelAttrValue> attrValues = modelApiInvokeService.conver(deviceDto.getUid(), context);
+                        attrValues.forEach(attrValue -> {
+                            if(panelsDeviceDto.getCollectTime() == null) {
+                                panelsDeviceDto.setCollectTime(attrValue.getCollectTime());
+                            } else {
+                                boolean b = panelsDeviceDto.getCollectTime().getTime() > attrValue.getCollectTime().getTime();
+                                panelsDeviceDto.setCollectTime(b ? panelsDeviceDto.getCollectTime() : attrValue.getCollectTime());
                             }
                         });
-
-                        panelsDeviceDto.setValues(copyAttrValues);
+                        panelsDeviceDto.setValues(attrValues);
                     }
 
                     panelsDeviceDtos.add(panelsDeviceDto);
@@ -197,47 +157,16 @@ public class PanelsController extends BaseController {
         deviceService.getByUid(uid)
                 .ifNotPresentThrow("设备不存在").of().ifPresent(item -> {
             debugDto.setDevice(item);
-            productService.joinDetailById(item.getProductId())
+            productService.joinModelAttrById(item.getProductId())
                     .ifNotPresentThrow("此设备数据不完整["+item.getName()+"]")
                     .ifPresent(productDto -> {
                         debugDto.setProduct(productDto);
-                        if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
-                            // 过滤出被动的功能接口
-                            List<ModelApi> modelApis = productDto.getFuncApis().stream()
-                                    .filter(api -> api.getTriggerMode() == TriggerMode.passive && !Boolean.TRUE.equals(api.getAsStatus()))
-                                    .collect(Collectors.toList());
-                            if(CollectionUtil.isNotEmpty(modelApis)) {
-                                modelApis.forEach(api -> debugDto.addApiDebugParam(api.getCode(), api.resolveDownApiConfig(productDto.getAttrs())));
-                            }
 
-                            productDto.setFuncApis(modelApis);
-                        }
-
-                        if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
-                            // 过滤出被动的事件接口
-                            List<ModelApi> modelApis = productDto.getEventApis().stream()
-                                    .filter(api -> api.getTriggerMode() == TriggerMode.passive)
-                                    .collect(Collectors.toList());
-                            productDto.setEventApis(modelApis);
-                        }
-                        Map<String, RealtimeData> realtimeDataMap = realtimeDataService.listOfDevice(productDto.getProtocolCode()
-                                , DeviceKey.build(item.getDeviceSn(), item.getParentDeviceSn()));
                         if(CollectionUtil.isNotEmpty(productDto.getAttrs())) {
-                            productDto.getAttrs().stream().filter(attr -> (attr.getAttrType() != AttrType.W
-                                    && !DataType.isContainer(attr.getDataType())))
-                                .forEach(attr -> {
-                                    if(realtimeDataMap != null) {
-                                        RealtimeData realtimeData = realtimeDataMap.get(attr.getField());
-                                        if(realtimeData != null && realtimeData.getRealtime() != null) {
-                                            SignalOrFieldValue realtime = realtimeData.getRealtime();
-                                            debugDto.addAttr(attr.getId(), attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType()
-                                                    , realtime.getValue(), realtime.getCollectTime(), realtime.getStatus());
-                                            return;
-                                        }
-                                    }
-
-                                    debugDto.addAttr(attr.getId(), attr.getField(), attr.getName(), attr.getUnit(), attr.getAttrType());
-                            });
+                            ModelAttrContext attrContext = modelApiInvokeService.resolver(productDto.getAttrs());
+                            debugDto.setValueLabels(attrContext.getDictValueMap());
+                            List<ModelAttrContext.ModelAttrValue> conver = modelApiInvokeService.conver(item.getUid(), attrContext);
+                            debugDto.setAttrs(conver);
                         }
 
                         productDto.setAttrs(null);
