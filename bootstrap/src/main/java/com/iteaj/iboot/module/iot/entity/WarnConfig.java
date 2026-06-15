@@ -1,10 +1,11 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.alibaba.fastjson2.JSONObject;
+import com.iteaj.framework.BaseEntity;
 import java.util.Date;
-
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -56,6 +57,27 @@ public class WarnConfig extends BaseEntity {
      * 消息模板id
      */
     private Long messageTemplateId;
+
+    /**
+     * 操作符(gt/gte/lt/lte/eq/neq/contain/in/between)
+     */
+    private String operator;
+
+    /**
+     * 阈值
+     */
+    private String threshold;
+
+    /**
+     * 状态指标(偏高/偏低/过高/过低等)
+     */
+    private String indicator;
+
+    /**
+     * 扩展配置
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
 
     /**
      * 所属产品

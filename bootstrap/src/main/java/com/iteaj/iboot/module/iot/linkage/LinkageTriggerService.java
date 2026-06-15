@@ -8,6 +8,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.thread.IBootThreadManger;
@@ -24,6 +25,8 @@ import com.iteaj.iboot.module.iot.consts.*;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.dto.LinkageActionExecDto;
 import com.iteaj.iboot.module.iot.entity.*;
+import com.iteaj.iboot.module.iot.service.IWarnConfigService;
+import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.Message;
 import com.iteaj.iot.Protocol;
@@ -44,14 +47,18 @@ import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_ONLI
 public class LinkageTriggerService implements EventGroupCollectListener, ModelAttrListener, DeviceStatusListener {
 
     private final IotCacheManager cacheManager;
+    private final IWarnConfigService warnConfigService;
     private final RealtimeDataService realtimeDataService;
     private final LinkageCacheService linkageCacheService;
     private final Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
     private final Map<String, WarnInfo> warnStatus = new ConcurrentHashMap<>(512);
 
-    public LinkageTriggerService(IotCacheManager cacheManager, RealtimeDataService realtimeDataService
+    public LinkageTriggerService(IotCacheManager cacheManager
+            , IWarnConfigService warnConfigService
+            , RealtimeDataService realtimeDataService
             , LinkageCacheService linkageCacheService) {
         this.cacheManager = cacheManager;
+        this.warnConfigService = warnConfigService;
         this.realtimeDataService = realtimeDataService;
         this.linkageCacheService = linkageCacheService;
     }
@@ -132,11 +139,17 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
     protected void invokeLinkage(Set<LinkageItem> linkageItems, DataSupplier dataSupplier, Object deviceOrGroup) {
         Map<String, SuccessDeviceAndField> validateSuccessField = new HashMap<>();
         linkageItems.forEach(item -> {
-            if(validateCondition(item, dataSupplier, deviceOrGroup, validateSuccessField)) {
-                execLinkageAction(item, deviceOrGroup, validateSuccessField);
-            }
+            try {
+                if(validateCondition(item, dataSupplier, deviceOrGroup, validateSuccessField)) {
+                    execLinkageAction(item, deviceOrGroup, validateSuccessField);
+                }
 
-            validateSuccessField.clear(); // 清除所有的参数
+                validateSuccessField.clear(); // 清除所有的参数
+            } catch (Exception e) {
+                String uid = dataSupplier != null && dataSupplier.getKey() != null ? dataSupplier.getKey().getKey() : "-";
+                IotLogger.error("场景联动", "处理联动项", uid, "联动项执行失败({}) 错误信息: {} - 条件数: {} - 动作数: {}"
+                        , item.getName(), item.getName(), item.getConditions().size(), item.getActions().size());
+            }
         });
     }
 
@@ -535,9 +548,42 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
         Collection<SignalOrFieldValue> values = supplier.getValues();
         if(CollectionUtil.isNotEmpty(values)) {
             values.forEach(item -> {
-                Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), item.getSignalOrField());
-                if(CollectionUtil.isNotEmpty(linkageItems)) {
-                    this.invokeLinkage(linkageItems, supplier, device);
+                if(item.getValue() != null) {
+                    // 处理场景联动
+                    Set<LinkageItem> linkageItems = linkageCacheService.listLinkageItem(device.getProductCode(), item.getSignalOrField());
+                    if(CollectionUtil.isNotEmpty(linkageItems)) {
+                        this.invokeLinkage(linkageItems, supplier, device);
+                    }
+
+                    // 处理模型属性的告警和指标
+                    handleModelaWarnAndIndicator(device, item);
+                }
+            });
+        }
+    }
+
+    private void handleModelaWarnAndIndicator(RealtimeStatus device, SignalOrFieldValue item) {
+        List<WarnConfig> warnConfigs = warnConfigService.listByProductIdAndModelAttrId(device.getProductId(), item.getId());
+        if(CollectionUtil.isNotEmpty(warnConfigs)) {
+            warnConfigs.forEach(warnConfig -> {
+                if(StrUtil.isNotBlank(warnConfig.getOperator()) && StrUtil.isNotBlank(warnConfig.getThreshold())) {
+                    try {
+                        ConditionCalc conditionCalc = ConditionalsManager.get(warnConfig.getOperator());
+                        if(conditionCalc != null) {
+                            boolean calc = conditionCalc.calc(item.getValue(), warnConfig.getThreshold());
+                            if(calc) {
+                                realtimeDataService.updateRealtimeDataExtra(device.getUid(), item.getSignalOrField()
+                                        , warnConfig.getGrade().name(), warnConfig.getIndicator());
+                                if(warnConfig.getGrade() != WarnGrade.indicator) {
+                                    doHandleWarn(warnConfig, device, item.getValue());
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        IotLogger.error("属性告警", "告警或指标处理", device.getUid()
+                                , "处理属性告警/指标时异常({}) 校验: {} {} {} - 错误信息: {}", warnConfig.getModelAttrField()
+                                , item.getValue(), warnConfig.getOperator(), warnConfig.getThreshold(), e);
+                    }
                 }
             });
         }
@@ -587,10 +633,19 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 if(CollectionUtil.isNotEmpty(linkageItems)) {
                     this.invokeLinkage(linkageItems, null, group);
                 }
+
+                if(info.getSupplier() != null && info.getDevice() != null) {
+                    info.getSupplier().getValues().forEach(value -> handleModelaWarnAndIndicator(info.getDevice(), value));
+                }
             }
         } catch (Exception e) {
             logger.error("联动触发失败 事件源触发 - 事件源: {} - 触发组: {}", source.getName(), group.getName());
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return EventGroupCollectListener.super.getOrder() - 500;
     }
 
     public class WarnInfo {

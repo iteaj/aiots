@@ -15,6 +15,11 @@
         <result column="model_attr_id" property="modelAttrId" />
         <result column="create_time" property="createTime" />
         <result column="message_template_id" property="messageTemplateId" />
+        <result column="operator" property="operator" />
+        <result column="threshold" property="threshold" />
+        <result column="indicator" property="indicator" />
+        <result column="config" property="config"
+            typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
     </resultMap>
 
     <select id="pageDetail" resultMap="BaseResultMap">

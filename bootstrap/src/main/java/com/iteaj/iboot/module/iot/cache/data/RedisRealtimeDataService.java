@@ -123,6 +123,11 @@ public class RedisRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
+    public void updateRealtimeDataExtra(String uid, String signalOrField, String grade, String indicator) {
+
+    }
+
+    @Override
     public ModelAttrRealtimeData getRealtimeData(String uid, String signalOrField) {
         return null;
     }

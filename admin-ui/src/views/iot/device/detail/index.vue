@@ -61,25 +61,35 @@
             </ACard>
             <a-row class="iv-attr-container" justify="center" align="middle">
               <a-col v-for="attr in realtimeData" :key="attr.id" :span="3" class="iv-attr-item">
-                <a-card variant="borderless" hoverable size="small" :class="activeAttrId==attr.id? 'active' : ''" @click="() => onAttrClick(attr)" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
-                  <template #title>
-                    <AFlex gap="10" justify="space-between">
-                      <div>
-                        <span style="font-weight: normal;">{{attr.name}}</span>
-                      </div>
-                      <div>
-                        <a-badge :status="attr.__type" />
-                      </div>
-                    </AFlex>
-                  </template>
-                  <div>
-                    <span style="font-weight: bold; font-size: 14px;">{{attr.value != null ? attr.value : '-'}}</span>
-                    <span class="iv-minor-text">&nbsp;{{attr.unit ? `(${attr.unit})` : ''}}</span>
-                  </div>
-                  <div style="font-size: 12px; color: #818181; padding-top: 6px; border-top: 1px dashed #d6d6d6">
-                    <span>{{attr.collectTime || '暂未采集'}}</span>
-                  </div>
-                </a-card>
+                <a-badge-ribbon :text="attr.indicator || ''" :color="gradeColorMap[attr.grade || 'default'][0]">
+                  <a-card variant="borderless" hoverable size="small" :class="activeAttrId==attr.id? 'active' : ''" @click="() => onAttrClick(attr)" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
+                    <template #title>
+                      <AFlex gap="10" justify="space-between">
+                        <div>
+                          <span style="font-weight: normal; font-size: 12px; color: #818181;">{{attr.field}}</span>
+                        </div>
+                      </AFlex>
+                    </template>
+                    <ARow>
+                      <ACol span="14" style="text-align: center">
+                        <div>
+                          <span style="font-weight: bold; font-size: 14px;">{{attr.label || (attr.value != null ? attr.value : '-')}}</span>
+                          <span class="iv-minor-text">&nbsp;{{attr.unit ? `(${attr.unit})` : ''}}</span>
+                        </div>
+                        <div class="iv-text-ellipsis iv-color-text-tertiary iv-font-text-tertiary">{{attr.name}}</div>
+                      </ACol>
+                      <ACol span="10" style="text-align: center">
+                        <div class="iv-text-ellipsis" style="text-align: center">
+                          {{attr.address || '-'}}
+                        </div>
+                        <div class="iv-color-text-tertiary iv-font-text-tertiary">地址</div>
+                      </ACol>
+                    </ARow>
+                    <div style="font-size: 12px; color: #818181; text-align: center; padding-top: 6px; border-top: 1px dashed #d6d6d6">
+                      <span>{{attr.collectTime || '暂未采集'}}</span>
+                    </div>
+                  </a-card>
+                </a-badge-ribbon>
               </a-col>
             </a-row>
             <ACard size="small" style="min-width: 250px; height: 100%" :styles="{head: {padding: '0'}, body: {height: 'calc(100% - 38px)'}}">
@@ -190,7 +200,10 @@ echarts.use([CanvasRenderer, TitleComponent, GridComponent, VisualMapComponent, 
   let activeAttrId = ref();
   let {proxy} = getCurrentInstance();
   let apiCodeDebugMap = ref({});
-
+  let gradeColorMap = {
+    fatal: ['red', '严重'], urgent: ['orange', '紧急'], warn: ['yellow', '警告'], notice: ['cyan', '通知']
+    , normal: ['green', '正常'], indicator: ['purple', '指标'], default: ['gray', '']
+  }
 /**
  * @type {WebSocket | null}
  */
@@ -215,6 +228,7 @@ let realtimeSocket = null;
 
   let warnDataEcharts;
   let collectDataEcharts;
+  let valueLabelsMap = {};
   let realtimeData = ref([]);
   let attrListData = ref([]);
   let realtimeMap = ref({});
@@ -284,8 +298,9 @@ let warnPagination = ref({total: 0, showSizeChanger: false, current: 1, onChange
     if(typeof value == 'object') {
       let {type, value: data} = value;
       if(type == 'model') {
-        Object.values(data).forEach(value => {
-          let realtime = realtimeMap.value[value['signalOrField']];
+        Object.keys(data).forEach(key => {
+          let value = data[key];
+          let realtime = realtimeMap.value[key];
           if(realtime != null) {
             if(typeof value['value'] == 'boolean') {
               realtime['value'] = value['value'] + "";
@@ -293,7 +308,10 @@ let warnPagination = ref({total: 0, showSizeChanger: false, current: 1, onChange
               realtime['value'] = value['value'];
             }
 
+            realtime['label'] = valueLabelsMap[key + ":" + realtime['value']];
             realtime['status'] = value['status'];
+            realtime['grade'] = value['grade'];
+            realtime['indicator'] = value['indicator'];
             // realtime['collectTimeLong'] = value['collectTime'] || 0;
             realtime['collectTime'] = dayjs(value['collectTime']).format("YYYY-MM-DD HH:mm:ss");
           }
@@ -313,9 +331,11 @@ let warnPagination = ref({total: 0, showSizeChanger: false, current: 1, onChange
     GET(`/iot/panels/detail?uid=${uid}`).then(({code, message, data}) => {
       if(code == CoreConsts.SuccessCode) {
         realtimeData.value = data['attrs'];
+        valueLabelsMap = data['valueLabels'] || {};
         if(realtimeData.value != null && realtimeData.value.length > 0) {
           realtimeMap.value = {};
           realtimeData.value.forEach(item => {
+            item['label'] = valueLabelsMap[item.field + ":" + item.value];
             item['__type'] = item['status'] == null ? 'default' : (item['status'] === 'Success' ? 'success' : 'error');
             realtimeMap.value[item.field] = item;
           })
@@ -325,7 +345,6 @@ let warnPagination = ref({total: 0, showSizeChanger: false, current: 1, onChange
         selectDevice.value = data['device'];
         selectProduct.value = data['product'];
         apiCodeDebugMap.value = data['apiCodeDebugMap'] || {};
-        apis = [...selectProduct.value['funcApis'], ...selectProduct.value['eventApis']];
         realtimeSocket = new WebSocket(urlConfig.getFullWsURL(`/ws/iot/realtime?uid=${uid}&type=123`));
         realtimeSocket.onmessage =  realtimeMessage;
         realtimeSocket.onerror = () => {

@@ -104,4 +104,6 @@ public interface ProductMapper extends BaseMapper<Product> {
     List<Product> listOfProtocolCodes(DeviceType deviceType, String[] protocolCodes, TransportProtocol protocol);
 
     List<BatchModelDto> listBatchModel(BatchModelDto entity);
+
+    ProductDto joinModelAttrById(Long productId);
 }

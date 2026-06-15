@@ -69,6 +69,7 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
     }
 
     @Override
+    @Transactional
     public BooleanResult updateById(ModelAttr entity) {
         if(getBaseMapper().isEnabledOfProduct(entity.getId())) {
             BooleanResult.buildFalse("请先停用产品");
@@ -90,7 +91,9 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
         });
 
         resolveField(entity);
-        return super.updateById(entity);
+        return super.updateById(entity).ifPresent(item -> {
+            this.getBaseMapper().updateWarnConfig(entity.getId(), entity.getField());
+        });
     }
 
     private void resolveField(ModelAttr entity) {

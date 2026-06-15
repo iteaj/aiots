@@ -565,6 +565,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         return BooleanResult.buildTrue("删除成功");
     }
 
+    @Override
+    public DetailResult<ProductDto> joinModelAttrById(Long productId) {
+        return new DetailResult<>(this.getBaseMapper().joinModelAttrById(productId));
+    }
+
     private void resolverModelApi(ModelApi modelApi, BatchModelDto entity, DeviceProtocolSupplier supplier, Product product) {
         final ProtocolModel protocol = supplier.getProtocol();
         final AbstractProtocolModelApi protocolApi = protocol.getApi(entity.getDirect());

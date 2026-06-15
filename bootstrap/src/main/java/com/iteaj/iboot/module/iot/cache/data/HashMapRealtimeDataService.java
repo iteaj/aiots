@@ -66,20 +66,14 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
         Map<String, Map<String, RealtimeData>> productMap = realtimeMap.get(protocolCode);
         if(productMap == null) {
             synchronized (this) {
-                productMap = realtimeMap.get(protocolCode);
-                if(productMap == null) {
-                    realtimeMap.put(protocolCode, productMap = new ConcurrentHashMap<>());
-                }
+                productMap = realtimeMap.computeIfAbsent(protocolCode, k -> new ConcurrentHashMap<>());
             }
         }
 
         Map<String, RealtimeData> deviceMap = productMap.get(key.getKey());
         if(deviceMap == null) {
             synchronized (this) {
-                deviceMap = productMap.get(key.getKey());
-                if(deviceMap == null) {
-                    productMap.put(key.getKey(), deviceMap = new ConcurrentHashMap<>());
-                }
+                deviceMap = productMap.computeIfAbsent(key.getKey(), k -> new ConcurrentHashMap<>());
             }
         }
 
@@ -113,7 +107,7 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
             }
         }
 
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     @Override
@@ -134,6 +128,14 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
         }
 
         return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public void updateRealtimeDataExtra(String uid, String signalOrField, String grade, String indicator) {
+        ModelAttrRealtimeData realtimeData = this.getRealtimeData(uid, signalOrField);
+        if(realtimeData != null) {
+            realtimeData.getExtra().setGrade(grade).setIndicator(indicator);
+        }
     }
 
     @Override

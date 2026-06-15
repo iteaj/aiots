@@ -19,6 +19,7 @@ import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.linkage.*;
 import com.iteaj.iboot.module.iot.linkage.warn.RDBMSPersistenceWarnListener;
 import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
+import com.iteaj.iboot.module.iot.service.IWarnConfigService;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,9 +159,9 @@ public class IotAutoConfiguration {
      * @return
      */
     @Bean
-    public LinkageTriggerService linkageTriggerService(IotCacheManager cacheManager
+    public LinkageTriggerService linkageTriggerService(IotCacheManager cacheManager, IWarnConfigService warnConfigService
             , RealtimeDataService realtimeDataService, LinkageCacheService linkageCacheService) {
-        return new LinkageTriggerService(cacheManager, realtimeDataService, linkageCacheService);
+        return new LinkageTriggerService(cacheManager, warnConfigService, realtimeDataService, linkageCacheService);
     }
 
     /**

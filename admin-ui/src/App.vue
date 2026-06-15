@@ -56,6 +56,7 @@ export default {
 }
 .iv-theme-var {
   --header-height: 64px;
+  --iv-color-tip: var(--ant-color-warning-active);
   --iv-color-split: var(--ant-line-width) var(--ant-line-type) var(--ant-color-split);
   --iv-theme-split: var(--ant-line-width) var(--ant-line-type) var(--ant-color-split);
   --divider-basic-color: var(--ant-color-split);

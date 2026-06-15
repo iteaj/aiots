@@ -14,6 +14,7 @@ public enum WarnGrade {
     notice("通知"),
     normal("解除"),
     status("状态"), // 用于一些状态通知
+    indicator("指标"),
     ;
 
     private String desc;
@@ -28,10 +29,23 @@ public enum WarnGrade {
 
     public static List<IVOption> options() {
         return Arrays.stream(WarnGrade.values())
+                .filter(item -> item != WarnGrade.indicator)
                 .map(item -> new IVOption(item.desc, item.name()))
                 .collect(Collectors.toList());
     }
 
+    public static List<IVOption> optionsRmStatus() {
+        return Arrays.stream(WarnGrade.values())
+                .filter(item -> item != WarnGrade.status)
+                .map(item -> new IVOption(item.desc, item.name()))
+                .collect(Collectors.toList());
+    }
+
+    public static List<IVOption> optionsAll() {
+        return Arrays.stream(WarnGrade.values())
+                .map(item -> new IVOption(item.desc, item.name()))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public String toString() {

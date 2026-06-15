@@ -12,6 +12,7 @@ import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Product;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -142,4 +143,6 @@ public interface IProductService extends IBaseService<Product>, ProductModelServ
     BooleanResult batchModelSaveOrUpdate(BatchModelDto entity);
 
     Result<Boolean> delBatchModel(Long id, String apiCode);
+
+    DetailResult<ProductDto> joinModelAttrById(Long productId);
 }

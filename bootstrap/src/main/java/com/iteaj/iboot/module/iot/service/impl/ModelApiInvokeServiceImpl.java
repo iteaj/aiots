@@ -3,10 +3,10 @@ package com.iteaj.iboot.module.iot.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.*;
-import com.iteaj.framework.spi.iot.consts.CtrlMode;
-import com.iteaj.framework.spi.iot.consts.FuncType;
-import com.iteaj.framework.spi.iot.consts.TriggerMode;
+import com.iteaj.framework.spi.iot.consts.*;
+import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
 import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
@@ -14,6 +14,7 @@ import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -35,7 +36,9 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 物模型接口调用服务实现
@@ -50,10 +53,8 @@ public class ModelApiInvokeServiceImpl implements IModelApiInvokeService {
     private final RealtimeDataService realtimeDataService;
 
     public ModelApiInvokeServiceImpl(IModelApiService modelApiService,
-                                     IProductService productService,
-                                     IDeviceService deviceService,
-                                     IotCacheManager cacheManager,
-                                     RealtimeDataService realtimeDataService) {
+             IProductService productService, IDeviceService deviceService,
+             IotCacheManager cacheManager, RealtimeDataService realtimeDataService) {
         this.modelApiService = modelApiService;
         this.productService = productService;
         this.deviceService = deviceService;
@@ -223,6 +224,55 @@ public class ModelApiInvokeServiceImpl implements IModelApiInvokeService {
                 item.success(InvokeResult.fail(e.getMessage(), null));
             }
         }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时")));
+    }
+
+    @Override
+    public ModelAttrContext resolver(List<? extends ModelAttrMeta> attrs) {
+        Map<String, String> dictValueMap = new HashMap<>();
+        Map<String, ModelAttrContext.ModelAttrValue> attrsMap = new HashMap<>();
+        if(!CollectionUtils.isEmpty(attrs)) {
+            attrs.stream()
+                    .filter(item -> item.getAttrType() != AttrType.W && !DataType.isContainer(item.getDataType()))
+                    .forEach(item -> {
+                ModelAttrContext.ModelAttrValue attrValue = ModelAttrContext.of(item);
+                attrsMap.put(item.getField(), attrValue);
+                if(!CollectionUtils.isEmpty(item.getDictMetas())) {
+                    item.getDictMetas().forEach(dict -> dictValueMap
+                            .put(item.getField() + ":" + dict.getDictValue(), dict.getDictName()));
+                }
+            });
+        }
+
+        return new ModelAttrContext(dictValueMap, attrsMap);
+    }
+
+    @Override
+    public List<ModelAttrContext.ModelAttrValue> conver(String uid, ModelAttrContext context) {
+        List<ModelAttrContext.ModelAttrValue> result = new ArrayList<>();
+        RealtimeDeviceStatus deviceStatus = realtimeDataService.getDeviceStatus(uid);
+        if(deviceStatus != null) {
+            Map<String, RealtimeData> dataMap = realtimeDataService.listOfDevice(deviceStatus.getProtocolCode(), deviceStatus.buildKey());
+            context.getValues().forEach((key, value) -> {
+                ModelAttrContext.ModelAttrValue clone = value.clone();
+                RealtimeData realtimeData = dataMap.get(value.getField());
+                if(realtimeData != null) {
+                    clone.setGrade(realtimeData.getExtra().getGrade()).setIndicator(realtimeData.getExtra().getIndicator());
+                    if(realtimeData.getRealtime() != null) {
+                        SignalOrFieldValue realtime = realtimeData.getRealtime();
+                        clone.setAddress(realtime.getAddress());
+
+                        Object realtimeValue = realtime.getValue();
+                        if(realtimeValue != null) {
+                            clone.setLabel(context.getDictValueMap().get(value.getField() + ":" + realtimeValue));
+                            clone.setValue(realtimeValue.toString()).setCollectTime(realtime.getCollectTime());
+                        }
+                    }
+                }
+
+                result.add(clone);
+            });
+        }
+        return result;
     }
 
     private void updateRealtimeData(CmdInvokeUpdateDto dto) {

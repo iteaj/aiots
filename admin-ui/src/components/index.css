@@ -30,6 +30,13 @@
 .iv-table-drag {
     cursor: move;
 }
+.iv-font-text-tertiary {
+    font-size: 12px;
+    font-weight: unset;
+}
+.iv-color-text-tertiary {
+    color: var(--ant-color-text-tertiary);
+}
 .iv-text-ellipsis {
     white-space: nowrap;
     overflow: hidden;

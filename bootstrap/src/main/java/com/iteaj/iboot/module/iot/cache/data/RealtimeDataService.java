@@ -90,4 +90,12 @@ public interface RealtimeDataService extends IModelAttrRealtimeDataService {
      */
     Map<String, RealtimeData> listOfDevice(String protocolCode, DeviceKey key, String... signalOrFields);
 
+    /**
+     * 更新实时数据的扩展属性
+     * @param uid 设备uid
+     * @param signalOrField 点位字段
+     * @param grade 等级
+     * @param indicator 指标
+     */
+    void updateRealtimeDataExtra(String uid, String signalOrField, String grade, String indicator);
 }

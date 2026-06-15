@@ -111,3 +111,10 @@ create table iot_realtime_cache
         unique (id)
 )
     comment '实时数据缓存';
+
+-- 2026-06-13 告警配置新增操作符、阈值、状态指标、扩展配置字段
+ALTER TABLE iot_warn_config
+    ADD COLUMN `operator` varchar(32) DEFAULT NULL COMMENT '操作符(gt/gte/lt/lte/eq/neq/contain/in/between)',
+    ADD COLUMN `threshold` varchar(255) DEFAULT NULL COMMENT '阈值',
+    ADD COLUMN `indicator` varchar(16) DEFAULT NULL COMMENT '状态指标',
+    ADD COLUMN `config` json DEFAULT NULL COMMENT '扩展配置';

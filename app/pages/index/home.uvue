@@ -1,279 +1,199 @@
 <template>
 	<cl-page>
-		<cl-topbar
-			fixed
-			:show-back="false"
-			safe-area-top
-			:height="isMp() ? null : 50"
-			:pt="{
-				className: '!z-50'
-			}"
-			background-color="transparent"
-		>
-			<view
-				class="flex flex-row items-center p-3 flex-1 w-full"
-				:class="{
-					'pt-0': isMp()
-				}"
-			>
-				<view
-					class="bg-white rounded-lg h-[32px] w-[32px] flex flex-row items-center justify-center"
-				>
-					<cl-image
-						src="/static/logo.png"
-						:width="18"
-						:height="18"
-						:show-loading="false"
-					></cl-image>
-				</view>
-
-				<cl-text
-					:size="16"
-					:pt="{
-						className: 'mr-auto ml-2 flex-1 font-bold'
-					}"
-				>
-					{{ config.name }}
-				</cl-text>
-
-				<view
-					class="bg-surface-500 h-[32px] w-[32px] rounded-full flex flex-row items-center justify-center mr-3"
-					@tap="setSize"
-				>
-					<cl-icon name="font-size" color="white" :size="16"></cl-icon>
-				</view>
-
-				<view
-					class="bg-primary-500 h-[32px] w-[32px] rounded-full flex flex-row items-center justify-center"
-					:class="{
-						'mr-24': isMp()
-					}"
-					@tap="setLocale"
-				>
-					<cl-icon name="translate" color="white" :size="16"></cl-icon>
-				</view>
-			</view>
-		</cl-topbar>
+		<cl-topbar fixed :show-back="false" safe-area-top :title="t('首页')"></cl-topbar>
 
 		<view class="p-3">
-			<!-- 设备统计概览 -->
-			<view class="bg-white dark:!bg-surface-800 rounded-2xl p-4 mb-3">
-				<cl-text :size="14" :pt="{ className: 'mb-3 font-bold' }">{{
-					t("数据概览")
-				}}</cl-text>
-
+			<!-- 统计卡片 -->
+			<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
 				<cl-row>
 					<cl-col :span="6">
-						<view
-							class="flex flex-col items-center justify-center"
-							@tap="toDevice"
-						>
-							<cl-rolling-number
-								:size="22"
-								:value="deviceCount.total"
-								color="primary"
-							></cl-rolling-number>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-1' }"
-								color="info"
-								>{{ t("总设备") }}</cl-text
-							>
+						<view class="flex flex-col items-center justify-center" @tap="toDeviceList">
+							<cl-text :size="22" color="primary" :pt="{ className: 'font-bold' }">{{ statistics.deviceTotal }}</cl-text>
+							<cl-text :size="11" color="info" :pt="{ className: 'mt-1' }">{{ t("总设备") }}</cl-text>
 						</view>
 					</cl-col>
-
 					<cl-col :span="6">
 						<view class="flex flex-col items-center justify-center">
-							<cl-rolling-number
-								:size="22"
-								:value="deviceCount.online"
-								color="success"
-							></cl-rolling-number>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-1' }"
-								color="success"
-								>{{ t("在线") }}</cl-text
-							>
+							<cl-text :size="22" color="success" :pt="{ className: 'font-bold' }">{{ statistics.deviceOnline }}</cl-text>
+							<cl-text :size="11" color="success" :pt="{ className: 'mt-1' }">{{ t("在线") }}</cl-text>
 						</view>
 					</cl-col>
-
 					<cl-col :span="6">
 						<view class="flex flex-col items-center justify-center">
-							<cl-rolling-number
-								:size="22"
-								:value="deviceCount.alarm"
-								color="danger"
-							></cl-rolling-number>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-1' }"
-								color="danger"
-								>{{ t("告警") }}</cl-text
-							>
+							<cl-text :size="22" color="info" :pt="{ className: 'font-bold' }">{{ statistics.deviceOffline }}</cl-text>
+							<cl-text :size="11" color="info" :pt="{ className: 'mt-1' }">{{ t("离线") }}</cl-text>
 						</view>
 					</cl-col>
-
 					<cl-col :span="6">
-						<view class="flex flex-col items-center justify-center">
-							<cl-rolling-number
-								:size="22"
-								:value="deviceCount.offline"
-							></cl-rolling-number>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-1' }"
-								color="info"
-								>{{ t("离线") }}</cl-text
-							>
+						<view class="flex flex-col items-center justify-center" @tap="toAlarmList">
+							<cl-text :size="22" color="danger" :pt="{ className: 'font-bold' }">{{ statistics.alarmToday }}</cl-text>
+							<cl-text :size="11" color="danger" :pt="{ className: 'mt-1' }">{{ t("今日告警") }}</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+			</view>
+
+			<!-- 快捷功能 -->
+			<view class="bg-white dark:bg-surface-800 rounded-2xl px-4 py-2 mb-3">
+				<cl-row>
+					<cl-col :span="6" v-for="fn in quickFunctions" :key="fn.key">
+						<view class="flex flex-col items-center justify-center py-2" @tap="onQuickClick(fn.key)">
+							<cl-icon :name="fn.icon" :size="24"></cl-icon>
+							<cl-text :size="11" :pt="{ className: 'mt-1 text-center' }" color="info">{{ fn.label }}</cl-text>
 						</view>
 					</cl-col>
 				</cl-row>
 			</view>
 
 			<!-- 最新告警 -->
-			<view class="bg-white dark:!bg-surface-800 rounded-2xl p-4 mb-3">
+			<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
 				<view class="flex flex-row items-center justify-between mb-3">
-					<cl-text :size="14" :pt="{ className: 'font-bold' }">{{
-						t("最新告警")
-					}}</cl-text>
-					<cl-text
-						:size="12"
-						color="primary"
-						@tap="toAlarm"
-						>{{ t("全部") }} ></cl-text
-					>
+					<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ t("最新告警") }}</cl-text>
+					<cl-text :size="12" color="primary" @tap="toAlarmList">{{ t("查看全部") }} ></cl-text>
 				</view>
 
-				<view
-					v-if="recentAlarms.length === 0"
-					class="flex flex-col items-center py-4"
-				>
-					<cl-icon
-						name="check-circle-line"
-						:size="36"
-						color="success"
-					></cl-icon>
-					<cl-text
-						:size="12"
-						color="info"
-						:pt="{ className: 'mt-2' }"
-						>{{ t("暂无告警") }}</cl-text
-					>
+				<view v-if="!statistics.latestWarns || statistics.latestWarns.length === 0"
+					class="flex flex-col items-center justify-center py-4">
+					<cl-icon name="check-circle-line" :size="36" color="success"></cl-icon>
+					<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("暂无告警") }}</cl-text>
+				</view>
+
+				<view v-for="(item, index) in statistics.latestWarns" :key="index"
+					class="flex flex-row items-start py-2 border-divider" :style="index === 0 ? '' : ''">
+					<view class="w-2 h-2 rounded-full mt-1.5 mr-2"
+						:style="{
+							backgroundColor: item.gradeName == '严重' ? '#f56c6c' : item.gradeName == '紧急' ? '#e6a23c' : '#909399'
+						}">
+					</view>
+					<view class="flex-1">
+						<view class="flex flex-row items-center justify-between">
+							<cl-text :size="13" :pt="{ className: 'flex-1' }">{{ item.content }}</cl-text>
+							<cl-text :size="11" color="info">{{ formatTime(item.warnTime) }}</cl-text>
+						</view>
+						<cl-text :size="11" color="info" :pt="{ className: 'mt-0.5' }">{{ item.deviceSn || "" }} · {{ item.gradeName }}</cl-text>
+					</view>
 				</view>
 			</view>
 
-			<!-- 快捷功能 -->
-			<view class="bg-white dark:!bg-surface-800 rounded-2xl p-4 mb-3">
-				<cl-text :size="14" :pt="{ className: 'mb-3 font-bold' }">{{
-					t("快捷功能")
-				}}</cl-text>
+			<!-- 产品概览 -->
+			<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
+				<cl-text :size="14" :pt="{ className: 'mb-3 font-bold' }">{{ t("产品概览") }}</cl-text>
 
-				<cl-row>
-					<cl-col :span="6" v-for="fn in quickFunctions" :key="fn.key">
-						<view
-							class="flex flex-col items-center justify-center py-2"
-							@tap="onQuickClick(fn.key)"
-						>
-							<cl-icon :name="fn.icon" :size="24"></cl-icon>
-							<cl-text
-								:size="12"
-								:pt="{ className: 'mt-1 text-center' }"
-								color="info"
-								>{{ fn.label }}</cl-text
-							>
+				<view v-if="!statistics.productStats || statistics.productStats.length === 0"
+					class="flex flex-col items-center justify-center py-4">
+					<cl-icon name="box-line" :size="36" color="info"></cl-icon>
+					<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("暂无产品") }}</cl-text>
+				</view>
+
+				<view v-for="(item, index) in statistics.productStats" :key="index"
+					class="flex flex-row items-center py-2 border-divider">
+					<view class="flex-1">
+						<view class="flex flex-row items-center justify-between mb-1">
+							<cl-text :size="13">{{ item.name }}</cl-text>
+							<cl-text :size="12" color="info">{{ item.value }}{{ t("台") }}</cl-text>
 						</view>
-					</cl-col>
-				</cl-row>
+						<view class="w-full h-1.5 bg-gray-100 dark:bg-surface-700 rounded-full overflow-hidden">
+							<view class="h-full rounded-full bg-primary"
+								:style="{ width: maxDeviceCount > 0 ? (item.value / maxDeviceCount * 100) + '%' : '0%' }">
+							</view>
+						</view>
+					</view>
+				</view>
 			</view>
 		</view>
 
 		<!-- 自定义底部导航栏 -->
 		<custom-tabbar></custom-tabbar>
-
-		<!-- 主题设置 -->
-		<locale-set :ref="refs.set('localeSet')"></locale-set>
-
-		<!-- 字体大小设置 -->
-		<size-set :ref="refs.set('sizeSet')"></size-set>
 	</cl-page>
 </template>
 
 <script lang="ts" setup>
-import { isMp, router, useRefs, t } from "@/.cool";
-import { reactive } from "vue";
+import { reactive, computed, onMounted } from "vue";
+import { request, t, router } from "@/.cool";
 import { useUi } from "@/uni_modules/cool-ui";
-import { config } from "@/config";
-import LocaleSet from "@/components/locale-set.uvue";
-import SizeSet from "@/components/size-set.uvue";
+import { HomeApi, type HomeStatistics } from "./home";
 import CustomTabbar from "./components/tabbar.uvue";
 
 const ui = useUi();
-const refs = useRefs();
 
-type DeviceCount = {
-	total: number;
-	online: number;
-	offline: number;
-	alarm: number;
-};
-
-type QuickFunction = {
-	key: string;
-	label: string;
-	icon: string;
-};
-
-// 设备统计（后续对接接口）
-const deviceCount = reactive<DeviceCount>({
-	total: 0,
-	online: 0,
-	offline: 0,
-	alarm: 0
+const statistics = reactive<HomeStatistics>({
+	deviceTotal: 0,
+	deviceOnline: 0,
+	deviceOffline: 0,
+	alarmToday: 0,
+	productTotal: 0
 });
 
-// 最新告警列表（后续对接接口）
-const recentAlarms = reactive<any[]>([]);
+/** 最大设备数（用于进度条比例） */
+const maxDeviceCount = computed(() => {
+	const stats = statistics.productStats;
+	if (!stats || stats.length === 0) return 0;
+	return Math.max(...stats.map(s => s.value), 1);
+});
 
-// 快捷功能列表
-const quickFunctions: QuickFunction[] = [
-	{ key: "realTime", label: t("实时数据"), icon: "dashboard-line" },
-	{ key: "collect", label: t("采集任务"), icon: "cloud-line" },
-	{ key: "history", label: t("历史数据"), icon: "history-line" },
-	{ key: "log", label: t("操作日志"), icon: "file-list-line" }
+/** 快捷功能列表 */
+const quickFunctions = [
+	{ key: "deviceList", label: t("设备列表"), icon: "computer-line" },
+	{ key: "alarmCenter", label: t("告警中心"), icon: "alarm-warning-line" },
+	{ key: "historyData", label: t("历史数据"), icon: "history-line" },
+	{ key: "cmdLog", label: t("指令日志"), icon: "file-list-line" },
+	{ key: "realtime", label: t("实时数据"), icon: "dashboard-line" },
+	{ key: "debug", label: t("设备调试"), icon: "bug-line" },
 ];
 
-function toDevice() {
+function formatTime(time?: string): string {
+	if (!time) return "";
+	const d = new Date(time);
+	const now = new Date();
+	const diff = now.getTime() - d.getTime();
+	const minutes = Math.floor(diff / 60000);
+	if (minutes < 1) return t("刚刚");
+	if (minutes < 60) return minutes + t("分钟前");
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return hours + t("小时前");
+	const days = Math.floor(hours / 24);
+	return days + t("天前");
+}
+
+function toDeviceList() {
 	router.to("/pages/index/device");
 }
 
-function toAlarm() {
-	ui.showToast({
-		message: t("开发中，敬请期待")
-	});
-}
-
-function toLog() {
-	router.to("/pages/iot/device-cmd-log");
+function toAlarmList() {
+	ui.showToast({ message: t("开发中，敬请期待") });
 }
 
 function onQuickClick(key: string) {
-	if (key === "log") {
-		router.to("/pages/iot/device-cmd-log");
-	} else {
-		ui.showToast({
-			message: t("开发中，敬请期待")
-		});
+	switch (key) {
+		case "deviceList":
+			router.to("/pages/index/device");
+			break;
+		case "cmdLog":
+			router.to("/pages/iot/device-cmd-log");
+			break;
+		default:
+			ui.showToast({ message: t("开发中，敬请期待") });
+			break;
 	}
 }
 
-function setLocale() {
-	refs.open("localeSet");
+function loadStatistics() {
+	request<HomeStatistics>({
+		url: HomeApi.STATISTICS
+	}).then((data) => {
+		if (data) {
+			Object.assign(statistics, data);
+		}
+	});
 }
 
-function setSize() {
-	refs.open("sizeSet");
-}
+onMounted(() => {
+	loadStatistics();
+});
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.border-divider {
+	border-bottom: 1px solid #e5e7eb;
+}
+</style>

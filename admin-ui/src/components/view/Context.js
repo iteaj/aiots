@@ -507,7 +507,7 @@ export function $View(context) {
      * @param config {Config}配置信息
      */
     this.query = function ({uid, url, context, reload, method
-                               , func, funcPath, params, callback}) {
+                              , data , func, funcPath, params, callback}) {
         let linkContext = context.getLinkContext();
 
         let model = {};
@@ -516,6 +516,8 @@ export function $View(context) {
             model = searchContext.getModel();
         } else if(context instanceof ViewVoidContext){
             //
+        } else {
+            model = data || model;
         }
 
         let tableContext = linkContext.getChildrenContext(CoreConsts.DefaultTableUid);

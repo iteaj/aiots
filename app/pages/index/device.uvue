@@ -36,12 +36,12 @@
                         <cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == null ? 'primary' : 'info'">{{ t("全部") }}</cl-text>
                     </view>
                     <view class="flex flex-col items-center justify-center flex-1" @tap="onStatusChange('online')">
-                        <cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == 'online' ? 'success' : 'info'">{{ statistics.online }}</cl-text>
-                        <cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == 'online' ? 'success' : 'info'">{{ t("在线") }}</cl-text>
+                        <cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == 'online' ? 'primary' : 'info'">{{ statistics.online }}</cl-text>
+                        <cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == 'online' ? 'primary' : 'info'">{{ t("在线") }}</cl-text>
                     </view>
                     <view class="flex flex-col items-center justify-center flex-1" @tap="onStatusChange('offline')">
-                        <cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == 'offline' ? 'gray' : 'info'">{{ statistics.offline }}</cl-text>
-                        <cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == 'offline' ? 'gray' : 'info'">{{ t("离线") }}</cl-text>
+                        <cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == 'offline' ? 'primary' : 'info'">{{ statistics.offline }}</cl-text>
+                        <cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == 'offline' ? 'primary' : 'info'">{{ t("离线") }}</cl-text>
                     </view>
                 </view>
             </view>
@@ -65,10 +65,8 @@
                     <!-- 第一层：状态 + 名称 | 采集时间 -->
                     <view class="flex flex-row items-center pb-2 mb-2 layer1-border">
                         <view class="flex flex-row items-center flex-1">
-                            <view
-                                class="w-[8px] h-[8px] rounded-full mr-2"
-                                :style="{ backgroundColor: card.online ? '#84fdad' : '#ff9a9a' }"
-                            ></view>
+                            <view class="w-[8px] h-[8px] rounded-full mr-2"
+                                :class="card.online ? 'bg-primary-500' : 'bg-yellow-500'"></view>
                             <cl-text :size="14">{{ card.deviceName }}</cl-text>
                         </view>
                         <cl-text :size="11" color="info">{{ card.collectTime ? formatTime(card.collectTime) : t("暂未采集") }}</cl-text>

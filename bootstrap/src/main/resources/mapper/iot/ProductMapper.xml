@@ -243,6 +243,15 @@
             left join iot_protocol ip on ip.id = a.protocol_id
         where a.code=#{productCode}
     </select>
+    <select id="joinModelAttrById" resultMap="JoinAttrMap">
+        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code
+             , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, ig.connect_type, ig.status gateway_status
+        from iot_product a
+             left join iot_product_type idt on a.product_type_id=idt.id
+             left join iot_gateway ig on a.gateway_id=ig.id
+             left join iot_protocol ip on ip.id = a.protocol_id
+        where a.id=#{productId}
+    </select>
 
     <delete id="removeModel">
         delete from iot_model_api where product_id=#{productId};

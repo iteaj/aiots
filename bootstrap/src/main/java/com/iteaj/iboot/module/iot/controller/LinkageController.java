@@ -420,7 +420,8 @@ public class LinkageController extends BaseController {
 
         if(linkageDto.getEventSourceType() == EventSourceType.event) {
             IVOption warn = new IVOption("事件告警", ActionType.warn, "告警配置").setSelectable(false);
-            warnConfigService.list(Wrappers.<WarnConfig>lambdaQuery().eq(WarnConfig::getProductId, productId))
+            //perf(指标) 2026-06-14 新增指标功能
+            warnConfigService.list(Wrappers.<WarnConfig>lambdaQuery().eq(WarnConfig::getProductId, productId).ne(WarnConfig::getGrade, WarnGrade.indicator))
                     .ifPresent(warnConfigs -> {
                         warnConfigs.forEach(warnConfig -> {
                             warn.addChildren(new IVOption(warnConfig.getName(), (ActionType.warn + warnConfig.getId().toString()), warnConfig.getGrade().getDesc())

@@ -7,6 +7,7 @@ import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.CollectDevice;
@@ -69,7 +70,7 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
 
     @Override
     public void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
-        IotThreadManager.instance().getDeviceManageEventExecutor().execute(() -> this.push(info));
+        this.supplier(info.getSupplier(), info.getDevice());
     }
 
     @Override
@@ -100,8 +101,8 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     public void push(CollectInfo.DeviceInfo device) {
         try {
             if(CollectionUtil.isNotEmpty(device.getSupplier().getValues())) {
-                Map<String, SignalOrFieldValue> valueMap = device.getSupplier().getValues().stream()
-                        .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+                Map<String, PushData.ModelAttrData> valueMap = device.getSupplier().getValues().stream()
+                        .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, PushData::of));
 
                 String jsonString = JSONObject.toJSONString(PushData.buildModel(device.getDevice().getUid(), valueMap));
                 doPush(device.getDevice().getUid(), jsonString, TYPE_DATA);
@@ -115,8 +116,8 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
         if(api.getFuncType() == FuncType.R) { // 读指令才需要更新数据
             ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(supplier -> {
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
-                    Map<String, SignalOrFieldValue> valueMap = supplier.getValues().stream()
-                            .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+                    Map<String, PushData.ModelAttrData> valueMap = supplier.getValues().stream()
+                            .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, PushData::of));
                     realtimeDataService.put(supplier); // 加入实时数据缓存
 
                     // websocket方式写数据到前端
@@ -145,8 +146,18 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
         if(CollectionUtil.isNotEmpty(supplier.getValues())) {
-            Map<String, SignalOrFieldValue> valueMap = supplier.getValues().stream()
-                    .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+            Map<String, RealtimeData> listOfDevice = realtimeDataService.listOfDevice(device.getProtocolCode(), device.buildKey());
+            Map<String, PushData.ModelAttrData> valueMap = supplier.getValues().stream()
+                    .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> {
+                        PushData.ModelAttrData modelAttrData = PushData.of(item);
+                        RealtimeData realtimeData = listOfDevice.get(item.getSignalOrField());
+                        if(realtimeData != null) {
+                            modelAttrData.setGrade(realtimeData.getExtra().getGrade());
+                            modelAttrData.setIndicator(realtimeData.getExtra().getIndicator());
+                        }
+
+                        return modelAttrData;
+                    }));
 
             // websocket方式写数据到前端
             String jsonString = JSONObject.toJSONString(PushData.buildModel(device.getUid(), valueMap));
@@ -176,5 +187,10 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     @Override
     public void apiInvoke(ModelApi api, RealtimeStatus status, InvokeResult result) {
         this.push(status.getUid(), api, result);
+    }
+
+    @Override
+    public int getOrder() {
+        return EventGroupCollectListener.super.getOrder() - 300;
     }
 }
