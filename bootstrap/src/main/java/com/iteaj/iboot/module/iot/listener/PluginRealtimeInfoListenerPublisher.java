@@ -9,9 +9,7 @@ import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.collect.CollectDevice;
 import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
-import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
@@ -29,7 +27,7 @@ import static com.iteaj.framework.spi.iot.listener.RealtimePayload.TYPE_DATA_ACT
 /**
  * 将采集的数据、设备的实时状态、上报的模型属性数据发布出去, 用于给其他插件模块使用
  */
-public class PluginRealtimeInfoListenerPublisher implements SignalCollectListener, EventGroupCollectListener
+public class PluginRealtimeInfoListenerPublisher implements EventGroupCollectListener
         , DeviceStatusListener, ModelAttrListener, LinkageActionListener {
 
     private final static String BATCH = "batch";
@@ -37,22 +35,6 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
 
     public PluginRealtimeInfoListenerPublisher(ModelAttrMetaService modelAttrMetaService) {
         this.modelAttrMetaService = modelAttrMetaService;
-    }
-
-    @Override
-    public void supplier(CollectDevice device, CollectData data) {
-        DefaultRealtimeData realtimeData = new DefaultRealtimeData();
-        realtimeData.setCid(data.getCid()).setUid(data.getUid())
-                .setCollectTime(data.getCollectTime()).setCollectMode(data.getCollectMode())
-                .setField(data.getField()).setFieldId(data.getFieldId()).setAddress(data.getAddress())
-                .setReason(data.getReason()).setStatus(data.getStatus()).setDeviceSn(data.getDeviceSn())
-                .setDeviceName(data.getDeviceName()).setTaskId(data.getTaskId())
-                .setValue(data.getValue()).setCreateTime(data.getCreateTime()).setDeviceGroupId(data.getDeviceGroupId())
-                .setProductCode(data.getProductCode()).setProtocolCode(data.getProtocolCode())
-                .setFieldName(data.getFieldName());
-
-        RealtimePayload payload = new RealtimePayload("data", data.getUid(), Collections.singletonList(realtimeData));
-        IotEvenPublisher.publish(IotEventType.Realtime, payload);
     }
 
     @Override
@@ -141,7 +123,7 @@ public class PluginRealtimeInfoListenerPublisher implements SignalCollectListene
 
     @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
-        doPublisher(null, supplier, device, String.valueOf(UniqueIdGen.nextLong()), TYPE_DATA_ACTIVE);
+        doPublisher(null, supplier, device, supplier.getCid(), TYPE_DATA_ACTIVE);
     }
 
     @Override

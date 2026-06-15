@@ -118,3 +118,4 @@ ALTER TABLE iot_warn_config
     ADD COLUMN `threshold` varchar(255) DEFAULT NULL COMMENT '阈值',
     ADD COLUMN `indicator` varchar(16) DEFAULT NULL COMMENT '状态指标',
     ADD COLUMN `config` json DEFAULT NULL COMMENT '扩展配置';
+

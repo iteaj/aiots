@@ -1,8 +1,10 @@
 package com.iteaj.framework.spi.iot.listener.filter;
 
 import com.iteaj.framework.script.*;
+import com.iteaj.framework.spi.iot.DeviceLogger;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
+import com.iteaj.framework.spi.iot.data.WarnData;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
@@ -62,11 +64,11 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
 
                     if(item instanceof RealtimeCollectData) {
                         RealtimeCollectData data = (RealtimeCollectData) item;
-                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 模型属性: {}={} - 过滤状态: {} - 耗时: {} ms"
+                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 数据过滤: {}={} - 状态: {} - 耗时: {} ms"
                                 , getFilterName(), scriptConfig.getLanguage(), data.getField(), data.getValue(), result, System.currentTimeMillis() - timeMillis);
                     } else if(item instanceof RealtimeDeviceStatus) {
                         RealtimeDeviceStatus data = (RealtimeDeviceStatus) item;
-                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 设备状态: {} - 过滤状态: {} - 耗时: {} ms"
+                        RealtimeListenerFilter.methodProvide.debug(param.getUid(), "执行{}过滤脚本({}) - 状态过滤: {} -状态: {} - 耗时: {} ms"
                                 , getFilterName(), scriptConfig.getLanguage(), data.getDeviceStatus(), result, System.currentTimeMillis() - timeMillis);
                     }
 
@@ -78,7 +80,9 @@ public interface RealtimeListenerFilter extends ListenerScriptFilter<RealtimePay
 
                 return new RealtimePayload(param.getType(), param.getUid(), payload);
             } else {
-                RealtimeListenerFilter.methodProvide.debug(param.getUid(), "{}过滤脚本处于禁用状态 - 类型: {}", getFilterName(), param.getType());
+                if(DeviceLogger.isTraceEnabled()) {
+                    RealtimeListenerFilter.methodProvide.debug(param.getUid(), "{}过滤脚本处于禁用状态 - 类型: {}", getFilterName(), param.getType());
+                }
             }
         }
 

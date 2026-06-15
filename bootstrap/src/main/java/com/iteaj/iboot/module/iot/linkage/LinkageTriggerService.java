@@ -521,7 +521,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 } else {
                     if(logger.isDebugEnabled()) {
                         logger.debug("条件项计算失败 最新采集值状态失败 - 设备: {} - 实时状态: {} - 表达式: {} {} {}"
-                                , device.buildDeviceKey(), realtime.getStatus(), data.getSignalOrField(), conditionCalc.getOperational(), conditionItem.getValue());
+                                , device.buildDeviceKey(), realtime.getStatus(), realtime.getSignalOrField(), conditionCalc.getOperational(), conditionItem.getValue());
                     }
                 }
             }

@@ -10,9 +10,7 @@ import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.collect.CollectDevice;
 import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
-import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
@@ -20,7 +18,6 @@ import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.linkage.LinkageActionListener;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
-import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.server.websocket.WebSocketChannelMatcher;
 import com.iteaj.iot.server.websocket.WebSocketServerListener;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerProtocol;
@@ -34,7 +31,7 @@ import java.util.stream.Collectors;
  * 将采集的数据实时推送到前端
  */
 public class RealtimePushListener implements WebSocketServerListener, EventGroupCollectListener
-        , SignalCollectListener, LinkageActionListener, DeviceStatusListener, ModelAttrListener {
+        , LinkageActionListener, DeviceStatusListener, ModelAttrListener {
 
     private static final String URI = "/ws/iot/realtime";
     private final RealtimeDataService realtimeDataService;
@@ -125,21 +122,6 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
                     doPush(deviceUid, jsonString, TYPE_DATA);
                 }
             });
-        }
-    }
-
-    @Override
-    public void supplier(CollectDevice device, CollectData data) {
-        try {
-            Map<String, SignalOrFieldValue> valueMap = new HashMap<>();
-            valueMap.put(data.getAddress(), SignalOrFieldValue.build(data.getFieldId()
-                    , data.getAddress(), data.getCollectTime(), data.getValue()).builder(data.getCollectStatus()));
-            String deviceUid = device.getUid().toString();
-            String jsonString = JSONObject.toJSONString(PushData.buildSignal(deviceUid, valueMap));
-
-            doPush(deviceUid, jsonString, TYPE_DATA);
-        } catch (Exception e) {
-            logger.error("实时推送点位数据异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
         }
     }
 

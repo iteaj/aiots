@@ -15,7 +15,6 @@ import java.util.function.Consumer;
 public class CollectListenerManager implements DataCollectPublishService {
 
     private List<CollectDataListener> listeners = new ArrayList<>();
-    private List<SignalCollectListener> signalCollectListeners = new ArrayList<>();
     private List<EventGroupCollectListener> groupCollectListeners = new ArrayList<>();
 
     private static CollectListenerManager instance = new CollectListenerManager();
@@ -37,19 +36,11 @@ public class CollectListenerManager implements DataCollectPublishService {
             instance.register((EventGroupCollectListener) listener);
         }
 
-        if(listener instanceof SignalCollectListener) {
-            instance.register((SignalCollectListener) listener);
-        }
-
         listeners.add(listener);
     }
 
     public void register(EventGroupCollectListener listener) {
         groupCollectListeners.add(listener);
-    }
-
-    public void register(SignalCollectListener listener) {
-        signalCollectListeners.add(listener);
     }
 
     /**
@@ -103,18 +94,6 @@ public class CollectListenerManager implements DataCollectPublishService {
     public void eventGroupPublish(Consumer<EventGroupCollectListener> consumer) {
         try {
             groupCollectListeners.forEach(consumer);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 点位数据采集发布
-     * @param consumer
-     */
-    public void signalPublish(Consumer<SignalCollectListener> consumer) {
-        try {
-            signalCollectListeners.forEach(consumer);
         } catch (Exception e) {
             e.printStackTrace();
         }

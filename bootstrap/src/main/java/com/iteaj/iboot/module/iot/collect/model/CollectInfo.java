@@ -43,7 +43,7 @@ public class CollectInfo {
     }
 
     public DeviceInfo addDeviceInfo(RealtimeStatus device) {
-        return addDeviceInfo(device, null, new DataSupplier(device.getProtocolCode(), device.buildKey()));
+        return addDeviceInfo(device, null, new DataSupplier(device.getProtocolCode(), device.buildKey(), this.getCid()));
     }
 
     public DeviceInfo addDeviceInfo(RealtimeStatus device, ModelApi api, DataSupplier supplier) {

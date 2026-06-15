@@ -2,6 +2,7 @@ package com.iteaj.framework.spi.iot;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.iot.utils.UniqueIdGen;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,11 @@ import java.util.*;
 @Getter
 @Setter
 public class DataSupplier {
+
+    /**
+     * 每次采集唯一标识
+     */
+    private String cid;
 
     /**
      * 设备key信息
@@ -32,6 +38,11 @@ public class DataSupplier {
     private Map<String, SignalOrFieldValue> values;
 
     public DataSupplier(String protocolCode, DeviceKey key) {
+        this(protocolCode, key, String.valueOf(UniqueIdGen.nextLong()));
+    }
+
+    public DataSupplier(String protocolCode, DeviceKey key, String cid) {
+        this.cid = cid;
         this.key = key;
         this.protocolCode = protocolCode;
         this.values = new LinkedHashMap<>();

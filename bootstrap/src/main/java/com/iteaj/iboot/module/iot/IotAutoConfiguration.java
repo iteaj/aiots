@@ -17,7 +17,7 @@ import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
 import com.iteaj.iboot.module.iot.linkage.*;
-import com.iteaj.iboot.module.iot.linkage.warn.RDBMSPersistenceWarnListener;
+import com.iteaj.iboot.module.iot.linkage.warn.RealtimeWarnListener;
 import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
 import com.iteaj.iboot.module.iot.service.IWarnConfigService;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
@@ -75,8 +75,8 @@ public class IotAutoConfiguration {
      * @return
      */
     @Bean
-    public RDBMSPersistenceWarnListener rdbmsPersistenceWarnListener(IWarnRecordService warnRecordService) {
-        return new RDBMSPersistenceWarnListener(warnRecordService);
+    public RealtimeWarnListener rdbmsPersistenceWarnListener(IWarnRecordService warnRecordService) {
+        return new RealtimeWarnListener(warnRecordService);
     }
 
     /**
