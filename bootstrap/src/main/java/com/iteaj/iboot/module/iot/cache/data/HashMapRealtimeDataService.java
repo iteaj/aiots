@@ -4,6 +4,7 @@ import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
+import com.iteaj.framework.spi.iot.data.RealtimeDataExtra;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -131,10 +132,10 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
-    public void updateRealtimeDataExtra(String uid, String signalOrField, String grade, String indicator) {
+    public void updateRealtimeDataExtra(String uid, String signalOrField, RealtimeDataExtra extra) {
         ModelAttrRealtimeData realtimeData = this.getRealtimeData(uid, signalOrField);
         if(realtimeData != null) {
-            realtimeData.getExtra().setGrade(grade).setIndicator(indicator);
+            ((RealtimeData) realtimeData).setExtra(extra);
         }
     }
 

@@ -20,6 +20,8 @@
         <result column="create_time" property="createTime" />
         <result column="collect_time" property="collectTime" />
         <result column="task_id" property="taskId" />
+        <result column="grade" property="grade" />
+        <result column="indicator" property="indicator" />
     </resultMap>
     <resultMap id="DtoResultMap" type="com.iteaj.iboot.module.iot.dto.CollectDataDto" extends="BaseResultMap">
         <result property="productId" column="product_id" />
@@ -353,4 +355,49 @@
         </if>
     </select>
 
+    <select id="statsOfField" resultType="com.iteaj.iboot.module.iot.dto.IndicatorStats">
+        SELECT MAX(value + 0) AS `max`, MIN(value + 0) AS `min`,
+               AVG(value + 0) AS `avg`, COUNT(*)       AS `count`,
+               (SELECT collect_time
+                FROM iot_collect_data
+                WHERE uid = #{uid}
+                  AND collect_time BETWEEN #{start} AND #{end}
+                  AND value IS NOT NULL AND field_id = #{fieldId} AND status = 1
+                ORDER BY value + 0 DESC LIMIT 1)      AS `maxTime`,
+               (SELECT collect_time
+                FROM iot_collect_data
+                WHERE uid = #{uid}
+                  AND collect_time BETWEEN #{start} AND #{end}
+                  AND value IS NOT NULL AND field_id = #{fieldId} AND status = 1
+                ORDER BY value + 0 LIMIT 1)      AS `minTime`
+        FROM iot_collect_data
+        WHERE uid = #{uid}
+          AND field_id = #{fieldId} AND collect_time BETWEEN #{start} AND #{end}
+          AND value IS NOT NULL AND status = 1
+    </select>
+
+    <select id="listOfData" resultMap="BaseResultMap">
+        SELECT id, uid, field, field_id, value, collect_time, status, reason
+        FROM iot_collect_data
+        WHERE uid = #{uid} AND field_id = #{fieldId}
+          AND value IS NOT NULL AND status = 1
+          AND collect_time BETWEEN #{start} AND #{end}
+        ORDER BY collect_time
+    </select>
+
+    <select id="associatedPoints" resultMap="BaseResultMap">
+        SELECT id, uid, field, field_name, field_id, value, collect_time, status
+        FROM iot_collect_data
+        WHERE uid = #{uid} AND collect_time = #{collectTime} AND field_id != #{excludeFieldId}
+          AND value IS NOT NULL AND status = 1
+    </select>
+
+    <select id="crossDevicePoints" resultMap="BaseResultMap">
+        SELECT a.id, a.uid, a.field, a.field_name, a.field_id, a.value, a.collect_time
+             , a.status, device_name, a.grade, a.indicator
+        FROM iot_collect_data a
+        WHERE a.product_code = #{productCode} AND a.field_id = #{fieldId}
+          AND a.collect_time = #{collectTime} AND a.uid != #{excludeUid}
+          AND a.value IS NOT NULL AND a.status = 1
+    </select>
 </mapper>

@@ -13,11 +13,8 @@ import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
-import com.iteaj.iboot.module.iot.consts.CollectMode;
 import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.linkage.LinkageActionListener;
-import com.iteaj.iot.utils.UniqueIdGen;
-import org.springframework.core.Ordered;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -60,23 +57,10 @@ public class PluginRealtimeInfoListenerPublisher implements EventGroupCollectLis
                 RealtimeStatus device = item.getDevice();
                 DataSupplier supplier = item.getSupplier();
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
+                    Date createTime = new Date();
                     supplier.getValues().forEach(value -> {
-                        DefaultRealtimeData data = new DefaultRealtimeData()
-                                .setCid(info.getCid()).setUid(device.getUid())
-                                .setCreateTime(new Date()).setValue(value.getValue())
-                                .setAddress(value.getAddress())
-                                .setFieldId(value.getId())
-                                .setCollectMode(CollectMode.model.name())
-                                .setDeviceSn(device.getDeviceSn())
-                                .setDeviceName(device.getDeviceName())
-                                .setField(value.getSignalOrField())
-                                .setProductCode(device.getProductCode())
-                                .setProtocolCode(device.getProtocolCode())
-                                .setDeviceGroupId(device.getDeviceGroupId())
-                                .setFieldName(value.getSignalOrField())
-                                .setCollectTime(supplier.getCollectTime())
-                                .setTaskId(info.getSource().getId())
-                                .buildFromStatus(value.getStatus());
+                        DefaultRealtimeData data = DefaultRealtimeData.of(value, device
+                                , info.getSource().getId(), info.getCid(), createTime, null);
 
                         collectData.add(data);
                     });
@@ -99,24 +83,9 @@ public class PluginRealtimeInfoListenerPublisher implements EventGroupCollectLis
         List<DefaultRealtimeData> collect = supplier.getValues().stream()
                 .map(item -> {
                     ModelAttrMeta attrMeta = modelAttrMetaService.getAttrMeta(device.getProductCode(), item.getId());
-                    return new DefaultRealtimeData()
-                            .setFieldId(item.getId())
-                            .setCid(cid).setUid(device.getUid())
-                            .setField(item.getSignalOrField())
-                            .setCollectTime(item.getCollectTime())
-                            .setAddress(item.getAddress())
-                            .setCollectMode("model").setTaskId(taskId)
-                            .setDeviceGroupId(device.getGroupId())
-                            .setProductCode(device.getProductCode())
-                            .setProtocolCode(device.getProtocolCode())
-                            .setDeviceSn(device.getDeviceSn())
-                            .setDeviceName(device.getDeviceName())
-                            .setCreateTime(createTime)
-                            .setValue(item.getValue())
-                            .setFieldName(attrMeta != null ? attrMeta.getName() : "")
-                            .buildFromStatus(item.getStatus());
-                        }
-                ).collect(Collectors.toList());
+                    return DefaultRealtimeData.of(item, device, taskId, cid, createTime, attrMeta != null ? attrMeta.getName() : null);
+                })
+                .collect(Collectors.toList());
 
         IotEvenPublisher.publish(IotEventType.Realtime, new RealtimePayload(type, device.getUid(), collect));
     }
@@ -128,7 +97,7 @@ public class PluginRealtimeInfoListenerPublisher implements EventGroupCollectLis
 
     @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device, String type) {
-        doPublisher(null, supplier, device, String.valueOf(UniqueIdGen.nextLong()), type);
+        doPublisher(null, supplier, device, supplier.getCid(), type);
     }
 
     /**
@@ -143,6 +112,6 @@ public class PluginRealtimeInfoListenerPublisher implements EventGroupCollectLis
 
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE - 15000;
+        return EventGroupCollectListener.super.getOrder() - 1000;
     }
 }

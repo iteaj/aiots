@@ -42,3 +42,21 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.iv-grade-fatal {
+    color: var(--ant-red-6);
+}
+.iv-grade-urgent {
+    color: var(--ant-magenta-6);
+}
+.iv-grade-notice {
+    color: var(--ant-cyan-6)
+}
+.iv-grade-warn {
+    color: var(--ant-yellow-6);
+}
+.iv-grade-normal {
+    color: var(--ant-green-6);
+}
+.iv-grade-indicator {
+
+}

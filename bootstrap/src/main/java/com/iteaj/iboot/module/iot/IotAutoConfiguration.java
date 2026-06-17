@@ -7,10 +7,7 @@ import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.framework.spring.condition.ConditionalOnRedis;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.IotLocalCacheManager;
-import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
-import com.iteaj.iboot.module.iot.cache.data.RealtimeDataCacheListener;
-import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
-import com.iteaj.iboot.module.iot.cache.data.RedisRealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.*;
 import com.iteaj.iboot.module.iot.collect.CollectDataListener;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
@@ -21,6 +18,7 @@ import com.iteaj.iboot.module.iot.linkage.warn.RealtimeWarnListener;
 import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
 import com.iteaj.iboot.module.iot.service.IWarnConfigService;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
+import com.iteaj.iboot.module.iot.service.impl.WarnInvokeService;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -69,13 +67,18 @@ public class IotAutoConfiguration {
         return new IotLocalCacheManager();
     }
 
+    @Bean
+    public RealtimeDataPrevListener realtimeDataPrevListener(IWarnConfigService warnConfigService, WarnInvokeService warnInvokeService) {
+        return new RealtimeDataPrevListener(warnConfigService, warnInvokeService);
+    }
+
     /**
      * 告警数据实时入库
      * @param warnRecordService
      * @return
      */
     @Bean
-    public RealtimeWarnListener rdbmsPersistenceWarnListener(IWarnRecordService warnRecordService) {
+    public RealtimeWarnListener realtimeWarnListener(IWarnRecordService warnRecordService) {
         return new RealtimeWarnListener(warnRecordService);
     }
 
@@ -153,15 +156,11 @@ public class IotAutoConfiguration {
 
     /**
      * 场景联动触发服务
-     * @param cacheManager
-     * @param realtimeDataService
-     * @param linkageCacheService
-     * @return
      */
     @Bean
-    public LinkageTriggerService linkageTriggerService(IotCacheManager cacheManager, IWarnConfigService warnConfigService
+    public LinkageTriggerService linkageTriggerService(IotCacheManager cacheManager, WarnInvokeService warnInvokeService
             , RealtimeDataService realtimeDataService, LinkageCacheService linkageCacheService) {
-        return new LinkageTriggerService(cacheManager, warnConfigService, realtimeDataService, linkageCacheService);
+        return new LinkageTriggerService(cacheManager, warnInvokeService, realtimeDataService, linkageCacheService);
     }
 
     /**

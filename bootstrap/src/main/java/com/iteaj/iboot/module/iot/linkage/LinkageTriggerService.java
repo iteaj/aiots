@@ -1,14 +1,11 @@
 package com.iteaj.iboot.module.iot.linkage;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
-import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.thread.IBootThreadManger;
@@ -25,7 +22,7 @@ import com.iteaj.iboot.module.iot.consts.*;
 import com.iteaj.iboot.module.iot.dto.EventSourceDto;
 import com.iteaj.iboot.module.iot.dto.LinkageActionExecDto;
 import com.iteaj.iboot.module.iot.entity.*;
-import com.iteaj.iboot.module.iot.service.IWarnConfigService;
+import com.iteaj.iboot.module.iot.service.impl.WarnInvokeService;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.Message;
@@ -37,8 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_OFFLINE;
@@ -47,18 +42,16 @@ import static com.iteaj.iboot.module.iot.entity.LinkageConditionItem.DEVICE_ONLI
 public class LinkageTriggerService implements EventGroupCollectListener, ModelAttrListener, DeviceStatusListener {
 
     private final IotCacheManager cacheManager;
-    private final IWarnConfigService warnConfigService;
+    private final WarnInvokeService warnInvokeService;
     private final RealtimeDataService realtimeDataService;
     private final LinkageCacheService linkageCacheService;
     private final Logger logger = LoggerFactory.getLogger("log:linkage:trigger");
-    private final Map<String, WarnInfo> warnStatus = new ConcurrentHashMap<>(512);
 
-    public LinkageTriggerService(IotCacheManager cacheManager
-            , IWarnConfigService warnConfigService
+    public LinkageTriggerService(IotCacheManager cacheManager, WarnInvokeService warnInvokeService
             , RealtimeDataService realtimeDataService
             , LinkageCacheService linkageCacheService) {
         this.cacheManager = cacheManager;
-        this.warnConfigService = warnConfigService;
+        this.warnInvokeService = warnInvokeService;
         this.realtimeDataService = realtimeDataService;
         this.linkageCacheService = linkageCacheService;
     }
@@ -226,9 +219,9 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                             // 成功触发此次联动条件的设备和字段
                             SuccessDeviceAndField deviceAndField = validateSuccessField.get(warn.getModelAttrField());
                             if(deviceAndField != null) {
-                                doHandleWarn(warn, deviceAndField.getDevice(), deviceAndField.getValue().getValue());
+                                warnInvokeService.sendWarn(warn, deviceAndField.getDevice(), deviceAndField.getValue().getValue());
                             } else if(triggerDevice != null) {
-                                doHandleWarn(warn, triggerDevice, triggerDevice.getStatus().getDesc());
+                                warnInvokeService.sendWarn(warn, triggerDevice, triggerDevice.getStatus().getDesc());
                             } else {
                                 logger.error("动作项执行失败 未找到触发属性 - 属性: {} - 联动项: {} - 动作项: {}/{} - 动作id: {}", warn.getModelAttrField()
                                         , item.getName(), linkageAction.getDeviceName(), linkageAction.getLinkedName(), linkageAction.getId());
@@ -244,68 +237,6 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 }
             }
         }
-    }
-
-    private void doHandleWarn(WarnConfig warn, RealtimeStatus device, Object value) {
-        WarnInfo warnInfo = null;
-        if(warn.getModelAttrId() != null) {
-            warnInfo = warnStatus.get(device.getUid() + ":" + warn.getModelAttrId());
-        }
-
-        WarnGrade grade = warn.getGrade();
-        // 属于解除告警并且已经执行一次
-        if(grade == WarnGrade.normal) {
-            // 等于null说明是第一次触发解除
-            if(warnInfo == null) {
-                return;
-            }
-
-            warnInfo.setStatus(true); // 已经解除告警
-            warnStatus.remove(device.getUid() + ":" + warn.getModelAttrId()); // 移除告警信息
-        } else if(grade != WarnGrade.status){ // 状态告警不涉及模型属性
-            if(warnInfo == null) {
-                warnStatus.put(device.getUid() + ":" + warn.getModelAttrId(), warnInfo = new WarnInfo()); // 持续告警中
-            }
-        }
-
-        // 如果是第一次告警或者超出了频率范围就发送告警
-        if(warnInfo == null || warnInfo.isFirst() || warnInfo.isExpire(warn.getFrequency())) {
-            if(warnInfo != null) {
-                warnInfo.trigger();
-            }
-
-            Date date = new Date();
-            String warnValue = value == null ? StrUtil.EMPTY : value.toString();
-            String content = resolverWarnTemplate(warn, device.getDeviceSn(), warnValue, date, device.getDeviceName());
-            WarnRecord warnRecord = new WarnRecord().setDeviceSn(device.getDeviceSn()).
-                    setUid(device.getUid()).setCreateTime(date).setWarnTime(date).setGrade(grade)
-                    .setWarnConfigId(warn.getId()).setContent(content).setField(warn.getModelAttrField())
-                    .setProductCode(device.getProductCode()).setValue(warnValue);
-
-            CollectListenerManager.getInstance().publish(listener -> {
-                if(listener instanceof LinkageActionListener) {
-                    ((LinkageActionListener) listener).warnTrigger(warn, warnRecord, device);
-                }
-            });
-        }
-    }
-
-    /**
-     * 解析告警配置模板
-     * @param warn
-     * @param warnTime
-     * @param deviceName
-     * @return
-     */
-    private String resolverWarnTemplate(WarnConfig warn, String deviceSn, String value, Date warnTime, String deviceName) {
-        Map<String, String> param = new HashMap<>();
-        param.put("value", value);
-        param.put("deviceSn", deviceSn);
-        param.put("deviceName", deviceName);
-        param.put("grade", warn.getGrade().toString());
-        param.put("warnTime", DateUtil.format(warnTime, "yy-MM-dd HH:mm:ss"));
-
-        return StrUtil.format(warn.getTemplate(), param, true);
     }
 
     private void doInvokeAction(LinkageActionExecDto linkageAction, ModelApi api, RealtimeStatus device) {
@@ -554,36 +485,6 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                     if(CollectionUtil.isNotEmpty(linkageItems)) {
                         this.invokeLinkage(linkageItems, supplier, device);
                     }
-
-                    // 处理模型属性的告警和指标
-                    handleModelaWarnAndIndicator(device, item);
-                }
-            });
-        }
-    }
-
-    private void handleModelaWarnAndIndicator(RealtimeStatus device, SignalOrFieldValue item) {
-        List<WarnConfig> warnConfigs = warnConfigService.listByProductIdAndModelAttrId(device.getProductId(), item.getId());
-        if(CollectionUtil.isNotEmpty(warnConfigs)) {
-            warnConfigs.forEach(warnConfig -> {
-                if(StrUtil.isNotBlank(warnConfig.getOperator()) && StrUtil.isNotBlank(warnConfig.getThreshold())) {
-                    try {
-                        ConditionCalc conditionCalc = ConditionalsManager.get(warnConfig.getOperator());
-                        if(conditionCalc != null) {
-                            boolean calc = conditionCalc.calc(item.getValue(), warnConfig.getThreshold());
-                            if(calc) {
-                                realtimeDataService.updateRealtimeDataExtra(device.getUid(), item.getSignalOrField()
-                                        , warnConfig.getGrade().name(), warnConfig.getIndicator());
-                                if(warnConfig.getGrade() != WarnGrade.indicator) {
-                                    doHandleWarn(warnConfig, device, item.getValue());
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        IotLogger.error("属性告警", "告警或指标处理", device.getUid()
-                                , "处理属性告警/指标时异常({}) 校验: {} {} {} - 错误信息: {}", warnConfig.getModelAttrField()
-                                , item.getValue(), warnConfig.getOperator(), warnConfig.getThreshold(), e);
-                    }
                 }
             });
         }
@@ -633,10 +534,6 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
                 if(CollectionUtil.isNotEmpty(linkageItems)) {
                     this.invokeLinkage(linkageItems, null, group);
                 }
-
-                if(info.getSupplier() != null && info.getDevice() != null) {
-                    info.getSupplier().getValues().forEach(value -> handleModelaWarnAndIndicator(info.getDevice(), value));
-                }
             }
         } catch (Exception e) {
             logger.error("联动触发失败 事件源触发 - 事件源: {} - 触发组: {}", source.getName(), group.getName());
@@ -645,65 +542,7 @@ public class LinkageTriggerService implements EventGroupCollectListener, ModelAt
 
     @Override
     public int getOrder() {
-        return EventGroupCollectListener.super.getOrder() - 500;
+        return EventGroupCollectListener.super.getOrder() - 3500;
     }
 
-    public class WarnInfo {
-
-        /**
-         * 第一次告警的毫秒数
-         */
-        private long firstOfMs;
-
-        /**
-         * 解除状态(true 解除, false 未解除)
-         */
-        private boolean status;
-
-        /**
-         * 发送次数
-         */
-        private int times;
-
-        public WarnInfo() {
-            this.times = 0;
-            this.status = false;
-            this.firstOfMs = System.currentTimeMillis();
-        }
-
-        public boolean isStatus() {
-            return status;
-        }
-
-        public void setStatus(boolean status) {
-            this.times = 0;
-            this.status = status;
-        }
-
-        public boolean isFirst() {
-            return this.times == 0;
-        }
-
-        /**
-         * 是否超出频率范围
-         * @param frequency
-         * @return
-         */
-        public boolean isExpire(Integer frequency) {
-            if(frequency == null || frequency <= 0) {
-                return true; // 小于等于0的值代表实时告警
-            }
-
-            return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - firstOfMs) > frequency;
-        }
-
-        /**
-         * 触发告警信息
-         * @return
-         */
-        public void trigger() {
-            this.firstOfMs = System.currentTimeMillis();
-            this.times ++;
-        }
-    }
 }

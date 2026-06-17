@@ -256,10 +256,10 @@ public class ModelApiInvokeServiceImpl implements IModelApiInvokeService {
                 ModelAttrContext.ModelAttrValue clone = value.clone();
                 RealtimeData realtimeData = dataMap.get(value.getField());
                 if(realtimeData != null) {
-                    clone.setGrade(realtimeData.getExtra().getGrade()).setIndicator(realtimeData.getExtra().getIndicator());
                     if(realtimeData.getRealtime() != null) {
                         SignalOrFieldValue realtime = realtimeData.getRealtime();
-                        clone.setAddress(realtime.getAddress());
+                        clone.setAddress(realtime.getAddress()).setGrade(realtime.getGrade())
+                                .setIndicator(realtime.getIndicator());
 
                         Object realtimeValue = realtime.getValue();
                         if(realtimeValue != null) {

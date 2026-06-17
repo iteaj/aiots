@@ -114,6 +114,16 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
      */
     private String productCode;
 
+    /**
+     * 告警等级
+     */
+    private String grade;
+
+    /**
+     * 指标
+     */
+    private String indicator;
+
     public CollectData() { }
 
     public CollectData(CollectMode collectMode) {

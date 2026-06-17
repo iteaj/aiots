@@ -6,6 +6,6 @@ public interface CollectDataListener extends Ordered {
 
     @Override
     default int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE + 5168;
+        return 15168;
     }
 }

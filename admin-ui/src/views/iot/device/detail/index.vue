@@ -139,21 +139,44 @@
               </div>
             </AFlex>
           </template>
-          <a-tabs v-model:activeKey="activeKey" tabPlacement="left">
-            <a-tab-pane key="chart" tab="图表">
+          <a-tabs v-model:activeKey="activeKey" tabPlacement="left" @change="tabsChange">
+            <a-tab-pane key="indicator" tab="指标">
               <ARow :gutter="8">
-                <ACol :span="15" id="iv-echarts-line" style="height: 280px"></ACol>
-                <ACol :span="9" id="iv-echarts-warn" style="height: 280px"></ACol>
+                <ACol :span="12" id="iv-echarts-line" style="height: 280px"></ACol>
+<!--                <ACol :span="2">-->
+<!--                </ACol>-->
+                <ACol :span="10">
+                  <ACard size="small" :title="`其他设备${selectAttr?.name || '点位'}值(同产品)`" :styles="{body: {padding: '6px', 'overflow-y': 'auto', height: '240px'}}">
+                    <AFlex gap="small" justify="flex-start" wrap="wrap">
+                      <div class="iv-od-attr" v-for="item in otherDeviceAttrList" :key="item.id">
+                        <div class="iv-text-ellipsis"><a href="javascript:void(0)" @click="() => onOtherDeviceAttrClick(item)">{{item.deviceName}}</a></div>
+                        <div class="iv-text-ellipsis">
+                          <span style="display: inline-block; width: 60%">{{item.value || ''}}</span>
+                          <span style="display: inline-block; width: 40%; text-align: right; font-size: 12px;" :class="'iv-grade-' + (item.grade || 'void')">
+                            {{item.indicator || ''}}
+                          </span>
+                        </div>
+                        <div class="iv-text-ellipsis">{{item.collectTime}}</div>
+                      </div>
+                    </AFlex>
+                  </ACard>
+                </ACol>
+              </ARow>
+            </a-tab-pane>
+            <a-tab-pane key="chart" tab="告警">
+              <ARow :gutter="8">
+                <ACol :span="12" id="iv-echarts-warn" style="height: 280px"></ACol>
+                <ACol :span="12" style="height: 280px">
+                  <ATable :columns="warnColumns" :bordered="true" size="small" :pagination="warnPagination" :data-source="warnListData"></ATable>
+                </ACol>
               </ARow>
             </a-tab-pane>
             <a-tab-pane key="table" tab="列表">
               <ARow :gutter="8">
-                <ACol :span="12"  style="height: 280px">
+                <ACol :span="24"  style="height: 280px">
                   <ATable :columns="fieldColumns" :bordered="true" size="small" :pagination="dataPagination" :data-source="attrListData"></ATable>
                 </ACol>
-                <ACol :span="12" style="height: 280px">
-                  <ATable :columns="warnColumns" :bordered="true" size="small" :pagination="warnPagination" :data-source="warnListData"></ATable>
-                </ACol>
+
               </ARow>
             </a-tab-pane>
           </a-tabs>
@@ -177,7 +200,7 @@ import {
   TooltipComponent,
   VisualMapComponent
 } from 'echarts/components'
-import {getCurrentInstance, ref, defineOptions, onMounted, watch, onUnmounted} from "vue";
+import {getCurrentInstance, ref, defineOptions, onMounted, watch, onUnmounted, nextTick, shallowRef} from "vue";
 import CoreConsts from "@/components/CoreConsts";
 import {GET, POST, urlConfig} from "@/utils/request";
 import {msgError, msgSuccess, msgWarn} from "@/utils/message";
@@ -192,16 +215,16 @@ echarts.use([CanvasRenderer, TitleComponent, GridComponent, VisualMapComponent, 
     name: "deviceDetail",
   })
   let apis = ref([]);
-  let activeKey = ref('chart');
+  let activeKey = ref('indicator');
   let spinning = ref(false);
   let tipText = ref("执行中...");
-  let selectDevice = ref({})
-  let selectProduct = ref({});
+  let selectDevice = shallowRef({})
+  let selectProduct = shallowRef({});
   let activeAttrId = ref();
   let {proxy} = getCurrentInstance();
   let apiCodeDebugMap = ref({});
   let gradeColorMap = {
-    fatal: ['red', '严重'], urgent: ['orange', '紧急'], warn: ['yellow', '警告'], notice: ['cyan', '通知']
+    fatal: ['red', '严重'], urgent: ['magenta', '紧急'], warn: ['yellow', '警告'], notice: ['cyan', '通知']
     , normal: ['green', '正常'], indicator: ['purple', '指标'], default: ['gray', '']
   }
 /**
@@ -234,12 +257,13 @@ let realtimeSocket = null;
   let realtimeMap = ref({});
   let funcApis = ref([])
   let eventApis = ref([])
-let selectAttr = ref(null);
-let selectTime = ref();
-let selectTimeType = ref('month');
-let selectCountType = ref('all');
+  let selectAttr = ref(null);
+  let selectTime = ref();
+  let selectTimeType = ref('month');
+  let selectCountType = ref('all');
   let startTimestamp = ref("");
   let endTimestamp = ref("");
+  let otherDeviceAttrList = shallowRef([]);
   const onAttrClick = (attr) => {
     if(selectAttr.value == attr) {
       selectAttr.value = null;
@@ -247,6 +271,15 @@ let selectCountType = ref('all');
     } else {
       selectAttr.value = attr;
       activeAttrId.value = attr.id;
+      GET("/iot/dataIndicator/crossDevicePoints",
+          {productCode: selectProduct.value.code, excludeUid: selectDevice.value.uid, fieldId: attr.id, collectTime: attr.collectTime})
+          .then(({code, message, data}) => {
+            if(code === CoreConsts.SuccessCode) {
+              otherDeviceAttrList.value = data;
+            } else {
+              console.error(message);
+            }
+      })
     }
   }
   let dataPagination = ref({total: 0, showSizeChanger: false, current: 1, onChange(page, size) {
@@ -270,17 +303,17 @@ let selectCountType = ref('all');
       }
     })
   }});
-let warnPagination = ref({total: 0, showSizeChanger: false, current: 1, onChange(page, size) {
-    this.current = page;
-    let fieldId = selectAttr.value ? selectAttr.value.id : '';
-    GET(`/iot/panels/warn?uid=${selectDevice.value.uid}&field=${fieldId}
-      &startTimestamp=${startTimestamp.value}&endTimestamp=${endTimestamp.value}&size=5&page=${page}`).then(({code, message, data}) => {
-      if(code === CoreConsts.SuccessCode) {
-        warnListData.value = data.records;
-      } else {
-        console.error(message);
-      }
-    })
+  let warnPagination = ref({total: 0, showSizeChanger: false, current: 1, onChange(page, size) {
+      this.current = page;
+      let fieldId = selectAttr.value ? selectAttr.value.id : '';
+      GET(`/iot/panels/warn?uid=${selectDevice.value.uid}&field=${fieldId}
+        &startTimestamp=${startTimestamp.value}&endTimestamp=${endTimestamp.value}&size=5&page=${page}`).then(({code, message, data}) => {
+        if(code === CoreConsts.SuccessCode) {
+          warnListData.value = data.records;
+        } else {
+          console.error(message);
+        }
+      })
   }});
   const apiCmdClick = (api) => {
     spinning.value = true;
@@ -618,14 +651,22 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
   dataPagination.value.onChange(1, 5);
   warnPagination.value.onChange(1, 5);
 })
+const tabsChange = (key) => {
+  if(key == 'chart' && warnDataEcharts == null) {
+    nextTick().then(() => {
+      warnDataEcharts = echarts.init(document.getElementById("iv-echarts-warn"));
+      warnDataEcharts.setOption(warnDataOptions.value);
+    });
+  }
+}
+const onOtherDeviceAttrClick = (item) => {
+  window.open(`#/iot/device/detail/${item.uid}`, '_blank');
+}
   onMounted(() => {
     loadDetail();
     loadCmds();
     collectDataEcharts = echarts.init(document.getElementById("iv-echarts-line"));
     collectDataEcharts.setOption(collectDataOptions.value);
-
-    warnDataEcharts = echarts.init(document.getElementById("iv-echarts-warn"));
-    warnDataEcharts.setOption(warnDataOptions.value);
   })
   onUnmounted(() => {
     if(realtimeSocket != null && !realtimeSocket.CLOSED) {
@@ -770,5 +811,30 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
 .iv-attr-container, .iv-body-top {
   min-height: 270px;
   height: calc(100% - 350px);
+}
+.iv-od-attr {
+  width: 140px;
+  height: 78px;
+  margin: 4px;
+  font-size: 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+}
+.iv-od-attr div {
+  height: 26px;
+  padding: 0 8px;
+  line-height: 26px;
+}
+.iv-od-attr div:nth-child(even) {
+  font-weight: bold;
+  font-size: 14px;
+  padding: 0 12px;
+  border-top: 1px dashed #d9d9d9;
+  border-bottom: 1px dashed #d9d9d9;
+}
+.iv-od-attr div:nth-child(odd) {
+  height: 26px;
+  line-height: 26px;
+  color: #8e8e8e;
 }
 </style>

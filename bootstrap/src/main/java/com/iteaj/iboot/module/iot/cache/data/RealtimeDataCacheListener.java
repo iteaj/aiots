@@ -8,7 +8,6 @@ import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
-import org.springframework.core.Ordered;
 
 public class RealtimeDataCacheListener implements EventGroupCollectListener, ModelAttrListener {
 
@@ -34,6 +33,6 @@ public class RealtimeDataCacheListener implements EventGroupCollectListener, Mod
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE + 518;
+        return EventGroupCollectListener.super.getOrder() - 4168;
     }
 }

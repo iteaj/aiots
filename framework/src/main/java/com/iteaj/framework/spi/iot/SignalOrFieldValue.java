@@ -43,6 +43,16 @@ public class SignalOrFieldValue {
      */
     private CollectStatus status;
 
+    /**
+     * 告警等级
+     */
+    private String grade;
+
+    /**
+     * 指标
+     */
+    private String indicator;
+
     public SignalOrFieldValue(Long id, String signalOrField, Date collectTime, Object value) {
         this.id = id;
         this.value = value;

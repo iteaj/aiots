@@ -119,3 +119,8 @@ ALTER TABLE iot_warn_config
     ADD COLUMN `indicator` varchar(16) DEFAULT NULL COMMENT '状态指标',
     ADD COLUMN `config` json DEFAULT NULL COMMENT '扩展配置';
 
+-- 2026-06-16 采集数据表增加告警等级和指标标记字段
+ALTER TABLE iot_collect_data
+    ADD COLUMN `grade` varchar(32) DEFAULT NULL COMMENT '告警等级' AFTER product_code,
+    ADD COLUMN `indicator` varchar(32) DEFAULT NULL COMMENT '指标' AFTER grade;
+

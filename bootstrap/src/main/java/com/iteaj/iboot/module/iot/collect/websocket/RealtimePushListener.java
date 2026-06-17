@@ -7,7 +7,6 @@ import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
-import com.iteaj.iboot.module.iot.cache.data.RealtimeData;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
@@ -128,15 +127,11 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
         if(CollectionUtil.isNotEmpty(supplier.getValues())) {
-            Map<String, RealtimeData> listOfDevice = realtimeDataService.listOfDevice(device.getProtocolCode(), device.buildKey());
             Map<String, PushData.ModelAttrData> valueMap = supplier.getValues().stream()
                     .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> {
                         PushData.ModelAttrData modelAttrData = PushData.of(item);
-                        RealtimeData realtimeData = listOfDevice.get(item.getSignalOrField());
-                        if(realtimeData != null) {
-                            modelAttrData.setGrade(realtimeData.getExtra().getGrade());
-                            modelAttrData.setIndicator(realtimeData.getExtra().getIndicator());
-                        }
+                            modelAttrData.setGrade(item.getGrade());
+                            modelAttrData.setIndicator(item.getIndicator());
 
                         return modelAttrData;
                     }));
@@ -173,6 +168,6 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
 
     @Override
     public int getOrder() {
-        return EventGroupCollectListener.super.getOrder() - 300;
+        return EventGroupCollectListener.super.getOrder() - 2300;
     }
 }
