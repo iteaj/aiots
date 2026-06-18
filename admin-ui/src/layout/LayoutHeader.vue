@@ -14,30 +14,30 @@
           @select="handleTopMenuSelect" class="u-top-nav-menu" />
       </ACol>
       <ACol class="u-header-col ivz-header-col-right" :xs="12" :sm="12" :md="6" :lg="8" :xl="8">
-        <ASpace :size="0">
-          <AModal class="iv-global-search" v-model:open="searchStatus" :closable="false" :footer="null">
-            <template #title>
-              <div style="font-size: 14px">
-                <span>全局搜索</span>
-                <span style="font-size: 12px; color: #d1d1d1; float: right; font-weight: normal;">快捷键(shift + shift)</span>
+        <AModal class="iv-global-search" v-model:open="searchStatus" :closable="false" :footer="null">
+          <template #title>
+            <div style="font-size: 14px">
+              <span>全局搜索</span>
+              <span style="font-size: 12px; color: #d1d1d1; float: right; font-weight: normal;">快捷键(shift + shift)</span>
+            </div>
+          </template>
+          <AInput placeholder="请输入要搜索的关键字" @change="searchKeywordHandle" autocomplete="off" />
+          <div class="iv-search-content">
+            <template v-for="item in searchResultModel" :key="item.key">
+              <div class="iv-context-item" @click.native="() => searchRecordClickHandle(item)">
+                <span>{{item.label}}</span>
+                <span style="float: right; color: #959595; font-size: 12px">{{item.filter.name}}</span>
               </div>
             </template>
-            <AInput placeholder="请输入要搜索的关键字" @change="searchKeywordHandle" autocomplete="off" />
-            <div class="iv-search-content">
-              <template v-for="item in searchResultModel" :key="item.key">
-                <div class="iv-context-item" @click.native="() => searchRecordClickHandle(item)">
-                  <span>{{item.label}}</span>
-                  <span style="float: right; color: #959595; font-size: 12px">{{item.filter.name}}</span>
-                </div>
-              </template>
-            </div>
-            <a-divider dashed>
-              <span style="font-size: 12px; color: #d1d1d1">搜索历史</span>
-            </a-divider>
-            <div class="iv-search-history">
+          </div>
+          <a-divider dashed>
+            <span style="font-size: 12px; color: #d1d1d1">搜索历史</span>
+          </a-divider>
+          <div class="iv-search-history">
 
-            </div>
-          </AModal>
+          </div>
+        </AModal>
+        <ASpace :size="0">
           <a-dropdown forceRender :classes="{root: 'iv-header-notify'}" placement="bottomRight" :getPopupContainer="getPopupContainer">
             <a-button type="text">
               <a-badge :count="notifyCount" size="small" :offset="[3, 0]">
@@ -392,5 +392,8 @@ export default {
 }
 .iv-header-notify .ant-dropdown-menu .ant-dropdown-menu-item:hover {
   background-color: unset!important;
+}
+.iv-header .ivz-header-col-right .ant-space-item button {
+  margin-top: 18px;
 }
 </style>

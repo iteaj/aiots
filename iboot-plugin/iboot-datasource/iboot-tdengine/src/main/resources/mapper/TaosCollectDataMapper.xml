@@ -20,6 +20,9 @@
         <result column="create_time" property="createTime" />
         <result column="collect_time" property="collectTime" />
         <result column="device_group_id" property="deviceGroupId" />
+        <result column="grade" property="grade" />
+        <result column="indicator" property="indicator" />
+        <result column="puid" property="puid" />
     </resultMap>
 
     <resultMap id="BaseEchartsCountMap" type="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
@@ -196,5 +199,135 @@
         </foreach>
     </select>
 
+    <select id="statsOfField" resultType="com.iteaj.framework.spi.iot.data.IndicatorStats">
+        SELECT MAX(CAST(collect_value AS DOUBLE)) AS `max`, MIN(CAST(collect_value AS DOUBLE)) AS `min`,
+               AVG(CAST(collect_value AS DOUBLE)) AS `avg`, COUNT(*) AS `count`,
+               (SELECT collect_time
+                FROM iot_collect_data
+                WHERE uid = #{uid}
+                  AND collect_time BETWEEN #{start} AND #{end}
+                  AND collect_value IS NOT NULL AND field_id = #{fieldId} AND collect_status = 1
+                ORDER BY CAST(collect_value AS DOUBLE) DESC LIMIT 1) AS `maxTime`,
+               (SELECT collect_time
+                FROM iot_collect_data
+                WHERE uid = #{uid}
+                  AND collect_time BETWEEN #{start} AND #{end}
+                  AND collect_value IS NOT NULL AND field_id = #{fieldId} AND collect_status = 1
+                ORDER BY CAST(collect_value AS DOUBLE) LIMIT 1) AS `minTime`
+        FROM iot_collect_data
+        WHERE uid = #{uid}
+          AND field_id = #{fieldId} AND collect_time BETWEEN #{start} AND #{end}
+          AND collect_value IS NOT NULL AND collect_status = 1
+    </select>
 
+    <select id="listOfData" resultMap="BaseResultMap">
+        SELECT uid, field, field_id, collect_value, collect_time, collect_status, device_group_id
+        FROM iot_collect_data
+        WHERE uid = #{uid} AND field_id = #{fieldId}
+          AND collect_value IS NOT NULL AND collect_status = 1
+          AND collect_time BETWEEN #{start} AND #{end}
+        ORDER BY collect_time
+    </select>
+
+    <select id="associatedPoints" resultMap="BaseResultMap">
+        SELECT uid, field, field_name, field_id, collect_value, collect_time, collect_status, device_group_id
+        FROM iot_collect_data
+        WHERE uid = #{uid} AND collect_time = #{collectTime} AND field_id != #{excludeFieldId}
+          AND collect_value IS NOT NULL AND collect_status = 1 AND grade IS NOT NULL
+    </select>
+
+    <select id="crossDevicePoints" resultMap="BaseResultMap">
+        SELECT a.uid, a.field, a.field_name, a.field_id, a.collect_value, a.collect_time, a.grade, a.indicator
+             , a.collect_status, a.device_name, a.device_group_id
+        FROM iot_collect_data a
+        WHERE a.product_code = #{productCode} AND a.field_id = #{fieldId}
+          AND a.collect_time = #{collectTime} AND a.uid != #{excludeUid}
+          AND a.collect_value IS NOT NULL AND a.collect_status = 1 AND a.grade IS NOT NULL
+    </select>
+
+    <select id="getSourcePoint" resultMap="BaseResultMap">
+        SELECT uid, field, field_id, field_name, collect_value, collect_time, grade, indicator,
+               device_name, device_sn, device_group_id, puid, cid, collect_status
+        FROM iot_collect_data
+        WHERE uid = #{uid} AND field_id = #{fieldId} AND collect_time = #{collectTime}
+          AND collect_value IS NOT NULL AND collect_status = 1
+        LIMIT 1
+    </select>
+
+    <select id="listByCid" resultMap="BaseResultMap">
+        SELECT uid, field, field_id, field_name, collect_value, collect_time, grade, indicator,
+               device_name, device_sn, device_group_id, puid, cid, collect_status
+        FROM (
+            SELECT uid, field, field_id, field_name, collect_value, collect_time, grade, indicator,
+                   device_name, device_sn, device_group_id, puid, cid, collect_status,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY uid, field_id
+                       ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
+                                WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
+                                WHEN 'normal' THEN 4 WHEN 'status' THEN 5
+                                WHEN 'indicator' THEN 6 ELSE 99 END
+                   ) AS rn
+            FROM iot_collect_data
+            WHERE cid = #{cid}
+              AND collect_status = 1 AND collect_value IS NOT NULL
+              AND uid != #{excludeUid} AND field_id != #{excludeFieldId}
+            <choose>
+                <when test="grade != null and grade != ''">
+                    AND grade = #{grade}
+                </when>
+                <otherwise>
+                    AND grade IS NOT NULL
+                </otherwise>
+            </choose>
+        ) t WHERE rn = 1
+        ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
+                 WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
+                 WHEN 'normal' THEN 4 WHEN 'status' THEN 5
+                 WHEN 'indicator' THEN 6 ELSE 99 END
+        LIMIT 500
+    </select>
+
+    <select id="listByPuidOrGroup" resultMap="BaseResultMap">
+        SELECT uid, field, field_id, field_name, collect_value, collect_time, grade, indicator,
+               device_name, device_sn, device_group_id, puid, cid, collect_status
+        FROM (
+            SELECT uid, field, field_id, field_name, collect_value, collect_time, grade, indicator,
+                   device_name, device_sn, device_group_id, puid, cid, collect_status,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY uid, field_id
+                       ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
+                                WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
+                                WHEN 'normal' THEN 4 WHEN 'status' THEN 5
+                                WHEN 'indicator' THEN 6 ELSE 99 END
+                   ) AS rn
+            FROM iot_collect_data
+            WHERE collect_time BETWEEN #{startTime} AND #{endTime}
+              AND collect_status = 1 AND collect_value IS NOT NULL
+              AND uid != #{excludeUid} AND field_id != #{excludeFieldId}
+              AND (<choose>
+                    <when test="puid != null and puid != '' and deviceGroupId != null">
+                        puid = #{puid} OR device_group_id = #{deviceGroupId}
+                    </when>
+                    <when test="puid != null and puid != ''">
+                        puid = #{puid}
+                    </when>
+                    <otherwise>
+                        device_group_id = #{deviceGroupId}
+                    </otherwise>
+                  </choose>)
+            <choose>
+                <when test="grade != null and grade != ''">
+                    AND grade = #{grade}
+                </when>
+                <otherwise>
+                    AND grade IS NOT NULL
+                </otherwise>
+            </choose>
+        ) t WHERE rn = 1
+        ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
+                 WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
+                 WHEN 'normal' THEN 4 WHEN 'status' THEN 5
+                 WHEN 'indicator' THEN 6 ELSE 99 END
+        LIMIT 500
+    </select>
 </mapper>

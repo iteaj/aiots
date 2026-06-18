@@ -1,4 +1,4 @@
-package com.iteaj.iboot.module.iot.dto;
+package com.iteaj.framework.spi.iot.data;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

@@ -17,6 +17,11 @@ public interface RealtimeDeviceStatus extends IotEventPayload {
     String getUid();
 
     /**
+     * 父设备uid
+     */
+    String getPuid();
+
+    /**
      * 获取设备类型
      * @return 设备类型
      */

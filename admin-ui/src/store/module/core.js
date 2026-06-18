@@ -105,6 +105,8 @@ const registerSysModule = function (store) {
             topMenus: [], // 顶部一级菜单列表
             activeTopMenu: null, // 当前选中的顶部一级菜单
 
+            indicatorColors: {}, // 指标颜色字典
+
             /**
              * 后端运行日志信息
              */
@@ -138,7 +140,7 @@ const registerSysModule = function (store) {
             collapsed: state => state.collapsed,
             userVisible: state => state.userVisible,
             loggerConfig: state => state.loggerConfig,
-
+            indicatorColors: state => state.indicatorColors,
             // 系统名称
             sysName: state => {
                 // return '厦门由创源智能科技'
@@ -460,6 +462,7 @@ const registerSysModule = function (store) {
                 state.selectedKeys = [];
                 state.activeRoute = null;
                 state.userVisible = false;
+                localStorage.removeItem(CoreConsts.AccessToken);
             }
         },
         actions: {
@@ -505,6 +508,13 @@ const registerSysModule = function (store) {
                 }).catch(reason => reason)
             },
             initConfig: ({state}) => {
+                getDict("iot_indicator_color").then((data) => {
+                    if(data instanceof Array) {
+                        data.forEach(item => {
+                            state.indicatorColors[item.label] = item.value;
+                        })
+                    }
+                });
                 return getSysConfig({type: 'sys'}).then(({data, code, message}) => {
                     if(code == CoreConsts.SuccessCode) {
                         if(data instanceof Array) {

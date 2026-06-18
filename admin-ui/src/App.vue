@@ -18,6 +18,8 @@ import zhCN from 'antdv-next/locale/zh_CN';
 import {computed, provide, reactive} from "vue";
 import {ThemeProvider} from "antdv-style"
 import {GlobalConfigKey, ThemeConfigKey} from "@/utils/ProvideKeys";
+import {useStore} from "vuex";
+import SysUtils from "@/utils/SysUtils.js";
 
 dayjs.locale('zh-cn');
 
@@ -39,6 +41,11 @@ export default {
         })
       }
     });
+
+    if(SysUtils.isLogin()) {
+      // 初始化系统配置信息
+      useStore().dispatch('sys/initConfig')
+    }
 
     // 提供全局配置
     provide(GlobalConfigKey, globalConfig)

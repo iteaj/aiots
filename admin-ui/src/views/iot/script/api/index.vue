@@ -35,10 +35,10 @@
                       optionType="button" buttonStyle="solid"/>
           <UInputItem field="remark" label="备注"/>
         </URow>
-        <a-tabs v-model:activeKey="languageKey" tab-placement="left" :items="model['script']">
+        <a-tabs v-model:activeKey="languageKey" tab-placement="left" :items="scriptItems">
           <template #contentRender="{item}">
             <div style="height: 380px">
-              <AceScriptEditor v-model:value="item.script" :completions="completions"></AceScriptEditor>
+              <AceScriptEditor v-model:value="item.content.script" :completions="completions"></AceScriptEditor>
             </div>
           </template>
         </a-tabs>
@@ -80,12 +80,13 @@ export default {
       name: {required: true, message: '解析器名称必填'},
       language: {required: true, message: '使用语言必填'},
     }
+    let scriptItems = ref([]);
     let bindDataSource = ref([]);
     let editModel = ref({language: 'disabled'});
     let configs = ref([]);
     let languageKey = ref("");
     let completions = ref([]);
-    return {editModel, columns, rules, completions, languageKey, configs, bindColumns, bindDataSource, scriptOptions}
+    return {editModel, columns, rules, completions, languageKey, configs, bindColumns, bindDataSource, scriptOptions, scriptItems}
   },
   mounted() {
     this.$http.get("/iot/script/api/completes").then(({code, message, data}) => {
@@ -101,7 +102,6 @@ export default {
       if(code == CoreConsts.SuccessCode) {
         this.configs = data;
         if(data && data.length > 0) {
-          this.languageKey = data?.[0]?.language;
           data.forEach(item => {
             item['key'] = item['label'] = item.language;
             this.scriptOptions.push({label: item.language, value: item.language});
@@ -116,13 +116,13 @@ export default {
     openEdit(model) {
       if(!model.id) {
         model['script'] = JSON.parse(JSON.stringify(this.configs));
-      }else {
-        model['script'].forEach(item => {
-          item['label'] = item['language'];
-          item['key'] = model['id'] + ":" + item['language'];
-        })
-        this.languageKey = model['script'][0].key
       }
+
+      this.scriptItems = model['script'].map(item => {
+        let key = new Date().getTime() + "";
+        return {key, label: item.language, content: item};
+      });
+      this.languageKey = this.scriptItems[0].key
     }
   }
 }

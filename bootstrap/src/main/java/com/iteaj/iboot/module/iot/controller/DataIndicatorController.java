@@ -2,8 +2,9 @@ package com.iteaj.iboot.module.iot.controller;
 
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
-import com.iteaj.iboot.module.iot.dto.IndicatorStats;
-import com.iteaj.iboot.module.iot.entity.CollectData;
+import com.iteaj.iboot.module.iot.dto.AssociatedStats;
+import com.iteaj.framework.spi.iot.data.IndicatorStats;
+
 import com.iteaj.iboot.module.iot.service.IDataIndicatorService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +37,7 @@ public class DataIndicatorController extends BaseController {
      * 获取点位在指定时间范围内的采集数据列表
      */
     @GetMapping("listData")
-    public Result<List<CollectData>> listData(String uid, Long fieldId, String start, String end) {
+    public Result<List<AssociatedStats>> listData(String uid, Long fieldId, String start, String end) {
         return success(dataIndicatorService.listData(uid, fieldId, start, end));
     }
 
@@ -44,7 +45,7 @@ public class DataIndicatorController extends BaseController {
      * 获取设备其他点位在同一采集时间的数据
      */
     @GetMapping("associatedPoints")
-    public Result<List<CollectData>> associatedPoints(String uid, Long excludeFieldId, String collectTime) {
+    public Result<List<AssociatedStats>> associatedPoints(String uid, Long excludeFieldId, String collectTime) {
         return success(dataIndicatorService.associatedPoints(uid, excludeFieldId, collectTime));
     }
 
@@ -52,7 +53,20 @@ public class DataIndicatorController extends BaseController {
      * 获取同产品下其他设备同点位在同一采集时间的数据
      */
     @GetMapping("crossDevicePoints")
-    public Result<List<CollectData>> crossDevicePoints(String productCode, Long fieldId, String collectTime, String excludeUid) {
+    public Result<List<AssociatedStats>> crossDevicePoints(String productCode, Long fieldId, String collectTime, String excludeUid) {
         return success(dataIndicatorService.crossDevicePoints(productCode, fieldId, collectTime, excludeUid));
+    }
+
+    /**
+     * 获取与指定点位相关联的其他点位信息
+     * <p>关联维度：同一采集器(cid)、同一网关(puid)、同一设备组(deviceGroupId)</p>
+     * @param uid         源设备标识
+     * @param fieldId     源属性ID
+     * @param collectTime 采集时间（精确到秒）
+     * @param grade       告警等级（可选）
+     */
+    @GetMapping("associatedStats")
+    public Result<List<AssociatedStats>> associatedStats(String uid, Long fieldId, String collectTime, String grade) {
+        return success(dataIndicatorService.associatedStats(uid, fieldId, collectTime, grade));
     }
 }

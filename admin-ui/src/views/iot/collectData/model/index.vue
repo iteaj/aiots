@@ -33,9 +33,10 @@ export default {
       {field: "field", title: "属性字段", width: 80, resizable: true},
       {field: "address", title: "采集地址", width: 60, resizable: true},
       {field: "value", title: "采集值", width: 120, fixed: 'right'},
-      {field: "reason", title: "失败原因", width: 160, resizable: true},
-      {field: "collectTime", title: "采集时间", width: 100, type: 'date', format: 'YYYY-MM-DD HH:mm:ss', fixed: 'right'},
-      {field: "status", title: "采集状态", width: 60, fixed: 'right'},
+      {field: "indicator", title: "指标", width: 100, fixed: 'right'},
+      {field: "reason", title: "失败原因", width: 120, resizable: true},
+      {field: "collectTime", title: "采集时间", width: 130, type: 'date', format: 'YYYY-MM-DD HH:mm:ss', fixed: 'right'},
+      {field: "status", title: "采集状态", width: 80, fixed: 'right'},
       // {field: 'action', title: '操作', type: 'action' , width: 150, fixed: 'right'},
     ]);
 

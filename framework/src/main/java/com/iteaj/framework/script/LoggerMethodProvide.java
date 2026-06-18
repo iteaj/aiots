@@ -6,15 +6,15 @@ import java.util.List;
 public interface LoggerMethodProvide {
 
     List<ScriptComplete> LOGGER_COMPLETES = Arrays.asList(
-            new ScriptComplete("methods.log(msg)", "打印日志(支持{}占位符)",4),
+            new ScriptComplete("methods.console(msg)", "打印到控制台(支持{}占位符)",4),
             new ScriptComplete("methods.debug(uid, msg)", "打印调试日志(支持{}占位符)",4),
             new ScriptComplete("methods.info(uid, msg)", "打印信息日志(支持{}占位符)",4),
             new ScriptComplete("methods.warn(uid, msg)", "打印告警日志(支持{}占位符)",4),
             new ScriptComplete("methods.error(uid, msg)", "打印错误日志(支持{}占位符)",4)
     );
 
-    default void log(String msg, Object... params) {
-        ScriptLoggerFilter.info(getSubType(), "-", msg, params);
+    default void console(Object msg) {
+        System.out.println(msg);
     }
 
 

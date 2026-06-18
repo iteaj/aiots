@@ -66,6 +66,11 @@ public interface RealtimeCollectData {
     String getGrade();
 
     /**
+     * 父设备uid(可空)
+     */
+    String getPuid();
+
+    /**
      * 指标(可空)
      */
     String getIndicator();

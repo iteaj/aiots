@@ -126,6 +126,12 @@ public class TaosRealtimeData implements RealtimeCollectData {
     private String productCode;
 
     /**
+     * 父设备uid
+     */
+    @IotTag
+    private String puid;
+
+    /**
      * 告警等级
      */
     @IotTag

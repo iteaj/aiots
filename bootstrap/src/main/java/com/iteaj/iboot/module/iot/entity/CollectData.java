@@ -115,6 +115,11 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
     private String productCode;
 
     /**
+     * 父设备uid
+     */
+    private String puid;
+
+    /**
      * 告警等级
      */
     private String grade;
@@ -123,6 +128,12 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
      * 指标
      */
     private String indicator;
+
+    /**
+     * 设备组名称
+     */
+    @TableField(exist = false)
+    private String deviceGroupName;
 
     public CollectData() { }
 

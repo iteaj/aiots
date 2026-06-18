@@ -3,6 +3,9 @@ package com.iteaj.iboot.module.iot.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
@@ -102,6 +105,50 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
         } else { // 按范围
             return this.getBaseMapper().countOfViewByRange(condition);
         }
+    }
+
+    @Override
+    public IndicatorStats statsOfField(String uid, Long fieldId, String start, String end) {
+        return this.baseMapper.statsOfField(uid, fieldId, start, end);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> listOfData(String uid, Long fieldId, String start, String end) {
+        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.listOfData(uid, fieldId, start, end);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> associatedPoints(String uid, Long excludeFieldId, String collectTime) {
+        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.associatedPoints(uid, excludeFieldId, collectTime);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> crossDevicePoints(String productCode, Long fieldId, String collectTime, String excludeUid) {
+        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.crossDevicePoints(productCode, fieldId, collectTime, excludeUid);
+    }
+
+    @Override
+    public RealtimeCollectData getSourcePoint(String uid, Long fieldId, String collectTime) {
+        return this.baseMapper.selectOne(new LambdaQueryWrapper<CollectData>()
+                .eq(CollectData::getUid, uid)
+                .eq(CollectData::getFieldId, fieldId)
+                .eq(CollectData::getCollectTime, collectTime)
+                .last("LIMIT 1"));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> listByCid(String cid, String excludeUid, Long excludeFieldId, String grade) {
+        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.listByCid(cid, excludeUid, excludeFieldId, grade);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> listByPuidOrGroup(String puid, Long deviceGroupId, Date startTime, Date endTime, String excludeUid, Long excludeFieldId, String grade) {
+        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.listByPuidOrGroup(puid, deviceGroupId, startTime, endTime, excludeUid, excludeFieldId, grade);
     }
 
     @Override

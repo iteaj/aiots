@@ -24,9 +24,6 @@ export default {
         // 初始化当前登入的用户信息
         useStore().dispatch('sys/initUser')
 
-        // 初始化系统配置信息
-        useStore().dispatch('sys/initConfig')
-
         // 初始化菜单权限
         useStore().dispatch('sys/initPermissions')
         /**

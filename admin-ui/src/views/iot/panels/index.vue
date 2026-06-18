@@ -49,7 +49,7 @@
               </div>
               <template #actions>
                 <div>
-                  <ASpace style="height: 32px; line-height: 32px">
+                  <ASpace style="height: 32px; line-height: 32px; overflow: hidden">
                     <template  v-if="ctrlCmds && ctrlCmds.length > 0">
                         <template v-for="(ctrlCommand, index) in ctrlCmds" :key="index">
                           <a-space-compact v-if="ctrlCommand.attrField">

@@ -10,7 +10,7 @@
         <UButton func="add" url="/core/dictData/add">新增</UButton>&nbsp;
       </URow>
     </UViewSearch>
-    <UViewDrawer title="新增" :span="[6, 16]" :rules="rules" @edit="edit">
+    <UViewDrawer title="新增" :span="[6, 16]" size="680" :rules="rules" @edit="edit">
         <UInputItem field="type" label="字典标识" disabled/>
         <UInputItem field="label" label="数据名称" :maxlength="32" />
         <UInputItem field="value" label="数据值" :maxlength="50" />

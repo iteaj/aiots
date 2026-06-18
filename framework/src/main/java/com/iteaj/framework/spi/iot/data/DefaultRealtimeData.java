@@ -125,6 +125,12 @@ public class DefaultRealtimeData implements RealtimeCollectData {
     private String productCode;
 
     /**
+     * 父设备uid
+     */
+    @IotField
+    private String puid;
+
+    /**
      * 告警等级
      */
     @IotField
@@ -140,7 +146,6 @@ public class DefaultRealtimeData implements RealtimeCollectData {
             , Long taskId, String cid, Date createTime, String fieldName) {
         return new DefaultRealtimeData()
                 .setFieldId(item.getId())
-                .setUid(device.getUid()).setCid(cid)
                 .setField(item.getSignalOrField())
                 .setCollectTime(item.getCollectTime())
                 .setAddress(item.getAddress())
@@ -149,6 +154,7 @@ public class DefaultRealtimeData implements RealtimeCollectData {
                 .setProductCode(device.getProductCode())
                 .setProtocolCode(device.getProtocolCode())
                 .setStatus(item.getStatus() == CollectStatus.Success)
+                .setUid(device.getUid()).setPuid(device.getPuid()).setCid(cid)
                 .setDeviceSn(device.getDeviceSn()).setReason(item.getStatus().reason)
                 .setDeviceName(device.getDeviceName()).setFieldName(fieldName)
                 .setCreateTime(item.getCollectTime()).setGrade(item.getGrade())

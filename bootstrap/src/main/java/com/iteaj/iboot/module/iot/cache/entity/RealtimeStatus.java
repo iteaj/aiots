@@ -29,6 +29,11 @@ public class RealtimeStatus implements RealtimeDeviceStatus {
     private String uid;
 
     /**
+     * 父设备uid
+     */
+    private String puid;
+
+    /**
      * 设备编号
      */
     private String deviceSn;

@@ -105,10 +105,7 @@ public class WarnConfigController extends BaseController {
     public Result<Boolean> saveOrUpdateFormProduct(@RequestBody WarnConfig entity) {
         modelAttrService.getById(entity.getModelAttrId()).ifNotPresentThrow("模型属性不存在")
                 .ifPresent(modelAttr -> {
-                    if(StrUtil.isBlank(entity.getName())) {
-                        entity.setName(modelAttr.getName() + entity.getGrade().getDesc()+"配置");
-                    }
-
+                    entity.setName(modelAttr.getName() + entity.getIndicator() + "[" + entity.getGrade().getDesc() +"]配置");
                     if(entity.getProductId() == null) {
                         entity.setProductId(modelAttr.getProductId());
                     }

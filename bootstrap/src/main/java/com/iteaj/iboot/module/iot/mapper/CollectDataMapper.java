@@ -7,11 +7,12 @@ import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.CollectDataCondition;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.view.chart.ChartSqlCondition;
+import com.iteaj.framework.spi.iot.data.IndicatorStats;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
-import com.iteaj.iboot.module.iot.dto.IndicatorStats;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface CollectDataMapper extends BaseMapper<CollectData> {
@@ -77,4 +78,18 @@ public interface CollectDataMapper extends BaseMapper<CollectData> {
      */
     List<CollectData> crossDevicePoints(@Param("productCode") String productCode, @Param("fieldId") Long fieldId,
                                         @Param("collectTime") String collectTime, @Param("excludeUid") String excludeUid);
+
+    /**
+     * 按网关或设备分组查询关联点位，ROW_NUMBER去重，只返回每个点位等级最严重的一条
+     */
+    List<CollectData> listByPuidOrGroup(@Param("puid") String puid, @Param("deviceGroupId") Long deviceGroupId,
+                                        @Param("startTime") Date startTime, @Param("endTime") Date endTime,
+                                        @Param("excludeUid") String excludeUid, @Param("excludeFieldId") Long excludeFieldId,
+                                        @Param("grade") String grade);
+
+    /**
+     * 按采集器查询关联点位，ROW_NUMBER去重，只返回每个点位等级最严重的一条
+     */
+    List<CollectData> listByCid(@Param("cid") String cid, @Param("excludeUid") String excludeUid,
+                                @Param("excludeFieldId") Long excludeFieldId, @Param("grade") String grade);
 }

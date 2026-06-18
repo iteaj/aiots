@@ -8,7 +8,10 @@ import com.iteaj.framework.spi.iot.data.CollectDataCondition;
 import com.iteaj.framework.spi.iot.data.DefaultRealtimeData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.iboot.plugin.datasource.tdengine.listener.TaosRealtimeData;
+import com.iteaj.framework.spi.iot.data.IndicatorStats;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 import static com.iteaj.iboot.plugin.datasource.tdengine.mapper.TaosCollectDataMapper.DS_NAME;
@@ -53,4 +56,48 @@ public interface TaosCollectDataMapper {
     Page<RealtimeCollectData> productOfPage(Page page, RealtimeCollectData entity);
 
     List<DefaultRealtimeData> listProductData(List<RealtimeCollectData> list);
+
+    /**
+     * 获取点位聚合统计
+     */
+    IndicatorStats statsOfField(@Param("uid") String uid, @Param("fieldId") Long fieldId,
+                                @Param("start") String start, @Param("end") String end);
+
+    /**
+     * 获取点位采集数据列表
+     */
+    List<DefaultRealtimeData> listOfData(@Param("uid") String uid, @Param("fieldId") Long fieldId,
+                                         @Param("start") String start, @Param("end") String end);
+
+    /**
+     * 获取设备其他点位同采集时间数据
+     */
+    List<DefaultRealtimeData> associatedPoints(@Param("uid") String uid, @Param("excludeFieldId") Long excludeFieldId,
+                                               @Param("collectTime") String collectTime);
+
+    /**
+     * 获取同产品其他设备同点位数据
+     */
+    List<DefaultRealtimeData> crossDevicePoints(@Param("productCode") String productCode, @Param("fieldId") Long fieldId,
+                                                @Param("collectTime") String collectTime, @Param("excludeUid") String excludeUid);
+
+    /**
+     * 获取源点位
+     */
+    DefaultRealtimeData getSourcePoint(@Param("uid") String uid, @Param("fieldId") Long fieldId,
+                                       @Param("collectTime") String collectTime);
+
+    /**
+     * 按采集器查询关联点位，ROW_NUMBER去重
+     */
+    List<DefaultRealtimeData> listByCid(@Param("cid") String cid, @Param("excludeUid") String excludeUid,
+                                        @Param("excludeFieldId") Long excludeFieldId, @Param("grade") String grade);
+
+    /**
+     * 按网关或设备分组查询关联点位，ROW_NUMBER去重
+     */
+    List<DefaultRealtimeData> listByPuidOrGroup(@Param("puid") String puid, @Param("deviceGroupId") Long deviceGroupId,
+                                                @Param("startTime") Date startTime, @Param("endTime") Date endTime,
+                                                @Param("excludeUid") String excludeUid, @Param("excludeFieldId") Long excludeFieldId,
+                                                @Param("grade") String grade);
 }

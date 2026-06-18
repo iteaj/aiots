@@ -1,4 +1,5 @@
 import qs from "qs";
+import CoreConsts from "@/components/CoreConsts.js";
 
 export default {
     getCookie(cname) {
@@ -17,6 +18,9 @@ export default {
      */
     isProd() {
         return import.meta.env.PROD
+    },
+    isLogin() {
+        return this.getCookie(CoreConsts.AccessToken) != null;
     },
     /**
      * 克隆对象

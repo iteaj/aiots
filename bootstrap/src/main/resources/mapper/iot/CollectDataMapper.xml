@@ -20,6 +20,7 @@
         <result column="create_time" property="createTime" />
         <result column="collect_time" property="collectTime" />
         <result column="task_id" property="taskId" />
+        <result column="puid" property="puid" />
         <result column="grade" property="grade" />
         <result column="indicator" property="indicator" />
     </resultMap>
@@ -28,7 +29,7 @@
     </resultMap>
 
     <select id="detailOfPage" resultMap="BaseResultMap">
-        select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value
+        select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value, a.grade, a.indicator
             , a.status, a.reason, a.collect_time, a.create_time, a.device_name, a.device_sn, a.field_name
         from iot_collect_data a
         <where>
@@ -355,7 +356,7 @@
         </if>
     </select>
 
-    <select id="statsOfField" resultType="com.iteaj.iboot.module.iot.dto.IndicatorStats">
+    <select id="statsOfField" resultType="com.iteaj.framework.spi.iot.data.IndicatorStats">
         SELECT MAX(value + 0) AS `max`, MIN(value + 0) AS `min`,
                AVG(value + 0) AS `avg`, COUNT(*)       AS `count`,
                (SELECT collect_time
@@ -377,7 +378,7 @@
     </select>
 
     <select id="listOfData" resultMap="BaseResultMap">
-        SELECT id, uid, field, field_id, value, collect_time, status, reason
+        SELECT id, uid, field, field_id, value, collect_time, status, reason, device_group_Id
         FROM iot_collect_data
         WHERE uid = #{uid} AND field_id = #{fieldId}
           AND value IS NOT NULL AND status = 1
@@ -386,18 +387,95 @@
     </select>
 
     <select id="associatedPoints" resultMap="BaseResultMap">
-        SELECT id, uid, field, field_name, field_id, value, collect_time, status
+        SELECT id, uid, field, field_name, field_id, value, collect_time, status, device_group_Id
         FROM iot_collect_data
         WHERE uid = #{uid} AND collect_time = #{collectTime} AND field_id != #{excludeFieldId}
-          AND value IS NOT NULL AND status = 1
+          AND value IS NOT NULL AND status = 1 AND grade is not null
     </select>
 
     <select id="crossDevicePoints" resultMap="BaseResultMap">
-        SELECT a.id, a.uid, a.field, a.field_name, a.field_id, a.value, a.collect_time
-             , a.status, device_name, a.grade, a.indicator
+        SELECT a.id, a.uid, a.field, a.field_name, a.field_id, a.value, a.collect_time, a.grade, a.indicator
+             , a.status, device_name, a.device_group_Id
         FROM iot_collect_data a
         WHERE a.product_code = #{productCode} AND a.field_id = #{fieldId}
           AND a.collect_time = #{collectTime} AND a.uid != #{excludeUid}
-          AND a.value IS NOT NULL AND a.status = 1
+          AND a.value IS NOT NULL AND a.status = 1 and a.grade is not null
+    </select>
+
+    <select id="listByPuidOrGroup" resultMap="BaseResultMap">
+        SELECT uid, field, field_id, field_name, value, collect_time, grade, indicator,
+               device_name, device_sn, device_group_id, puid, cid, status
+        FROM (
+            SELECT uid, field, field_id, field_name, value, collect_time, grade, indicator,
+                   device_name, device_sn, device_group_id, puid, cid, status,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY uid, field_id
+                       ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
+                                WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
+                                WHEN 'normal' THEN 4 WHEN 'status' THEN 5
+                                WHEN 'indicator' THEN 6 ELSE 99 END
+                   ) AS rn
+            FROM iot_collect_data
+            WHERE collect_time BETWEEN #{startTime} AND #{endTime}
+              AND status = 1 AND value IS NOT NULL
+              AND uid != #{excludeUid} AND field_id != #{excludeFieldId}
+              AND (<choose>
+                    <when test="puid != null and puid != '' and deviceGroupId != null">
+                        puid = #{puid} OR device_group_id = #{deviceGroupId}
+                    </when>
+                    <when test="puid != null and puid != ''">
+                        puid = #{puid}
+                    </when>
+                    <otherwise>
+                        device_group_id = #{deviceGroupId}
+                    </otherwise>
+                  </choose>)
+            <choose>
+                <when test="grade != null and grade != ''">
+                    AND grade = #{grade}
+                </when>
+                <otherwise>
+                    AND grade IS NOT NULL
+                </otherwise>
+            </choose>
+        ) t WHERE rn = 1
+        ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
+                 WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
+                 WHEN 'normal' THEN 4 WHEN 'status' THEN 5
+                 WHEN 'indicator' THEN 6 ELSE 99 END
+        LIMIT 200
+    </select>
+
+    <select id="listByCid" resultMap="BaseResultMap">
+        SELECT uid, field, field_id, field_name, value, collect_time, grade, indicator,
+               device_name, device_sn, device_group_id, puid, cid, status
+        FROM (
+            SELECT uid, field, field_id, field_name, value, collect_time, grade, indicator,
+                   device_name, device_sn, device_group_id, puid, cid, status,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY uid, field_id
+                       ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
+                                WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
+                                WHEN 'normal' THEN 4 WHEN 'status' THEN 5
+                                WHEN 'indicator' THEN 6 ELSE 99 END
+                   ) AS rn
+            FROM iot_collect_data
+            WHERE cid = #{cid}
+              AND status = 1 AND value IS NOT NULL
+              AND uid != #{excludeUid} AND field_id != #{excludeFieldId}
+            <choose>
+                <when test="grade != null and grade != ''">
+                    AND grade = #{grade}
+                </when>
+                <otherwise>
+                    AND grade IS NOT NULL
+                </otherwise>
+            </choose>
+        ) t WHERE rn = 1
+        ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
+                 WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
+                 WHEN 'normal' THEN 4 WHEN 'status' THEN 5
+                 WHEN 'indicator' THEN 6 ELSE 99 END
+        LIMIT 200
     </select>
 </mapper>

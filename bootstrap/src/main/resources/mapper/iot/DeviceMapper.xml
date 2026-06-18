@@ -40,6 +40,7 @@
     <resultMap id="DeviceStatusMap" type="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
         <result property="id" column="id" />
         <result property="uid" column="uid" />
+        <result property="puid" column="puid" />
         <result property="deviceSn" column="deviceSn" />
         <result property="deviceName" column="name" />
         <result property="parentDeviceSn" column="parentDeviceSn" />
@@ -166,7 +167,7 @@
     </select>
 
     <select id="getDeviceCacheById" resultMap="DeviceStatusMap">
-        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
+        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config, pd.uid puid
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
             left join iot_device pd on a.pid = pd.id
@@ -174,7 +175,7 @@
         where a.id=#{id}
     </select>
     <select id="listDeviceStatusById" resultMap="DeviceStatusMap">
-        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
+        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config, pd.uid puid
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
             left join iot_device pd on a.pid = pd.id
@@ -187,7 +188,7 @@
     </select>
 
     <select id="listDeviceCache" resultMap="DeviceStatusMap">
-        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
+        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config, pd.uid puid
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
              left join iot_device pd on a.pid = pd.id

@@ -1,5 +1,5 @@
 <template>
-  <VAceEditor theme="monokai" lang="javascript" :options="options" ref="editor" @change="onChange" style="width: 100%; height: 100%"></VAceEditor>
+  <VAceEditor theme="monokai" :value="value" @update:value="valueChange" :lang="lang" :options="options" ref="editor" @change="onChange" style="width: 100%; height: 100%"></VAceEditor>
 </template>
 
 <script>
@@ -12,7 +12,12 @@ import 'ace-builds/src-noconflict/ext-language_tools'; // 引入代码提示扩�
 export default {
   name: "AceScriptEditor",
   components: {VAceEditor},
-  props: ["completions"],
+  props: {
+    value: String,
+    completions: Array,
+    lang: {type: String, default: 'javascript'}
+  },
+  emits: ['update:value'],
   setup(props, {emit}) {
     let editor = ref();
     let options = ref({
@@ -44,6 +49,9 @@ export default {
     }
   },
   methods: {
+    valueChange(value) {
+      this.$emit('update:value', value);
+    },
     onChange(value, b) {
 
     }

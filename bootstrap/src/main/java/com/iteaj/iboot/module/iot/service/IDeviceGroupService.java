@@ -28,6 +28,8 @@ public interface IDeviceGroupService extends IBaseService<DeviceGroup> {
 
     DetailResult<DeviceGroup> detailById(Long id);
 
+    DeviceGroup getCacheById(Long id);
+
     /**
      * 通过设备组id获取此记录对应组产品id的设备组
      * @param id 设备组id

@@ -14,6 +14,7 @@ import com.iteaj.iboot.plugin.datasource.tdengine.mapper.TaosCollectDataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,5 +141,45 @@ public class TaosDataService implements RealtimeCollectDataService {
     @Override
     public List<BaseEchartsCount> countOfView(ChartSqlCondition condition) {
         return null;
+    }
+
+    @Override
+    public IndicatorStats statsOfField(String uid, Long fieldId, String start, String end) {
+        return collectDataMapper.statsOfField(uid, fieldId, start, end);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> listOfData(String uid, Long fieldId, String start, String end) {
+        return (List<RealtimeCollectData>)(List<?>) collectDataMapper.listOfData(uid, fieldId, start, end);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> associatedPoints(String uid, Long excludeFieldId, String collectTime) {
+        return (List<RealtimeCollectData>)(List<?>) collectDataMapper.associatedPoints(uid, excludeFieldId, collectTime);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> crossDevicePoints(String productCode, Long fieldId, String collectTime, String excludeUid) {
+        return (List<RealtimeCollectData>)(List<?>) collectDataMapper.crossDevicePoints(productCode, fieldId, collectTime, excludeUid);
+    }
+
+    @Override
+    public RealtimeCollectData getSourcePoint(String uid, Long fieldId, String collectTime) {
+        return collectDataMapper.getSourcePoint(uid, fieldId, collectTime);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> listByCid(String cid, String excludeUid, Long excludeFieldId, String grade) {
+        return (List<RealtimeCollectData>)(List<?>) collectDataMapper.listByCid(cid, excludeUid, excludeFieldId, grade);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RealtimeCollectData> listByPuidOrGroup(String puid, Long deviceGroupId, Date startTime, Date endTime, String excludeUid, Long excludeFieldId, String grade) {
+        return (List<RealtimeCollectData>)(List<?>) collectDataMapper.listByPuidOrGroup(puid, deviceGroupId, startTime, endTime, excludeUid, excludeFieldId, grade);
     }
 }

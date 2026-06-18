@@ -173,7 +173,7 @@
                           </div>
                         </template>
                       </ASelect>
-                      <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" size="small" :options="configMentionsOptions(record)"
+                      <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" :options="configMentionsOptions(record)"
                                  :prefix="['@', '#']" split="" @select="(model) => directParamsChange(model, record)" :maxlength="360" />
                     </template>
                   </UTable>

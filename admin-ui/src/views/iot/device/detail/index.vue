@@ -59,9 +59,9 @@
               </div>
               <AEmpty v-else description="暂无事件接口" />
             </ACard>
-            <a-row class="iv-attr-container" justify="center" align="middle">
-              <a-col v-for="attr in realtimeData" :key="attr.id" :span="3" class="iv-attr-item">
-                <a-badge-ribbon :text="attr.indicator || ''" :color="gradeColorMap[attr.grade || 'default'][0]">
+            <AFlex class="iv-attr-container" justify="center" align="middle" wrap="wrap">
+              <div v-for="attr in realtimeData" :key="attr.id" :span="3" class="iv-attr-item">
+                <a-badge-ribbon :text="attr.indicator || ''" :color="indicatorColors[attr.indicator] || gradeColorMap[attr.grade]?.[0] || 'default'">
                   <a-card variant="borderless" hoverable size="small" :class="activeAttrId==attr.id? 'active' : ''" @click="() => onAttrClick(attr)" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
                     <template #title>
                       <AFlex gap="10" justify="space-between">
@@ -90,8 +90,8 @@
                     </div>
                   </a-card>
                 </a-badge-ribbon>
-              </a-col>
-            </a-row>
+              </div>
+            </AFlex>
             <ACard size="small" style="min-width: 250px; height: 100%" :styles="{head: {padding: '0'}, body: {height: 'calc(100% - 38px)'}}">
             <template #title>
               <div class="iv-api-contain-head">
@@ -142,24 +142,76 @@
           <a-tabs v-model:activeKey="activeKey" tabPlacement="left" @change="tabsChange">
             <a-tab-pane key="indicator" tab="指标">
               <ARow :gutter="8">
-                <ACol :span="12" id="iv-echarts-line" style="height: 280px"></ACol>
+                <ACol :span="10" id="iv-echarts-line" style="height: 280px"></ACol>
 <!--                <ACol :span="2">-->
 <!--                </ACol>-->
-                <ACol :span="10">
-                  <ACard size="small" :title="`其他设备${selectAttr?.name || '点位'}值(同产品)`" :styles="{body: {padding: '6px', 'overflow-y': 'auto', height: '240px'}}">
-                    <AFlex gap="small" justify="flex-start" wrap="wrap">
-                      <div class="iv-od-attr" v-for="item in otherDeviceAttrList" :key="item.id">
-                        <div class="iv-text-ellipsis"><a href="javascript:void(0)" @click="() => onOtherDeviceAttrClick(item)">{{item.deviceName}}</a></div>
-                        <div class="iv-text-ellipsis">
-                          <span style="display: inline-block; width: 60%">{{item.value || ''}}</span>
-                          <span style="display: inline-block; width: 40%; text-align: right; font-size: 12px;" :class="'iv-grade-' + (item.grade || 'void')">
-                            {{item.indicator || ''}}
-                          </span>
-                        </div>
-                        <div class="iv-text-ellipsis">{{item.collectTime}}</div>
-                      </div>
-                    </AFlex>
-                  </ACard>
+                <ACol :span="14">
+                  <ARow :gutter="8">
+                    <ACol :span="8">
+                      <ACard size="small" :title="`其他设备${selectAttr?.name || '点位'}值(同产品)`" :styles="{root: {minWidth: '250px'}, body: {padding: '6px', 'overflow-y': 'auto', height: '240px'}}">
+                        <AFlex gap="small" justify="flex-start" wrap="wrap" v-if="otherDeviceAttrList.length > 0">
+                          <div class="iv-od-attr" v-for="item in otherDeviceAttrList" :key="item.id">
+                            <div class="iv-text-ellipsis iv-od-title">
+                            <span style="display: inline-block; width: 70%" class="iv-text-ellipsis">
+                              <a href="javascript:void(0)" @click="() => onOtherDeviceAttrClick(item)">{{item.deviceName}}</a>
+                            </span>
+                              <span class="iv-text-ellipsis" style="display: inline-block; width: 30%; text-align: right; font-size: 12px;" :class="'iv-grade-' + (item.grade || 'void')">
+                                {{item.indicator || ''}}
+                              </span>
+                            </div>
+                            <div class="iv-text-ellipsis iv-od-content">
+                              <AFlex style="height: 38px" justify="space-between">
+                                <div style="width: 40%">
+                                  <div class="iv-text-ellipsis" style="font-weight: bold">{{item.value || ''}}</div>
+                                  <div class="iv-od-name">采集值</div>
+                                </div>
+                                <div style="width: 60%; line-height: 38px">
+                                  <div class="iv-text-ellipsis" :title="item.deviceGroupName || ''">{{item.deviceGroupName || ''}}</div>
+                                </div>
+                              </AFlex>
+                            </div>
+                            <div class="iv-text-ellipsis iv-od-time" style="text-align: center">{{item.collectTime}}</div>
+                          </div>
+                        </AFlex>
+                        <AEmpty v-else description="暂无其他相同点位值" />
+                      </ACard>
+                    </ACol>
+                    <ACol :span="16">
+                      <ACard size="small" title="其他相关联点位" :styles="{body: {padding: '6px', 'overflow-y': 'auto', height: '240px'}}">
+                        <template #title>
+                          <div class="iv-text-ellipsis">
+                            <a-segmented v-model:value="selectGrade" :options="gradeOptions"/>
+                            <span style="display: inline-block; margin-left: 5px;">其他相关联点位</span>
+                          </div>
+                        </template>
+                        <AFlex gap="small" justify="flex-start" wrap="wrap" v-if="otherAssociatedAttrCompute.length > 0">
+                          <div class="iv-od-attr" v-for="item in otherAssociatedAttrCompute" :key="item.id">
+                            <div class="iv-text-ellipsis iv-od-title">
+                            <span style="display: inline-block; width: 70%" class="iv-text-ellipsis">
+                              <a href="javascript:void(0)" @click="() => onOtherDeviceAttrClick(item)">{{item.deviceName}}</a>
+                            </span>
+                              <span class="iv-text-ellipsis" style="display: inline-block; width: 30%; text-align: right; font-size: 12px;" :class="'iv-grade-' + (item.grade || 'void')">
+                                {{item.indicator || ''}}
+                              </span>
+                            </div>
+                            <div class="iv-text-ellipsis iv-od-content">
+                              <AFlex style="height: 38px" justify="space-between">
+                                <div style="width: 40%">
+                                  <div class="iv-text-ellipsis" style="font-weight: bold">{{item.value || ''}}</div>
+                                  <div class="iv-od-name">{{item.fieldName}}</div>
+                                </div>
+                                <div style="width: 60%; line-height: 38px">
+                                  <div class="iv-text-ellipsis" :title="item.deviceGroupName || ''">{{item.deviceGroupName || ''}}</div>
+                                </div>
+                              </AFlex>
+                            </div>
+                            <div class="iv-text-ellipsis iv-od-time" style="text-align: center">{{item.collectTime}}</div>
+                          </div>
+                        </AFlex>
+                        <AEmpty v-else description="暂无相关联点位" />
+                      </ACard>
+                    </ACol>
+                  </ARow>
                 </ACol>
               </ARow>
             </a-tab-pane>
@@ -176,7 +228,6 @@
                 <ACol :span="24"  style="height: 280px">
                   <ATable :columns="fieldColumns" :bordered="true" size="small" :pagination="dataPagination" :data-source="attrListData"></ATable>
                 </ACol>
-
               </ARow>
             </a-tab-pane>
           </a-tabs>
@@ -200,33 +251,52 @@ import {
   TooltipComponent,
   VisualMapComponent
 } from 'echarts/components'
-import {getCurrentInstance, ref, defineOptions, onMounted, watch, onUnmounted, nextTick, shallowRef} from "vue";
+import {
+  getCurrentInstance,
+  ref,
+  defineOptions,
+  onMounted,
+  watch,
+  onUnmounted,
+  nextTick,
+  shallowRef,
+  computed
+} from "vue";
 import CoreConsts from "@/components/CoreConsts";
 import {GET, POST, urlConfig} from "@/utils/request";
 import {msgError, msgSuccess, msgWarn} from "@/utils/message";
 import {useRoute} from "vue-router";
 import dayjs from "dayjs";
-import {SendOutlined, HistoryOutlined} from '@antdv-next/icons'
-import UTable from "@/components/table/BasicTable";
+import {SendOutlined} from '@antdv-next/icons'
+import {useStore} from "vuex";
+
 echarts.use([CanvasRenderer, TitleComponent, GridComponent, VisualMapComponent, LineChart
   , UniversalTransition, TooltipComponent, LegendComponent, DatasetComponent, ToolboxComponent, DataZoomComponent])
   let route = useRoute();
   defineOptions({
     name: "deviceDetail",
   })
-  let apis = ref([]);
   let activeKey = ref('indicator');
   let spinning = ref(false);
   let tipText = ref("执行中...");
   let selectDevice = shallowRef({})
   let selectProduct = shallowRef({});
   let activeAttrId = ref();
-  let {proxy} = getCurrentInstance();
+  let selectGrade = shallowRef('')
   let apiCodeDebugMap = ref({});
   let gradeColorMap = {
     fatal: ['red', '严重'], urgent: ['magenta', '紧急'], warn: ['yellow', '警告'], notice: ['cyan', '通知']
     , normal: ['green', '正常'], indicator: ['purple', '指标'], default: ['gray', '']
   }
+  let indicatorColors = useStore().getters["sys/indicatorColors"];
+  let gradeOptions = [
+    {label: '全部', value: ''},
+    {label: '严重', value: 'fatal'},
+    {label: '紧急', value: 'urgent'},
+    {label: '告警', value: 'warn'},
+    {label: '指标', value: 'indicator'},
+    {label: '正常', value: 'normal'},
+  ]
 /**
  * @type {WebSocket | null}
  */
@@ -236,7 +306,8 @@ let realtimeSocket = null;
     {title: '名称', dataIndex: 'fieldName', align: 'center', width: 100, ellipsis: true, resizable: true},
     {title: '值', dataIndex: 'value', align: 'center', ellipsis: true, width: 100, resizable: true},
     {title: '单位', dataIndex: 'unit', align: 'center', ellipsis: true, width: 100},
-    {title: '设备编号', dataIndex: 'deviceSn', align: 'center', ellipsis: true, width: 100},
+    {title: '指标', dataIndex: 'indicator', align: 'center', ellipsis: true, width: 100},
+    {title: '点位地址', dataIndex: 'address', align: 'center', ellipsis: true, width: 100},
     {title: '采集时间', dataIndex: 'collectTime', align: 'center', width: 160},
   ])
 
@@ -264,6 +335,12 @@ let realtimeSocket = null;
   let startTimestamp = ref("");
   let endTimestamp = ref("");
   let otherDeviceAttrList = shallowRef([]);
+  let otherAssociatedAttrList = shallowRef([]);
+  let otherAssociatedAttrCompute = computed(() => {
+    return otherAssociatedAttrList.value.filter(item => {
+      return item.grade == selectGrade.value || selectGrade.value == ''
+    });
+  });
   const onAttrClick = (attr) => {
     if(selectAttr.value == attr) {
       selectAttr.value = null;
@@ -272,14 +349,23 @@ let realtimeSocket = null;
       selectAttr.value = attr;
       activeAttrId.value = attr.id;
       GET("/iot/dataIndicator/crossDevicePoints",
-          {productCode: selectProduct.value.code, excludeUid: selectDevice.value.uid, fieldId: attr.id, collectTime: attr.collectTime})
+          {productCode: selectProduct.value.code, excludeUid: selectDevice.value.uid, fieldId: selectAttr.value.id, collectTime: selectAttr.value.collectTime})
           .then(({code, message, data}) => {
             if(code === CoreConsts.SuccessCode) {
               otherDeviceAttrList.value = data;
             } else {
               console.error(message);
             }
-      })
+          })
+      GET("/iot/dataIndicator/associatedStats", {uid: selectDevice.value.uid
+        , fieldId: selectAttr.value.id, collectTime: selectAttr.value.collectTime})
+          .then(({code, message, data}) => {
+            if(code === CoreConsts.SuccessCode) {
+              otherAssociatedAttrList.value = data;
+            } else {
+              console.error(message);
+            }
+          })
     }
   }
   let dataPagination = ref({total: 0, showSizeChanger: false, current: 1, onChange(page, size) {
@@ -639,7 +725,9 @@ watch([selectTimeType, selectAttr, selectDevice, selectCountType, selectTime], (
                     warnDataOptions.value.series[0].data = [0];
                   }
 
-                  warnDataEcharts.setOption(warnDataOptions.value);
+                  if(warnDataEcharts != null) {
+                    warnDataEcharts.setOption(warnDataOptions.value);
+                  }
                 }
               } else {
                 msgError(message)
@@ -793,9 +881,9 @@ const onOtherDeviceAttrClick = (item) => {
 }
 .iv-attr-item {
   min-width: 180px;
-  padding: 3px;
-  height: 85px;
-  margin: 9px 0;
+  padding: 0 5px;
+  height: 116px;
+  margin-bottom: 8px;
 }
 .iv-attr-item .active {
   box-shadow: 0 0 2px -2px rgb(0 129 251 / 61%), 0 0 8px 0 rgb(45 159 250 / 61%), 0 1px 12px 0 rgb(185 211 251 / 75%)
@@ -806,35 +894,33 @@ const onOtherDeviceAttrClick = (item) => {
 .iv-attr-container {
   flex: 1;
   overflow: auto;
-  padding: 10px;
+  //padding: 10px;
 }
 .iv-attr-container, .iv-body-top {
   min-height: 270px;
   height: calc(100% - 350px);
 }
 .iv-od-attr {
-  width: 140px;
-  height: 78px;
+  width: 200px;
+  height: 90px;
   margin: 4px;
+  padding: 0 6px;
   font-size: 12px;
   border: 1px solid #d9d9d9;
   border-radius: 8px;
 }
-.iv-od-attr div {
-  height: 26px;
-  padding: 0 8px;
-  line-height: 26px;
-}
-.iv-od-attr div:nth-child(even) {
-  font-weight: bold;
-  font-size: 14px;
-  padding: 0 12px;
+.iv-od-attr .iv-od-content {
+  text-align: center;
   border-top: 1px dashed #d9d9d9;
   border-bottom: 1px dashed #d9d9d9;
 }
-.iv-od-attr div:nth-child(odd) {
-  height: 26px;
-  line-height: 26px;
+.iv-od-name {
+  font-size: 12px;
+  color: #8e8e8e;
+}
+.iv-od-time, .iv-od-title {
+  height: 24px;
+  line-height: 24px;
   color: #8e8e8e;
 }
 </style>
