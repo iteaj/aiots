@@ -5,7 +5,7 @@
 }
 
 .u-page-view .ant-drawer-open .ant-drawer-section {
-    border-top: var(--iv-theme-split);
+    /*border-top: var(--iv-theme-split);*/
     /*border-left: 1px solid var(--ant-layout-color-bg-body);*/
 }
 .u-task-bar .ant-tabs-card.ant-tabs-small >.ant-tabs-nav .ant-tabs-tab {

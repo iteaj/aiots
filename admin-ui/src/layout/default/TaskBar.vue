@@ -132,10 +132,16 @@ export default {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -6px;
-  height: 6px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.08), transparent);
+  bottom: -8px;
+  height: 8px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--ant-color-primary), transparent 82%), transparent);
   pointer-events: none;
+}
+.iv-theme-dark .u-task-bar::after {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.06), transparent);
+}
+.iv-theme-light .u-task-bar::after {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.06), transparent);
 }
 .u-task-more {
   left: 0;
