@@ -1,7 +1,7 @@
 <template>
   <UView name="场景联动" id="linkage">
     <UViewSearch v-model="searchModel">
-      <URow col="search">
+      <URow :responsive="4">
         <UInputItem field="name" label="场景名称" allowClear />
         <USelectItem field="productId" label="所属产品" treeDefaultExpandAll url="/iot/product/list" allowClear />
         <USelectItem field="eventSourceId" label="所属事件源" url="/iot/eventSource/list" labelField="name" valueField="id" allowClear/>
