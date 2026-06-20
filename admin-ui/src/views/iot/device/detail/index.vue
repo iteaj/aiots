@@ -85,7 +85,7 @@
                         <div class="iv-color-text-tertiary iv-font-text-tertiary">地址</div>
                       </ACol>
                     </ARow>
-                    <div style="font-size: 12px; color: #818181; text-align: center; padding-top: 6px; border-top: 1px dashed #d6d6d6">
+                    <div style="font-size: 12px; color: #818181; text-align: center; padding-top: 6px; border-top: 1px dashed var(--ant-color-split)">
                       <span>{{attr.collectTime || '暂未采集'}}</span>
                     </div>
                   </a-card>
@@ -864,7 +864,7 @@ const onOtherDeviceAttrClick = (item) => {
 .iv-api-item {
   padding: 6px 0;
   position: relative;
-  border-bottom: 1px dashed #d9d9d9;
+  border-bottom: 1px dashed var(--ant-color-split);
 }
 .iv-api-item .iv-cmd-desc, .iv-minor-text {
   font-size: 12px;
@@ -883,7 +883,7 @@ const onOtherDeviceAttrClick = (item) => {
   min-width: 180px;
   padding: 0 5px;
   height: 116px;
-  margin-bottom: 8px;
+  margin: 5px 0 5px;
 }
 .iv-attr-item .active {
   box-shadow: 0 0 2px -2px rgb(0 129 251 / 61%), 0 0 8px 0 rgb(45 159 250 / 61%), 0 1px 12px 0 rgb(185 211 251 / 75%)

@@ -127,7 +127,7 @@
             <div class="iv-linkage-action">
               <div class="iv-title"><ATag :bordered="false" color="warning">执行</ATag></div>
               <div style="overflow-x: auto; height: 100%">
-                <ASpace direction="vertical" align="center" style="width: 100%;">
+                <ASpace direction="vertical" align="center">
                   <template v-for="action in item.actions">
                     <div class="iv-action-item" style="margin: 6px 0px;">
                       <a-popover title="确定删除此动作项吗?" trigger="click">
@@ -237,7 +237,7 @@
         </AFlex>
       </ASpin>
     </AModal>
-    <AModal v-model:open="openActionItemModal" width="830px" class="iv-action-modal" :footer="null"
+    <AModal v-model:open="openActionItemModal" width="950px" class="iv-action-modal" :footer="null"
             @cancel="cancelActionModal" :styles="{body: {overflowX: 'auto'}}" centered>
       <template #title>
         <AFlex justify="space-between">
@@ -252,7 +252,7 @@
       </template>
       <ASpin :spinning="modalLoadingSpinning" description="数据加载中...">
         <AFlex gap="small" align="stretch" style="height: 520px; min-width: 780px">
-          <div style="min-width: 200px;" class="iv-config-item">
+          <div style="min-width: 280px;" class="iv-config-item">
             <div class="iv-item-title">请选择产品</div>
             <div class="iv-item-value iv-product">
               <AFlex vertical :gap="2">
@@ -261,7 +261,7 @@
               </AFlex>
             </div>
           </div>
-          <div style="min-width: 200px;" class="iv-config-item">
+          <div style="min-width: 260px;" class="iv-config-item">
             <div class="iv-item-title">请选择执行的设备</div>
             <div class="iv-item-value iv-device" style="width: 200px;">
               <AEmpty v-if="actionDeviceList == null || actionDeviceList.length == 0" style="margin-top: 30%"/>
@@ -1128,9 +1128,10 @@ export default {
 <style scoped>
 .iv-linkage-config {
   padding: 8px;
-  margin: 3px 0px 20px;
-  border-radius: 5px;
-  box-shadow: 0px 0px 6px 1px rgba(217, 217, 217, 0.41);
+  margin: 3px 0px 12px;
+  border-radius: 8px;
+  border: var(--iv-color-split);
+  /*box-shadow: 0px 0px 6px 3px rgba(217, 217, 217, 0.41);*/
   /*background-color: #fcfcfc;*/
 }
 .iv-linkage-item {
@@ -1184,7 +1185,7 @@ export default {
   margin: 6px 0px;
   padding: 12px;
   position: relative;
-  border: 1px solid #d9d9d9;
+  border: var(--iv-color-split);
 }
 .iv-condition-group {
   position: relative;
@@ -1197,7 +1198,7 @@ export default {
   cursor: pointer;
   border-radius: 5px;
   position: relative;
-  border: 1px dashed #d9d9d9;
+  border: 1px dashed var(--ant-color-split);
 }
 .iv-condition-item .ant-tag, .iv-action-item .ant-tag {
   font-size: 16px;
@@ -1205,7 +1206,7 @@ export default {
   line-height: 34px;
 }
 .iv-condition-item:hover {
-  background-color: rgba(217, 217, 217, 0.22);
+  /* background-color: rgba(217, 217, 217, 0.22); */
 }
 .iv-condition-group .iv-item-container {
   width: 680px;
@@ -1232,7 +1233,7 @@ export default {
   background-color: rgba(217, 217, 217, 0.34);
   line-height: 18px;
   text-align: center;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--ant-color-split);
   border-radius: 50%;
   position: absolute;
 }
@@ -1246,7 +1247,7 @@ export default {
 }
 .iv-config-item {
   overflow-y: auto;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--ant-color-split);
 }
 .iv-item-title {
   height: 36px;

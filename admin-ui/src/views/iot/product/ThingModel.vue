@@ -114,8 +114,8 @@
                         <USelect v-model:value="record['messageTemplateId']" url="/core/messageTemplate/list?type=iot:warn"
                                  size="small" :bordered="false" placeholder="推送消息" labelField="templateName" valueField="id" />
                       </template>
-                      <template #content="{record}">
-                        <AInput v-model:value="record['content']" placeholder="请输入告警内容" size="small" :bordered="false" />
+                      <template #template="{record}">
+                        <AInput v-model:value="record['template']" placeholder="请输入告警内容" size="small" :bordered="false" />
                       </template>
                       <template #action="{record, editing}">
                         <UTag func="edit" :data="record">修改</UTag>
@@ -127,8 +127,6 @@
                   </UChildView>
                 </a-tab-pane>
               </a-tabs>
-              <!--                  <a-divider dashed style="margin: 0;">属性值配置(适用于枚举、json、bit、group类型)</a-divider>-->
-
             </template>
             <template #footer>
               <div>
@@ -492,7 +490,7 @@ export default {
       {field: 'indicator', title: '指标', width: 100, editable: true},
       {field: 'messageTemplateId', title: '推送消息', width: 100, editable: true
         , url: '/core/messageTemplate/list?type=iot:warn', labelField: 'templateName', valueField: 'id'},
-      {field: 'content', title: '告警内容', editable: true},
+      {field: 'template', title: '告警内容', editable: true},
       {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 200},
     ])
     let isAttrContainer = computed(() => {
