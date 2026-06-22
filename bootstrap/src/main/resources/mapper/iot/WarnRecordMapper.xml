@@ -17,7 +17,23 @@
         <result column="warn_config_id" property="warnConfigId" />
         <result column="warn_time" property="warnTime" />
         <result column="create_time" property="createTime" />
+        <result column="process_status" property="processStatus" />
+        <result column="process_time" property="processTime" />
+        <result column="process_reason" property="processReason" />
     </resultMap>
+
+    <select id="countDistinctDevice" resultType="java.lang.Integer">
+        select count(distinct uid) from iot_warn_record
+        where warn_time between #{start} and #{end}
+    </select>
+
+    <select id="countByGrade" resultType="com.iteaj.iboot.module.iot.dto.GradeCountDto">
+        select c.grade, count(1) as `count` from iot_warn_record a
+            left join iot_warn_config c on a.warn_config_id = c.id
+        where (a.process_status is null or a.process_status in (0, 1))
+          and c.grade in ('fatal', 'urgent', 'warn', 'notice')
+        group by c.grade
+    </select>
 
     <select id="detailPage" resultMap="BaseResultMap">
         select a.*, c.name, c.grade, d.name device_name from iot_warn_record a
@@ -38,6 +54,9 @@
             </if>
             <if test="entity.warnConfigName != null and entity.warnConfigName != ''">
                 and c.name like '%${entity.warnConfigName}%'
+            </if>
+            <if test="entity.processStatus != null">
+                and a.process_status = #{entity.processStatus}
             </if>
             <choose>
                 <when test="entity.startTimestamp != null and entity.endTimestamp != null">

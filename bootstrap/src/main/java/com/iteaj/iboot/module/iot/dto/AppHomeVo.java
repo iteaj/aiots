@@ -34,6 +34,9 @@ public class AppHomeVo {
     /** 各产品设备统计 */
     private List<ProductStat> productStats;
 
+    /** 各告警等级统计（未处理+处理中） */
+    private List<AlarmGradeCount> alarmGradeCounts;
+
     @Data
     @Accessors(chain = true)
     public static class ProductStat {
@@ -43,5 +46,16 @@ public class AppHomeVo {
 
         /** 设备数量 */
         private Integer value;
+    }
+
+    @Data
+    @Accessors(chain = true)
+    public static class AlarmGradeCount {
+
+        /** 告警等级名称（严重/紧急/告警/通知） */
+        private String gradeName;
+
+        /** 告警数 */
+        private Integer count;
     }
 }

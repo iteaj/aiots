@@ -40,11 +40,13 @@ import java.util.stream.Collectors;
 public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, ModelAttr> implements IModelAttrService {
 
     private final Cache cache;
+    private final Cache warnCache;
     private final ModelAttrDictMapper modelAttrDictMapper;
 
     public ModelAttrServiceImpl(CacheManager cacheManager, ModelAttrDictMapper modelAttrDictMapper) {
         this.modelAttrDictMapper = modelAttrDictMapper;
         cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_ATTR);
+        warnCache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_WARN_CONFIG);
     }
 
     @Override
@@ -87,13 +89,15 @@ public class ModelAttrServiceImpl extends BaseServiceImpl<ModelAttrMapper, Model
                 if(hasBinded(Arrays.asList(item.getId()))) {
                     throw new ServiceException("属性已被绑定字段名不允许修改");
                 }
+
+                // 修改了字段名，需要更新告警配置中的字段名
+               this.getBaseMapper().updateWarnConfig(entity.getId(), entity.getField());
+               warnCache.evict(entity.getProductId()); // 移除告警缓存
            }
         });
 
         resolveField(entity);
-        return super.updateById(entity).ifPresent(item -> {
-            this.getBaseMapper().updateWarnConfig(entity.getId(), entity.getField());
-        });
+        return super.updateById(entity);
     }
 
     private void resolveField(ModelAttr entity) {

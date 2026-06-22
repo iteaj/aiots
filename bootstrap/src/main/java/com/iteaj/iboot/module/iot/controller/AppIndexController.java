@@ -7,11 +7,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.iboot.module.iot.dto.AppHomeVo;
+import com.iteaj.iboot.module.iot.dto.AppHomeVo.AlarmGradeCount;
 import com.iteaj.iboot.module.iot.dto.AppHomeVo.ProductStat;
 import com.iteaj.iboot.module.iot.dto.CurrentDeviceDto;
 import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.GradeCountDto;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
+import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
+import com.iteaj.iboot.module.iot.mapper.WarnRecordMapper;
 import com.iteaj.iboot.module.iot.service.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,12 +35,14 @@ public class AppIndexController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final IWarnRecordService warnRecordService;
+    private final WarnRecordMapper warnRecordMapper;
 
     public AppIndexController(IDeviceService deviceService, IProductService productService,
-                              IWarnRecordService warnRecordService) {
+                              IWarnRecordService warnRecordService, WarnRecordMapper warnRecordMapper) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.warnRecordService = warnRecordService;
+        this.warnRecordMapper = warnRecordMapper;
     }
 
     /**
@@ -56,18 +62,15 @@ public class AppIndexController extends BaseController {
         FuncStatusProfileDto profileDto = productService.countStatusProfile();
         vo.setProductTotal(profileDto.getTotalNum());
 
-        // 3. 今日告警数
+        // 3. 今日告警设备数（去重）
         Date todayStart = DateUtil.beginOfDay(new Date());
         Date todayEnd = DateUtil.endOfDay(new Date());
-        long alarmToday = warnRecordService.lambdaQuery()
-                .ge(WarnRecord::getWarnTime, todayStart)
-                .le(WarnRecord::getWarnTime, todayEnd)
-                .count();
-        vo.setAlarmToday((int) alarmToday);
+        Integer alarmDevices = warnRecordMapper.countDistinctDevice(todayStart, todayEnd);
+        vo.setAlarmToday(alarmDevices != null ? alarmDevices : 0);
 
-        // 4. 最新告警（最近5条）
+        // 4. 最新告警（未处理，最近5条）
         Page<WarnRecord> warnPage = new Page<>(1, 5);
-        IPage<WarnRecord> warnData = warnRecordService.detailPage(warnPage, new WarnRecord()).getData();
+        IPage<WarnRecord> warnData = warnRecordService.detailPage(warnPage, new WarnRecord().setProcessStatus(0)).getData();
         if (warnData.getTotal() > 0) {
             vo.setLatestWarns(warnData.getRecords());
         }
@@ -81,6 +84,17 @@ public class AppIndexController extends BaseController {
                             .setValue(item.getValue() instanceof Number ? ((Number) item.getValue()).intValue() : 0))
                     .collect(Collectors.toList());
             vo.setProductStats(productStats);
+        }
+
+        // 6. 各告警等级统计（未处理 + 处理中）
+        List<GradeCountDto> gradeCounts = warnRecordMapper.countByGrade();
+        if (CollectionUtil.isNotEmpty(gradeCounts)) {
+            List<AlarmGradeCount> alarmGradeCounts = gradeCounts.stream()
+                    .map(item -> new AlarmGradeCount()
+                            .setGradeName(item.getGrade() != null ? WarnGrade.valueOf(item.getGrade()).getDesc() : item.getGrade())
+                            .setCount(item.getCount()))
+                    .collect(Collectors.toList());
+            vo.setAlarmGradeCounts(alarmGradeCounts);
         }
 
         return success(vo);

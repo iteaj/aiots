@@ -1,9 +1,12 @@
 package com.iteaj.iboot.module.iot.linkage.warn;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.listener.RealtimeInfoListener;
 import com.iteaj.framework.spi.iot.listener.RealtimePayload;
+import com.iteaj.iboot.module.iot.consts.ProcessStatus;
+import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.service.IWarnRecordService;
 
@@ -31,7 +34,28 @@ public class RealtimeWarnListener implements RealtimeInfoListener {
                         .filter(Objects::nonNull)
                         .map(item -> (WarnRecord) item)
                         .toList();
-                warnRecordService.saveBatch(warnRecords);
+
+                if(!warnRecords.isEmpty()) {
+                    List<WarnRecord> warns = warnRecords.stream()
+                            .filter(item -> item.getGrade() != WarnGrade.normal)
+                            .map(item -> item.setProcessStatus(ProcessStatus.UNPROCESSED.getCode()))
+                            .toList();
+                    if(!warns.isEmpty()) {
+                        warnRecordService.saveBatch(warnRecords);
+                    }
+
+                    // 更新告警处理状态
+                    warnRecords.stream().filter(item -> item.getGrade() == WarnGrade.normal)
+                        .forEach(warnRecord -> {
+                            warnRecordService.update(Wrappers.<WarnRecord>lambdaUpdate()
+                                    .eq(WarnRecord::getUid, warnRecord.getUid())
+                                    .eq(WarnRecord::getField, warnRecord.getField())
+                                    .eq(WarnRecord::getProcessStatus, ProcessStatus.UNPROCESSED.getCode())
+                                    .set(WarnRecord::getProcessStatus, ProcessStatus.PROCESSED.getCode())
+                                    .set(WarnRecord::getProcessTime, warnRecord.getCreateTime())
+                                    .set(WarnRecord::getProcessReason, "监听到解除信号, 程序自动处理"));
+                    });
+                }
             }
         }
     }

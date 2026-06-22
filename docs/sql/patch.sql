@@ -126,3 +126,12 @@ ALTER TABLE iot_collect_data
     ADD COLUMN `grade` varchar(32) DEFAULT NULL COMMENT '告警等级' AFTER protocol_code,
     ADD COLUMN `indicator` varchar(32) DEFAULT NULL COMMENT '指标' AFTER grade;
 
+-- 2026-06-21 告警记录增加处理状态/处理时间/处理原因
+ALTER TABLE iot_warn_record
+    ADD COLUMN `process_status` tinyint(4) DEFAULT 0 COMMENT '处理状态：0-未处理 1-处理中 2-已处理 3-已忽略',
+    ADD COLUMN `process_time` datetime DEFAULT NULL COMMENT '处理时间',
+    ADD COLUMN `process_reason` varchar(255) DEFAULT NULL COMMENT '处理原因';
+drop index iot_warn_record_uid_index on iot_warn_record;
+create index iot_warn_record_uid_field_index
+    on iot_warn_record (uid, field);
+

@@ -21,6 +21,8 @@ export type HomeStatistics = {
 	latestWarns?: WarnItem[];
 	/** 各产品设备统计 */
 	productStats?: ProductStatItem[];
+	/** 各告警等级统计（未处理+处理中） */
+	alarmGradeCounts?: AlarmGradeCount[];
 };
 
 /** 告警项 */
@@ -35,4 +37,10 @@ export type WarnItem = {
 export type ProductStatItem = {
 	name: string;
 	value: number;
+};
+
+/** 告警等级统计 */
+export type AlarmGradeCount = {
+	gradeName: string;
+	count: number;
 };

@@ -3,7 +3,7 @@
 		<cl-topbar fixed :show-back="false" safe-area-top :title="t('首页')"></cl-topbar>
 
 		<view class="p-3">
-			<!-- 统计卡片 -->
+			<!-- 1. 设备运行总览 -->
 			<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
 				<cl-row>
 					<cl-col :span="6">
@@ -27,25 +27,27 @@
 					<cl-col :span="6">
 						<view class="flex flex-col items-center justify-center" @tap="toAlarmList">
 							<cl-text :size="22" color="danger" :pt="{ className: 'font-bold' }">{{ statistics.alarmToday }}</cl-text>
-							<cl-text :size="11" color="danger" :pt="{ className: 'mt-1' }">{{ t("今日告警") }}</cl-text>
+							<cl-text :size="11" color="danger" :pt="{ className: 'mt-1' }">{{ t("告警中") }}</cl-text>
 						</view>
 					</cl-col>
 				</cl-row>
 			</view>
 
-			<!-- 快捷功能 -->
-			<view class="bg-white dark:bg-surface-800 rounded-2xl px-4 py-2 mb-3">
+			<!-- 2. 告警概览 -->
+			<view v-if="alarmGradeList.length > 0"
+				class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
+				<cl-text :size="14" :pt="{ className: 'mb-3 font-bold' }">{{ t("告警概览") }}</cl-text>
 				<cl-row>
-					<cl-col :span="6" v-for="fn in quickFunctions" :key="fn.key">
-						<view class="flex flex-col items-center justify-center py-2" @tap="onQuickClick(fn.key)">
-							<cl-icon :name="fn.icon" :size="24"></cl-icon>
-							<cl-text :size="11" :pt="{ className: 'mt-1 text-center' }" color="info">{{ fn.label }}</cl-text>
+					<cl-col :span="6" v-for="item in alarmGradeList" :key="item.name">
+						<view class="flex flex-col items-center justify-center">
+							<cl-text :size="20" :color="item.color" :pt="{ className: 'font-bold' }">{{ item.count }}</cl-text>
+							<cl-text :size="11" :color="item.color" :pt="{ className: 'mt-1' }">{{ item.name }}</cl-text>
 						</view>
 					</cl-col>
 				</cl-row>
 			</view>
 
-			<!-- 最新告警 -->
+			<!-- 3. 告警列表 -->
 			<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
 				<view class="flex flex-row items-center justify-between mb-3">
 					<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ t("最新告警") }}</cl-text>
@@ -55,15 +57,13 @@
 				<view v-if="!statistics.latestWarns || statistics.latestWarns.length === 0"
 					class="flex flex-col items-center justify-center py-4">
 					<cl-icon name="check-circle-line" :size="36" color="success"></cl-icon>
-					<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("暂无告警") }}</cl-text>
+					<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("系统运行正常") }}</cl-text>
 				</view>
 
 				<view v-for="(item, index) in statistics.latestWarns" :key="index"
-					class="flex flex-row items-start py-2 border-divider" :style="index === 0 ? '' : ''">
+					class="flex flex-row items-start py-2 border-divider" @tap="toDeviceDetail(item)">
 					<view class="w-2 h-2 rounded-full mt-1.5 mr-2"
-						:style="{
-							backgroundColor: item.gradeName == '严重' ? '#f56c6c' : item.gradeName == '紧急' ? '#e6a23c' : '#909399'
-						}">
+						:style="{ backgroundColor: gradeColor(item.gradeName) }">
 					</view>
 					<view class="flex-1">
 						<view class="flex flex-row items-center justify-between">
@@ -75,30 +75,16 @@
 				</view>
 			</view>
 
-			<!-- 产品概览 -->
-			<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
-				<cl-text :size="14" :pt="{ className: 'mb-3 font-bold' }">{{ t("产品概览") }}</cl-text>
-
-				<view v-if="!statistics.productStats || statistics.productStats.length === 0"
-					class="flex flex-col items-center justify-center py-4">
-					<cl-icon name="box-line" :size="36" color="info"></cl-icon>
-					<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("暂无产品") }}</cl-text>
-				</view>
-
-				<view v-for="(item, index) in statistics.productStats" :key="index"
-					class="flex flex-row items-center py-2 border-divider">
-					<view class="flex-1">
-						<view class="flex flex-row items-center justify-between mb-1">
-							<cl-text :size="13">{{ item.name }}</cl-text>
-							<cl-text :size="12" color="info">{{ item.value }}{{ t("台") }}</cl-text>
+			<!-- 4. 快捷操作 -->
+			<view class="bg-white dark:bg-surface-800 rounded-2xl px-4 py-3 mb-3">
+				<cl-row>
+					<cl-col :span="8" v-for="fn in quickFunctions" :key="fn.key">
+						<view class="flex flex-col items-center justify-center py-2" @tap="onQuickClick(fn.key)">
+							<cl-icon :name="fn.icon" :size="24"></cl-icon>
+							<cl-text :size="11" :pt="{ className: 'mt-1 text-center' }" color="info">{{ fn.label }}</cl-text>
 						</view>
-						<view class="w-full h-1.5 bg-gray-100 dark:bg-surface-700 rounded-full overflow-hidden">
-							<view class="h-full rounded-full bg-primary"
-								:style="{ width: maxDeviceCount > 0 ? (item.value / maxDeviceCount * 100) + '%' : '0%' }">
-							</view>
-						</view>
-					</view>
-				</view>
+					</cl-col>
+				</cl-row>
 			</view>
 		</view>
 
@@ -111,7 +97,7 @@
 import { reactive, computed, onMounted } from "vue";
 import { request, t, router } from "@/.cool";
 import { useUi } from "@/uni_modules/cool-ui";
-import { HomeApi, type HomeStatistics } from "./home";
+import { HomeApi, type HomeStatistics, type WarnItem } from "./home";
 import CustomTabbar from "./components/tabbar.uvue";
 
 const ui = useUi();
@@ -124,21 +110,39 @@ const statistics = reactive<HomeStatistics>({
 	productTotal: 0
 });
 
-/** 最大设备数（用于进度条比例） */
-const maxDeviceCount = computed(() => {
-	const stats = statistics.productStats;
-	if (!stats || stats.length === 0) return 0;
-	return Math.max(...stats.map(s => s.value), 1);
+/** 告警等级对应颜色 */
+function gradeColor(name: string): string {
+	if (name == "严重") return "#f56c6c";
+	if (name == "紧急") return "#e6a23c";
+	if (name == "告警") return "#f7b731";
+	return "#909399";
+}
+
+/** 告警等级列表（含颜色） */
+const alarmGradeList = computed(() => {
+	const map: { [key: string]: number } = {};
+	if (statistics.alarmGradeCounts) {
+		for (const item of statistics.alarmGradeCounts) {
+			map[item.gradeName] = item.count;
+		}
+	}
+	const order = ["严重", "紧急", "告警", "通知"];
+	const result: { name: string; count: number; color: string }[] = [];
+	for (const name of order) {
+		result.push({
+			name,
+			count: map[name] || 0,
+			color: gradeColor(name)
+		});
+	}
+	return result;
 });
 
 /** 快捷功能列表 */
 const quickFunctions = [
-	{ key: "deviceList", label: t("设备列表"), icon: "computer-line" },
-	{ key: "alarmCenter", label: t("告警中心"), icon: "alarm-warning-line" },
-	{ key: "historyData", label: t("历史数据"), icon: "history-line" },
-	{ key: "cmdLog", label: t("指令日志"), icon: "file-list-line" },
 	{ key: "realtime", label: t("实时数据"), icon: "dashboard-line" },
-	{ key: "debug", label: t("设备调试"), icon: "bug-line" },
+	{ key: "command", label: t("指令下发"), icon: "terminal-line" },
+	{ key: "deviceBoard", label: t("设备看板"), icon: "grid-line" },
 ];
 
 function formatTime(time?: string): string {
@@ -163,13 +167,18 @@ function toAlarmList() {
 	ui.showToast({ message: t("开发中，敬请期待") });
 }
 
+function toDeviceDetail(item: WarnItem) {
+	if (item.deviceSn) {
+		router.to("/pages/device/detail?sn=" + item.deviceSn);
+	} else {
+		ui.showToast({ message: t("无法跳转") });
+	}
+}
+
 function onQuickClick(key: string) {
 	switch (key) {
-		case "deviceList":
+		case "deviceBoard":
 			router.to("/pages/index/device");
-			break;
-		case "cmdLog":
-			router.to("/pages/iot/device-cmd-log");
 			break;
 		default:
 			ui.showToast({ message: t("开发中，敬请期待") });
