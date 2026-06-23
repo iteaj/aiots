@@ -44,8 +44,10 @@ public class EventSourceTask implements Runnable {
                 IotCoreApiService.listByGroupId(group.getId()).forEach(device -> {
                     if(source.getProductIds().contains(device.getProductId())) {
                         List<ModelApi> modelApis = productApis.get(device.getProductId());
-                        Map<String, List<List<BatchOfPoint>>> productPoints = this.productPoints.get(device.getProductId());
-                        executor.execute(new DeviceCollectTask((RealtimeStatus) device, group, collectInfo, modelApis, productPoints));
+                        if(CollectionUtil.isNotEmpty(modelApis)) {
+                            Map<String, List<List<BatchOfPoint>>> productPoints = this.productPoints.get(device.getProductId());
+                            executor.execute(new DeviceCollectTask((RealtimeStatus) device, group, collectInfo, modelApis, productPoints));
+                        }
                     }
                 });
             });
@@ -63,9 +65,11 @@ public class EventSourceTask implements Runnable {
 
                             // 获取设备对应的产品模型接口
                             List<ModelApi> modelApis = productApis.get(device.getProductId());
-                            // 获取设备对应的产品模型批量采集点
-                            Map<String, List<List<BatchOfPoint>>> batchOfPoints = productPoints.get(device.getProductId());
-                            new DeviceCollectTask((RealtimeStatus) device, group, collectInfo, modelApis, batchOfPoints).run();
+                            if(CollectionUtil.isNotEmpty(modelApis)) {
+                                // 获取设备对应的产品模型批量采集点
+                                Map<String, List<List<BatchOfPoint>>> batchOfPoints = productPoints.get(device.getProductId());
+                                new DeviceCollectTask((RealtimeStatus) device, group, collectInfo, modelApis, batchOfPoints).run();
+                            }
                         }
                     });
                 });
@@ -95,15 +99,19 @@ public class EventSourceTask implements Runnable {
                 .stream().collect(Collectors.groupingBy(ModelApi::getProductId));
 
         this.productApis.forEach((key, value) -> {
-            String protocolCode = source.getProductMaps().get(key).getProtocolCode();
-            if(protocolCode != null) {
-                DeviceProtocolSupplier<?,?> supplier = ProtocolSupplierManager.get(protocolCode);
-                if(supplier instanceof BatchProtocolSupplier) {
-                    List<BatchOfPoint> batchOfPoints = resolveModelApiToPoints(value);
-                    final BatchEventModelApi batchEventModelApi = ((BatchProtocolSupplier) supplier).getBatchEventModelApi();
-                    Map<String, List<List<BatchOfPoint>>> resolver = batchEventModelApi.resolver(batchOfPoints);
-                    this.productPoints.put(key, resolver);
+            if(CollectionUtil.isNotEmpty(value)) {
+                String protocolCode = source.getProductMaps().get(key).getProtocolCode();
+                if(protocolCode != null) {
+                    DeviceProtocolSupplier<?,?> supplier = ProtocolSupplierManager.get(protocolCode);
+                    if(supplier instanceof BatchProtocolSupplier) {
+                        List<BatchOfPoint> batchOfPoints = resolveModelApiToPoints(value);
+                        final BatchEventModelApi batchEventModelApi = ((BatchProtocolSupplier) supplier).getBatchEventModelApi();
+                        Map<String, List<List<BatchOfPoint>>> resolver = batchEventModelApi.resolver(batchOfPoints);
+                        this.productPoints.put(key, resolver);
+                    }
                 }
+            } else {
+                IotLogger.warn(source, "-", "产品模型接口为空 产品ID: {}", key);
             }
         });
 

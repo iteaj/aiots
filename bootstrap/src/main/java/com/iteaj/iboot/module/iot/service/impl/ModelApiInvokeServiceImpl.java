@@ -259,12 +259,12 @@ public class ModelApiInvokeServiceImpl implements IModelApiInvokeService {
                     if(realtimeData.getRealtime() != null) {
                         SignalOrFieldValue realtime = realtimeData.getRealtime();
                         clone.setAddress(realtime.getAddress()).setGrade(realtime.getGrade())
-                                .setIndicator(realtime.getIndicator());
+                                .setIndicator(realtime.getIndicator()).setCollectTime(realtime.getCollectTime());
 
                         Object realtimeValue = realtime.getValue();
                         if(realtimeValue != null) {
                             clone.setLabel(context.getDictValueMap().get(value.getField() + ":" + realtimeValue));
-                            clone.setValue(realtimeValue.toString()).setCollectTime(realtime.getCollectTime());
+                            clone.setValue(realtimeValue.toString());
                         }
                     }
                 }

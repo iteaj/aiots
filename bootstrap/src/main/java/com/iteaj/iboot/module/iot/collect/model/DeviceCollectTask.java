@@ -68,8 +68,23 @@ public class DeviceCollectTask implements Runnable {
             }
         }
 
+        boolean batch = isBatch(device); // 是否启用批量
+        boolean isBatchPoints = CollectionUtil.isNotEmpty(batchOfPoints); // 是否有批量的点位
         CollectInfo.DeviceInfo deviceInfo = collectInfo.addDeviceInfo(device);
-        if(!(isBatch(device) && CollectionUtil.isNotEmpty(batchOfPoints))) { // 非批量采集
+        if(batch && isBatchPoints) { // 批量采集
+            DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(device.getProtocolCode());
+            final ProtocolModelApiInvokeParam invokeParam = ProtocolInvokeUtil.createModelApiInvokeParam(device, parent);
+            try {
+                ((BatchProtocolSupplier) supplier).getBatchEventModelApi().invoke(invokeParam, batchOfPoints, result -> {
+                    deviceInfo.merge(result.getStatus()).merge(result.getValue());
+                    updateDeviceStatus(device, result.getStatus());
+                    dataPublish(deviceInfo, device);
+                });
+            } catch (Exception e) {
+                IotLogger.error(source, device.getUid(), "批量采集执行异常 {} - 设备组: {} - 设备编号: {}"
+                        , e.getMessage(), group.getName(), device.buildDeviceKey(), e);
+            }
+        } else {
             for (ModelApi api : this.apis) {
                 try {
                     // 调用接口采集数据
@@ -90,19 +105,6 @@ public class DeviceCollectTask implements Runnable {
             if(deviceInfo.getStatus() != null) {
                 updateDeviceStatus(device, deviceInfo.getStatus());
                 dataPublish(deviceInfo, device);
-            }
-        } else {
-            DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(device.getProtocolCode());
-            final ProtocolModelApiInvokeParam invokeParam = ProtocolInvokeUtil.createModelApiInvokeParam(device, parent);
-            try {
-                ((BatchProtocolSupplier) supplier).getBatchEventModelApi().invoke(invokeParam, batchOfPoints, result -> {
-                    deviceInfo.merge(result.getStatus()).merge(result.getValue());
-                    updateDeviceStatus(device, result.getStatus());
-                    dataPublish(deviceInfo, device);
-                });
-            } catch (Exception e) {
-                IotLogger.error(source, device.getUid(), "批量采集执行异常 {} - 设备组: {} - 设备编号: {}"
-                        , e.getMessage(), group.getName(), device.buildDeviceKey(), e);
             }
         }
     }

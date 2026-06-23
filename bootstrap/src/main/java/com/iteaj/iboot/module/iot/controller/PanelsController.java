@@ -129,7 +129,7 @@ public class PanelsController extends BaseController {
                         attrValues.forEach(attrValue -> {
                             if(panelsDeviceDto.getCollectTime() == null) {
                                 panelsDeviceDto.setCollectTime(attrValue.getCollectTime());
-                            } else {
+                            } else if(attrValue.getCollectTime() != null){
                                 boolean b = panelsDeviceDto.getCollectTime().getTime() > attrValue.getCollectTime().getTime();
                                 panelsDeviceDto.setCollectTime(b ? panelsDeviceDto.getCollectTime() : attrValue.getCollectTime());
                             }
