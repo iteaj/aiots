@@ -111,7 +111,7 @@ public class RealtimeMethodProvide implements JavaScriptValueProvide, LoggerMeth
 
                 // 距离上一次入库时间已经大于指定时间
                 long currentTimeMillis = System.currentTimeMillis();
-                if (TimeUnit.MILLISECONDS.toSeconds(currentTimeMillis - extra.getGeStartTime()) > time) {
+                if (TimeUnit.MILLISECONDS.toSeconds(currentTimeMillis - extra.getGeStartTime()) >= time) {
                     extra.setGeStartTime(currentTimeMillis); // 重置当前入库时间
                     return true;
                 }
