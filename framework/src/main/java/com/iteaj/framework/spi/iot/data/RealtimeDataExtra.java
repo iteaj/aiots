@@ -10,12 +10,7 @@ import lombok.experimental.Accessors;
 public class RealtimeDataExtra {
 
     /**
-     * 等级
+     * 用于大于等于时间间隔的检查
      */
-    private String grade;
-
-    /**
-     * 指标
-     */
-    private String indicator;
+    private long geStartTime;
 }

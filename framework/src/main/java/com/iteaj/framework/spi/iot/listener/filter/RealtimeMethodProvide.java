@@ -27,8 +27,7 @@ public class RealtimeMethodProvide implements JavaScriptValueProvide, LoggerMeth
                 new ScriptComplete("methods.isUid(data, '')", "是否为指定设备(uid)",2),
                 new ScriptComplete("methods.isChange(data)", "值是否改变(与上次改变值对比)",2),
                 new ScriptComplete("methods.isProduct(data, '')", "是否为指定产品(productCode)",2),
-                new ScriptComplete("methods.isGeInterval(data, 0)", "采集间隔是否>=指定值(秒)",2),
-                new ScriptComplete("methods.isGeIntervalChange(data, 0)", "改变值的采集间隔是否>=指定值(秒)",2),
+                new ScriptComplete("methods.isGeInterval(data, 0)", "入库间隔是否>=指定值(秒)",2),
                 new ScriptComplete("methods.isProtocol(data, '')", "是否为指定协议(protocolCode)",2),
                 new ScriptComplete("methods.isRealtimeData(data)", "是否为实时数据",2),
                 new ScriptComplete("methods.isRealtimeStatus(data)", "是否为状态数据",2),
@@ -102,32 +101,23 @@ public class RealtimeMethodProvide implements JavaScriptValueProvide, LoggerMeth
     public boolean isGeInterval(Object data, Integer time) {
         if(this.isRealtimeData(data)) {
             final RealtimeCollectData realtime = getData(data);
-            final ModelAttrRealtimeData prev = getRealtimeDataService().getRealtimeData(realtime.getUid(), realtime.getField());
-            if(prev == null || prev.getRealtime() == null) {
-                return false;
-            } else {
-                final SignalOrFieldValue prevValue = prev.getRealtime();
-                // 单位秒
-                return TimeUnit.MILLISECONDS.toSeconds(realtime.getCollectTime().getTime()
-                        - prevValue.getCollectTime().getTime()) > time;
-            }
-        }
+            final ModelAttrRealtimeData cache = getRealtimeDataService().getRealtimeData(realtime.getUid(), realtime.getField());
+            if (cache != null && cache.getRealtime() != null) {
+                RealtimeDataExtra extra = cache.getExtra();
+                if (extra.getGeStartTime() == 0) { // 第一次入库
+                    extra.setGeStartTime(System.currentTimeMillis());
+                    return true; // 第一次入库，直接返回
+                }
 
-        throw new ServiceException("非实时数据, 无法对比");
-    }
-
-    public boolean isGeIntervalChange(Object data, Integer time) {
-        if(this.isRealtimeData(data)) {
-            final RealtimeCollectData realtime = getData(data);
-            final ModelAttrRealtimeData prev = getRealtimeDataService().getRealtimeData(realtime.getUid(), realtime.getField());
-            if(prev == null || prev.getChange() == null) {
-                return false;
-            } else {
-                final SignalOrFieldValue prevValue = prev.getChange();
-                // 单位秒
-                return TimeUnit.MILLISECONDS.toSeconds(realtime.getCollectTime().getTime()
-                        - prevValue.getCollectTime().getTime()) > time;
+                // 距离上一次入库时间已经大于指定时间
+                long currentTimeMillis = System.currentTimeMillis();
+                if (TimeUnit.MILLISECONDS.toSeconds(currentTimeMillis - extra.getGeStartTime()) > time) {
+                    extra.setGeStartTime(currentTimeMillis); // 重置当前入库时间
+                    return true;
+                }
             }
+
+            return false;
         }
 
         throw new ServiceException("非实时数据, 无法对比");
