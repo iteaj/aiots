@@ -93,7 +93,7 @@ public class LinkageScriptController extends BaseController {
      */
     @Logger("新增或者更新联动脚本记录")
     @PostMapping("saveOrUpdate")
-    @CheckPermission(value = {"iot:script:linkage:edit"})
+//    @CheckPermission(value = {"iot:script:linkage:edit"})
     public Result saveOrUpdate(@RequestBody Script entity) {
         entity.setType(Script.TYPE_LINKAGE);
         return this.scriptService.saveOrUpdate(entity);
@@ -106,7 +106,7 @@ public class LinkageScriptController extends BaseController {
      */
     @PostMapping("del")
     @Logger("删除联动脚本记录")
-    @CheckPermission({"iot:script:linkage:del"})
+//    @CheckPermission({"iot:script:linkage:del"})
     public Result del(@RequestBody List<Long> ids) {
         if(ids.isEmpty()) {
             return fail("未指定要删除的记录");

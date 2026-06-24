@@ -119,7 +119,10 @@ public class PanelsController extends BaseController {
                                 if (ctrlCommandDto.getAttrField() != null) {
                                     ModelAttrRealtimeData realtimeData = realtimeDataService.getRealtimeData(deviceDto.getUid(), ctrlCommandDto.getAttrField());
                                     if(realtimeData != null && realtimeData.getRealtime() != null) {
-                                        panelsDeviceDto.putCtrlValue(ctrlCommandDto.getAttrField(), realtimeData.getRealtime().getValue().toString());
+                                        Object value = realtimeData.getRealtime().getValue();
+                                        if(value != null) {
+                                            panelsDeviceDto.putCtrlValue(ctrlCommandDto.getAttrField(), value.toString());
+                                        }
                                     }
                                 }
                             }

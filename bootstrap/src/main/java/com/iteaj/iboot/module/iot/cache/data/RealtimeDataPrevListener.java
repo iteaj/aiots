@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
+import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
@@ -46,29 +47,34 @@ public class RealtimeDataPrevListener implements EventGroupCollectListener, Mode
     }
 
     private void handleModelaWarnAndIndicator(RealtimeStatus device, SignalOrFieldValue item) {
-        List<WarnConfig> warnConfigs = warnConfigService.listByProductIdAndModelAttrId(device.getProductId(), item.getId());
-        if(CollectionUtil.isNotEmpty(warnConfigs)) {
-            warnConfigs.forEach(warnConfig -> {
-                if(StrUtil.isNotBlank(warnConfig.getOperator()) && StrUtil.isNotBlank(warnConfig.getThreshold())) {
-                    try {
-                        ConditionCalc conditionCalc = ConditionalsManager.get(warnConfig.getOperator());
-                        if(conditionCalc != null) {
-                            boolean calc = conditionCalc.calc(item.getValue(), warnConfig.getThreshold());
-                            if(calc) {
-                                item.setGrade(warnConfig.getGrade().name());
-                                item.setIndicator(warnConfig.getIndicator());
-                                if(warnConfig.getGrade() != WarnGrade.indicator) {
-                                    warnInvokeService.sendWarn(warnConfig, device, item.getValue());
+        if(item.getStatus() == CollectStatus.Success) {
+            List<WarnConfig> warnConfigs = warnConfigService.listByProductIdAndModelAttrId(device.getProductId(), item.getId());
+            if(CollectionUtil.isNotEmpty(warnConfigs)) {
+                warnConfigs.forEach(warnConfig -> {
+                    if(StrUtil.isNotBlank(warnConfig.getOperator()) && StrUtil.isNotBlank(warnConfig.getThreshold())) {
+                        try {
+                            ConditionCalc conditionCalc = ConditionalsManager.get(warnConfig.getOperator());
+                            if(conditionCalc != null) {
+                                boolean calc = conditionCalc.calc(item.getValue(), warnConfig.getThreshold());
+                                if(calc) {
+                                    item.setGrade(warnConfig.getGrade().name());
+                                    item.setIndicator(warnConfig.getIndicator());
+                                    if(warnConfig.getGrade() != WarnGrade.indicator) {
+                                        warnInvokeService.sendWarn(warnConfig, device, item.getValue());
+                                    }
                                 }
                             }
+                        } catch (Exception e) {
+                            IotLogger.error("属性告警", "告警或指标处理", device.getUid()
+                                    , "处理属性告警/指标时异常({}) 校验: {} {} {} - 错误信息: {}", warnConfig.getModelAttrField()
+                                    , item.getValue(), warnConfig.getOperator(), warnConfig.getThreshold(), e);
                         }
-                    } catch (Exception e) {
-                        IotLogger.error("属性告警", "告警或指标处理", device.getUid()
-                                , "处理属性告警/指标时异常({}) 校验: {} {} {} - 错误信息: {}", warnConfig.getModelAttrField()
-                                , item.getValue(), warnConfig.getOperator(), warnConfig.getThreshold(), e);
+                    } else {
+                        IotLogger.warn("属性告警", "告警或指标处理", device.getUid()
+                                , "属性告警/指标处理, 未配置运算符或阈值 {} - {}", warnConfig.getModelAttrField(), warnConfig.getId());
                     }
-                }
-            });
+                });
+            }
         }
     }
 

@@ -59,7 +59,7 @@ public class ScriptController extends BaseController {
     */
     @PostMapping("/saveOrUpdate")
     @Logger("新增或者更新脚本引擎记录")
-    @CheckPermission(value = {"iot:script:edit", "iot:script:filter:edit"}, logical = Logical.OR)
+//    @CheckPermission(value = {"iot:script:edit", "iot:script:filter:edit"}, logical = Logical.OR)
     public Result<Boolean> saveOrUpdate(@RequestBody Script entity) {
         return this.scriptService.saveOrUpdate(entity);
     }

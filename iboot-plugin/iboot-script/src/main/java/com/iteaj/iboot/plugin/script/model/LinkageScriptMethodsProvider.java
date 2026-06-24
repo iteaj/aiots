@@ -5,10 +5,7 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.script.ScriptComplete;
 import com.iteaj.framework.script.ScriptExecException;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
-import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
-import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
-import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
-import com.iteaj.framework.spi.iot.data.WarnData;
+import com.iteaj.framework.spi.iot.data.*;
 import com.iteaj.framework.spi.iot.listener.ScriptInvokePayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
@@ -50,8 +47,7 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
                 new ScriptComplete("methods.isUid(data, uid)", "当前触发设备是否为指定设备(uid)",2),
                 new ScriptComplete("methods.isChange(uid, field)", "设备属性值是否改变(与上次值对比)",2),
                 new ScriptComplete("methods.isProduct(data, productCode)", "当前触发设备是否为指定产品",2),
-                new ScriptComplete("methods.isGeInterval(uid, field, 0)", "设备属性采集间隔是否>=指定值(秒)",2),
-                new ScriptComplete("methods.isGeIntervalChange(uid, field, 0)", "设备属性改变值的采集间隔是否>=指定值(秒)",2),
+                new ScriptComplete("methods.isGeInterval(uid, field, 0)", "距离上次执行间隔是否>=指定值(秒)",2),
                 new ScriptComplete("methods.isProtocol(data, protocolCode)", "当前触发设备是否为指定协议",2),
                 new ScriptComplete("methods.isRealtimeData(data)", "是否为实时数据触发",2),
                 new ScriptComplete("methods.isRealtimeStatus(data)", "是否为状态数据触发",2)
@@ -219,32 +215,23 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
     public boolean isGeInterval(Object data, String field, Integer time) {
         if(this.isRealtimeData(data)) {
             final RealtimeCollectData realtime = getData(data);
-            final ModelAttrRealtimeData prev = getRealtimeDataService().getRealtimeData(realtime.getUid(), field);
-            if(prev == null || prev.getRealtime() == null) {
-                return false;
-            } else {
-                final SignalOrFieldValue prevValue = prev.getRealtime();
-                // 单位秒
-                return TimeUnit.MILLISECONDS.toSeconds(realtime.getCollectTime().getTime()
-                        - prevValue.getCollectTime().getTime()) > time;
-            }
-        }
+            final ModelAttrRealtimeData cache = getRealtimeDataService().getRealtimeData(realtime.getUid(), field);
+            if (cache != null && cache.getRealtime() != null) {
+                RealtimeDataExtra extra = cache.getExtra();
+                if (extra.getLinkageGeStartTime() == 0) { // 第一次入库
+                    extra.setLinkageGeStartTime(System.currentTimeMillis());
+                    return true; // 第一次入库，直接返回
+                }
 
-        throw new ServiceException("非实时数据, 无法对比");
-    }
-
-    public boolean isGeIntervalChange(Object data, String field, Integer time) {
-        if(this.isRealtimeData(data)) {
-            final RealtimeCollectData realtime = getData(data);
-            final ModelAttrRealtimeData prev = getRealtimeDataService().getRealtimeData(realtime.getUid(), field);
-            if(prev == null || prev.getChange() == null) {
-                return false;
-            } else {
-                final SignalOrFieldValue prevValue = prev.getChange();
-                // 单位秒
-                return TimeUnit.MILLISECONDS.toSeconds(realtime.getCollectTime().getTime()
-                        - prevValue.getCollectTime().getTime()) > time;
+                // 距离上一次入库时间已经大于指定时间
+                long currentTimeMillis = System.currentTimeMillis();
+                if (TimeUnit.MILLISECONDS.toSeconds(currentTimeMillis - extra.getLinkageGeStartTime()) >= time) {
+                    extra.setLinkageGeStartTime(currentTimeMillis); // 重置当前入库时间
+                    return true;
+                }
             }
+
+            return false;
         }
 
         throw new ServiceException("非实时数据, 无法对比");
