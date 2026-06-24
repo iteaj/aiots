@@ -43,7 +43,6 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
                 new ScriptComplete("methods.getUid(data)", "当前触发的设备",1),
                 new ScriptComplete("methods.getValue(uid, field)", "获取指定字段的最新值",1),
                 new ScriptComplete("methods.getPrevValue(uid, field)", "获取指定字段的上一个值",1),
-                new ScriptComplete("methods.getChangeValue(uid, field)", "获取指定字段改变前的值",1),
                 new ScriptComplete("methods.isUid(data, uid)", "当前触发设备是否为指定设备(uid)",2),
                 new ScriptComplete("methods.isChange(uid, field)", "设备属性值是否改变(与上次值对比)",2),
                 new ScriptComplete("methods.isProduct(data, productCode)", "当前触发设备是否为指定产品",2),
@@ -180,11 +179,6 @@ public class LinkageScriptMethodsProvider extends RealtimeMethodProvide {
     public Object getPrevValue(String uid, String field) {
         final ModelAttrRealtimeData realtimeData = getRealtimeDataService().getRealtimeData(uid, field);
         return realtimeData != null && realtimeData.getPrev() != null ? realtimeData.getPrev().getValue() : null;
-    }
-
-    public Object getChangeValue(String uid, String field) {
-        final ModelAttrRealtimeData realtimeData = getRealtimeDataService().getRealtimeData(uid, field);
-        return realtimeData != null && realtimeData.getChange() != null ? realtimeData.getChange().getValue() : null;
     }
 
     public String getUid(Object data) {

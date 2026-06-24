@@ -85,14 +85,18 @@ public class RealtimeMethodProvide implements JavaScriptValueProvide, LoggerMeth
 
     public boolean isChange(Object data) {
         if(this.isRealtimeData(data)) {
-            final RealtimeCollectData realtime = getData(data);
-            final ModelAttrRealtimeData prev = getRealtimeDataService().getRealtimeData(realtime.getUid(), realtime.getField());
-            if(prev == null || prev.getChange() == null) {
-                return true;
-            } else {
-                final SignalOrFieldValue prevValue = prev.getChange();
-                return !Objects.equals(prevValue.getValue(), realtime.getValue());
+            RealtimeCollectData realtimeData = getData(data);
+            final ModelAttrRealtimeData cache = getRealtimeDataService().getRealtimeData(realtimeData.getUid(), realtimeData.getField());
+            if(cache != null && Boolean.TRUE.equals(realtimeData.getStatus())) {
+                final SignalOrFieldValue prev = cache.getPrev();
+                if(prev != null) {
+                    return !Objects.equals(prev.getValue(), realtimeData.getValue());
+                } else {
+                    return true;
+                }
             }
+
+            return false;
         }
 
         throw new ServiceException("非实时数据, 无法对比");

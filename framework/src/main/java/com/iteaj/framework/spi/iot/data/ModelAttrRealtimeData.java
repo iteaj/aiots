@@ -15,12 +15,6 @@ public interface ModelAttrRealtimeData {
     SignalOrFieldValue getPrev();
 
     /**
-     * 改变前的记录
-     * @return
-     */
-    SignalOrFieldValue getChange();
-
-    /**
      * 最新采集记录
      */
     SignalOrFieldValue getRealtime();
