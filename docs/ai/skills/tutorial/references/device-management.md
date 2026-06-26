@@ -37,6 +37,43 @@
 
 **场景：** DTU 连接串口设备、PLC 下挂多个从站、Modbus 网关下挂多个仪表。
 
+### 网关设备配置
+
+创建网关设备时，`config` 字段的配置项因**协议驱动**而异。每个驱动在 `DeviceProtocolSupplier.getGatewayConfig()` 中定义了自己需要的配置参数：
+
+| 驱动 | 配置项 | 说明 |
+|------|-------|------|
+| Modbus TCP | host, port, timeout, readIdle | host(主机地址)、port(端口)、timeout(请求超时秒数)、readIdle(读空闲秒数) |
+| Modbus RTU | serialPort, baudRate, dataBits, stopBits, parity, timeout, readIdle | 串口参数 + 超时参数 |
+| 西门子S7(Siemens) | host, port, model, readIdle | host、port、型号(S200/S300/S1200/S1500等)、读空闲 |
+| 欧姆龙PLC(Omron) | host, port, readIdle | host、port、读空闲 |
+| OPC UA | host, port, username, password | host、port、用户名(匿名可不填)、密码 |
+| DLT645 | serialPort/port, baudRate, dataBits, stopBits, parity | 串口或TCP参数 |
+
+> **说明：** `timeout`（请求超时）是通用参数，各驱动都可能需要。`readIdle` 用于控制连接保活，超过指定秒数无数据时断开重连。
+
+### 网关子设备
+
+网关子设备挂载到网关设备下，通过网关与平台通信。创建时的关键字段：
+
+| 字段 | 说明 | Modbus 驱动 | PLC/其他驱动 |
+|------|------|------------|-------------|
+| **设备编号(device_sn)** | 设备标识，同一网关下必须唯一 | 填从机地址（1~247） | 只要同一网关下唯一即可，不表示从机地址 |
+| **父设备** | 选择对应的网关设备 | 选择 Modbus 网关 | 选择对应的 PLC/其他网关 |
+| **config** | 驱动定义的子设备配置 | 需要 `isBatch`、`dataFormat` 等 | 取决于驱动定义 |
+
+**`device_sn` 的含义因驱动而异：**
+- **Modbus 驱动** — `device_sn` 是从机地址（slave address），范围 1~247，地址 0 为广播地址不响应。平台根据此地址区分 Modbus 总线上的不同从站
+- **PLC 驱动** — `device_sn` 只是设备唯一标识，不表示 PLC 的站地址（站地址在点位地址中配置）。同一网关下不重复即可
+- **OPC UA 驱动** — `device_sn` 仅仅是标识，OPC UA 通过节点地址寻址
+
+**⚠️ 子设备的 `device_sn` 在网关范围内必须唯一。** 如果两个子设备挂在同一个网关下且 `device_sn` 相同，会导致驱动无法区分。
+
+**子设备的 `config` 取决于驱动：**
+- **Modbus 驱动** — 支持批量采集时需配置 `isBatch`（是否批量）、`dataFormat`（字节序 ABCD/BADC 等）
+- **OPC UA 驱动** — 可配置 `isBatch`、`limit`（单次读取最大标记数）
+- **PLC 驱动** — 通常无需额外配置，默认即可
+
 ## 工业网关设备
 
 **菜单：设备管理 → 工业网关设备 → 具体类型**

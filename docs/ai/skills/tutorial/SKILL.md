@@ -1,6 +1,6 @@
 ---
 name: tutorial
-description: AIots物联网平台操作教程，包含设计理念和操作指引——驱动配置、网络组件、产品与物模型、设备管理、运行管控、数据中心、告警中心、事件规则、数据可视化、脚本引擎、设备调试、北向接入、快速入门。当用户问"平台怎么用"、"怎么配驱动/产品/物模型"、"设备怎么接入"、"驱动和网络组件区别"、"物模型容器类型是什么"、"计算属性和数据解析区别"、"控制状态是什么"、"Modbus批量采集怎么用"、"脚本引擎过滤/解析/联动怎么写"、"场景联动怎么配"、"告警怎么配置"、"北向接入是什么"时使用。
+description: AIots物联网平台操作教程，包含设计理念和操作指引——驱动配置、网络组件、产品与物模型、设备管理、数据中心、告警中心、事件规则、数据可视化、脚本引擎、设备调试、北向接入、快速入门。当用户问"平台怎么用"、"怎么配驱动/产品/物模型"、"设备怎么接入"、"驱动和网络组件区别"、"物模型容器类型是什么"、"计算属性和数据解析区别"、"控制状态是什么"、"模拟场景搭建"、"脚本引擎过滤/解析/联动怎么写"、"场景联动怎么配"、"告警怎么配置"、"北向接入是什么"时使用。
 role: 平台使用指导
 ---
 
@@ -68,18 +68,19 @@ role: 平台使用指导
 
 详细内容已按模块拆分到 `references/` 目录：
 
-| 模块 | 参考文档 | 关键内容 |
-|------|---------|---------|
+| 模块          | 参考文档 | 关键内容 |
+|-------------|---------|---------|
 | 整体流程 & 快速入门 | [quick-start.md](./references/quick-start.md) | 接入设备的完整步骤；温度传感器从创建到查看数据的 7 步示例 |
-| 协议驱动配置 | [protocol-driver.md](./references/protocol-driver.md) | Modbus/PLC/OPC UA/DTU/MQTT/IEC104 等驱动的配置方法 |
-| 网络组件配置 | [network-component.md](./references/network-component.md) | 通信链路配置（TCP/UDP/MQTT），网关挂载 |
-| 产品配置与物模型 | [product-config.md](./references/product-config.md) | 产品创建、物模型属性/容器类型/字典、功能模型、事件模型、计算属性、控制状态 |
-| 设备管理 | [device-management.md](./references/device-management.md) | 直连/网关/子设备、Modbus 批量采集、设备分组 |
-| 运行管控 | [running-monitor.md](./references/running-monitor.md) | 运行展板、电子地图 |
-| 数据中心 | [data-center.md](./references/data-center.md) | 模型数据、产品数据、通用报表 |
-| 告警中心 | [alert-center.md](./references/alert-center.md) | 告警配置、告警模板、告警记录 |
-| 事件规则 | [event-rules.md](./references/event-rules.md) | 采集器（按频率采集）、执行器（定时触发配合场景联动）、场景联动规则 |
-| 数据可视化 | [data-visualization.md](./references/data-visualization.md) | 组态大屏、官方大屏、大屏素材 |
-| 脚本引擎 | [script-engine.md](./references/script-engine.md) | 数据过滤、数据解析、联动脚本（含代码示例和工业场景） |
-| 设备维护 | [device-debug.md](./references/device-debug.md) | 设备调试步骤 |
-| 北向接入 | [northbound-access.md](./references/northbound-access.md) | 开放平台 API、数据转发（Kafka/MQTT/HTTP） |
+| 协议驱动配置      | [protocol-driver.md](./references/protocol-driver.md) | Modbus/PLC/OPC UA/DTU/MQTT/IEC104 等驱动的配置方法 |
+| 网络组件配置      | [network-component.md](./references/network-component.md) | 通信链路配置（TCP/UDP/MQTT），网关挂载 |
+| 产品配置与物模型    | [product-config.md](./references/product-config.md) | 产品创建、物模型属性/容器类型/字典、功能模型、事件模型、计算属性、控制状态 |
+| 设备管理        | [device-management.md](./references/device-management.md) | 直连/网关/子设备、Modbus 批量采集、设备分组 |
+| 运行管控        | [running-monitor.md](./references/running-monitor.md) | 运行展板、电子地图 |
+| 数据中心        | [data-center.md](./references/data-center.md) | 模型数据、产品数据、通用报表 |
+| 告警中心        | [alert-center.md](./references/alert-center.md) | 告警配置、告警模板、告警记录 |
+| 事件规则        | [event-rules.md](./references/event-rules.md) | 采集器（按频率采集）、执行器（定时触发配合场景联动）、场景联动规则 |
+| 数据可视化       | [data-visualization.md](./references/data-visualization.md) | 组态大屏、官方大屏、大屏素材 |
+| 脚本引擎        | [script-engine.md](./references/script-engine.md) | 数据过滤、数据解析、联动脚本（含代码示例和工业场景） |
+| 设备维护        | [device-debug.md](./references/device-debug.md) | 设备调试步骤 |
+| 北向接入        | [northbound-access.md](./references/northbound-access.md) | 开放平台 API、数据转发（Kafka/MQTT/HTTP） |
+| 模拟场景搭建      | [simulation-env.md](./references/simulation-env.md) | 无设备时创建完整模拟工厂，用于评估和演示 |
