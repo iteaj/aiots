@@ -1,5 +1,5 @@
 <template>
-  <AModal :closable="false" :mask-closable="false" destroyOnHidden :width="width" :zIndex="1005">
+  <AModal :closable="false" destroyOnHidden :width="width" :zIndex="1005">
     <template #title>
       <AFlex justify="space-between" style="font-weight: 200">
         <div>
@@ -16,15 +16,15 @@
             @click="getPosition" @complete="loadingComplete" :zoom="zoom">
         <slot :position="selectPosition.position"
               :address="selectPosition.formattedAddress" :info="selectPosition.address">
-          <AMarker v-if="selectPosition.position" title="点击选中地址" :position="selectPosition.position"></AMarker>
+          <AMarker v-if="selectPosition.position" title="双击选中地址" @dblclick="selectMarker" :position="selectPosition.position"></AMarker>
         </slot>
       </AMap>
     </div>
     <template #footer>
-      <div style="text-align:center">
-        <AButton type="primary" @click="selectMarker">关闭</AButton>
+      <ASpace>
+        <AButton type="primary" @click="selectMarker">确认</AButton>
         <AButton @click="clearMarker">重置</AButton>
-      </div>
+      </ASpace>
     </template>
   </AModal>
 </template>
@@ -36,10 +36,11 @@ export default {
   name: "AMapModal",
   components: {AMap},
   props: {
-    width: {default: '680px'},
+    width: {default: '68%'},
     center: {type: Array}, // 中心点
     zoom: {type: Number, default: 10},
     address: {type: String},
+    onSelect: {type: Function, default: null},
     onChange: {type: Function, default: null},
   },
   setup(props, {attrs}) {
@@ -49,8 +50,9 @@ export default {
       position: props.center,
       formattedAddress: props.address,
     });
-    watch(() => props.center, (value) => {
-      selectPosition.value.position = value;
+    watch(() => [props.center, props.address], (value) => {
+      selectPosition.value.position = value[0];
+      selectPosition.value.formattedAddress = value[1];
     })
     // let markers = ref([])
     return {instance, selectPosition}
@@ -68,8 +70,9 @@ export default {
         this.instance.removeAllOverlay();
       }
     },
-    selectMarker() {
+    selectMarker(e) {
       this.$emit("update:open", false)
+      this.$emit("select", { position: this.selectPosition.position, address: this.selectPosition.formattedAddress });
     },
     clearMarker() {
       this.selectPosition.position = null;

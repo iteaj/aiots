@@ -12,7 +12,7 @@
     padding: 4px 16px 4px 8px;
 }
 /* ant-vue style */
-.u-form-modal .ant-modal-footer {
+.ant-modal .ant-modal-footer {
     text-align: center;
     justify-content: center;
 }

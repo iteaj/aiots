@@ -25,7 +25,7 @@
         <ATabPane key="attr" tab="最新数据">
           <a-row justify="start" align="middle" wrap>
             <a-col v-for="attr in modelAttrs" :key="attr.id" style="min-width: 170px; padding: 3px; margin: 5px 0; height: 93px;">
-              <a-card variant="borderless" hoverable size="small" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
+              <a-card variant="borderless" hoverable size="small" :styles="{header: {minHeight: '30px'}, body: {padding: '0 6px'}}">
                 <template #title>
                   <AFlex gap="10" justify="space-between">
                     <div>
@@ -36,11 +36,11 @@
                     </div>
                   </AFlex>
                 </template>
-                <div>
+                <div style="height: 32px; line-height: 32px;">
                   <span style="font-weight: bold; font-size: 14px;">{{attr.value != null ? attr.value : '-'}}</span>
                   <span class="iv-minor-text">&nbsp;{{attr.unit ? `(${attr.unit})` : ''}}</span>
                 </div>
-                <div style="font-size: 12px; color: #818181; padding-top: 6px; border-top: 1px dashed #d6d6d6">
+                <div style="font-size: 12px; color: #818181; padding: 3px 0; border-top: 1px dashed #d6d6d6; text-align: center;">
                   <span>{{attr.collectTime || '暂未采集'}}</span>
                 </div>
               </a-card>
@@ -69,6 +69,21 @@
           </div>
           <AEmpty v-else description="无控制接口" style="margin-top: 36px;" />
         </ATabPane>
+        <ATabPane key="basic" tab="基础信息">
+          <a-descriptions bordered :column="2" size="small">
+            <a-descriptions-item label="设备名称">{{selectDevice['name']}}</a-descriptions-item>
+            <a-descriptions-item label="设备分组">{{selectDevice['deviceGroupName']}}</a-descriptions-item>
+            <a-descriptions-item label="设备标识">{{selectDevice['uid']}}</a-descriptions-item>
+            <a-descriptions-item label="设备编号">{{selectDevice['deviceSn']}}</a-descriptions-item>
+            <a-descriptions-item label="设备类型">{{selectDevice['deviceTypeName']}}</a-descriptions-item>
+            <a-descriptions-item label="产品类型">{{selectDevice['productTypeName']}}</a-descriptions-item>
+            <a-descriptions-item label="所属产品">{{selectDevice['productName']}}</a-descriptions-item>
+            <a-descriptions-item label="切换时间">{{selectDevice['switchTime']}}</a-descriptions-item>
+            <a-descriptions-item label="接入网关">{{selectDevice['gatewayName']}}</a-descriptions-item>
+            <a-descriptions-item label="所属驱动">{{selectDevice['protocolCode']}}</a-descriptions-item>
+            <a-descriptions-item label="安装地址" span="3">{{selectDevice['address']}}</a-descriptions-item>
+          </a-descriptions>
+        </ATabPane>
       </ATabs>
     </ASpin>
   </AModal>
@@ -90,7 +105,7 @@ export default defineComponent({
     let map = ref();
     let warns = ref([]);
     let historyData = ref([]);
-    let selectDevice = props.device;
+    let selectDevice = ref(props.device);
     let modelAttrs = ref([]);
     let funcApis = ref([]);
     let activeKey = ref('attr');
@@ -116,8 +131,8 @@ export default defineComponent({
     watch(() => [props.device, attrs.open], (newValue) => {
       let device = newValue[0]; let open = newValue[1];
       if(open && device && device.uid) {
-        selectDevice.value = device;
-        let uid = selectDevice.value.uid;
+        // selectDevice.value = device;
+        let uid = device.uid;
         currentInstance.loadCmds(uid);
         currentInstance.deviceDetail(device);
         currentInstance.loadModelAttr(device);
@@ -134,11 +149,11 @@ export default defineComponent({
   methods: {
     deviceDetail(device) {
       this.spinning = true;
-      this.selectDevice = device;
       this.$http.get('/iot/emap/detail', {params: {uid: device.uid}})
           .then(({code, message, data}) => {
             if (code == CoreConsts.SuccessCode) {
-              let {attrs, warns} = data;
+              let {attrs, warns, device} = data;
+              this.selectDevice = device;
               this.modelAttrs = attrs || [];
               this.warns = warns || [];
               // this.ctrlApi = ctrlApi;
@@ -233,6 +248,7 @@ export default defineComponent({
 }
 .iv-device-dt {
   padding: 0 0 12px;
+  font-size: 14px;
   border-bottom: var(--ant-line-width) var(--ant-line-type) var(--ant-color-split);
 }
 .iv-api-item .iv-cmd-desc, .iv-minor-text {

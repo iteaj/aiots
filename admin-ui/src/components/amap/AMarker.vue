@@ -65,6 +65,14 @@ export default {
           emit("click", {e, marker, position})
         });
       }
+      // 绑定单击事件
+      if(attrs.onDblclick instanceof Function) {
+        marker.on("dblclick", (e) => {
+          let mposition = marker.getPosition();
+          let position = [mposition.lng, mposition.lat];
+          emit("dblclick", {e, marker, position})
+        });
+      }
       // 绑定鼠标移入事件
       if(attrs.onMouseover instanceof Function) {
         marker.on("mouseover", (e) => {

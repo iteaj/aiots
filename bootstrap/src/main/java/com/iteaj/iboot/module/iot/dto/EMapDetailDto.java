@@ -14,6 +14,8 @@ import java.util.*;
 @Setter
 public class EMapDetailDto {
 
+    private DeviceDto device;
+
     /**
      * 模型属性列表
      */
@@ -69,7 +71,7 @@ public class EMapDetailDto {
         /**
          * 采集时间
          */
-        @JSONField(format = "MM-dd HH:mm:ss")
+        @JSONField(format = "yyyy-MM-dd HH:mm:ss")
         private Date collectTime;
 
         private CollectStatus status;

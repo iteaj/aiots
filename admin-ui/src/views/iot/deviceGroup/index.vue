@@ -44,12 +44,7 @@
         <UButton func="reset">重置</UButton>
       </template>
     </UViewModal>
-    <AMapModal v-model:open="mapOpen" :zoom="12" :center="centerPoint" @click="selectPoint" >
-      <template #marker="{position, address}">
-        <AMarker v-if="centerPoint" title="点击选中地址" :position="centerPoint"
-                 @click="() => selectMarker(position, address)" id="current"></AMarker>
-      </template>
-    </AMapModal>
+    <AMapModal v-model:open="mapOpen" :zoom="12" :address="editModel.address" :center="centerPoint" @change="selectMarker" />
   </UView>
 </template>
 <!-- 设备分组功能 -->
@@ -119,13 +114,9 @@ export default {
         selectedRowKeys: selectedKeys,
       };
     },
-    selectPoint({instance, position}) {
-      this.centerPoint = position;
-    },
-    selectMarker(position, address) {
-      this.mapOpen = false;
-      this.editModel['address'] = position ? address : this.editModel['address'];
-      position = position || this.centerPoint;
+    selectMarker({position, address}) {
+      this.editModel['address'] = address;
+      position = position || [null, null];
       this.editModel['lon'] = position[0];
       this.editModel['lat'] = position[1];
     },
