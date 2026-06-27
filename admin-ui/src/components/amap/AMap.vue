@@ -9,7 +9,7 @@
 
 <script>
 import Env from '@/env/index'
-import {getCurrentInstance, provide, reactive, ref, watch} from "vue";
+import {getCurrentInstance, provide, reactive, ref, shallowRef, watch} from "vue";
 import AMapLoader from '@amap/amap-jsapi-loader'
 
 window._AMapSecurityConfig = {
@@ -72,7 +72,7 @@ export default {
   },
   setup(props, {emit}) {
     let placeSearchRef = ref();
-    let instance =ref(null);
+    let instance =shallowRef(null);
     let geocoderRef = ref(null);
     let satelliteLayer = ref(null); // 卫星图层
 
@@ -279,7 +279,9 @@ export default {
      * 缩放到标记点位置
      */
     setFitView() {
-      this.instance.setFitView();
+      if(this.instance) {
+        this.instance.setFitView();
+      }
     },
     /**
      * 移除地图上的所有覆盖物

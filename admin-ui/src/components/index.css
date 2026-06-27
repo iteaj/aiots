@@ -14,6 +14,7 @@
 /* ant-vue style */
 .u-form-modal .ant-modal-footer {
     text-align: center;
+    justify-content: center;
 }
 .iv-view-search {
     margin-bottom: 8px;

@@ -11,8 +11,13 @@ export default defineComponent({
     span: {type: Array}, // labelCol 和wrapperCol简写 如：[6, 18]
     afterClose: Function,
     width: {default: 520},
+    classes: {type: Object},
+    styles: {type: Object},
+    mask: {default: true},
+    zIndex: {default: 1000},
     getContainer: {type: Function},
     maskClosable: {default: true},
+    afterOpenChange: {type: Function},
     centered: {type: Boolean, default: true},
     closable: {type: Boolean, default: false},
     forceRender: {type: Boolean, default: false},
