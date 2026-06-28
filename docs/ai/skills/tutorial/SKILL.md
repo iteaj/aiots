@@ -74,6 +74,12 @@ role: 平台使用指导
 | 协议驱动配置      | [protocol-driver.md](./references/protocol-driver.md) | Modbus/PLC/OPC UA/DTU/MQTT/IEC104 等驱动的配置方法 |
 | 网络组件配置      | [network-component.md](./references/network-component.md) | 通信链路配置（TCP/UDP/MQTT），网关挂载 |
 | 产品配置与物模型    | [product-config.md](./references/product-config.md) | 产品创建、物模型属性/容器类型/字典、功能模型、事件模型、计算属性、控制状态 |
+| Modbus 物模型配置  | [model-config-modbus.md](./references/model-config-modbus.md) | Modbus TCP/RTU 驱动支持的指令、上下行配置项、网关/子设备配置参数 |
+| PLC 物模型配置     | [model-config-plc.md](./references/model-config-plc.md) | 西门子/欧姆龙/三菱/松下/汇川/罗克韦尔 PLC 共用的指令集，各品牌网关配置差异 |
+| OPC UA 物模型配置  | [model-config-opcua.md](./references/model-config-opcua.md) | OPC UA 驱动支持的指令、上下行配置、节点地址配置 |
+| MQTT 物模型配置    | [model-config-mqtt.md](./references/model-config-mqtt.md) | MQTT 发布/订阅的指令与上下行配置、主题占位符说明 |
+| DTU Modbus 透传    | [model-config-dtu-modbus.md](./references/model-config-dtu-modbus.md) | DTU+Modbus TCP/RTU/MQTT 透传的指令集与网关配置 |
+| DTU 私有协议       | [model-config-dtu-private.md](./references/model-config-dtu-private.md) | DTU 私有协议的读/写指令、数据格式配置 |
 | 设备管理        | [device-management.md](./references/device-management.md) | 直连/网关/子设备、Modbus 批量采集、设备分组 |
 | 运行管控        | [running-monitor.md](./references/running-monitor.md) | 运行展板、电子地图 |
 | 数据中心        | [data-center.md](./references/data-center.md) | 模型数据、产品数据、通用报表 |
