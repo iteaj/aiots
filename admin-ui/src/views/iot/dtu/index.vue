@@ -39,8 +39,8 @@
     </UViewModal>
     <AMapModal v-model:open="mapOpen" :zoom="12" :center="centerPoint" @change="selectPoint" />
     <UViewTable :columns="columns" :scroll="{x: 1230}">
-      <template #productName="{record,value}">
-        <router-link :to="`/iot/product?code=${record.productCode}`">{{value}}</router-link>
+      <template #productName="{record, text}">
+        <router-link :to="`/iot/product?code=${record.productCode}`">{{text}}</router-link>
       </template>
       <template #status="{record, value}">
         <a-badge v-if="record.status=='online'" status="processing" color="#87d068" :text="value" />
@@ -64,8 +64,8 @@
           </URow>
         </UViewSearch>
         <UViewTable :columns="childColumns" :scroll="{x: 1200}" >
-          <template #productName="{record,value}">
-            <router-link :to="`/iot/product?code=${record.productCode}`">{{value}}</router-link>
+          <template #productName="{record, text}">
+            <router-link :to="`/iot/product?code=${record.productCode}`">{{text}}</router-link>
           </template>
           <template #status="{record, value}">
             <a-badge v-if="record.status=='online'" status="processing" color="#87d068" :text="value" />
@@ -138,7 +138,7 @@ export default {
       // {field: "parentDeviceSn", title: "网关设备编号", width: 200},
       {field: "deviceSn", title: "从站地址", width: 80},
       // {field: "productTypeName", title: "产品类型", width: 120},
-      {field: "productName", title: "所属产品", width: 120},
+      {field: "productName", title: "所属产品", width: 160},
       {field: "productCode", title: "产品编码", width: 120, resizable: true},
       {field: "deviceTypeName", title: "设备类型", width: 100},
       {field: "deviceGroupName", title: "所属分组", width: 120},

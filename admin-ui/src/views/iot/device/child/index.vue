@@ -35,8 +35,8 @@
       </template>
     </UViewModal>
     <UViewTable :columns="columns" :scroll="{x: 1230}">
-      <template #productName="{record,value}">
-        <router-link :to="`/iot/product?code=${record.productCode}`">{{value}}</router-link>
+      <template #productName="{record, text}">
+        <router-link :to="`/iot/product?code=${record.productCode}`">{{text}}</router-link>
       </template>
       <template #status="{record, value}">
         <a-badge v-if="record.status=='online'" status="processing" color="#87d068" :text="value" />
@@ -66,8 +66,8 @@ export default {
       {field: "uid", title: "设备标识", width: 170},
       {field: "name", title: "设备名称", width: 180},
       {field: "parentDeviceSn", title: "网关设备编号", width: 200},
-      {field: "deviceSn", title: "设备编号", width: 160},
-      {field: "productName", title: "所属产品", width: 120},
+      {field: "deviceSn", title: "设备编号", width: 150},
+      {field: "productName", title: "所属产品", width: 150},
       {field: "productCode", title: "产品编码", width: 120, resizable: true},
       // {field: "deviceTypeName", title: "设备类型", width: 100},
       {field: "deviceGroupName", title: "所属分组", width: 120},

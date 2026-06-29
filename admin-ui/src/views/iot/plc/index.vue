@@ -56,8 +56,8 @@
     </UViewModal>
     <AMapModal v-model:open="mapOpen" :zoom="12" :center="centerPoint" @change="selectPoint" />
     <UViewTable :columns="columns" :scroll="{x: 1230}">
-      <template #productName="{record,value}">
-        <router-link :to="`/iot/product?code=${record.productCode}`">{{value}}</router-link>
+      <template #productName="{record, text}">
+        <router-link :to="`/iot/product?code=${record.productCode}`">{{text}}</router-link>
       </template>
       <template #status="{record, value}">
         <a-badge v-if="record.status=='online'" status="processing" color="#87d068" :text="value" />
@@ -85,8 +85,8 @@
           </URow>
         </UViewSearch>
         <UViewTable :columns="childColumns" :scroll="{x: 1200}" >
-          <template #productName="{record,value}">
-            <router-link :to="`/iot/product?code=${record.productCode}`">{{value}}</router-link>
+          <template #productName="{record, text}">
+            <router-link :to="`/iot/product?code=${record.productCode}`">{{text}}</router-link>
           </template>
           <template #status="{record, value}">
             <a-badge v-if="record.status=='online'" status="processing" color="#87d068" :text="value" />
