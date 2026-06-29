@@ -19,7 +19,7 @@
         <URow :responsive="2">
           <UInputItem field="name" label="设备名称" :maxlength="32" />
           <UInputItem field="deviceSn" label="设备编号" :maxlength="32" />
-          <USelectItem field="productId" label="所属产品" @change="productChange" v-model:source="productSource" extra="只添加直连设备"
+          <USelectItem field="productId" label="所属产品" @change="productChange" v-model:source="productSource"
                        url="/iot/product/listByType?deviceType=Direct" labelField="name" valueField="id">
             <template #option="{value, label}">
               <div style="padding: 0px 0px 5px;">
@@ -37,8 +37,8 @@
               <span style="cursor: pointer" @click="() => {mapOpen = true}">地图</span>
             </template>
           </UInputItem>
-          <UInputItem v-if="model['connectType'] != 'Client'" field="ip" label="设备ip"/>
-          <UInputNumberItem v-if="model['connectType'] != 'Client'" field="port" label="设备端口"/>
+          <UInputItem v-if="selectedProduct?.['connectType'] != 'Client'" field="ip" label="设备ip"/>
+          <UInputNumberItem v-if="selectedProduct?.['connectType'] != 'Client'" field="port" label="设备端口"/>
           <a-divider v-if="protocolConfig && protocolConfig.length > 0" style="margin: 0 0 6px" dashed>设备配置(重启对应产品后生效)</a-divider>
           <template v-if="protocolConfig" v-for="item in protocolConfig" :key="item['field']">
             <UInputItem v-if="item['type']=='string'" :field="'config.'+item['field']" :label="item['label']" :required="item['required']"
