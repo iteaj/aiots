@@ -37,8 +37,8 @@
               <span style="cursor: pointer" @click="() => {mapOpen = true}">地图</span>
             </template>
           </UInputItem>
-          <UInputItem field="ip" label="设备ip"/>
-          <UInputNumberItem field="port" label="设备端口"/>
+          <UInputItem v-if="model['connectType'] != 'Client'" field="ip" label="设备ip"/>
+          <UInputNumberItem v-if="model['connectType'] != 'Client'" field="port" label="设备端口"/>
           <a-divider v-if="protocolConfig && protocolConfig.length > 0" style="margin: 0 0 6px" dashed>设备配置(重启对应产品后生效)</a-divider>
           <template v-if="protocolConfig" v-for="item in protocolConfig" :key="item['field']">
             <UInputItem v-if="item['type']=='string'" :field="'config.'+item['field']" :label="item['label']" :required="item['required']"
