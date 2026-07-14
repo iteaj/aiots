@@ -164,7 +164,7 @@ export default {
     resolveSubmitParams(data) {
       if(data['hasPassive']) {
         if(!data['cron']) {
-          this.$msg.warn("包含被动事件必须配置采集周期");
+          this.$msg.warning("包含被动事件必须配置采集周期");
           return Promise.reject('');
         }
       }

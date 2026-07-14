@@ -89,7 +89,7 @@ export default {
           const { id } = data;
           window.open(this.getViewUrl() + '/#/chart/home/' + id, '_blank');
         } else {
-          this.$msg.warn(msg);
+          this.$msg.warning(msg);
         }
       }).finally(() => this.loading = false);
     },

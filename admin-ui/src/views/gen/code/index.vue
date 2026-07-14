@@ -150,14 +150,14 @@ export default {
           this.genInit['webProjectPath'] = data['webProjectPath'];
         }
       } else {
-        this.$msg.warn(message);
+        this.$msg.warning(message);
       }
     })
   },
   methods: {
     getParam(data, child) {
       if(!this.genInit.packageName) {
-        this.$msg.warn(`请先选择模块`);
+        this.$msg.warning(`请先选择模块`);
         return Promise.reject('请选择模块');
       }
 
@@ -191,7 +191,7 @@ export default {
     },
     preview(record) {
       if(!this.genInit.packageName) {
-        return this.$msg.warn(`请先选择模块`);
+        return this.$msg.warning(`请先选择模块`);
       }
 
       let submitModel = {tables: [record['name']]}
@@ -204,7 +204,7 @@ export default {
           this.previewModel = data;
           this.copyable.text = this.previewModel[this.activeKey];
         } else {
-          this.$msg.warn(message)
+          this.$msg.warning(message)
         }
       }).finally(() => this.spinning = false)
     },

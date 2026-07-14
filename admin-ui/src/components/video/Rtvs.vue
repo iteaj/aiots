@@ -312,7 +312,7 @@ export default defineComponent({
           callback(startSpeek, instance);
         } else {
           if (!startSpeek) {
-            this.$msg.warn('未能获取到麦克风，请确认当前页面是https且未设置阻止。');
+            this.$msg.warning('未能获取到麦克风，请确认当前页面是https且未设置阻止。');
           }
         }
       })

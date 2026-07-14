@@ -236,14 +236,14 @@ export default {
     },
     submit() {
       if(!this.editModel.path) {
-        return this.$msg.warn("路径必填");
+        return this.$msg.warning("路径必填");
       }
       if(this.fileList && this.fileList.length == 0) {
-        return this.$msg.warn("请选择要安装的离线部署包(.zip)");
+        return this.$msg.warning("请选择要安装的离线部署包(.zip)");
       }
       const regex = /^[a-zA-Z][a-zA-Z0-9]{0,15}$/;
       if(!regex.test(this.editModel.path)) {
-        return this.$msg.warn("路径只支持字母和数字的组合且以字母开头长度在16以内");
+        return this.$msg.warning("路径只支持字母和数字的组合且以字母开头长度在16以内");
       }
 
       // 创建 FormData 对象

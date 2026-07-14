@@ -112,7 +112,7 @@ export default {
     },
     editBlur(resource) {
       if(!resource.name) {
-        return this.$msg.warn("名称必填");
+        return this.$msg.warning("名称必填");
       }
 
       this.spinning = true; this.tipText = "名称修改中...";
@@ -132,7 +132,7 @@ export default {
     uploadChange() {
       this.fileData['type'] = this.selectType['type'];
       if(!this.selectType['type']) {
-        this.$msg.warn("未指定素材类型")
+        this.$msg.warning("未指定素材类型")
         return Promise.reject();
       }
 

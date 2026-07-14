@@ -99,7 +99,7 @@ export default {
       let treeKey = video.config.extra.treeKey;
       let value = this.deviceTreeRef.getValueByKey(treeKey);
       if(msg == '车机不在线') {
-        this.$msg.warn(`设备不在线[${value?.name}]`)
+        this.$msg.warning(`设备不在线[${value?.name}]`)
         let checkedKeys = this.deviceTreeRef.getCheckedKeys()['checked'];
         if(checkedKeys instanceof Array) {
           let indexOf = checkedKeys.indexOf(treeKey);
@@ -107,7 +107,7 @@ export default {
           // this.deviceTreeRef.setCheckedKeys([...checkedKeys]);
         }
       } else {
-        this.$msg.warn(`${msg}[${value?.name}]`)
+        this.$msg.warning(`${msg}[${value?.name}]`)
       }
     },
     checkNode(checkedKeys, {checked, checkedNodes, node}) {
@@ -159,7 +159,7 @@ export default {
               }
             });
       } else {
-        this.$msg.warn("此窗口未建立链接");
+        this.$msg.warning("此窗口未建立链接");
       }
 
     },
@@ -172,7 +172,7 @@ export default {
         if(!status) {
           this.rtvsPlayer.startSpeak(deviceId, channelId, 2, status => {
             if(!status) {
-              this.$msg.warn('未能获取到麦克风，请确认当前页面是https且未设置阻止。');
+              this.$msg.warning('未能获取到麦克风，请确认当前页面是https且未设置阻止。');
             }
 
             this.ptzRef.setSpeakStatus(status);
@@ -182,7 +182,7 @@ export default {
           this.ptzRef.setSpeakStatus(false);
         }
       } else {
-        this.$msg.warn("此窗口未建立链接");
+        this.$msg.warning("此窗口未建立链接");
       }
     },
     yuntaiHandel() {

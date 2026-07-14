@@ -256,7 +256,7 @@ export default {
       if(code == CoreConsts.SuccessCode) {
         this.products = data;
       } else {
-        this.$msg.warn(message);
+        this.$msg.warning(message);
       }
     })
 

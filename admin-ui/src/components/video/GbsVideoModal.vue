@@ -64,7 +64,7 @@ export default {
       if(!status) {
         this.mediaRef.startSpeak(deviceId, channelId, 2, status => {
           if(!status) {
-            this.$msg.warn('未能获取到麦克风，请确认当前页面是https且未设置阻止。');
+            this.$msg.warning('未能获取到麦克风，请确认当前页面是https且未设置阻止。');
           }
 
           this.ptzRef.setSpeakStatus(status);

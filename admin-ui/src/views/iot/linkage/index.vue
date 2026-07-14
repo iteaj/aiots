@@ -716,7 +716,7 @@ export default {
       status = status == 'enabled' ? 'disabled' : 'enabled';
       this.$http.post("/iot/linkage/switch", {id, status}).then(({code, message, data}) => {
         if(code != CoreConsts.SuccessCode) {
-          this.$msg.warn(message);
+          this.$msg.warning(message);
         } else {
           this.detailModel['status'] = status;
         }
@@ -729,7 +729,7 @@ export default {
         if(code == CoreConsts.SuccessCode) {
           this.detailModel = data;
         } else {
-          this.$msg.warn(message);
+          this.$msg.warning(message);
         }
       }).finally(() => this.loadingSpinning = false)
     },
@@ -744,7 +744,7 @@ export default {
             item['actions'] = data['actions'];
             item['conditions'] = data['conditions'];
           } else {
-            this.$msg.warn(message);
+            this.$msg.warning(message);
           }
         }).finally(() => this.loadingSpinning = false)
       } else {
@@ -801,17 +801,17 @@ export default {
             for (let j = 0; j < items.length; j++) {
               let {uid, productId, operator, linkedId, value, typeValue} = items[j];
               if(isEvent) {
-                if(!uid) return this.$msg.warn("未选择设备");
-                if(!productId) return this.$msg.warn("未选择产品");
-                if(!typeValue) return this.$msg.warn("未选择触发事件");
-                if(!operator) return this.$msg.warn("未选择操作符");
-                if(!value) return this.$msg.warn("未选择操作值");
+                if(!uid) return this.$msg.warning("未选择设备");
+                if(!productId) return this.$msg.warning("未选择产品");
+                if(!typeValue) return this.$msg.warning("未选择触发事件");
+                if(!operator) return this.$msg.warning("未选择操作符");
+                if(!value) return this.$msg.warning("未选择操作值");
               } else {
                 if(productId) {
-                  if(!uid) return this.$msg.warn("未选择设备");
-                  if(!typeValue) return this.$msg.warn("未选择触发事件");
-                  if(!operator) return this.$msg.warn("未选择操作符");
-                  if(!value) return this.$msg.warn("未选择操作值");
+                  if(!uid) return this.$msg.warning("未选择设备");
+                  if(!typeValue) return this.$msg.warning("未选择触发事件");
+                  if(!operator) return this.$msg.warning("未选择操作符");
+                  if(!value) return this.$msg.warning("未选择操作值");
                 } else {
                   items[j].type = 'None';
                   items[j].typeValue = 'None';
@@ -822,23 +822,23 @@ export default {
               }
             }
           } else {
-            return this.$msg.warn("未配置条件项");
+            return this.$msg.warning("未配置条件项");
           }
         }
       } else {
-        return this.$msg.warn("未配置条件");
+        return this.$msg.warning("未配置条件");
       }
 
       if(actions instanceof Array) {
-        if(actions.length == 0) return this.$msg.warn("未配置动作项");
+        if(actions.length == 0) return this.$msg.warning("未配置动作项");
         for (let i = 0; i < actions.length; i++) {
           let {uid, productId, typeValue} = actions[i];
-          if(!uid) return this.$msg.warn("未选择执行设备");
-          if(!productId) return this.$msg.warn("未选择执行产品");
-          if(!typeValue) return this.$msg.warn("未选择执行动作");
+          if(!uid) return this.$msg.warning("未选择执行设备");
+          if(!productId) return this.$msg.warning("未选择执行产品");
+          if(!typeValue) return this.$msg.warning("未选择执行动作");
         }
       } else {
-        return this.$msg.warn("未配置动作项");
+        return this.$msg.warning("未配置动作项");
       }
 
       this.loadingSpinning = true;
@@ -847,7 +847,7 @@ export default {
           item['id'] = data;
           this.$msg.success(message || "提交成功");
         } else {
-          this.$msg.warn(message);
+          this.$msg.warning(message);
         }
       }).finally(() => this.loadingSpinning = false)
     },
@@ -938,7 +938,7 @@ export default {
         if(code == CoreConsts.SuccessCode) {
           this.eventSource = data;
         } else {
-          this.$msg.warn(message);
+          this.$msg.warning(message);
         }
       })
     },
@@ -1025,7 +1025,7 @@ export default {
                 this.detailModel.items.splice(index, 1);
               }
             } else {
-              this.$msg.warn(message);
+              this.$msg.warning(message);
             }
           }).finally(() => this.loadingSpinning = false)
         } else {

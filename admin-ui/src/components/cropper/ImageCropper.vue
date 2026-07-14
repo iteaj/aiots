@@ -189,7 +189,7 @@ export default {
 
       this.oriFile = file;
       if (!/\.(gif|jpg|jpeg|png|bmp|GIF|JPG|PNG)$/.test(e.target.value)) {
-        this.$msg.warn('图片类型必须是.gif,jpeg,jpg,png,bmp中的一种')
+        this.$msg.warning('图片类型必须是.gif,jpeg,jpg,png,bmp中的一种')
         return false;
       }
 

@@ -95,22 +95,22 @@ export default {
     },
     onEndByServer(msg, id, video) {
       if(msg == '车机不在线') {
-        this.$msg.warn(`设备不在线`)
+        this.$msg.warning(`设备不在线`)
       } else {
-        this.$msg.warn(`${msg}`)
+        this.$msg.warning(`${msg}`)
       }
     },
     queryVideoFileList() {
       let _this = this;
       let query = this.$route.query;
       if(!query['deviceId']) {
-        this.$msg.warn('设备id不存在'); return;
+        this.$msg.warning('设备id不存在'); return;
       }
       if(!query['channelId']) {
-        this.$msg.warn('通道id不存在'); return;
+        this.$msg.warning('通道id不存在'); return;
       }
       if(!this.searchTime[0] || !this.searchTime[1]) {
-        this.$msg.warn('请选择查询时间'); return;
+        this.$msg.warning('请选择查询时间'); return;
       }
 
       this.tableLoading = true;
@@ -127,7 +127,7 @@ export default {
             });
           }
         } else {
-          this.$msg.warn("没有录像记录");
+          this.$msg.warning("没有录像记录");
         }
         _this.tableLoading = false;
       }, new QueryFileConfig(2, _this.searchTime[0], _this.searchTime[1]))
@@ -156,10 +156,10 @@ export default {
     playBack(record) {
       let query = this.$route.query;
       if(!query['deviceId']) {
-        this.$msg.warn('设备id不存在'); return;
+        this.$msg.warning('设备id不存在'); return;
       }
       if(!query['channelId']) {
-        this.$msg.warn('通道id不存在'); return;
+        this.$msg.warning('通道id不存在'); return;
       }
 
       let endTime = record.EndTime;
@@ -176,10 +176,10 @@ export default {
     download(record) {
       let query = this.$route.query;
       if(!query['deviceId']) {
-        this.$msg.warn('设备id不存在'); return;
+        this.$msg.warning('设备id不存在'); return;
       }
       if(!query['channelId']) {
-        this.$msg.warn('通道id不存在'); return;
+        this.$msg.warning('通道id不存在'); return;
       }
 
       this.rtvsPlayer.downloadFmp4(query['deviceId'], query['channelId']
