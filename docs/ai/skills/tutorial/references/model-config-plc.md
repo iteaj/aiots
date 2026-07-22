@@ -18,6 +18,17 @@ PLC 各品牌驱动均继承自同一个基类 `AbstractPlcProtocolSupplier`，�
 
 > 所有 PLC 驱动采用点位采集模式 (POINT)，网关类型为 Gateway。
 
+## 动态配置项总览
+
+PLC 驱动的配置项分为以下四类，分别在不同场景下使用：
+
+| 配置类型 | 配置时机 | 本驱动是否支持 | 说明 |
+|---------|---------|-------------|------|
+| **productConfig**（产品配置） | 创建产品时 | ✗ 无额外配置 | 所有 PLC 产品共用，无额外产品级参数 |
+| **gatewayConfig**（网关设备配置） | 创建网关设备时 | ✓ | 各品牌配置不同，详见下方 |
+| **deviceConfig**（子设备配置） | 创建子设备时 | ✗ 无额外配置 | 子设备 config 留空或传 `{}` 即可 |
+| **networkConfig**（网络组件配置） | 创建网络组件时 | ✗ 已预置 | 内置驱动的网络组件已预置，无需手动配置 |
+
 ## 可选指令
 
 基类通过 `addModelApi()` 注册了以下指令，所有 PLC 品牌共用：
@@ -106,7 +117,7 @@ PLC 各品牌驱动均继承自同一个基类 `AbstractPlcProtocolSupplier`，�
 | DOWN | `value` | 写固定值，或 `@属性字段` |
 | UP | `status` | 操作状态 |
 
-## 网关设备配置
+## 网关设备配置（gatewayConfig）
 
 各品牌 PLC 驱动的网关配置（`getGatewayConfig()`）不同：
 
@@ -184,7 +195,7 @@ PLC 各品牌驱动均继承自同一个基类 `AbstractPlcProtocolSupplier`，�
 | `port` | 是 | 端口，默认 44818 |
 | `readIdle` | 是 | 读空闲(秒) |
 
-## 子设备配置
+## 子设备配置（deviceConfig）
 
 PLC 驱动没有额外的子设备 `config` 配置项（`getDeviceConfig()` 返回空），创建子设备时 config 留空或传 `{}` 即可。
 

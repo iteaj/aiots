@@ -12,6 +12,19 @@ DTU 透传场景下，设备通过 DTU 模块与平台通信，DTU 将 Modbus �
 | DTU + Modbus RTU 透传 | `DTU_MODBUS_RTU` | TCP |
 | DTU + Modbus Over MQTT 透传 | `DTU_MODBUS_OVER_MQTT` | MQTT |
 
+## 动态配置项总览
+
+DTU Modbus 驱动的配置项分为以下四类，分别在不同场景下使用：
+
+| 配置类型 | 配置时机 | 本驱动是否支持 | 说明 |
+|---------|---------|-------------|------|
+| **productConfig**（产品配置） | 创建产品时 | ✗ 无额外配置 | 所有 DTU Modbus 产品共用，无额外产品级参数 |
+| **networkConfig**（网络组件配置） | 创建网络组件时 | ✓ | DTU TCP/RTU 透传和 MQTT 透传的网络配置不同，详见下方 |
+| **gatewayConfig**（网关设备配置） | 创建网关设备时 | ✗ 无额外配置 | DTU 透传无网关设备级额外配置 |
+| **deviceConfig**（子设备配置） | 创建子设备时 | ✓ | 仅配置字节序（无批量采集开关） |
+
+> **与直连 Modbus 的区别：** 直连 Modbus 的网关配置（`gatewayConfig`）在 DTU 透传场景下变成了网络组件配置（`networkConfig`），因为 DTU 是服务端模式（平台监听，设备主动连接）。
+
 ## 可选指令
 
 与 Modbus 驱动相同：
@@ -38,7 +51,7 @@ DTU 透传场景下，设备通过 DTU 模块与平台通信，DTU 将 Modbus �
 
 与 Modbus 驱动完全相同，详见 [Modbus 物模型配置参考](./model-config-modbus.md)。
 
-## 网关设备配置
+## 网络组件配置（networkConfig）
 
 ### DTU + Modbus TCP/RTU 透传
 
@@ -69,11 +82,13 @@ DTU 透传场景下，设备通过 DTU 模块与平台通信，DTU 将 Modbus �
 | `keepalive` | 否 | 保活时间(秒) |
 | `qos` | 是 | 消息等级：0/1/2 |
 | `topics` | 是 | 订阅主题（MQTT标准配置） |
-| `productCode` | 是 | 子产品编号 |
-| `publish` | 是 | 平台下发给 DTU 的主题，如 `demo/{deviceSn}/write` |
-| `subscription` | 是 | DTU 上报给平台的主题，如 `demo/{deviceSn}/read` |
+| `productCode` | 是 | 子产品编号，用于匹配子设备所属产品 |
+| `publish` | 是 | 平台下发给 DTU 的主题，支持 `{deviceSn}` 占位符，如 `demo/{deviceSn}/write` |
+| `subscription` | 是 | DTU 上报给平台的主题，**必须包含** `{deviceSn}` 占位符，如 `demo/{deviceSn}/read` |
 
-## 子设备配置
+> **注意：** `subscription`（上报主题）必须包含 `{deviceSn}` 占位符，否则平台无法识别消息来源设备。
+
+## 子设备配置（deviceConfig）
 
 ```json
 {"dataFormat": "ABCD"}
