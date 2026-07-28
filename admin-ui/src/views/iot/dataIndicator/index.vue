@@ -1,31 +1,17 @@
 <template>
-  <UView name="DataIndicator">
+  <UView name="数据指标">
     <div class="di-content">
       <!-- 搜索栏 -->
-      <ACard size="small" class="di-search-card">
-        <ARow :gutter="16" align="middle">
-          <ACol :span="6">
-            <div class="di-field-label">产品</div>
-            <ASelect v-model:value="searchProductId" placeholder="选择产品" :options="productOptions"
-                     allowClear style="width: 100%" @change="onProductChange" />
-          </ACol>
-          <ACol :span="6">
-            <div class="di-field-label">设备</div>
-            <ASelect v-model:value="searchUid" placeholder="选择设备" :options="deviceOptions"
-                     allowClear style="width: 100%" :loading="deviceLoading" />
-          </ACol>
-          <ACol :span="8">
-            <div class="di-field-label">告警时间范围</div>
-            <ARangePicker v-model:value="searchTime" :presets="timePresets" style="width: 100%" showTime />
-          </ACol>
-          <ACol :span="4" style="text-align: right">
-            <ASpace style="padding-top: 18px;">
-              <AButton type="primary" @click="doSearch">查询</AButton>
-              <AButton @click="doReset">重置</AButton>
-            </ASpace>
-          </ACol>
-        </ARow>
-      </ACard>
+      <UViewSearch v-model="searchModel">
+        <URow :responsive="3">
+          <USelectItem field="productId" label="产品" url="/iot/product/listByNonGateway"
+                       allowClear @change="onProductChange" labelField="name" valueField="id"/>
+          <USelectItem field="uid" label="设备" url="/iot/device/listOfProducts?productIds={productId}" labelField="name" valueField="uid" allowClear/>
+          <URangePickerItem field="searchTime" label="时间范围" :labelCol="{span: 6}" :wrapperCol="{span: 18}" :presets="timePresets" showTime/>
+          <UButton func="query" @click="doSearch">查询</UButton>
+          <UButton func="reset" @click="doReset">重置</UButton>
+        </URow>
+      </UViewSearch>
 
       <!-- 告警点位列表 -->
       <ACard size="small" class="di-table-card" title="告警点位列表">
@@ -47,20 +33,17 @@
         </ATable>
       </ACard>
 
-      <!-- 分析区域 -->
-      <div v-if="analysisVisible" class="di-analysis-area">
-        <!-- 当前点位信息 -->
-        <ACard size="small" class="di-an-header">
-          <template #title>
-            <ASpace>
-              <span style="font-weight: bold;">{{ selectedAlarmFieldName }}</span>
-              <ATag color="blue">{{ selectedAlarm?.deviceName }}</ATag>
-              <span style="font-size: 12px; color: #999;">告警值: {{ selectedAlarm?.value }}</span>
-              <span style="font-size: 12px; color: #999;">告警时间: {{ formatTime(selectedAlarm?.warnTime) }}</span>
-            </ASpace>
-          </template>
-        </ACard>
-
+      <!-- 分析区域(全屏抽屉) -->
+      <ADrawer v-model:open="analysisVisible" width="100%" placement="right"
+               :afterOpenChange="onAnalysisOpenChange" class="di-analysis-drawer">
+        <template #title>
+          <ASpace>
+            <span style="font-weight: bold;">{{ selectedAlarmFieldName }}</span>
+            <ATag color="blue">{{ selectedAlarm?.deviceName }}</ATag>
+            <span style="font-size: 12px; color: #999;">告警值: {{ selectedAlarm?.value }}</span>
+            <span style="font-size: 12px; color: #999;">告警时间: {{ formatTime(selectedAlarm?.warnTime) }}</span>
+          </ASpace>
+        </template>
         <!-- 聚合统计 -->
         <ARow :gutter="8" class="di-stats-row">
           <ACol :span="4">
@@ -221,7 +204,7 @@
             </ACard>
           </ACol>
         </ARow>
-      </div>
+      </ADrawer>
     </div>
   </UView>
 </template>
@@ -255,12 +238,8 @@ export default {
   components: {},
   setup() {
     // ============ 搜索条件 ============
-    let searchProductId = ref(null);
-    let searchUid = ref(null);
-    let searchTime = ref([dayjs().subtract(7, 'day'), dayjs()]);
-    let productOptions = ref([]);
-    let deviceOptions = ref([]);
-    let deviceLoading = ref(false);
+    // UViewSearch搜索模型: productId-产品id uid-设备标识 searchTime-告警时间范围
+    let searchModel = ref({productId: null, uid: null, searchTime: [dayjs().subtract(7, 'day'), dayjs()]});
     // fieldName -> {id, name, field}
     let attrFieldMap = ref({});
     let selectedFieldId = ref(null);
@@ -306,7 +285,7 @@ export default {
     ]);
 
     return {
-      searchProductId, searchUid, searchTime, productOptions, deviceOptions, deviceLoading,
+      searchModel,
       attrFieldMap, selectedFieldId,
       alarmList, tableLoading, alarmPagination,
       selectedAlarm, selectedAlarmFieldName, analysisVisible, analysisRange,
@@ -317,52 +296,14 @@ export default {
     }
   },
   methods: {
-    // ============ 页面加载 ============
-    mounted() {
-      this.$nextTick(() => {
-        this.loadProducts();
-      })
-    },
-
-    loadProducts() {
-      this.$http.get('/iot/product/list', {params: {}}).then(({code, message, data}) => {
-        if (code === CoreConsts.SuccessCode) {
-          if (data instanceof Array) {
-            this.productOptions = data.map(item => {
-              return {label: item['name'], value: item['id']};
-            });
-          }
-        } else {
-          msgWarn(message);
-        }
-      });
-    },
-
     // ============ 搜索事件 ============
     onProductChange(value) {
-      this.searchUid = null;
-      this.deviceOptions = [];
+      // uid由级联url({productId})变化后自动重置, 这里只需清理属性映射
       this.attrFieldMap = {};
       this.selectedFieldId = null;
       if (value) {
-        this.loadDevices(value);
         this.loadModelAttrs(value);
       }
-    },
-
-    loadDevices(productId) {
-      this.deviceLoading = true;
-      this.$http.get('/iot/device/listOfProducts', {params: {productIds: productId}}).then(({code, data}) => {
-        if (code === CoreConsts.SuccessCode) {
-          if (data instanceof Array) {
-            this.deviceOptions = data.map(item => {
-              return {label: item['name'], value: item['uid']};
-            });
-          }
-        }
-      }).finally(() => {
-        this.deviceLoading = false;
-      });
     },
 
     loadModelAttrs(productId) {
@@ -381,11 +322,12 @@ export default {
 
     doSearch() {
       let params = {current: this.alarmPagination.current, size: this.alarmPagination.pageSize};
-      if (this.searchProductId) params['productId'] = this.searchProductId;
-      if (this.searchUid) params['uid'] = this.searchUid;
-      if (this.searchTime && this.searchTime.length === 2) {
-        params['startTimestamp'] = this.searchTime[0].valueOf();
-        params['endTimestamp'] = this.searchTime[1].valueOf();
+      let model = this.searchModel;
+      if (model.productId) params['productId'] = model.productId;
+      if (model.uid) params['uid'] = model.uid;
+      if (model.searchTime && model.searchTime.length === 2) {
+        params['startTimestamp'] = model.searchTime[0].valueOf();
+        params['endTimestamp'] = model.searchTime[1].valueOf();
       }
 
       this.tableLoading = true;
@@ -407,10 +349,10 @@ export default {
     },
 
     doReset() {
-      this.searchProductId = null;
-      this.searchUid = null;
-      this.searchTime = [dayjs().subtract(7, 'day'), dayjs()];
-      this.deviceOptions = [];
+      // 就地修改字段, 保持UViewSearch表单模型引用不变
+      this.searchModel.productId = null;
+      this.searchModel.uid = null;
+      this.searchModel.searchTime = [dayjs().subtract(7, 'day'), dayjs()];
       this.attrFieldMap = {};
       this.selectedFieldId = null;
       this.analysisVisible = false;
@@ -445,6 +387,13 @@ export default {
 
     onAnalysisRangeChange() {
       this.loadAnalysisData();
+    },
+
+    // 抽屉打开动画结束后重置图表尺寸, 避免动画期间初始化宽度异常
+    onAnalysisOpenChange(open) {
+      if (open && this.collectDataEcharts) {
+        this.collectDataEcharts.resize();
+      }
     },
 
     loadAnalysisData() {
@@ -577,25 +526,11 @@ export default {
 .di-content {
   padding: 10px;
 }
-.di-search-card {
-  margin-bottom: 8px;
-}
 .di-table-card {
   margin-bottom: 8px;
 }
-.di-field-label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 2px;
-}
 .di-row-selected {
   background-color: #e6f4ff !important;
-}
-.di-analysis-area {
-  margin-top: 8px;
-}
-.di-an-header {
-  margin-bottom: 8px;
 }
 .di-stats-row {
   margin-bottom: 8px;

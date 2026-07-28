@@ -59,39 +59,7 @@
               </div>
               <AEmpty v-else description="暂无事件接口" />
             </ACard>
-            <AFlex class="iv-attr-container" justify="center" align="middle" wrap="wrap">
-              <div v-for="attr in realtimeData" :key="attr.id" :span="3" class="iv-attr-item">
-                <a-badge-ribbon :text="attr.indicator || ''" :color="indicatorColors[attr.indicator] || gradeColorMap[attr.grade]?.[0] || 'default'">
-                  <a-card variant="borderless" hoverable size="small" :class="activeAttrId==attr.id? 'active' : ''" @click="() => onAttrClick(attr)" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">
-                    <template #title>
-                      <AFlex gap="10" justify="space-between">
-                        <div>
-                          <span style="font-weight: normal; font-size: 12px; color: #818181;">{{attr.field}}</span>
-                        </div>
-                      </AFlex>
-                    </template>
-                    <ARow>
-                      <ACol span="14" style="text-align: center">
-                        <div>
-                          <span style="font-weight: bold; font-size: 14px;">{{attr.label || (attr.value != null ? attr.value : '-')}}</span>
-                          <span class="iv-minor-text">&nbsp;{{attr.unit ? `(${attr.unit})` : ''}}</span>
-                        </div>
-                        <div class="iv-text-ellipsis iv-color-text-tertiary iv-font-text-tertiary">{{attr.name}}</div>
-                      </ACol>
-                      <ACol span="10" style="text-align: center">
-                        <div class="iv-text-ellipsis" style="text-align: center">
-                          {{attr.address || '-'}}
-                        </div>
-                        <div class="iv-color-text-tertiary iv-font-text-tertiary">地址</div>
-                      </ACol>
-                    </ARow>
-                    <div style="font-size: 12px; color: #818181; text-align: center; padding-top: 6px; border-top: 1px dashed var(--ant-color-split)">
-                      <span>{{attr.collectTime || '暂未采集'}}</span>
-                    </div>
-                  </a-card>
-                </a-badge-ribbon>
-              </div>
-            </AFlex>
+            <IndicatorCard :data-source="realtimeData" @attr-click="onAttrClick" />
             <ACard size="small" style="min-width: 250px; height: 100%" :styles="{head: {padding: '0'}, body: {height: 'calc(100% - 38px)'}}">
             <template #title>
               <div class="iv-api-contain-head">
@@ -268,7 +236,7 @@ import {msgError, msgSuccess, msgWarn} from "@/utils/message";
 import {useRoute} from "vue-router";
 import dayjs from "dayjs";
 import {SendOutlined} from '@antdv-next/icons'
-import {useStore} from "vuex";
+import IndicatorCard from "@/components/iot/IndicatorCard.vue";
 
 echarts.use([CanvasRenderer, TitleComponent, GridComponent, VisualMapComponent, LineChart
   , UniversalTransition, TooltipComponent, LegendComponent, DatasetComponent, ToolboxComponent, DataZoomComponent])
@@ -281,14 +249,8 @@ echarts.use([CanvasRenderer, TitleComponent, GridComponent, VisualMapComponent, 
   let tipText = ref("执行中...");
   let selectDevice = shallowRef({})
   let selectProduct = shallowRef({});
-  let activeAttrId = ref();
   let selectGrade = shallowRef('')
   let apiCodeDebugMap = ref({});
-  let gradeColorMap = {
-    fatal: ['red', '严重'], urgent: ['magenta', '紧急'], warn: ['yellow', '警告'], notice: ['cyan', '通知']
-    , normal: ['green', '正常'], indicator: ['purple', '指标'], default: ['gray', '']
-  }
-  let indicatorColors = useStore().getters["sys/indicatorColors"];
   let gradeOptions = [
     {label: '全部', value: ''},
     {label: '严重', value: 'fatal'},
@@ -341,13 +303,12 @@ let realtimeSocket = null;
       return item.grade == selectGrade.value || selectGrade.value == ''
     });
   });
+  // IndicatorCard组件点击事件, attr为null表示取消选中
   const onAttrClick = (attr) => {
-    if(selectAttr.value == attr) {
+    if(attr == null) {
       selectAttr.value = null;
-      activeAttrId.value = null;
     } else {
       selectAttr.value = attr;
-      activeAttrId.value = attr.id;
       GET("/iot/dataIndicator/crossDevicePoints",
           {productCode: selectProduct.value.code, excludeUid: selectDevice.value.uid, fieldId: selectAttr.value.id, collectTime: selectAttr.value.collectTime})
           .then(({code, message, data}) => {
@@ -866,7 +827,7 @@ const onOtherDeviceAttrClick = (item) => {
   position: relative;
   border-bottom: 1px dashed var(--ant-color-split);
 }
-.iv-api-item .iv-cmd-desc, .iv-minor-text {
+.iv-api-item .iv-cmd-desc {
   font-size: 12px;
   color: #8e8e8e;
 }
@@ -879,22 +840,8 @@ const onOtherDeviceAttrClick = (item) => {
   width: 22px;
   height: 22px;
 }
-.iv-attr-item {
-  min-width: 180px;
-  padding: 0 5px;
-  height: 116px;
-  margin: 5px 0 5px;
-}
-.iv-attr-item .active {
-  box-shadow: 0 0 2px -2px rgb(0 129 251 / 61%), 0 0 8px 0 rgb(45 159 250 / 61%), 0 1px 12px 0 rgb(185 211 251 / 75%)
-}
 .iv-body-bottom {
   margin-top: 8px;
-}
-.iv-attr-container {
-  flex: 1;
-  overflow: auto;
-  //padding: 10px;
 }
 .iv-attr-container, .iv-body-top {
   min-height: 270px;
