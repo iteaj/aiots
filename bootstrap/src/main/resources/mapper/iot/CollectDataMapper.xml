@@ -488,12 +488,13 @@
                     , a.status, a.collect_time, a.device_name, a.field_name, a.device_group_Id
                 from iot_collect_data a
                 <where>
-                    a.field_id = #{entity.fieldId} and status = true AND grade IS NOT NULL
+                    a.field_id = #{entity.fieldId} and status = true AND grade IS NOT NULL and grade != 'status'
                     <if test="entity.uid != null and entity.uid != ''">
                         and uid=#{entity.uid}
                     </if>
                     and UNIX_TIMESTAMP(collect_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
                 </where>
+                order by a.grade
             </when>
             <otherwise>
                 WITH ranked AS (
@@ -502,13 +503,13 @@
                         , ROW_NUMBER() OVER (PARTITION BY uid, field_id ORDER BY collect_time DESC) AS rn
                     FROM iot_collect_data a
                     <where>
-                        status = true AND grade IS NOT NULL
+                        status = true AND grade IS NOT NULL and grade != 'status'
                         <if test="entity.uid != null and entity.uid != ''">
                             and uid=#{entity.uid}
                         </if>
                         and UNIX_TIMESTAMP(collect_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
                     </where>
-                ) SELECT * FROM ranked WHERE rn = 1
+                ) SELECT * FROM ranked WHERE rn = 1 order by grade
             </otherwise>
         </choose>
 
