@@ -2,13 +2,19 @@ package com.iteaj.iboot.module.iot.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.data.IndicatorStats;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
+import com.iteaj.framework.spi.iot.data.RealtimeDataParam;
 import com.iteaj.iboot.module.iot.dto.AssociatedStats;
+import com.iteaj.iboot.module.iot.dto.IndicatorCardVO;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
+import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDataIndicatorService;
 import com.iteaj.iboot.module.iot.service.IDeviceGroupService;
+import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,10 +27,46 @@ public class DataIndicatorServiceImpl implements IDataIndicatorService {
 
     private final RealtimeCollectDataService collectDataService;
     private final IDeviceGroupService deviceGroupService;
+    private final IProductService productService;
 
-    public DataIndicatorServiceImpl(RealtimeCollectDataService collectDataService, IDeviceGroupService deviceGroupService) {
+    public DataIndicatorServiceImpl(RealtimeCollectDataService collectDataService, IDeviceGroupService deviceGroupService, IProductService productService) {
         this.collectDataService = collectDataService;
         this.deviceGroupService = deviceGroupService;
+        this.productService = productService;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Page<IndicatorCardVO> viewOfPage(Page page, RealtimeDataParam param) {
+        // 固定条件: 只查采集成功且有告警等级的数据
+        param.setStatus(true);
+        param.setHasGrade(true);
+
+        // 产品id转产品码(采集表按product_code过滤)
+        if(param.getProductId() != null && StrUtil.isEmpty(param.getProductCode())) {
+            Product product = productService.getById(param.getProductId())
+                    .ifNotPresentThrow("产品不存在")
+                    .getData();
+            param.setProductCode(product.getCode());
+        }
+
+        // 复用采集数据分页查询, 再裁剪为前端卡片需要的字段
+        collectDataService.listIndicatorOfPage(page, param);
+        List<IndicatorCardVO> records = ((List<RealtimeCollectData>) page.getRecords())
+                .stream().map(IndicatorCardVO::of).toList();
+
+        if(!records.isEmpty()) {
+            records.forEach(item -> {
+                DeviceGroup cacheById = deviceGroupService.getCacheById(item.getGroupId());
+                if(cacheById != null) {
+                    item.setDeviceGroupName(cacheById.getName());
+                }
+            });
+        }
+
+        Page<IndicatorCardVO> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
+        result.setRecords(records);
+        return result;
     }
 
     @Override

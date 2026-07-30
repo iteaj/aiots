@@ -1,8 +1,8 @@
 <template>
   <UView>
     <AFlex vertical style="flex-grow: 1;">
-      <div style="padding: 5px; background-color: #ffffff; border-radius: 5px">
-        <ARow :gutter="16" style="padding: 8px;" align="middle" warp>
+      <UViewSearch>
+        <ARow :gutter="16" style="padding-bottom: 8px; width: 100%;" align="middle" warp>
           <ACol :span="12">
             <div v-for="(item, index) in conditions" :key="index" style="margin: 3px 0;">
               <ASpace>
@@ -23,7 +23,7 @@
             </ASpace>
           </ACol>
         </ARow>
-      </div>
+      </UViewSearch>
       <div style="margin-top: 8px">
         <ASpin :spinning="spinning" description="数据加载中...">
           <ACard class="u-row" size="small">

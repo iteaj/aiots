@@ -182,4 +182,9 @@ public class TaosDataService implements RealtimeCollectDataService {
     public List<RealtimeCollectData> listByPuidOrGroup(String puid, Long deviceGroupId, Date startTime, Date endTime, String excludeUid, Long excludeFieldId, String grade) {
         return (List<RealtimeCollectData>)(List<?>) collectDataMapper.listByPuidOrGroup(puid, deviceGroupId, startTime, endTime, excludeUid, excludeFieldId, grade);
     }
+
+    @Override
+    public Page<?> listIndicatorOfPage(Page<?> page, RealtimeDataParam param) {
+        return collectDataMapper.listIndicatorOfPage(page, param);
+    }
 }

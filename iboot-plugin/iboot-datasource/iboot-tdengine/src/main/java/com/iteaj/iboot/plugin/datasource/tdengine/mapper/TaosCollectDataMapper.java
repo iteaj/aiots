@@ -3,12 +3,8 @@ package com.iteaj.iboot.plugin.datasource.tdengine.mapper;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
-import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
-import com.iteaj.framework.spi.iot.data.CollectDataCondition;
-import com.iteaj.framework.spi.iot.data.DefaultRealtimeData;
-import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
+import com.iteaj.framework.spi.iot.data.*;
 import com.iteaj.iboot.plugin.datasource.tdengine.listener.TaosRealtimeData;
-import com.iteaj.framework.spi.iot.data.IndicatorStats;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -100,4 +96,6 @@ public interface TaosCollectDataMapper {
                                                 @Param("startTime") Date startTime, @Param("endTime") Date endTime,
                                                 @Param("excludeUid") String excludeUid, @Param("excludeFieldId") Long excludeFieldId,
                                                 @Param("grade") String grade);
+
+    Page<RealtimeCollectData> listIndicatorOfPage(Page<?> page, RealtimeDataParam entity);
 }

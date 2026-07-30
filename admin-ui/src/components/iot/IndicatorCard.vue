@@ -1,5 +1,5 @@
 <template>
-  <AFlex class="iv-attr-container" justify="center" align="middle" wrap="wrap">
+  <AFlex class="iv-attr-container" justify="center" align="middle" wrap="wrap" gap="8">
     <div v-for="attr in dataSource" :key="attr.id" class="iv-attr-item">
       <a-badge-ribbon :text="attr.indicator || ''" :color="indicatorColors[attr.indicator] || gradeColorMap[attr.grade]?.[0] || 'default'">
         <a-card variant="borderless" hoverable size="small" :class="activeAttrId==attr.id? 'active' : ''" @click="() => onAttrClick(attr)" :styles="{head: {minHeight: '28px'}, body: {padding: '6px'}}">

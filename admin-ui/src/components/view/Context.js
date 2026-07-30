@@ -527,22 +527,22 @@ export function $View(context) {
 
         if(tableContext.pageSize && tableContext.currentPage) {
             // 完全相等重置为第一页
-            if(model[CoreConsts.PageSize] == tableContext.pageSize &&
-                model[CoreConsts.PageCurrent] == tableContext.currentPage) {
-                tableContext.resetPagination(null, null);
-            }
+            // if(model[CoreConsts.PageSize] == tableContext.pageSize &&
+            //     model[CoreConsts.PageCurrent] == tableContext.currentPage) {
+            //     tableContext.resetPagination(null, null);
+            // }
 
             model[CoreConsts.PageSize] = tableContext.pageSize;
             model[CoreConsts.PageCurrent] = tableContext.currentPage;
         }
 
-        function reload(status, tip) {
+        function reloading(status, tip) {
             if(reload) {
                 tableContext.setLoading(status, tip);
             }
         }
         this.getRequestParams(model, params, funcPath).then(params => {
-            reload(true, CoreConsts.TableSpinLoadingTip);
+            reloading(true, CoreConsts.TableSpinLoadingTip);
             this.getRequestMethod({func, method})(url, params).then(({code, message, data}) => {
                 if(code == CoreConsts.SuccessCode) {
                     if(data instanceof Array){
@@ -558,7 +558,7 @@ export function $View(context) {
                 }
 
                 callback({code, message, data});
-            }).finally(() =>  reload(false, null))
+            }).finally(() =>  reloading(false, null))
         });
     }
 

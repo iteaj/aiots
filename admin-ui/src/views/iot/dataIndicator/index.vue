@@ -5,78 +5,51 @@
       <UViewSearch v-model="searchModel">
         <URow :responsive="3">
           <USelectItem field="productId" label="产品" url="/iot/product/listByNonGateway"
-                       allowClear @change="onProductChange" labelField="name" valueField="id"/>
+                       allowClear labelField="name" valueField="id"/>
+          <USelectItem field="fieldId" label="模型属性" url="/iot/modelAttr/listByProductId?productId={productId}" labelField="name" valueField="id" allowClear/>
           <USelectItem field="uid" label="设备" url="/iot/device/listOfProducts?productIds={productId}" labelField="name" valueField="uid" allowClear/>
-          <URangePickerItem field="searchTime" label="时间范围" :labelCol="{span: 6}" :wrapperCol="{span: 18}" :presets="timePresets" showTime/>
+          <URangePickerItem field="searchTime" label="时间范围" :labelCol="{span: 4}" :wrapperCol="{span: 20}" :presets="timePresets" showTime/>
           <UButton func="query" @click="doSearch">查询</UButton>
           <UButton func="reset" @click="doReset">重置</UButton>
         </URow>
       </UViewSearch>
 
-      <!-- 告警点位列表 -->
-      <ACard size="small" class="di-table-card" title="告警点位列表">
+      <!-- 采集点位卡片列表 -->
+      <ACard size="small" class="di-table-card" title="告警点位">
         <template #extra>
-          <span style="font-size: 12px; color: #999;">点击"分析"查看该告警点位的关联数据</span>
+          <span style="font-size: 12px; color: #999;">点击卡片查看该点位的关联分析(用于查看指定告警点位发生时其他点位的趋势信息)</span>
         </template>
-        <ATable :columns="alarmColumns" :dataSource="alarmList" :pagination="alarmPagination"
-                 :rowKey="(r) => r.id" size="small" bordered :loading="tableLoading"
-                 :rowClassName="(r) => selectedAlarm && selectedAlarm.id === r.id ? 'di-row-selected' : ''"
-                 @change="onTableChange">
-          <template #bodyCell="{column, record}">
-            <template v-if="column.dataIndex === 'gradeName'">
-              <ATag :color="gradeColor(record.grade)">{{ record.gradeName }}</ATag>
-            </template>
-            <template v-if="column.key === 'action'">
-              <ATag color="#108ee9" style="cursor: pointer" @click="() => onAlarmClick(record)">分析</ATag>
-            </template>
-          </template>
-        </ATable>
+        <ASpin :spinning="listLoading">
+          <DeviceIndicatorCard v-if="cardList.length > 0" :data-source="cardList" @attr-click="onCardClick" />
+          <AEmpty v-else description="暂无采集数据" />
+          <AFlex justify="flex-end" style="margin-top: 8px; text-align: center;">
+            <APagination v-model:current="pagination.current" :total="pagination.total" :pageSize="pagination.pageSize"
+                         :showSizeChanger="false" :showTotal="(total) => `共 ${total} 条`" size="small" @change="onPageChange"/>
+          </AFlex>
+        </ASpin>
       </ACard>
 
       <!-- 分析区域(全屏抽屉) -->
       <ADrawer v-model:open="analysisVisible" width="100%" placement="right"
                :afterOpenChange="onAnalysisOpenChange" class="di-analysis-drawer">
         <template #title>
-          <ASpace>
-            <span style="font-weight: bold;">{{ selectedAlarmFieldName }}</span>
-            <ATag color="blue">{{ selectedAlarm?.deviceName }}</ATag>
-            <span style="font-size: 12px; color: #999;">告警值: {{ selectedAlarm?.value }}</span>
-            <span style="font-size: 12px; color: #999;">告警时间: {{ formatTime(selectedAlarm?.warnTime) }}</span>
-          </ASpace>
+          <AFlex justify="space-between" align="center" style="padding-right: 16px">
+            <ASpace>
+              <span style="font-weight: bold;">{{ selectedPoint?.name || selectedPoint?.field }}</span>
+              <ATag color="blue">{{ selectedPoint?.deviceName }}</ATag>
+              <span style="font-size: 12px; color: #999;">采集值: {{ selectedPoint?.value }}</span>
+              <span style="font-size: 12px; color: #999;">采集时间: {{ formatTime(selectedPoint?.collectTime) }}</span>
+            </ASpace>
+            <!-- 聚合统计 -->
+            <ASpace :size="16">
+              <span class="di-header-stat">当前值: <b>{{ indicatorStats.current != null ? indicatorStats.current : '-' }}</b></span>
+              <span class="di-header-stat">最大值: <b>{{ indicatorStats.max != null ? indicatorStats.max : '-' }}</b> ({{ indicatorStats.maxTime ? dayjs(indicatorStats.maxTime).format('MM-DD HH:mm') : '-' }})</span>
+              <span class="di-header-stat">最小值: <b>{{ indicatorStats.min != null ? indicatorStats.min : '-' }}</b> ({{ indicatorStats.minTime ? dayjs(indicatorStats.minTime).format('MM-DD HH:mm') : '-' }})</span>
+              <span class="di-header-stat">平均值: <b>{{ indicatorStats.avg != null ? Number(indicatorStats.avg).toFixed(2) : '-' }}</b></span>
+              <span class="di-header-stat">数据量: <b>{{ indicatorStats.count != null ? indicatorStats.count : '-' }}</b></span>
+            </ASpace>
+          </AFlex>
         </template>
-        <!-- 聚合统计 -->
-        <ARow :gutter="8" class="di-stats-row">
-          <ACol :span="4">
-            <div class="di-stat-card">
-              <div class="di-stat-value">{{ indicatorStats.current != null ? indicatorStats.current : '-' }}</div>
-              <div class="di-stat-label">当前值</div>
-            </div>
-          </ACol>
-          <ACol :span="5">
-            <div class="di-stat-card">
-              <div class="di-stat-value">{{ indicatorStats.max != null ? indicatorStats.max : '-' }}</div>
-              <div class="di-stat-label">最大值 ({{ indicatorStats.maxTime ? dayjs(indicatorStats.maxTime).format('MM-DD HH:mm') : '-' }})</div>
-            </div>
-          </ACol>
-          <ACol :span="5">
-            <div class="di-stat-card">
-              <div class="di-stat-value">{{ indicatorStats.min != null ? indicatorStats.min : '-' }}</div>
-              <div class="di-stat-label">最小值 ({{ indicatorStats.minTime ? dayjs(indicatorStats.minTime).format('MM-DD HH:mm') : '-' }})</div>
-            </div>
-          </ACol>
-          <ACol :span="5">
-            <div class="di-stat-card">
-              <div class="di-stat-value">{{ indicatorStats.avg != null ? Number(indicatorStats.avg).toFixed(2) : '-' }}</div>
-              <div class="di-stat-label">平均值</div>
-            </div>
-          </ACol>
-          <ACol :span="5">
-            <div class="di-stat-card">
-              <div class="di-stat-value">{{ indicatorStats.count != null ? indicatorStats.count : '-' }}</div>
-              <div class="di-stat-label">数据量</div>
-            </div>
-          </ACol>
-        </ARow>
 
         <!-- 历史趋势图 -->
         <ACard size="small" class="di-chart-card">
@@ -97,72 +70,42 @@
         </ACard>
 
         <!-- 关联点位数据 -->
-        <ARow :gutter="8" class="di-assoc-row">
-          <ACol :span="8">
-            <ACard size="small" class="di-assoc-card" title="同设备其他点位">
+        <ARow :gutter="[8, 8]" class="di-assoc-row" wrap="wrap" justify="start">
+          <ACol :xxxl="8" :xxl="8" :xl="12" :xs="24" class="di-assoc-col">
+            <ACard size="small" class="di-assoc-card" title="同设备同时采集的其他点位">
               <template #extra>
-                <span style="font-size: 12px; color: #999;" v-if="selectedAlarm">采集时间: {{ formatTime(selectedAlarm.warnTime) }}</span>
+                <span style="font-size: 12px; color: #999;" v-if="selectedPoint">采集时间: {{ formatTime(selectedPoint.collectTime) }}</span>
               </template>
               <div style="height: 260px; overflow-y: auto;">
-                <div v-if="sameDevicePoints.length > 0">
-                  <div class="iv-od-attr" v-for="item in sameDevicePoints" :key="item.fieldId"
-                       @click="() => onAssociatedPointClick(item)">
-                    <div class="iv-text-ellipsis iv-od-title">
-                      <span style="width: 65%" class="iv-text-ellipsis">{{ item.fieldName || item.field }}</span>
-                      <span style="width: 35%; text-align: right; font-size: 12px;" class="iv-text-ellipsis"
-                            :class="gradeClass(item.grade)">{{ item.indicator || '' }}</span>
-                    </div>
-                    <div class="iv-od-content">
-                      <AFlex style="height: 38px" justify="space-between">
-                        <div style="width: 40%">
-                          <div class="iv-text-ellipsis" style="font-weight: bold">{{ item.value || '' }}</div>
-                          <div class="iv-od-name">采集值</div>
-                        </div>
-                        <div style="width: 60%; line-height: 38px">
-                          <div class="iv-text-ellipsis">{{ item.deviceGroupName || '' }}</div>
-                        </div>
-                      </AFlex>
-                    </div>
-                    <div class="iv-text-ellipsis iv-od-time">{{ item.collectTime }}</div>
-                  </div>
-                </div>
-                <AEmpty v-else description="暂无其他点位数据" />
+                <ATable size="small" rowKey="id" :columns="assocPointColumns" :data-source="sameDevicePoints"
+                        :pagination="false" :scroll="{y: 215}" :customRow="assocCustomRow">
+                  <template #bodyCell="{column, record}">
+                    <template v-if="column.dataIndex === 'indicator'">
+                      <span :class="gradeClass(record.grade)">{{ record.indicator || '-' }}</span>
+                    </template>
+                  </template>
+                </ATable>
               </div>
             </ACard>
           </ACol>
-          <ACol :span="8">
-            <ACard size="small" class="di-assoc-card" title="其他设备同点位">
+          <ACol :xxxl="8" :xxl="8" :xl="12" :xs="24" class="di-assoc-col">
+            <ACard size="small" class="di-assoc-card" title="同产品下其他设备点位">
               <template #extra>
-                <span style="font-size: 12px; color: #999;" v-if="selectedAlarm">采集时间: {{ formatTime(selectedAlarm.warnTime) }}</span>
+                <span style="font-size: 12px; color: #999;" v-if="selectedPoint">采集时间: {{ formatTime(selectedPoint.collectTime) }}</span>
               </template>
               <div style="height: 260px; overflow-y: auto;">
-                <div v-if="otherDevicePoints.length > 0">
-                  <div class="iv-od-attr" v-for="(item, index) in otherDevicePoints" :key="index"
-                       @click="() => onAssociatedPointClick(item)">
-                    <div class="iv-text-ellipsis iv-od-title">
-                      <a href="javascript:void(0)" style="width: 65%" class="iv-text-ellipsis">{{ item.deviceName }}</a>
-                      <span style="width: 35%; text-align: right; font-size: 12px;" class="iv-text-ellipsis"
-                            :class="gradeClass(item.grade)">{{ item.indicator || '' }}</span>
-                    </div>
-                    <div class="iv-od-content">
-                      <AFlex style="height: 38px" justify="space-between">
-                        <div style="width: 40%">
-                          <div class="iv-text-ellipsis" style="font-weight: bold">{{ item.value || '' }}</div>
-                          <div class="iv-od-name">采集值</div>
-                        </div>
-                        <div style="width: 60%; line-height: 38px">
-                          <div class="iv-text-ellipsis">{{ item.deviceGroupName || '' }}</div>
-                        </div>
-                      </AFlex>
-                    </div>
-                    <div class="iv-text-ellipsis iv-od-time">{{ item.collectTime }}</div>
-                  </div>
-                </div>
-                <AEmpty v-else description="暂无其他设备数据" />
+                <ATable size="small" rowKey="id" :columns="crossDeviceColumns" :data-source="otherDevicePoints"
+                        :pagination="false" :scroll="{y: 215}" :customRow="assocCustomRow">
+                  <template #bodyCell="{column, record}">
+                    <template v-if="column.dataIndex === 'indicator'">
+                      <span :class="gradeClass(record.grade)">{{ record.indicator || '-' }}</span>
+                    </template>
+                  </template>
+                </ATable>
               </div>
             </ACard>
           </ACol>
-          <ACol :span="8">
+          <ACol :xxxl="8" :xxl="8" :xl="12" :xs="24" class="di-assoc-col">
             <ACard size="small" class="di-assoc-card" title="关联维度点位">
               <template #extra>
                 <ASelect v-model:value="selectedGrade" placeholder="等级" style="width: 100px" size="small"
@@ -177,29 +120,17 @@
                 </ASelect>
               </template>
               <div style="height: 260px; overflow-y: auto;">
-                <div v-if="associatedStatsList.length > 0">
-                  <div class="iv-od-attr" v-for="item in associatedStatsList" :key="item.fieldId"
-                       @click="() => onAssociatedPointClick(item)">
-                    <div class="iv-text-ellipsis iv-od-title">
-                      <span style="width: 65%" class="iv-text-ellipsis">{{ item.deviceName }}/{{ item.fieldName || item.field }}</span>
-                      <span style="width: 35%; text-align: right; font-size: 12px;" class="iv-text-ellipsis"
-                            :class="gradeClass(item.grade)">{{ item.indicator || '' }}</span>
-                    </div>
-                    <div class="iv-od-content">
-                      <AFlex style="height: 38px" justify="space-between">
-                        <div style="width: 40%">
-                          <div class="iv-text-ellipsis" style="font-weight: bold">{{ item.value || '' }}</div>
-                          <div class="iv-od-name">采集值</div>
-                        </div>
-                        <div style="width: 60%; line-height: 38px">
-                          <div class="iv-text-ellipsis">{{ item.deviceGroupName || '' }}</div>
-                        </div>
-                      </AFlex>
-                    </div>
-                    <div class="iv-text-ellipsis iv-od-time">{{ item.collectTime }}</div>
-                  </div>
-                </div>
-                <AEmpty v-else description="暂无关联点位数据" />
+                <ATable size="small" rowKey="id" :columns="assocStatsColumns" :data-source="associatedStatsList"
+                        :pagination="false" :scroll="{y: 215}" :customRow="assocCustomRow">
+                  <template #bodyCell="{column, record}">
+                    <template v-if="column.dataIndex === 'deviceName'">
+                      {{ record.deviceName }}/{{ record.name }}
+                    </template>
+                    <template v-else-if="column.dataIndex === 'indicator'">
+                      <span :class="gradeClass(record.grade)">{{ record.indicator || '-' }}</span>
+                    </template>
+                  </template>
+                </ATable>
               </div>
             </ACard>
           </ACol>
@@ -226,32 +157,30 @@ import {
 } from 'echarts/components'
 import {ref, shallowRef, nextTick} from "vue";
 import CoreConsts from "@/components/CoreConsts";
+import IndicatorCard from "@/components/iot/IndicatorCard.vue";
 import {GET} from "@/utils/request";
 import {msgError, msgWarn} from "@/utils/message";
 import dayjs from "dayjs";
+import DeviceIndicatorCard from "@/components/iot/DeviceIndicatorCard.vue";
 
 echarts.use([CanvasRenderer, TitleComponent, GridComponent, VisualMapComponent, LineChart
   , UniversalTransition, TooltipComponent, LegendComponent, DatasetComponent, ToolboxComponent, DataZoomComponent])
 
 export default {
   name: "DataIndicator",
-  components: {},
+  components: {DeviceIndicatorCard, IndicatorCard},
   setup() {
     // ============ 搜索条件 ============
-    // UViewSearch搜索模型: productId-产品id uid-设备标识 searchTime-告警时间范围
-    let searchModel = ref({productId: null, uid: null, searchTime: [dayjs().subtract(7, 'day'), dayjs()]});
-    // fieldName -> {id, name, field}
-    let attrFieldMap = ref({});
-    let selectedFieldId = ref(null);
+    // UViewSearch搜索模型: productId-产品id uid-设备标识 searchTime-采集时间范围(默认当日0点至当前时间)
+    let searchModel = ref({productId: null, uid: null, fieldId: null, searchTime: [dayjs().startOf('day'), dayjs()]});
 
-    // ============ 告警列表 ============
-    let alarmList = ref([]);
-    let tableLoading = ref(false);
-    let alarmPagination = ref({current: 1, pageSize: 20, total: 0, showSizeChanger: false});
+    // ============ 采集点位卡片列表 ============
+    let cardList = ref([]);
+    let listLoading = ref(false);
+    let pagination = ref({current: 1, pageSize: 20, total: 0});
 
-    // ============ 选中的告警 ============
-    let selectedAlarm = ref(null);
-    let selectedAlarmFieldName = ref('');
+    // ============ 选中的采集点位 ============
+    let selectedPoint = ref(null);
     let analysisVisible = ref(false);
     let analysisRange = ref('1h');
 
@@ -265,77 +194,69 @@ export default {
     let selectedGrade = ref('');
     let collectDataEcharts = shallowRef(null);
 
-    // ============ 表格列定义 ============
-    let alarmColumns = ref([
-      {title: '设备名称', dataIndex: 'deviceName', width: 150, ellipsis: true},
-      {title: '告警名称', dataIndex: 'warnConfigName', width: 150, ellipsis: true},
-      {title: '属性', dataIndex: 'field', width: 100},
-      {title: '告警值', dataIndex: 'value', width: 100},
-      {title: '等级', dataIndex: 'gradeName', width: 80},
-      {title: '告警时间', dataIndex: 'warnTime', width: 160},
-      {title: '操作', key: 'action', width: 80, fixed: 'right'}
-    ]);
+    // ============ 关联点位表格列 ============
+    // 同设备其他点位
+    let assocPointColumns = [
+      {title: '属性', dataIndex: 'name', width: 120, ellipsis: true, align: 'center'},
+      {title: '采集值', dataIndex: 'value', width: 120, ellipsis: true, align: 'center'},
+      {title: '指标', dataIndex: 'indicator', width: 120, ellipsis: true, align: 'center'},
+      // {title: '采集时间', dataIndex: 'collectTime', width: 150},
+    ];
+    // 其他设备同点位
+    let crossDeviceColumns = [
+      {title: '设备', dataIndex: 'deviceName', ellipsis: true},
+      {title: '采集值', dataIndex: 'value', width: 80, ellipsis: true},
+      {title: '指标', dataIndex: 'indicator', width: 80, ellipsis: true},
+      {title: '采集时间', dataIndex: 'collectTime', width: 150},
+    ];
+    // 关联维度点位
+    let assocStatsColumns = [
+      {title: '设备/属性', dataIndex: 'deviceName', ellipsis: true},
+      {title: '采集值', dataIndex: 'value', width: 80, ellipsis: true},
+      {title: '指标', dataIndex: 'indicator', width: 80, ellipsis: true},
+      {title: '采集时间', dataIndex: 'collectTime', width: 150},
+    ];
 
     // ============ 时间预设 ============
     let timePresets = ref([
       {label: '今天', value: [dayjs().startOf('day'), dayjs().endOf('day')]},
+      {label: '近3天', value: [dayjs().subtract(3, 'day'), dayjs()]},
       {label: '近7天', value: [dayjs().subtract(7, 'day'), dayjs()]},
-      {label: '近30天', value: [dayjs().subtract(30, 'day'), dayjs()]},
-      {label: '当月', value: [dayjs().startOf('month'), dayjs().endOf('month')]},
+      // {label: '当月', value: [dayjs().startOf('month'), dayjs().endOf('month')]},
     ]);
 
     return {
       searchModel,
-      attrFieldMap, selectedFieldId,
-      alarmList, tableLoading, alarmPagination,
-      selectedAlarm, selectedAlarmFieldName, analysisVisible, analysisRange,
+      cardList, listLoading, pagination,
+      selectedPoint, analysisVisible, analysisRange,
       indicatorStats, chartLoading, trendData, sameDevicePoints, otherDevicePoints,
       associatedStatsList, selectedGrade, collectDataEcharts,
-      alarmColumns, timePresets,
+      assocPointColumns, crossDeviceColumns, assocStatsColumns,
+      timePresets,
       dayjs
     }
   },
   methods: {
     // ============ 搜索事件 ============
-    onProductChange(value) {
-      // uid由级联url({productId})变化后自动重置, 这里只需清理属性映射
-      this.attrFieldMap = {};
-      this.selectedFieldId = null;
-      if (value) {
-        this.loadModelAttrs(value);
-      }
-    },
-
-    loadModelAttrs(productId) {
-      this.$http.get('/iot/modelAttr/listByProductId', {params: {productId}}).then(({code, data}) => {
-        if (code === CoreConsts.SuccessCode) {
-          let map = {};
-          if (data instanceof Array) {
-            data.forEach(item => {
-              map[item['field']] = {id: item['id'], name: item['name'], field: item['field']};
-            });
-          }
-          this.attrFieldMap = map;
-        }
-      });
-    },
-
     doSearch() {
-      let params = {current: this.alarmPagination.current, size: this.alarmPagination.pageSize};
+      let params = {current: this.pagination.current, size: this.pagination.pageSize};
       let model = this.searchModel;
-      if (model.productId) params['productId'] = model.productId;
-      if (model.uid) params['uid'] = model.uid;
+      params['uid'] = model.uid;
+      params['fieldId'] = model.fieldId;
+      params['productId'] = model.productId;
       if (model.searchTime && model.searchTime.length === 2) {
         params['startTimestamp'] = model.searchTime[0].valueOf();
         params['endTimestamp'] = model.searchTime[1].valueOf();
+      } else {
+        return this.$msg.error('请选择时间范围');
       }
 
-      this.tableLoading = true;
-      GET('/iot/warnRecord/view', params).then(({code, message, data}) => {
+      this.listLoading = true;
+      GET('/iot/dataIndicator/view', params).then(({code, message, data}) => {
         if (code === CoreConsts.SuccessCode) {
-          this.alarmList = data['records'] || [];
-          this.alarmPagination = {
-            ...this.alarmPagination,
+          this.cardList = data['records'] || [];
+          this.pagination = {
+            ...this.pagination,
             total: data['total'] || 0,
             current: data['current'] || 1,
             pageSize: data['size'] || 20
@@ -344,7 +265,7 @@ export default {
           msgError(message);
         }
       }).finally(() => {
-        this.tableLoading = false;
+        this.listLoading = false;
       });
     },
 
@@ -352,32 +273,23 @@ export default {
       // 就地修改字段, 保持UViewSearch表单模型引用不变
       this.searchModel.productId = null;
       this.searchModel.uid = null;
-      this.searchModel.searchTime = [dayjs().subtract(7, 'day'), dayjs()];
-      this.attrFieldMap = {};
-      this.selectedFieldId = null;
+      this.searchModel.searchTime = [dayjs().startOf('day'), dayjs()];
       this.analysisVisible = false;
-      this.alarmList = [];
-      this.alarmPagination.current = 1;
+      this.cardList = [];
+      this.pagination.current = 1;
     },
 
-    onTableChange(pagination) {
-      this.alarmPagination.current = pagination.current;
-      this.alarmPagination.pageSize = pagination.pageSize;
+    onPageChange(current, pageSize) {
+      this.pagination.current = current;
+      this.pagination.pageSize = pageSize;
       this.doSearch();
     },
 
-    // ============ 告警点击分析 ============
-    onAlarmClick(record) {
-      this.selectedAlarm = record;
-      let fieldName = record['field'];
-      let attrInfo = this.attrFieldMap[fieldName];
-      if (attrInfo) {
-        this.selectedFieldId = attrInfo.id;
-        this.selectedAlarmFieldName = attrInfo.name;
-      } else {
-        this.selectedFieldId = null;
-        this.selectedAlarmFieldName = fieldName;
-      }
+    // ============ 卡片点击分析 ============
+    // IndicatorCard组件点击事件, attr为null表示取消选中
+    onCardClick(attr) {
+      if (!attr) return;
+      this.selectedPoint = attr;
       this.analysisVisible = true;
       this.selectedGrade = '';
       this.$nextTick(() => {
@@ -397,23 +309,22 @@ export default {
     },
 
     loadAnalysisData() {
-      let record = this.selectedAlarm;
+      let record = this.selectedPoint;
       if (!record) return;
       let uid = record['uid'];
-      let fieldId = this.selectedFieldId;
+      let fieldId = record['fieldId'];
       if (!fieldId) {
-        msgWarn('未找到属性映射，请先选择产品');
+        msgWarn('该采集记录缺少属性ID, 无法分析');
         return;
       }
-      let warnTime = record['warnTime'];
-      if (!warnTime) return;
+      if (!record['collectTime']) return;
 
-      let warnTimeDayjs = dayjs(warnTime);
+      let collectTimeDayjs = dayjs(record['collectTime']);
       let range = this.analysisRange;
       let rangeNum = parseInt(range);
-      let startTime = warnTimeDayjs.subtract(rangeNum, 'hour').format('YYYY-MM-DD HH:mm:ss');
-      let endTime = warnTimeDayjs.add(rangeNum, 'hour').format('YYYY-MM-DD HH:mm:ss');
-      let collectTime = warnTimeDayjs.format('YYYY-MM-DD HH:mm:ss');
+      let startTime = collectTimeDayjs.subtract(rangeNum, 'hour').format('YYYY-MM-DD HH:mm:ss');
+      let endTime = collectTimeDayjs.add(rangeNum, 'hour').format('YYYY-MM-DD HH:mm:ss');
+      let collectTime = collectTimeDayjs.format('YYYY-MM-DD HH:mm:ss');
       let productCode = record['productCode'];
 
       this.loadStats(uid, fieldId, startTime, endTime);
@@ -468,7 +379,8 @@ export default {
     loadSameDevicePoints(uid, excludeFieldId, collectTime) {
       GET('/iot/dataIndicator/associatedPoints', {uid, excludeFieldId, collectTime}).then(({code, data}) => {
         if (code === CoreConsts.SuccessCode) {
-          this.sameDevicePoints = data || [];
+          // 补充name字段供DeviceIndicatorCard展示属性名称
+          this.sameDevicePoints = (data || []).map(item => ({...item, name: item.fieldName || item.field}));
         }
       });
     },
@@ -476,7 +388,7 @@ export default {
     loadOtherDevicePoints(productCode, fieldId, collectTime, excludeUid) {
       GET('/iot/dataIndicator/crossDevicePoints', {productCode, fieldId, collectTime, excludeUid}).then(({code, data}) => {
         if (code === CoreConsts.SuccessCode) {
-          this.otherDevicePoints = data || [];
+          this.otherDevicePoints = (data || []).map(item => ({...item, name: item.fieldName || item.field}));
         }
       });
     },
@@ -486,26 +398,22 @@ export default {
       if (this.selectedGrade) params['grade'] = this.selectedGrade;
       GET('/iot/dataIndicator/associatedStats', params).then(({code, data}) => {
         if (code === CoreConsts.SuccessCode) {
-          this.associatedStatsList = data || [];
+          this.associatedStatsList = (data || []).map(item => ({...item, name: item.fieldName || item.field}));
         }
       });
     },
 
     onGradeChange() {
-      let record = this.selectedAlarm;
+      let record = this.selectedPoint;
       if (!record) return;
       let uid = record['uid'];
-      let fieldId = this.selectedFieldId;
-      let collectTime = dayjs(record['warnTime']).format('YYYY-MM-DD HH:mm:ss');
+      let fieldId = record['fieldId'];
+      let collectTime = dayjs(record['collectTime']).format('YYYY-MM-DD HH:mm:ss');
       this.loadAssociatedStats(uid, fieldId, collectTime);
     },
 
     // ============ 工具方法 ============
-    gradeColor(grade) {
-      let map = {fatal: 'red', urgent: 'magenta', warn: 'orange', notice: 'cyan', normal: 'green', indicator: 'purple'};
-      return map[grade] || '#108ee9';
-    },
-
+    // 指标列按告警等级着色
     gradeClass(grade) {
       return 'iv-grade-' + (grade || 'void');
     },
@@ -514,8 +422,16 @@ export default {
       return time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : '-';
     },
 
+    // 关联点位表格行点击, 跳转设备详情
+    assocCustomRow(record) {
+      return {
+        style: {cursor: 'pointer'},
+        onClick: () => this.onAssociatedPointClick(record)
+      };
+    },
+
     onAssociatedPointClick(item) {
-      if (item['uid']) {
+      if (item && item['uid']) {
         window.open(`#/iot/device/detail/${item['uid']}`, '_blank');
       }
     }
@@ -529,29 +445,15 @@ export default {
 .di-table-card {
   margin-bottom: 8px;
 }
-.di-row-selected {
-  background-color: #e6f4ff !important;
-}
-.di-stats-row {
-  margin-bottom: 8px;
-}
-.di-stat-card {
-  background: #fafafa;
-  border: 1px solid #e8e8e8;
-  border-radius: 6px;
-  padding: 12px;
-  text-align: center;
-}
-.di-stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #1677ff;
-  line-height: 1.4;
-}
-.di-stat-label {
+/* 抽屉头聚合统计 */
+.di-header-stat {
   font-size: 12px;
   color: #8e8e8e;
-  margin-top: 4px;
+  font-weight: normal;
+}
+.di-header-stat b {
+  font-size: 14px;
+  color: #1677ff;
 }
 .di-chart-card {
   margin-bottom: 8px;
@@ -559,39 +461,7 @@ export default {
 .di-assoc-row {
   margin-bottom: 8px;
 }
-.iv-od-attr {
-  width: 100%;
-  margin: 4px 0;
-  padding: 0 8px;
-  font-size: 12px;
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #fff;
-}
-.iv-od-attr:hover {
-  border-color: #1677ff;
-}
-.iv-od-attr .iv-od-content {
-  text-align: center;
-  border-top: 1px dashed #d9d9d9;
-  border-bottom: 1px dashed #d9d9d9;
-}
-.iv-od-name {
-  font-size: 12px;
-  color: #8e8e8e;
-}
-.iv-od-time, .iv-od-title {
-  height: 24px;
-  line-height: 24px;
-  color: #8e8e8e;
-  display: flex;
-}
-.iv-text-ellipsis {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
+/* 指标列告警等级颜色 */
 .iv-grade-fatal { color: #ff4d4f; }
 .iv-grade-urgent { color: #eb2f96; }
 .iv-grade-warn { color: #fa8c16; }

@@ -1,9 +1,12 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.spi.iot.data.RealtimeDataParam;
 import com.iteaj.iboot.module.iot.dto.AssociatedStats;
 import com.iteaj.framework.spi.iot.data.IndicatorStats;
+import com.iteaj.iboot.module.iot.dto.IndicatorCardVO;
 
 import com.iteaj.iboot.module.iot.service.IDataIndicatorService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +26,14 @@ public class DataIndicatorController extends BaseController {
 
     public DataIndicatorController(IDataIndicatorService dataIndicatorService) {
         this.dataIndicatorService = dataIndicatorService;
+    }
+
+    /**
+     * 分页获取采集历史数据（数据指标卡片列表）
+     */
+    @GetMapping("view")
+    public Result<Page<IndicatorCardVO>> view(Page page, RealtimeDataParam param) {
+        return success(dataIndicatorService.viewOfPage(page, param));
     }
 
     /**

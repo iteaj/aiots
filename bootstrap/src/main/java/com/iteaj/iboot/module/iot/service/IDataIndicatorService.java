@@ -1,7 +1,10 @@
 package com.iteaj.iboot.module.iot.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.data.IndicatorStats;
+import com.iteaj.framework.spi.iot.data.RealtimeDataParam;
 import com.iteaj.iboot.module.iot.dto.AssociatedStats;
+import com.iteaj.iboot.module.iot.dto.IndicatorCardVO;
 
 import java.util.List;
 
@@ -9,6 +12,14 @@ import java.util.List;
  * 数据指标服务
  */
 public interface IDataIndicatorService {
+
+    /**
+     * 分页获取采集历史数据（数据指标卡片列表）
+     * @param page  分页参数
+     * @param param 查询参数（productId/uid/startTimestamp/endTimestamp等）
+     * @return 卡片VO分页数据
+     */
+    Page<IndicatorCardVO> viewOfPage(Page page, RealtimeDataParam param);
 
     /**
      * 获取点位在指定时间范围内的聚合统计

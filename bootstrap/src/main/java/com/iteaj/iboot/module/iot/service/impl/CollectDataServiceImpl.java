@@ -152,6 +152,11 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
     }
 
     @Override
+    public Page<?> listIndicatorOfPage(Page<?> page, RealtimeDataParam param) {
+        return this.baseMapper.listIndicatorOfPage(page, param);
+    }
+
+    @Override
     public List<BaseEchartsCount> countLastMonth() {
         Map<String, BaseEchartsCount> map = new HashMap<>();
         List<BaseEchartsCount> dtos = this.getBaseMapper().countLastByDays(29);

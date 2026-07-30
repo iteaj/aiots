@@ -83,4 +83,6 @@ public interface RealtimeCollectDataService {
      * 按网关(puid)或设备组查询关联点位
      */
     List<RealtimeCollectData> listByPuidOrGroup(String puid, Long deviceGroupId, Date startTime, Date endTime, String excludeUid, Long excludeFieldId, String grade);
+
+    Page<?> listIndicatorOfPage(Page<?> page, RealtimeDataParam param);
 }

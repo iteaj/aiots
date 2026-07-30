@@ -14,6 +14,9 @@ import java.util.Date;
 @Accessors(chain = true)
 public class AssociatedStats {
 
+    /** 卡片唯一标识(uid:fieldId:采集时间戳) */
+    private String id;
+
     /** 设备标识 */
     private String uid;
 
@@ -52,6 +55,8 @@ public class AssociatedStats {
 
     public static AssociatedStats of(RealtimeCollectData d) {
         AssociatedStats a = new AssociatedStats();
+        long collectTime = d.getCollectTime() != null ? d.getCollectTime().getTime() : 0;
+        a.setId(d.getUid() + ":" + d.getFieldId() + ":" + collectTime);
         a.setUid(d.getUid());
         a.setField(d.getField());
         a.setFieldId(d.getFieldId());

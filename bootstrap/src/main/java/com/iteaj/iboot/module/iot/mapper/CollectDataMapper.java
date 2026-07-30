@@ -3,11 +3,8 @@ package com.iteaj.iboot.module.iot.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
-import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
-import com.iteaj.framework.spi.iot.data.CollectDataCondition;
-import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
+import com.iteaj.framework.spi.iot.data.*;
 import com.iteaj.framework.spi.iot.view.chart.ChartSqlCondition;
-import com.iteaj.framework.spi.iot.data.IndicatorStats;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import org.apache.ibatis.annotations.Param;
@@ -92,4 +89,6 @@ public interface CollectDataMapper extends BaseMapper<CollectData> {
      */
     List<CollectData> listByCid(@Param("cid") String cid, @Param("excludeUid") String excludeUid,
                                 @Param("excludeFieldId") Long excludeFieldId, @Param("grade") String grade);
+
+    Page<CollectData> listIndicatorOfPage(Page<?> page, RealtimeDataParam entity);
 }

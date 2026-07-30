@@ -59,6 +59,9 @@
             <if test="entity.status != null">
                 and a.status=#{entity.status}
             </if>
+            <if test="entity.hasGrade != null and entity.hasGrade">
+                and a.grade is not null and a.grade != ''
+            </if>
         </where>
         order by a.collect_time desc
     </select>
@@ -335,5 +338,24 @@
                  WHEN 'normal' THEN 4 WHEN 'status' THEN 5
                  WHEN 'indicator' THEN 6 ELSE 99 END
         LIMIT 500
+    </select>
+    <select id="listIndicatorOfPage" resultMap="BaseResultMap">
+        WITH ranked AS (
+            SELECT uid, field, field_id, field_name, collect_value, collect_time, grade, indicator,
+                   device_name, device_sn, device_group_id, puid, cid, collect_status
+                   , ROW_NUMBER() OVER (PARTITION BY uid, field_id ORDER BY collect_time DESC) AS rn
+            FROM iot_collect_data
+            <where>
+                status = true AND grade IS NOT NULL
+                <if test="entity.uid != null and entity.uid != ''">
+                    and uid=#{entity.uid}
+                </if>
+                <if test="entity.fieldId != null">
+                    and field_id=#{entity.fieldId}
+                </if>
+              AND cast(collect_time as bigint) between #{entity.startTimestamp} and #{entity.endTimestamp}
+            </where>
+        )
+        SELECT * FROM ranked WHERE rn = 1;
     </select>
 </mapper>

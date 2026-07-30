@@ -57,6 +57,9 @@
             <if test="entity.status != null">
                 and a.status=#{entity.status}
             </if>
+            <if test="entity.hasGrade != null and entity.hasGrade != false">
+                and a.grade is not null
+            </if>
             <choose>
                 <when test="entity.startTimestamp != null and entity.endTimestamp != null">
                     and UNIX_TIMESTAMP(a.collect_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
@@ -477,5 +480,38 @@
                  WHEN 'normal' THEN 4 WHEN 'status' THEN 5
                  WHEN 'indicator' THEN 6 ELSE 99 END
         LIMIT 200
+    </select>
+    <select id="listIndicatorOfPage" resultType="com.iteaj.iboot.module.iot.entity.CollectData">
+        <choose>
+            <when test="entity.fieldId != null">
+                select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value, a.grade, a.indicator
+                    , a.status, a.collect_time, a.device_name, a.field_name, a.device_group_Id
+                from iot_collect_data a
+                <where>
+                    a.field_id = #{entity.fieldId} and status = true AND grade IS NOT NULL
+                    <if test="entity.uid != null and entity.uid != ''">
+                        and uid=#{entity.uid}
+                    </if>
+                    and UNIX_TIMESTAMP(collect_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
+                </where>
+            </when>
+            <otherwise>
+                WITH ranked AS (
+                    select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value, a.grade, a.indicator
+                        , a.status, a.collect_time, a.device_name, a.field_name, a.device_group_Id
+                        , ROW_NUMBER() OVER (PARTITION BY uid, field_id ORDER BY collect_time DESC) AS rn
+                    FROM iot_collect_data a
+                    <where>
+                        status = true AND grade IS NOT NULL
+                        <if test="entity.uid != null and entity.uid != ''">
+                            and uid=#{entity.uid}
+                        </if>
+                        and UNIX_TIMESTAMP(collect_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
+                    </where>
+                ) SELECT * FROM ranked WHERE rn = 1
+            </otherwise>
+        </choose>
+
+
     </select>
 </mapper>
