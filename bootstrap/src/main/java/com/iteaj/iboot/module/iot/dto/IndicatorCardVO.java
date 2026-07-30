@@ -62,7 +62,8 @@ public class IndicatorCardVO {
      */
     public static IndicatorCardVO of(RealtimeCollectData d) {
         IndicatorCardVO vo = new IndicatorCardVO();
-        vo.setId(d.getUid() + ":" + d.getFieldId());
+        long timestamp = d.getCollectTime() != null ? d.getCollectTime().getTime() : 0;
+        vo.setId(d.getUid() + ":" + d.getFieldId() + ":" + timestamp);
         vo.setUid(d.getUid());
         vo.setDeviceName(d.getDeviceName());
         vo.setFieldId(d.getFieldId());
