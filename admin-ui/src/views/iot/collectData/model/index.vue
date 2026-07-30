@@ -1,7 +1,7 @@
 <template>
   <UView name="采集数据">
     <UViewSearch v-model="searchModel">
-      <URow col="search">
+      <URow :responsive="4">
         <USelectItem field="productCode" label="所属产品" labelField="name" valueField="code" url="/iot/product/listByNonGateway"/>
         <UInputItem field="deviceSn" label="设备编号" :options="statusOptions"/>
         <USelectItem field="status" label="状态" :options="statusOptions"/>
