@@ -19,7 +19,7 @@
               <div class="iv-text-ellipsis iv-color-text-tertiary iv-font-text-tertiary">{{attr.name}}</div>
             </ACol>
             <ACol span="10" style="text-align: center">
-              <div class="iv-text-ellipsis" style="text-align: center; line-height: 40px;">
+              <div class="iv-text-ellipsis" style="text-align: center; line-height: 39px;">
                 {{attr.deviceGroupName || '-'}}
               </div>
 <!--              <div class="iv-color-text-tertiary iv-font-text-tertiary">设备分组</div>-->

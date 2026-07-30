@@ -30,38 +30,55 @@
       </ACard>
 
       <!-- 分析区域(全屏抽屉) -->
-      <ADrawer v-model:open="analysisVisible" width="100%" placement="right"
+      <ADrawer v-model:open="analysisVisible" width="100%" placement="right" :styles="{body: {padding: '8px'}}"
                :afterOpenChange="onAnalysisOpenChange" class="di-analysis-drawer">
         <template #title>
           <AFlex justify="space-between" align="center" style="padding-right: 16px">
             <ASpace>
               <span style="font-weight: bold;">{{ selectedPoint?.name || selectedPoint?.field }}</span>
               <ATag color="blue">{{ selectedPoint?.deviceName }}</ATag>
-              <span style="font-size: 12px; color: #999;">采集值: {{ selectedPoint?.value }}</span>
-              <span style="font-size: 12px; color: #999;">采集时间: {{ formatTime(selectedPoint?.collectTime) }}</span>
+              <span style="font-size: 12px; color: #999;">采集值: <ATag>{{ selectedPoint?.value }}</ATag></span>
+              <ATag v-if="selectedPoint?.indicator" :color="gradeTagColor(selectedPoint?.grade)">{{ selectedPoint?.indicator }}</ATag>
             </ASpace>
-            <!-- 聚合统计 -->
-            <ASpace :size="16">
-              <span class="di-header-stat">当前值: <b>{{ indicatorStats.current != null ? indicatorStats.current : '-' }}</b></span>
-              <span class="di-header-stat">最大值: <b>{{ indicatorStats.max != null ? indicatorStats.max : '-' }}</b> ({{ indicatorStats.maxTime ? dayjs(indicatorStats.maxTime).format('MM-DD HH:mm') : '-' }})</span>
-              <span class="di-header-stat">最小值: <b>{{ indicatorStats.min != null ? indicatorStats.min : '-' }}</b> ({{ indicatorStats.minTime ? dayjs(indicatorStats.minTime).format('MM-DD HH:mm') : '-' }})</span>
-              <span class="di-header-stat">平均值: <b>{{ indicatorStats.avg != null ? Number(indicatorStats.avg).toFixed(2) : '-' }}</b></span>
-              <span class="di-header-stat">数据量: <b>{{ indicatorStats.count != null ? indicatorStats.count : '-' }}</b></span>
+            <!-- 分析时间范围 -->
+            <ARangePicker v-model:value="analysisTime" size="small" showTime :allowClear="false"
+                          :presets="analysisPresets" style="width: 340px; font-weight: normal;" @change="onAnalysisTimeChange"/>
+            <!-- 采集地址和采集时间 -->
+            <ASpace :size="16" style="font-weight: normal; font-size: 12px; color: #999;">
+              <span>采集时间: <ATag>{{ formatTime(selectedPoint?.collectTime) }}</ATag></span>
+              <span>设备分组: <ATag>{{ selectedPoint?.deviceGroupName || '-' }}</ATag></span>
+              <span>点位地址: <ATag>{{ selectedPoint?.address || '-' }}</ATag></span>
             </ASpace>
           </AFlex>
         </template>
 
+        <!-- 当前设备同一时间采集的其他点位(精简卡片一行横向滚动) -->
+        <div class="di-same-device-row" v-if="sameDevicePoints.length > 0">
+          <div class="di-point-card" v-for="pt in sameDevicePoints" :key="pt.id">
+            <a-badge-ribbon :text="pt.indicator || ''" :color="gradeTagColor(pt.grade)">
+              <a-card variant="borderless" hoverable size="small" :styles="{body: {padding: '8px'}}">
+                <div class="iv-text-ellipsis" style="width: 70px; text-align: center;">
+                  <div class="di-point-value">
+                    {{ pt.value != null ? pt.value : '-' }}
+                    <span class="di-point-unit" v-if="pt.unit">({{ pt.unit }})</span>
+                  </div>
+                  <div class="di-point-name">{{ pt.name || pt.field || '-' }}</div>
+                </div>
+              </a-card>
+            </a-badge-ribbon>
+          </div>
+        </div>
+
         <!-- 历史趋势图 -->
-        <ACard size="small" class="di-chart-card">
-          <template #title>
-            <ASpace>
-              <span>历史趋势</span>
-              <ASelect v-model:value="analysisRange" style="width: 130px" size="small" @change="onAnalysisRangeChange">
-                <ASelectOption value="1h">前后 1 小时</ASelectOption>
-                <ASelectOption value="2h">前后 2 小时</ASelectOption>
-                <ASelectOption value="6h">前后 6 小时</ASelectOption>
-                <ASelectOption value="24h">前后 24 小时</ASelectOption>
-              </ASelect>
+        <ACard size="small" class="di-chart-card" title="历史趋势">
+          <template #extra>
+            <!-- 聚合统计 -->
+            <ASpace :size="16">
+<!--              <span class="di-header-stat">当前值: <b>{{ indicatorStats.current != null ? indicatorStats.current : '-' }}</b></span>-->
+              <span class="di-header-stat">最大值: <b>{{ indicatorStats.max != null ? indicatorStats.max : '-' }}</b> ({{ indicatorStats.maxTime ? dayjs(indicatorStats.maxTime).format('MM-DD HH:mm') : '-' }})</span>
+              <span class="di-header-stat">最小值: <b>{{ indicatorStats.min != null ? indicatorStats.min : '-' }}</b> ({{ indicatorStats.minTime ? dayjs(indicatorStats.minTime).format('MM-DD HH:mm') : '-' }})</span>
+              <span class="di-header-stat">平均值: <b>{{ indicatorStats.avg != null ? Number(indicatorStats.avg).toFixed(2) : '-' }}</b></span>
+              <span class="di-header-stat">数据量: <b>{{ indicatorStats.count != null ? indicatorStats.count : '-' }}</b></span>
             </ASpace>
           </template>
           <ASpin :spinning="chartLoading">
@@ -71,68 +88,49 @@
 
         <!-- 关联点位数据 -->
         <ARow :gutter="[8, 8]" class="di-assoc-row" wrap="wrap" justify="start">
-          <ACol :xxxl="8" :xxl="8" :xl="12" :xs="24" class="di-assoc-col">
-            <ACard size="small" class="di-assoc-card" title="同设备同时采集的其他点位">
-              <template #extra>
-                <span style="font-size: 12px; color: #999;" v-if="selectedPoint">采集时间: {{ formatTime(selectedPoint.collectTime) }}</span>
-              </template>
-              <div style="height: 260px; overflow-y: auto;">
-                <ATable size="small" rowKey="id" :columns="assocPointColumns" :data-source="sameDevicePoints"
-                        :pagination="false" :scroll="{y: 215}" :customRow="assocCustomRow">
-                  <template #bodyCell="{column, record}">
-                    <template v-if="column.dataIndex === 'indicator'">
-                      <span :class="gradeClass(record.grade)">{{ record.indicator || '-' }}</span>
-                    </template>
+          <ACol span="10" class="di-assoc-col">
+            <div style="height: 260px; overflow-y: auto;">
+              <ATable size="small" rowKey="id" :columns="crossDeviceColumns" :data-source="otherDevicePoints"
+                      :pagination="false" :bordered="true" :scroll="{y: 215}" :customRow="assocCustomRow">
+                <template #title>
+                  <AFlex justify="space-between" align="center">
+                    <div>相同产品其他设备同一时间采集的<ATag color="blue">{{ selectedPoint?.name }}值</ATag>列表</div>
+                    <div style="font-size: 12px; color: #999;" v-if="selectedPoint">
+                      采集时间: <ATag>{{ formatTime(selectedPoint.collectTime) }}</ATag>
+                    </div>
+                  </AFlex>
+                </template>
+                <template #bodyCell="{column, record}">
+                  <template v-if="column.dataIndex === 'indicator'">
+                    <span :class="gradeClass(record.grade)">{{ record.indicator || '-' }}</span>
                   </template>
-                </ATable>
-              </div>
-            </ACard>
+                </template>
+              </ATable>
+            </div>
           </ACol>
-          <ACol :xxxl="8" :xxl="8" :xl="12" :xs="24" class="di-assoc-col">
-            <ACard size="small" class="di-assoc-card" title="同产品下其他设备点位">
-              <template #extra>
-                <span style="font-size: 12px; color: #999;" v-if="selectedPoint">采集时间: {{ formatTime(selectedPoint.collectTime) }}</span>
-              </template>
-              <div style="height: 260px; overflow-y: auto;">
-                <ATable size="small" rowKey="id" :columns="crossDeviceColumns" :data-source="otherDevicePoints"
-                        :pagination="false" :scroll="{y: 215}" :customRow="assocCustomRow">
-                  <template #bodyCell="{column, record}">
-                    <template v-if="column.dataIndex === 'indicator'">
-                      <span :class="gradeClass(record.grade)">{{ record.indicator || '-' }}</span>
-                    </template>
-                  </template>
-                </ATable>
-              </div>
-            </ACard>
-          </ACol>
-          <ACol :xxxl="8" :xxl="8" :xl="12" :xs="24" class="di-assoc-col">
-            <ACard size="small" class="di-assoc-card" title="关联维度点位">
-              <template #extra>
-                <ASelect v-model:value="selectedGrade" placeholder="等级" style="width: 100px" size="small"
-                         allowClear @change="onGradeChange">
-                  <ASelectOption value="">全部</ASelectOption>
-                  <ASelectOption value="fatal">严重</ASelectOption>
-                  <ASelectOption value="urgent">紧急</ASelectOption>
-                  <ASelectOption value="warn">告警</ASelectOption>
-                  <ASelectOption value="notice">通知</ASelectOption>
-                  <ASelectOption value="normal">正常</ASelectOption>
-                  <ASelectOption value="indicator">指标</ASelectOption>
-                </ASelect>
-              </template>
-              <div style="height: 260px; overflow-y: auto;">
-                <ATable size="small" rowKey="id" :columns="assocStatsColumns" :data-source="associatedStatsList"
-                        :pagination="false" :scroll="{y: 215}" :customRow="assocCustomRow">
-                  <template #bodyCell="{column, record}">
-                    <template v-if="column.dataIndex === 'deviceName'">
-                      {{ record.deviceName }}/{{ record.name }}
-                    </template>
-                    <template v-else-if="column.dataIndex === 'indicator'">
-                      <span :class="gradeClass(record.grade)">{{ record.indicator || '-' }}</span>
-                    </template>
-                  </template>
-                </ATable>
-              </div>
-            </ACard>
+          <ACol span="14" class="di-assoc-col">
+            <div style="height: 260px; overflow-y: auto;">
+              <ATable size="small" rowKey="id" :columns="assocStatsColumns" :data-source="associatedStatsList"
+                      :pagination="false" :bordered="true" :scroll="{y: 215}" :customRow="assocCustomRow">
+                <template #title>
+                  <AFlex justify="space-between" align="center">
+                    <div>关联维度点位</div>
+                    <div style="font-size: 12px; color: #999;" v-if="selectedPoint">
+                      <ASelect v-model:value="selectedGrade" placeholder="等级" style="width: 100px" size="small"
+                               allowClear @change="onGradeChange">
+                        <ASelectOption value="">全部</ASelectOption>
+                        <ASelectOption value="fatal">严重</ASelectOption>
+                        <ASelectOption value="urgent">紧急</ASelectOption>
+                        <ASelectOption value="warn">告警</ASelectOption>
+                        <ASelectOption value="notice">通知</ASelectOption>
+                        <ASelectOption value="normal">正常</ASelectOption>
+                        <ASelectOption value="indicator">指标</ASelectOption>
+                      </ASelect>
+                    </div>
+                  </AFlex>
+                </template>
+              </ATable>
+            </div>
           </ACol>
         </ARow>
       </ADrawer>
@@ -182,7 +180,18 @@ export default {
     // ============ 选中的采集点位 ============
     let selectedPoint = ref(null);
     let analysisVisible = ref(false);
-    let analysisRange = ref('1h');
+    // 分析时间范围(抽屉标题中ARangePicker), 默认取采集时间前后1小时
+    let analysisTime = ref(null);
+    // 分析时间快捷选项
+    let analysisPresets = ref([
+      {label: '近一小时', value: [dayjs().subtract(1, 'hour'), dayjs()]},
+      {label: '近三小时', value: [dayjs().subtract(3, 'hour'), dayjs()]},
+      {label: '近6小时', value: [dayjs().subtract(6, 'hour'), dayjs()]},
+      {label: '近12小时', value: [dayjs().subtract(12, 'hour'), dayjs()]},
+      {label: '今天', value: [dayjs().startOf('day'), dayjs().endOf('day')]},
+      {label: '昨天', value: [dayjs().subtract(1, 'day').startOf('day'), dayjs().subtract(1, 'day').endOf('day')]},
+      {label: '近5天', value: [dayjs().subtract(5, 'day'), dayjs()]},
+    ]);
 
     // ============ 分析数据 ============
     let indicatorStats = ref({});
@@ -204,22 +213,30 @@ export default {
     ];
     // 其他设备同点位
     let crossDeviceColumns = [
-      {title: '设备', dataIndex: 'deviceName', ellipsis: true},
-      {title: '采集值', dataIndex: 'value', width: 80, ellipsis: true},
-      {title: '指标', dataIndex: 'indicator', width: 80, ellipsis: true},
-      {title: '采集时间', dataIndex: 'collectTime', width: 150},
+      {title: '设备', dataIndex: 'deviceName', ellipsis: true, align: 'center', width: 160},
+      {title: '设备组', dataIndex: 'deviceGroupName', ellipsis: true, align: 'center', width: 160},
+      // {title: '属性', dataIndex: 'name', ellipsis: true, align: 'center', width: 120},
+      {title: '采集值', dataIndex: 'value', width: 100, ellipsis: true, align: 'center'},
+      {title: '指标', dataIndex: 'indicator', width: 120, ellipsis: true, align: 'center'},
+      // {title: '采集时间', dataIndex: 'collectTime', align: 'center'},
     ];
     // 关联维度点位
     let assocStatsColumns = [
-      {title: '设备/属性', dataIndex: 'deviceName', ellipsis: true},
-      {title: '采集值', dataIndex: 'value', width: 80, ellipsis: true},
-      {title: '指标', dataIndex: 'indicator', width: 80, ellipsis: true},
-      {title: '采集时间', dataIndex: 'collectTime', width: 150},
+      {title: '设备', dataIndex: 'deviceName', ellipsis: true, align: 'center', width: 150},
+      {title: '设备组', dataIndex: 'deviceGroupName', ellipsis: true, align: 'center', width: 150},
+      {title: '属性', dataIndex: 'name', ellipsis: true, align: 'center', width: 120},
+      {title: '采集值', dataIndex: 'value', width: 100, ellipsis: true, align: 'center'},
+      {title: '指标', dataIndex: 'indicator', width: 100, ellipsis: true, align: 'center'},
+      {title: '采集时间', dataIndex: 'collectTime', width: 150, align: 'center'},
     ];
 
     // ============ 时间预设 ============
     let timePresets = ref([
+      {label: '近一小时', value: [dayjs().subtract(1, 'hour'), dayjs()]},
+      {label: '近6小时', value: [dayjs().subtract(6, 'hour'), dayjs()]},
+      {label: '近12小时', value: [dayjs().subtract(12, 'hour'), dayjs()]},
       {label: '今天', value: [dayjs().startOf('day'), dayjs().endOf('day')]},
+      {label: '昨天', value: [dayjs().subtract(1, 'day').startOf('day'), dayjs().subtract(1, 'day').endOf('day')]},
       {label: '近3天', value: [dayjs().subtract(3, 'day'), dayjs()]},
       {label: '近7天', value: [dayjs().subtract(7, 'day'), dayjs()]},
       // {label: '当月', value: [dayjs().startOf('month'), dayjs().endOf('month')]},
@@ -228,7 +245,7 @@ export default {
     return {
       searchModel,
       cardList, listLoading, pagination,
-      selectedPoint, analysisVisible, analysisRange,
+      selectedPoint, analysisVisible, analysisTime, analysisPresets,
       indicatorStats, chartLoading, trendData, sameDevicePoints, otherDevicePoints,
       associatedStatsList, selectedGrade, collectDataEcharts,
       assocPointColumns, crossDeviceColumns, assocStatsColumns,
@@ -292,12 +309,15 @@ export default {
       this.selectedPoint = attr;
       this.analysisVisible = true;
       this.selectedGrade = '';
+      // 重置分析时间, loadAnalysisData里按采集时间前后1小时初始化
+      this.analysisTime = null;
       this.$nextTick(() => {
         this.loadAnalysisData();
       });
     },
 
-    onAnalysisRangeChange() {
+    // 分析时间范围变更, 重新加载统计和趋势数据
+    onAnalysisTimeChange() {
       this.loadAnalysisData();
     },
 
@@ -320,10 +340,12 @@ export default {
       if (!record['collectTime']) return;
 
       let collectTimeDayjs = dayjs(record['collectTime']);
-      let range = this.analysisRange;
-      let rangeNum = parseInt(range);
-      let startTime = collectTimeDayjs.subtract(rangeNum, 'hour').format('YYYY-MM-DD HH:mm:ss');
-      let endTime = collectTimeDayjs.add(rangeNum, 'hour').format('YYYY-MM-DD HH:mm:ss');
+      // 未选择分析时间时默认取采集时间前后1小时
+      if (!this.analysisTime || this.analysisTime.length !== 2) {
+        this.analysisTime = [collectTimeDayjs.subtract(1, 'hour'), collectTimeDayjs.add(1, 'hour')];
+      }
+      let startTime = this.analysisTime[0].format('YYYY-MM-DD HH:mm:ss');
+      let endTime = this.analysisTime[1].format('YYYY-MM-DD HH:mm:ss');
       let collectTime = collectTimeDayjs.format('YYYY-MM-DD HH:mm:ss');
       let productCode = record['productCode'];
 
@@ -365,10 +387,10 @@ export default {
       let yAxis = dataList.map(item => item['value'] != null ? parseFloat(item['value']) : 0);
       let option = {
         title: {text: '', left: 'center', show: false},
-        dataZoom: {type: 'slider', show: true, bottom: '12px'},
+        // dataZoom: {type: 'slider', show: true, bottom: '12px'},
         tooltip: {trigger: 'axis'},
         toolbox: {feature: {saveAsImage: {show: true}}},
-        grid: {top: '8%', left: '4%', right: '3%', bottom: '45px', containLabel: true},
+        grid: {top: '8%', left: '4%', right: '3%', bottom: '8px', containLabel: true},
         xAxis: {type: 'category', boundaryGap: false, data: xAxis},
         yAxis: {type: 'value', nameTextStyle: {padding: [0, 0, 10, -40]}},
         series: [{type: 'line', data: yAxis, smooth: true, areaStyle: {opacity: 0.15}}]
@@ -413,6 +435,12 @@ export default {
     },
 
     // ============ 工具方法 ============
+    // 指标标签按告警等级取色
+    gradeTagColor(grade) {
+      let colorMap = {fatal: 'red', urgent: 'magenta', warn: 'orange', notice: 'cyan', normal: 'green', indicator: 'purple'};
+      return colorMap[grade] || 'default';
+    },
+
     // 指标列按告警等级着色
     gradeClass(grade) {
       return 'iv-grade-' + (grade || 'void');
@@ -457,6 +485,39 @@ export default {
 }
 .di-chart-card {
   margin-bottom: 8px;
+}
+/* 同设备点位卡片一行横向滚动 */
+.di-same-device-row {
+  margin-bottom: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 6px;
+}
+.di-point-card {
+  flex-shrink: 0;
+  min-width: 120px;
+  cursor: pointer;
+}
+.di-point-value {
+  font-weight: bold;
+  font-size: 16px;
+  white-space: nowrap;
+}
+.di-point-unit {
+  font-size: 12px;
+  font-weight: normal;
+  color: #8e8e8e;
+}
+.di-point-name {
+  font-size: 12px;
+  color: #8e8e8e;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .di-assoc-row {
   margin-bottom: 8px;

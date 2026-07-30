@@ -239,7 +239,7 @@
     </select>
 
     <select id="associatedPoints" resultMap="BaseResultMap">
-        SELECT uid, field, field_name, field_id, collect_value, collect_time, collect_status, device_group_id
+        SELECT uid, field, field_name, field_id, collect_value, collect_time, collect_status, device_group_id, grade, indicator
         FROM iot_collect_data
         WHERE uid = #{uid} AND collect_time = #{collectTime} AND field_id != #{excludeFieldId}
           AND collect_value IS NOT NULL AND collect_status = 1 AND grade IS NOT NULL
