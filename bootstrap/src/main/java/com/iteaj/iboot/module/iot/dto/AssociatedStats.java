@@ -29,6 +29,9 @@ public class AssociatedStats {
     /** 属性名称 */
     private String fieldName;
 
+    /** 点位地址 */
+    private String address;
+
     /** 设备名称 */
     private String deviceName;
 
@@ -61,6 +64,7 @@ public class AssociatedStats {
         a.setField(d.getField());
         a.setFieldId(d.getFieldId());
         a.setFieldName(d.getFieldName());
+        a.setAddress(d.getAddress());
         a.setDeviceName(d.getDeviceName());
         a.setDeviceSn(d.getDeviceSn());
         a.setDeviceGroupId(d.getDeviceGroupId());
