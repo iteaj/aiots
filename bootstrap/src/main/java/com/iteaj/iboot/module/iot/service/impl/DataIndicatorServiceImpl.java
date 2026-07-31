@@ -93,7 +93,7 @@ public class DataIndicatorServiceImpl implements IDataIndicatorService {
     }
 
     @Override
-    public List<AssociatedStats> associatedStats(String uid, Long fieldId, String collectTime, String grade) {
+    public List<AssociatedStats> associatedStats(String uid, Long fieldId, String collectTime, String grade, Integer offsetSeconds) {
         // 1. 查源点位获取关联维度值
         RealtimeCollectData source = collectDataService.getSourcePoint(uid, fieldId, collectTime);
         if(source == null) return Collections.emptyList();
@@ -112,10 +112,11 @@ public class DataIndicatorServiceImpl implements IDataIndicatorService {
             mergeAssociated(map, list);
         }
 
-        // 2.2 同一网关 / 同一设备分组 — ±60秒范围
+        // 2.2 同一网关 / 同一设备分组 — ±offsetSeconds范围(默认60秒)
         if(source.getPuid() != null || source.getDeviceGroupId() != null) {
-            Date startTime = DateUtil.offsetSecond(DateUtil.parse(collectTime), -60);
-            Date endTime = DateUtil.offsetSecond(DateUtil.parse(collectTime), 60);
+            int offset = offsetSeconds != null && offsetSeconds > 0 ? offsetSeconds : 60;
+            Date startTime = DateUtil.offsetSecond(DateUtil.parse(collectTime), -offset);
+            Date endTime = DateUtil.offsetSecond(DateUtil.parse(collectTime), offset);
             List<RealtimeCollectData> list = collectDataService.listByPuidOrGroup(
                     source.getPuid(), source.getDeviceGroupId(), startTime, endTime, uid, fieldId, grade);
             mergeAssociated(map, list);

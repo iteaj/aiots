@@ -52,9 +52,9 @@
           </AFlex>
         </template>
 
-        <!-- 当前设备同一时间采集的其他点位(精简卡片一行横向滚动) -->
+        <!-- 当前设备同一时间采集的其他点位(精简卡片一行横向滚动, 点击弹出底部统计抽屉) -->
         <div class="di-same-device-row" v-if="sameDevicePoints.length > 0">
-          <div class="di-point-card" v-for="pt in sameDevicePoints" :key="pt.id">
+          <div class="di-point-card" v-for="pt in sameDevicePoints" :key="pt.id" @click="onSameDevicePointClick(pt)">
             <a-badge-ribbon :text="pt.indicator || ''" :color="gradeTagColor(pt.grade)">
               <a-card variant="borderless" hoverable size="small" :styles="{body: {padding: '8px'}}">
                 <div class="iv-text-ellipsis" style="width: 70px; text-align: center;">
@@ -104,35 +104,69 @@
                   <template v-if="column.dataIndex === 'indicator'">
                     <span :class="gradeClass(record.grade)">{{ record.indicator || '-' }}</span>
                   </template>
+                  <template v-else-if="column.dataIndex === 'action'">
+                    <AButton type="link" size="small" @click.stop="onSameDevicePointClick(record)">统计</AButton>
+                  </template>
                 </template>
               </ATable>
             </div>
           </ACol>
           <ACol span="14" class="di-assoc-col">
             <div style="height: 260px; overflow-y: auto;">
-              <ATable size="small" rowKey="id" :columns="assocStatsColumns" :data-source="associatedStatsList"
+              <ATable size="small" rowKey="id" :columns="assocStatsColumns" :data-source="associatedStatsList" :loading="assocLoading"
                       :pagination="false" :bordered="true" :scroll="{y: 215}" :customRow="assocCustomRow">
                 <template #title>
                   <AFlex justify="space-between" align="center">
-                    <div>关联维度点位</div>
+                    <div>关联维度(<ATag color="blue">同采集器</ATag>、<ATag color="blue">同网关</ATag>、<ATag color="blue">同设备分组</ATag>)</div>
                     <div style="font-size: 12px; color: #999;" v-if="selectedPoint">
-                      <ASelect v-model:value="selectedGrade" placeholder="等级" style="width: 100px" size="small"
-                               allowClear @change="onGradeChange">
-                        <ASelectOption value="">全部</ASelectOption>
-                        <ASelectOption value="fatal">严重</ASelectOption>
-                        <ASelectOption value="urgent">紧急</ASelectOption>
-                        <ASelectOption value="warn">告警</ASelectOption>
-                        <ASelectOption value="notice">通知</ASelectOption>
-                        <ASelectOption value="normal">正常</ASelectOption>
-                        <ASelectOption value="indicator">指标</ASelectOption>
-                      </ASelect>
+                      <span style="margin-right: 4px;">关联时间:</span>
+                      <ASelect v-model:value="assocOffset" :options="assocOffsetOptions" style="width: 100px; margin-right: 8px;"
+                               size="small" @change="onOffsetChange" />
+                      <span style="margin-right: 4px;">告警等级:</span>
+                      <ASelect v-model:value="selectedGrade" :options="gradeOptions" placeholder="等级" style="width: 100px"
+                               size="small" allowClear @change="onGradeChange" />
                     </div>
                   </AFlex>
+                </template>
+                <template #bodyCell="{column, record}">
+                  <template v-if="column.dataIndex === 'action'">
+                    <AButton type="link" size="small" @click.stop="onSameDevicePointClick(record)">统计</AButton>
+                  </template>
                 </template>
               </ATable>
             </div>
           </ACol>
         </ARow>
+
+        <!-- 同设备点位统计抽屉(从下往上弹出) -->
+        <ADrawer v-model:open="subVisible" placement="bottom" height="68%" :styles="{body: {padding: '8px'}}"
+                 :afterOpenChange="onSubOpenChange">
+          <template #title>
+            <ASpace>
+              <span style="font-weight: bold;">{{ subPoint?.name || subPoint?.field }}</span>
+              <ATag color="blue">{{ subPoint?.deviceName || selectedPoint?.deviceName }}</ATag>
+              <span style="font-size: 12px; color: #999;">采集值: <ATag>{{ subPoint?.value }}</ATag></span>
+              <ATag v-if="subPoint?.indicator" :color="gradeTagColor(subPoint?.grade)">{{ subPoint?.indicator }}</ATag>
+              <span style="font-weight: normal; font-size: 12px; color: #999;">采集时间: <ATag>{{ formatTime(subPoint?.collectTime) }}</ATag></span>
+              <span style="font-size: 12px; color: #999;">设备分组: <ATag>{{ subPoint?.deviceGroupName || selectedPoint?.deviceGroupName || '-' }}</ATag></span>
+              <span style="font-size: 12px; color: #999;">点位地址: <ATag>{{ subPoint?.address || '-' }}</ATag></span>
+            </ASpace>
+          </template>
+          <ACard size="small" class="di-chart-card" title="历史趋势">
+            <template #extra>
+              <!-- 聚合统计 -->
+              <ASpace :size="16">
+                <span class="di-header-stat">最大值: <b>{{ subStats.max != null ? subStats.max : '-' }}</b> ({{ subStats.maxTime ? dayjs(subStats.maxTime).format('MM-DD HH:mm') : '-' }})</span>
+                <span class="di-header-stat">最小值: <b>{{ subStats.min != null ? subStats.min : '-' }}</b> ({{ subStats.minTime ? dayjs(subStats.minTime).format('MM-DD HH:mm') : '-' }})</span>
+                <span class="di-header-stat">平均值: <b>{{ subStats.avg != null ? Number(subStats.avg).toFixed(2) : '-' }}</b></span>
+                <span class="di-header-stat">数据量: <b>{{ subStats.count != null ? subStats.count : '-' }}</b></span>
+              </ASpace>
+            </template>
+            <ASpin :spinning="subChartLoading">
+              <div id="di-sub-echarts-line" style="height: calc(68vh - 150px)"></div>
+            </ASpin>
+          </ACard>
+        </ADrawer>
       </ADrawer>
     </div>
   </UView>
@@ -200,8 +234,39 @@ export default {
     let sameDevicePoints = ref([]);
     let otherDevicePoints = ref([]);
     let associatedStatsList = ref([]);
+    // 关联维度表格加载状态
+    let assocLoading = ref(false);
     let selectedGrade = ref('');
+    // 关联维度时间范围(±秒数), 默认±60秒
+    let assocOffset = ref(60);
+    // 关联时间范围选项
+    let assocOffsetOptions = [
+      {value: 30, label: '±30秒'},
+      {value: 60, label: '±1分钟'},
+      {value: 300, label: '±5分钟'},
+      {value: 600, label: '±10分钟'},
+      {value: 1800, label: '±半小时'},
+      {value: 3600, label: '±1小时'},
+    ];
+    // 告警等级选项
+    let gradeOptions = [
+      {value: '', label: '全部'},
+      {value: 'fatal', label: '严重'},
+      {value: 'urgent', label: '紧急'},
+      {value: 'warn', label: '告警'},
+      {value: 'notice', label: '通知'},
+      {value: 'normal', label: '正常'},
+      {value: 'indicator', label: '指标'},
+    ];
     let collectDataEcharts = shallowRef(null);
+
+    // ============ 同设备点位统计抽屉 ============
+    // 点击同设备点位卡片后选中的点位
+    let subPoint = ref(null);
+    let subVisible = ref(false);
+    let subStats = ref({});
+    let subChartLoading = ref(false);
+    let subEcharts = shallowRef(null);
 
     // ============ 关联点位表格列 ============
     // 同设备其他点位
@@ -219,6 +284,7 @@ export default {
       {title: '采集值', dataIndex: 'value', width: 100, ellipsis: true, align: 'center'},
       {title: '指标', dataIndex: 'indicator', width: 120, ellipsis: true, align: 'center'},
       // {title: '采集时间', dataIndex: 'collectTime', align: 'center'},
+      {title: '操作', dataIndex: 'action', width: 70, align: 'center'},
     ];
     // 关联维度点位
     let assocStatsColumns = [
@@ -228,6 +294,7 @@ export default {
       {title: '采集值', dataIndex: 'value', width: 100, ellipsis: true, align: 'center'},
       {title: '指标', dataIndex: 'indicator', width: 100, ellipsis: true, align: 'center'},
       {title: '采集时间', dataIndex: 'collectTime', width: 150, align: 'center'},
+      {title: '操作', dataIndex: 'action', width: 70, align: 'center'},
     ];
 
     // ============ 时间预设 ============
@@ -247,7 +314,8 @@ export default {
       cardList, listLoading, pagination,
       selectedPoint, analysisVisible, analysisTime, analysisPresets,
       indicatorStats, chartLoading, trendData, sameDevicePoints, otherDevicePoints,
-      associatedStatsList, selectedGrade, collectDataEcharts,
+      associatedStatsList, assocLoading, selectedGrade, assocOffset, assocOffsetOptions, gradeOptions, collectDataEcharts,
+      subPoint, subVisible, subStats, subChartLoading, subEcharts,
       assocPointColumns, crossDeviceColumns, assocStatsColumns,
       timePresets,
       dayjs
@@ -311,6 +379,7 @@ export default {
       this.selectedPoint = attr;
       this.analysisVisible = true;
       this.selectedGrade = '';
+      this.assocOffset = 60;
       // 重置分析时间, loadAnalysisData里按采集时间前后1小时初始化
       this.analysisTime = null;
       this.$nextTick(() => {
@@ -398,6 +467,67 @@ export default {
       this.collectDataEcharts.setOption(option);
     },
 
+    // ============ 同设备点位统计抽屉 ============
+    // 同设备点位卡片点击, 弹出底部抽屉展示该点位的统计信息和趋势图
+    onSameDevicePointClick(pt) {
+      if (!pt || !pt.fieldId) return;
+      this.subPoint = pt;
+      this.subStats = {};
+      this.subVisible = true;
+      this.$nextTick(() => {
+        this.loadSubData();
+      });
+    },
+
+    // 抽屉打开动画结束后重置图表尺寸, 避免动画期间初始化宽度异常
+    onSubOpenChange(open) {
+      if (open && this.subEcharts) {
+        this.subEcharts.resize();
+      }
+    },
+
+    // 加载点位的聚合统计和趋势数据(沿用当前分析时间范围)
+    loadSubData() {
+      let pt = this.subPoint;
+      if (!pt || !this.analysisTime || this.analysisTime.length !== 2) return;
+      let uid = pt.uid || this.selectedPoint?.uid;
+      let fieldId = pt.fieldId;
+      let start = this.analysisTime[0].format('YYYY-MM-DD HH:mm:ss');
+      let end = this.analysisTime[1].format('YYYY-MM-DD HH:mm:ss');
+
+      GET('/iot/dataIndicator/stats', {uid, fieldId, start, end}).then(({code, data}) => {
+        if (code === CoreConsts.SuccessCode) {
+          this.subStats = data || {};
+        }
+      });
+
+      this.subChartLoading = true;
+      GET('/iot/dataIndicator/listData', {uid, fieldId, start, end}).then(({code, data}) => {
+        if (code === CoreConsts.SuccessCode) {
+          this.renderSubChart(data || []);
+        }
+      }).finally(() => {
+        this.subChartLoading = false;
+      });
+    },
+
+    renderSubChart(dataList) {
+      if (!this.subEcharts) {
+        this.subEcharts = echarts.init(document.getElementById("di-sub-echarts-line"));
+      }
+      let xAxis = dataList.map(item => item['collectTime'] ? dayjs(item['collectTime']).format('MM-DD HH:mm:ss') : '');
+      let yAxis = dataList.map(item => item['value'] != null ? parseFloat(item['value']) : 0);
+      let option = {
+        tooltip: {trigger: 'axis'},
+        toolbox: {feature: {saveAsImage: {show: true}}},
+        grid: {top: '8%', left: '4%', right: '3%', bottom: '8px', containLabel: true},
+        xAxis: {type: 'category', boundaryGap: false, data: xAxis},
+        yAxis: {type: 'value', nameTextStyle: {padding: [0, 0, 10, -40]}},
+        series: [{type: 'line', data: yAxis, smooth: true, areaStyle: {opacity: 0.15}}]
+      };
+      this.subEcharts.setOption(option);
+    },
+
     loadSameDevicePoints(uid, excludeFieldId, collectTime) {
       GET('/iot/dataIndicator/associatedPoints', {uid, excludeFieldId, collectTime}).then(({code, data}) => {
         if (code === CoreConsts.SuccessCode) {
@@ -417,11 +547,15 @@ export default {
 
     loadAssociatedStats(uid, fieldId, collectTime) {
       let params = {uid, fieldId, collectTime};
-      if (this.selectedGrade) params['grade'] = this.selectedGrade;
+      params['grade'] = this.selectedGrade;
+      params['offsetSeconds'] = this.assocOffset;
+      this.assocLoading = true;
       GET('/iot/dataIndicator/associatedStats', params).then(({code, data}) => {
         if (code === CoreConsts.SuccessCode) {
           this.associatedStatsList = (data || []).map(item => ({...item, name: item.fieldName || item.field}));
         }
+      }).finally(() => {
+        this.assocLoading = false;
       });
     },
 
@@ -432,6 +566,11 @@ export default {
       let fieldId = record['fieldId'];
       let collectTime = dayjs(record['collectTime']).format('YYYY-MM-DD HH:mm:ss');
       this.loadAssociatedStats(uid, fieldId, collectTime);
+    },
+
+    // 关联时间范围变更, 重新加载关联维度点位
+    onOffsetChange() {
+      this.onGradeChange();
     },
 
     // ============ 工具方法 ============

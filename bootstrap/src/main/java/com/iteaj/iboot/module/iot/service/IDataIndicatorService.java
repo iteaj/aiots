@@ -66,7 +66,8 @@ public interface IDataIndicatorService {
      * @param fieldId     源属性ID
      * @param collectTime 采集时间（精确到秒）
      * @param grade       告警等级（可选，为空则查所有）
+     * @param offsetSeconds 关联时间范围±秒数（可选，默认60秒）
      * @return 关联点位列表
      */
-    List<AssociatedStats> associatedStats(String uid, Long fieldId, String collectTime, String grade);
+    List<AssociatedStats> associatedStats(String uid, Long fieldId, String collectTime, String grade, Integer offsetSeconds);
 }

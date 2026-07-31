@@ -64,9 +64,10 @@ public class AppDataIndicatorController extends BaseController {
      * @param fieldId     源属性ID
      * @param collectTime 采集时间（精确到秒）
      * @param grade       告警等级（可选）
+     * @param offsetSeconds 关联时间范围±秒数（可选，默认60秒）
      */
     @GetMapping("associatedStats")
-    public Result<List<AssociatedStats>> associatedStats(String uid, Long fieldId, String collectTime, String grade) {
-        return success(dataIndicatorService.associatedStats(uid, fieldId, collectTime, grade));
+    public Result<List<AssociatedStats>> associatedStats(String uid, Long fieldId, String collectTime, String grade, Integer offsetSeconds) {
+        return success(dataIndicatorService.associatedStats(uid, fieldId, collectTime, grade, offsetSeconds));
     }
 }
