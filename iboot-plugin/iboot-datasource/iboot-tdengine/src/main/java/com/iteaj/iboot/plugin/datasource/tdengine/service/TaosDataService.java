@@ -13,6 +13,7 @@ import com.iteaj.framework.spi.iot.view.chart.ChartSqlCondition;
 import com.iteaj.iboot.plugin.datasource.tdengine.mapper.TaosCollectDataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,16 +28,34 @@ public class TaosDataService implements RealtimeCollectDataService {
 
     @Override
     public PageResult detailOfPage(Page page, RealtimeCollectData entity) {
+        try {
         return new PageResult<>(collectDataMapper.detailOfPage(page, entity));
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLException && cause.getMessage().contains("0x80002603")) {
+                throw new ServiceException("设备("+entity.getUid()+")表不存在", e);
+            }
+
+            throw new ServiceException("查询数据失败", e);
+        }
     }
 
     @Override
     public List<EchartsCountValue> countOfCommonByTime(TimeCountCondition condition) {
         List<EchartsCountValue> values = new ArrayList<>();
         condition.buildSqlConditions().forEach(item -> {
-            List<BaseEchartsCount> counts = collectDataMapper.countOfCommonByTime(item);
-            List<EchartsCountValue> countValues = condition.buildResult(item, counts);
-            values.addAll(countValues);
+            try {
+                List<BaseEchartsCount> counts = collectDataMapper.countOfCommonByTime(item);
+                List<EchartsCountValue> countValues = condition.buildResult(item, counts);
+                values.addAll(countValues);
+            } catch (Exception e) {
+                Throwable cause = e.getCause();
+                if(cause instanceof SQLException && cause.getMessage().contains("0x80002603")) {
+                    throw new ServiceException("设备("+item.getUid()+")表不存在", e);
+                }
+
+                throw new ServiceException("查询数据失败", e);
+            }
         });
 
         return values;
@@ -97,9 +116,18 @@ public class TaosDataService implements RealtimeCollectDataService {
         List<CollectValueItem> values = new ArrayList<>();
         if(condition.getSearchType() == CollectSearchType.list) {
             condition.buildSqlConditions().forEach(item -> {
+                try {
                 List<RealtimeCollectData> counts = collectDataMapper.listOfCommonByTime(item);
                 List<CollectValueItem> valueItems = condition.buildResult(item, counts, 0);
                 values.addAll(valueItems);
+                } catch (Exception e) {
+                    Throwable cause = e.getCause();
+                    if(cause instanceof SQLException && cause.getMessage().contains("0x80002603")) {
+                        throw new ServiceException("设备("+item.getUid()+")表不存在", e);
+                    }
+
+                    throw new ServiceException("查询数据失败", e);
+                }
             });
         } else {
             condition.buildSqlConditions().forEach(item -> {
@@ -107,10 +135,19 @@ public class TaosDataService implements RealtimeCollectDataService {
                     throw new ServiceException("分页搜索不支持同时多个字段");
                 }
 
-                Page<RealtimeCollectData> page = new Page<>(condition.getCurrent(), condition.getSize());
-                collectDataMapper.pageOfCommonByTime(page, item);
-                List<CollectValueItem> valueItems = condition.buildResult(item, page.getRecords(), page.getTotal());
-                values.addAll(valueItems);
+                try {
+                    Page<RealtimeCollectData> page = new Page<>(condition.getCurrent(), condition.getSize());
+                    collectDataMapper.pageOfCommonByTime(page, item);
+                    List<CollectValueItem> valueItems = condition.buildResult(item, page.getRecords(), page.getTotal());
+                    values.addAll(valueItems);
+                } catch (Exception e) {
+                    Throwable cause = e.getCause();
+                    if(cause instanceof SQLException && cause.getMessage().contains("0x80002603")) {
+                        throw new ServiceException("设备("+item.getUid()+")表不存在", e);
+                    }
+
+                    throw new ServiceException("查询数据失败", e);
+                }
             });
         }
 
@@ -145,19 +182,46 @@ public class TaosDataService implements RealtimeCollectDataService {
 
     @Override
     public IndicatorStats statsOfField(String uid, Long fieldId, String start, String end) {
-        return collectDataMapper.statsOfField(uid, fieldId, start, end);
+        try {
+            return collectDataMapper.statsOfField(uid, fieldId, start, end);
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLException && cause.getMessage().contains("0x80002603")) {
+                throw new ServiceException("设备("+uid+")表不存在", e);
+            }
+
+            throw new ServiceException("查询数据失败", e);
+        }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<RealtimeCollectData> listOfData(String uid, Long fieldId, String start, String end) {
-        return (List<RealtimeCollectData>)(List<?>) collectDataMapper.listOfData(uid, fieldId, start, end);
+        try {
+            return (List<RealtimeCollectData>)(List<?>) collectDataMapper.listOfData(uid, fieldId, start, end);
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLException && cause.getMessage().contains("0x80002603")) {
+                throw new ServiceException("设备("+uid+")表不存在", e);
+            }
+
+            throw new ServiceException("查询数据失败", e);
+        }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<RealtimeCollectData> associatedPoints(String uid, Long excludeFieldId, String collectTime) {
+        try {
         return (List<RealtimeCollectData>)(List<?>) collectDataMapper.associatedPoints(uid, excludeFieldId, collectTime);
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLException && cause.getMessage().contains("0x80002603")) {
+                throw new ServiceException("设备("+uid+")表不存在", e);
+            }
+
+            throw new ServiceException("查询数据失败", e);
+        }
     }
 
     @Override
@@ -185,6 +249,15 @@ public class TaosDataService implements RealtimeCollectDataService {
 
     @Override
     public Page<?> listIndicatorOfPage(Page<?> page, RealtimeDataParam param) {
-        return collectDataMapper.listIndicatorOfPage(page, param);
+        try {
+            return collectDataMapper.listIndicatorOfPage(page, param);
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLException && cause.getMessage().contains("0x80002603")) {
+                throw new ServiceException("设备("+param.getUid()+")表不存在", e);
+            }
+
+            throw new ServiceException("查询指标数据失败", e);
+        }
     }
 }

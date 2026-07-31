@@ -400,7 +400,7 @@
         SELECT a.id, a.uid, a.field, a.field_name, a.field_id, a.value, a.collect_time, a.grade, a.indicator
              , a.status, device_name, a.device_group_Id
         FROM iot_collect_data a
-        WHERE a.product_code = #{productCode} AND a.field_id = #{fieldId}
+        WHERE a.field_id = #{fieldId}
           AND a.collect_time = #{collectTime} AND a.uid != #{excludeUid}
           AND a.value IS NOT NULL AND a.status = 1 and a.grade is not null
     </select>
@@ -413,10 +413,7 @@
                    device_name, device_sn, device_group_id, puid, cid, status,
                    ROW_NUMBER() OVER (
                        PARTITION BY uid, field_id
-                       ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
-                                WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
-                                WHEN 'normal' THEN 4 WHEN 'status' THEN 5
-                                WHEN 'indicator' THEN 6 ELSE 99 END
+                       ORDER BY grade
                    ) AS rn
             FROM iot_collect_data
             WHERE collect_time BETWEEN #{startTime} AND #{endTime}
@@ -442,11 +439,7 @@
                 </otherwise>
             </choose>
         ) t WHERE rn = 1
-        ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
-                 WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
-                 WHEN 'normal' THEN 4 WHEN 'status' THEN 5
-                 WHEN 'indicator' THEN 6 ELSE 99 END
-        LIMIT 200
+        ORDER BY grade LIMIT 200
     </select>
 
     <select id="listByCid" resultMap="BaseResultMap">
@@ -457,10 +450,7 @@
                    device_name, device_sn, device_group_id, puid, cid, status,
                    ROW_NUMBER() OVER (
                        PARTITION BY uid, field_id
-                       ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
-                                WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
-                                WHEN 'normal' THEN 4 WHEN 'status' THEN 5
-                                WHEN 'indicator' THEN 6 ELSE 99 END
+                       ORDER BY grade
                    ) AS rn
             FROM iot_collect_data
             WHERE cid = #{cid}
@@ -475,11 +465,7 @@
                 </otherwise>
             </choose>
         ) t WHERE rn = 1
-        ORDER BY CASE grade WHEN 'fatal' THEN 0 WHEN 'urgent' THEN 1
-                 WHEN 'warn' THEN 2 WHEN 'notice' THEN 3
-                 WHEN 'normal' THEN 4 WHEN 'status' THEN 5
-                 WHEN 'indicator' THEN 6 ELSE 99 END
-        LIMIT 200
+        ORDER BY grade LIMIT 200
     </select>
     <select id="listIndicatorOfPage" resultType="com.iteaj.iboot.module.iot.entity.CollectData">
         <choose>
@@ -492,7 +478,7 @@
                     <if test="entity.uid != null and entity.uid != ''">
                         and uid=#{entity.uid}
                     </if>
-                    and UNIX_TIMESTAMP(collect_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
+                    and collect_time between #{entity.startTime} and #{entity.endTime}
                 </where>
                 order by a.grade
             </when>
@@ -500,14 +486,17 @@
                 WITH ranked AS (
                     select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value, a.grade, a.indicator
                         , a.status, a.collect_time, a.device_name, a.field_name, a.device_group_Id
-                        , ROW_NUMBER() OVER (PARTITION BY uid, field_id ORDER BY collect_time DESC) AS rn
+                        , ROW_NUMBER() OVER (PARTITION BY uid, field_id ORDER BY grade) AS rn
                     FROM iot_collect_data a
                     <where>
                         status = true AND grade IS NOT NULL and grade != 'status'
+                        <if test="entity.productCode != null and entity.productCode != ''">
+                            AND product_code = #{entity.productCode}
+                        </if>
                         <if test="entity.uid != null and entity.uid != ''">
                             and uid=#{entity.uid}
                         </if>
-                        and UNIX_TIMESTAMP(collect_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
+                        and collect_time between #{entity.startTime} and #{entity.endTime}
                     </where>
                 ) SELECT * FROM ranked WHERE rn = 1 order by grade
             </otherwise>

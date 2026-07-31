@@ -134,7 +134,7 @@ public class TaosRealtimeData implements RealtimeCollectData {
     /**
      * 告警等级
      */
-    @IotTag
+    @IotField
     private String grade;
 
     /**
@@ -143,5 +143,22 @@ public class TaosRealtimeData implements RealtimeCollectData {
     @IotField
     private String indicator;
 
-
+    /**
+     * 从实时采集数据构建TDengine实时数据实体
+     * @param data 实时采集数据
+     * @param createTime 创建时间(毫秒时间戳, 作为表主键需要唯一)
+     */
+    public static TaosRealtimeData of(RealtimeCollectData data, long createTime) {
+        String collectValue = data.getValue() != null ? data.getValue().toString() : null;
+        return new TaosRealtimeData().setAddress(data.getAddress())
+                .setTaskId(data.getTaskId()).setField(data.getField())
+                .setCollectTime(data.getCollectTime()).setCreateTime(createTime)
+                .setStatus(data.getStatus()).setValue(collectValue)
+                .setGrade(data.getGrade()).setIndicator(data.getIndicator())
+                .setDeviceSn(data.getDeviceSn()).setDeviceGroupId(data.getDeviceGroupId())
+                .setDeviceName(data.getDeviceName()).setFieldName(data.getFieldName())
+                .setReason(data.getReason()).setCollectMode(data.getCollectMode())
+                .setProductCode(data.getProductCode()).setProtocolCode(data.getProtocolCode())
+                .setCid(data.getCid()).setUid(data.getUid()).setPuid(data.getPuid()).setFieldId(data.getFieldId());
+    }
 }
