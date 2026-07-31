@@ -14,13 +14,13 @@ create STABLE iot_collect_data (
     collect_value nchar(256),
     collect_status bool,
     reason nchar(128),
+    grade varchar(16),
     indicator varchar(36),
     collect_mode varchar(16),
     collect_time timestamp
 ) tags (
     uid varchar(36),
     puid varchar(36),
-    grade varchar(16),
     device_group_id bigint,
     product_code nchar(36),
     protocol_code nchar(36)

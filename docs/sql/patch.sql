@@ -123,7 +123,7 @@ ALTER TABLE iot_warn_config
 -- 2026-06-16 采集数据表增加puid/告警等级/指标标记字段
 ALTER TABLE iot_collect_data
     ADD COLUMN `puid` varchar(36) DEFAULT NULL COMMENT '父设备uid' AFTER uid,
-    ADD COLUMN `grade` varchar(32) DEFAULT NULL COMMENT '告警等级' AFTER protocol_code,
+    ADD COLUMN `grade` enum('fatal','urgent', 'warn', 'notice', 'indicator', 'normal', 'status') DEFAULT NULL COMMENT '告警等级' AFTER protocol_code,
     ADD COLUMN `indicator` varchar(32) DEFAULT NULL COMMENT '指标' AFTER grade;
 
 -- 2026-06-21 告警记录增加处理状态/处理时间/处理原因
