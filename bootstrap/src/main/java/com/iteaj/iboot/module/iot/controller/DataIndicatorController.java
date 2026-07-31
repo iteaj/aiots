@@ -64,8 +64,8 @@ public class DataIndicatorController extends BaseController {
      * 获取同产品下其他设备同点位在同一采集时间的数据
      */
     @GetMapping("crossDevicePoints")
-    public Result<List<AssociatedStats>> crossDevicePoints(String productCode, Long fieldId, String collectTime, String excludeUid) {
-        return success(dataIndicatorService.crossDevicePoints(productCode, fieldId, collectTime, excludeUid));
+    public Result<List<AssociatedStats>> crossDevicePoints(Long fieldId, String collectTime, String excludeUid) {
+        return success(dataIndicatorService.crossDevicePoints(fieldId, collectTime, excludeUid));
     }
 
     /**

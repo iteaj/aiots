@@ -290,10 +290,12 @@ export default {
       // 就地修改字段, 保持UViewSearch表单模型引用不变
       this.searchModel.productId = null;
       this.searchModel.uid = null;
+      this.searchModel.fieldId = null;
       this.searchModel.searchTime = [dayjs().startOf('day'), dayjs()];
       this.analysisVisible = false;
       this.cardList = [];
       this.pagination.current = 1;
+      this.doSearch();
     },
 
     onPageChange(current, pageSize) {
@@ -352,9 +354,7 @@ export default {
       this.loadStats(uid, fieldId, startTime, endTime);
       this.loadTrendData(uid, fieldId, startTime, endTime);
       this.loadSameDevicePoints(uid, fieldId, collectTime);
-      if (productCode) {
-        this.loadOtherDevicePoints(productCode, fieldId, collectTime, uid);
-      }
+      this.loadOtherDevicePoints(fieldId, collectTime, uid);
       this.loadAssociatedStats(uid, fieldId, collectTime);
     },
 
@@ -407,8 +407,8 @@ export default {
       });
     },
 
-    loadOtherDevicePoints(productCode, fieldId, collectTime, excludeUid) {
-      GET('/iot/dataIndicator/crossDevicePoints', {productCode, fieldId, collectTime, excludeUid}).then(({code, data}) => {
+    loadOtherDevicePoints(fieldId, collectTime, excludeUid) {
+      GET('/iot/dataIndicator/crossDevicePoints', {fieldId, collectTime, excludeUid}).then(({code, data}) => {
         if (code === CoreConsts.SuccessCode) {
           this.otherDevicePoints = (data || []).map(item => ({...item, name: item.fieldName || item.field}));
         }

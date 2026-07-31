@@ -87,8 +87,8 @@ public class DataIndicatorServiceImpl implements IDataIndicatorService {
     }
 
     @Override
-    public List<AssociatedStats> crossDevicePoints(String productCode, Long fieldId, String collectTime, String excludeUid) {
-        List<RealtimeCollectData> collectData = collectDataService.crossDevicePoints(productCode, fieldId, collectTime, excludeUid);
+    public List<AssociatedStats> crossDevicePoints(Long fieldId, String collectTime, String excludeUid) {
+        List<RealtimeCollectData> collectData = collectDataService.crossDevicePoints(null, fieldId, collectTime, excludeUid);
         return resolverDeviceGroupName(collectData.stream().map(AssociatedStats::of).toList());
     }
 

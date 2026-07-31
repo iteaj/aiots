@@ -52,13 +52,12 @@ public interface IDataIndicatorService {
 
     /**
      * 获取同产品下其他设备同点位在指定采集时间的数据
-     * @param productCode 产品编码
      * @param fieldId     属性ID
      * @param collectTime 采集时间（精确到秒）
      * @param excludeUid  排除的设备标识
      * @return 其他设备的同点位数据
      */
-    List<AssociatedStats> crossDevicePoints(String productCode, Long fieldId, String collectTime, String excludeUid);
+    List<AssociatedStats> crossDevicePoints(Long fieldId, String collectTime, String excludeUid);
 
     /**
      * 获取与指定点位相关联的其他点位信息

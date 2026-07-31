@@ -153,6 +153,13 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
 
     @Override
     public Page<?> listIndicatorOfPage(Page<?> page, RealtimeDataParam param) {
+        if(param.getStartTimestamp() != null) {
+            param.setStartTime(DateUtil.formatDateTime(new Date(param.getStartTimestamp())));
+        }
+
+        if(param.getEndTimestamp() != null) {
+            param.setEndTime(DateUtil.formatDateTime(new Date(param.getEndTimestamp())));
+        }
         return this.baseMapper.listIndicatorOfPage(page, param);
     }
 
