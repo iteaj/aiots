@@ -1,9 +1,12 @@
 package com.iteaj.iboot.plugin.oauth2.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseController;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.BooleanResult;
 import com.iteaj.framework.result.DetailResult;
@@ -15,13 +18,14 @@ import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 子应用管理
  */
 @RestController
 @RequestMapping("/oauth2/app")
-public class Oauth2AppController {
+public class Oauth2AppController extends BaseController {
 
     private final Oauth2AppService oauth2AppService;
 
@@ -39,7 +43,7 @@ public class Oauth2AppController {
     @GetMapping("view")
     @CheckPermission(value = {"oauth2:app:view"})
     public Result<IPage<Oauth2App>> view(Page page, Oauth2App app) {
-        page.addOrder(OrderItem.desc("createTime"));
+        page.addOrder(OrderItem.desc("create_time"));
         return oauth2AppService.page(page, app);
     }
 
@@ -78,13 +82,49 @@ public class Oauth2AppController {
 
     /**
      * 删除应用记录
-     * @param list
+     * @param clientId
      * @return
      */
     @Logger("删除应用记录")
     @PostMapping("/del")
-    @CheckPermission("core:config:del")
-    public Result<Boolean> del(@RequestBody List<Long> list) {
-        return this.oauth2AppService.removeByIds(list);
+    @CheckPermission("oauth2:app:del")
+    public Result<Boolean> del(String clientId) {
+        if(StrUtil.isBlank(clientId)) {
+            return fail("未指定要删除的客户端id");
+        }
+
+        return this.oauth2AppService.removeByClientId(clientId);
+    }
+
+    /**
+     * 管理员账号列表
+     * @return 管理员账号列表
+     */
+    @GetMapping("adminAccounts")
+    public Result<List<IVOption>> adminAccounts() {
+        List<IVOption> options = this.oauth2AppService.listAdminAccount();
+        return success(options);
+    }
+
+    /**
+     * 更新应用状态(status和clientId必填)
+     * @param app 应用
+     * @return 更新状态
+     */
+    @Logger("更新应用状态")
+    @PostMapping("status")
+    @CheckPermission("oauth2:app:status")
+    public Result status(@RequestBody Oauth2App app) {
+        if(app.getStatus() == null) {
+            return fail("未指定状态");
+        }
+
+        Oauth2App data = this.oauth2AppService.getByClientId(app.getClientId()).ifNotPresentThrow("应用不存在").getData();
+        if(!Objects.equals(data.getStatus(), app.getStatus())) {
+            data.setStatus(app.getStatus());
+            this.oauth2AppService.updateById(data);
+        }
+
+        return success("更新成功");
     }
 }
