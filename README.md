@@ -3,7 +3,7 @@ iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关�
 - [开发文档](http://doc.iteaj.com)
 - [ai技能仓库](https://gitee.com/iteaj/aiots-skills)
 - [项目前端仓库(vue3+antdv3+vite2)](https://gitee.com/iteaj/ivzone)
-- [演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://vip.iteaj.com/#/login)
+- [商业版演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://vip.iteaj.com/#/login)
 ### 加入社区
 > 加群申请请备注: iot
 
