@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.WarnRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.WarnRecord">
+        <result column="id" property="id" />
+        <result column="uid" property="uid" />
+        <result column="name" property="warnConfigName" />
+        <result column="device_name" property="deviceName" />
+        <result column="grade" property="grade" />
+        <result column="content" property="content" />
+        <result column="device_sn" property="deviceSn" />
+        <result column="field" property="field" />
+        <result column="value" property="value" />
+        <result column="product_code" property="productCode" />
+        <result column="warn_config_id" property="warnConfigId" />
+        <result column="warn_time" property="warnTime" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <select id="detailPage" resultMap="BaseResultMap">
+        select a.*, c.name, c.grade, d.name device_name from iot_warn_record a
+            left join iot_warn_config c on a.warn_config_id=c.id
+            left join iot_device d on a.uid = d.uid
+        <where>
+            <if test="entity.grade != null">
+                and c.grade = #{entity.grade}
+            </if>
+            <if test="entity.uid != null and entity.uid != ''">
+                and a.uid = #{entity.uid}
+            </if>
+            <if test="entity.productId != null">
+                and c.product_id = #{entity.productId}
+            </if>
+            <if test="entity.deviceName != null and entity.deviceName != ''">
+                and d.name like '%${entity.deviceName}%'
+            </if>
+            <if test="entity.warnConfigName != null and entity.warnConfigName != ''">
+                and c.name like '%${entity.warnConfigName}%'
+            </if>
+            <choose>
+                <when test="entity.startTimestamp != null and entity.endTimestamp != null">
+                    and UNIX_TIMESTAMP(a.warn_time) * 1000 between #{entity.startTimestamp} and #{entity.endTimestamp}
+                </when>
+                <when test="entity.startTimestamp != null">
+                    and UNIX_TIMESTAMP(a.warn_time) * 1000 >= #{entity.startTimestamp}
+                </when>
+                <when test="entity.endTimestamp != null">
+                    and #{entity.endTimestamp} >= UNIX_TIMESTAMP(a.warn_time) * 1000
+                </when>
+            </choose>
+        </where>
+        order by a.warn_time desc
+    </select>
+    <select id="listByDeviceGroupId" resultMap="BaseResultMap">
+        select a.*, c.name, c.grade, d.name device_name from iot_warn_record a
+             left join iot_warn_config c on a.warn_config_id=c.id
+             left join iot_device d on a.uid = d.uid
+        <where>
+            <if test="groupId != null">
+                and d.device_group_id=#{groupId}
+            </if>
+        </where>
+        order by a.warn_time desc, c.grade desc
+        <if test="size != null">limit #{size}</if>
+    </select>
+
+    <select id="countLastWeek" resultType="com.iteaj.iboot.module.iot.dto.CountLastWeekDto">
+        select count(1) value, date_format(a.warn_time, '%Y-%m-%d') time from iot_warn_record a
+            left join iot_device d on a.uid = d.uid
+        <where>
+            <if test="deviceGroupId != null">
+                and d.device_group_id = #{deviceGroupId}
+            </if>
+            and a.warn_time > date_sub(curdate(), interval 7 day)
+        </where>
+        group by time
+    </select>
+    <select id="countOfCommonByTime" resultType="com.iteaj.framework.spi.iot.data.BaseEchartsCount">
+        <if test="calcType == 'count'">
+            select count(1) value, field,
+        </if>
+        <if test="calcType == 'avg'">
+            select avg(value) value, field,
+        </if>
+        <if test="calcType == 'max'">
+            select max(value) value, field,
+        </if>
+        <if test="calcType == 'min'">
+            select min(value) value, field,
+        </if>
+        <if test="timeType == 'year'">
+            date_format(warn_time, '%Y') category
+        </if>
+        <if test="timeType == 'month'">
+            date_format(warn_time, '%Y-%m') category
+        </if>
+        <if test="timeType == 'day'">
+            date_format(warn_time, '%Y-%m-%d') category
+        </if>
+        <if test="timeType == 'hour'">
+            date_format(warn_time, '%y-%m-%d %H') category
+        </if>
+        from iot_warn_record
+        <where>
+            <if test="uid != null and uid !=''">
+                and uid=#{uid}
+            </if>
+            <if test="productCode != null and productCode !=''">
+                and product_code=#{productCode}
+            </if>
+            <if test="fields != null and fields.size() > 0">
+                and (<foreach collection="fields" item="field" separator=" or ">
+                field = #{field}
+            </foreach>)
+            </if>
+            and UNIX_TIMESTAMP(warn_time) * 1000 between #{startTimestamp} and #{endTimestamp}
+        </where>
+        group by category<if test="fields != null and fields.size() > 0">,field</if>
+    </select>
+    <select id="listOfCommonByTime" resultMap="BaseResultMap">
+        select * from iot_warn_record
+        <where>
+            <if test="uid != null and uid !=''">
+                and uid=#{uid}
+            </if>
+            <if test="productCode != null and productCode !=''">
+                and product_code=#{productCode}
+            </if>
+            <if test="fields != null and fields.size() > 0">
+                and (<foreach collection="fields" item="field" separator=" or ">
+                field = #{field}
+            </foreach>)
+            </if>
+            and UNIX_TIMESTAMP(warn_time) * 1000 between #{startTimestamp} and #{endTimestamp}
+        </where>
+    </select>
+
+    <select id="pageOfCommonByTime" resultMap="BaseResultMap">
+        select * from iot_warn_record
+        <where>
+            <if test="uid != null and uid !=''">
+                and uid=#{uid}
+            </if>
+            <if test="productCode != null and productCode !=''">
+                and product_code=#{productCode}
+            </if>
+            <if test="fields != null and fields.size() > 0">
+                and (<foreach collection="fields" item="field" separator=" or ">
+                field = #{field}
+            </foreach>)
+            </if>
+            and UNIX_TIMESTAMP(warn_time) * 1000 between #{startTimestamp} and #{endTimestamp}
+        </where>
+    </select>
+
+</mapper>
