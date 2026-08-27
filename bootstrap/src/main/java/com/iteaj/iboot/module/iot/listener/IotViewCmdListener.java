@@ -44,12 +44,21 @@ public class IotViewCmdListener implements CmdInvokeListener {
         DeviceCmdLog cmdLog = new DeviceCmdLog().setOperator("-").putCmdName(value.getName())
                 .setMethod(value.getScenario()).setCreateTime(new Date());
         try {
-            if(SecurityUtil.isLogin()) {
-                if(SecurityUtil.getLoginUser().isPresent()) {
-                    Admin entity = (Admin)SecurityUtil.getLoginUser().get();
-                    cmdLog.setOperatorId(entity.getId()).setOperator(entity.getName());
+            if(value.getUser() != null) {
+                cmdLog.setOperatorId((Long)value.getUser().getId()).setOperator(value.getUser().getName());
+            } else {
+                try {
+                    if(SecurityUtil.isLogin()) {
+                        if(SecurityUtil.getLoginUser().isPresent()) {
+                            Admin entity = (Admin)SecurityUtil.getLoginUser().get();
+                            cmdLog.setOperatorId(entity.getId()).setOperator(entity.getName());
+                        }
+                    }
+                } catch (Exception e) {
+                    cmdLog.setOperator("获取用户失败");
                 }
             }
+
             invokeParam = IotUtil.createParamByCmdCode(value.getCode(), value.getUid());
             cmdLog.setUid(invokeParam.getUid()).putCmdParams(invokeParam.getParam());
             RealtimeStatus device = cacheManager.getByUid(invokeParam.getUid());
@@ -123,7 +132,7 @@ public class IotViewCmdListener implements CmdInvokeListener {
             value.getCallback().accept(InvokeResult.fail("未知异常", null));
 
             IotEvenPublisher.publish(IotEventType.DeviceCmdLog, cmdLog);
-            IotLogger.error(IotLogger.NAME, "指令调用", invokeParam != null ? invokeParam.getUid() : null, e.getMessage());
+            IotLogger.error(IotLogger.NAME, "指令调用", invokeParam != null ? invokeParam.getUid() : null, e.getMessage(), e);
         }
     }
 }

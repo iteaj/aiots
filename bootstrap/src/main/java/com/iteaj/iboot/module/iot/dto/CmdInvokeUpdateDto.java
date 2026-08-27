@@ -1,6 +1,7 @@
 package com.iteaj.iboot.module.iot.dto;
 
 
+import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -43,4 +44,9 @@ public class CmdInvokeUpdateDto {
      * 控制值
      */
     private String value;
+
+    /**
+     * 操作用户
+     */
+    private AuthenticationUser user;
 }
