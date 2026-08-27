@@ -1,5 +1,6 @@
 package com.iteaj.framework.spi.iot.listener;
 
+import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,6 +37,11 @@ public class CmdInvokePayload implements IotEventPayload{
      * 调用场景
      */
     private String scenario;
+
+    /**
+     * 操作用户
+     */
+    private AuthenticationUser user;
 
     public static final String SCENARIO_AI = "AI";
     public static final String SCENARIO_SCREEN = "大屏";
