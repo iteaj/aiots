@@ -21,10 +21,13 @@ public class MpService {
 
     private final WxMpService wxMpService;
     private final ISocialUserService socialUserService;
+    private final WxMpAdminService wxMpAdminService;
 
-    public MpService(WxMpService wxMpService, ISocialUserService socialUserService) {
+    public MpService(WxMpService wxMpService, ISocialUserService socialUserService,
+                     WxMpAdminService wxMpAdminService) {
         this.wxMpService = wxMpService;
         this.socialUserService = socialUserService;
+        this.wxMpAdminService = wxMpAdminService;
     }
 
     /**
@@ -103,5 +106,29 @@ public class MpService {
             return echostr;
         }
         return "invalid";
+    }
+
+    /**
+     * 通过微信公众号授权码登录
+     * <p>若微信已绑定系统账号则直接返回用户ID；未绑定时自动创建系统用户并绑定。</p>
+     * @param code 微信授权码
+     * @return 系统用户ID
+     */
+    public Long getSystemUserIdByWechat(String code) throws WxErrorException {
+        SocialUser socialUser = handleCallback(code);
+
+        // 已绑定系统用户，直接返回
+        if (socialUser.getSystemUserId() != null) {
+            return socialUser.getSystemUserId();
+        }
+
+        // 未绑定，创建系统用户并绑定
+        Long systemUserId = wxMpAdminService.createWechatUser(
+                socialUser.getOpenId(),
+                socialUser.getNickname(),
+                socialUser.getAvatar()
+        );
+        bindSystemUser(socialUser.getOpenId(), systemUserId);
+        return systemUserId;
     }
 }

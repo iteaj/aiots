@@ -87,7 +87,7 @@ public class WechatAutoConfiguration {
         OrderFilterChainDefinition def = new OrderFilterChainDefinition();
 
         if (properties.getMp().getAppId() != null) {
-            def.addAnon("/wx/mp/callback", "/wx/mp/webhook", "/wx/mp/bind/**");
+            def.addAnon("/wx/mp/callback", "/wx/mp/webhook", "/wx/mp/bind/**", "/wx/mp/admin/login/**");
         }
         if (properties.getMa().getAppId() != null) {
             def.addAnon("/wx/ma/**");

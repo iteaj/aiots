@@ -38,11 +38,12 @@
         <a-divider style="margin: 12px 0px">其他登录方式</a-divider>
         <a-row type="flex" justify="space-between" :gutter="3">
           <a-col span="6" style="text-align: right; cursor: pointer">
-<!--            <a-icon type="wechat" :style="iconStyle" />-->
+<!--            <UIcon type="iz-icon-wechat" style="font-size: 28px; color: #07c160"-->
+<!--                   @click="wechatLogin"></UIcon>-->
           </a-col>
           <a-col span="6" style="text-align: center; cursor: pointer">
-            <UIcon type="iz-icon-gitee" style="font-size: 28px"
-                      @click="oauth2Login('Gitee')"></UIcon>
+<!--            <UIcon type="iz-icon-gitee" style="font-size: 28px"-->
+<!--                      @click="wechatLogin"></UIcon>-->
           </a-col>
           <a-col span="6" style="text-align: left; cursor: pointer">
 <!--            <a-icon type="alipay-circle" :style="iconStyle" />-->
@@ -58,7 +59,7 @@
 </template>
 <script>
 import {reactive, shallowRef} from 'vue'
-import {getCode, login, oauth2, captchaUri} from '@/api'
+import {getCode, login, oauth2, captchaUri, wechatAdminLogin} from '@/api'
 import CoreConsts from "@/components/CoreConsts";
 import SysUtils from "@/utils/SysUtils";
 
@@ -113,7 +114,36 @@ export default {
     clickImg();
     return {user, labelCol, wrapperCol, validateInfos, loginModel, clickImg, validate, formRef, rules}
   },
+  mounted() {
+    this.handleWechatCallback();
+  },
   methods: {
+    handleWechatCallback() {
+      // 兼容 hash 和 history 路由模式
+      const params = new URLSearchParams(
+        this.$route.query.token ? window.location.search
+          : (window.location.hash.split('?')[1] || '')
+      );
+      const token = params.get('token') || this.$route.query.token;
+      const wxError = this.$route.query.wxError;
+
+      if (wxError) {
+        this.loginModel.errMsg = wxError;
+        return;
+      }
+
+      if (token) {
+        localStorage.setItem(CoreConsts.AccessToken, token);
+        const userInfo = {userToken: token, tokenName: CoreConsts.AccessToken};
+        const systemStore = {};
+        systemStore[CoreConsts.UserInfo] = userInfo;
+        localStorage.setItem(CoreConsts.SystemStore, JSON.stringify(systemStore));
+        this.$router.push('/');
+      }
+    },
+    wechatLogin() {
+      wechatAdminLogin();
+    },
     oauth2Login(type) {
       oauth2(type)
     },

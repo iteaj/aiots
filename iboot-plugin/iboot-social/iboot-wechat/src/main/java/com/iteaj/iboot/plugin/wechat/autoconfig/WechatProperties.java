@@ -37,6 +37,8 @@ public class WechatProperties implements InitializingBean {
         private String bindPageUrl;
         /** 绑定成功后跳转URL */
         private String successPageUrl;
+        /** 管理端登录页URL（微信登录回调重定向用） */
+        private String adminLoginUrl;
     }
 
     /**

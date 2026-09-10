@@ -78,3 +78,8 @@ export function oauth2(type) {
         location.href = resp.data
     })
 }
+
+// 微信公众号授权登录（管理端）
+export function wechatAdminLogin() {
+    location.href = `${baseURL}/wx/mp/admin/login/auth`
+}
