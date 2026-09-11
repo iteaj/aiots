@@ -51,6 +51,7 @@ export default defineComponent({
         if(position != PositionConst.Page) {
           visibleContext = inject(VisibleContextKey);
           if(visibleContext instanceof VisibleContext) {
+            linkContext.parent = visibleContext;
             visibleContext.childLinkContext.push(linkContext);
           }
         }
@@ -72,7 +73,12 @@ export default defineComponent({
         linkContext.getQueryFunc().forEach(item => item.trigger());
       // }
     },
-    methods: {
+  unmounted() {
+      if(this.viewContext) {
+        this.viewContext.removeLinkContextByUid(this.uid, this.linkContext);
+      }
+  },
+  methods: {
         /**
          * @return {ViewContext}
          */

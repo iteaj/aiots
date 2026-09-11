@@ -26,11 +26,11 @@
           <UTag func="edit" :data="record" url="/iot/product/edit" v-auth="'iot:product:edit'">修改</UTag>
           <UTag func="open" uid="model" :data="record" v-auth="'iot:product:model'">物模型</UTag>
           <UTag func="open" uid="batch" :data="record" v-auth="'iot:product:model'"
-                :disabled="record['ctrlMode'] != 'POINT' || record['deviceType'] == 'Gateway'" @click="() => batchModel(record)">批量</UTag>
+                :disabled="record['ctrlMode'] != 'POINT' || record['deviceType'] == 'Gateway'" @click="(config) => batchModel(config)">批量</UTag>
           <UTag func="del" :data="record" url="/iot/product/del" v-auth="'iot:product:del'">删除</UTag>
         </template>
       </UViewTable>
-    <UDrawer uid="model" :title="'物模型配置['+modelDetailModel['code']+']'" placement="bottom" size="100%" v-model:source="modelDetailModel" :push="false" @close="modelClose">
+    <UDrawerView uid="model" :title="'物模型配置['+modelDetailModel['code']+']'" placement="bottom" size="100%" v-model:source="modelDetailModel" :push="false" @close="modelClose">
       <template #extra>
         <span style="color: #fc804a; font-size: 13px;">所有修改将在重启产品后生效</span>
 <!--        <UButton size="small" v-auth="'iot:product:switch'" :url="`/iot/product/switch/${modelDetailModel['id']}/disabled`" danger-->
@@ -39,7 +39,7 @@
 <!--        </UButton>-->
       </template>
       <ThingModel :model-detail-model="modelDetailModel" />
-    </UDrawer>
+    </UDrawerView>
     <UViewModal title="产品管理" :span="[6, 16]" v-model="editModel" :rules="rules" @edit="editOpen">
       <template #default="{model}">
         <UInputItem field="name" label="产品名称" :maxlength="20" />
@@ -59,9 +59,9 @@
         <UButton func="reset">重置</UButton>
       </template>
     </UViewModal>
-    <ADrawer v-model:open="batchActive" :title="`批量物模型配置(${modelDetailModel.name})`" placement="bottom" size="100%"
-             :styles="{body: {padding: '6px'}}">
-      <UChildView uid="batchModel">
+    <UDrawerView uid="batch" :title="`批量物模型配置(${modelDetailModel.name})`" placement="bottom" size="100%"
+             :styles="{body: {padding: '6px'}}" :getContainer="null">
+<!--      <UChildView uid="batchModel">-->
         <UViewSearch style="margin-bottom: 0;" v-model="batchSearchModel">
           <UInputItem label="属性名称" field="name"/>
           <UInputItem label="属性字段" field="field"/>
@@ -78,8 +78,8 @@
             <UTag func="del" :data="record" :params="{id: record.id, apiCode: record.apiCode}" url="/iot/product/batchModelDel">删除</UTag>
           </template>
         </UViewEditable>
-      </UChildView>
-    </ADrawer>
+<!--      </UChildView>-->
+    </UDrawerView>
   </UView>
 </template>
 <!-- 产品功能 -->
@@ -174,7 +174,6 @@ export default {
     let searchModel = ref({});
 
     let modelDetailModel = ref({id: ''}); // 物模型
-    let batchActive = ref(false);
     let batchSearchModel = ref({productCode: null});
     let protocolBatchColumnsMap = ref({});
 
@@ -189,7 +188,7 @@ export default {
     }, {immediate: true})
 
     return {searchRef, columns, rules, editModel, searchModel, modelDetailModel, dataType, attrType, collectTagOptions, statusOptions
-      , batchActive, protocolBatchColumnsMap, batchColumns, batchCommonColumns, batchModelQueryRef, batchSearchModel, copyValue}
+      , protocolBatchColumnsMap, batchColumns, batchCommonColumns, batchModelQueryRef, batchSearchModel, copyValue}
   },
   mounted() {
     this.initBatchProtocolColumn();
@@ -342,7 +341,7 @@ export default {
 
       return Promise.resolve(record);
     },
-    batchModel(record) {
+    batchModel({data: record, event}) {
       this.modelDetailModel = record;
       this.batchSearchModel.productCode = record['code'];
       let protocolBatchColumns = this.protocolBatchColumnsMap[record['protocolCode']];
@@ -357,7 +356,8 @@ export default {
       if(this.batchModelQueryRef) {
         this.batchModelQueryRef.trigger();
       }
-      this.batchActive = true;
+
+      event();
     },
     modelClose() {
       this.copyValue = null;

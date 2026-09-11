@@ -6,7 +6,7 @@ import CoreConsts from "@/components/CoreConsts";
 import {GET, urlConfig} from "@/utils/request";
 import dayjs from "dayjs";
 import {Modal} from "antdv-next";
-import {createVNode, defineComponent, reactive} from "vue";
+import {createVNode, defineComponent} from "vue";
 import {ImportUpload} from "@/components/basic";
 
 function Unmount() {
@@ -181,6 +181,29 @@ export function $View(context) {
     }
 
     /**
+     * 操作前确认(U化确认弹框): 经页面根上下文定位UConfirm(uid=CoreConsts.DefaultConfirmUid)后由ask()打开——
+     * 弹框注册进页面上下文/焦点栈, AI可在焦点视图中看到标题/内容并触发[确认/取消]按钮执行原回调;
+     * UConfirm未挂载(页面未基于UView或异常)时回退antd静态确认弹框, 保证功能可用
+     * @param context 功能所在组件上下文(用于定位所属页面)
+     * @param config {{title: String, content: String, onOk: Function, onCancel: Function}}
+     */
+    this.confirmAction = function (context, {title, content, onOk, onCancel}) {
+        let confirmContext = null;
+        if(context) {
+            let linkContext = context.getLinkContext instanceof Function ? context.getLinkContext() : context;
+            if(linkContext && linkContext.getViewContext instanceof Function) {
+                confirmContext = linkContext.getViewContext()
+                    .getContextByUid(CoreConsts.PrimaryUid + ':' + CoreConsts.DefaultConfirmUid);
+            }
+        }
+        if(confirmContext && confirmContext.ask instanceof Function) {
+            confirmContext.ask({title, content, onOk, onCancel});
+        } else {
+            confirm({title, content, onOk, onCancel});
+        }
+    }
+
+    /**
      * 删除主表格记录
      * @param param {Config}
      */
@@ -214,25 +237,32 @@ export function $View(context) {
             }
         }
 
-        confirm({title, content, onOk: () => {
-            this.getRequestParams(data, params, funcPath).then((params => {
+        this.confirmAction(context, {title, content, onOk: () => {
+            // 返回删除执行结果文本(成功/失败原因), 供AI动作(exec_func)同步等待确认后反馈真实结果; 失败不抛异常, UI/回调路径不变
+            return this.getRequestParams(data, params, funcPath).then((params => {
                     tableContext.setLoading(true, CoreConsts.DeleteExecTipping)
-                    this.getRequestMethod({func, method})(url, params).then(({code, message, data}) => {
+                    return this.getRequestMethod({func, method})(url, params).then(({code, message, data}) => {
+                        let result;
                         if (code == CoreConsts.SuccessCode) {
                             msgSuccess(message || CoreConsts.DelSuccessMsg);
                             if(reload) {
                                 this.queryByFunc(linkContext); // 删除成功, 重新刷新列表
                             }
+                            result = message || CoreConsts.DelSuccessMsg;
                         } else {
                             msgError(message);
+                            result = `删除失败: ${message}`;
                         }
 
                         callback({code, message, data}, params)
-                    }).catch(reason => console.error(reason))
-                        .finally(() => tableContext.setLoading(false, ""));
+                        return result;
+                    }).catch(reason => {
+                        console.error(reason);
+                        return `删除请求异常: ${reason && reason.message || reason}`;
+                    }).finally(() => tableContext.setLoading(false, ""));
                 }));
-            }, onCancel: () => null
-        })
+            }
+        });
     }
 
     /**
@@ -636,7 +666,8 @@ export function $View(context) {
             return console.error(`submit功能只能放在编辑组件下面`)
         }
 
-        editContext.getFormContext().validate().then(() => {
+        // 返回提交执行结果文本(成功/失败原因), 供AI动作(exec_func)同步等待后向用户反馈真实结果; 失败不抛异常, UI/回调路径不变
+        return editContext.getFormContext().validate().then(() => {
             let model = editContext.getModel();
 
             function setLoading(status, tip) {
@@ -644,25 +675,37 @@ export function $View(context) {
                 editContext.setLoading(status, tip)
             }
 
-            this.getRequestParams(model, params, funcPath).then(params => {
+            return this.getRequestParams(model, params, funcPath).then(params => {
                 setLoading(true, CoreConsts.FormSpinSubmitTip);
-                this.getRequestMethod({method, func})(url, params).then(({code, message, data}) => {
+                return this.getRequestMethod({method, func})(url, params).then(({code, message, data}) => {
                     let promise = callback({code, message, data, editContext, query: () => this.queryByFunc(linkContext)});
-                    if(promise instanceof Promise) {
-                        promise.then(() => {
-                            if (code == CoreConsts.SuccessCode) {
-                                msgSuccess(CoreConsts.SubmitSuccessMsg);
-                                editContext.setVisible(false);
-                                this.queryByFunc(linkContext);
-                            } else {
-                                msgError(message);
-                            }
-                        }).catch(reason => null);
-                    } else {
-                        console.error("callback必须返回Promise对象");
-                    }
-                }).catch(reason => msgError(reason)).finally(() => setLoading(false))
-            }).catch(reason => reason ? msgWarn(reason) : null)
+                    return Promise.resolve(promise).then(() => {
+                        if (code == CoreConsts.SuccessCode) {
+                            msgSuccess(CoreConsts.SubmitSuccessMsg);
+                            editContext.setVisible(false);
+                            this.queryByFunc(linkContext); // 提交成功, 重新刷新列表
+                            return message || CoreConsts.SubmitSuccessMsg;
+                        }
+                        msgError(message);
+                        return `提交失败: ${message}`;
+                    }).catch(reason => {
+                        console.error(reason);
+                        return `提交失败: ${reason && reason.message || reason}`;
+                    });
+                }).catch(reason => {
+                    msgError(reason);
+                    return `提交请求异常: ${reason && reason.message || reason}`;
+                }).finally(() => setLoading(false))
+            }).catch(reason => {
+                if(reason) {
+                    msgWarn(reason);
+                    return `提交失败: ${reason && reason.message || reason}`;
+                }
+            })
+        }).catch(({errorFields}) => {
+            // 表单校验未通过(字段清单给AI, 便于修正后重试)
+            let names = (errorFields || []).map(field => String(field && field.name || '')).filter(name => name).join(', ');
+            return `表单校验未通过${names ? `: ${names}` : ''}`;
         })
     }
 
@@ -673,27 +716,38 @@ export function $View(context) {
     this.tableForSubmit = function ({uid, url, callback, funcPath, data
                                         , func, params, method, config: {}, funcConfig, context}) {
         let linkContext = context.getLinkContext();
-        context.submitEditableRow().then((editModel) => {
-            this.getRequestParams(editModel, params, funcPath).then(params => {
+        // 返回提交执行结果文本(成功/失败原因), 供AI动作(exec_func)同步等待后向用户反馈真实结果; 失败不抛异常, UI/回调路径不变
+        return context.submitEditableRow().then((editModel) => {
+            return this.getRequestParams(editModel, params, funcPath).then(params => {
                 context.setLoading(true, CoreConsts.FormSpinSubmitTip)
-                this.getRequestMethod({method, func})(url, params).then(({code, message, data}) => {
+                return this.getRequestMethod({method, func})(url, params).then(({code, message, data}) => {
                     let promise = callback({code, message, data, query: () => this.queryByFunc(linkContext)});
-                    if(promise instanceof Promise) {
-                        promise.then(() => {
-                            if (code == CoreConsts.SuccessCode) {
-                                context.setEditRow(null);
-                                msgSuccess(CoreConsts.SubmitSuccessMsg).then();
-                                this.queryByFunc(linkContext);
-                            } else {
-                                msgError(message).then();
-                            }
-                        }).catch(reason => null)
-                    } else {
-                        console.error("callback必须返回Promise对象");
-                    }
-                }).catch(reason => msgError(reason))
-            }).catch(reason => reason ? msgWarn(reason) : null)
-                .finally(() => context.setLoading(false, null))
+                    return Promise.resolve(promise).then(() => {
+                        if (code == CoreConsts.SuccessCode) {
+                            context.setEditRow(null);
+                            msgSuccess(CoreConsts.SubmitSuccessMsg).then();
+                            this.queryByFunc(linkContext); // 提交成功, 重新刷新列表
+                            return message || CoreConsts.SubmitSuccessMsg;
+                        }
+                        msgError(message).then();
+                        return `提交失败: ${message}`;
+                    }).catch(reason => {
+                        console.error(reason);
+                        return `提交失败: ${reason && reason.message || reason}`;
+                    });
+                }).catch(reason => {
+                    msgError(reason);
+                    return `提交请求异常: ${reason && reason.message || reason}`;
+                })
+            }).catch(reason => {
+                if(reason) {
+                    msgWarn(reason);
+                    return `提交失败: ${reason && reason.message || reason}`;
+                }
+            }).finally(() => context.setLoading(false, null))
+        }).catch(reason => {
+            console.error(reason);
+            return `提交失败: ${reason && reason.message || reason}`;
         })
     }
 
@@ -918,29 +972,38 @@ export function $View(context) {
         }
 
         function request() {
-            this.getRequestParams(data, params, funcPath).then(params => {
+            // 返回执行结果文本(成功/失败原因)
+            return this.getRequestParams(data, params, funcPath).then(params => {
                 reload(true, CoreConsts.AjaxExecTipping);
-                this.getRequestMethod({func, method})(url, params).then(({code, message, data}) => {
+                return this.getRequestMethod({func, method})(url, params).then(({code, message, data}) => {
+                    let result;
                     if (code == CoreConsts.SuccessCode) {
                         msgSuccess(message || CoreConsts.DefaultExecSuccess);
                         if (reload) {
                             this.queryByFunc(linkContext); // 重新刷新列表
                         }
+                        result = message || CoreConsts.DefaultExecSuccess;
                     } else {
                         msgError(message);
+                        result = `执行失败: ${message}`;
                     }
 
                     callback({code, message, data}, params)
-                }).catch(reason => console.error(reason)).finally(() => reload(false, null));
+                    return result;
+                }).catch(reason => {
+                    console.error(reason);
+                    return `请求异常: ${reason && reason.message || reason}`;
+                }).finally(() => reload(false, null));
             });
         }
 
         if(funcPath[1] && funcPath[1].toUpperCase() == CoreConsts.ChildFuncNameMeta.CONFIRM) {
             let title = confirmTitle || CoreConsts.DefaultConfirmTitle;
             let content = confirmContent || CoreConsts.DefaultConfirmTitle;
-            confirm({title, content, onOk: () => request.call(this) , onCancel: () => null})
+            // onOk透传request的执行结果Promise
+            return this.confirmAction(context, {title, content, onOk: () => request.call(this), onCancel: () => null})
         } else {
-            request.call(this);
+            return request.call(this);
         }
     }
 
@@ -1032,6 +1095,40 @@ export function FuncMetaContext(editFunMetas, tableFunMetas, searchFunMetas) {
 }
 
 /**
+ * 功能注册键统一口径: 基础键(func 或 func:行key)上追加显式uid实例段
+ * 仅显式uid(页面写死的操作目标标识, 如行内物模型=model/批量=batch)参与键, 无uid时保持基础键格式(与动作引擎getFunc直查兼容)
+ * @param baseKey {String}
+ * @param config {FuncConfig}
+ * @return {String}
+ */
+function funcRegisterKey(baseKey, config) {
+    let instanceUid = config && config.getProp instanceof Function ? config.getProp('uid') : null;
+    if(instanceUid) {
+        return baseKey + ':' + instanceUid;
+    }
+    return baseKey;
+}
+
+/**
+ * 功能查询键统一口径: 与注册组键(funcRegisterKey)同构的查询侧组键, 各上下文getFunc按此键直查funcMetas
+ * 键序固定为 func:行key:uid 与注册键同构: 行段仅rowKey值有效时追加(仅TableContext传入), 实例段仅显式uid(操作目标标识)时追加, 默认操作目标值不入键(与注册侧仅显式uid参与键一致)
+ * @param func {String}
+ * @param uid {String} 显式操作目标标识(如行内物模型=model/批量=batch, 同行同编码多按钮定位; 无则不传)
+ * @param rowKey {String|Number} 表格行key值(仅TableContext行按钮传入; 组件级上下文无行维度不传)
+ * @return {String}
+ */
+function funcQueryKey(func, uid, rowKey) {
+    let key = func;
+    if(rowKey != null && rowKey !== '') {
+        key += ':' + rowKey;
+    }
+    if(uid) {
+        key += ':' + uid;
+    }
+    return key;
+}
+
+/**
  * 搜索栏
  * @param linkContext {LinkContext}
  * @constructor
@@ -1043,27 +1140,41 @@ export function SearchContext(linkContext) {
     this.funcMetas = {};
 
     /**
-     * @param func
+     * 获取功能配置: 按注册键(func[:uid])键直查, 与register/funcRegisterKey组键口径一致
+     * @param func 功能编码
+     * @param uid 显式操作目标标识(如model/batch, 同func多按钮并存时定位实例)
      * @return {FuncConfig | null}
      */
-    this.getFunc = function (func) {
+    this.getFunc = function (func, uid) {
         func = func.toUpperCase();
-        let funcMeta = this.funcMetas[func];
+        let key = funcQueryKey(func, uid);
+        let funcMeta = this.funcMetas[key];
 
-        // 遗留问题, query和view都代表查询
-        let isQuery = func == 'QUERY' || func == 'VIEW';
-        if(isQuery) {
-            funcMeta = this.funcMetas['QUERY'] || this.funcMetas['VIEW'];
+        // 遗留问题, query和view都代表查询(无实例段时互通, 与funcMetas['QUERY']||funcMetas['VIEW']同序)
+        if(!funcMeta && (func == 'QUERY' || func == 'VIEW')) {
+            funcMeta = this.funcMetas[funcQueryKey(func == 'QUERY' ? 'VIEW' : 'QUERY', uid)];
         }
 
         return funcMeta;
     }
 
     /**
+     * 注册功能: 键=func(显式uid按钮追加实例段func:uid, 同func多按钮并存互不覆盖, 无uid保持原键与getFunc直查兼容)
      * @param config {FuncConfig}
      */
     this.register = function (config) {
-        this.funcMetas[func] = config;
+        this.funcMetas[funcRegisterKey(config.getFunc(), config)] = config;
+    }
+
+    /**
+     * 注销功能(与register对称): 仅当funcMetas中当前占用者是本实例时移除(条目已被其它实例覆盖注册时不动, 避免误删存活按钮)
+     * @param config {FuncConfig}
+     */
+    this.unregister = function (config) {
+        let key = funcRegisterKey(config.getFunc(), config);
+        if(this.funcMetas[key] === config) {
+            delete this.funcMetas[key];
+        }
     }
 
     this.getModel = function () {
@@ -1094,32 +1205,113 @@ export function SearchContext(linkContext) {
 
 
 /**
+ * 标签页容器(UTabs): 页面/弹框内多面板页签的上下文
+ * 构造时持有UTabs的props(响应式): uid/activeKey在内部自props现取(惰性物化, 无同步维护), 面板声明由UTabs渲染期同步进paneDecls——组件仅剩模板与生命周期壳;
+ * 面板内容惰性渲染: 未访问面板未挂载(内部组件上下文未注册), 已访问面板切走仅隐藏保持挂载(默认未开destroyOnHidden),
+ * 首次切换至某标签后需重查焦点视图获取该面板内组件清单
+ * 面板声明双通道: 1) items prop声明(推荐, 面板内容经contentRender插槽分发); 2) 默认插槽UTabPane声明(仅items未声明时启用);
+ * 两通道的声明(key/tab/disabled)均由UTabs渲染期统一翻译收进paneDecls(键=面板key, 值即面板清单)——自描述与switch_tab切换目标的唯一数据源
+ * @param linkContext {LinkContext} 属于哪个容器
+ * @param props 组件props(uid容器标识/activeKey激活key, 读取时经响应式props现取最新)
+ * @constructor
+ */
+export function TabContext(linkContext, props) {
+    // 标签页容器标识(构造时自props.uid提取, 需在所属容器内唯一, 用于焦点视图定位与switch_tab动作目标)
+    this.uid = props.uid;
+
+    // 切换回调(UTabs注入, 驱动父组件v-model回写使a-tabs受控激活变化)
+    this.switcher = null;
+
+    // 面板声明表(键=面板key): UTabs渲染期把items与UTabPane两通道声明统一收进此处, 整体同步(每次渲染重建保持新鲜)
+    this.paneDecls = {};
+    /**
+     * 同步面板声明(UTabs渲染期调用, 整体替换保持新鲜)
+     * @param decls {Object} 键=面板key, 值={key: string, tab: string, disabled: boolean}
+     */
+    this.syncPaneDecls = function (decls) {
+        this.paneDecls = decls || {};
+    };
+
+    this.getActiveKey = function () {
+        return props.activeKey;
+    };
+
+    /**
+     * 切换至指定标签(供动作switch_tab调用, 带齐全校验与友好提示)
+     * @param key 标签key
+     * @return {string} 执行结果描述
+     */
+    this.switchTo = function (key) {
+        if(!(this.switcher instanceof Function)) {
+            throw new Error(`标签容器[${this.uid}]未就绪(组件未挂载完成), 稍后重试`);
+        }
+        let pane = this.paneDecls[key];
+        if(!pane) {
+            throw new Error(`标签[${key}]不存在, 可选标签: ${Object.values(this.paneDecls).map(item => item.tab || item.key).join('/')}`);
+        }
+        if(pane.disabled) {
+            throw new Error(`标签[${pane.tab || pane.key}]已禁用, 不可切换`);
+        }
+        if(this.activeKey === key) {
+            return `当前已在标签[${pane.tab || pane.key}], 无需切换`;
+        }
+        this.switcher(key);
+        return `已切换至标签[${pane.tab || pane.key}], 重查焦点视图获取该标签内组件清单`;
+    }
+
+    /**
+     * @return {LinkContext}
+     */
+    this.getLinkContext = () => linkContext;
+}
+
+
+/**
  * 编辑
  * @param linkContext {LinkContext} 属于哪个容器
  * @constructor
  */
 export function EditContext(linkContext) {
+    // 编辑弹框本身也是弹框(模态框/抽屉): 基于VisibleContext共享弹框身份与语义(标题/打开能力), 同名成员在此之后重新赋值覆盖
+    VisibleContext.call(this, linkContext);
+
     // 用于关联各个组件(搜索、表格、详情)
     this.uid = null;
     // 当前打开类型(add or edit)
     this.openType = null;
+    // 弹框标题(由UFormModal/UFormDrawer渲染期同步, 供页面骨架自描述)
+    this.title = null;
     // 存储UFuncBtn和UFuncTag组件的信息
     this.funcMetas = {};
 
-    // 获取功能组件配置
-    this.getFunc = function (func) {
-        return this.funcMetas[func.toUpperCase()];
+    // 获取功能组件配置: 按注册键(func[:uid])键直查, 与register/funcRegisterKey组键口径一致
+    this.getFunc = function (func, uid) {
+        return this.funcMetas[funcQueryKey(func.toUpperCase(), uid)];
     }
 
     /**
+     * 注册功能: 键=func(显式uid按钮追加实例段func:uid, 同func多按钮并存互不覆盖, 无uid保持原键与getFunc直查兼容)
      * @param config {FuncConfig}
      */
     this.register = function (config) {
-        this.funcMetas[func] = config;
+        let func = config.getFunc();
+        this.funcMetas[funcRegisterKey(func, config)] = config;
+    }
+
+    /**
+     * 注销功能(与register对称): 仅当funcMetas中当前占用者是本实例时移除(条目已被其它实例覆盖注册时不动, 避免误删存活按钮)
+     * @param config {FuncConfig}
+     */
+    this.unregister = function (config) {
+        let key = funcRegisterKey(config.getFunc(), config);
+        if(this.funcMetas[key] === config) {
+            delete this.funcMetas[key];
+        }
     }
 
     this.getModel = function () {
-        return this.getFormContext().getEditModel();
+        let formContext = this.getFormContext();
+        return formContext ? formContext.getEditModel() : null;
     }
 
     this.setModel = function (model) {
@@ -1180,7 +1372,60 @@ export function EditContext(linkContext) {
         // viewContext['__$View'] 不可能为空, 为空说明异常
         return this.getLinkContext().getViewContext()['__$View'] || new $View(null);
     }
+
+    // ===== 容器面(EditContext兼任LinkContext容器: 编辑弹框即自身内容的容器) =====
+    // FormModal/FormDrawer provide(LinkViewContextKey, editContext): 弹框插槽内无ULinkView包裹直挂的组件(UTabs/UTable/BasicSearch等)
+    // 经inject注册进弹框自身(childContextMaps)而非穿透外层容器——组件与弹框同域, 收集端(焦点视图/schema)以弹框打开状态整体过滤,
+    // 杜绝直挂外层(与EditContext平级)时未打开弹框的内容(如标签页)泄漏进焦点视图;
+    // 注册键/全局fullUid=外层容器uid_弹框uid:组件uid(弹框域段下划线连接, 子组件段保留冒号层级; 带完整前缀, 页面内多实例同uid弹框互不冲突);
+    // 面板容器(ULinkView)收编childLinkContext的既有路径不受影响(其LinkContext.parent经Modal/Drawer位置分支统一覆盖为editContext, 与注入源无关)
+    this.childContextMaps = {};
+    this.addChildrenContext = function (childContext) {
+        if(!(childContext && childContext.uid && linkContext && this.uid)) {
+            return; // 脱离容器单独使用或弹框未注册(uid未赋值)时静默忽略不抛错(LinkContext注册必有外层容器, 编辑弹框可脱离容器)
+        }
+        let fullUid = linkContext.uid + "_" + this.uid + ":" + childContext.uid;
+        if(!this.childContextMaps[fullUid]) {
+            this.childContextMaps[fullUid] = childContext;
+            this.getViewContext().addContextByUid(fullUid, childContext);
+        } else {
+            console.warn(`已经存在同名的组件[${fullUid}]`)
+        }
+    }
+    this.removeChildrenContext = function (childContext) {
+        if(childContext && childContext.uid && linkContext && this.uid) {
+            let fullUid = linkContext.uid + "_" + this.uid + ":" + childContext.uid;
+            if(this.childContextMaps[fullUid]) {
+                delete this.childContextMaps[fullUid];
+                this.getViewContext().removeContextByUid(fullUid);
+            }
+        }
+    }
+    /**
+     * 获取直挂子组件上下文(与LinkContext#getChildrenContext同口径: 按钮执行器/联动经context.getLinkContext()定位目标)
+     * 弹框内直挂表格的编辑/删除等按钮context.getLinkContext()=本弹框editContext, 由此定位同域的目标弹框/表格
+     * @param uid 子组件uid(跨视图引用传完整fullUid)
+     * @return {TabContext | TableContext | SearchContext | EditContext | null}
+     */
+    this.getChildrenContext = function (uid) {
+        if(!(uid && linkContext && this.uid)) return null;
+        // 1. 先在弹框自身直挂组件内查找(兼容容器语义)
+        let context = this.childContextMaps[linkContext.uid + "_" + this.uid + ":" + uid];
+        if(context) return context;
+        // 2. 本地未找到且uid包含冒号, 视为fullUid在ViewContext全局查找(跨视图引用)
+        if(uid.indexOf(':') > -1) {
+            return this.getViewContext().getContextByUid(uid);
+        }
+        return null;
+    }
+    /**
+     * @return {ViewContext}
+     */
+    this.getViewContext = () => linkContext ? linkContext.getViewContext() : null;
 }
+// EditContext基于VisibleContext(编辑弹框上下文同时也是弹框): instanceof VisibleContext为true, 供骨架/动作引擎以弹框视角识别
+EditContext.prototype = Object.create(VisibleContext.prototype);
+EditContext.prototype.constructor = EditContext;
 
 /**
  * 表格组件{UTable | UEditTable}上下文对象
@@ -1219,9 +1464,73 @@ export function TableContext(linkContext) {
 
     this.getRowKey = () => null;
 
-    // 获取功能组件配置
-    this.getFunc = function (func) {
-        return this.funcMetas[func.toUpperCase()];
+    // 可编辑单元格控件实例登记(渲染期CellEditProvider按[行:列字段]注册, 供写值后触发已绑定事件; 行卸载随控件注销自动清理)
+    // 行键=rowKey值(与行按钮注册/动作引擎定位同口径: 数据刷新后行对象引用变化, 值键仍能命中复用行注册的控件)
+    this.cellInstances = new Map();
+    // 行键解析: 配置了rowKey且行含该字段时取行键值(String化), 否则回退行对象引用(未配置rowKey的表格, 行不可精确定位)
+    this.cellRowKeyOf = function (record) {
+        if(record && record instanceof Object) {
+            let rowKeyField = this.getRowKey();
+            if(rowKeyField) {
+                let rowValue = record[rowKeyField];
+                if(rowValue != null && rowValue !== '') {
+                    return 'k:' + rowValue;
+                }
+            }
+            return record;
+        }
+        return null;
+    }
+    this.registerCell = function (record, field, instance) {
+        let row = this.cellRowKeyOf(record);
+        if(row == null) {
+            return;
+        }
+        let rowMap = this.cellInstances.get(row);
+        if(!rowMap) {
+            this.cellInstances.set(row, rowMap = new Map());
+        }
+        rowMap.set(field, instance);
+    }
+    this.unregisterCell = function (record, field, instance) {
+        let row = this.cellRowKeyOf(record);
+        if(row == null) {
+            return;
+        }
+        let rowMap = this.cellInstances.get(row);
+        // 仅删除与当前实例匹配的注册(避免旧控件卸载时误删新注册实例)
+        if(rowMap && (instance === undefined || rowMap.get(field) === instance)) {
+            rowMap.delete(field);
+            if(rowMap.size === 0) {
+                this.cellInstances.delete(row);
+            }
+        }
+    }
+    /**
+     * 获取可编辑单元格当前渲染的控件实例(键口径与registerCell一致: rowKey值优先, 未配置时行对象引用)
+     * @param record 行数据对象(含rowKey字段值或与注册时同引用)
+     * @param field 列字段
+     * @return {Object|null} 控件实例(混入MixinsForm含fireChange/fireSelect, 未注册返回null)
+     */
+    this.getCellInstance = function (record, field) {
+        let row = this.cellRowKeyOf(record);
+        if(row == null) {
+            return null;
+        }
+        let rowMap = this.cellInstances.get(row);
+        return rowMap ? (rowMap.get(field) || null) : null;
+    }
+
+    /**
+     * 获取功能配置: 按注册键(func[:行key][:uid])键直查, 与register组键口径一致(funcQueryKey);
+     * 行按钮传行key值(如 EDIT:1001), 同行同编码多按钮追加显式uid(如 OPEN:1001:model); 表头级按钮仅传func
+     * @param func 功能编码
+     * @param uid 显式操作目标标识(如行内物模型=model/批量=batch, 同行同编码多按钮时必传; 表头级按钮不传)
+     * @param rowKey 表格行key值(行按钮定位; 表头级按钮不传)
+     * @return {FuncConfig|null}
+     */
+    this.getFunc = function (func, uid, rowKey) {
+        return this.funcMetas[funcQueryKey(func.toUpperCase(), uid, rowKey)];
     }
 
     /**
@@ -1230,10 +1539,45 @@ export function TableContext(linkContext) {
     this.getColumns = () => null;
 
     /**
+     * 注册功能: 表格行按钮按 func+行数据key 组合注册(funcMetas[func:data[getRowKey()]], 同一行不同功能/不同行同功能互不覆盖);
+     * 无行数据(表头级按钮)或未配置rowKey/数据无该字段时回退按func注册;
+     * 显式配置uid的按钮(操作目标标识, 如行内物模型=model/批量=batch)键追加实例段(func:行key:uid): 同行同编码多按钮互不覆盖,
+     * 无uid按钮保持原键(单实例场景, 与动作引擎直查兼容)
      * @param config {FuncConfig}
      */
     this.register = function (config) {
-        this.funcMetas[func] = config;
+        let func = config.getFunc();
+        let key = func;
+        let data = config.getProp('data');
+        if(data) {
+            let rowValue = data[this.getRowKey()];
+            if(rowValue != null && rowValue !== '') {
+                key = func + ':' + rowValue;
+            }
+        }
+        // 实例段: 仅显式uid(页面写死的操作目标标识)参与键(funcRegisterKey), 无uid时保持 func[:行key] 原键格式
+        this.funcMetas[funcRegisterKey(key, config)] = config;
+    }
+
+    /**
+     * 注销功能(与register对称): 按 func+行数据key 组合键移除本实例注册的条目(行卸载后重新注册的数据自然覆盖)
+     * @param config {FuncConfig}
+     */
+    this.unregister = function (config) {
+        let func = config.getFunc();
+        let key = func;
+        let data = config.getProp('data');
+        if(data) {
+            let rowValue = data[this.getRowKey()];
+            if(rowValue != null && rowValue !== '') {
+                key = func + ':' + rowValue;
+            }
+        }
+        // 实例段(与register对称): 仅显式uid参与键(funcRegisterKey), 无uid时保持 func[:行key] 原键格式
+        key = funcRegisterKey(key, config);
+        if(this.funcMetas[key] === config) {
+            delete this.funcMetas[key];
+        }
     }
 
     this.del = function (url, data) {}
@@ -1358,13 +1702,25 @@ export function DetailContext(linkContext) {
     // 存储UFuncBtn和UFuncTag组件的信息
     this.funcMetas = {};
 
-    // 获取功能组件配置
-    this.getFunc = function (func) {
-        return this.funcMetas[func.toUpperCase()];
+    // 获取功能组件配置: 按注册键(func[:uid])键直查, 与regFunc/funcRegisterKey组键口径一致
+    this.getFunc = function (func, uid) {
+        return this.funcMetas[funcQueryKey(func.toUpperCase(), uid)];
     }
     this.regFunc = function (func, config) {
-        this.funcMetas[func] = config;
+        // 键=func(显式uid按钮追加实例段func:uid, 同func多按钮并存互不覆盖, 无uid保持原键与getFunc直查兼容)
+        this.funcMetas[funcRegisterKey(func, config)] = config;
         linkContext.registerFunc(config);
+    }
+
+    /**
+     * 注销功能(与regFunc对称): 仅当funcMetas中当前占用者是本实例时移除(条目已被其它实例覆盖注册时不动, 避免误删存活按钮)
+     * @param config {FuncConfig}
+     */
+    this.unregister = function (config) {
+        let key = funcRegisterKey(config.getFunc(), config);
+        if(this.funcMetas[key] === config) {
+            delete this.funcMetas[key];
+        }
     }
     /**
      * @return {LinkContext}
@@ -1383,6 +1739,8 @@ export function DetailContext(linkContext) {
  * @constructor
  */
 export function ViewVoidContext(linkContext) {
+
+    this.register = () => {};
 
     /**
      * @return {LinkContext}
@@ -1415,22 +1773,6 @@ export function ViewContext(props) {
     this.linkContextMaps = {}
 
     this.funMetasContext = new FuncMetaContext();
-
-    /**
-     * 获取指定功能
-     * @param func {String}
-     */
-    this.getFunc = function (func) {
-        let values = Object.values(this.uidContextMaps);
-        for (let item of values) {
-            let funcValue = item.getFunc(func);
-            if(funcValue != null) {
-                return funcValue;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * 功能点权限校验
@@ -1522,12 +1864,52 @@ export function ViewContext(props) {
         this.linkContextMaps[uid] = context;
     }
 
+    this.removeLinkContextByUid = function (uid, context) {
+        if(!(context instanceof LinkContext)) {
+            throw new Error(`参数错误[context]`)
+        }
+
+        let childContextMaps = context.childContextMaps || {};
+        Object.keys(childContextMaps).forEach(fullUid => {
+            this.removeContextByUid(fullUid)
+        })
+
+        delete this.linkContextMaps[uid];
+    }
     /**
      * @param uid ULinkView#uid
      * @return LinkContext
      */
     this.getLinkContextByUid = function (uid) {
         return this.linkContextMaps[uid];
+    }
+
+    /**
+     * 焦点视图栈: 弹框打开入栈/关闭移除, 栈顶=当前焦点视图(栈空=焦点是页面本身)
+     * 入栈元素为弹框上下文(VisibleContext/EditContext), 由弹框基座(MixinsVisible/MixinsEditItem)watch visible驱动同步
+     * 页面骨架据此裁剪非焦点弹窗(仅留占位行), 减少AI上下文体积
+     * @type {Array<VisibleContext|EditContext>}
+     */
+    this.focusStack = [];
+    /** 弹框打开: 入栈(已存在则先移除再入栈, 保证栈顶=最新打开的弹框) */
+    this.pushFocus = function (context) {
+        if(!context) return;
+        const index = this.focusStack.indexOf(context);
+        if(index > -1) {
+            this.focusStack.splice(index, 1);
+        }
+        this.focusStack.push(context);
+    }
+    /** 弹框关闭/卸载: 从栈移除 */
+    this.removeFocus = function (context) {
+        if(!context) return;
+        const index = this.focusStack.indexOf(context);
+        if(index > -1) {
+            this.focusStack.splice(index, 1);
+        }
+    }
+    this.getFocusStack = function () {
+        return this.focusStack;
     }
 }
 
@@ -1631,55 +2013,66 @@ export function LinkContext(uid, viewContext, parent) {
     this.queryFuncs = [];
 
     /**
-     * @type {reactive{string: FuncConfig}}
-     */
-    this.funcs = reactive({});
-
-    /**
-     * 注册功能
+     * 注册功能: 按钮注册到组件上下文funcMetas(权威存储), 此处仅聚合查询按钮供挂载/翻页/弹框打开后触发查询
      * @param config {FuncConfig}
      */
     this.registerFunc = function (config) {
         let func = config.getFunc();
         let context = config.getContext();
-        let toUid = config.getProp("uid")
-            || CoreConsts.FuncOperationUid[func];
 
-        // 说明要操作的是功能所在的组件
-        if(toUid == CoreConsts.SelfComponentConst) {
-            toUid = context.uid;
-        }
+        context.register(config);
 
         if(func == FuncNameMeta.QUERY) {
             this.queryFuncs.push(config);
         }
+    }
 
-        // 功能按钮所在的组件的uid + func + 要操作组件的uid
-        let key = context.uid+":"+func + `:${toUid}`;
-        if(!this.funcs[key]) {
-            this.funcs[key] = config;
+    /**
+     * 注销功能(UFuncBtn/UFuncTag卸载时调用): 仅移除本实例注册的条目
+     * (条目已被其它实例覆盖注册时不动, 避免误删仍存活的功能按钮)
+     * @param config {FuncConfig}
+     */
+    this.unregisterFunc = function (config) {
+        let func = config.getFunc();
+        let context = config.getContext();
+
+        // 1. 组件上下文funcMetas: 委托上下文自身unregister对称移除(仅移除本实例注册的条目)
+        if(context.unregister instanceof Function) {
+            context.unregister(config);
+        } else { // 兜底: 上下文未提供unregister时直接按实例身份移除(键含显式uid实例段, 与各上下文register口径一致)
+            let meta = context.funcMetas;
+            let key = funcRegisterKey(func, config);
+            if(meta && meta[key] === config) {
+                delete meta[key];
+            }
+        }
+        // 2. 同步移除查询按钮列表中的该实例(LinkView挂载期触发查询用)
+        let qIndex = this.queryFuncs.indexOf(config);
+        if(qIndex > -1) {
+            this.queryFuncs.splice(qIndex, 1);
         }
     }
 
     /**
+     * 获取指定功能(操作目标匹配): 按需遍历本容器内组件上下文的funcMetas定位(不维护funcs登记表, 组件funcMetas为权威存储)
      * @param func 功能点
      * @param toUid 要操作的uid
-     * @return {FuncConfig}
+     * @return {FuncConfig|null}
      */
     this.getFunc = function (func, toUid) {
-        return Object.values(this.funcs).find(item => {
-            return func == item.getFunc() && item.getUid() == toUid;
-        });
-    }
-
-    /**
-     * @param func
-     * @return {FuncConfig[]}
-     */
-    this.getFuncs = function (func) {
-        return Object.values(this.funcs).filter(item => {
-            return func == item.getFunc();
-        });
+        // func大小写归一(与各组件上下文getFunc的toUpperCase口径一致): 功能编码恒以大写比较
+        func = func && String(func).toUpperCase();
+        for(let context of Object.values(this.childContextMaps)) {
+            if(!(context && context.funcMetas)) {
+                continue;
+            }
+            for(let config of Object.values(context.funcMetas)) {
+                if(func == config.getFunc() && config.getUid() == toUid) {
+                    return config;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -1744,6 +2137,7 @@ export function LinkContext(uid, viewContext, parent) {
 
     viewContext.addLinkContextByUid(uid, this);
 }
+
 export function FuncConfig(props, context, funcPath) {
     /**
      * @type {Function}
@@ -1960,6 +2354,8 @@ export function Config(vue) {
 export function VisibleContext(linkContext) {
     // 用于关联各个组件(搜索、表格、详情)
     this.uid = null;
+    // 弹框/抽屉标题(由UModal/UDrawer渲染期同步, 供页面骨架自描述)
+    this.title = null;
 
     // 存储UFuncBtn和UFuncTag组件的信息
     this.funcMetas = {};
@@ -1969,14 +2365,26 @@ export function VisibleContext(linkContext) {
      */
     this.childLinkContext = [];
 
-    // 获取功能组件配置
-    this.getFunc = function (func) {
-        return this.funcMetas[func.toUpperCase()];
+    // 获取功能组件配置: 按注册键(func[:uid])键直查, 与regFunc/funcRegisterKey组键口径一致
+    this.getFunc = function (func, uid) {
+        return this.funcMetas[funcQueryKey(func.toUpperCase(), uid)];
     }
 
     this.regFunc = function (func, config) {
-        this.funcMetas[func] = config;
+        // 键=func(显式uid按钮追加实例段func:uid, 同func多按钮并存互不覆盖, 无uid保持原键与getFunc直查兼容)
+        this.funcMetas[funcRegisterKey(func, config)] = config;
         linkContext.registerFunc(config);
+    }
+
+    /**
+     * 注销功能(与regFunc对称): 仅当funcMetas中当前占用者是本实例时移除(条目已被其它实例覆盖注册时不动, 避免误删存活按钮)
+     * @param config {FuncConfig}
+     */
+    this.unregister = function (config) {
+        let key = funcRegisterKey(config.getFunc(), config);
+        if(this.funcMetas[key] === config) {
+            delete this.funcMetas[key];
+        }
     }
 
     // 修改加载状态
@@ -1985,6 +2393,13 @@ export function VisibleContext(linkContext) {
     this.setVisible = (status) => {Unmount()};
     // 异步打开弹框(模态框或者抽屉框) 等表单初始化完成
     this.asyncVisible = (row) => Promise.reject("未挂载");
+
+    /**
+     * 关闭当前弹框(挂载后setVisible已被MixinsVisible替换为组件方法, 供close_dialog动作统一关闭)
+     */
+    this.cancel = function () {
+        this.setVisible(false);
+    }
 
     /**
      * @return {LinkContext}

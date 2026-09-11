@@ -11,12 +11,12 @@
       <a-descriptions-item label="传输协议">{{modelDetailModel['transportProtocolName']}}</a-descriptions-item>
       <a-descriptions-item label="备注" span="3">{{modelDetailModel['remark']}}</a-descriptions-item>
     </a-descriptions>
-    <a-tabs v-model:activeKey="activeKey" @change="paneChange" style="margin-top: 16px">
+    <UTabs uid="modelTabs" v-model:activeKey="activeKey" @change="paneChange" style="margin-top: 16px">
       <!--          <template #rightExtra>-->
       <!--            <AButton type="dashed">快速导入</AButton>-->
       <!--          </template>-->
-      <a-tab-pane key="attr" tab="属性模型">
-        <UChildView uid="attr">
+      <!-- 面板内容统一经#contentRender按item.key分发(面板声明见script.modelItems): 未访问面板惰性渲染, 访问过切走仅隐藏保持挂载 -->
+      <UTabPane key="attr" tab="模型属性">
           <UViewSearch>
             <UInputItem label="名称" field="name" allowClear/>
             <UInputItem label="字段" field="field" allowClear/>
@@ -51,9 +51,9 @@
                 </UInputNumberItem>
                 <UInputItem label="属性备注" field="remark" :maxlength="64"/>
               </URow>
-              <a-tabs v-model:activeKey="attrActiveKey" size="small" type="card" @change="attrPaneChange"
-                      tabBarExtraContent="属性值配置(适用于枚举、json、bit、group类型)以及属性的基础告警配置">
-                <a-tab-pane key="dict" tab="属性值配置">
+              <UTabs uid="attrConfigTabs" v-model:activeKey="attrActiveKey" size="small" type="card" @change="attrPaneChange"
+                     tabBarExtraContent="属性值配置(适用于枚举、json、bit、group类型)以及属性的基础告警配置">
+                <UTabPane key="dict" tab="属性值配置">
                   <UChildView uid="attrValue">
                     <UViewSearch v-model="attrDictSearchModel">
                       <UInputItem label="名称" field="dictName"/>
@@ -81,8 +81,8 @@
                       </template>
                     </UViewEditable>
                   </UChildView>
-                </a-tab-pane>
-                <a-tab-pane key="warn" tab="告警/指标配置" :disabled="isAttrContainer">
+                </UTabPane>
+                <UTabPane key="warn" tab="告警/指标配置">
                   <UChildView uid="warnConfig">
                     <UViewEditable :columns="attrWarnColumns" @edit="editModelAttrWarn" :pagination="false" size="small" >
                       <template #title>
@@ -125,8 +125,8 @@
                       </template>
                     </UViewEditable>
                   </UChildView>
-                </a-tab-pane>
-              </a-tabs>
+                </UTabPane>
+              </UTabs>
             </template>
             <template #footer>
               <div>
@@ -139,171 +139,170 @@
               </div>
             </template>
           </UViewDrawer>
-        </UChildView>
-      </a-tab-pane>
-      <a-tab-pane key="func" tab="功能模型">
-        <UChildView uid="func">
-          <UViewSearch>
-            <UInputItem label="名称" field="name"/>
-            <UInputItem label="代码" field="code"/>
-            <UButton func="query" :url="`/iot/modelApi/view?type=func&productId=${modelDetailModel['id']}`">查询</UButton>
-            <UButton func="add" v-auth="'iot:modelApi:add'">新增</UButton>
-          </UViewSearch>
-          <UViewModal :title="`功能配置[${modelDetailModel['code']}]`" :span="[7, 15]" width="920px" v-model="funcEditModel" :centered="false" @edit="apiOpenEdit" :rules="apiRules">
-            <URow :responsive="3">
-              <UInputItem label="功能名称" field="name" required :maxlength="18" />
-              <USelectItem label="协议指令" field="direct" v-model:source="funcApis" labelField="name" valueField="code" required
-                           url="/iot/protocol/apis?id={protocolId}&type=func" @change="apiChange" @loaded="funcApisLoaded" :disabled="funcEditModel['id'] != null"/>
-              <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="funcEditModel['id'] != null" />
-              <URadioItem label="触发方式" field="triggerMode" required :options="triggerModeOptions" :disabled="true" />
-              <UInputNumberItem label="序号" field="sort" :defaultValue="1000" required />
-              <UInputItem label="功能说明" field="remark" :maxlength="64" />
-              <a-divider dashed>指令配置(可用@提及属性、#提及执行脚本)</a-divider>
-              <a-tabs v-model:activeKey="apiConfigActiveKey" style="width: 873px">
-                <a-tab-pane key="down" tab="下行配置">
-                  <UTable uid="downConfig" :pagination="false" :dataSource="funcEditModel['downConfig']" :scroll="{x: 870}" :columns="funcDownConfigColumns" size="small">
-                    <template #value="{record}">
-                      <ASelect v-if="record['options']" style="width: 100%" v-model:value="record['value']" :options="record['options']">
-                        <template #option="{label, value, extra}">
-                          <div>
-                            <span>{{label}}</span>
-                            <span style="float: right; color: #a3a3a3; font-size: 12px; margin-top: 2px">{{extra}}</span>
-                          </div>
-                        </template>
-                      </ASelect>
-                      <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" :options="configMentionsOptions(record)"
-                                 :prefix="['@', '#']" split="" @select="(model) => directParamsChange(model, record)" :maxlength="360" />
-                    </template>
-                  </UTable>
-                </a-tab-pane>
-                <a-tab-pane key="up" tab="上行配置">
-                  <UTable uid="upConfig" :pagination="false" :dataSource="funcEditModel['upConfig']" :scroll="{x: 870}" :columns="funcUpConfigColumns" size="small">
-                    <template #value="{record}">
-                      <span v-if="record['protocolDataType'] != 'any' && record['protocolDataType'] != 'json'"></span>
-                      <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" size="small" :options="ModelAttrList"
-                                 split="" @select="(model) => directParamsChange(model, record)" :maxlength="360" />
-                    </template>
-                  </UTable>
-                </a-tab-pane>
-              </a-tabs>
-            </URow>
-            <template #footer>
-              <UButton func="cancel">取消</UButton>
-              <UButton func="submit" url="/iot/modelApi/saveOrUpdate" :params="apiConfigResolve">提交</UButton>
-              <UButton func="reset">重置</UButton>
-            </template>
-          </UViewModal>
-          <UViewTable :columns="apiColumns" size="small" :scroll="{x: 1080}">
-            <template #action="{record}">
-              <UTag func="ajax:confirm" v-if="record['triggerMode']=='passive' && record['funcType']=='W'" :data="{}"
-                    :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}&status=${!record.asStatus}`"
-                    :config="{confirmTitle: '此接口将作为管理设备的重要接口?', confirmContent: '一般用于控制设备的开关、启停等接口,放于最显眼位置,一个产品最多只能有4个状态接口'}">
-                {{record.asStatus ? '取消状态' : '作为状态'}}
-              </UTag>
-              <UTag func="edit" :data="record" url="/iot/modelApi/edit" v-auth="'iot:modelApi:edit'">修改</UTag>
-              <UTag func="del" :data="record" url="/iot/modelApi/del" :disabled="record.protocol === true" v-auth="'iot:modelApi:del'">删除</UTag>
-            </template>
-          </UViewTable>
-        </UChildView>
-      </a-tab-pane>
-      <a-tab-pane key="event" tab="事件模型">
-        <UChildView uid="event">
-          <UViewSearch>
-            <UInputItem label="名称" field="name"/>
-            <UInputItem label="代码" field="code"/>
-            <UButton func="query" :url="`/iot/modelApi/view?type=event&productId=${modelDetailModel['id']}`">查询</UButton>
-            <UButton func="add" v-auth="'iot:modelApi:add'">新增</UButton>
-          </UViewSearch>
-          <UViewModal :title="`事件配置[${modelDetailModel['code']}]`" :span="[7, 15]" width="920px" v-model="eventEditModel" :centered="false" @edit="apiOpenEdit" :rules="apiRules">
-            <URow :responsive="3">
-              <UInputItem label="事件名称" field="name" required :maxlength="18" />
-              <USelectItem label="协议指令" field="direct" v-model:source="eventApis" labelField="name" valueField="code" required
-                           url="/iot/protocol/apis?id={protocolId}&type=event" @change="apiChange" @loaded="funcApisLoaded" :disabled="eventEditModel['id'] != null"/>
-              <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="eventEditModel['id'] != null"/>
-              <URadioItem label="触发方式" field="triggerMode" :options="triggerModeOptions" :disabled="true" />
-              <USelectItem label="频率标签" field="collectTag" :options="collectTagOptions" defaultValue="DEFAULT" required/>
-              <UInputItem label="事件说明" field="remark" :maxlength="64"/>
-              <a-divider dashed>指令配置(可用@提及属性)</a-divider>
-              <a-tabs v-model:activeKey="apiConfigActiveKey" style="width: 873px">
-                <a-tab-pane key="down" tab="下行配置">
-                  <UTable uid="downConfig" :pagination="false" :dataSource="eventEditModel['downConfig']" :scroll="{x: 870}" :columns="eventDownConfigColumns" size="small">
-                    <template #value="{record}">
-                      <ASelect v-if="record['options']" style="width: 100%;" v-model:value="record['value']" :options="record['options']">
-                        <template #option="{label, value, extra}">
-                          <div>
-                            <span>{{label}}</span>
-                            <span style="float: right; color: #a3a3a3; font-size: 12px; margin-top: 2px">{{extra}}</span>
-                          </div>
-                        </template>
-                      </ASelect>
-                      <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" :options="ModelAttrList"
-                                 split="" @select="(model) => directParamsChange(model, record)" :maxlength="360"/>
-                    </template>
-                  </UTable>
-                </a-tab-pane>
-                <a-tab-pane key="up" tab="上行配置">
-                  <UTable uid="upConfig" :pagination="false" :dataSource="eventEditModel['upConfig']" :scroll="{x: 870}" :columns="eventUpConfigColumns" size="small">
-                    <template #value="{record}">
-                      <ASelect v-if="record['options']" style="width: 100%;" v-model:value="record['value']" :options="record['options']">
-                        <template #option="{label, value, extra}">
-                          <div>
-                            <span>{{label}}</span>
-                            <span style="float: right; color: #a3a3a3; font-size: 12px; margin-top: 2px">{{extra}}</span>
-                          </div>
-                        </template>
-                      </ASelect>
-                      <span v-else-if="record['protocolDataType'] != 'any' && record['protocolDataType'] != 'json'"></span>
-                      <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" :options="ModelAttrList"
-                                 split="" @select="(model) => directParamsChange(model, record)" :maxlength="360" />
-                    </template>
-                  </UTable>
-                </a-tab-pane>
-              </a-tabs>
-            </URow>
-            <template #footer>
-              <UButton func="cancel">取消</UButton>
-              <UButton func="submit" url="/iot/modelApi/saveOrUpdate" :params="apiConfigResolve">提交</UButton>
-              <UButton func="reset">重置</UButton>
-            </template>
-          </UViewModal>
-          <UViewTable :columns="eventColumns" size="small" :scroll="{x: 1080}">
-            <template #action="{record}">
-              <!--  点位控制的网关子设备  -->
-              <!--                  <UTag func="ajax:confirm" v-if="modelDetailModel['deviceType'] == 'Child'" :data="{}"-->
-              <!--                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`" :disabled="record['asStatus']"-->
-              <!--                        :config="{confirmTitle: '确认将此接口作为在线状态接口?', confirmContent: '声明此接口将用于采集设备的状态(在线/离线)'}">在线状态</UTag>-->
-              <UTag func="edit" :data="record" url="/iot/modelApi/edit" v-auth="'iot:modelApi:edit'">修改</UTag>
-              <UTag func="del" :data="record" url="/iot/modelApi/del" v-auth="'iot:modelApi:del'">删除</UTag>
-            </template>
-          </UViewTable>
-        </UChildView>
-      </a-tab-pane>
-      <a-tab-pane key="calcAttr" tab="计算属性" v-if="modelDetailModel?.config?.calcLanguage">
+        </UTabPane>
+      <u-tab-pane key="func" tab="功能模型">
+        <UViewSearch>
+          <UInputItem label="名称" field="name"/>
+          <UInputItem label="代码" field="code"/>
+          <UButton func="query" :url="`/iot/modelApi/view?type=func&productId=${modelDetailModel['id']}`">查询</UButton>
+          <UButton func="add" v-auth="'iot:modelApi:add'">新增</UButton>
+        </UViewSearch>
+        <UViewModal :title="`功能配置[${modelDetailModel['code']}]`" :span="[7, 15]" width="920px" v-model="funcEditModel" :centered="false" @edit="apiOpenEdit" :rules="apiRules">
+          <URow :responsive="3">
+            <UInputItem label="功能名称" field="name" required :maxlength="18" />
+            <USelectItem label="协议指令" field="direct" v-model:source="funcApis" labelField="name" valueField="code" required
+                         url="/iot/protocol/apis?id={protocolId}&type=func" @change="apiChange" @loaded="funcApisLoaded" :disabled="funcEditModel['id'] != null"/>
+            <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="funcEditModel['id'] != null" />
+            <URadioItem label="触发方式" field="triggerMode" required :options="triggerModeOptions" :disabled="true" />
+            <UInputNumberItem label="序号" field="sort" :defaultValue="1000" required />
+            <UInputItem label="功能说明" field="remark" :maxlength="64" />
+            <a-divider dashed>指令配置(可用@提及属性、#提及执行脚本)</a-divider>
+            <!-- 弹框内容域容器(编辑弹框内UChildView经LinkView收编editContext.childLinkContext): apiConfigTabs与直挂表格注册本容器,
+                 焦点弹框序列化经containers输出标签清单+各面板表格, 与宿主主体(UChildView uid=func)隔离不混入 -->
+            <UTabs uid="funcApiConfig" v-model:activeKey="apiConfigActiveKey" style="width: 873px">
+              <UTabPane key="down" tab="下行配置">
+                <UTable uid="downConfig" :pagination="false" :dataSource="funcEditModel['downConfig']" :scroll="{x: 870}" :columns="funcDownConfigColumns" size="small">
+                  <template #value="{record}">
+                    <ASelect v-if="record['options']" style="width: 100%" v-model:value="record['value']" :options="record['options']">
+                      <template #option="{label, value, extra}">
+                        <div>
+                          <span>{{label}}</span>
+                          <span style="float: right; color: #a3a3a3; font-size: 12px; margin-top: 2px">{{extra}}</span>
+                        </div>
+                      </template>
+                    </ASelect>
+                    <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" :options="configMentionsOptions(record)"
+                               :prefix="['@', '#']" split="" @select="(model) => directParamsChange(model, record)" :maxlength="360" />
+                  </template>
+                </UTable>
+              </UTabPane>
+              <UTabPane key="up" tab="上行配置">
+                <UTable uid="upConfig" :pagination="false" :dataSource="funcEditModel['upConfig']" :scroll="{x: 870}" :columns="funcUpConfigColumns" size="small">
+                  <template #value="{record}">
+                    <span v-if="record['protocolDataType'] != 'any' && record['protocolDataType'] != 'json'"></span>
+                    <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" size="small" :options="ModelAttrList"
+                               split="" @select="(model) => directParamsChange(model, record)" :maxlength="360" />
+                  </template>
+                </UTable>
+              </UTabPane>
+            </UTabs>
+          </URow>
+          <template #footer>
+            <UButton func="cancel">取消</UButton>
+            <UButton func="submit" url="/iot/modelApi/saveOrUpdate" :params="apiConfigResolve">提交</UButton>
+            <UButton func="reset">重置</UButton>
+          </template>
+        </UViewModal>
+        <UViewTable :columns="apiColumns" size="small" :scroll="{x: 1080}">
+          <template #action="{record}">
+            <UTag func="ajax:confirm" v-if="record['triggerMode']=='passive' && record['funcType']=='W'" :data="{}"
+                  :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}&status=${!record.asStatus}`"
+                  :config="{confirmTitle: '此接口将作为管理设备的重要接口?', confirmContent: '一般用于控制设备的开关、启停等接口,放于最显眼位置,一个产品最多只能有4个状态接口'}">
+              {{record.asStatus ? '取消状态' : '作为状态'}}
+            </UTag>
+            <UTag func="edit" :data="record" url="/iot/modelApi/edit" v-auth="'iot:modelApi:edit'">修改</UTag>
+            <UTag func="del" :data="record" url="/iot/modelApi/del" :disabled="record.protocol === true" v-auth="'iot:modelApi:del'">删除</UTag>
+          </template>
+        </UViewTable>
+      </u-tab-pane>
+      <u-tab-pane key="event" tab="事件模型">
+        <UViewSearch>
+          <UInputItem label="名称" field="name"/>
+          <UInputItem label="代码" field="code"/>
+          <UButton func="query" :url="`/iot/modelApi/view?type=event&productId=${modelDetailModel['id']}`">查询</UButton>
+          <UButton func="add" v-auth="'iot:modelApi:add'">新增</UButton>
+        </UViewSearch>
+        <UViewModal :title="`事件配置[${modelDetailModel['code']}]`" :span="[7, 15]" width="920px" v-model="eventEditModel" :centered="false" @edit="apiOpenEdit" :rules="apiRules">
+          <URow :responsive="3">
+            <UInputItem label="事件名称" field="name" required :maxlength="18" />
+            <USelectItem label="协议指令" field="direct" v-model:source="eventApis" labelField="name" valueField="code" required
+                         url="/iot/protocol/apis?id={protocolId}&type=event" @change="apiChange" @loaded="funcApisLoaded" :disabled="eventEditModel['id'] != null"/>
+            <UInputItem label="接口代码" field="code" :maxlength="64" required :disabled="eventEditModel['id'] != null"/>
+            <URadioItem label="触发方式" field="triggerMode" :options="triggerModeOptions" :disabled="true" />
+            <USelectItem label="频率标签" field="collectTag" :options="collectTagOptions" defaultValue="DEFAULT" required/>
+            <UInputItem label="事件说明" field="remark" :maxlength="64"/>
+            <a-divider dashed>指令配置(可用@提及属性)</a-divider>
+            <!-- 弹框内容域容器(编辑弹框内UChildView经LinkView收编editContext.childLinkContext): apiConfigTabs与直挂表格注册本容器,
+                 焦点弹框序列化经containers输出标签清单+各面板表格, 与宿主主体(UChildView uid=event)隔离不混入 -->
+            <UTabs uid="eventApiConfig" v-model:activeKey="apiConfigActiveKey" style="width: 873px">
+              <UTabPane key="down" tab="下行配置">
+                <UTable uid="downConfig" :pagination="false" :dataSource="eventEditModel['downConfig']" :scroll="{x: 870}" :columns="eventDownConfigColumns" rowKey="protocolAttrField" size="small">
+                  <template #value="{record}">
+                    <USelect v-if="record['options']" style="width: 100%;" v-model:value="record['value']" :options="record['options']">
+                      <template #option="{label, value, extra}">
+                        <div>
+                          <span>{{label}}</span>
+                          <span style="float: right; color: #a3a3a3; font-size: 12px; margin-top: 2px">{{extra}}</span>
+                        </div>
+                      </template>
+                    </USelect>
+                    <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" :options="ModelAttrList"
+                               split="" @select="(model) => directParamsChange(model, record)" :maxlength="360"/>
+                  </template>
+                </UTable>
+              </UTabPane>
+              <UTabPane key="up" tab="上行配置">
+                <UTable uid="upConfig" :pagination="false" :dataSource="eventEditModel['upConfig']" :scroll="{x: 870}" :columns="eventUpConfigColumns" rowKey="protocolAttrField" size="small">
+                  <template #value="{record}">
+                    <USelect v-if="record['options']" style="width: 100%;" v-model:value="record['value']" :options="record['options']">
+                      <template #option="{label, value, extra}">
+                        <div>
+                          <span>{{label}}</span>
+                          <span style="float: right; color: #a3a3a3; font-size: 12px; margin-top: 2px">{{extra}}</span>
+                        </div>
+                      </template>
+                    </USelect>
+                    <span v-else-if="record['protocolDataType'] != 'any' && record['protocolDataType'] != 'json'"></span>
+                    <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" :options="ModelAttrList"
+                               split="" @select="(model) => directParamsChange(model, record)" :maxlength="360" />
+                  </template>
+                </UTable>
+              </UTabPane>
+            </UTabs>
+          </URow>
+          <template #footer>
+            <UButton func="cancel">取消</UButton>
+            <UButton func="submit" url="/iot/modelApi/saveOrUpdate" :params="apiConfigResolve">提交</UButton>
+            <UButton func="reset">重置</UButton>
+          </template>
+        </UViewModal>
+        <UViewTable :columns="eventColumns" size="small" :scroll="{x: 1080}">
+          <template #action="{record}">
+            <!--  点位控制的网关子设备  -->
+            <!--                  <UTag func="ajax:confirm" v-if="modelDetailModel['deviceType'] == 'Child'" :data="{}"-->
+            <!--                        :url="`/iot/modelApi/asStatus?productId=${record.productId}&code=${record.code}`" :disabled="record['asStatus']"-->
+            <!--                        :config="{confirmTitle: '确认将此接口作为在线状态接口?', confirmContent: '声明此接口将用于采集设备的状态(在线/离线)'}">在线状态</UTag>-->
+            <UTag func="edit" :data="record" url="/iot/modelApi/edit" v-auth="'iot:modelApi:edit'">修改</UTag>
+            <UTag func="del" :data="record" url="/iot/modelApi/del" v-auth="'iot:modelApi:del'">删除</UTag>
+          </template>
+        </UViewTable>
+      </u-tab-pane>
+      <u-tab-pane key="attrCalc" tab="计算属性">
         <ARow>
-          <ACol span="16">
-            <AceScriptEditor style="min-height: 320px;" v-model:value="modelDetailModel.config.calcScript"  :completions="calcAttrCompletions"></AceScriptEditor>
-          </ACol>
-          <ACol span="8" style="position: relative">
-            <div style="padding: 8px; font-size: 12px; color: #8e8e8e;">
-              <div>适用场景：有些属性可以通过对采集的值进行计算后得到</div>
-              <div style="color: #1c79f4">使用方法：通过methods对象提供如下方法：</div>
-              <div style="height: 220px; overflow-y: auto;">
-                <div class="method-item" v-for="(item, index) in calcAttrCompletions" :key="index">
-                  <span class="method-value">{{item.value}}</span><span class="method-label">{{item.meta}}</span>
-                </div>
+        <ACol span="16">
+          <AceScriptEditor style="min-height: 320px;" v-model:value="modelDetailModel.config.calcScript"  :completions="calcAttrCompletions"></AceScriptEditor>
+        </ACol>
+        <ACol span="8" style="position: relative">
+          <div style="padding: 8px; font-size: 12px; color: #8e8e8e;">
+            <div>适用场景：有些属性可以通过对采集的值进行计算后得到</div>
+            <div style="color: #1c79f4">使用方法：通过methods对象提供如下方法：</div>
+            <div style="height: 220px; overflow-y: auto;">
+              <div class="method-item" v-for="(item, index) in calcAttrCompletions" :key="index">
+                <span class="method-value">{{item.value}}</span><span class="method-label">{{item.meta}}</span>
               </div>
             </div>
-            <div style="position: absolute; bottom: 8px; text-align: center; width: 100%;">
-              <ARadioGroup button-style="solid" v-model:value="modelDetailModel.config['calcLanguage']" @change="updateCalcScript">
-                <ARadioButton value="javascript">javascript</ARadioButton>
-                <ARadioButton value="disabled">禁用</ARadioButton>
-              </ARadioGroup>
-              <AButton type="primary" style="margin-left: 8px;" @click="updateCalcScript">保存</AButton>
-            </div>
-          </ACol>
-        </ARow>
-      </a-tab-pane>
-      <a-tab-pane key="commands" tab="指令集">
+          </div>
+          <div style="position: absolute; bottom: 8px; text-align: center; width: 100%;">
+            <ARadioGroup button-style="solid" v-model:value="modelDetailModel.config['calcLanguage']" @change="updateCalcScript">
+              <ARadioButton value="javascript">javascript</ARadioButton>
+              <ARadioButton value="disabled">禁用</ARadioButton>
+            </ARadioGroup>
+            <AButton type="primary" style="margin-left: 8px;" @click="updateCalcScript">保存</AButton>
+          </div>
+        </ACol>
+      </ARow>
+      </u-tab-pane>
+      <UTabPane key="commands" tab="指令集">
         <UTable uid="cmdTable" :columns="cmdColumns" :pagination="false" ref="cmdTable" size="small" :scroll="{y: 360}">
           <template #title>
             <AFlex justify="space-between">
@@ -318,20 +317,18 @@
             </a-typography-paragraph>
           </template>
         </UTable>
-      </a-tab-pane>
-      <a-tab-pane key="protocol" tab="协议列表">
-        <UChildView uid="protocol">
-          <!--              <UViewSearch>-->
-          <UButton func="query" :url="`/iot/protocol/apis?id=${modelDetailModel['protocolId'] || ''}`" v-show="false">查询</UButton>
-          <!--              </UViewSearch>-->
-          <UViewTable :columns="protocolColumns" rowKey="code" :pagination="false" size="small">
-            <template #title>
-              <span style="color: #a8a8a8;">注: 以下协议列表由产品所属驱动({{modelDetailModel['protocolName']}})提供</span>
-            </template>
-          </UViewTable>
-        </UChildView>
-      </a-tab-pane>
-    </a-tabs>
+      </UTabPane>
+      <UTabPane key="protocol" tab="协议驱动">
+        <!--              <UViewSearch>-->
+        <UButton func="query" :url="`/iot/protocol/apis?id=${modelDetailModel['protocolId'] || ''}`" v-show="false">查询</UButton>
+        <!--              </UViewSearch>-->
+        <UViewTable :columns="protocolColumns" rowKey="code" :pagination="false" size="small">
+          <template #title>
+            <span style="color: #a8a8a8;">注: 以下协议列表由产品所属驱动({{modelDetailModel['protocolName']}})提供</span>
+          </template>
+        </UViewTable>
+      </UTabPane>
+    </UTabs>
   </div>
 </template>
 <script>
@@ -340,10 +337,12 @@ import {computed, reactive, ref, shallowRef, watchEffect} from "vue";
 import CoreConsts from "@/components/CoreConsts.js";
 import {GET} from "@/utils/request.js";
 import {QuestionCircleOutlined} from "@antdv-next/icons";
+import UTabPane from "@/components/view/UTabPane.jsx";
+import UTable from "@/components/table/BasicTable.jsx";
 
 export default {
   name: "ThingModel",
-  components: {AceScriptEditor, QuestionCircleOutlined},
+  components: {UTable, UTabPane, AceScriptEditor, QuestionCircleOutlined},
   props: {
     modelDetailModel: {
       type: Object,
@@ -513,14 +512,14 @@ export default {
       {field: "protocolAttrName", title: "名称", width: 150},
       {field: "protocolAttrField", title: "协议属性", width: 130},
       {field: "dataType", title: "数据类型", width: 100},
-      {field: "value", title: "配置值", width: 280, resizable: true},
+      {field: "value", title: "配置值", width: 280, resizable: true, editable: true},
       {field: "remark", title: "备注", width: 200, resizable: true},
     ]);
     let funcUpConfigColumns = ref([
       {field: "attrName", title: "名称", width: 150},
       {field: "protocolAttrField", title: "协议属性", width: 130},
       {field: "dataType", title: "数据类型", width: 100},
-      {field: "value", title: "配置值", width: 280, resizable: true},
+      {field: "value", title: "配置值", width: 280, resizable: true, editable: true},
       {field: "remark", title: "备注", width: 200, resizable: true},
     ]);
 
@@ -528,7 +527,7 @@ export default {
       {field: "protocolAttrName", title: "名称", width: 150},
       {field: "protocolAttrField", title: "协议属性", width: 130},
       {field: "dataType", title: "数据类型", width: 100},
-      {field: "value", title: "配置值", width: 280, resizable: true},
+      {field: "value", title: "配置值", width: 280, resizable: true, editable: true},
       {field: "remark", title: "备注", width: 200, resizable: true},
     ]);
 
@@ -536,7 +535,7 @@ export default {
       {field: "attrName", title: "名称", width: 150},
       {field: "protocolAttrField", title: "协议属性", width: 130},
       {field: "dataType", title: "数据类型", width: 100},
-      {field: "value", title: "配置值", width: 280, resizable: true},
+      {field: "value", title: "配置值", width: 280, resizable: true, editable: true, options: ModelAttrList.value},
       {field: "remark", title: "备注", width: 200, resizable: true},
     ]);
 
@@ -561,6 +560,20 @@ export default {
       {field: 'action', title: '操作', type: 'action', fixed: 'right', width: 160},
     ])
     let activeKey = ref('attr');
+    // 主标签页面板声明(items化: key=切换标识, label=标签文字; 自描述直读items输出标签列表; calcLanguage未开启不含计算属性面板)
+    let modelItems = computed(() => {
+      let items = [
+        {key: 'attr', label: '属性模型'},
+        {key: 'func', label: '功能模型'},
+        {key: 'event', label: '事件模型'},
+      ];
+      if(props.modelDetailModel?.config?.calcLanguage) {
+        items.push({key: 'calcAttr', label: '计算属性'});
+      }
+      items.push({key: 'commands', label: '指令集'});
+      items.push({key: 'protocol', label: '协议列表'});
+      return items;
+    });
     let attrActiveKey = ref('dict');
     let apiConfigActiveKey = ref('down');
     // 下行配置脚本解析器
@@ -605,7 +618,7 @@ export default {
         }
       }
     })
-    return {dataType, activeKey, apiConfigActiveKey, attrActiveKey, attrColumns, attrWarnColumns, isAttrContainer, apiColumns, funcDownConfigColumns
+    return {dataType, activeKey, modelItems, apiConfigActiveKey, attrActiveKey, attrColumns, attrWarnColumns, isAttrContainer, apiColumns, funcDownConfigColumns
       , funcUpConfigColumns, eventDownConfigColumns, eventUpConfigColumns, protocolColumns, eventColumns, attrFieldOptions, attrComputeColumns
       , modelAttrDictList, ModelAttrList, funcApis, funcEditModel, funcApiDownConfig, eventApis, eventEditModel, eventApiDownConfig, attrDetailModel
       , attrDictSearchModel, attrModelQueryRef, attrWarnQueryRef, attrType, attrRules, apiRules, cmdColumns, copyValue, triggerModeOptions, collectTagOptions

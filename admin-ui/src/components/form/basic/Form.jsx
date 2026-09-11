@@ -1,7 +1,8 @@
-import {defineComponent, isProxy, provide, reactive, ref} from "vue";
+import {defineComponent, inject, isProxy, provide, reactive, ref} from "vue";
 import {getMetaValue, initMetaValue, setMetaValue, removeMeta} from "@/utils/MetaUtils";
 import {FormContext} from "@/components/form/basic/FormContext";
 import SysUtils from "@/utils/SysUtils";
+import {FuncContextKey} from "@/utils/ProvideKeys";
 
 export default defineComponent({
     name: 'UForm',
@@ -21,6 +22,10 @@ export default defineComponent({
         let editModel = ref(initModel);
         let isFormMount = ref(false);
         let formContext = new FormContext();
+        // 功能组件上下文(搜索/编辑/表格等, 由外层 provide): 用于字段焦点定位(fullUid 获取)
+        let funcContext = inject(FuncContextKey, null);
+        formContext['getParentContext'] = () => funcContext;
+
         provide('initModel', (namePath, value) => {
             // 如果form已经挂在完成, 其余的表单将不在进行初始化到[initModel]
             if(!isFormMount.value) {
@@ -38,6 +43,26 @@ export default defineComponent({
         formContext['getFieldValue'] = (namePath) => getMetaValue(namePath, editModel.value);
         formContext['initFieldValue'] = (namePath, value) => initMetaValue(namePath, initModel, value);
         formContext['setFieldValue'] = (namePath, value) => setMetaValue(namePath, editModel.value, value);
+
+        // 字段注册/解除(供页面自描述: 焦点视图/component_schema采集端实时提取 列名/类型/必填/禁用)
+        // meta=null = 解除注册(字段组件卸载时调用); 非空=字段组件实例(挂载时注册); key兼容数组(点路径)与字符串(声明字段名field)
+        let fieldMetas = {};
+        formContext['registerField'] = (namePath, meta) => {
+            if(namePath && namePath.length) {
+                const key = namePath instanceof Array ? namePath.join('.') : String(namePath);
+                if(meta == null) {
+                    delete fieldMetas[key];
+                } else {
+                    fieldMetas[key] = meta; // 字段组件实例
+                }
+            }
+        }
+        formContext['getFieldMetas'] = () => fieldMetas;
+        // 表单整体禁用(详情只读态等: 表单disabled后其下字段全部不可编辑, 字段级禁用判定兜底)
+        formContext['isFormDisabled'] = () => {
+            const disabled = attrs.disabled;
+            return disabled === true || disabled === '' || disabled === 'true';
+        };
 
         return {formContext, formRef, initModel, editModel, isFormMount}
     },
@@ -57,9 +82,6 @@ export default defineComponent({
         // 此处必须重新克隆initModel
         this.initModel = this.getInitModel();
         // this.$emit('update:modelValue', this.editModel);
-    },
-    unmounted() {
-        console.warn('表单被卸载')
     },
     render() {
         let editModel = this.editModel;

@@ -1,5 +1,5 @@
-import {defineComponent, inject, ref} from "vue";
-import {LinkViewContextKey} from "@/utils/ProvideKeys";
+import {defineComponent, inject, provide, ref} from "vue";
+import {LinkViewContextKey, LinkViewPosition, PositionConst, VisibleContextKey} from "@/utils/ProvideKeys";
 import {VisibleContext} from "@/components/view/Context";
 import CoreConsts from "@/components/CoreConsts";
 import MixinsVisible from "@/components/mixins/MixinsVisible";
@@ -7,7 +7,7 @@ import MixinsVisible from "@/components/mixins/MixinsVisible";
 export default defineComponent({
   name: 'UModal',
   props: {
-    uid: {type: String, required: true, default: CoreConsts.DefaultEditUid}
+    uid: {type: String, required: true}
   },
   mixins: [MixinsVisible],
   setup(props, {attrs, slots}) {
@@ -23,6 +23,8 @@ export default defineComponent({
       visibleContext.uid = props.uid;
       linkContext.addChildrenContext(visibleContext)
     }
+    provide(VisibleContextKey, visibleContext);
+    provide(LinkViewPosition, PositionConst.Modal);
 
     // 暴露EditContext
     if(attrs['onUpdate:context'] instanceof Function) {
@@ -32,6 +34,11 @@ export default defineComponent({
     return {refs, visible, visibleContext}
   },
   render() {
+    // 同步标题到上下文(页面骨架自描述: 弹框标题可能动态变化, 每次渲染保持最新)
+    this.visibleContext.title = this.$attrs.title;
+    // 纯弹框: 不承载ULinkView内容容器, 只提供可见性上下文(VisibleContext)与provide链;
+    // 弹框内容注册域=所在视图容器(ULinkView, 由UView/UChildView/UModalView/UDrawerView提供),
+    // 需要独立内容域时使用UModalView/UDrawerView(其default插槽内置ULinkView承载容器)
     return <AModal {...this.$attrs} v-model={[this.visible, 'open', ["modifier"]]} v-slots={this.$slots} />
   }
 })

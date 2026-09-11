@@ -192,7 +192,7 @@ export default defineComponent({
                 if(onSelect instanceof Function) {
                     attrs['onSelect'] = (value, e, v) => {
                         let model = this.getSelectedModel(value);
-                        onChange(value, model, e, v);
+                        onSelect(value, model, e, v);
                     }
                 }
             }

@@ -168,6 +168,11 @@ const resolverMenuToRoutes = (urlMenuMaps) => {
             }
         } else {
             if(split.length > 1) {
+                // 静态已注册路由(如固定任务栏页面)不重复动态注册, 避免同名路由覆盖静态meta
+                if(router.resolve('/' + split.join('/')).name != '404') {
+                    return;
+                }
+
                 // closable 是否显示任务的关闭按钮   taskBar 是否加入任务栏
                 let route = {path, component: null, name: menu.name, meta: {closable: true, taskBar: true, keepAlive: null}};
                 route.component = importLocale(path, menu, route);

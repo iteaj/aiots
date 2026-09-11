@@ -1,4 +1,4 @@
-import {computed, defineComponent, inject, mergeProps, provide, ref, watch} from "vue";
+import {computed, defineComponent, inject, mergeProps, onUnmounted, provide, ref, watch} from "vue";
 import {EditableTableKey, FuncContextKey, RowContextKey} from "@/utils/ProvideKeys";
 import {msgError} from "@/utils/message";
 import {Config, DetailContext, EditContext, FuncConfig, SearchContext, TableContext} from "@/components/view/Context";
@@ -39,6 +39,26 @@ export const URow = defineComponent({
         return <ARow {...this.$attrs} v-slots={this.$slots} class="u-row" />
     }
 })
+
+/** 提取默认插槽纯文本(递归拼接文本子节点, 忽略图标等组件节点): 供功能按钮注册时记录显示文本(所见即所得) */
+function collectSlotText(slotVNodes) {
+    if(!(slotVNodes && slotVNodes.length)) {
+        return '';
+    }
+
+    let text = '';
+    const walk = (node) => {
+        if(typeof node === 'string' || typeof node === 'number') {
+            text += String(node);
+        } else if(Array.isArray(node)) {
+            node.forEach(walk);
+        } else if(node && node.children != null) {
+            walk(node.children);
+        }
+    };
+    slotVNodes.forEach(walk);
+    return text.trim();
+}
 
 function funcClickHandle(context, config) {
     if(context != null) {
@@ -137,7 +157,7 @@ export const UFuncTag = defineComponent({
         config: {type: Object, default: () => { return {}}}, // 配置
         func: {type: String, required: true}, // add, del, edit, query, import, export, cancel, detail, reset, expand, ...
     },
-    setup(props) {
+    setup(props, {slots}) {
         let router = useRouter();
         let instance = ref(null);
         let funcPath = ref(props.func.toUpperCase().split(":"));
@@ -160,6 +180,7 @@ export const UFuncTag = defineComponent({
         let typeCompute = computed(() => props.func.split(":")[0].toUpperCase())
 
         let funcConfig = new FuncConfig(props, context, funcPath.value);
+        funcConfig.title = () => collectSlotText(slots.default ? slots.default() : null); // 按钮显示文本惰性函数(序列化时取默认插槽最新值, 内容可能动态变化)
         let clickProxy = funcConfig.trigger = (e) => {
             if(!disabledComputed.value) {
                 // 配置对象只能在触发事件内创建
@@ -168,7 +189,8 @@ export const UFuncTag = defineComponent({
                     props.onClick({data: props.data, event: () => funcClickHandle(context, config)})
                 } else {
                     if(context != null) {
-                        funcClickHandle(context, config)
+                        // 透传执行结果(Promise): 供AI动作exec_func同步等待请求类功能(ajax等)的真实执行结果
+                        return funcClickHandle(context, config)
                     } else {
                         console.warn("无效的操作(需要自定义事件或者在指定的组件下面)")
                     }
@@ -178,6 +200,8 @@ export const UFuncTag = defineComponent({
 
         // 注册功能点
         context.getLinkContext().registerFunc(funcConfig);
+        // 卸载时对称注销(避免v-if/弹框关闭等销毁后注册残留)
+        onUnmounted(() => context.getLinkContext().unregisterFunc(funcConfig));
 
         /**
          * @type {ViewContext}
@@ -247,7 +271,7 @@ export const UFuncBtn = defineComponent({
         config: {type: Object, default: () => { return {}}}, // 配置
         func: {type: String, required: true, default: ''},  // add, del, edit, query, import, export, cancel, detail, reset
     },
-    setup(props, {attrs}) {
+    setup(props, {attrs, slots}) {
         let router = useRouter();
         let instance = ref(null);
         let funcPath = ref(props.func.toUpperCase().split(":"));
@@ -257,6 +281,7 @@ export const UFuncBtn = defineComponent({
          */
         let context = inject(FuncContextKey);
         let funcConfig = new FuncConfig(props, context, funcPath.value);
+        funcConfig.title = () => collectSlotText(slots.default ? slots.default() : null); // 按钮显示文本惰性函数(序列化时取默认插槽最新值, 内容可能动态变化)
 
         let clickProxy = {onClick: (e) => {
                 // 配置对象只能在触发事件内创建
@@ -264,7 +289,8 @@ export const UFuncBtn = defineComponent({
                 if(props.onClick instanceof Function) {
                     props.onClick({data: props.data, event: () => funcClickHandle(context, config)})
                 } else if(context != null) {
-                    funcClickHandle(context, config)
+                    // 透传执行结果(Promise): 供AI动作exec_func同步等待请求类功能(ajax等)的真实执行结果
+                    return funcClickHandle(context, config)
                 }else {
                     console.warn(`无效的操作(需要自定义事件或者在指定的组件下面)`)
                 }
@@ -276,6 +302,8 @@ export const UFuncBtn = defineComponent({
         funcConfig.trigger = clickProxy.onClick;
         funcConfig.setLoading = status => loading.value = status;
         context.getLinkContext().registerFunc(funcConfig)
+        // 卸载时对称注销(避免v-if/弹框关闭等销毁后注册残留)
+        onUnmounted(() => context.getLinkContext().unregisterFunc(funcConfig));
 
         let viewContext = context.get$View().getViewContext();
         return {clickProxy, context, loading, viewContext, instance, funcPath};
@@ -327,7 +355,7 @@ export const UTree = defineComponent({
         }},
         fieldNames: {type: Object, default: () => {return {key: CoreConsts.DefaultRowKey, title: 'name', children:'children', level: null}}}
     },
-    setup(props, {attrs}) {
+    setup(props, {attrs, slots}) {
         let allKeys = ref([]);
         let treeData = ref([]);
         let treeDataBack = ref(null);

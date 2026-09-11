@@ -1,4 +1,5 @@
 import {defineAsyncComponent, defineComponent, h, mergeProps, ref, resolveComponent} from "vue";
+import MixinsForm from "./MixinsForm";
 import MixinsOptions from "@/components/form/basic/MixinsOptions";
 import CoreConsts from "@/components/CoreConsts";
 import {
@@ -84,10 +85,36 @@ export const URadio = defineComponent({
 export const UMentions = defineComponent({
     name: 'UMentions',
     mixins: [MixinsOptions],
+    props: {
+      prefix: {default: '@'}
+    },
     render() {
-        return <AMentions {...this.mergeAttrs()} options={this.dataSource} v-slots={this.$slots} />
-    }
+        return <AMentions {...this.mergeAttrs()} prefix={this.prefix} options={this.dataSource} v-slots={this.$slots} />
+    },
+    methods: {
+        fireSelect(value, model) {
+            if(value) {
+                if(this.$props['onSelect'] instanceof Function) {
+                    let pre = value.at(0);
+                    if(pre == this.prefix) {
+                        value = value.substring(1);
+                    }
+                    let selectedModel = this.getSelectedModel(value);
+                    this.onSelectProxy(selectedModel, this.prefix);
+                    return true;
+                }
+            }
 
+            return false;
+        },
+        // 覆写onSelect事件
+        onSelectProxy(value, e, v) {
+            let onSelect = this.$props['onSelect'];
+            if(onSelect instanceof Function) {
+                onSelect(value, e, v);
+            }
+        },
+    }
 })
 export const USegmented = defineComponent({
     name: 'USegmented',
@@ -186,7 +213,25 @@ export const UTransfer = defineComponent({
     }
 })
 const formComponents = {USelect, UCheckbox, UCascader, UAutoComplete, UTransfer, USegmented
-    , URadio, UDateTime, UTreeSelect, UDatePicker, UMonthPicker, URangePicker, UTimePicker, UWeekPicker}
+    , URadio, UDateTime, UTreeSelect, UDatePicker, UMonthPicker, URangePicker, UTimePicker, UWeekPicker, UMentions}
+
+/**
+ * 非Item表单控件包装(混入MixinsForm): 支持表格可编辑列注册与事件触发
+ * <p>属性/事件/slots全透传且行为与antdv原生一致; 业务ref调用的实例方法(focus/blur)透传内部组件</p>
+ */
+function formCell(name, component) {
+    return defineComponent({
+        name, mixins: [MixinsForm], inheritAttrs: false,
+        setup(props, {attrs, slots, expose}) {
+            const innerRef = ref(null);
+            expose(['focus', 'blur'].reduce((acc, m) => {
+                acc[m] = (...args) => innerRef.value && innerRef.value[m] && innerRef.value[m](...args);
+                return acc;
+            }, {}));
+            return () => h(component, {...attrs, ref: innerRef}, slots)
+        }
+    })
+}
 
 export default {
     install(app) {
@@ -194,17 +239,16 @@ export default {
             app.component(component.name, component);
         })
 
-        app.component("UInput", Input);
-        app.component("UTextarea", TextArea);
-        app.component("UInputGroup", InputGroup);
-        app.component("UInputNumber", InputNumber);
-        app.component("UInputPassword", InputPassword);
-        app.component("USwitch", Switch);
-        app.component("URate", Rate);
-        app.component("USlider", Slider);
-        app.component("UMentions", UMentions);
-        app.component("URadioGroup", RadioGroup);
-        app.component("UCheckboxGroup", CheckboxGroup);
+        app.component("UInput", formCell("UInput", Input));
+        app.component("UTextarea", formCell("UTextarea", TextArea));
+        app.component("UInputGroup", formCell("UInputGroup", InputGroup));
+        app.component("UInputNumber", formCell("UInputNumber", InputNumber));
+        app.component("UInputPassword", formCell("UInputPassword", InputPassword));
+        app.component("USwitch", formCell("USwitch", Switch));
+        app.component("URate", formCell("URate", Rate));
+        app.component("USlider", formCell("USlider", Slider));
+        app.component("URadioGroup", formCell("URadioGroup", RadioGroup));
+        app.component("UCheckboxGroup", formCell("UCheckboxGroup", CheckboxGroup));
         app.component("UEditor", UEditor);
         app.component("UMarkdown", UMarkdown);
     }

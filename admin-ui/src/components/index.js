@@ -13,6 +13,7 @@ import UEditableTable from "@/components/table/EditableTable.jsx";
 import USearch from "@/components/search/BasicSearch.vue";
 import UFormModal from "@/components/modal/FormModal.jsx";
 import UBasicModal from "@/components/modal/BasicModal.jsx";
+import UConfirm from "@/components/modal/UConfirm.jsx";
 import UFormDrawer from "@/components/drawer/FormDrawer.jsx";
 import UBasicDrawer from "@/components/drawer/BasicDrawer.jsx";
 import UDrawerLogger from "@/components/logger/DrawerLogger.vue";
@@ -37,6 +38,7 @@ export default {
         app.component(UCropper.name, UCropper)
         app.component(UFormModal.name, UFormModal)
         app.component(UBasicModal.name, UBasicModal)
+        app.component(UConfirm.name, UConfirm)
         app.component(UFormDrawer.name, UFormDrawer)
         app.component(UBasicDrawer.name, UBasicDrawer)
         app.component(USearch.name, USearch)

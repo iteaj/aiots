@@ -19,6 +19,15 @@ export default {
     isProd() {
         return import.meta.env.PROD
     },
+    /**
+     * 日志打印: 仅开发环境输出, 生产环境不打印(避免内部调试信息暴露到生产控制台)
+     * @param args 打印内容(可多个, 用法同console.log)
+     */
+    log(...args) {
+        if(!this.isProd()) {
+            console.log(...args);
+        }
+    },
     isLogin() {
         return this.getCookie(CoreConsts.AccessToken) != null;
     },

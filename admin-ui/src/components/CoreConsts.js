@@ -2,6 +2,7 @@ let DefaultEditUid = 'UVEdit',
     DefaultTableUid = 'UVTable',
     DefaultDetailUid = 'UVDetail',
     DefaultSearchUid = 'UVSearch',
+    DefaultConfirmUid = 'UVConfirm',
     SelfComponentConst = "SELF";
 /**
  * 系统全局常量配置
@@ -40,6 +41,7 @@ export default {
     DefaultTableUid: DefaultTableUid,
     DefaultDetailUid: DefaultDetailUid,
     DefaultSearchUid: DefaultSearchUid,
+    DefaultConfirmUid: DefaultConfirmUid,
     SelfComponentConst: SelfComponentConst,
 
     FormSpinResetTip: '数据重置中...',

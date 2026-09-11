@@ -13,11 +13,11 @@ export default defineComponent({
         zIndex: {default: 1000},
         keyboard: {default: true},
         closable: {default: true},
-        //todo 此参数必须设置为 true, 或者刷新按钮会报异常
-        forceRender: {default: true},
+        forceRender: {default: false},
         placement: {default: 'right'},
         maskClosable: {default: false},
-        destroyOnHidden: {default: true},
+        getContainer: {default: '.u-page-view'},
+        destroyOnHidden: {default: false},
         uid: {type: String, required: true},
         modelValue: {type: Object},
         'onUpdate:modelValue': {type: Function},
@@ -56,8 +56,12 @@ export default defineComponent({
         return {formRef, spinning, spinTip, visible, routerCall, linkContext, visibleContext}
     },
     render() {
-        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]}
-                {...this.$props} v-slots={this.$slots} getContainer=".u-page-view"/>)
+        // 同步标题到上下文(页面骨架自描述: 抽屉标题可能动态变化, 每次渲染保持最新)
+        this.visibleContext.title = this.title;
+        // 纯弹框: 不承载ULinkView内容容器, 只提供可见性上下文(VisibleContext)与provide链;
+        // 弹框内容注册域=所在视图容器(ULinkView, 由UView/UChildView/UModalView/UDrawerView提供),
+        // 需要独立内容域时使用UModalView/UDrawerView(其default插槽内置ULinkView承载容器)
+        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]} {...this.$props} v-slots={this.$slots}/>)
     },
     mounted() {
         this.routerCall = this.$router.beforeEach((from, to, next) => {

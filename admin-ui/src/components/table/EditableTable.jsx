@@ -8,6 +8,7 @@ import CoreConsts from "@/components/CoreConsts";
 import TableFuncHeader from "@/components/table/TableFuncHeader.vue";
 import SysUtils from "@/utils/SysUtils";
 import {msgWarn} from "@/utils/message";
+import CellEditProvider from "@/components/table/CellEditProvider";
 const onLoaded = (data) => null;
 
 function initSlot(column, slots) {
@@ -161,7 +162,8 @@ function initTableColumns(columns, slots, rowKey, editRowData, initRow, config) 
                         if (editRowData.editRow) { // 如果设置了要编辑的行
                             if (editRowData.editRow[rowKey] == args.record[rowKey]) { // 当前行等于编辑行
                                 args['editing'] = true;
-                                return tempColumn['__editableSlot'](args);
+                                // 包单元格上下文: 插槽内控件(UInput/USelect等)注册实例供写值后触发事件
+                                return <CellEditProvider tableContext={config.tableContext} record={args.record} column={tempColumn}>{tempColumn['__editableSlot'](args)}</CellEditProvider>;
                             } else if (tempColumn['type'] == 'action') {
                                 args['editing'] = false;
                                 return tempColumn['__editableSlot'](args);
@@ -288,10 +290,10 @@ export default defineComponent({
         }
 
         // 更新列改变
-        let slotsRef = ref(initTableColumns(columns, slots, attrs['rowKey'], editRowData.value, initRow.value, {ellipsis: props.ellipsis, onHandleDragStart}));
+        let slotsRef = ref(initTableColumns(columns, slots, attrs['rowKey'], editRowData.value, initRow.value, {ellipsis: props.ellipsis, onHandleDragStart, tableContext}));
         watch(() => props.columns, () => {
             initRow.value = {};
-            slotsRef.value = initTableColumns(props.columns, slots, attrs['rowKey'], editRowData.value, initRow.value, {ellipsis: props.ellipsis, onHandleDragStart})
+            slotsRef.value = initTableColumns(props.columns, slots, attrs['rowKey'], editRowData.value, initRow.value, {ellipsis: props.ellipsis, onHandleDragStart, tableContext})
         })
         let isEditRow = (record) => {
             return editRowData.value.editRow && editRowData.value.editRow[attrs['rowKey']] == record[attrs['rowKey']]
@@ -406,6 +408,8 @@ export default defineComponent({
             tableContext['cancelEditableRow'] = cancelEditableRow;
 
             tableContext['getRowKey'] = () => attrs['rowKey'];
+            tableContext['getDataSource'] = () => dataSourceRef.value;
+            tableContext['getTotalRows'] = () => props.pagination instanceof Object ? props.pagination.total : null;
             tableContext['getColumns'] = () => props.columns;
 
             if(props.pagination instanceof Object) { // 如果需要分页

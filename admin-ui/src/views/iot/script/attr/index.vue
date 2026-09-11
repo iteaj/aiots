@@ -27,7 +27,7 @@
       </UTable>
     </UModal>
     <UDrawerLogger uid="logger"/>
-    <UViewDrawer v-model="editModel" title="解析器管理" :rules="rules" @edit="openEdit" placement="top" size="100%" >
+    <UViewDrawer v-model="editModel" :destroyOnHidden="true" title="解析器管理" :rules="rules" @open="openEdit" placement="top" size="100%" >
       <template #default>
         <URow col="drawer">
           <UInputItem field="name" label="解析器名称"/>
@@ -35,13 +35,11 @@
                       optionType="button" buttonStyle="solid"/>
           <UInputItem field="remark" label="备注"/>
         </URow>
-        <a-tabs v-model:activeKey="languageKey" tab-placement="left" :items="scriptItems">
-          <template #contentRender="{item}">
-            <div style="height: 380px">
-              <AceScriptEditor v-model:value="item.content.script" :completions="completions"></AceScriptEditor>
-            </div>
-          </template>
-        </a-tabs>
+        <u-tabs uid="script" v-model:activeKey="languageKey" tab-placement="left">
+            <u-tab-pane v-for="script in editModel.script" :key="script.language" :tab="script.language">
+              <AceScriptEditor style="height: 380px" v-model:value="script.script" :completions="completions"></AceScriptEditor>
+            </u-tab-pane>
+        </u-tabs>
       </template>
       <template #footer="{model}">
         <UFuncBtn func="cancel">取消</UFuncBtn>
@@ -56,9 +54,10 @@
 import {ref, watch} from "vue";
 import CoreConsts from "@/components/CoreConsts";
 import AceScriptEditor from "@/components/code/AceScriptEditor.vue";
+import UTabPane from "@/components/view/UTabPane.jsx";
 export default {
   name: "AttrScript",
-  components: {AceScriptEditor},
+  components: {UTabPane, AceScriptEditor},
   setup() {
     let scriptOptions = ref([{label: '禁用', value: 'disabled'}]);
 
@@ -113,16 +112,14 @@ export default {
     })
   },
   methods: {
+    // 这里必须使用@open事件
     openEdit(model) {
       if(!model.id) {
         model['script'] = JSON.parse(JSON.stringify(this.configs));
       }
 
-      this.scriptItems = model['script'].map(item => {
-        let key = new Date().getTime() + "";
-        return {key, label: item.language, content: item};
-      });
-      this.languageKey = this.scriptItems[0].key
+      this.editModel = model;
+      this.languageKey = model['script'][0].language
     }
   }
 }

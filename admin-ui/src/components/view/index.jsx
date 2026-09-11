@@ -1,6 +1,8 @@
 import '@/components/view/index.css'
 import UView, {UDrawerView, UModalView} from "@/components/view/View.jsx";
 import ULinkView from "@/components/view/LinkView.vue";
+import UTabs from "@/components/view/UTabs.jsx";
+import UTabPane from "@/components/view/UTabPane.jsx";
 import UTable from "@/components/table/BasicTable.jsx";
 import UEditableTable from "@/components/table/EditableTable.jsx";
 import UBasicSearch from "@/components/search/BasicSearch.vue";
@@ -90,6 +92,8 @@ export default {
         app.component(UView.name, UView);
         app.component("UChildView", ULinkView);
         app.component(ULinkView.name, ULinkView);
+        app.component(UTabs.name, UTabs);
+        app.component(UTabPane.name, UTabPane);
         app.component(UViewModal.name, UViewModal);
         app.component(UViewTable.name, UViewTable);
         app.component(UViewDrawer.name, UViewDrawer);

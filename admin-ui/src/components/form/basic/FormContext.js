@@ -11,6 +11,7 @@ export function FormContext() {
     this.scrollToField = unmount;
     this.clearValidate = unmount;
     this.validateFields = unmount;
+    this.getParentContext = unmount;
 
     /**
      * 移除某个字段

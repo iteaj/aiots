@@ -6,6 +6,7 @@ import {FuncContextKey, LinkViewContextKey, ViewContextKey} from "@/utils/Provid
 import {TableContext} from "@/components/view/Context";
 import CoreConsts from "@/components/CoreConsts";
 import TableFuncHeader from "@/components/table/TableFuncHeader.vue";
+import CellEditProvider from "@/components/table/CellEditProvider";
 const onLoaded = (data) => null;
 
 function initSlot(column, slots) {
@@ -140,7 +141,12 @@ function initTableColumns(columns, slots, config) {
             if(column['__slot'] && !slots['bodyCell']) {
                 slots['bodyCell'] = (args) => {
                     if(args.column == null) return null;
-                    return args.column['__slot'] ? args.column['__slot'](args) : args.text;
+                    let vnode = args.column['__slot'] ? args.column['__slot'](args) : args.text;
+                    // 常驻可编辑列(列定义editable=true): 包单元格上下文供控件注册实例, 写值后触发已绑定事件
+                    if(args.column.editable === true && config.tableContext) {
+                        return <CellEditProvider tableContext={config.tableContext} record={args.record} column={args.column}>{vnode}</CellEditProvider>;
+                    }
+                    return vnode;
                 }
             }
         }
@@ -242,7 +248,7 @@ export default defineComponent({
         }
 
         // 更新列改变
-        let slotsRef = ref(initTableColumns(columns, slots, {ellipsis: props.ellipsis, onHandleDragStart}));
+        let slotsRef = ref(initTableColumns(columns, slots, {ellipsis: props.ellipsis, onHandleDragStart, tableContext}));
 
         let setLoading = (status, tip) => {
             loading.spinning = status;
@@ -272,6 +278,8 @@ export default defineComponent({
             tableContext['setSticky'] = setSticky
             tableContext['setLoading'] = setLoading;
             tableContext['setTotalRows'] = setTotalRows;
+            tableContext['getDataSource'] = () => dataSourceRef.value;
+            tableContext['getTotalRows'] = () => props.pagination instanceof Object ? props.pagination.total : null;
             tableContext['setDataSource'] = setDataSource;
             tableContext['getColumns'] = () => props.columns;
             tableContext['resetPagination'] = (page, size) => {
@@ -339,6 +347,7 @@ export default defineComponent({
         this.tableContext['expanded'] = this.expanded;
         this.tableContext['getSelectedRows'] = this.getSelectedRows;
         this.tableContext['getSelectedRowKeys'] = this.getSelectedRowKeys;
+        this.tableContext['getRowKey'] = () => this.$attrs.rowKey;
     },
     render() {
         if(this.stickyRef || this.stickyRef === '') {
