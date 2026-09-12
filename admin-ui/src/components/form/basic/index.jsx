@@ -17,7 +17,18 @@ import {
 
 const UEditor = defineAsyncComponent(() => import('@/components/form/editor/editor.jsx'))
 const UMarkdown = defineAsyncComponent(() => import('@/components/form/editor/markdown.jsx'))
-
+const UScriptEditor = defineAsyncComponent(() => import('@/components/code/AceScriptEditor.vue'))
+export const UScript = defineComponent({
+    name: 'UScript',
+    mixins: [MixinsForm],
+    components: {UScriptEditor},
+    render() {
+        // 外层定高容器(AceScriptEditor内部height:100%依赖父级高度); value解包为纯字符串匹配其String声明
+        return <div style={this.$props.style || 'height: 300px'}>
+            <UScriptEditor {...this.$attrs} update:value={this.$attrs['onUpdate:value']} onChange={this.onChange} style="height: 100%" v-slots={this.$slots}/>
+        </div>
+    }
+})
 export const UCheckbox = defineComponent({
     name: 'UCheckbox',
     mixins: [MixinsOptions],
@@ -249,6 +260,7 @@ export default {
         app.component("USlider", formCell("USlider", Slider));
         app.component("URadioGroup", formCell("URadioGroup", RadioGroup));
         app.component("UCheckboxGroup", formCell("UCheckboxGroup", CheckboxGroup));
+        app.component("UScript", UScript);
         app.component("UEditor", UEditor);
         app.component("UMarkdown", UMarkdown);
     }

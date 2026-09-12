@@ -1,37 +1,31 @@
 <template>
-  <div class="iv-view-border">
-      <ATabs v-model:activeKey="typeKey" centered>
-        <template v-for="(item, index) in filters" :key="item.name">
-          <a-tab-pane :tab="item.name">
+  <UView class="iv-view-border">
+      <UTabs uid="script" v-model:activeKey="typeKey" centered>
+        <template v-for="(item) in filters" :key="item.name">
+          <u-tab-pane :tab="item.name">
             <ASpin description="数据保存中..." :spinning="spinning">
-              <ATabs v-model:activeKey="languageKey" tabPlacement="left">
-                <template v-for="language in item['script']" :key="language.language">
-                  <a-tab-pane :tab="language.language">
-                    <AceScriptEditor v-model:value="language.script" :completions="item['completes']" style="height: 450px"></AceScriptEditor>
-                  </a-tab-pane>
-                </template>
-              </ATabs>
+              <UScript v-model:value="flatScriptMap[item.name]" :label="item.name + '过滤脚本'" :completions="item['completes']" style="height: 450px"></UScript>
               <div style="text-align: center; margin-top: 8px;">
-                <ARadioGroup v-model:value="item['language']" button-style="solid">
+                <URadioGroup v-model:value="item['language']" button-style="solid">
                   <template v-for="language in item['script']" :key="language.language">
                     <ARadioButton :value="language.language">{{language.language}}</ARadioButton>
                   </template>
                   <ARadioButton value="disabled">禁用</ARadioButton>
-                </ARadioGroup>
-                <AButton type="dashed" style="margin-left: 8px" @click="() => submit(item)">保存</AButton>
+                </URadioGroup>
+                <UButton type="dashed" func="submit" style="margin-left: 8px" @click="() => submit(item)">保存</UButton>
               </div>
             </ASpin>
-          </a-tab-pane>
+          </u-tab-pane>
         </template>
-        <a-tab-pane tab="运行日志" key="logger">
+        <u-tab-pane tab="运行日志" key="logger">
           <URunningLogger style="min-height: 490px; max-height: 640px; padding: 8px;"/>
-        </a-tab-pane>
-      </ATabs>
-  </div>
+        </u-tab-pane>
+      </UTabs>
+  </UView>
 </template>
 <!-- 脚本引擎功能 -->
 <script>
-import {ref, reactive} from "vue";
+import {ref, watch} from "vue";
 import CoreConsts from "@/components/CoreConsts";
 import AceScriptEditor from "@/components/code/AceScriptEditor.vue";
 export default {
@@ -42,12 +36,27 @@ export default {
     let typeKey = ref("");
     let languageKey = ref("");
     let filters = ref([]);
-    return {typeKey, filters, languageKey, spinning}
+    let flatScriptMap = ref({});
+    watch(() => flatScriptMap.value, (newVal) => {
+      if(typeof newVal === 'object') {
+        filters.value.forEach(item => {
+          let script = newVal[item.name];
+          if(item.script?.[0]) {
+            item.script[0].script = script;
+          }
+        })
+      }
+
+    }, {deep: true})
+    return {typeKey, filters, languageKey, spinning, flatScriptMap}
   },
   mounted() {
     this.$http.get("/iot/script/filter/filters").then(({code, message, data}) => {
       if(code == CoreConsts.SuccessCode) {
         this.filters = data;
+        this.filters.forEach(item => {
+          this.flatScriptMap[item.name] = item.script?.[0]?.script;
+        })
         if(data && data.length > 0) {
           this.typeKey = data[0].name;
           this.languageKey = data[0]['script']?.[0]?.language;

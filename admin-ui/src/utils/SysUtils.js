@@ -111,5 +111,13 @@ export default {
                     , targetLabelField, targetValueField, valueLabelMap, valueModelMap);
             }
         })
+    },
+    /**
+     * 生成带业务前缀的唯一32进制id: prefix + (时间戳*1000 + 0~999随机数)转32进制; 前缀参与唯一控制, 不同业务传不同前缀即可隔离
+     * @param prefix {String} 业务前缀(可空), 如 "device_"
+     * @return {String} 如 "device_1x9k2f3a0bc"
+     */
+    nextId(prefix = '') {
+        return prefix + (Date.now() * 1000 + Math.floor(Math.random() * 1000)).toString(32);
     }
 }

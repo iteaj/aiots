@@ -5,7 +5,7 @@
 </template>
 <script>
 import {defineComponent, inject, provide, watch} from "vue";
-import {LinkContext, ViewContext, ViewVoidContext, VisibleContext} from "@/components/view/Context";
+import {LinkContext, ViewContext, DefaultFuncContext, VisibleContext} from "@/components/view/Context";
 import {
   FuncContextKey,
   LinkViewContextKey,
@@ -31,19 +31,9 @@ export default defineComponent({
 
         let parentContext = inject(LinkViewContextKey);
         const linkContext = new LinkContext(uid, viewContext, parentContext || viewContext);
-        provide(FuncContextKey, new ViewVoidContext(linkContext));
-
-        /**
-         * @param key {String}
-         * @param config {FuncConfig}
-         */
-        let registerFuncToContext = (key, config) => {
-          // let toUid = key.split(":")[2];
-        }
-
-        // watch(linkContext.funcs, (a, b) => {
-          // registerFuncToContext()
-        // })
+        const defaultFuncContext = new DefaultFuncContext(linkContext);
+        provide(FuncContextKey, defaultFuncContext);
+        linkContext.addChildrenContext(defaultFuncContext);
 
         let visibleContext;
         // 收集所有子LinkView上下文
@@ -57,16 +47,13 @@ export default defineComponent({
         }
 
         provide(LinkViewContextKey, linkContext);
-        return {linkContext, viewContext, visibleContext, registerFuncToContext}
+        return {linkContext, viewContext, visibleContext}
     },
     mounted() {
       /**
        * @type LinkContext
        */
       let linkContext = this.linkContext;
-      // for (let key in linkContext.funcs) {
-      //   this.registerFuncToContext(key, linkContext.funcs[key]);
-      // }
 
       // LinkView组件不在UDrawer或UModal组件下面
       // if(!(this.visibleContext instanceof VisibleContext)) {

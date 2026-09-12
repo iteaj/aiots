@@ -1,10 +1,11 @@
-import {computed, defineAsyncComponent, defineComponent, h, inject, ref, resolveComponent} from "vue";
+import {computed, defineAsyncComponent, defineComponent, h, inject, ref, resolveComponent, unref} from "vue";
 import MixinsFormItem from "@/components/form/basic/MixinsFormItem";
 import MixinsOptionsItem from "@/components/form/basic/MixinsOptionsItem";
 import CoreConsts from "@/components/CoreConsts";
 
 const UEditor = defineAsyncComponent(() => import('@/components/form/editor/editor.jsx'))
 const UMarkdown = defineAsyncComponent(() => import('@/components/form/editor/markdown.jsx'))
+const UScriptEditor = defineAsyncComponent(() => import('@/components/code/AceScriptEditor.vue'))
 
 export const UInputItem = defineComponent({
     name: 'UInputItem',
@@ -128,6 +129,22 @@ export const UMarkdownItem = defineComponent({
         return <a-col {...this.getColProps()}>
             <AFormItem {...props}>
                 <UMarkdown {...this.getFormAttrs()} v-slots={this.$slots}/>
+            </AFormItem>
+        </a-col>
+    }
+})
+export const UScriptItem = defineComponent({
+    name: 'UScriptItem',
+    mixins: [MixinsFormItem],
+    render() {
+        let props = this.getFormItemProps();
+        let attrs = this.getFormAttrs();
+        // 外层定高容器(AceScriptEditor内部height:100%依赖父级高度); value解包为纯字符串匹配其String声明
+        return <a-col {...this.getColProps()}>
+            <AFormItem {...props}>
+                <div style={this.$props.style || 'height: 300px'}>
+                    <UScriptEditor {...attrs} style="height: 100%" v-slots={this.$slots}/>
+                </div>
             </AFormItem>
         </a-col>
     }
@@ -496,7 +513,7 @@ export const UUploadItem = defineComponent({
 const formComponents = {UInputItem, USelectItem, UCheckboxItem, USwitchItem, UMarkdownItem, UUploadItem
     , URateItem, USliderItem, UInputNumberItem, UCascaderItem, UAutoCompleteItem, UInputPasswordItem
     , URadioItem, UMentionsItem, UDateTimeItem, UTreeSelectItem, UTextareaItem, UInputGroupItem, USegmentedItem
-    , UDatePickerItem, UMonthPickerItem, URangePickerItem, UTimePickerItem, UWeekPickerItem, UTransferItem}
+    , UDatePickerItem, UMonthPickerItem, URangePickerItem, UTimePickerItem, UWeekPickerItem, UTransferItem, UScriptItem}
 
 export default {
     install(app) {

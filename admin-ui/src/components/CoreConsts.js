@@ -42,6 +42,7 @@ export default {
     DefaultDetailUid: DefaultDetailUid,
     DefaultSearchUid: DefaultSearchUid,
     DefaultConfirmUid: DefaultConfirmUid,
+    DefaultFuncContextUid: 'UVFC',
     SelfComponentConst: SelfComponentConst,
 
     FormSpinResetTip: '数据重置中...',

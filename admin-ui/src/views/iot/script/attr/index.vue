@@ -27,19 +27,15 @@
       </UTable>
     </UModal>
     <UDrawerLogger uid="logger"/>
-    <UViewDrawer v-model="editModel" :destroyOnHidden="true" title="解析器管理" :rules="rules" @open="openEdit" placement="top" size="100%" >
+    <UViewDrawer v-model="editModel" title="解析器管理" :rules="rules" @edit="openEdit" placement="top" size="100%" >
       <template #default>
         <URow col="drawer">
           <UInputItem field="name" label="解析器名称"/>
           <URadioItem v-if="configs.length > 0" field="language" label="脚本语言" :options="scriptOptions"
                       optionType="button" buttonStyle="solid"/>
           <UInputItem field="remark" label="备注"/>
+          <UScriptItem field="flatScript" label="解析脚本" required style="height: 380px" :completions="completions" :label-col="{span: 2}" :span="23"/>
         </URow>
-        <u-tabs uid="script" v-model:activeKey="languageKey" tab-placement="left">
-            <u-tab-pane v-for="script in editModel.script" :key="script.language" :tab="script.language">
-              <AceScriptEditor style="height: 380px" v-model:value="script.script" :completions="completions"></AceScriptEditor>
-            </u-tab-pane>
-        </u-tabs>
       </template>
       <template #footer="{model}">
         <UFuncBtn func="cancel">取消</UFuncBtn>
@@ -53,11 +49,8 @@
 
 import {ref, watch} from "vue";
 import CoreConsts from "@/components/CoreConsts";
-import AceScriptEditor from "@/components/code/AceScriptEditor.vue";
-import UTabPane from "@/components/view/UTabPane.jsx";
 export default {
   name: "AttrScript",
-  components: {UTabPane, AceScriptEditor},
   setup() {
     let scriptOptions = ref([{label: '禁用', value: 'disabled'}]);
 
@@ -77,15 +70,22 @@ export default {
     let rules = {
       name: {required: true, message: '解析器名称必填'},
       language: {required: true, message: '脚本语言必填'},
+      flatScript: {required: true, message: '解析脚本必填'},
     }
+
     let scriptItems = ref([]);
     let bindDataSource = ref([]);
-    let editModel = ref({language: 'disabled'});
+    let editModel = ref({language: 'disabled', script: []});
     let configs = ref([]);
-    let languageKey = ref("");
+    let editScript = ref("");
     let completions = ref([]);
-
-    return {editModel, columns, rules, completions, languageKey, configs, bindColumns, bindDataSource, scriptOptions, scriptItems}
+    watch(() => editModel.value.flatScript, (newVal) => {
+      if(newVal) {
+        if(editModel.value.script?.[0])
+        editModel.value.script[0].script = newVal;
+      }
+    })
+    return {editModel, columns, rules, completions, editScript, configs, bindColumns, bindDataSource, scriptOptions, scriptItems}
   },
   mounted() {
     this.$http.get("/iot/script/attr/completes").then(({code, message, data}) => {
@@ -112,14 +112,12 @@ export default {
     })
   },
   methods: {
-    // 这里必须使用@open事件
     openEdit(model) {
       if(!model.id) {
         model['script'] = JSON.parse(JSON.stringify(this.configs));
       }
 
-      this.editModel = model;
-      this.languageKey = model['script'][0].language
+      model.flatScript = model['script'][0].script;
     }
   }
 }

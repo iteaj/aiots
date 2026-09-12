@@ -13,7 +13,6 @@ export default defineComponent({
         url: String,
         dict: String,
         options: Array,
-        onChange: null,
         onSelect: null,
         onLoaded: {default: () => { return () => null}}, // 数据加载完成
         labelField: {default: CoreConsts.Options_LabelField},

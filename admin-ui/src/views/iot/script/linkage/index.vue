@@ -26,14 +26,8 @@
           <URadioItem v-if="configs.length > 0" field="language" label="脚本语言"
                       :options="scriptOptions" optionType="button" buttonStyle="solid"/>
           <UInputItem field="remark" label="备注"/>
+          <UScriptItem field="flatScript" label="功能脚本" style="height: 380px" :completions="completions" :label-col="{span: 2}" :span="23"/>
         </URow>
-        <a-tabs v-model:active-key="languageKey" tab-placement="left" :items="scriptItems">
-          <template #contentRender="{item}">
-            <div style="height: 380px">
-              <AceScriptEditor v-model:value="item.content.script" :completions="completions"></AceScriptEditor>
-            </div>
-          </template>
-        </a-tabs>
       </template>
       <template #footer="{model}">
         <UButton func="cancel">取消</UButton>
@@ -45,7 +39,7 @@
 </template>
 <script>
 
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import CoreConsts from "@/components/CoreConsts";
 import AceScriptEditor from "@/components/code/AceScriptEditor.vue";
 export default {
@@ -68,15 +62,22 @@ export default {
       {field: 'productCode', title: '产品编码', width: 150},
     ]
     let rules = {
-      name: {required: true, message: '解析器名称必填'},
+      name: {required: true, message: '脚本名称必填'},
+      flatScript: {required: true, message: '功能脚本必填'},
       // language: {required: true, message: '使用语言必填'},
     }
     let scriptItems = ref([]);
     let bindDataSource = ref([]);
-    let editModel = ref({language: 'disabled'});
+    let editModel = ref({language: 'disabled', script: []});
     let configs = ref([]);
     let languageKey = ref("");
     let completions = ref([]);
+    watch(() => editModel.value.flatScript, (newVal) => {
+      if(newVal) {
+        if(editModel.value.script?.[0])
+          editModel.value.script[0].script = newVal;
+      }
+    })
     return {editModel, columns, rules, completions, languageKey, configs, bindColumns, bindDataSource, scriptOptions, scriptItems}
   },
   mounted() {
@@ -109,11 +110,7 @@ export default {
         model['script'] = JSON.parse(JSON.stringify(this.configs));
       }
 
-      this.scriptItems = model['script'].map(item => {
-        let key = new Date().getTime() + "";
-        return {key, label: item.language, content: item};
-      });
-      this.languageKey = this.scriptItems[0].key
+      model.flatScript = model['script'][0].script;
     }
   }
 }

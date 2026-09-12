@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import {Modal} from "antdv-next";
 import {createVNode, defineComponent} from "vue";
 import {ImportUpload} from "@/components/basic";
+import {FuncMeta} from "@/components/view/FuncMeta.js";
 
 function Unmount() {
     console.warn("此方法只能在组件挂载时才能使用");
@@ -544,7 +545,7 @@ export function $View(context) {
         let searchContext = linkContext.getChildrenContext(CoreConsts.DefaultSearchUid);
         if(searchContext instanceof SearchContext) {
             model = searchContext.getModel();
-        } else if(context instanceof ViewVoidContext){
+        } else if(context instanceof DefaultFuncContext){
             //
         } else {
             model = data || model;
@@ -1734,13 +1735,38 @@ export function DetailContext(linkContext) {
 }
 
 /**
- * 空对象上下文, 有View组件提供
+ * 默认功能上下文, 由View组件提供
  * @param linkContext {LinkContext} ULinkView组件上下文对象
  * @constructor
  */
-export function ViewVoidContext(linkContext) {
+export function DefaultFuncContext(linkContext) {
 
-    this.register = () => {};
+    this.uid = CoreConsts.DefaultFuncContextUid;
+
+    this.funcMetas = new Map();
+
+    /**
+     * @param funcMeta {FuncMeta | FuncConfig}
+     */
+    this.register = (funcMeta) => {
+        if(funcMeta instanceof FuncConfig) {
+            const funcConfig = funcMeta;
+            const label = funcConfig.title();
+            funcConfig['__key__'] = SysUtils.nextId('btn:')
+            funcMeta = new FuncMeta(funcConfig['__key__'], label, 'func', funcConfig)
+        }
+
+        this.funcMetas.set(funcMeta.key, funcMeta);
+    };
+
+    /**
+     * @param funcMeta {string | FuncMeta}
+     */
+    this.unregister = (funcMeta) => {
+        const key = funcMeta instanceof FuncMeta ? funcMeta.key
+            : funcMeta instanceof FuncConfig ? funcMeta['__key__'] : funcMeta;
+        this.funcMetas.delete(key);
+    }
 
     /**
      * @return {LinkContext}
@@ -2139,6 +2165,12 @@ export function LinkContext(uid, viewContext, parent) {
 }
 
 export function FuncConfig(props, context, funcPath) {
+    /**
+     * @type {Function}
+     * @return {String}
+     */
+    this.title = () => props.title;
+
     /**
      * @type {Function}
      * @return {String}

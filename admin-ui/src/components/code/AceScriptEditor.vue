@@ -50,6 +50,8 @@ export default {
   },
   methods: {
     valueChange(value) {
+      if(this.$attrs.onChange instanceof Function)
+        this.$attrs.onChange(value);
       this.$emit('update:value', value);
     },
     onChange(value, b) {

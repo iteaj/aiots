@@ -1,9 +1,9 @@
 import {defineComponent, provide} from "vue";
-import {CellContextKey} from "@/utils/ProvideKeys";
+import {FuncContextKey} from "@/utils/ProvideKeys";
 
 /**
  * 表格可编辑单元格上下文(UTable/UEditableTable渲染可编辑列插槽时包裹)
- * <p>向插槽后代provide单元格字段信息(CellContextKey), 混入MixinsForm的控件(UInput/USelect等)
+ * <p>向插槽后代provide单元格字段信息(FuncContextKey), 混入MixinsForm的控件(UInput/USelect等)
  * created自动register自身实例; 实例按[行对象:列字段]登记到TableContext, 供页面自动化写值后触发已绑定事件;
  * 单元格内通常单控件, 业务v-if切换控件时旧实例先卸载注销、新实例后注册覆盖</p>
  */
@@ -21,7 +21,7 @@ export default defineComponent({
         let instance = null;
         const cellContext = {
             register(comp) {
-                instance = comp;
+                instance = comp.getMeta();
                 props.tableContext.registerCell(props.record, fieldOf(), comp);
             },
             unregister() {
@@ -41,7 +41,7 @@ export default defineComponent({
                 return instance;
             }
         };
-        provide(CellContextKey, cellContext);
+        provide(FuncContextKey, cellContext);
         return () => (slots.default && slots.default()) || null;
     }
 })
