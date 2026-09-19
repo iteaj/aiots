@@ -36,6 +36,9 @@
             <if test="entity.uid != null and entity.uid != ''">
                 and a.uid=#{entity.uid}
             </if>
+            <if test="entity.field != null and entity.field != ''">
+                and a.field=#{entity.field}
+            </if>
             <if test="entity.cid != null">
                 and a.cid=#{entity.cid}
             </if>

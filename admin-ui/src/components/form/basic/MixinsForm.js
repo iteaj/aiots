@@ -35,18 +35,17 @@ export default {
     },
     methods: {
         trigger(value) {
-          if(this.$attrs['update:value'] instanceof Function) {
-              this.$attrs['update:value'](value);
+          if(this.$attrs['onUpdate:value'] instanceof Function) {
+              this.$emit('update:value', value);
           }
+
+          return this.fireChange(value, null);
         },
         /**
          * 触发已绑定change事件(业务未绑定处理器返回false)
          */
         fireChange(value, model) {
             let onChange = this.$props['onChange'];
-            if(!(onChange instanceof Function)) {
-                onChange = this.$attrs['onChange'];
-            }
             if(onChange instanceof Function) {
                 onChange(value, model);
                 return true;

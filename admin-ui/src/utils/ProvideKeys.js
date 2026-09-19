@@ -2,6 +2,7 @@ export const RowContextKey = "URowContext"
 export const ViewContextKey = "UViewContext"
 export const FuncContextKey = "FuncContextKey"
 export const EditableTableKey = "EditableTableKey"
+export const CellContextKey = "CellContextKey"
 export const VisibleContextKey = "VisibleContextKey"
 export const LinkViewContextKey = "ULinkViewContext"
 

@@ -93,6 +93,13 @@ export const URadio = defineComponent({
         return slots()
     }
 })
+export const URadioGroup = defineComponent({
+    name: 'URadioGroup',
+    mixins: [MixinsOptions],
+    render() {
+        return <ARadioGroup {...this.mergeAttrs()} options={this.dataSource} v-slots={this.$slots} />
+    }
+})
 export const UMentions = defineComponent({
     name: 'UMentions',
     mixins: [MixinsOptions],
@@ -104,15 +111,14 @@ export const UMentions = defineComponent({
     },
     methods: {
         fireSelect(value, model) {
-            if(value) {
+            if(value !== undefined) {
                 if(this.$props['onSelect'] instanceof Function) {
-                    let pre = value.at(0);
-                    if(pre == this.prefix) {
-                        value = value.substring(1);
+                    if(new String(value).startsWith(this.prefix)) {
+                        let substring = value.substring(1);
+                        let selectedModel = this.getSelectedModel(substring);
+                        this.onSelectProxy(selectedModel, this.prefix);
+                        return true;
                     }
-                    let selectedModel = this.getSelectedModel(value);
-                    this.onSelectProxy(selectedModel, this.prefix);
-                    return true;
                 }
             }
 
@@ -223,7 +229,7 @@ export const UTransfer = defineComponent({
                           dataSource={this.dataSource} v-slots={this.$slots}/>
     }
 })
-const formComponents = {USelect, UCheckbox, UCascader, UAutoComplete, UTransfer, USegmented
+const formComponents = {USelect, UCheckbox, UCascader, UAutoComplete, UTransfer, USegmented, URadioGroup
     , URadio, UDateTime, UTreeSelect, UDatePicker, UMonthPicker, URangePicker, UTimePicker, UWeekPicker, UMentions}
 
 /**
@@ -258,7 +264,6 @@ export default {
         app.component("USwitch", formCell("USwitch", Switch));
         app.component("URate", formCell("URate", Rate));
         app.component("USlider", formCell("USlider", Slider));
-        app.component("URadioGroup", formCell("URadioGroup", RadioGroup));
         app.component("UCheckboxGroup", formCell("UCheckboxGroup", CheckboxGroup));
         app.component("UScript", UScript);
         app.component("UEditor", UEditor);

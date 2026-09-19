@@ -33,7 +33,27 @@ export class FuncMeta {
         return this.meta;
     }
 
+    /**
+     * 按类型取内容: form=表单控件当前值(受控组件v-model:value, 取$props.value优先, 兜底$attrs.value); func=功能按钮标题(FuncConfig.title()最新, 兜底注册快照label)
+     * @return {*} 表单值 或 按钮标题
+     */
+    getContext() {
+        const meta = this.getMeta();
+        if(this.type === 'form') {
+            if(!meta) {
+                return null;
+            }
+            const props = meta.$props || {};
+            const attrs = meta.$attrs || {};
+            return props.value !== undefined ? props.value : attrs.value;
+        }
+        if(this.type === 'func') {
+            return meta && meta.title instanceof Function ? meta.title() : this.label;
+        }
+        return null;
+    }
+    
     trigger(value) {
-        this.getMeta().trigger(value);
+        return this.getMeta().trigger(value);
     }
 }

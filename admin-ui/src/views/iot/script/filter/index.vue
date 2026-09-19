@@ -6,12 +6,8 @@
             <ASpin description="数据保存中..." :spinning="spinning">
               <UScript v-model:value="flatScriptMap[item.name]" :label="item.name + '过滤脚本'" :completions="item['completes']" style="height: 450px"></UScript>
               <div style="text-align: center; margin-top: 8px;">
-                <URadioGroup v-model:value="item['language']" button-style="solid">
-                  <template v-for="language in item['script']" :key="language.language">
-                    <ARadioButton :value="language.language">{{language.language}}</ARadioButton>
-                  </template>
-                  <ARadioButton value="disabled">禁用</ARadioButton>
-                </URadioGroup>
+                <URadioGroup v-model:value="item['language']" button-style="solid"
+                         option-type="button" :options="filterScriptStatus" />
                 <UButton type="dashed" func="submit" style="margin-left: 8px" @click="() => submit(item)">保存</UButton>
               </div>
             </ASpin>
@@ -37,6 +33,10 @@ export default {
     let languageKey = ref("");
     let filters = ref([]);
     let flatScriptMap = ref({});
+    let filterScriptStatus = ref([
+      {label: '启用', value: 'javascript'},
+      {label: '禁用', value: 'disabled'},
+    ]);
     watch(() => flatScriptMap.value, (newVal) => {
       if(typeof newVal === 'object') {
         filters.value.forEach(item => {
@@ -48,7 +48,7 @@ export default {
       }
 
     }, {deep: true})
-    return {typeKey, filters, languageKey, spinning, flatScriptMap}
+    return {typeKey, filters, languageKey, spinning, flatScriptMap, filterScriptStatus}
   },
   mounted() {
     this.$http.get("/iot/script/filter/filters").then(({code, message, data}) => {

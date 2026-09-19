@@ -83,7 +83,7 @@ export default {
   },
   unmounted() {
     if(this.realtimeSocket instanceof WebSocket) {
-      this.realtimeSocket.close(200);
+      this.realtimeSocket.close(1000);
     }
   },
   updated() {

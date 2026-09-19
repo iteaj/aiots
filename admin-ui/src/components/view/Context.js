@@ -1164,7 +1164,9 @@ export function SearchContext(linkContext) {
      * @param config {FuncConfig}
      */
     this.register = function (config) {
-        this.funcMetas[funcRegisterKey(config.getFunc(), config)] = config;
+        if(config instanceof FuncConfig) {
+            this.funcMetas[funcRegisterKey(config.getFunc(), config)] = config;
+        }
     }
 
     /**
@@ -1767,6 +1769,13 @@ export function DefaultFuncContext(linkContext) {
             : funcMeta instanceof FuncConfig ? funcMeta['__key__'] : funcMeta;
         this.funcMetas.delete(key);
     }
+
+    /**
+     * 按key取已注册的FuncMeta(funcMetas为Map<key,FuncMeta>, key即唯一标识)
+     * @param key {String} FuncMeta.key
+     * @return {FuncMeta|undefined}
+     */
+    this.getFunc = (key) => this.funcMetas.get(key);
 
     /**
      * @return {LinkContext}

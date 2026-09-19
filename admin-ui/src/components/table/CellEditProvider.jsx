@@ -22,7 +22,7 @@ export default defineComponent({
         const cellContext = {
             register(comp) {
                 instance = comp.getMeta();
-                props.tableContext.registerCell(props.record, fieldOf(), comp);
+                props.tableContext.registerCell(props.record, fieldOf(), instance);
             },
             unregister() {
                 let last = instance;

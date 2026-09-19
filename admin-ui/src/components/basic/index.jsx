@@ -186,7 +186,7 @@ export const UFuncTag = defineComponent({
                 // 配置对象只能在触发事件内创建
                 let config = new Config(instance.value).build(props, context, router, funcConfig);
                 if(props.onClick instanceof Function) {
-                    props.onClick({data: props.data, event: () => funcClickHandle(context, config)})
+                    return props.onClick({data: props.data, event: () => funcClickHandle(context, config)})
                 } else {
                     if(context != null) {
                         // 透传执行结果(Promise): 供AI动作exec_func同步等待请求类功能(ajax等)的真实执行结果
@@ -287,7 +287,7 @@ export const UFuncBtn = defineComponent({
                 // 配置对象只能在触发事件内创建
                 let config = new Config(instance.value).build(props, context, router, funcConfig);
                 if(props.onClick instanceof Function) {
-                    props.onClick({data: props.data, event: () => funcClickHandle(context, config)})
+                    return props.onClick({data: props.data, event: () => funcClickHandle(context, config)})
                 } else if(context != null) {
                     // 透传执行结果(Promise): 供AI动作exec_func同步等待请求类功能(ajax等)的真实执行结果
                     return funcClickHandle(context, config)
@@ -319,7 +319,7 @@ export const UFuncBtn = defineComponent({
     },
     methods: {
         trigger() {
-            this.clickProxy.onClick(null);
+            return this.clickProxy.onClick(null);
         },
         handleProps() {
             let type = CoreConsts.FuncBtnTypeMaps[this.funcPath[0]];

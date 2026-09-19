@@ -62,6 +62,17 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
+     * WebSocket握手鉴权拦截器(全局复用): 业务模块注册WebSocket端点时
+     * 注入{@link WebSocketAuthInterceptor}即获得Sa-Token握手鉴权
+     * @param properties 框架配置(token名取framework.web.session.token-name, 与HTTP统一)
+     * @return
+     */
+    @Bean
+    public WebSocketAuthInterceptor saTokenWebSocketAuthInterceptor(FrameworkProperties properties) {
+        return new SaTokenWebSocketAuthInterceptor(properties);
+    }
+
+    /**
      * 增加权限校验拦截器
      * @param registry
      */

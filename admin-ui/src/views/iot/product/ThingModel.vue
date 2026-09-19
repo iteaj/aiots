@@ -280,7 +280,7 @@
       <u-tab-pane key="attrCalc" tab="计算属性">
         <ARow>
         <ACol span="16">
-          <AceScriptEditor style="min-height: 320px;" v-model:value="modelDetailModel.config.calcScript"  :completions="calcAttrCompletions"></AceScriptEditor>
+          <UScript style="min-height: 320px;" label="计算脚本" v-model:value="modelDetailModel.config.calcScript"  :completions="calcAttrCompletions"></UScript>
         </ACol>
         <ACol span="8" style="position: relative">
           <div style="padding: 8px; font-size: 12px; color: #8e8e8e;">
@@ -293,11 +293,9 @@
             </div>
           </div>
           <div style="position: absolute; bottom: 8px; text-align: center; width: 100%;">
-            <ARadioGroup button-style="solid" v-model:value="modelDetailModel.config['calcLanguage']" @change="updateCalcScript">
-              <ARadioButton value="javascript">javascript</ARadioButton>
-              <ARadioButton value="disabled">禁用</ARadioButton>
-            </ARadioGroup>
-            <AButton type="primary" style="margin-left: 8px;" @click="updateCalcScript">保存</AButton>
+            <URadioGroup button-style="solid" v-model:value="modelDetailModel.config['calcLanguage']"
+                         @change="updateCalcScript" option-type="button" :options="calcScriptStatus" />
+            <UButton func="submit" type="primary" style="margin-left: 8px;" @click="updateCalcScript">保存</UButton>
           </div>
         </ACol>
       </ARow>
@@ -359,6 +357,10 @@ export default {
     let debugOptions = ref([
       {label: '是', value: true},
       {label: '否', value: false},
+    ]);
+    let calcScriptStatus = ref([
+      {label: '启用', value: 'javascript'},
+      {label: '禁用', value: 'disabled'},
     ]);
     let dataType = ref([
       {label: 'string(字符串)', value: 'string'},
@@ -622,7 +624,7 @@ export default {
       , funcUpConfigColumns, eventDownConfigColumns, eventUpConfigColumns, protocolColumns, eventColumns, attrFieldOptions, attrComputeColumns
       , modelAttrDictList, ModelAttrList, funcApis, funcEditModel, funcApiDownConfig, eventApis, eventEditModel, eventApiDownConfig, attrDetailModel
       , attrDictSearchModel, attrModelQueryRef, attrWarnQueryRef, attrType, attrRules, apiRules, cmdColumns, copyValue, triggerModeOptions, collectTagOptions
-      , calcAttrCompletions, configMentionsOptions, warnIndicatorOptions}
+      , calcAttrCompletions, configMentionsOptions, warnIndicatorOptions, calcScriptStatus}
   },
   mounted() {
     this.$http.get("/iot/product/calcScriptMethods").then(({code, message, data}) => {
@@ -858,16 +860,20 @@ export default {
       this.$nextTick().then(() => {
         this.attrDictSearchModel['modelAttrId'] = row['id'] || null
         this.attrModelQueryRef.trigger();
-        this.attrWarnQueryRef.trigger();
+        if(this.attrWarnQueryRef) {
+          this.attrWarnQueryRef.trigger();
+        }
       })
     },
     updateCalcScript() {
-      this.$http.post(`/iot/product/updateCalcScript`, this.modelDetailModel).then(({code, message}) => {
+      return this.$http.post(`/iot/product/updateCalcScript`, this.modelDetailModel).then(({code, message}) => {
         if(code == CoreConsts.SuccessCode) {
           this.$msg.success(message);
         } else {
           this.$msg.error(message);
         }
+
+        return message;
       })
     },
     copy(value) {

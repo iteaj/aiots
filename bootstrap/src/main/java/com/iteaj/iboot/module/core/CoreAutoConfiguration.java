@@ -71,6 +71,8 @@ public class CoreAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
+     * 匿名放行列表: 登录页等无需认证的路径 + 页面WebSocket握手端点
+     * (握手请求不受浏览器控制无法带认证头, 由全局WebSocketAuthInterceptor按query参数token自行鉴权)
      * @return
      */
     @Bean
@@ -78,7 +80,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer {
     public OrderFilterChainDefinition coreFilterChainDefinition() {
         return new OrderFilterChainDefinition()
                 .addAnon("/core/login", "/js/**", "/css/**", "/img/**"
-                        , "/libs/**", "/doc/**", "/favicon.ico");
+                        , "/libs/**", "/doc/**", "/favicon.ico", "/ws/ai/agent");
     }
 
     @Bean

@@ -28,7 +28,7 @@
     </UViewModal>
     <UViewTable :columns="columns" :scroll="{x: 1100}">
       <template #id="{record}">
-        <a-typography-paragraph :copyable="{text: record.id, tooltip: true}" style="margin-bottom: 0">
+        <a-typography-paragraph :copyable="{text: record.id + '', tooltip: true}" style="margin-bottom: 0">
           {{record.id}}
         </a-typography-paragraph>
       </template>
