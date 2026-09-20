@@ -6,6 +6,7 @@ import Login from '@msn/login/login.vue'
 import NotFound from '@msn/error/404.vue'
 import Refresh from "@msn/main/Refresh.vue";
 import Index from '@msn/core/index/index.vue'
+import OAuth2Client from "@msn/oauth2/client/index.vue";
 import {createRouter, createWebHashHistory} from 'vue-router'
 
 // 主页路由名称            // 首页路径
@@ -50,6 +51,7 @@ const router = createRouter({
                 ]}
             ]
         },
+        {path: '/oauth2/login', component: OAuth2Client, name: 'OAuth2客户端回调', meta: {taskBar: false}},
         {path: '/iot/device/detail/:uid', component: () => import("@msn/iot/device/detail/index.vue"), name: "设备详情", meta: {taskBar: false}},
         {path: '/screen/:type/:id', component: () => import("@msn/screen/index.vue"), name: 'scada', meta: {taskBar: false}},
         {path: '/login', component: Login, name: '登录'},

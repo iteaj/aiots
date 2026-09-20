@@ -83,7 +83,7 @@
           </a-dropdown>
           <div class="u-opera-col">
             <a-dropdown placement="bottom">
-              <a-avatar :src="$apiUrl + user.avatar" :size="32">
+              <a-avatar :src="userAvatar()" :size="32">
                 <template #icon><UserOutlined /></template>
               </a-avatar>
               <template #popupRender>
@@ -232,6 +232,12 @@ export default {
     },
     fullScreen() {
       screenfull.toggle()
+    },
+    userAvatar() {
+      if(this.user.avatar && this.user.avatar.startsWith('http')) {
+        return this.user.avatar;
+      }
+      return this.$apiUrl + this.user.avatar
     },
     /**
      * 搜索关键字处理

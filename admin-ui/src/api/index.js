@@ -34,6 +34,10 @@ export function getSysConfig(config) {
     return GET('/core/config/list', config || {})
 }
 
+export function getFrameworkConfig() {
+    return GET("core/framework/config")
+}
+
 // 用户中心 - 修改用户密码
 export function editPwd(model) {
     return POST("/core/center/pwd", model)
@@ -74,8 +78,11 @@ export function logout() {
 
 // oauth2授权认证
 export function oauth2(type) {
-    return GET("/core/oauth2", {params: {type}}).then(resp => {
+    let url = document.location.origin;
+    return GET("/oauth2/client/authorize", {type, url}).then(resp => {
         location.href = resp.data
+    }).catch(err => {
+        console.error(err);
     })
 }
 

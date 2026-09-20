@@ -1,26 +1,30 @@
 package com.iteaj.iboot.plugin.oauth2;
 
-import cn.dev33.satoken.oauth2.template.SaOAuth2Template;
+import com.iteaj.framework.ProfilesInclude;
 import com.iteaj.framework.plugin.Plugin;
+import com.iteaj.framework.security.OrderFilterChainDefinition;
+import com.iteaj.iboot.plugin.oauth2.config.Oauth2ClientProperties;
 import com.iteaj.iboot.plugin.oauth2.sa.OpenApiFilter;
-import com.iteaj.iboot.plugin.oauth2.sa.SaOAuth2TemplateImpl;
 import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
-import com.iteaj.iboot.plugin.oauth2.service.Oauth2UserService;
-import jakarta.servlet.Filter;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
+@ProfilesInclude("oauth2")
 @MapperScan("com.iteaj.iboot.plugin.oauth2.mapper")
 @ComponentScan("com.iteaj.iboot.plugin.oauth2")
+@EnableConfigurationProperties(Oauth2ClientProperties.class)
 public class Oauth2AutoConfiguration implements Plugin {
 
-//    @Bean
-//    public SaOAuth2Template saOAuth2TemplateImpl(Oauth2AppService oauth2AppService, Oauth2UserService oauth2UserService) {
-//        return new SaOAuth2TemplateImpl(oauth2AppService, oauth2UserService);
-//    }
+    @Bean
+    @Order(value = 18)
+    public OrderFilterChainDefinition oauth2FilterChainDefinition() {
+        return new OrderFilterChainDefinition()
+                .addAnon("/oauth2/client/authorize", "/oauth2/client/callback", "/oauth2/client/login");
+    }
 
     @Bean
     public FilterRegistrationBean<OpenApiFilter> openApiFilter(Oauth2AppService oauth2AppService) {

@@ -12,6 +12,9 @@ export default {
 
         return "";
     },
+    setCookie(key, value, path) {
+        document.cookie = `${key}=${value};path=${path || '/'}`;
+    },
     /**
      * 是否是生产环境
      * @return {boolean}
@@ -29,7 +32,7 @@ export default {
         }
     },
     isLogin() {
-        return this.getCookie(CoreConsts.AccessToken) != null;
+        return localStorage.getItem(CoreConsts.AccessToken) != null;
     },
     /**
      * 克隆对象

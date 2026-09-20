@@ -8,14 +8,19 @@
         <version>${reversion}</version>
     </parent>
 
-    <packaging>pom</packaging>
     <name>iboot:social</name>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>iboot-social</artifactId>
     <description>社交登录插件（微信、支付宝、头条等第三方登录）</description>
 
-    <modules>
-        <module>social-core</module>
-        <module>iboot-wechat</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-mp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-miniapp</artifactId>
+        </dependency>
+    </dependencies>
 </project>

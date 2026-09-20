@@ -1,5 +1,5 @@
 /*系统模块相关配置*/
-import {getDict, getMenus, getSysConfig, getUser, getPermissions} from "@/api";
+import {getDict, getMenus, getSysConfig, getUser, getPermissions, getFrameworkConfig} from "@/api";
 import {reactive, ref, h} from "vue";
 import {GET} from "@/utils/request";
 import router, {resolverMenuToRoutes} from "@/router";
@@ -597,6 +597,29 @@ const registerSysModule = function (store) {
                     return {};
                 }).catch(reason => reason);
             },
+            loadingFrameworkConfig: ({commit, state}) => {
+                getFrameworkConfig().then(({code, data, message}) => {
+                    if(code == CoreConsts.SuccessCode) {
+                        if(data instanceof Array) {
+                            data.forEach(config => {
+                                if(config.label === 'iotIndicatorColor') {
+                                    // 指标颜色
+                                    const iotIndicatorColor = config.value;
+                                    if(iotIndicatorColor instanceof Array) {
+                                        iotIndicatorColor.forEach(item => {
+                                            state.indicatorColors[item.label] = item.value;
+                                        })
+                                    }
+                                } else {
+                                    state.sysConfigMaps[config.label] = config.value;
+                                }
+                            })
+                        }
+                    } else {
+                        console.error(message);
+                    }
+                })
+            }
         }
     })
 }

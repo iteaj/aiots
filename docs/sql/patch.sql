@@ -135,3 +135,6 @@ drop index iot_warn_record_uid_index on iot_warn_record;
 create index iot_warn_record_uid_field_index
     on iot_warn_record (uid, field);
 
+alter table oauth2_client_user
+    change user_id account varchar(64) null comment '关联的用户/会员';
+

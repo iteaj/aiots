@@ -70,7 +70,7 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
             definition.addAnon(strings[0]);
         }
 
-        return definition.addAnon("/").addAnon("/static/**");
+        return definition.addAnon("/").addAnon("/core/framework/config").addAnon("/static/**");
     }
 
     @Bean

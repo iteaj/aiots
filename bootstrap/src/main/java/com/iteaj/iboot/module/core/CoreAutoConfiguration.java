@@ -79,7 +79,7 @@ public class CoreAutoConfiguration implements WebMvcConfigurer {
     @Order(value = 18)
     public OrderFilterChainDefinition coreFilterChainDefinition() {
         return new OrderFilterChainDefinition()
-                .addAnon("/core/login", "/js/**", "/css/**", "/img/**"
+                .addAnon("/core/login", "/core/oauth2", "/core/oauth2/callback", "/js/**", "/css/**", "/img/**"
                         , "/libs/**", "/doc/**", "/favicon.ico", "/ws/ai/agent");
     }
 

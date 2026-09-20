@@ -42,10 +42,8 @@ export default {
       }
     });
 
-    if(SysUtils.isLogin()) {
-      // 初始化系统配置信息
-      useStore().dispatch('sys/initConfig')
-    }
+    // 初始化系统配置信息
+    useStore().dispatch('sys/loadingFrameworkConfig')
 
     // 提供全局配置
     provide(GlobalConfigKey, globalConfig)

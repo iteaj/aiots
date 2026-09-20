@@ -1,6 +1,7 @@
 package com.iteaj.framework.spi.admin;
 
 import com.iteaj.framework.Entity;
+import com.iteaj.framework.IVOption;
 
 import java.awt.*;
 import java.util.Collection;
@@ -15,6 +16,8 @@ import java.util.Map;
  * @since 1.0
  */
 public interface ResourceManager {
+
+    Object getConfig(String type);
 
     /**
      * 通过菜单id获取对应得msn
@@ -35,6 +38,8 @@ public interface ResourceManager {
      * @return
      */
     List<DictResource> getDictResources();
+
+    List<IVOption> getDictData(String dictType);
 
     /**
      * 返回菜单类型

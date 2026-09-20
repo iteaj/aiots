@@ -42,8 +42,8 @@
 <!--                   @click="wechatLogin"></UIcon>-->
           </a-col>
           <a-col span="6" style="text-align: center; cursor: pointer">
-<!--            <UIcon type="iz-icon-gitee" style="font-size: 28px"-->
-<!--                      @click="wechatLogin"></UIcon>-->
+            <UIcon type="iz-icon-gitee" style="font-size: 28px; color: #c71d23"
+                      @click="oauth2Login('gitee')"></UIcon>
           </a-col>
           <a-col span="6" style="text-align: left; cursor: pointer">
 <!--            <a-icon type="alipay-circle" :style="iconStyle" />-->

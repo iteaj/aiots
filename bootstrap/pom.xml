@@ -164,12 +164,6 @@
 <!--        </dependency>-->
 
         <!-- iboot 可选插件 -->
-        <!--低代码平台插件-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>iboot-code</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!-- SaToken权限认证插件-->
         <dependency>
@@ -254,7 +248,7 @@
         </dependency>
         <dependency>
             <groupId>com.iteaj</groupId>
-            <artifactId>iboot-wechat</artifactId>
+            <artifactId>iboot-social</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
