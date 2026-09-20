@@ -16,6 +16,13 @@
     <insert id="insertSysAdmin">
         insert into sys_admin (name, org_id, post_id, account, email, phone, sex, avatar, password, status, remark, create_time, create_by) value
             (#{name},#{orgId}, #{postId}, #{account},#{email},#{phone},#{sex},#{avatar},#{password},#{status}, #{remark}, now(), 'oauth2');
+        set @lastId=LAST_INSERT_ID();
+        <if test="roles != null and roles.size() > 0">
+            insert into sys_admin_role (aid, rid) values
+            <foreach collection="roles" item="item" separator=",">
+                (@lastId, #{item})
+            </foreach>
+        </if>
     </insert>
 
 

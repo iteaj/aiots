@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -77,18 +78,9 @@ public class Oauth2Admin extends BaseEntity {
     private UseStatus status;
 
     /**
-     * 创建时间
+     * 角色列表
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date createTime;
+    private List<String> roles;
 
-    /**
-     * 创建人
-     */
-    private String createBy;
 
-    /**
-     * 修改人
-     */
-    private String updateBy;
 }

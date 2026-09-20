@@ -9,6 +9,7 @@ import com.iteaj.framework.spi.oauth2.OAuth2ClientService;
 import com.iteaj.framework.spi.oauth2.OAuth2ClientUser;
 import com.iteaj.framework.spi.oauth2.OAuth2Service;
 import com.iteaj.framework.spi.oauth2.Oauth2Result;
+import com.iteaj.iboot.plugin.oauth2.config.Oauth2ClientProperties;
 import com.iteaj.iboot.plugin.oauth2.entity.Oauth2Admin;
 import com.iteaj.iboot.plugin.oauth2.entity.Oauth2ClientUser;
 import com.iteaj.iboot.plugin.oauth2.mapper.Oauth2ClientMapper;
@@ -16,6 +17,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class Oauth2ClientServiceImpl implements OAuth2ClientService {
 
     private final Oauth2ClientMapper oauth2ClientMapper;
+    private final Oauth2ClientProperties clientProperties;
 
     @Override
     public OAuth2ClientUser getUser(String openid, AuthType type) {
@@ -66,9 +69,9 @@ public class Oauth2ClientServiceImpl implements OAuth2ClientService {
     private Oauth2Admin createSysAdmin(String account, Oauth2Result user) {
         Oauth2Admin dto = new Oauth2Admin();
         dto.setAccount(account).setSex("3");
-        dto.setOrgId(1L).setName(StrUtil.blankToDefault(user.getNickname(), user.getUsername()));
-        dto.setAvatar(user.getAvatar()).setEmail(user.getEmail());
-        dto.setStatus(UseStatus.enabled).setPostId(1L).setRemark(user.getRemark());
+        dto.setOrgId(clientProperties.getOrgId()).setName(StrUtil.blankToDefault(user.getNickname(), user.getUsername()));
+        dto.setAvatar(user.getAvatar()).setEmail(user.getEmail()).setRoles(List.of(clientProperties.getRoleId()));
+        dto.setStatus(UseStatus.enabled).setPostId(clientProperties.getPostId()).setRemark(user.getRemark());
 
         // 第三方登录不走密码, 置随机密码(createAdmin 内部会 md5)
         dto.setPassword(UUID.randomUUID().toString());

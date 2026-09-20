@@ -16,6 +16,21 @@ public class Oauth2ClientProperties {
     /** 授权回调地址(须与第三方应用注册的回调地址完全一致) */
     private String redirectUri;
 
+    /**
+     * 要绑定的组织ID
+     */
+    private Long orgId = 1L;
+
+    /**
+     * 要绑定的职位ID
+     */
+    private Long postId = 1L;
+
+    /**
+     * 要绑定的角色ID
+     */
+    private String roleId = "1";
+
     /** gitee 授权配置 */
     private Platform gitee = new Platform();
 
