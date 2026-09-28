@@ -587,7 +587,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                     .setAttrField(entity.getField()).setProductId(entity.getProductId()).setApiCode(apiCode).setDataType(entity.getDataType())
                     .setDirection(ApiConfigDirection.UP).setFieldType(ApiFieldType.field).setProtocolAttrName(modelAttr.getName())
                     .setProtocolAttrField(config.getProtocolModelAttrField()).setProtocolDataType(modelAttr.getDataType().getValue())
-                    .setValue("@"+entity.getField()).setSort(config.getSort()).setRemark(config.getRemark());
+                    .setValue(entity.getField()).setSort(config.getSort()).setRemark(config.getRemark());
             upConfigs.add(apiConfig);
         });
 

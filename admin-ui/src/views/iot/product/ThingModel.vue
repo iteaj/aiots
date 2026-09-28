@@ -252,9 +252,9 @@
                         </div>
                       </template>
                     </USelect>
-                    <span v-else-if="record['protocolDataType'] != 'any' && record['protocolDataType'] != 'json'"></span>
-                    <UMentions v-else v-model:value="record['value']" labelField="name" valueField="field" :options="ModelAttrList"
-                               split="" @select="(model) => directParamsChange(model, record)" :maxlength="360" />
+                    <UInput v-else-if="record['protocolDataType'] != 'any' && record['protocolDataType'] != 'json'" v-model:value="record['value']" />
+                    <USelect v-else v-model:value="record['value']" labelField="name" valueField="field" :options="ModelAttrList"
+                               split="" @select="(value, model) => eventUpValueChange(value, model, record)" :maxlength="360" style="width: 100%"/>
                   </template>
                 </UTable>
               </UTabPane>
@@ -725,10 +725,11 @@ export default {
         this.attrDetailModel['id'] = data;
         this.attrDictSearchModel['modelAttrId'] = data;
         query(); // 重新加载表数据
+        return Promise.reject(message || "提交成功"); // 不关闭页面
       } else {
         this.$msg.error(message);
+        return Promise.reject(message);
       }
-      return Promise.reject();
     },
     funcApisLoaded(funcApis) {
       if(funcApis != null) {
@@ -796,6 +797,21 @@ export default {
         record['attrName'] = model['name'];
         record['remark'] = `${model['name']}(由脚本引擎构建)`
       }
+    },
+    eventUpValueChange(value, model, record) {
+      if(record['protocolDataType'] == 'any') {
+        record['dataType'] = model['realType'] || 'any';
+      } else {
+        if(record['protocolDataType'] != model['dataType']) {
+          record['value'] = null;
+          return this.$msg.warning(`数据类型不匹配(${model['dataType']} -> ${record['protocolDataType']})`);
+        }
+      }
+
+      record['modelAttrId'] = model['id'];
+      record['attrName'] = model['name'];
+      record['attrField'] = model['field'];
+      record['remark'] = model['remark'] || record['remark']
     },
     apiConfigResolve(data) {
       let downConfig = data['downConfig'];

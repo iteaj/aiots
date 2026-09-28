@@ -688,10 +688,9 @@ export function $View(context) {
                             return message || CoreConsts.SubmitSuccessMsg;
                         }
                         msgError(message);
-                        return `提交失败: ${message}`;
+                        return `提交信息: ${message}`;
                     }).catch(reason => {
-                        console.error(reason);
-                        return `提交失败: ${reason && reason.message || reason}`;
+                        return `提交信息：${reason && reason.message || reason}`;
                     });
                 }).catch(reason => {
                     msgError(reason);

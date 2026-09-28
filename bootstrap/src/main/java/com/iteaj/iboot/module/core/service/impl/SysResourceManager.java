@@ -5,6 +5,7 @@ import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.framework.utils.TreeUtils;
+import com.iteaj.iboot.module.core.entity.Config;
 import com.iteaj.iboot.module.core.entity.Menu;
 import com.iteaj.iboot.module.core.service.IConfigService;
 import com.iteaj.iboot.module.core.service.IDictDataService;
@@ -35,9 +36,13 @@ public class SysResourceManager implements ResourceManager{
     @Resource
     private IDictDataService dictDataService;
 
+
     @Override
-    public Object getConfig(String type) {
-        return configService.getConfigByLabel(type);
+    public List<IVOption> getConfig(List<String> labels) {
+        return configService.list(Wrappers.<Config>lambdaQuery().in(Config::getLabel, labels))
+                .stream()
+                .map(item -> new IVOption(item.getLabel(), item))
+                .collect(Collectors.toList());
     }
 
     @Override

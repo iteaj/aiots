@@ -43,6 +43,9 @@ public class FrameworkController extends BaseController{
         List<IVOption> indicatorColors = resourceManager.getDictData("iot_indicator_color");
 
         result.add(new IVOption("iotIndicatorColor", indicatorColors));
+
+        List<IVOption> sysConfig = resourceManager.getConfig(List.of("sys_name", "sys_logo", "sys_menu_style"));
+        result.addAll(sysConfig);
         return success(result);
     }
 }

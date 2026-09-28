@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public interface ResourceManager {
 
-    Object getConfig(String type);
+    List<IVOption> getConfig(List<String> labels);
 
     /**
      * 通过菜单id获取对应得msn

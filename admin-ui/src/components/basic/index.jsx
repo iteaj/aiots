@@ -246,7 +246,11 @@ export const UFuncTag = defineComponent({
     },
     methods: {
         trigger() {
-            this.clickProxy();
+            if(!this.disabled) {
+                this.clickProxy();
+            } else {
+                return Promise.reject("功能被禁用或无权限");
+            }
         },
     }
 })
@@ -319,7 +323,11 @@ export const UFuncBtn = defineComponent({
     },
     methods: {
         trigger() {
-            return this.clickProxy.onClick(null);
+            if(!this.disabled) {
+                return this.clickProxy.onClick(null);
+            } else {
+                return Promise.reject("功能被禁用或无权限");
+            }
         },
         handleProps() {
             let type = CoreConsts.FuncBtnTypeMaps[this.funcPath[0]];
