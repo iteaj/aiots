@@ -160,13 +160,15 @@ function initTableColumns(columns, slots, rowKey, editRowData, initRow, config) 
 
                     if (tempColumn['editable'] === true) { // 此列可以编辑
                         if (editRowData.editRow) { // 如果设置了要编辑的行
+                            if (tempColumn['type'] == 'action') {
+                                args['editing'] = false;
+                                return tempColumn['__editableSlot'](args);
+                            }
+
                             if (editRowData.editRow[rowKey] == args.record[rowKey]) { // 当前行等于编辑行
                                 args['editing'] = true;
                                 // 包单元格上下文: 插槽内控件(UInput/USelect等)注册实例供写值后触发事件
                                 return <CellEditProvider tableContext={config.tableContext} record={args.record} column={tempColumn}>{tempColumn['__editableSlot'](args)}</CellEditProvider>;
-                            } else if (tempColumn['type'] == 'action') {
-                                args['editing'] = false;
-                                return tempColumn['__editableSlot'](args);
                             } else {
                                 args['editing'] = false;
                                 return tempColumn['__slot'] ? tempColumn['__slot'](args) : args.text;
@@ -196,7 +198,7 @@ export default defineComponent({
     props: {
         sticky: {default: false},
         dataSource: {type: Array},
-        position: {type: String, default: "bottom"}, // 插入的位置
+        position: {type: String, default: "bottom"}, // 插入的位置 bottom or top
         ellipsis: {type: Boolean, default: true},
         func: {type: Boolean, default: true},
         size: {type: String, default: "middle"},
@@ -368,7 +370,7 @@ export default defineComponent({
                 if(!editRowData.value.editRow[attrs['rowKey']]) {
                     editRowData.value.editRow = editRowData.value.editRowBack = null;
                     if(dataSourceRef.value instanceof Array) {
-                        if(attrs.position == 'bottom') {
+                        if(props.position == 'bottom') {
                             dataSourceRef.value.splice(dataSourceRef.value.length - 1, 1)
                         } else {
                             dataSourceRef.value.splice(0, 1)

@@ -195,6 +195,8 @@ export const UFuncTag = defineComponent({
                         console.warn("无效的操作(需要自定义事件或者在指定的组件下面)")
                     }
                 }
+            } else {
+                return Promise.reject("功能被禁用或无权限");
             }
         }
 
@@ -246,11 +248,7 @@ export const UFuncTag = defineComponent({
     },
     methods: {
         trigger() {
-            if(!this.disabled) {
-                this.clickProxy();
-            } else {
-                return Promise.reject("功能被禁用或无权限");
-            }
+            this.clickProxy();
         },
     }
 })
@@ -288,15 +286,19 @@ export const UFuncBtn = defineComponent({
         funcConfig.title = () => collectSlotText(slots.default ? slots.default() : null); // 按钮显示文本惰性函数(序列化时取默认插槽最新值, 内容可能动态变化)
 
         let clickProxy = {onClick: (e) => {
-                // 配置对象只能在触发事件内创建
-                let config = new Config(instance.value).build(props, context, router, funcConfig);
-                if(props.onClick instanceof Function) {
-                    return props.onClick({data: props.data, event: () => funcClickHandle(context, config)})
-                } else if(context != null) {
-                    // 透传执行结果(Promise): 供AI动作exec_func同步等待请求类功能(ajax等)的真实执行结果
-                    return funcClickHandle(context, config)
-                }else {
-                    console.warn(`无效的操作(需要自定义事件或者在指定的组件下面)`)
+                if(!props.disabled) {
+                    // 配置对象只能在触发事件内创建
+                    let config = new Config(instance.value).build(props, context, router, funcConfig);
+                    if(props.onClick instanceof Function) {
+                        return props.onClick({data: props.data, event: () => funcClickHandle(context, config)})
+                    } else if(context != null) {
+                        // 透传执行结果(Promise): 供AI动作exec_func同步等待请求类功能(ajax等)的真实执行结果
+                        return funcClickHandle(context, config)
+                    }else {
+                        console.warn(`无效的操作(需要自定义事件或者在指定的组件下面)`)
+                    }
+                } else {
+                    return Promise.reject("功能被禁用或无权限");
                 }
             }
         }
@@ -323,11 +325,7 @@ export const UFuncBtn = defineComponent({
     },
     methods: {
         trigger() {
-            if(!this.disabled) {
-                return this.clickProxy.onClick(null);
-            } else {
-                return Promise.reject("功能被禁用或无权限");
-            }
+            return this.clickProxy.onClick(null);
         },
         handleProps() {
             let type = CoreConsts.FuncBtnTypeMaps[this.funcPath[0]];

@@ -54,24 +54,24 @@
               <UTabs uid="attrConfigTabs" v-model:activeKey="attrActiveKey" size="small" type="card" @change="attrPaneChange"
                      tabBarExtraContent="属性值配置(适用于枚举、json、bit、group类型)以及属性的基础告警配置">
                 <UTabPane key="dict" tab="属性值配置">
-                  <UChildView uid="attrValue">
+<!--                  <UChildView uid="attrValue">-->
                     <UViewSearch v-model="attrDictSearchModel">
                       <UInputItem label="名称" field="dictName"/>
                       <UButton func="query" url="/iot/modelAttr/dict/view" ref="attrModelQueryRef">查询</UButton>
                       <UButton func="add" :disabled="attrDetailModel['id'] == null">新增</UButton>
                       <span style="color: rgba(168,168,168,0.44); font-size: 13px; height: 32px; line-height: 32px;">先保存数据后才能新增</span>
                     </UViewSearch>
-                    <UViewEditable :columns="attrComputeColumns" @edit="editModelAttrDict" :pagination="false" size="small" v-model:source="modelAttrDictList">
+                    <UViewEditable :columns="attrComputeColumns" @edit="editModelAttrDict" :pagination="false" size="small" position="top" v-model:source="modelAttrDictList">
                       <template #dictName="{record, editing}">
-                        <AInput v-if="attrDetailModel['dataType']!='json' && attrDetailModel['dataType']!='bit' && attrDetailModel['dataType'] != 'group'" placeholder="请输入名称" v-model:value="record['dictName']" size="small" :bordered="false" />
-                        <ASelect v-else v-model:value="record['dictValue']" size="small" :options="attrFieldOptions"
+                        <UInput v-if="attrDetailModel['dataType']!='json' && attrDetailModel['dataType']!='bit' && attrDetailModel['dataType'] != 'group'" placeholder="请输入名称" v-model:value="record['dictName']" size="small" :bordered="false" />
+                        <USelect v-else v-model:value="record['dictValue']" size="small" :options="attrFieldOptions"
                                  :bordered="false" placeholder="请选择属性" style="width: 100%" @change="(value, model) => attrFieldChange(value, model, record)"/>
                       </template>
                       <template #dictValue="{record, editing}">
-                        <AInput v-if="attrDetailModel['dataType']!='json' && attrDetailModel['dataType']!='bit' && attrDetailModel['dataType'] != 'group'" v-model:value="record['dictValue']" placeholder="请输入值" size="small" :bordered="false" />
+                        <UInput v-if="attrDetailModel['dataType']!='json' && attrDetailModel['dataType']!='bit' && attrDetailModel['dataType'] != 'group'" v-model:value="record['dictValue']" placeholder="请输入值" size="small" :bordered="false" />
                       </template>
                       <template #path="{record, editing}">
-                        <AInput v-model:value="record['path']" size="small" :bordered="false" placeholder="$.xx或比特位或值" />
+                        <UInput v-model:value="record['path']" size="small" :bordered="false" placeholder="$.xx或比特位或值" />
                       </template>
                       <template #action="{record, editing}">
                         <UTag func="edit" :data="record">修改</UTag>
@@ -80,10 +80,10 @@
                         <UTag func="del" :data="record" url="/iot/modelAttr/dict/del">删除</UTag>
                       </template>
                     </UViewEditable>
-                  </UChildView>
+<!--                  </UChildView>-->
                 </UTabPane>
                 <UTabPane key="warn" tab="告警/指标配置">
-                  <UChildView uid="warnConfig">
+<!--                  <UChildView uid="warnConfig">-->
                     <UViewEditable :columns="attrWarnColumns" @edit="editModelAttrWarn" :pagination="false" size="small" >
                       <template #title>
                         <UButton v-show="false" func="query" :url="`/iot/warnConfig/listByModelAttrId?modelAttrId=${attrDetailModel['id'] || ''}`" ref="attrWarnQueryRef">查询</UButton>
@@ -124,7 +124,7 @@
                         <UTag func="del" :data="record" url="/iot/warnConfig/del">删除</UTag>
                       </template>
                     </UViewEditable>
-                  </UChildView>
+<!--                  </UChildView>-->
                 </UTabPane>
               </UTabs>
             </template>
@@ -422,7 +422,7 @@ export default {
           return status;
         }
       }).map(item => {
-        return {label: item.name, value: item.id, field: item['field'], dataType: item['dataType']}
+        return {label: item.name, value: item.id + '', field: item['field'], dataType: item['dataType']}
       })
     });
     let attrValueColumns = ref([

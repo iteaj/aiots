@@ -37,6 +37,9 @@ export default defineComponent({
             getTableContext() {
               return props.tableContext;
             },
+            getLinkContext() {
+              return props.tableContext.getLinkContext();
+            },
             getInstance() {
                 return instance;
             }
