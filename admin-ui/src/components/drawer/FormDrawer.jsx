@@ -84,7 +84,9 @@ export default defineComponent({
         if(attrs['onUpdate:context'] instanceof Function) {
             attrs['onUpdate:context'](editContext);
         }
-        return {formRef, spinning, spinTip, visible, slotProxy, editContext, routerCall, linkContext}
+        // 完整路径uid(父上下文:自身), 用于data-uid脚本光标DOM定位
+        let fullUid = linkContext ? `${linkContext.uid}:${props.uid}` : props.uid;
+        return {formRef, spinning, spinTip, visible, slotProxy, editContext, routerCall, linkContext, fullUid}
     },
     render() {
         // 同步标题到上下文(页面骨架自描述: 编辑抽屉标题可能动态变化, 每次渲染保持最新)
@@ -98,7 +100,7 @@ export default defineComponent({
         }
 
         return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]}
-                {...this.$props} v-slots={this.slotProxy} getContainer=".u-page-view" ref="ADrawerRef">
+                {...this.$props} data-uid={this.fullUid} v-slots={this.slotProxy} getContainer=".u-page-view" ref="ADrawerRef">
             <ASpin size="small" description={this.spinTip} spinning={this.spinning}>
                 <UForm {...this.$attrs} ref="iemFormRef">
                     {this.$slots.default ? this.$slots.default({model, context}) : []}

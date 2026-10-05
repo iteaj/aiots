@@ -1,5 +1,5 @@
 <template>
-  <div class="u-search u-bs-search">
+  <div class="u-search u-bs-search" :data-uid="fullUid">
     <UForm class="u-search-form" ref="ivzBasicForm" layout="inline" v-model="modelValue">
       <template #default="{model}">
         <slot :model="model"></slot>
@@ -46,7 +46,9 @@ export default {
     if(attrs['onUpdate:context'] instanceof Function) {
       attrs['onUpdate:context'](searchContext);
     }
-    return {searchContext, modelValue}
+    // 完整路径uid(父上下文:自身), 用于data-uid脚本光标DOM定位
+    let fullUid = linkContext ? `${linkContext.uid}:${uid}` : uid;
+    return {searchContext, modelValue, fullUid}
   },
   created() {
     this.searchContext['getFormContext'] = this.getFormContext;

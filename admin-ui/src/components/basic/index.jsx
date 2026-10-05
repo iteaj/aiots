@@ -239,7 +239,7 @@ export const UFuncTag = defineComponent({
         let tagColor = this.disabledComputed ? '#d8d8d8' : this.tagColor;
         let disabledClass = this.disabledComputed ? 'iv-func-disabled' : 'iv-func-tag'
         return <ATag closable={false} class={disabledClass} class="u-func" variant={this.variant}
-                     color={tagColor} {...this.$attrs} onClick={this.clickProxy} v-slots={this.$slots} />
+                     color={tagColor} data-func={this.func.toLowerCase()} {...this.$attrs} onClick={this.clickProxy} v-slots={this.$slots} />
     },
     deactivated() {
         if(this['modalRef']) {
@@ -321,7 +321,7 @@ export const UFuncBtn = defineComponent({
     },
     render() {
         this.instance = this;
-        return <AButton {...this.handleProps()} disabled={this.disabled} v-slots={this.$slots} style="margin: 0px 3px" loading={this.loading} />
+        return <AButton {...this.handleProps()} disabled={this.disabled} data-func={this.func.toLowerCase()} v-slots={this.$slots} style="margin: 0px 3px" loading={this.loading} />
     },
     methods: {
         trigger() {

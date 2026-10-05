@@ -339,9 +339,11 @@ export default defineComponent({
         if(attrs['onUpdate:context'] instanceof Function) {
             attrs['onUpdate:context'](tableContext);
         }
+        // 完整路径uid(父上下文:自身), 用于data-uid脚本光标DOM定位
+        let fullUid = linkContext ? `${linkContext.uid}:${props.uid}` : props.uid;
         return {slotsRef, selectedRows, selectedRowKeys, onRow
             , unfoldRowKeys, loading, dataSourceRef, stickyRef, setSticky
-            , setDataSource, setLoading, setTotalRows, defResizeColumn, tableContext}
+            , setDataSource, setLoading, setTotalRows, defResizeColumn, tableContext, fullUid}
     },
     created() {
         this.tableContext['expanded'] = this.expanded;
@@ -359,7 +361,7 @@ export default defineComponent({
         initTableColumns(this.columns, this.slotsRef, {});
         let onResizeColumn = this.$attrs['onResizeColumn'] || this.defResizeColumn;
         return (
-            <div class="iv-basic-table">
+            <div class="iv-basic-table" data-uid={this.fullUid}>
                 {this.$slots['func'] ? <TableFuncHeader columns={this.columns} func={this.func} tableContext={this.tableContext} v-slots={this.$slots}/> : ''}
                 <ATable {...this.$attrs} columns={this.columns} ref="ATableRef" sticky={this.stickyRef}
                     loading={this.loading} dataSource={this.dataSourceRef} size={this.size} bordered={this.bordered}

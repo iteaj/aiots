@@ -53,7 +53,10 @@ export default defineComponent({
         if(attrs['onUpdate:context'] instanceof Function) {
             attrs['onUpdate:context'](visibleContext);
         }
-        return {formRef, spinning, spinTip, visible, routerCall, linkContext, visibleContext}
+
+        // 完整路径uid(父上下文:自身), 用于data-uid脚本光标DOM定位
+        let fullUid = linkContext ? `${linkContext.uid}:${props.uid}` : props.uid;
+        return {formRef, spinning, spinTip, visible, routerCall, linkContext, visibleContext, fullUid}
     },
     render() {
         // 同步标题到上下文(页面骨架自描述: 抽屉标题可能动态变化, 每次渲染保持最新)
@@ -61,7 +64,7 @@ export default defineComponent({
         // 纯弹框: 不承载ULinkView内容容器, 只提供可见性上下文(VisibleContext)与provide链;
         // 弹框内容注册域=所在视图容器(ULinkView, 由UView/UChildView/UModalView/UDrawerView提供),
         // 需要独立内容域时使用UModalView/UDrawerView(其default插槽内置ULinkView承载容器)
-        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]} {...this.$props} v-slots={this.$slots}/>)
+        return(<ADrawer v-model={[this.visible, 'open', ["modifier"]]} {...this.$props} data-uid={this.fullUid} v-slots={this.$slots}/>)
     },
     mounted() {
         this.routerCall = this.$router.beforeEach((from, to, next) => {

@@ -94,7 +94,9 @@ export default defineComponent({
         let paneChange = (key) => {
             emit('change', key);
         };
-        return {keyUpdate, paneChange, tabContext}
+        // 完整路径uid(父上下文:自身), 用于data-uid脚本光标DOM定位
+        let fullUid = linkContext ? `${linkContext.uid}:${props.uid}` : props.uid;
+        return {keyUpdate, paneChange, tabContext, fullUid}
     },
     render() {
         let paneDecls = {};
@@ -144,7 +146,7 @@ export default defineComponent({
         let tabSlots = {...this.$slots};
         // 面板内容已并入items(UTabPane通道), 默认插槽不再透传a-tabs避免legacy双通道; items通道的contentRender等具名插槽照常透传
         delete tabSlots.default;
-        return <ATabs {...this.$attrs} activeKey={this.activeKey} items={mergedItems || this.items}
+        return <ATabs {...this.$attrs} data-uid={this.fullUid} activeKey={this.activeKey} items={mergedItems || this.items}
                       onUpdate:activeKey={this.keyUpdate} onChange={this.paneChange} v-slots={tabSlots}/>
     }
 })

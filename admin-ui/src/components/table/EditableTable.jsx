@@ -152,7 +152,6 @@ function initTableColumns(columns, slots, rowKey, editRowData, initRow, config) 
         if(!column['__init']) {
             column['__init'] = true;
             initColumn(column, slots, config);
-            initMetaValue(column['dataIndex'], initRow, null)
             if ((column['__slot'] || column['__editableSlot']) && !slots['bodyCell']) {
                 slots['bodyCell'] = (args) => {
                     let tempColumn = args.column;
@@ -185,6 +184,10 @@ function initTableColumns(columns, slots, rowKey, editRowData, initRow, config) 
                     }
                 }
             }
+        }
+
+        if(column.editable === true && column.type !== 'action') {
+            initMetaValue(column['dataIndex'], initRow, null)
         }
     })
     return slots;
@@ -464,9 +467,11 @@ export default defineComponent({
         if(attrs['onUpdate:context'] instanceof Function) {
             attrs['onUpdate:context'](tableContext);
         }
+        // 完整路径uid(父上下文:自身), 用于data-uid脚本光标DOM定位
+        let fullUid = linkContext ? `${linkContext.uid}:${props.uid}` : props.uid;
         return {slotsRef, selectedRows, selectedRowKeys, editRowData, onRow
             , unfoldRowKeys, loading, dataSourceRef, stickyRef, setSticky, isEditRow
-            , setDataSource, setLoading, setTotalRows, defResizeColumn, tableContext}
+            , setDataSource, setLoading, setTotalRows, defResizeColumn, tableContext, fullUid}
     },
     created() {
         this.tableContext['expanded'] = this.expanded;
@@ -484,7 +489,7 @@ export default defineComponent({
 
         let onResizeColumn = this.$attrs['onResizeColumn'] || this.defResizeColumn;
         return (
-            <div class="iv-editable-table">
+            <div class="iv-editable-table" data-uid={this.fullUid}>
                 {this.$slots['func'] ? <TableFuncHeader columns={this.columns} func={this.func} tableContext={this.tableContext} v-slots={this.$slots}/> : ''}
                 <ATable {...this.$attrs} columns={this.columns} ref="ATableRef" sticky={this.stickyRef}
                         loading={this.loading} dataSource={this.dataSourceRef} size={this.size} bordered={this.bordered}

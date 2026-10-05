@@ -846,6 +846,7 @@ export default {
           this.$msg.warning("名称不允许重复"); return;
         }
       }
+      record['dictValue'] = value;
       record['attrField'] = model['field'];
       record['dictName'] = model['label'];
       record['dataType'] = model['dataType'];

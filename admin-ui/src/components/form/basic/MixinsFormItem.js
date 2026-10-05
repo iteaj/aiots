@@ -79,7 +79,7 @@ export default defineComponent({
             return {...this.$props, name: this.namePath, style: null, class: null, onChange: null, onSelect: null}
         },
         getColProps() {
-            return {...this.$attrs, ...this.colConfig};
+            return {...this.$attrs, ...this.colConfig, 'data-field': this.field || this.namePath.join('.')};
         },
         getFormAttrs(options) {
             if(this.attrs) {

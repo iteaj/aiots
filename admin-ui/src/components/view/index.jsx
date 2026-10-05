@@ -40,7 +40,7 @@ export const UViewDrawer = defineComponent({
     components: {UFormDrawer},
     render() {
         return <div class="u-view-drawer">
-            <UFormDrawer {...this.$attrs}  uid={CoreConsts.DefaultEditUid} v-slots={this.$slots} />
+            <UFormDrawer {...this.$attrs} uid={CoreConsts.DefaultEditUid} v-slots={this.$slots} />
         </div>
     }
 })

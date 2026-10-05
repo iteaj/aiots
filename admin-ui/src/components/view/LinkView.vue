@@ -1,5 +1,5 @@
 <template>
-  <div class="u-link-view u-child-view">
+  <div class="u-link-view u-child-view" :data-uid="uid">
     <slot></slot>
   </div>
 </template>

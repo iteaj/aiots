@@ -68,7 +68,9 @@ export default defineComponent({
     if(attrs['onUpdate:context'] instanceof Function) {
       attrs['onUpdate:context'](editContext);
     }
-    return {formRef, refs, spinning, spinTip, visible, labelCol, wrapperCol, editContext, linkContext}
+    // 完整路径uid(父上下文:自身), 用于data-uid脚本光标DOM定位
+    let fullUid = linkContext ? `${linkContext.uid}:${props.uid}` : props.uid;
+    return {formRef, refs, spinning, spinTip, visible, labelCol, wrapperCol, editContext, linkContext, fullUid}
   },
   render() {
     // 同步标题到上下文(页面骨架自描述: 编辑弹框标题可能动态变化, 每次渲染保持最新)
@@ -87,7 +89,7 @@ export default defineComponent({
       footer: () => this.$slots.footer ? this.$slots.footer({model, context}) : null
     }
 
-    return <AModal v-model={[this.visible, 'open', ["modifier"]]} {...this.$props} v-slots={slots} ref="iemRef">
+    return <AModal v-model={[this.visible, 'open', ["modifier"]]} {...this.$props} wrapProps={{'data-uid': this.fullUid}} v-slots={slots} ref="iemRef">
       <ASpin size="small" description={this.spinTip} spinning={this.spinning}>
         <UForm {...this.$attrs} labelCol={this.labelCol} wrapperCol={this.wrapperCol} ref="iemFormRef">
           {this.$slots.default ? this.$slots.default({model, context}) : []}
