@@ -75,8 +75,6 @@ role: 平台使用指导
 | 网络组件配置      | [network-component.md](./references/network-component.md) | 通信链路配置（TCP/UDP/MQTT），网关挂载 |
 | 产品配置与物模型    | [product-config.md](./references/product-config.md) | 产品创建、物模型属性/容器类型/字典、功能模型、事件模型、计算属性、控制状态 |
 | Modbus 物模型配置  | [model-config-modbus.md](./references/model-config-modbus.md) | Modbus TCP/RTU 驱动支持的指令、上下行配置项、网关/子设备配置参数 |
-| PLC 物模型配置     | [model-config-plc.md](./references/model-config-plc.md) | 西门子/欧姆龙/三菱/松下/汇川/罗克韦尔 PLC 共用的指令集，各品牌网关配置差异 |
-| OPC UA 物模型配置  | [model-config-opcua.md](./references/model-config-opcua.md) | OPC UA 驱动支持的指令、上下行配置、节点地址配置 |
 | MQTT 物模型配置    | [model-config-mqtt.md](./references/model-config-mqtt.md) | MQTT 发布/订阅的指令与上下行配置、主题占位符说明 |
 | DTU Modbus 透传    | [model-config-dtu-modbus.md](./references/model-config-dtu-modbus.md) | DTU+Modbus TCP/RTU/MQTT 透传的指令集与网关配置 |
 | DTU 私有协议       | [model-config-dtu-private.md](./references/model-config-dtu-private.md) | DTU 私有协议的读/写指令、数据格式配置 |
@@ -86,7 +84,5 @@ role: 平台使用指导
 | 告警中心        | [alert-center.md](./references/alert-center.md) | 告警配置、告警模板、告警记录 |
 | 事件规则        | [event-rules.md](./references/event-rules.md) | 采集器（按频率采集）、执行器（定时触发配合场景联动）、场景联动规则 |
 | 数据可视化       | [data-visualization.md](./references/data-visualization.md) | 组态大屏、官方大屏、大屏素材 |
-| 脚本引擎        | [script-engine.md](./references/script-engine.md) | 数据过滤、数据解析、联动脚本（含代码示例和工业场景） |
 | 设备维护        | [device-debug.md](./references/device-debug.md) | 设备调试步骤 |
-| 北向接入        | [northbound-access.md](./references/northbound-access.md) | 开放平台 API、数据转发（Kafka/MQTT/HTTP） |
 | 模拟场景搭建      | [simulation-env.md](./references/simulation-env.md) | 无设备时创建完整模拟工厂，用于评估和演示 |
