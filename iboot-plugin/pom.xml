@@ -27,17 +27,10 @@
         <!--国标gb28181模块-->
         <module>iboot-gb28181</module>
         <module>iboot-amqp</module>
-        <!--乐吾乐在线大屏(组态、3D)-->
-        <module>iboot-le5le</module>
         <!--多数据源-->
         <module>iboot-datasource</module>
-        <!--北向接入-->
-        <module>iboot-open</module>
-        <!--脚本插件-->
-        <module>iboot-script</module>
         <!--大屏/组态插件-->
         <module>iboot-iotview</module>
-        <module>iboot-edge</module>
         <!--ai模块-->
         <module>iboot-ai</module>
         <!--社交登录插件（微信、支付宝等）-->
