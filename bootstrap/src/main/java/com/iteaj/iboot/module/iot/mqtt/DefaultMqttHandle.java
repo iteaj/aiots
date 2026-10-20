@@ -5,7 +5,6 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONPath;
 import com.alibaba.fastjson2.util.DateUtils;
-import com.iteaj.framework.script.CalcAttrScriptMethodProvide;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
@@ -184,7 +183,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
             dataSupplier.setValues(fieldValues).setCollectTime(finalDate);
 
             // 执行计算脚本
-            CalcAttrScriptMethodProvide.invokeCalcScript(dataSupplier, device);
+//            CalcAttrScriptMethodProvide.invokeCalcScript(dataSupplier, device);
 
             IotCoreApiService.publish(dataSupplier, device, RealtimePayload.TYPE_DATA_ACTIVE);
         });

@@ -108,62 +108,6 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
     }
 
     @Override
-    public IndicatorStats statsOfField(String uid, Long fieldId, String start, String end) {
-        return this.baseMapper.statsOfField(uid, fieldId, start, end);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<RealtimeCollectData> listOfData(String uid, Long fieldId, String start, String end) {
-        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.listOfData(uid, fieldId, start, end);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<RealtimeCollectData> associatedPoints(String uid, Long excludeFieldId, String collectTime) {
-        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.associatedPoints(uid, excludeFieldId, collectTime);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<RealtimeCollectData> crossDevicePoints(String productCode, Long fieldId, String collectTime, String excludeUid) {
-        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.crossDevicePoints(productCode, fieldId, collectTime, excludeUid);
-    }
-
-    @Override
-    public RealtimeCollectData getSourcePoint(String uid, Long fieldId, String collectTime) {
-        return this.baseMapper.selectOne(new LambdaQueryWrapper<CollectData>()
-                .eq(CollectData::getUid, uid)
-                .eq(CollectData::getFieldId, fieldId)
-                .eq(CollectData::getCollectTime, collectTime)
-                .last("LIMIT 1"));
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<RealtimeCollectData> listByCid(String cid, String excludeUid, Long excludeFieldId, String grade) {
-        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.listByCid(cid, excludeUid, excludeFieldId, grade);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<RealtimeCollectData> listByPuidOrGroup(String puid, Long deviceGroupId, Date startTime, Date endTime, String excludeUid, Long excludeFieldId, String grade) {
-        return (List<RealtimeCollectData>)(List<?>) this.baseMapper.listByPuidOrGroup(puid, deviceGroupId, startTime, endTime, excludeUid, excludeFieldId, grade);
-    }
-
-    @Override
-    public Page<?> listIndicatorOfPage(Page<?> page, RealtimeDataParam param) {
-        if(param.getStartTimestamp() != null) {
-            param.setStartTime(DateUtil.formatDateTime(new Date(param.getStartTimestamp())));
-        }
-
-        if(param.getEndTimestamp() != null) {
-            param.setEndTime(DateUtil.formatDateTime(new Date(param.getEndTimestamp())));
-        }
-        return this.baseMapper.listIndicatorOfPage(page, param);
-    }
-
-    @Override
     public List<BaseEchartsCount> countLastMonth() {
         Map<String, BaseEchartsCount> map = new HashMap<>();
         List<BaseEchartsCount> dtos = this.getBaseMapper().countLastByDays(29);
