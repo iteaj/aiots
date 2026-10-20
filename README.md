@@ -1,11 +1,12 @@
 ### aiots(工业物联网开发平台)
-aiots是基于java21+、springboot3.5.x.、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc、dlt645-2007、opcua，实现的plc包括西门子、欧姆龙、三菱、松下、汇川、罗克韦尔
-- [开发文档](http://doc.iteaj.com)
+aiots是基于java21+、springboot3.5.x.、netty等框架开发的ai+物联网开发平台，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc、dlt645-2007、opcua，实现的plc包括西门子、欧姆龙、三菱、松下、汇川、罗克韦尔
+- [官网](https://www.iteaj.com)
+- [开发文档](https://doc.iteaj.com)
 - [商业版演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://vip.iteaj.com/#/login)
 ### 加入社区
-> 加群申请请备注: iot
-
-QQ3群 - 272518000 <br>
+> 加群申请请备注: iot <br>
+QQ4群 - 696454214 <br>
+QQ3群 - 272518000 (已满)<br>
 QQ2群 - 616124620 (已满)<br>
 QQ1群 - 552167793 (已满)<br>
 ### 商务合作(qq号：97235681)
