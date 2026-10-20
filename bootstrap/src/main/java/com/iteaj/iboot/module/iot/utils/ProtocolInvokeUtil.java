@@ -2,7 +2,6 @@ package com.iteaj.iboot.module.iot.utils;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.script.*;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
 import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
@@ -17,7 +16,6 @@ import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
-import com.iteaj.framework.script.ScriptCmdMethodsProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,33 +72,12 @@ public class ProtocolInvokeUtil {
                 param.addParam(item.getProtocolAttrField(), item.getAttrDefaultValue());
             } else if(trimValue.startsWith("#script:")) { // 功能脚本引用
                 param.addConfig("protocolAttrField", item.getProtocolAttrField());
-                invokeScript(param, trimValue.substring(1), item);
             } else {
                 param.addParam(item.getProtocolAttrField(), item.getValue());
             }
         } else if(attrValue.startsWith("#script:")) { // 功能脚本引用
             param.addConfig("protocolAttrField", item.getProtocolAttrField());
-            invokeScript(param, attrValue.substring(1), item);
         }
-    }
-
-    public static void invokeScript(ProtocolModelApiInvokeParam param, String scriptName, ModelApiConfig api) {
-        final FunctionScript script = ScriptConfigService.instance.getScript(scriptName);
-
-        final ScriptConfig scriptConfig = ScriptConfigService.instance.getScriptConfig(script);
-        if(scriptConfig == null) {
-            throw new ServiceException("未找到脚本实现[" + scriptName + "->" + script.getLanguage() + "]");
-        }
-
-        try {
-            ScriptManager.exec(script.getLanguage(), ScriptContext.build(script.getKey(), scriptConfig.getScript(), scriptConfig.getInvoke())
-                    .addParam("data", param).addParam("methods", ScriptCmdMethodsProvider.INSTANCE));
-        } catch (Exception e) {
-            ScriptCmdMethodsProvider.INSTANCE.error(param.getUid(), "执行{}功能脚本异常({}) - 绑定属性: {} - 接口: {}"
-                    , script.getName(), scriptConfig.getLanguage(), api.getProtocolAttrField(), api.getApiCode(), e);
-            throw e;
-        }
-
     }
 
     private static void initInvokeConfig(ProtocolModelApiInvokeParam param, RealtimeStatus device, ModelApi api) {

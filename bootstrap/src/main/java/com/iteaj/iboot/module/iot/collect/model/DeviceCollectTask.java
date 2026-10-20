@@ -3,9 +3,7 @@ package com.iteaj.iboot.module.iot.collect.model;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.script.CalcAttrScriptMethodProvide;
 import com.iteaj.framework.spi.iot.*;
-import com.iteaj.framework.spi.iot.data.IModelAttrRealtimeDataService;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -149,7 +147,7 @@ public class DeviceCollectTask implements Runnable {
     protected void dataPublish(CollectInfo.DeviceInfo deviceInfo, RealtimeStatus device) {
         if(CollectionUtil.isNotEmpty(deviceInfo.getSupplier().getValues())) {
             // 调用计算脚本
-            CalcAttrScriptMethodProvide.invokeCalcScript(deviceInfo.getSupplier(), device);
+//            CalcAttrScriptMethodProvide.invokeCalcScript(deviceInfo.getSupplier(), device);
 
             // 发布设备采集事件
             CollectListenerManager.getInstance().eventGroupPublish(item -> {

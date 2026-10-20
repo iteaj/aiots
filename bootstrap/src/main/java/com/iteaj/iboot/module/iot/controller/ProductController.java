@@ -5,13 +5,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
-import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.script.CalcAttrScriptMethodProvide;
-import com.iteaj.framework.script.FunctionScript;
-import com.iteaj.framework.script.ScriptComplete;
-import com.iteaj.framework.script.ScriptConfigService;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.*;
@@ -47,13 +42,10 @@ public class ProductController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IProductService productService;
-    private final ScriptConfigService scriptConfigService;
 
-    public ProductController(IDeviceService deviceService, IProductService productService
-            , @Autowired(required = false) ScriptConfigService scriptConfigService) {
+    public ProductController(IDeviceService deviceService, IProductService productService) {
         this.deviceService = deviceService;
         this.productService = productService;
-        this.scriptConfigService = scriptConfigService;
     }
 
     /**
@@ -219,51 +211,6 @@ public class ProductController extends BaseController {
     @PostMapping("batchModelDel")
     public Result<Boolean> batchModelDel(@RequestBody BatchModelDto entity) {
         return this.productService.delBatchModel(entity.getId(), entity.getApiCode());
-    }
-    /**
-     * 新增或者更新批量模型记录
-     * @return
-     */
-    @GetMapping("scripts")
-    public Result<List<IVOption>> scripts() {
-        final List<FunctionScript> modelApiScripts = scriptConfigService.getScriptByType("model_api");
-        if(modelApiScripts != null) {
-            final List<IVOption> ivOptions = modelApiScripts.stream()
-                    .map(item -> new IVOption(item.getName(), item.getKey()))
-                    .collect(Collectors.toList());
-            return success(ivOptions);
-        }
-
-        return success(Collections.EMPTY_LIST);
-    }
-
-    /**
-     * 更新产品计算脚本
-     * @param entity 产品计算脚本
-     * @return 更新状态
-     */
-    @Logger("更新产品计算脚本")
-    @PostMapping("updateCalcScript")
-    public Result<Boolean> updateCalcScript(@RequestBody Product entity) {
-        this.productService.getById(entity.getId()).ifNotPresentThrow("产品不存在")
-                .ifPresent(product -> {
-            if(product.getStatus() == FuncStatus.enabled) {
-                throw new ServiceException("请先停用产品");
-            }
-        });
-
-        return this.productService.update(Wrappers.<Product>lambdaUpdate()
-                .set(Product::getConfig, entity.getConfig())
-                .eq(Product::getId, entity.getId())).setMessage("更新成功");
-    }
-
-    /**
-     * 计算脚本方法列表
-     * @return 计算脚本方法列表
-     */
-    @GetMapping("calcScriptMethods")
-    public Result<List<ScriptComplete>> calcScriptMethods() {
-        return success(CalcAttrScriptMethodProvide.getCompletions());
     }
 
     /**
