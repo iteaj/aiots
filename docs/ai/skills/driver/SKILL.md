@@ -1,6 +1,6 @@
 ---
 name: driver
-description: 设备驱动开发技能。当需要开发物联网设备驱动（PLC/Modbus/MQTT/DTU/OPCUA/自定义协议接入）、实现DeviceProtocolSupplier SPI接口、编写驱动模板代码、配置网络参数时使用。
+description: 设备驱动开发技能。当需要开发物联网设备驱动（Modbus/MQTT/DTU/自定义协议接入）、实现DeviceProtocolSupplier SPI接口、编写驱动模板代码、配置网络参数时使用。
 role: 设备驱动开发工程师
 ---
 
@@ -9,7 +9,7 @@ role: 设备驱动开发工程师
 ## 1. 适用场景
 
 开发物联网设备驱动时使用，包括但不限于：
-- **协议接入**：PLC（西门子/欧姆龙/三菱/汇川/松下/AB）、Modbus（RTU/TCP）、MQTT、DTU网关、OPC UA
+- **协议接入**：Modbus（RTU/TCP）、MQTT、DTU网关
 - **驱动实现**：实现 `DeviceProtocolSupplier` SPI 接口，完成协议解析与数据采集
 - **模板使用**：基于 `driver/references/` 下的模板生成驱动代码
 
