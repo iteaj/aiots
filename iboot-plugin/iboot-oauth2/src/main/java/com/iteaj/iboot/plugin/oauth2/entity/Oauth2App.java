@@ -5,6 +5,8 @@ import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.Entity;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @TableName("oauth2_app")
 public class Oauth2App extends BaseEntity {
@@ -15,14 +17,19 @@ public class Oauth2App extends BaseEntity {
     private String clientId;
 
     /**
+     * 管理员账号
+     */
+    private String adminAccount;
+
+    /**
      * 应用密钥
      */
     private String clientSecret;
 
     /**
-     * 应用状态(1.启用 2.禁用)
+     * 应用状态
      */
-    private Integer status;
+    private Boolean status;
 
     /**
      * 签约权限(多个逗号隔开)
@@ -42,7 +49,7 @@ public class Oauth2App extends BaseEntity {
     /**
      * 应用简称
      */
-    private String abbreviate;
+//    private String abbreviate;
 
     /**
      * 备注
@@ -72,5 +79,5 @@ public class Oauth2App extends BaseEntity {
     /**
      * 创建时间
      */
-    private String createTime;
+    private Date createTime;
 }

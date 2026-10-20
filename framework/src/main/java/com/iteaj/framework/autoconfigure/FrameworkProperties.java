@@ -2,6 +2,8 @@ package com.iteaj.framework.autoconfigure;
 
 import com.iteaj.framework.captcha.CaptchaType;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.io.File;
@@ -17,6 +19,12 @@ public class FrameworkProperties {
      * 当前系统访问地址,不包含uri (http://www.iteaj.com)
      */
     private String domain;
+
+
+    /**
+     * 文件服务器地址
+     */
+    private String fileServerDomain;
 
     /**
      * 是否启用集群模式
@@ -34,6 +42,16 @@ public class FrameworkProperties {
     private Web web = new Web();
 
     /**
+     * 采集调度配置
+     */
+    private CollectTask task = new CollectTask();
+
+    /**
+     * 数据采集调度
+     */
+    private CollectScheduling scheduling = new CollectScheduling();
+
+    /**
      * 启用的模块
      * 配置格式如下：<hr>
      *     framework.profiles.core=true
@@ -45,6 +63,15 @@ public class FrameworkProperties {
      * 校验码配置
      */
     private CaptchaConfig captcha = new CaptchaConfig();
+
+    public String getFileUrl(String uri) {
+        String fileBaseUrl = getFileServerDomain();
+        if(fileBaseUrl.endsWith("/")) {
+            fileBaseUrl = fileBaseUrl.substring(0, fileBaseUrl.length() - 1);
+        }
+
+        return String.format("%s%s", fileBaseUrl, uri);
+    }
 
     @Data
     public static class Web {
@@ -125,5 +152,54 @@ public class FrameworkProperties {
         private long expire = 1 * 60;
 
         private CaptchaType type = CaptchaType.Math;
+    }
+
+    /**
+     * 采集任务配置
+     */
+    @Getter
+    @Setter
+    public static class CollectTask {
+        /**
+         * 核心线程池大小
+         */
+        private Integer poolSize = 8;
+
+        /**
+         * 最大线程池大小
+         */
+        private Integer maxPoolSize = 16;
+
+        /**
+         * 线程池前缀
+         */
+        private String threadNamePrefix = "ICT-";
+
+        /**
+         * 是否启用虚拟线程(true)
+         */
+        private boolean virtualThread = true;
+
+        /**
+         * 并发限制
+         */
+        private Integer concurrencyLimit;
+    }
+
+    /**
+     * 采集任务调度
+     */
+    @Getter
+    @Setter
+    public static class CollectScheduling {
+        /**
+         * 核心线程池大小
+         */
+        private Integer poolSize = 3;
+
+        /**
+         * 线程池前缀
+         */
+        private String threadNamePrefix = "ICS-";
     }
 }

@@ -1,8 +1,9 @@
 package com.iteaj.iboot.module.iot.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
+import com.iteaj.iboot.module.iot.consts.WarnGrade;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,30 +14,7 @@ import java.util.*;
 @Setter
 public class EMapDetailDto {
 
-    /**
-     * 控制api
-     */
-    private ModelApi ctrlApi;
-
-    /**
-     * 控制api的属性值
-     */
-    private Object ctrlAttrValue;
-
-    /**
-     * 控制api的属性选项
-     */
-    private List<IVOption> ctrlAttrs = new ArrayList<>();
-
-    /**
-     * 物模型功能接口
-     */
-    private List<ModelApi> funcApis;
-
-    /**
-     * 物模型事件接口
-     */
-    private List<ModelApi> eventApis;
+    private DeviceDto device;
 
     /**
      * 模型属性列表
@@ -62,9 +40,8 @@ public class EMapDetailDto {
         return this;
     }
 
-    public EMapDetailDto addCtrlAttr(String name, String value) {
-        ctrlAttrs.add(new IVOption(name, value));
-        return this;
+    public EMapDetailDto addWarn(String field, WarnGrade grade, String content, Date warnTime) {
+        this.warns.add(new Warn(field, grade.getDesc(), content, warnTime)); return this;
     }
 
     @Getter
@@ -94,7 +71,7 @@ public class EMapDetailDto {
         /**
          * 采集时间
          */
-        @JsonFormat(pattern = "MM-dd HH:mm:ss")
+        @JSONField(format = "yyyy-MM-dd HH:mm:ss")
         private Date collectTime;
 
         private CollectStatus status;
@@ -122,6 +99,8 @@ public class EMapDetailDto {
     @Setter
     public class Warn {
 
+        private String field;
+
         /**
          * 告警等级
          */
@@ -132,11 +111,12 @@ public class EMapDetailDto {
          */
         private String content;
 
-        @JsonFormat(pattern = "yy-MM-dd HH:mm:ss")
+        @JSONField(format = "yy-MM-dd HH:mm:ss")
         private Date warnTime;
 
-        public Warn(String grade, String content, Date warnTime) {
+        public Warn(String field, String grade, String content, Date warnTime) {
             this.grade = grade;
+            this.field = field;
             this.content = content;
             this.warnTime = warnTime;
         }

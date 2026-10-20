@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.iot;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.consts.ConstConfig;
 import lombok.Data;
@@ -91,7 +91,6 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
          */
         private Long writeIdle;
 
-        @JsonIgnore
         public static ParamMeta[] tcpMetas = new ParamMeta[]{
             ParamMeta.buildRequired("host", "主机", "客户端不校验(跟随设备)", "0.0.0.0"),
             ParamMeta.buildRequiredNumber("port", "端口", 8168, "必须是[1-65535]的整数"),
@@ -148,7 +147,28 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
         }
 
         public static ParamMeta[] serialMetas = new ParamMeta[]{
+            ParamMeta.buildRequiredSelect("baudRate", "波特率", "9600", ""
+                    , new IVOption("1200", "1200"), new IVOption("2400", "2400")
+                    , new IVOption("4800", "4800"), new IVOption("9600", "9600")
+                    , new IVOption("14400", "14400"), new IVOption("19200", "19200")
+                    , new IVOption("38400", "38400"), new IVOption("56000", "56000")
+                    , new IVOption("57600", "57600"), new IVOption("115200", "115200")).setPlaceholder("请输入波特率"),
 
+            ParamMeta.buildRequiredSelect("dataBits", "数据位", "8", ""
+                    , new IVOption("5", "5"), new IVOption("6", "6")
+                    , new IVOption("7", "7"), new IVOption("8", "8")).setPlaceholder("请输入数据位"),
+
+            ParamMeta.buildRequiredSelect("parity", "校验位", "0", ""
+                    , new IVOption("无", "0")
+                    , new IVOption("奇校验", "1"), new IVOption("偶校验", "2")
+                    , new IVOption("标记校验", "3"), new IVOption("空格校验", "4")).setPlaceholder("请输入校验位"),
+
+            ParamMeta.buildRequiredSelect("stopBits", "停止位", "1", ""
+                    , new IVOption("1", "1")
+                    , new IVOption("1.5", "2")
+                    , new IVOption("2", "3")).setPlaceholder("请输入停止位"),
+
+            ParamMeta.buildRequiredNumber("readIdle", "读超时时间(秒)", 5, "读超时时间"),
         };
     }
 

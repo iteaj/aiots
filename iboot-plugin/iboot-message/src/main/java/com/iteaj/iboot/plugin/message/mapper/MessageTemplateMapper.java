@@ -3,6 +3,7 @@ package com.iteaj.iboot.plugin.message.mapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.spi.message.SendTemplate;
+import com.iteaj.iboot.plugin.message.dto.WarnMessageTemplate;
 import com.iteaj.iboot.plugin.message.entity.MessageTemplate;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -20,6 +21,10 @@ import java.util.List;
 public interface MessageTemplateMapper extends BaseMapper<MessageTemplate> {
 
     SendTemplate getTemplateById(Serializable id);
+
+    WarnMessageTemplate getWarnTemplateByWarnTempId(Long warnTempId, String uid);
+
+    WarnMessageTemplate getWarnTemplateByWarnConfigId(Long warnConfigId, String uid);
 
     List<IVOption> listAccepts();
 

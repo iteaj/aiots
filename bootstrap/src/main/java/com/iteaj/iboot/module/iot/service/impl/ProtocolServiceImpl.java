@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.io.File;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -149,6 +151,7 @@ public class ProtocolServiceImpl extends BaseServiceImpl<ProtocolMapper, Protoco
                         .setType(api.getType())
                         .setFuncType(FuncType.R)
                         .setRemark(api.getRemark())
+                        .setProtocol(api.isProtocol())
                         .setTriggerMode(api.getTriggerMode());
 
                 // 功能类型

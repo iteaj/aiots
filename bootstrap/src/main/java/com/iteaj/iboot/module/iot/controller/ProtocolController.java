@@ -72,7 +72,6 @@ public class ProtocolController extends BaseController {
 
     /**
      * 获取协议列表
-     * @return
      */
     @GetMapping("/list")
     public Result<List<Protocol>> list(Protocol entity) {
@@ -91,7 +90,7 @@ public class ProtocolController extends BaseController {
 
     /**
     * 新增或者更新记录
-    * @param entity
+    * @param entity 协议实体
     */
     @PostMapping("/saveOrUpdate")
     @Logger("新增或者更新报文协议记录")
@@ -103,7 +102,7 @@ public class ProtocolController extends BaseController {
 
     /**
     * 删除指定记录
-    * @param idList
+    * @param idList 记录id列表
     */
     @PostMapping("/del")
     @Logger("删除报文协议记录")
@@ -114,8 +113,7 @@ public class ProtocolController extends BaseController {
 
     /**
      * 导入Jar协议
-     * @param file
-     * @return
+     * @param file jar文件
      */
     @Logger("导入Jar协议")
     @PostMapping("loadProtocol")
@@ -133,9 +131,9 @@ public class ProtocolController extends BaseController {
             protocol.getFile().delete();
             return fail("未包含任务协议");
         }
-        DeviceProtocolSupplier protocolSupplier = load.get(0);
+        DeviceProtocolSupplier<?, ?> protocolSupplier = load.get(0);
         ProtocolModel protocolModel = protocolSupplier.getProtocol();
-        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolModel.getCode());
+        DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(protocolModel.getCode());
         if(supplier != null) {
             if(supplier.getVersion().equals(protocolSupplier.getVersion())) {
                 return fail("已存在相同版本的协议");
@@ -151,8 +149,7 @@ public class ProtocolController extends BaseController {
 
     /**
      * 获取协议详情
-     * @param id
-     * @return
+     * @param id 协议id
      */
     @GetMapping("detail")
     public Result<ProtocolDto> detail(Long id) {
@@ -161,7 +158,6 @@ public class ProtocolController extends BaseController {
 
     /**
      * 协议实现方式列表
-     * @return
      */
     @GetMapping("implModes")
     public Result<List<IVOption>> implModes() {
@@ -170,7 +166,6 @@ public class ProtocolController extends BaseController {
 
     /**
      * 操控方式列表
-     * @return
      */
     @GetMapping("ctrlModes")
     public Result<List<IVOption>> ctrlModes() {
@@ -181,7 +176,6 @@ public class ProtocolController extends BaseController {
      * 获取协议对应的api列表
      * @param id 协议id
      * @param type 接口类型
-     * @return
      */
     @GetMapping("apis")
     public Result<List<ProtocolApi>> apis(Long id, ProtocolApiType type) {
@@ -207,7 +201,6 @@ public class ProtocolController extends BaseController {
 
     /**
      * 系统内置协议列表
-     * @return
      */
     @GetMapping("internals")
     public Result<List<IVOption>> internals() {
@@ -237,7 +230,6 @@ public class ProtocolController extends BaseController {
      * 获取产品对应协议的额外配置列表
      * @param productId 产品id
      * @param type 可选值(gateway、network)
-     * @return
      */
     @GetMapping("listProtocolConfigByProductId")
     public Result<ParamMeta[]> listProtocolConfigMetas(Long productId, String type) {
@@ -254,7 +246,6 @@ public class ProtocolController extends BaseController {
      * 获取协议额外配置列表
      * @param protocolCode 协议代码
      * @param type 可选值(gateway、network)
-     * @return
      */
     @GetMapping("listProtocolConfig")
     public Result<ParamMeta[]> listProtocolConfigMetas(String protocolCode, String type) {
@@ -265,7 +256,7 @@ public class ProtocolController extends BaseController {
             return fail("未指定参数[protocolCode]");
         }
 
-        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
+        DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(protocolCode);
         if(supplier == null) {
             return fail("找不到协议[protocolCode="+protocolCode+"]");
         }
@@ -274,7 +265,7 @@ public class ProtocolController extends BaseController {
             return success(supplier.getNetworkConfig());
         } else if(type.equals("gateway")) {
             return success(supplier.getGatewayConfig());
-        } else if(type.equals("child")) {
+        } else if(type.equals("child") || type.equals("direct")) {
             return success(supplier.getDeviceConfig());
         } else {
             return fail("不支持的类型[type="+type+"]");
@@ -283,7 +274,6 @@ public class ProtocolController extends BaseController {
 
     /**
      * 返回各个驱动的事件模型的配置项
-     * @return
      */
     @GetMapping("listEventApiTableHead")
     public Result<Map<String, Collection<ParamMeta>>> listEventApiTableHead() {

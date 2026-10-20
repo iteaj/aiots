@@ -2,18 +2,16 @@ package com.iteaj.iboot.module.iot.mqtt;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONPath;
+import com.alibaba.fastjson2.util.DateUtils;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
-import com.iteaj.framework.spi.iot.listener.EntityPayload;
-import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
-import com.iteaj.framework.spi.iot.listener.IotEventType;
-import com.iteaj.framework.spi.iot.listener.StatusSwitchListener;
+import com.iteaj.framework.spi.iot.listener.*;
+import com.iteaj.framework.thread.IBootThreadManger;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
@@ -21,6 +19,7 @@ import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.ModelApi;
 import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.utils.IotLogger;
 import com.iteaj.iot.client.ClientProtocolHandle;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttConnectProperties;
 import com.iteaj.iot.client.mqtt.impl.DefaultMqttSubscribeProtocol;
@@ -30,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -62,7 +62,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                 String[] modelTopic = topic.split("/");
                 if(modelTopic.length != subscribeTopic.length) { // 不匹配
                     if(logger.isWarnEnabled()) {
-                        logger.warn("mqtt订阅不匹配 topic长度不一致 平台订阅: {} - 设备发布: {}", topic, protocolTopic);
+                        warn(null, "mqtt订阅不匹配 topic长度不一致 平台订阅: {} - 设备发布: {}", topic, protocolTopic);
                     }
 
                     return;
@@ -80,22 +80,14 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                             clientIdValue = subscribe;
                             // 只匹配同一个clientId下的
                             if(!properties.getClientId().equals(clientIdValue)) {
-                                if(logger.isDebugEnabled()) {
-                                    logger.debug("mqtt订阅不匹配 不属于平台指定客户端 平台客户端: {} - 设备发布: {}"
-                                            , properties.getClientId(), clientIdValue);
-                                }
-
+                                debug(null, "mqtt订阅不匹配 不属于平台指定客户端 平台客户端: {} - 设备发布: {}", properties.getClientId(), clientIdValue);
                                 return;
                             }
                         } else if(item.contains(gatewaySn)) {
                             gatewaySnValue = subscribe;
                             // 只匹配同一网关下的
                             if(!gatewaySnValue.equals(properties.connectKey())) {
-                                if(logger.isDebugEnabled()) {
-                                    logger.debug("mqtt订阅不匹配 不属于统一网关 平台配置: {} - 设备发布: {}"
-                                            , properties.connectKey(), gatewaySnValue);
-                                }
-
+                                debug(null, "mqtt订阅不匹配 不属于统一网关 平台配置: {} - 设备发布: {}", properties.connectKey(), gatewaySnValue);
                                 return;
                             }
                         }
@@ -107,10 +99,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                 }
 
                 if(deviceSnValue == null) {
-                    if(logger.isWarnEnabled()) {
-                        logger.warn("平台订阅主题和发布主题不匹配(平台配置的主题未指定占位符{deviceSn}) 未指定设备编号 平台订阅: {}", topic);
-                    }
-
+                    warn(null, "平台订阅主题和发布主题不匹配(平台配置的主题未指定占位符{deviceSn}) 未指定设备编号 平台订阅: {}", topic);
                     return;
                 }
 
@@ -128,29 +117,50 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                         }
 
                         if(CollectionUtil.isNotEmpty(config.getAttrs())) {
-                            resolvePayloadValue(config.getAttrs(), protocol, gatewaySnValue, deviceSnValue, device);
+                            resolvePayloadValue(config, protocol, deviceKey, device);
                         } else {
-                            logger.warn("mqtt产品配置错误 没有配置项 - 设备: {} - 平台订阅主题: {}", deviceKey, topic);
+                            warn(device.getUid(), "mqtt产品配置错误 没有配置项 - 设备: {} - 平台订阅主题: {}", deviceKey, topic);
                         }
                     } else {
-                        logger.error("mqtt解析topic失败 设备不存在 - 设备: {} - 平台订阅主题: {} - 设备发布主题: {}", deviceKey, topic, protocolTopic);
+                        error(null, "mqtt解析topic失败 设备不存在 - 设备: {} - 平台订阅主题: {} - 设备发布主题: {}", deviceKey, topic, protocolTopic);
                     }
                 } catch (Exception e) {
-                    logger.error("处理mqtt报文负载到物模型属性失败 未知错误 - 平台订阅主题: {} - 设备发布主题: {}", topic, protocolTopic, e);
+                    error(null, "处理mqtt报文负载到物模型属性失败 未知错误 - 平台订阅主题: {} - 设备发布主题: {}", topic, protocolTopic, e);
                 }
             });
         } else {
-            logger.warn("未找到Mqtt事件模型({}) 主题没有以子产品编码开头或产品未启用 - 设备发布主题: {}", subscribeTopic[0], protocolTopic);
+            warn(null, "未找到Mqtt事件模型({}) 主题没有以子产品编码开头或产品未启用 - 设备发布主题: {}", subscribeTopic[0], protocolTopic);
         }
 
         return null;
     }
 
-    private void resolvePayloadValue(List<UpModelAttr> dicts, DefaultMqttSubscribeProtocol protocol
-            , String gatewaySnValue, String deviceSnValue, RealtimeStatus device) {
+    private void error(String uid, String msg, Object... args) {
+        IotLogger.error(IotLogger.REPORT_NAME,"MQTT驱动", uid == null ? "-" : uid, msg, args);
+    }
+
+    private void warn(String uid, String msg, Object... args) {
+        IotLogger.warn(IotLogger.REPORT_NAME,"MQTT驱动", uid == null ? "-" : uid, msg, args);
+    }
+
+    private void debug(String uid, String msg, Object... args) {
+        IotLogger.debug(IotLogger.REPORT_NAME,"MQTT驱动", uid == null ? "-" : uid, msg, args);
+    }
+
+    private void resolvePayloadValue(SubscribeConfig config
+            , DefaultMqttSubscribeProtocol protocol, DeviceKey deviceKey, RealtimeStatus device) {
         Date date = new Date();
+        List<UpModelAttr> dicts = config.getAttrs();
         byte[] message = protocol.requestMessage().getMessage();
         JSONObject jsonObject = JSONObject.parseObject(new String(message, StandardCharsets.UTF_8));
+        if(config.getCollectTime() != null) {
+            Object eval = JSONPath.eval(jsonObject, config.getCollectTime());
+            if(eval instanceof String) {
+                date = Timestamp.valueOf(DateUtils.parseLocalDateTime(eval.toString()));
+            }
+        }
+
+        Date finalDate = date;
         List<SignalOrFieldValue> fieldValues = dicts.stream().map(item -> {
             Object fieldValue;
             if(StrUtil.isBlank(item.getPath())) {
@@ -160,14 +170,22 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
             }
 
             Object value = DataValueResolverFactory.resolver(item, fieldValue);
-            return new SignalOrFieldValue(item.getId(), item.getField(), date, value);
+            return new SignalOrFieldValue(item.getId(), item.getField(), finalDate, value);
         }).collect(Collectors.toList());
 
         // 发布模型属性的事件
-        DataSupplier dataSupplier = new DataSupplier(DEFAULT_MQTT_IMPL, DeviceKey.build(deviceSnValue, gatewaySnValue));
-        dataSupplier.setValues(fieldValues);
-        CollectListenerManager.getInstance().modelAttrPublish(modelAttrListener -> {
-            modelAttrListener.supplier(dataSupplier, device);
+        doDataPublish(deviceKey, device, fieldValues, finalDate);
+    }
+
+    private void doDataPublish(DeviceKey deviceKey, RealtimeStatus device, List<SignalOrFieldValue> fieldValues, Date finalDate) {
+        IBootThreadManger.execute(() -> {
+            DataSupplier dataSupplier = new DataSupplier(DEFAULT_MQTT_IMPL, deviceKey);
+            dataSupplier.setValues(fieldValues).setCollectTime(finalDate);
+
+            // 执行计算脚本
+//            CalcAttrScriptMethodProvide.invokeCalcScript(dataSupplier, device);
+
+            IotCoreApiService.publish(dataSupplier, device, RealtimePayload.TYPE_DATA_ACTIVE);
         });
     }
 
@@ -193,7 +211,7 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                 Map<String, SubscribeConfig> subscribeApis = new HashMap<>();
                 eventApis.forEach(api -> {
                     if(CollectionUtil.isNotEmpty(api.getUpConfig())) {
-                        String topic = null; List<UpModelAttr> attrs = new ArrayList<>(); boolean isWill = false;
+                        String topic = null; List<UpModelAttr> attrs = new ArrayList<>(); boolean isWill = false; String collectTimePath = null;
                         for (int i = 0; i < api.getUpConfig().size(); i++) {
                             ModelApiConfig config = api.getUpConfig().get(i);
                             if("topic".equals(config.getProtocolAttrField())) {
@@ -220,13 +238,16 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
                                             , item.getAccuracy(), item.getGain(), item.getResolver(), item.getScript()
                                             , item.getPath())).collect(Collectors.toList());
                                 }
-
+                            } else if("collectTime".equals(config.getProtocolAttrField())) {
+                                if(!"{now}".equals(config.getValue())) {
+                                    collectTimePath = config.getValue();
+                                }
                             } else {
                                 isWill = Boolean.parseBoolean(config.getValue());
                             }
                         }
 
-                        subscribeApis.put(topic, new SubscribeConfig(isWill, attrs));
+                        subscribeApis.put(topic, new SubscribeConfig(isWill, collectTimePath, attrs));
                     }
                 });
 
@@ -262,14 +283,18 @@ public class DefaultMqttHandle implements ClientProtocolHandle<DefaultMqttSubscr
          */
         private final boolean isWill;
 
+
+        private final String collectTime;
+
         /**
          * 属性配置
          */
         private final List<UpModelAttr> attrs;
 
-        public SubscribeConfig(boolean isWill, List<UpModelAttr> attrs) {
-            this.isWill = isWill;
+        public SubscribeConfig(boolean isWill, String collectTime, List<UpModelAttr> attrs) {
             this.attrs = attrs;
+            this.isWill = isWill;
+            this.collectTime = collectTime;
         }
     }
 }

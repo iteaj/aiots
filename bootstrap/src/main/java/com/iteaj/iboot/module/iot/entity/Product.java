@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.entity;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -8,16 +8,18 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.data.ProductMeta;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.framework.spi.iot.consts.GatewayType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -31,7 +33,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_product")
-public class Product extends BaseEntity {
+public class Product extends BaseEntity implements ProductMeta {
 
     private static final long serialVersionUID = 1L;
 
@@ -140,6 +142,12 @@ public class Product extends BaseEntity {
     private ConnectionType connectType;
 
     /**
+     * 设备类型列表
+     */
+    @TableField(exist = false)
+    private List<DeviceType> deviceTypes;
+
+    /**
      * 网关连接类型
      * @return
      */
@@ -161,5 +169,21 @@ public class Product extends BaseEntity {
      */
     public String getGatewayTypeName() {
         return this.gatewayType != null ? this.gatewayType.getDesc() : null;
+    }
+
+    /**
+     * 默认计算脚本配置
+     * @return Product
+     */
+    public Product buildCalc() {
+        if(this.getConfig() == null) {
+            this.config = new JSONObject();
+        }
+
+        if(!this.config.containsKey("calcLanguage")) {
+            this.config.put("calcScript", "");
+            this.config.put("calcLanguage", "disabled");
+        }
+        return this;
     }
 }

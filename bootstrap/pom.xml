@@ -45,7 +45,10 @@
             <version>${hutool.version}</version>
             <artifactId>hutool-cron</artifactId>
         </dependency>
-
+        <dependency>
+            <artifactId>kaptcha</artifactId>
+            <groupId>com.github.penggle</groupId>
+        </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -59,12 +62,23 @@
                     <groupId>javax.validation</groupId>
                     <artifactId>validation-api</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
+
+        <!--大华协议提供-->
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <artifactId>protocol-dahua</artifactId>-->
+<!--        </dependency>-->
         <!--mqtt协议提供-->
         <dependency>
             <groupId>com.iteaj</groupId>
@@ -88,7 +102,6 @@
             <artifactId>modbus-tcp</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <scope>provided</scope>
             <groupId>org.springframework.boot</groupId>
@@ -110,21 +123,8 @@
 <!--        </dependency>-->
 
         <!-- iboot 可选插件 -->
-        <!--低代码平台插件-->
-        <dependency>
-            <groupId>com.iteaj</groupId>
-            <artifactId>iboot-code</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
-        <!-- Shiro权限认证插件(和SaToken二选其一)-->
-<!--        <dependency>-->
-<!--            <groupId>com.iteaj</groupId>-->
-<!--            <artifactId>iboot-shiro</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
-
-        <!-- SaToken权限认证插件(和Shiro二选其一)-->
+        <!-- SaToken权限认证插件-->
         <dependency>
             <groupId>com.iteaj</groupId>
             <version>${project.version}</version>
@@ -145,24 +145,57 @@
 <!--            <version>${project.version}</version>-->
 <!--        </dependency>-->
 
-        <!-- knife4j Api文档插件-->
+        <!-- 消息源插件(短信, email, 钉钉...) -->
         <dependency>
             <groupId>com.iteaj</groupId>
             <version>${project.version}</version>
-            <artifactId>iboot-knife4j</artifactId>
+            <artifactId>iboot-message</artifactId>
         </dependency>
 
-        <!-- 消息源插件(短信, email, 钉钉...) -->
+        <!-- gb28181模块 -->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <version>${project.version}</version>
+            <artifactId>iboot-gb28181</artifactId>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.iteaj</groupId>-->
-<!--            <version>${project.version}</version>-->
-<!--            <artifactId>iboot-message</artifactId>-->
+<!--            <version>${reversion}</version>-->
+<!--            <artifactId>amqp-rabbitmq</artifactId>-->
 <!--        </dependency>-->
+
+        <!--多数据源(采集数据)-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-rdbms</artifactId>
+            <version>${reversion}</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.iteaj</groupId>-->
+<!--            <version>${reversion}</version>-->
+<!--            <artifactId>iboot-tdengine</artifactId>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-iotview</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>ai-mcp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iboot-social</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -173,6 +206,13 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.iteaj.iboot.boot.IBootApplication</mainClass>
+
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -194,13 +234,13 @@
                     <!--smart-doc实现自动分析依赖树加载第三方依赖的源码，如果一些框架依赖库加载不到导致报错，这时请使用excludes排除掉-->
                     <excludes>
                         <!--格式为：groupId:artifactId;参考如下-->
-                        <exclude>com.alibaba:fastjson</exclude>
+<!--                        <exclude>com.alibaba:fastjson</exclude>-->
                     </excludes>
                     <!--自1.0.8版本开始，插件提供includes支持,配置了includes后插件会按照用户配置加载而不是自动加载，因此使用时需要注意-->
                     <!--smart-doc能自动分析依赖树加载所有依赖源码，原则上会影响文档构建效率，因此你可以使用includes来让插件加载你配置的组件-->
                     <includes>
                         <!--格式为：groupId:artifactId;参考如下-->
-                        <include>com.alibaba:fastjson</include>
+<!--                        <include>com.alibaba:fastjson</include>-->
                     </includes>
                 </configuration>
                 <executions>
@@ -210,11 +250,244 @@
                         <goals>
                             <!--smart-doc提供了html、openapi、markdown等goal，可按需配置-->
                             <goal>html</goal>
-                            <goal>openapi</goal>
+<!--                            <goal>openapi</goal>-->
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>deploy</id>
+            <properties>
+                <!-- 后端服务器配置（从 settings.xml deploy profile 读取） -->
+                <!-- true: 仅发布前端(不传jar、不重启后端); false: 全量发布 -->
+                <skip.backend.deploy>false</skip.backend.deploy>
+
+                <!-- true: 跳过前端构建和上传; false: 构建并上传前端 -->
+                <skip.frontend.build>false</skip.frontend.build>
+
+                <!-- true: 跳过上传部署脚本; false: 正常上传 -->
+                <skip.deploy.script>false</skip.deploy.script>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- 加载发布配置（路径等非敏感信息） -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${project.basedir}/../docs/config/deploy-config.properties</file>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- 过滤部署脚本：变量替换（@var@ → 实际值） -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>filter-deploy-script</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                                    <delimiters>
+                                        <delimiter>@</delimiter>
+                                    </delimiters>
+                                    <resources>
+                                        <resource>
+                                            <directory>${project.basedir}/../docs/script</directory>
+                                            <filtering>true</filtering>
+                                            <includes>
+                                                <include>deploy.sh</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- 前端构建：使用本地 npm 构建 -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>npm-build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.frontend.build}</skip>
+                                    <workingDirectory>${project.basedir}/../admin-ui</workingDirectory>
+                                    <executable>npm</executable>
+                                    <arguments>
+                                        <argument>run</argument>
+                                        <argument>build</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- 打包前端 + SCP上传 + SSH执行 -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <!-- 1. 压缩前端构建产物 -->
+                            <execution>
+                                <id>zip-frontend-dist</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.frontend.build}</skip>
+                                    <target>
+                                        <zip destfile="${project.build.directory}/admin-ui.zip" basedir="${project.basedir}/../admin-ui/dist"/>
+                                        <echo message="admin-ui构建成功并压缩到 ${project.build.directory}/admin-ui.zip" level="info"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 2. SSH 确保后端上传目录存在 -->
+                            <execution>
+                                <id>ssh-ensure-upload-dir-backend</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.backend.deploy}</skip>
+                                    <target>
+                                        <sshexec host="${deploy.server.host}"
+                                            username="${deploy.server.user}"
+                                            password="${deploy.server.password}"
+                                            command="mkdir -p ${upload.server.path}"
+                                            trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 3. SSH 确保前端上传目录存在 -->
+                            <execution>
+                                <id>ssh-ensure-upload-dir-frontend</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.frontend.build}</skip>
+                                    <target>
+                                        <sshexec host="${deploy.frontend.host}"
+                                            username="${deploy.frontend.user}"
+                                            password="${deploy.frontend.password}"
+                                            command="mkdir -p ${upload.frontend.path}"
+                                            trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 4. SCP 上传后端 jar 和部署脚本 -->
+                            <execution>
+                                <id>scp-upload-backend</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.backend.deploy}</skip>
+                                    <target>
+                                        <echo message="上传 bootstrap.jar + deploy.sh 到 ${deploy.server.user}@${deploy.server.host}:${upload.server.path}/" level="info"/>
+                                        <scp file="${project.build.directory}/bootstrap.jar"
+                                            todir="${deploy.server.user}@${deploy.server.host}:${upload.server.path}/"
+                                            password="${deploy.server.password}" trust="true"/>
+                                        <scp file="${project.build.directory}/deploy.sh"
+                                            todir="${deploy.server.user}@${deploy.server.host}:${upload.server.path}/"
+                                            password="${deploy.server.password}" trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 5. SCP 上传前端 zip 和部署脚本 -->
+                            <execution>
+                                <id>scp-upload-frontend</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.frontend.build}</skip>
+                                    <target>
+                                        <echo message="上传 admin-ui.zip + deploy.sh 到 ${deploy.frontend.user}@${deploy.frontend.host}:${upload.frontend.path}/" level="info"/>
+                                        <scp file="${project.build.directory}/admin-ui.zip"
+                                            todir="${deploy.frontend.user}@${deploy.frontend.host}:${upload.frontend.path}/"
+                                            password="${deploy.frontend.password}" trust="true"/>
+                                        <scp file="${project.build.directory}/deploy.sh"
+                                            todir="${deploy.frontend.user}@${deploy.frontend.host}:${upload.frontend.path}/"
+                                            password="${deploy.frontend.password}" trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 6. SSH 解压前端到前端服务器 Nginx 目录 -->
+                            <execution>
+                                <id>ssh-deploy-frontend</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.frontend.build}</skip>
+                                    <target>
+                                        <echo message="开始在前端服务器 ${deploy.frontend.host} 上部署前端..." level="info"/>
+                                        <sshexec host="${deploy.frontend.host}"
+                                            username="${deploy.frontend.user}"
+                                            password="${deploy.frontend.password}"
+                                            command="cd ${upload.frontend.path} &amp;&amp; bash deploy.sh frontend"
+                                            output="${project.build.directory}/deploy-remote.log"
+                                            append="true" trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- 7. SSH 重启后端服务（仅全量发布时执行） -->
+                            <execution>
+                                <id>ssh-restart-backend</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skip.backend.deploy}</skip>
+                                    <target>
+                                        <echo message="重启 ${deploy.server.host} 服务器后端服务..." level="info"/>
+                                        <sshexec
+                                            host="${deploy.server.host}"
+                                            username="${deploy.server.user}"
+                                            password="${deploy.server.password}"
+                                            command="cd ${upload.server.path} &amp;&amp; bash deploy.sh remote-deploy"
+                                            output="${project.build.directory}/deploy-remote.log"
+                                            append="true" trust="true"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

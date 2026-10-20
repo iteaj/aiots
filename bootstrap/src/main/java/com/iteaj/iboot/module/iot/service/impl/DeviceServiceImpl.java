@@ -2,7 +2,7 @@ package com.iteaj.iboot.module.iot.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -16,6 +16,9 @@ import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
+import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
+import com.iteaj.framework.spi.iot.data.CollectValueItem;
+import com.iteaj.framework.spi.iot.data.EchartsCountValue;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -127,12 +130,13 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
         validate(entity, null);
         entity.setUid(String.valueOf(IdWorker.getId()));
 
-        // 将uid写入配置, 作为设备的唯一键
-        if(entity.getConfig() != null) {
-            entity.getConfig().put("uid", entity.getUid());
+        if(entity.getConfig() == null) {
+            entity.setConfig(new JSONObject());
         }
 
-        return super.save(entity).ifPresentAndTrue(item -> {
+        // 将uid写入配置, 作为设备的唯一键
+        entity.getConfig().put("uid", entity.getUid());
+        return super.save(entity.build()).ifPresentAndTrue(item -> {
             RealtimeStatus status = this.getDeviceStatusFromCache(entity.getId());
             iotCacheManager.cache(status);
         });
@@ -348,13 +352,57 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     }
 
     @Override
-    public DeviceStatusDto countDeviceStatus(GroupAndProductParamDto param) {
+    public DeviceDto getDetailByUid(String uid) {
+        return this.getBaseMapper().getDetailByUid(uid);
+    }
+
+    @Override
+    public DeviceStatusDto countCommonDeviceStatus(GroupAndProductParamDto param) {
         return getBaseMapper().countDeviceStatus(param);
     }
 
     @Override
     public List<EMapDeviceDto> listOfEMap(Long productId, Long deviceGroupId) {
         return this.getBaseMapper().listOfEMap(productId, deviceGroupId);
+    }
+
+    @Override
+    public List<EchartsCountValue> countCommonDeviceStatus(StatusCountCondition condition) {
+        List<EchartsCountValue> values = new ArrayList<>();
+        List<DeviceStatusDto> statusDtos = this.getBaseMapper().countCommonDeviceStatus(condition);
+        if(CollectionUtil.isNotEmpty(condition.getProductCodes())) {
+            List<BaseEchartsCount> online = new ArrayList<>();
+            List<BaseEchartsCount> offline = new ArrayList<>();
+            statusDtos.forEach(item -> {
+                online.add(new BaseEchartsCount(item.getProductName(), item.getOnlineNum()));
+                offline.add(new BaseEchartsCount(item.getProductName(), item.getOfflineNum()));
+            });
+            values.add(new EchartsCountValue(null, "在线", online));
+            values.add(new EchartsCountValue(null, "离线", offline));
+        } else {
+            DeviceStatusDto statusDto = statusDtos.get(0);
+            values.add(new EchartsCountValue(null, "在线",Arrays.asList(new BaseEchartsCount("", statusDto.getOnlineNum()))));
+            values.add(new EchartsCountValue(null, "离线",Arrays.asList(new BaseEchartsCount("", statusDto.getOfflineNum()))));
+        }
+        return values;
+    }
+
+    @Override
+    public CollectValueItem listCommonByStatus(StatusDataCondition condition) {
+        if(condition.getCurrent() != null && condition.getSize() != null) {
+            Page page = new Page(condition.getCurrent(), condition.getSize());
+            this.getBaseMapper().pageCommonByStatus(page, condition);
+            return CollectValueItem.build(null, page.getRecords(), page.getTotal());
+        } else {
+
+            List<DeviceStatusData> dataList = this.getBaseMapper().listCommonByStatus(condition);
+            return CollectValueItem.build(null, dataList);
+        }
+    }
+
+    @Override
+    public PageResult<IPage<DeviceDto>> listByApp(Page page, DeviceDto device) {
+        return new PageResult<>(this.getBaseMapper().listByApp(page, device));
     }
 
     @Override

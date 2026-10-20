@@ -3,6 +3,10 @@ package com.iteaj.iboot.module.iot.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
+import com.iteaj.iboot.module.iot.dto.GroupAndProductParamDto;
+import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
@@ -35,6 +39,8 @@ public interface ProductMapper extends BaseMapper<Product> {
     List<ProductDto> listOfDetail(Product entity);
 
     ProductDto joinDetailById(Long productId);
+
+    ProductDto joinDetailByCode(String productCode);
 
     /**
      * 获取点位协议的产品列表
@@ -98,4 +104,6 @@ public interface ProductMapper extends BaseMapper<Product> {
     List<Product> listOfProtocolCodes(DeviceType deviceType, String[] protocolCodes, TransportProtocol protocol);
 
     List<BatchModelDto> listBatchModel(BatchModelDto entity);
+
+    ProductDto joinModelAttrById(Long productId);
 }

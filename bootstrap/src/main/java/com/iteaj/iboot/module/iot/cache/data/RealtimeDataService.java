@@ -4,6 +4,7 @@ import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.data.IModelAttrRealtimeDataService;
+import com.iteaj.framework.spi.iot.data.RealtimeDataExtra;
 
 import java.util.List;
 import java.util.Map;
@@ -90,4 +91,11 @@ public interface RealtimeDataService extends IModelAttrRealtimeDataService {
      */
     Map<String, RealtimeData> listOfDevice(String protocolCode, DeviceKey key, String... signalOrFields);
 
+    /**
+     * 更新实时数据的扩展属性
+     * @param uid 设备uid
+     * @param signalOrField 点位字段
+     * @param extra 扩展配置
+     */
+    void updateRealtimeDataExtra(String uid, String signalOrField, RealtimeDataExtra extra);
 }

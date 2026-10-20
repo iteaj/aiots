@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.message;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.iteaj.framework.json.StringToMapDeserializer;
 import lombok.Data;
 
@@ -40,7 +40,7 @@ public class SendModel {
      * 模板变量
      * @see #templateId
      */
-    @JsonDeserialize(using = StringToMapDeserializer.class)
+    @JSONField(deserializeUsing = StringToMapDeserializer.class)
     private LinkedHashMap<String, String> templateVars;
 
 }

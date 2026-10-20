@@ -16,7 +16,19 @@
 
     <modules>
         <module>protocol-dtu</module>
+        <module>protocol-dahua</module>
         <module>protocol-mqtt</module>
         <module>protocol-modbus</module>
     </modules>
+
+    <profiles>
+      <profile>
+        <id>rdc</id>
+        <properties>
+          <altReleaseDeploymentRepository>
+            repo-protocol::default::https://packages.aliyun.com/5ec0fe1bd1d1abe63b55bc6a/maven/protocol-common
+          </altReleaseDeploymentRepository>
+        </properties>
+      </profile>
+    </profiles>
 </project>

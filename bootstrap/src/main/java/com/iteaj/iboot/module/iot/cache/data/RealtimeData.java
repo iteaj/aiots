@@ -3,7 +3,10 @@ package com.iteaj.iboot.module.iot.cache.data;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
+import com.iteaj.framework.spi.iot.data.RealtimeDataExtra;
 import lombok.Data;
+
+import java.util.Objects;
 
 /**
  * 实时数据
@@ -26,17 +29,26 @@ public class RealtimeData implements ModelAttrRealtimeData {
      */
     private String signalOrField;
 
+    /**
+     * 扩展信息
+     */
+    private RealtimeDataExtra extra = new RealtimeDataExtra();
+
     public RealtimeData( SignalOrFieldValue realtime) {
         this.realtime = realtime;
         this.signalOrField = realtime.getSignalOrField();
     }
 
     public void setRealtime(SignalOrFieldValue realtime) {
-        // 上一条记录必须是成功状态
-        if(this.realtime.getStatus() == CollectStatus.Success) {
-            this.prev = this.realtime;
+        if(realtime.getStatus() == CollectStatus.Success) {
+            this.prev = this.getRealtime();
+            this.realtime = realtime;
         }
 
-        this.realtime = realtime;
+    }
+
+    @Override
+    public RealtimeDataExtra getExtra() {
+        return this.extra;
     }
 }

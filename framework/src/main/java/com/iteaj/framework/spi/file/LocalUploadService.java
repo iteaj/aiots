@@ -9,6 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +44,8 @@ public class LocalUploadService implements UploadService, InitializingBean {
 
             File file = new File(rootDir, filePath);
             FileUtil.writeFromStream(stream, file);
-            return new UploadResult(uploadRootUri + filePath, file, fileName, originalFilename);
+            return new UploadResult(uploadRootUri + filePath, file, fileName, originalFilename)
+                    .setFileBasicUrl(properties.getFileServerDomain());
         } catch (IORuntimeException e) {
             throw new FileException(e);
         }
@@ -68,6 +70,60 @@ public class LocalUploadService implements UploadService, InitializingBean {
         }
 
         return subPath + fileName;
+    }
+
+    /**
+     * 删除上传根目录下指定子路径的文件/目录(路径越界防护: 禁止删除根目录自身)
+     * @param subPath 子路径(如 /ai/agent/admin/1)
+     * @return 是否删除成功(子路径不存在或为空返回false)
+     */
+    @Override
+    public boolean delete(String subPath) {
+        if (StrUtil.isBlank(subPath) || this.rootDir == null) {
+            return false;
+        }
+        File target = new File(this.rootDir, subPath.replace("/", File.separator));
+        if (!target.getAbsolutePath().startsWith(this.rootDir.getAbsolutePath() + File.separator)) {
+            return false; // 路径越界防护
+        }
+        if (!target.exists()) {
+            return false;
+        }
+        return FileUtil.del(target);
+    }
+
+    /**
+     * 读取已上传文件(按访问URL反查本地磁盘文件): url = uploadRootUri + filePath, 剥离前缀拼rootDir定位
+     * @param url upload返回的访问地址(如 /profile/ai/attachment/x.png)
+     * @return 文件输入流(调用方负责关闭)
+     * @throws FileException URL为空/根目录未就绪/文件不存在或路径越界
+     */
+    @Override
+    public File readFile(String url) throws FileException {
+        if(StrUtil.isBlank(url)) {
+            throw new FileException("无效的url: " + url);
+        }
+        if(url.startsWith("http")) {
+            if(url.startsWith(properties.getFileServerDomain())) {
+                url = url.substring(properties.getFileServerDomain().length());
+            } else {
+                throw new FileException("不支持的url, 必须以平台基础url开头(" + properties.getFileServerDomain() + ")");
+            }
+        }
+
+        if (this.rootDir == null || StrUtil.isBlank(this.uploadRootUri)) {
+            throw new FileException("无法读取文件, URL或上传根目录未就绪: " + url);
+        }
+        // 剥离访问前缀得相对路径, 拼上传根目录定位本地文件
+        String filePath = url.startsWith(this.uploadRootUri) ? url.substring(this.uploadRootUri.length()) : url;
+        File file = new File(this.rootDir, filePath.replace("/", File.separator));
+        // 路径越界防护: 禁止读取上传根目录之外的文件
+        if (!file.getAbsolutePath().startsWith(this.rootDir.getAbsolutePath() + File.separator)
+                || !file.exists() || !file.isFile()) {
+            throw new FileException("文件不存在或路径非法: " + url);
+        }
+
+        return file;
     }
 
     @Override

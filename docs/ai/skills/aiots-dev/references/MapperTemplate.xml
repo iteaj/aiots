@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.module.模块.mapper.XxxMapper">
+
+    <!-- 实体映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.模块.entity.Xxx">
+        <!-- 实体字段映射结果 -->
+    </resultMap>
+
+    <!-- DTO 映射结果 -->
+    <resultMap id="XxxDtoResultMap" type="com.iteaj.iboot.module.模块.dto.XxxDto" extends="BaseResultMap">
+        <!-- dto额外字段映射结果 -->
+        
+        <!-- 
+        【表关联查询说明】
+        统一使用columnPrefix方式简化映射配置，SQL别名格式：表别名_字段名（如：p.id AS p_id）
+        
+        【一对一关联示例】
+        <association property="product" columnPrefix="p_" javaType="com.iteaj.iboot.module.模块.entity.Product">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="code" column="code"/>
+        </association>
+        
+        【一对多关联示例】
+        必须指定column属性用于区分集合元素
+        <collection property="devices" column="id" columnPrefix="d_" ofType="com.iteaj.iboot.module.模块.entity.Device">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="sn" column="sn"/>
+        </collection>
+        
+        【对应的SQL查询示例】
+        <select id="detailById" resultMap="XxxDtoResultMap">
+            SELECT 
+                t.id, t.name, t.create_time,
+                p.id AS p_id, p.name AS p_name, p.code AS p_code,
+                d.id AS d_id, d.name AS d_name, d.sn AS d_sn
+            FROM xxx t
+            LEFT JOIN product p ON t.product_id = p.id
+            LEFT JOIN device d ON d.xxx_id = t.id
+            WHERE t.id = #{id}
+        </select>
+        
+        【注意事项】
+        - SQL别名格式：表别名_字段名（如：p_id, d_name），与columnPrefix保持一致
+        - 关联查询仅在detailById和pageOfDetail中使用，列表查询不使用
+        - 一对多关联在分页时会导致数据重复，需特殊处理
+        - 建议关闭autoMapping：autoMapping="false"
+        - 平铺字段映射（项目实际采用）：<result property="productName" column="p_name"/>
+        -->
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, create_time
+    </sql>
+
+    <!-- detailById 查询 -->
+    <select id="detailById" resultMap="XxxDtoResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM xxx 
+        WHERE id = #{id}
+    </select>
+
+    <!-- pageOfDetail 查询 -->
+    <select id="pageOfDetail" resultMap="XxxDtoResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM xxx 
+        <where>
+            <if test="entity.name != null and entity.name != ''">
+                AND name = #{entity.name}
+            </if>
+            <if test="entity.startTime != null">
+                AND create_time &gt;= #{entity.startTime}
+            </if>
+            <if test="entity.endTime != null">
+                AND create_time &lt;= #{entity.endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

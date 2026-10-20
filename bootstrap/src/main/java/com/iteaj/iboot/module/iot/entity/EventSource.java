@@ -1,12 +1,13 @@
 package com.iteaj.iboot.module.iot.entity;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.util.List;
 
+import com.iteaj.framework.mybatis.handler.FastjsonLongTypeHandler;
 import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.iboot.module.iot.consts.EventSourceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
@@ -66,6 +67,12 @@ public class EventSource extends BaseEntity {
     private String reason;
 
     /**
+     * 是否有绑定联动项
+     */
+    @TableField(exist = false)
+    private Boolean hasBindLinkage;
+
+    /**
      * 产品
      */
     @TableField(exist = false)
@@ -80,14 +87,20 @@ public class EventSource extends BaseEntity {
     /**
      * 操作的产品
      */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
+    @TableField(typeHandler = FastjsonLongTypeHandler.class)
     private JSONArray productIds;
 
     /**
      * 设备组
      */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
+    @TableField(typeHandler = FastjsonLongTypeHandler.class)
     private JSONArray deviceGroupIds;
+
+    /**
+     * 频率标签范围（多选，用于过滤ModelApi）
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONArray frequencyTags;
 
     /**
      * 模型接口列表

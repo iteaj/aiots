@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.utils;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
@@ -30,7 +30,7 @@ public class IotNetworkUtil {
      * @param status 连接还是断开
      */
     public static Object networkCtrl(String protocolCode, Device device, FuncStatus status) {
-        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
+        DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(protocolCode);
         if(supplier == null) {
             throw new ServiceException("协议驱动["+protocolCode+"]不存在");
         }
@@ -44,18 +44,15 @@ public class IotNetworkUtil {
      * @param device
      * @param status 连接还是断开
      */
-    public static Object networkCtrl(DeviceProtocolSupplier supplier, Device device, FuncStatus status) {
-        IotClient client = null;
+    public static Object networkCtrl(DeviceProtocolSupplier<?, ?> supplier, Device device, FuncStatus status) {
         NetworkConfig networkConfig = createClientConfig(supplier, device);
-        try {
-            client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
-        } finally {
-            // 处理网关产品设备的状态
-            return resolveGatewayProductClientStatus(client, device, status, supplier.getComponent());
-        }
+
+        IotClient client = ((ClientProtocolSupplier) supplier).createClient(networkConfig);
+        // 处理网关产品设备的状态
+        return resolveGatewayProductClientStatus(client, device, status, supplier.getComponent());
     }
 
-    private static NetworkConfig createClientConfig(DeviceProtocolSupplier supplier, Device device) {
+    private static NetworkConfig createClientConfig(DeviceProtocolSupplier<?, ?> supplier, Device device) {
         JSONObject config = device.getConfig();
         if(config == null) {
             throw new ServiceException("设备[" + device.getName() + " / " + device.getDeviceSn() + "]缺少配置");
@@ -66,6 +63,10 @@ public class IotNetworkUtil {
     }
 
     private static Object resolveGatewayProductClientStatus(IotClient client, Device device, FuncStatus status, FrameworkComponent component) {
+        if(client == null) {
+            throw new ServiceException("客户端不存在["+device.getDeviceSn()+"]");
+        }
+
         if(status == FuncStatus.enabled) {
             if(client instanceof TcpSocketClient) {
                 if(!((TcpSocketClient) client).isConnect()) {
@@ -104,7 +105,7 @@ public class IotNetworkUtil {
 
     public static void removeClient(RealtimeStatus status) {
         String protocolCode = status.getProtocolCode();
-        DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(protocolCode);
+        DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(protocolCode);
         if(supplier instanceof ClientProtocolSupplier) {
             final IotClient client = ((ClientProtocolSupplier<?, ?, ?>) supplier).removeClient(status.getDeviceSn());
             if(client != null) {

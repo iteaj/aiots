@@ -3,6 +3,8 @@ package com.iteaj.iboot.module.iot.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.result.*;
+import com.iteaj.framework.spi.iot.data.CollectValueItem;
+import com.iteaj.framework.spi.iot.data.EchartsCountValue;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -145,11 +147,18 @@ public interface IDeviceService extends IBaseService<Device> {
     DetailResult<Device> getByUid(String uid);
 
     /**
+     * 通过uid获取设备详情（含产品信息）
+     * @param uid
+     * @return
+     */
+    DeviceDto getDetailByUid(String uid);
+
+    /**
      * 统计设备的在线离线状态
      * @param param
      * @return
      */
-    DeviceStatusDto countDeviceStatus(GroupAndProductParamDto param);
+    DeviceStatusDto countCommonDeviceStatus(GroupAndProductParamDto param);
 
     /**
      * 电子地图功能的设备列表
@@ -158,4 +167,26 @@ public interface IDeviceService extends IBaseService<Device> {
      * @return
      */
     List<EMapDeviceDto> listOfEMap(Long productId, Long deviceGroupId);
+
+    /**
+     * 统计设备状态
+     * @param condition
+     * @return
+     */
+    List<EchartsCountValue> countCommonDeviceStatus(StatusCountCondition condition);
+
+    /**
+     * 获取设备状态列表
+     * @param condition
+     * @return
+     */
+    CollectValueItem listCommonByStatus(StatusDataCondition condition);
+
+    /**
+     * 用于移动端分页查询设备列表
+     * @param page
+     * @param device
+     * @return
+     */
+    PageResult<IPage<DeviceDto>> listByApp(Page page, DeviceDto device);
 }

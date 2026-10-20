@@ -5,25 +5,21 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
-import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
-import com.iteaj.framework.spi.iot.ProtocolInvokeException;
-import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
-import com.iteaj.framework.spi.iot.protocol.AbstractProtocolModelApi;
+import com.iteaj.framework.security.CheckPermission;
+import com.iteaj.framework.security.Logical;
+import com.iteaj.framework.security.SecurityUtil;
+import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.FuncType;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
+import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
+import com.iteaj.iboot.module.core.entity.Admin;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
-import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
-import com.iteaj.iboot.module.iot.consts.DeviceStatus;
-import com.iteaj.iboot.module.iot.consts.DeviceType;
-import com.iteaj.iboot.module.iot.consts.FuncStatus;
-import com.iteaj.iboot.module.iot.dto.DebugRespDto;
-import com.iteaj.iboot.module.iot.dto.ProductDto;
-import com.iteaj.iboot.module.iot.entity.Device;
-import com.iteaj.iboot.module.iot.entity.ModelApi;
-import com.iteaj.iboot.module.iot.service.IDeviceService;
-import com.iteaj.iboot.module.iot.service.IModelApiService;
-import com.iteaj.iboot.module.iot.service.IProductService;
+import com.iteaj.iboot.module.iot.dto.*;
+import com.iteaj.iboot.module.iot.entity.DeviceCmdLog;
+import com.iteaj.iboot.module.iot.service.IModelApiInvokeService;
 import com.iteaj.iboot.module.iot.utils.ProtocolInvokeUtil;
 import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.consts.ExecStatus;
@@ -31,6 +27,9 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 设备指令接口管理
@@ -40,59 +39,32 @@ import java.time.Duration;
 public class DeviceCtrlController extends BaseController {
 
     private final IotCacheManager cacheManager;
-    private final IDeviceService deviceService;
-    private final IProductService productService;
-    private final IModelApiService modelApiService;
+    private final IModelApiInvokeService modelApiInvokeService;
     private final RealtimePushListener realtimeListener;
-    public DeviceCtrlController(IDeviceService deviceService
-            , IProductService productService, IModelApiService modelApiService
-            , IotCacheManager cacheManager, RealtimePushListener realtimeListener) {
-        this.deviceService = deviceService;
-        this.productService = productService;
-        this.modelApiService = modelApiService;
+
+    public DeviceCtrlController(IotCacheManager cacheManager,
+                                IModelApiInvokeService modelApiInvokeService,
+                                RealtimePushListener realtimeListener) {
         this.cacheManager = cacheManager;
+        this.modelApiInvokeService = modelApiInvokeService;
         this.realtimeListener = realtimeListener;
     }
 
     /**
      * 设备控制
-     * @param modelApiCode 物模型接口代码
-     * @param param 调用参数
-     * @return
      */
     @Logger("模型接口调用")
+    @CheckPermission(value = {"iot:model:invoke", "iot:open:invoke"}, logical = Logical.OR)
     @PostMapping("/ctrl/{modelApiCode}")
-    public Mono<Result> ctrl(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
-        Object[] objects = this.getProtocolModelApi(modelApiCode, param);
-        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
+    public Mono<Result<?>> ctrl(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
+        ModelApiInvokeContext context = modelApiInvokeService.resolve(modelApiCode, param);
 
-        return Mono.<InvokeResult>create(item -> {
-            try {
-                RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
-                if(realtimeStatus.getStatus() == DeviceStatus.offline) {
-                    if(realtimeStatus.getType() == DeviceType.Direct) {
-                        item.success(InvokeResult.fail("设备不在线["+realtimeStatus.getDeviceName()+"]", null)); return;
-                    } else if(realtimeStatus.getType() == DeviceType.Child) {
-                        RealtimeStatus parent = cacheManager.get(supplier.getProtocol().getCode(), param.getParentDeviceSn());
-                        if(parent != null && parent.getStatus() == DeviceStatus.offline) {
-                            item.success(InvokeResult.fail("网关设备不在线["+parent.getDeviceName()+"]", null)); return;
-                        }
-                    }
-                }
-
-                ProtocolInvokeUtil.invoke(supplier, (ModelApi) objects[1], param, realtimeStatus, result -> {
-                    item.success(result);
-                    // 将实时结果写出到前端
-                    IotThreadManager.instance().getExecutorService().execute(() -> {
-                        realtimeListener.push(param.getUid(), (ModelApi) objects[1], result);
-                    });
+        return modelApiInvokeService.invoke(context, param, 10000L).map(item -> {
+            if (item.getStatus() == ExecStatus.success) {
+                // 将实时结果写出到前端
+                IotThreadManager.instance().getExecutorService().execute(() -> {
+                    realtimeListener.push(param.getUid(), context.getModelApi(), item);
                 });
-            } catch (ProtocolInvokeException e) {
-                e.printStackTrace();
-                item.success(InvokeResult.fail(e.getMessage(), null));
-            }
-        }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
-            if(item.getStatus() == ExecStatus.success) {
                 return success(item.getValue());
             } else {
                 return fail(item.getReason());
@@ -101,91 +73,122 @@ public class DeviceCtrlController extends BaseController {
     }
 
     /**
-     * 设备调试接口
-     * @return
+     * 设备调试接口（自定义协议指令）
+     */
+    @Logger("自定义模型接口调试")
+    @CheckPermission(value = {"iot:model:debug", "iot:open:debug"}, logical = Logical.OR)
+    @PostMapping("/debug")
+    public Mono<Result<DebugRespDto>> debug(@RequestBody ProtocolModelApiInvokeParam param) {
+        DeviceCmdLog deviceCmdLog = new DeviceCmdLog().setUid(param.getUid())
+                .setMethod(DeviceCmdLog.METHOD_DEBUG).putCmdParams(param.getParam())
+                .setOperator(((Admin) SecurityUtil.getLoginUser().orElse(new Admin())).getName())
+                .setOperatorId(SecurityUtil.getLoginId().orElse(null)).setCreateTime(new Date());
+
+        try {
+            return modelApiInvokeService.debugInvoke(param).map(item -> {
+                DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
+                debugRespDto.setStatus(item.getStatus());
+                debugRespDto.setRespTime(System.currentTimeMillis());
+                debugRespDto.setReqMsg(item.getRequestMessage() != null ? item.getRequestMessage().toString() : "");
+                debugRespDto.setRespMsg(item.getResponseMessage() != null ? item.getResponseMessage().toString() : "");
+                if (item.getStatus() == ExecStatus.success) {
+                    debugRespDto.setValue(item.getValue());
+                    deviceCmdLog.setStatus(DeviceCmdLog.STATUS_SUCCESS).setResultMsg("执行成功");
+                    IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
+                    return success(debugRespDto);
+                } else {
+                    deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(item.getReason());
+                    IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
+                    return success(debugRespDto.setReason(item.getReason()));
+                }
+            });
+        } catch (ServiceException e) {
+            deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(e.getMessage());
+            IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
+            return Mono.just(fail(e.getMessage()));
+        }
+    }
+
+    /**
+     * 设备调试接口（物模型接口）
      */
     @Logger("模型接口调试")
+    @CheckPermission(value = {"iot:model:debug", "iot:open:debug"}, logical = Logical.OR)
     @PostMapping("/debug/{modelApiCode}")
     public Mono<Result<DebugRespDto>> debug(@PathVariable String modelApiCode, @RequestBody ProtocolModelApiInvokeParam param) {
-        // 获取协议模型接口
-        Object[] objects = this.getProtocolModelApi(modelApiCode, param);
-        ModelApi modelApi = (ModelApi) objects[1];
-        DeviceProtocolSupplier supplier = (DeviceProtocolSupplier) objects[3];
+        DeviceCmdLog deviceCmdLog = new DeviceCmdLog().setUid(param.getUid())
+                .setMethod(DeviceCmdLog.METHOD_DEBUG)
+                .putCmdName(param.getConfig("apiName")).putCmdParams(param.getParam())
+                .setOperator(((Admin) SecurityUtil.getLoginUser().orElse(new Admin())).getName())
+                .setOperatorId(SecurityUtil.getLoginId().orElse(null)).setCreateTime(new Date());
 
-        DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
-        return Mono.<InvokeResult>create(item -> {
-            // 调用接口
-            try {
-                RealtimeStatus realtimeStatus = cacheManager.get(supplier.getProtocol().getCode(), param.buildKey());
-                ProtocolInvokeUtil.invoke(supplier, modelApi, param, realtimeStatus, result -> {
-                    item.success(result);
-                    debugRespDto.setRespTime(System.currentTimeMillis());
-                });
-            } catch (ProtocolInvokeException e) {
-                e.printStackTrace();
-                item.success(InvokeResult.fail(e.getMessage(), null));
-            }
-        }).timeout(Duration.ofSeconds(10), Mono.error(new ServiceException("执行超时"))).map(item -> {
+        ModelApiInvokeContext context = modelApiInvokeService.resolve(modelApiCode, param);
+        deviceCmdLog.setDeviceName(context.getDevice().getDeviceName()).setCmdType(context.getModelApi().getType().name());
+
+        return modelApiInvokeService.invoke(context, param, 10000L).map(item -> {
+            DebugRespDto debugRespDto = new DebugRespDto(param.getDeviceSn());
             debugRespDto.setStatus(item.getStatus());
-            debugRespDto.setReqMsg(item.getRequestMessage().toString());
-            debugRespDto.setRespMsg(item.getResponseMessage().toString());
-            if(item.getStatus() == ExecStatus.success) {
+            debugRespDto.setRespTime(System.currentTimeMillis());
+            debugRespDto.setReqMsg(item.getRequestMessage() != null ? item.getRequestMessage().toString() : "");
+            debugRespDto.setRespMsg(item.getResponseMessage() != null ? item.getResponseMessage().toString() : "");
+            deviceCmdLog.setElapsed(System.currentTimeMillis() - deviceCmdLog.getCreateTime().getTime());
+
+            if (item.getStatus() == ExecStatus.success) {
                 debugRespDto.setValue(item.getValue());
-                return success(debugRespDto.setValue(item.getValue()));
+                deviceCmdLog.setStatus(DeviceCmdLog.STATUS_SUCCESS).setResultMsg("执行成功");
+                if (context.getModelApi().getFuncType() == FuncType.R && item.getValue() != null) {
+                    DataSupplier dataSupplier = context.getSupplier().getDataSupplier(
+                            item.getProtocol(), param, item.getValue());
+                    String value = dataSupplier.getValues().stream()
+                            .map(SignalOrFieldValue::toString)
+                            .collect(Collectors.joining(", "));
+                    debugRespDto.setValue(value);
+                }
+
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
+                return success(debugRespDto);
             } else {
+                deviceCmdLog.setStatus(DeviceCmdLog.STATUS_FAILURE).setResultMsg(item.getReason());
+                IotEvenPublisher.publish(IotEventType.DeviceCmdLog, deviceCmdLog);
                 return success(debugRespDto.setReason(item.getReason()));
             }
         });
     }
 
-    private Object[] getProtocolModelApi(String modelApiCode, ProtocolModelApiInvokeParam param) {
-        //查找对应的物模型api
-        ModelApi modelApi = modelApiService.detailByCode(modelApiCode)
-                .ifNotPresentThrow("接口代码不存在[modelApiCode=" + modelApiCode + "]")
-                .getData();
+    /**
+     * 指令集列表
+     * @param uid 设备uid
+     * @param apiType 指令类型，为空获取所有
+     */
+    @GetMapping("commands")
+    @CheckPermission("iot:cmd:list")
+    public Result<List<DeviceCommandDto>> commands(String uid, ProtocolApiType apiType) {
+        return success(modelApiInvokeService.listCommands(uid, apiType));
+    }
 
-        ProductDto product = this.productService.detailById(modelApi.getProductId())
-                .ifNotPresentThrow("未找到所属产品").getData();
+    /**
+     * 调用指令
+     */
+    @Logger("指令接口调用")
+    @CheckPermission({"iot:cmd:invoke"})
+    @PostMapping("/command/invoke")
+    public Mono<Result<?>> invoke(@RequestBody CmdInvokeDto cmd) {
+        CmdInvokeUpdateDto updateDto = new CmdInvokeUpdateDto().setScenario(cmd.getScenario())
+                .setCode(cmd.getCode()).setUid(cmd.getUid()).setName(cmd.getName());
+        return this.updateInvoke(updateDto);
+    }
 
-        if(product.getStatus() == FuncStatus.disabled) {
-            throw new ServiceException("请先启用产品["+product.getName()+"]");
-        }
-
-        Device device = deviceService.getByUid(param.getUid())
-                .ifNotPresentThrow("查找不到设备[uid=" + param.getUid() + "]").getData();
-        param.setDeviceSn(device.getDeviceSn()).addDeviceConfig(device.getConfig());
-        // 网关子设备需要取网关设备
-        if(product.getDeviceType() == DeviceType.Child) {
-            if(device.getPid() == null) {
-                throw new ServiceException("此网关子设备没有关联父网关设备");
+    /**
+     * 执行设备功能指令并且更新已写的实时数据状态
+     */
+    @PostMapping("/command/invoke/update")
+    public Mono<Result<?>> updateInvoke(@RequestBody CmdInvokeUpdateDto dto) {
+        return modelApiInvokeService.invokeByEvent(dto).map(item -> {
+            if (item.getStatus() == ExecStatus.success) {
+                return success(item.getValue(), "执行指令成功");
+            } else {
+                return fail(item.getReason());
             }
-
-            if(StrUtil.isBlank(device.getParentDeviceSn())) {
-                throw new ServiceException("查找不到绑定的父网关设备");
-            }
-
-            param.setParentDeviceSn(device.getParentDeviceSn());
-        }
-
-        DeviceProtocolSupplier protocolSupplier = ProtocolSupplierManager.get(product.getProtocolCode());
-        if(protocolSupplier == null) {
-            throw new ServiceException("没有找到协议[protocol=" + product.getProtocolCode() + "]");
-        }
-
-        // 查找对应的协议接口
-        AbstractProtocolModelApi protocolModelApi = protocolSupplier.getProtocol().getApi(modelApi.getDirect());
-        if(protocolModelApi == null) {
-            throw new ServiceException("没有找到接口[apiCode="+modelApi.getDirect()+"]");
-        }
-
-        // 设置父网关设备配置
-        if(product.getDeviceType() == DeviceType.Child) {
-            RealtimeStatus parent = cacheManager.get(protocolSupplier.getProtocol().getCode(), device.getParentDeviceSn());
-            if(parent != null) {
-                param.addParentDeviceConfig(parent.getConfig());
-            }
-        }
-
-        return new Object[]{protocolModelApi, modelApi, product, protocolSupplier};
+        });
     }
 }

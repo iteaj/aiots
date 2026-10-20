@@ -43,6 +43,16 @@ public class SignalOrFieldValue {
      */
     private CollectStatus status;
 
+    /**
+     * 告警等级
+     */
+    private String grade;
+
+    /**
+     * 指标
+     */
+    private String indicator;
+
     public SignalOrFieldValue(Long id, String signalOrField, Date collectTime, Object value) {
         this.id = id;
         this.value = value;
@@ -84,5 +94,10 @@ public class SignalOrFieldValue {
 
     public static SignalOrFieldValue build(Long id, String signalOrField, Date collectTime, CollectStatus status, String address) {
         return new SignalOrFieldValue(id, signalOrField, collectTime, status).setAddress(address);
+    }
+
+    @Override
+    public String toString() {
+        return getSignalOrField() + "=" + (value != null ? value.toString() : "");
     }
 }

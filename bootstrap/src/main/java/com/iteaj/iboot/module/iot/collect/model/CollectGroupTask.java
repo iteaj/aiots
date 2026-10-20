@@ -1,10 +1,14 @@
 package com.iteaj.iboot.module.iot.collect.model;
 
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.exception.InvokeTimeoutException;
 import com.iteaj.framework.spi.iot.ProtocolInvokeException;
+import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.consts.ProtocolCodes;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -22,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+@Deprecated
 public class CollectGroupTask implements Runnable{
 
     private DeviceGroup group;
@@ -45,52 +50,41 @@ public class CollectGroupTask implements Runnable{
         }
 
         String prevParentDeviceSn = null;
-        CollectInfo info = new CollectInfo(source, group);
+        CollectInfo info = new CollectInfo(source);
         Collection<RealtimeStatus> devices = cacheManager.listByGroupId(group.getId());
-        Iterator<RealtimeStatus> iterator = devices.iterator();
-        while (iterator.hasNext()) {
-            RealtimeStatus device = iterator.next();
+        for (RealtimeStatus device : devices) {
             // 当前设备的产品不在事件源包含的产品里面
-            if(device.getProductId() == null || !source.getProductIds().contains(device.getProductId().intValue())) {
+            if (device.getProductId() == null || !source.getProductIds().contains(device.getProductId())) {
                 continue;
             }
 
-            if(device.getStatus() == DeviceStatus.offline) {
-                if(device.getType() == DeviceType.Gateway) {
-                    IotLogger.warn(source, device.getUid(), "放弃设备采集 设备不在线 - 设备组: {} - 设备编号: {}"
+            if (device.getType() == DeviceType.Child) {
+                RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
+                if(parent == null) {
+                    IotLogger.warn(source, device.getUid(), "放弃设备采集 父设备不存在 - 设备组: {} - 设备编号: {}"
                             , group.getName(), device.buildDeviceKey());
                     continue;
-                } else if(device.getType() == DeviceType.Child) {
-                    RealtimeStatus parent = cacheManager.get(device.getProtocolCode(), device.getParentDeviceSn());
-                    if(parent != null) {
-                        if(parent.getStatus() == DeviceStatus.offline) {
-                            IotLogger.warn(source, device.getUid(), "放弃设备采集 网关设备不在线 - 设备组: {} - 设备编号: {}"
-                                    , group.getName(), device.buildDeviceKey());
-                            continue;
-                        }
-                    } else {
-                        IotLogger.warn(source, device.getUid(), "放弃设备采集 父设备不存在 - 设备组: {} - 设备编号: {}"
-                                , group.getName(), device.buildDeviceKey());
-                        continue;
-                    }
                 }
 
+                if(parent.getStatus() == DeviceStatus.offline) {
+                    IotLogger.warn(source, device.getUid(), "放弃设备采集 网关设备不在线 - 设备组: {} - 设备编号: {}"
+                            , group.getName(), device.buildDeviceKey());
+                    continue;
+                }
             }
 
-            Iterator<ModelApi> apiIterator = apis.iterator();
-            while (apiIterator.hasNext()) {
-                ModelApi api = apiIterator.next();
+            for (ModelApi api : apis) {
                 try {
                     // 对此设备同一产品的模型接口进行调用
-                    if(api.getProductId().equals(device.getProductId())) {
-                        if(prevParentDeviceSn != null && ProtocolCodes.isModbus(device.getProtocolCode())) {
+                    if (api.getProductId().equals(device.getProductId())) {
+                        if (prevParentDeviceSn != null && ProtocolCodes.isModbus(device.getProtocolCode())) {
                             // 同一台网关设备的采集时间需要有一定间隔(防止网关设备性能差导致采集失败)
-                            if(prevParentDeviceSn.equals(device.getParentDeviceSn())) {
+                            if (prevParentDeviceSn.equals(device.getParentDeviceSn())) {
                                 Thread.sleep(1000); // 休眠1秒
                             }
                         }
 
-                        doInvoke(info, device, api, 3000l, false);
+                        doInvoke(info, device, api, 3000L, false);
                         prevParentDeviceSn = device.getParentDeviceSn();
                     }
                 } catch (ProtocolInvokeException e) {
@@ -124,7 +118,7 @@ public class CollectGroupTask implements Runnable{
                 }
             } else {
                 if(result.getStatus() == ExecStatus.timeout && !retry) {
-                    this.doInvoke(info, device, api, 6000l, true);
+                    this.doInvoke(info, device, api, 6000L, true);
                 } else {
                     if(retry) {
                         IotLogger.warn(source, device.getUid(), "采集重试失败 {} - 设备组: {} - 设备编号: {} - 接口: {}/{}", result.getReason()
@@ -142,6 +136,16 @@ public class CollectGroupTask implements Runnable{
     }
 
     private void dataPublish(CollectInfo info, RealtimeStatus device, ModelApi api, InvokeResult result) {
+        /**
+         * 动态更新设备的状态
+         * @see DeviceStatusModelApiManager#doInvoke(ModelApi, RealtimeStatus, long, boolean)
+         */
+        DeviceStatus status = result.getStatus() == ExecStatus.success ? DeviceStatus.online : DeviceStatus.offline;
+        if(device.getStatus() != status) {
+            device.setStatus(status);
+            IotEvenPublisher.publish(IotEventType.DeviceStatus, device);
+        }
+
         ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(data -> {
             CollectInfo.DeviceInfo deviceInfo = info.addDeviceInfo(device, api, data);
             IotLogger.debug(source, device.getUid(), "采集数据成功 设备编号: {}", device.buildDeviceKey());

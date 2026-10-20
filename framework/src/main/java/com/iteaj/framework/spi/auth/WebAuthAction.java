@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.auth;
 
-import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.web.WebUtils;
@@ -8,9 +8,9 @@ import org.springframework.core.Ordered;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.charset.StandardCharsets;
@@ -109,7 +109,7 @@ public interface WebAuthAction<T> extends Ordered {
     default void writeJson(Result result, HttpServletResponse response) {
         response.setContentType("application/json;charset=utf-8");
         try(ServletOutputStream outputStream = response.getOutputStream()) {
-            String toJson = JSONUtil.toJsonStr(result);
+            String toJson = JSON.toJSONString(result);
             outputStream.write(toJson.getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         } catch (Exception e) {

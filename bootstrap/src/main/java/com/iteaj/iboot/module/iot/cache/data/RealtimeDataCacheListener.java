@@ -1,20 +1,15 @@
 package com.iteaj.iboot.module.iot.cache.data;
 
 import com.iteaj.framework.spi.iot.DataSupplier;
-import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.collect.CollectDevice;
-import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
-import com.iteaj.iboot.module.iot.consts.DeviceStatus;
-import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.EventSource;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
 
-public class RealtimeDataCacheListener implements EventGroupCollectListener, SignalCollectListener, ModelAttrListener {
+public class RealtimeDataCacheListener implements EventGroupCollectListener, ModelAttrListener {
 
     private final RealtimeDataService realtimeDataService;
 
@@ -37,9 +32,7 @@ public class RealtimeDataCacheListener implements EventGroupCollectListener, Sig
     }
 
     @Override
-    public void supplier(CollectDevice device, CollectData data) {
-        realtimeDataService.put(device.getProtocolCode(), device.buildKey()
-                , SignalOrFieldValue.build(data.getSignalId(), data.getAddress(), data.getCollectTime()
-                        , data.getValue(), data.getAddress()).builder(data.getCollectStatus()));
+    public int getOrder() {
+        return EventGroupCollectListener.super.getOrder() - 4168;
     }
 }

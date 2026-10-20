@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.message;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import lombok.Data;
 
 import java.io.Serializable;

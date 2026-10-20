@@ -3,6 +3,9 @@ package com.iteaj.iboot.module.iot.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
@@ -10,7 +13,7 @@ import com.iteaj.framework.result.PageResult;
 import com.iteaj.framework.spi.iot.consts.CollectSearchType;
 import com.iteaj.framework.spi.iot.consts.TimeCountCondition;
 import com.iteaj.framework.spi.iot.data.*;
-import com.iteaj.framework.spi.iot.view.ViewSqlCondition;
+import com.iteaj.framework.spi.iot.view.chart.ChartSqlCondition;
 import com.iteaj.iboot.module.iot.dto.CollectDataDto;
 import com.iteaj.iboot.module.iot.entity.CollectData;
 import com.iteaj.iboot.module.iot.mapper.CollectDataMapper;
@@ -96,7 +99,7 @@ public class CollectDataServiceImpl  extends BaseServiceImpl<CollectDataMapper, 
     }
 
     @Override
-    public List<BaseEchartsCount> countOfView(ViewSqlCondition condition) {
+    public List<BaseEchartsCount> countOfView(ChartSqlCondition condition) {
         if(Objects.equals("time", condition.getCategory())) {
             return this.getBaseMapper().countOfViewByTime(condition);
         } else { // 按范围

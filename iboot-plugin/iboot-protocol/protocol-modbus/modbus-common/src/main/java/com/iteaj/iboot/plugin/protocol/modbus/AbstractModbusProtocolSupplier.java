@@ -3,24 +3,26 @@ package com.iteaj.iboot.plugin.protocol.modbus;
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.ParamMeta;
-import com.iteaj.framework.spi.iot.DataSupplier;
-import com.iteaj.framework.spi.iot.NetworkConfigImpl;
-import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.StaticClientProtocolSupplier;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.*;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iot.AbstractProtocol;
 import com.iteaj.iot.Protocol;
 import com.iteaj.iot.client.ClientComponent;
 import com.iteaj.iot.client.IotClient;
+import com.iteaj.iot.modbus.Payload;
 import com.iteaj.iot.modbus.consts.ModbusCode;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl, C extends ClientComponent, K extends IotClient> extends StaticClientProtocolSupplier<N, C, K> {
+public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl, C extends ClientComponent, K extends IotClient>
+        extends StaticClientProtocolSupplier<N, C, K> implements BatchProtocolSupplier {
 
     private DefaultProtocolModel protocolModel;
+    private AbstractModbusEventProtocolModelApi batchModelApi;
+
     public static final String dataType = "dataType";
     private static final String numRemark = "String和Hex类型必填(一个寄存器两个字节)";
     private static List<ProtocolModelApiConfigOption> readOptions = new ArrayList<>();
@@ -32,6 +34,9 @@ public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl
                     , new IVOption("BADC", "BADC")
                     , new IVOption("CDAB", "CDAB")
                     , new IVOption("DCBA", "DCBA")),
+            ParamMeta.buildRequiredSelect("isBatch", "是否批量", "true", "此设备的点位是否批量采集"
+                    , new IVOption("是", "true")
+                    , new IVOption("否", "false")),
     };
     static {
         readOptions.add(new ProtocolModelApiConfigOption("readShort", "short", "占1个寄存器"));
@@ -90,6 +95,9 @@ public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl
                         .addDownConfig(ProtocolModelApiConfig.downBuild(dataType, "写入值的数据类型").setOptions(writeOptions))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_VALUE, "要写的值")));
+
+        batchModelApi = createEventApi("batch", "批量读取", "");
+        batchModelApi.setProtocolModel(getProtocol());
     }
 
     protected abstract AbstractModbusFuncProtocolModelApi createFuncApi(String code, String name, String remark);
@@ -108,7 +116,19 @@ public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl
                     String address = param.getString(PointProtocolConfig.POINT_ADDRESS);
                     if(status == CollectStatus.Success) {
                         Object resolverValue = dataResolver(item, value);
-                        supplier.addValue(item.getId(), address, item.getField(), resolverValue);
+                        if(resolverValue instanceof SignalOrFieldValue) {
+                            supplier.addValue((SignalOrFieldValue) resolverValue);
+                        } else if(resolverValue instanceof Collection) {
+                            ((Collection<?>) resolverValue).forEach(itemValue -> {
+                                if(itemValue instanceof SignalOrFieldValue) {
+                                    supplier.addValue((SignalOrFieldValue) itemValue);
+                                } else {
+                                    supplier.addValue(item.getId(), address, item.getField(), resolverValue);
+                                }
+                            });
+                        } else {
+                            supplier.addValue(item.getId(), address, item.getField(), resolverValue);
+                        }
                     } else {
                         supplier.addValue(item.getId(), address, item.getField(), status);
                     }
@@ -117,6 +137,11 @@ public abstract class AbstractModbusProtocolSupplier<N extends NetworkConfigImpl
         }
 
         return supplier;
+    }
+
+    @Override
+    public BatchEventModelApi getBatchEventModelApi() {
+        return batchModelApi;
     }
 
     @Override

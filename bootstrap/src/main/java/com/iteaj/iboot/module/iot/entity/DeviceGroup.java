@@ -1,17 +1,13 @@
 package com.iteaj.iboot.module.iot.entity;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.util.List;
 
 import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.iteaj.framework.TreeEntity;
-import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
-import com.iteaj.framework.mybatis.handler.ListOfLongJsonTypeHandler;
-import com.iteaj.iboot.module.iot.consts.GroupType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

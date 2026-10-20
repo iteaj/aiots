@@ -1,5 +1,7 @@
 package com.iteaj.framework.spi.iot;
 
+import cn.hutool.core.util.StrUtil;
+import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.iot.FrameworkComponent;
 import com.iteaj.iot.FrameworkManager;
 
@@ -64,8 +66,11 @@ public abstract class StaticProtocolSupplier<C extends NetworkConfigImpl, T exte
             resolver = DataValueResolverFactory.getDefault();
         }
 
+        value = IotUtil.resolverBit(attr, value); // 位解析
         return resolver.resolver(attr, value);
     }
+
+
 
     @Override
     public boolean equals(Object obj) {

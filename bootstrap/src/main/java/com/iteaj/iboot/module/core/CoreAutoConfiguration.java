@@ -9,24 +9,15 @@ import com.iteaj.framework.spi.admin.ResourceManager;
 import com.iteaj.framework.spi.excel.ExcelDictHandle;
 import com.iteaj.framework.spi.excel.IExcelService;
 import com.iteaj.iboot.module.core.config.listener.OnlineUserListener;
-import com.iteaj.iboot.module.core.exception.AsyncExceptionHandler;
 import com.iteaj.iboot.module.core.listener.LoggerListener;
 import com.iteaj.iboot.module.core.service.impl.SysResourceManager;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.task.TaskExecutorBuilder;
-import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -43,7 +34,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan({"com.iteaj.iboot.module.core"})
 @MapperScan({"com.iteaj.iboot.module.core.mapper"})
 @EnableConfigurationProperties(CoreProperties.class)
-public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer {
+public class CoreAutoConfiguration implements WebMvcConfigurer {
 
     private final CoreProperties coreProperties;
 
@@ -80,14 +71,16 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
     }
 
     /**
+     * 匿名放行列表: 登录页等无需认证的路径 + 页面WebSocket握手端点
+     * (握手请求不受浏览器控制无法带认证头, 由全局WebSocketAuthInterceptor按query参数token自行鉴权)
      * @return
      */
     @Bean
     @Order(value = 18)
     public OrderFilterChainDefinition coreFilterChainDefinition() {
         return new OrderFilterChainDefinition()
-                .addAnon("/core/login", "/js/**", "/css/**", "/img/**"
-                        , "/libs/**", "/doc/**", "/favicon.ico", "/", "/static/**");
+                .addAnon("/core/login", "/core/oauth2", "/core/oauth2/callback", "/js/**", "/css/**", "/img/**"
+                        , "/libs/**", "/doc/**", "/favicon.ico", "/ws/ai/agent");
     }
 
     @Bean
@@ -96,19 +89,8 @@ public class CoreAutoConfiguration implements WebMvcConfigurer, AsyncConfigurer 
         return new OrderFilterChainDefinition().addInclude("/**");
     }
 
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/")
-                .setViewName("forward:/static/index.html");
-    }
-
     @Bean
     public IExcelDictHandler excelDictHandler(IExcelService excelService) {
         return new ExcelDictHandle(excelService);
-    }
-
-    @Override
-    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return new AsyncExceptionHandler();
     }
 }

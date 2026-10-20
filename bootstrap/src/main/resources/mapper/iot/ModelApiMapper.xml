@@ -9,6 +9,8 @@
         <result column="code" property="code" />
         <result column="name" property="name" />
         <result column="debug" property="debug" />
+        <result column="sort" property="sort" />
+        <result column="config" property="config" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="status" property="status" />
         <result column="remark" property="remark" />
         <result column="direct" property="direct" />
@@ -17,6 +19,7 @@
         <result column="func_type" property="funcType" />
         <result column="product_id" property="productId" />
         <result column="trigger_mode" property="triggerMode" />
+        <result column="collect_tag" property="collectTag" />
         <result column="create_time" property="createTime" />
     </resultMap>
 
@@ -37,11 +40,11 @@
     </delete>
 
     <select id="listFuncByProductId" resultMap="DetailResultMap">
-        select * from iot_model_api where product_id = #{productId} and type='func' order by create_time desc
+        select * from iot_model_api where product_id = #{productId} and type='func' order by sort
     </select>
 
     <select id="listEventByProductId" resultMap="DetailResultMap">
-        select * from iot_model_api where product_id = #{productId} and type='event' order by as_status desc, create_time desc
+        select * from iot_model_api where product_id = #{productId} and type='event' order by sort
     </select>
 
     <select id="getCtrlStatusByProductId" resultMap="DetailResultMap">
@@ -74,14 +77,15 @@
     </select>
 
     <select id="listAsStatusModelApi" resultMap="DetailResultMap">
-        select a.*, p.code product_code from iot_model_api a
-            inner join iot_product p on a.product_id = p.id
-        where p.status = 'enabled' and a.func_type='R' and a.as_status=true and a.trigger_mode='passive'
+        select b.* from iot_product a
+            left join iot_protocol p on a.protocol_code=p.code
+            left join iot_model_api b on a.id=b.product_id
+        where a.status='enabled' and a.device_type='Child' and p.ctrl_mode='POINT' and b.func_type='R' and b.trigger_mode='passive' group by b.product_id
     </select>
     <select id="getAsStatusModelApi" resultMap="DetailResultMap">
         select a.*, p.code product_code from iot_model_api a
              inner join iot_product p on a.product_id = p.id
-        where a.product_id=#{productId} and a.func_type='R' and a.as_status=true and a.trigger_mode='passive'
+        where a.product_id=#{productId} and a.func_type='R' and a.trigger_mode='passive' order by sort limit 1
     </select>
 
     <select id="detailByCode" resultMap="DetailResultMap">
@@ -95,5 +99,10 @@
         select count(a.id) > 0 from iot_model_api_config a
             inner join iot_model_attr ma on a.model_attr_id=ma.id and ma.ctrl_status=true
         where a.api_code=#{code} and a.product_id=#{productId} and a.direction='DOWN' limit 1
+    </select>
+    <select id="listByProductCode" resultMap="BaseResultMap">
+        select a.* from iot_model_api a
+            left join iot_product b on a.product_id=b.id
+        where b.code=#{productCode} order by sort
     </select>
 </mapper>

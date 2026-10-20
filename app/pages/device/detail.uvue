@@ -1,0 +1,467 @@
+<!-- 设备详情页 -->
+<template>
+	<cl-page>
+		<cl-topbar fixed safe-area-top
+			:title="device.name || t('设备详情')">
+		</cl-topbar>
+
+		<view class="flex flex-col" :style="{ height: tabContainerHeight + 'px' }">
+			<!-- Tabs -->
+			<view class="bg-white dark:bg-surface-800">
+				<cl-tabs :list="tabs" v-model="tabActive" @change="onTabChange" :show-line="false"></cl-tabs>
+			</view>
+
+			<!-- Tab 0: 设备详情 -->
+			<scroll-view v-show="tabActive == 0" scroll-y class="flex-1">
+				<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mx-3 mt-3">
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
+						<cl-text :size="14" color="info">{{ t("设备名称") }}</cl-text>
+						<cl-text :size="14">{{ device.name || "-" }}</cl-text>
+					</view>
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
+						<cl-text :size="14" color="info">{{ t("设备编号") }}</cl-text>
+						<cl-text :size="14">{{ device.deviceSn || "-" }}</cl-text>
+					</view>
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
+						<cl-text :size="14" color="info">{{ t("设备UID") }}</cl-text>
+						<cl-text :size="14" :pt="{ className: 'flex-1 text-right' }">{{ device.uid || "-" }}</cl-text>
+					</view>
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
+						<cl-text :size="14" color="info">{{ t("设备状态") }}</cl-text>
+						<cl-text :size="14" :color="device.status == 'online' ? 'success' : 'info'">{{ device.status == 'online' ? t("在线") : t("离线") }}</cl-text>
+					</view>
+                    <view class="flex flex-row items-center justify-between py-3 border-divider">
+                        <cl-text :size="14" color="info">{{ t("设备类型") }}</cl-text>
+                        <cl-text :size="14">{{ device.deviceTypeName || "-" }}</cl-text>
+                    </view>
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
+						<cl-text :size="14" color="info">{{ t("产品名称") }}</cl-text>
+						<cl-text :size="14">{{ device.productName || "-" }}</cl-text>
+					</view>
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
+						<cl-text :size="14" color="info">{{ t("产品编码") }}</cl-text>
+						<cl-text :size="14">{{ device.productCode || "-" }}</cl-text>
+					</view>
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
+						<cl-text :size="14" color="info">{{ t("协议编码") }}</cl-text>
+						<cl-text :size="14">{{ device.protocolCode || "-" }}</cl-text>
+					</view>
+					<view class="flex flex-row items-center justify-between py-3 border-divider">
+						<cl-text :size="14" color="info">{{ t("设备分组") }}</cl-text>
+						<cl-text :size="14">{{ device.deviceGroupName || "-" }}</cl-text>
+					</view>
+					<view class="flex flex-row items-center justify-between py-3">
+						<cl-text :size="14" color="info">{{ t("IP地址") }}</cl-text>
+						<cl-text :size="14">{{ device.ip || "-" }}</cl-text>
+					</view>
+				</view>
+			</scroll-view>
+
+			<!-- Tab 1: 历史数据 -->
+			<cl-list-view v-show="tabActive == 1"
+				ref="historyListRef"
+				:data="historyList"
+				:virtual="false"
+				refresher-enabled
+				@refresher-refresh="onHistoryRefresh"
+				@bottom="onHistoryLoadMore"
+			>
+				<template #top>
+					<view v-if="historyList.length > 0"
+						class="flex flex-row items-center px-3 py-3 mt-2 rounded-t-xl border-divider">
+						<cl-text :size="12" color="info" :pt="{ className: 'flex-1' }">{{ t("属性名称") }}</cl-text>
+						<cl-text :size="12" color="info" :pt="{ className: 'w-16 text-center' }">{{ t("值") }}</cl-text>
+						<cl-text :size="12" color="info" :pt="{ className: 'w-12 text-center' }">{{ t("单位") }}</cl-text>
+						<cl-text :size="12" color="info" :pt="{ className: 'w-28 text-right' }">{{ t("采集时间") }}</cl-text>
+					</view>
+				</template>
+
+				<template #item="{ data, index }">
+					<view class="flex flex-row items-center px-3 py-3 bg-white dark:bg-surface-800 border-divider">
+						<cl-text :size="13" :pt="{ className: 'flex-1' }">{{ data.fieldName || "-" }}</cl-text>
+						<cl-text :size="13" :pt="{ className: 'w-16 text-center font-bold' }">{{ data.value || "-" }}</cl-text>
+						<cl-text :size="12" color="info" :pt="{ className: 'w-12 text-center' }">{{ data.unit || "-" }}</cl-text>
+						<cl-text :size="11" color="info" :pt="{ className: 'w-28 text-right' }">{{ data.collectTime ? dayUts(data.collectTime).format("YYYY-MM-DD HH:mm:ss") : "" }}</cl-text>
+					</view>
+				</template>
+
+				<template #bottom>
+					<view class="pb-4"><cl-loadmore :status="historyLoadMoreStatus" /></view>
+				</template>
+			</cl-list-view>
+
+			<!-- Tab 2: 指令集 -->
+			<scroll-view v-show="tabActive == 2" scroll-y class="flex-1 mt-2">
+				<template v-if="commandsLoading">
+					<view class="flex flex-col items-center py-6">
+						<cl-loading></cl-loading>
+						<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("加载中...") }}</cl-text>
+					</view>
+				</template>
+				<template v-else-if="commands.length == 0">
+					<view class="flex flex-col items-center py-6">
+						<cl-icon name="list-check-line" :size="36" color="info"></cl-icon>
+						<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">
+                            {{ device.deviceType == 'Gateway' ? t("网关设备无指令集") : t("暂无指令") }}
+                        </cl-text>
+					</view>
+				</template>
+				<template v-else>
+					<view v-for="(item, index) in commands" :key="index">
+						<view class="bg-white dark:bg-surface-800 px-4 py-3.5 border-divider">
+							<view class="flex flex-row items-center">
+								<view class="flex-1 flex flex-col">
+									<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ item.apiName }}</cl-text>
+									<cl-text :size="12" color="info" :pt="{ className: 'mt-1' }">{{ item.remark || "-" }}</cl-text>
+								</view>
+								<cl-button size="large" @tap="onExecCommand(item)">{{ t("执行") }}</cl-button>
+							</view>
+						</view>
+					</view>
+				</template>
+			</scroll-view>
+
+			<!-- Tab 3: 告警信息 -->
+			<cl-list-view v-show="tabActive == 3"
+				ref="warnListRef"
+				:data="warnList"
+				:virtual="false"
+				refresher-enabled
+				@refresher-refresh="onWarnRefresh"
+				@bottom="onWarnLoadMore" class="mt-2">
+				<template #item="{ data }">
+					<view class="px-3">
+						<view class="bg-white dark:bg-surface-800 rounded-xl px-4 py-3 mb-1" style="box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
+							<view class="flex flex-row items-start justify-between mb-1">
+								<cl-text :size="12"
+									:color="data.gradeName == '严重' ? 'danger' : data.gradeName == '紧急' ? 'warning' : data.gradeName == '告警' ? 'warning' : 'success'">{{ data.gradeName }}</cl-text>
+								<cl-text :size="11" color="info">{{ data.warnTime ? dayUts(data.warnTime).format("YYYY-MM-DD HH:mm:ss") : "" }}</cl-text>
+							</view>
+							<cl-text :size="13">{{ data.content }}</cl-text>
+						</view>
+					</view>
+				</template>
+
+				<template #bottom>
+					<view class="pb-4"><cl-loadmore :status="warnLoadMoreStatus" /></view>
+				</template>
+			</cl-list-view>
+
+			<!-- Tab 4: 指令日志 -->
+			<cl-list-view v-show="tabActive == 4"
+				ref="cmdLogListRef"
+				:data="cmdLogList"
+				:virtual="false"
+				refresher-enabled
+				@refresher-refresh="onCmdLogRefresh"
+				@bottom="onCmdLogLoadMore" class="mt-2">
+				<template #item="{ data }">
+					<view class="border-divider">
+						<view class="bg-white dark:bg-surface-800 px-4 py-3">
+							<view class="flex flex-row items-center justify-between mb-1">
+								<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ data.cmdName || "-" }}</cl-text>
+								<cl-text :size="12"
+									:color="data.status == 'SUCCESS' ? 'success' : 'danger'">{{ data.status == 'SUCCESS' ? t("成功") : t("失败") }}</cl-text>
+							</view>
+							<view class="flex flex-row items-center justify-between mb-1">
+								<cl-text :size="12" color="info">{{ t("操作人") }}：{{ data.operator || "-" }}</cl-text>
+								<cl-text :size="12" color="info">{{ t("场景") }}：{{ data.method || "-" }}</cl-text>
+							</view>
+							<view class="flex flex-row items-center justify-between">
+								<cl-text :size="12" color="info">{{ t("错误信息") }}：{{ data.resultMsg || "-" }}</cl-text>
+								<cl-text :size="11" color="info">{{ data.createTime ? dayUts(data.createTime).format("YYYY-MM-DD HH:mm:ss") : "" }}</cl-text>
+							</view>
+						</view>
+					</view>
+				</template>
+
+				<template #bottom>
+					<view class="pb-4"><cl-loadmore :status="cmdLogLoadMoreStatus" /></view>
+				</template>
+			</cl-list-view>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { reactive, ref, computed, onMounted } from "vue";
+import { request, t, dayUts, router, getContentHeight } from "@/.cool";
+import { useUi } from "@/uni_modules/cool-ui";
+import { DeviceApi, type DeviceDetail, type CollectDataItem, type CommandItem, type WarnItem, type CmdLogItem } from "./device";
+
+const ui = useUi();
+
+// 设备数据
+const device = reactive<DeviceDetail>({} as DeviceDetail);
+
+// Tabs
+const tabs = reactive([
+	{ label: t("设备详情"), value: 0 },
+	{ label: t("历史数据"), value: 1 },
+	{ label: t("指令集"), value: 2 },
+	{ label: t("告警信息"), value: 3 },
+	{ label: t("指令日志"), value: 4 }
+]);
+const tabActive = ref(0);
+
+// 容器高度
+const tabContainerHeight = getContentHeight(44);
+
+// ===== Tab 1: 历史数据 =====
+const historyList = reactive<CollectDataItem[]>([]);
+const historyLoading = ref(false);
+const historyPage = ref(1);
+const historyHasMore = ref(true);
+const historyListRef = ref<any>(null);
+const historyLoadMoreStatus = computed(() => {
+	return historyLoading.value ? 'loading' : historyHasMore.value ? 'more' : 'nomore';
+});
+
+// ===== Tab 2: 指令集 =====
+const commands = reactive<CommandItem[]>([]);
+const commandsLoading = ref(false);
+
+// ===== Tab 3: 告警信息 =====
+const warnList = reactive<WarnItem[]>([]);
+const warnLoading = ref(false);
+const warnPage = ref(1);
+const warnHasMore = ref(true);
+const warnListRef = ref<any>(null);
+const warnLoadMoreStatus = computed(() => {
+	return warnLoading.value ? 'loading' : warnHasMore.value ? 'more' : 'nomore';
+});
+
+// ===== Tab 4: 指令日志 =====
+const cmdLogList = reactive<CmdLogItem[]>([]);
+const cmdLogLoading = ref(false);
+const cmdLogPage = ref(1);
+const cmdLogHasMore = ref(true);
+const cmdLogListRef = ref<any>(null);
+const cmdLogLoadMoreStatus = computed(() => {
+	return cmdLogLoading.value ? 'loading' : cmdLogHasMore.value ? 'more' : 'nomore';
+});
+
+// 设备UID
+const uid = ref("");
+
+// 页面参数
+const props = defineProps<{
+	uid?: string;
+}>();
+
+// ========== 加载函数 ==========
+
+function loadDeviceDetail() {
+	request<DeviceDetail>({
+		url: DeviceApi.DETAIL,
+		data: { uid: uid.value }
+	}).then((data) => {
+		if (data) {
+			Object.assign(device, data);
+		}
+	});
+}
+
+// 历史数据（分页）
+function loadHistoryData(reset: boolean = false): Promise<void> {
+	return new Promise<void>((resolve) => {
+		if (historyLoading.value || (!reset && !historyHasMore.value)) { resolve(); return; }
+		if (reset) {
+			historyPage.value = 1;
+			historyHasMore.value = true;
+		}
+		historyLoading.value = true;
+		request<{ records: any[]; total: number }>({
+			url: DeviceApi.COLLECT_PAGE,
+			data: { uid: uid.value, current: historyPage.value, size: 20 }
+		}).then((data) => {
+			if (reset) historyList.length = 0;
+			if (data?.records) {
+				data.records.forEach((item: any) => historyList.push(item));
+				historyHasMore.value = historyList.length < data.total;
+				historyPage.value++;
+			} else {
+				historyHasMore.value = false;
+			}
+		}).finally(() => {
+			historyLoading.value = false;
+			resolve();
+		});
+	});
+}
+
+function loadCommands() {
+	commandsLoading.value = true;
+	commands.length = 0;
+	Promise.all([
+		request<any[]>({
+			url: DeviceApi.COMMANDS,
+			data: { uid: uid.value, apiType: "func" }
+		}),
+		request<any[]>({
+			url: DeviceApi.COMMANDS,
+			data: { uid: uid.value, apiType: "event" }
+		})
+	]).then(([funcCmds, eventCmds]) => {
+		if (funcCmds) funcCmds.forEach((item: any) => commands.push(item));
+		if (eventCmds) eventCmds.forEach((item: any) => commands.push(item));
+	}).finally(() => {
+		commandsLoading.value = false;
+	});
+}
+
+// 执行指令
+function onExecCommand(item: CommandItem) {
+	ui.showConfirm({
+		title: t("确认执行"),
+		message: t("执行") + "「" + item.apiName + "」命令吗",
+		callback(action) {
+			if (action != "confirm") return;
+			let scenario = "小程序";
+			// #ifdef APP
+			scenario = "app";
+			// #endif
+			request({
+				url: DeviceApi.COMMAND_INVOKE,
+				method: "POST",
+				data: {
+					code: item.commandValue,
+					name: item.apiName,
+					uid: uid.value,
+					scenario: scenario
+				}
+			}).then(() => {
+				ui.showToast({ message: t("指令执行成功") });
+			});
+		}
+	});
+}
+// 告警信息（分页）
+function loadWarns(reset: boolean = false): Promise<void> {
+	return new Promise<void>((resolve) => {
+		if (warnLoading.value || (!reset && !warnHasMore.value)) { resolve(); return; }
+		if (reset) {
+			warnPage.value = 1;
+			warnHasMore.value = true;
+		}
+		warnLoading.value = true;
+		request<{ records: any[]; total: number }>({
+			url: DeviceApi.WARN_PAGE,
+			data: { uid: uid.value, current: warnPage.value, size: 20 }
+		}).then((data) => {
+			if (reset) warnList.length = 0;
+			if (data?.records) {
+				data.records.forEach((item: any) => warnList.push(item));
+				warnHasMore.value = warnList.length < data.total;
+				warnPage.value++;
+			} else {
+				warnHasMore.value = false;
+			}
+		}).finally(() => {
+			warnLoading.value = false;
+			resolve();
+		});
+	});
+}
+
+// 指令日志（分页）
+function loadCmdLogs(reset: boolean = false): Promise<void> {
+	return new Promise<void>((resolve) => {
+		if (cmdLogLoading.value || (!reset && !cmdLogHasMore.value)) { resolve(); return; }
+		if (reset) {
+			cmdLogPage.value = 1;
+			cmdLogHasMore.value = true;
+		}
+		cmdLogLoading.value = true;
+		request<{ records: any[]; total: number }>({
+			url: DeviceApi.CMD_LOG_PAGE,
+			data: { uid: uid.value, current: cmdLogPage.value, size: 20 }
+		}).then((data) => {
+			if (reset) cmdLogList.length = 0;
+			if (data?.records) {
+				data.records.forEach((item: any) => cmdLogList.push(item));
+				cmdLogHasMore.value = cmdLogList.length < data.total;
+				cmdLogPage.value++;
+			} else {
+				cmdLogHasMore.value = false;
+			}
+		}).finally(() => {
+			cmdLogLoading.value = false;
+			resolve();
+		});
+	});
+}
+
+// ========== 各列表刷新/加载更多 ==========
+
+function onHistoryRefresh() {
+	loadHistoryData(true).finally(() => {
+		historyListRef.value?.stopRefresh();
+	});
+}
+
+function onHistoryLoadMore() {
+	if (!historyLoading.value && historyHasMore.value) {
+		loadHistoryData();
+	}
+}
+
+function onWarnRefresh() {
+	loadWarns(true).finally(() => {
+		warnListRef.value?.stopRefresh();
+	});
+}
+
+function onWarnLoadMore() {
+	if (!warnLoading.value && warnHasMore.value) {
+		loadWarns();
+	}
+}
+
+function onCmdLogRefresh() {
+	loadCmdLogs(true).finally(() => {
+		cmdLogListRef.value?.stopRefresh();
+	});
+}
+
+function onCmdLogLoadMore() {
+	if (!cmdLogLoading.value && cmdLogHasMore.value) {
+		loadCmdLogs();
+	}
+}
+
+// Tab 切换
+function onTabChange(index: number) {
+	tabActive.value = index;
+	switch (index) {
+		case 0:
+			if (Object.keys(device).length == 0) loadDeviceDetail();
+			break;
+		case 1:
+			if (historyList.length == 0) loadHistoryData();
+			break;
+		case 2:
+			if (commands.length == 0) loadCommands();
+			break;
+		case 3:
+			if (warnList.length == 0) loadWarns();
+			break;
+		case 4:
+			if (cmdLogList.length == 0) loadCmdLogs();
+			break;
+	}
+}
+
+// 初始化
+onMounted(() => {
+	const params = router.query() as Record<string, any>;
+	uid.value = props.uid || (params?.uid as string) || "";
+	loadDeviceDetail();
+});
+</script>
+
+<style lang="scss" scoped>
+.border-divider {
+	border-bottom: 1px solid #e5e7eb;
+}
+</style>

@@ -31,7 +31,7 @@ public class DefaultMqttPublishProtocolModelApi extends AbstractFuncProtocolMode
 
         String topic = arg.getParam().getString("topic");
         topic = StrFormatter.format(topic, arg.getConfig(), true);
-        byte[] msg = arg.getParam().getString("payload").getBytes(StandardCharsets.UTF_8);
+        byte[] msg = arg.getParam().getString("PublicPayload").getBytes(StandardCharsets.UTF_8);
         return new DefaultMqttPublishProtocol(msg, topic).setClientKey(client.getConfig());
     }
 

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.plugin.ai.mcp.mapper.IotInfoMapper">
+
+    <select id="getProductInfo" resultType="com.iteaj.iboot.plugin.ai.mcp.entity.ProductInfo">
+        select * from iot_product where code = #{productCode}
+    </select>
+
+    <select id="listDeviceGroupInfo" resultType="com.iteaj.iboot.plugin.ai.mcp.dto.DeviceGroupInfoDto">
+        select * from iot_device_group
+        <where>
+            <if test="deviceGroupId != null">
+                and id = #{deviceGroupId}
+            </if>
+            <if test="name != null">
+                and name like concat('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
+    <select id="listDeviceProtocol" resultType="com.iteaj.iboot.plugin.ai.mcp.dto.DeviceDriverDto">
+        select name, code, ctrl_mode, type, remark, version, gateway_type, connection_type from iot_protocol
+    </select>
+    <select id="listProductAttrCatalog" resultType="com.iteaj.iboot.plugin.ai.mcp.dto.ApiMetaDto">
+        select code as id, name, 'attr' as catalog, remark from iot_product;
+    </select>
+</mapper>

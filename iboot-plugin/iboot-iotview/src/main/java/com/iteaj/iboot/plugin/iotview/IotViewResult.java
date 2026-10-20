@@ -1,6 +1,5 @@
 package com.iteaj.iboot.plugin.iotview;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.result.AbstractResult;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.result.Result;
@@ -11,9 +10,9 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class IotViewResult extends AbstractResult {
+public class IotViewResult<T> extends AbstractResult<T> {
 
-    public IotViewResult(Result result) {
+    public IotViewResult(Result<T> result) {
         this(result.getData(), result.getMessage(), result.getCode());
     }
 
@@ -21,12 +20,8 @@ public class IotViewResult extends AbstractResult {
         super(message, code);
     }
 
-    protected IotViewResult(Object data, String message, long code) {
+    protected IotViewResult(T data, String message, long code) {
         super(data, message, code);
-    }
-
-    public String getMsg() {
-        return getMessage();
     }
 
     public static IotViewResult Success(Object data) {
@@ -57,9 +52,5 @@ public class IotViewResult extends AbstractResult {
     public static IotViewResult Fail(Object data, String msg, int code) {
         return new IotViewResult(data, msg, code);
     }
-    @Override
-    @JsonIgnore
-    public String getMessage() {
-        return super.getMessage();
-    }
+
 }

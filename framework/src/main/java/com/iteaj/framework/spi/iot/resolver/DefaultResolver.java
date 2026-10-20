@@ -2,6 +2,8 @@ package com.iteaj.framework.spi.iot.resolver;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.spi.iot.DataValueResolver;
 import com.iteaj.framework.spi.iot.UpModelAttr;
 import com.iteaj.framework.spi.iot.consts.DataType;
@@ -15,7 +17,7 @@ import java.util.Date;
 public class DefaultResolver implements DataValueResolver {
 
     private static final String DEFAULT_NAME = "默认";
-    private Logger logger = LoggerFactory.getLogger(DefaultResolver.class);
+    private final Logger logger = LoggerFactory.getLogger(DefaultResolver.class);
 
     @Override
     public String name() {
@@ -42,6 +44,14 @@ public class DefaultResolver implements DataValueResolver {
                 } else if(isInteger(dataType)) {
                     return doResolverNumberValue(attr, Long.valueOf(value.toString()));
                 }
+            } else if(value != null){
+                if(value instanceof Boolean || value instanceof Enum<?>) {
+                    return value;
+                } else if(dataType == DataType.t_json || dataType == DataType.t_group) {
+                    return JSON.toJSON(value);
+                } else if(dataType == DataType.t_string) {
+                    return JSON.toJSONString(value);
+                }
             }
         } catch (Exception e) {
             logger.error("解析数据格式异常({}) 解析器: {} - 属性: {} - 值: {}", dataType
@@ -52,12 +62,12 @@ public class DefaultResolver implements DataValueResolver {
 
     private Object doResolverNumberValue(UpModelAttr attr, Object value) {
         if(attr.getGain() != null && attr.getGain() != 0) {
-            value = Double.valueOf(value.toString()) / attr.getGain();
+            value = Double.parseDouble(value.toString()) / attr.getGain();
         }
 
         if(attr.getAccuracy() != null && attr.getAccuracy() > 0) {
             if(attr.getDataType() == DataType.t_double || attr.getDataType() == DataType.t_float) {
-                BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(value.toString()));
+                BigDecimal bigDecimal = BigDecimal.valueOf(Double.parseDouble(value.toString()));
                 value = bigDecimal.setScale(attr.getAccuracy(), RoundingMode.DOWN).doubleValue();
             }
         }

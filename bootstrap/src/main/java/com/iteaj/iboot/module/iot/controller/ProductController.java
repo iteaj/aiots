@@ -10,16 +10,23 @@ import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.BatchModelDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandViewDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,7 +66,9 @@ public class ProductController extends BaseController {
      */
     @GetMapping("/list")
     public Result<List<IVOption>> list(Product entity) {
-        List<IVOption> options = this.productService.list(entity).stream()
+        List<IVOption> options = this.productService.list(Wrappers.lambdaQuery(entity)
+                        .in(entity.getDeviceTypes() != null, Product::getDeviceType, entity.getDeviceTypes()))
+                .stream()
                 .map(item -> new IVOption(item.getName(), item.getId()))
                 .collect(Collectors.toList());
         return success(options);
@@ -202,6 +211,62 @@ public class ProductController extends BaseController {
     @PostMapping("batchModelDel")
     public Result<Boolean> batchModelDel(@RequestBody BatchModelDto entity) {
         return this.productService.delBatchModel(entity.getId(), entity.getApiCode());
+    }
+
+    /**
+     * 指令列表
+     * @param productId
+     * @return
+     */
+    @GetMapping("commands")
+    public Result<List<DeviceCommandDto>> commands(Long productId) {
+
+        List<DeviceCommandDto> result = new ArrayList<>();
+        productService.joinDetailById(productId)
+            .ifNotPresentThrow("产品不存在")
+            .ifPresent(productDto -> {
+                if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                    productDto.getFuncApis().stream()
+                            .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                            .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+                }
+
+                if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                    productDto.getEventApis().stream()
+                            .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                            .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+                }
+            });
+
+        return success(result);
+    }
+    /**
+     * 指令集列表(大屏专用)
+     * @param productCode
+     * @return
+     */
+    @GetMapping("commands/view")
+    public Result<List<DeviceCommandViewDto>> commands(String productCode) {
+        List<DeviceCommandViewDto> result = new ArrayList<>();
+        productService.getByCode(productCode).ifNotPresentThrow("产品不存在").ifPresent(product -> {
+            productService.joinDetailById(product.getId())
+                .ifPresent(productDto -> {
+                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                        productDto.getFuncApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.add(api.resolverCommandOfView(productDto.getAttrs())));
+                    }
+
+                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                        productDto.getEventApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.add(api.resolverCommandOfView(productDto.getAttrs())));
+                    }
+                });
+        });
+
+
+        return success(result);
     }
 }
 

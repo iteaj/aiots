@@ -1,5 +1,7 @@
 package com.iteaj.framework.autoconfigure;
 
+import com.alibaba.fastjson2.support.config.FastJsonConfig;
+import com.alibaba.fastjson2.support.spring6.http.converter.FastJsonHttpMessageConverter;
 import com.iteaj.framework.FrameworkController;
 import com.iteaj.framework.exception.FrameworkException;
 import com.iteaj.framework.exception.IBootControllerAdvice;
@@ -10,15 +12,20 @@ import com.iteaj.framework.security.SecurityUtil;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * web项目配置
  */
 @ImportAutoConfiguration({
-        FrameworkAutoConfiguration.class
+        FrameworkAutoConfiguration.class,
 })
 public class FrameworkWebConfiguration implements WebMvcConfigurer {
 
@@ -63,12 +70,23 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
             definition.addAnon(strings[0]);
         }
 
-        return definition.addAnon("/static/**");
+        return definition.addAnon("/").addAnon("/core/framework/config").addAnon("/static/**");
     }
 
     @Bean
     public FrameworkController frameworkController() {
         return new FrameworkController();
+    }
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        FastJsonHttpMessageConverter fastJsonHttpMessageConverter = new FastJsonHttpMessageConverter();
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        fastJsonConfig.setDateFormat("yyyy-MM-dd HH:mm:ss");
+        fastJsonConfig.setCharset(StandardCharsets.UTF_8);
+        fastJsonHttpMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
+        fastJsonHttpMessageConverter.setFastJsonConfig(fastJsonConfig);
+        converters.add(0, fastJsonHttpMessageConverter);
     }
 
     /**
@@ -83,6 +101,7 @@ public class FrameworkWebConfiguration implements WebMvcConfigurer {
                     .addResourceLocations(strings[1]);
         }
 
+        registry.addResourceHandler("/").addResourceLocations("classpath:/static/index.html");
         registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
     }
 

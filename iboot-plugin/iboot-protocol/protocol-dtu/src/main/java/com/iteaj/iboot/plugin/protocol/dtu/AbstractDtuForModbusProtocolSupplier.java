@@ -3,10 +3,7 @@ package com.iteaj.iboot.plugin.protocol.dtu;
 import cn.hutool.core.collection.CollectionUtil;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.ParamMeta;
-import com.iteaj.framework.spi.iot.DataSupplier;
-import com.iteaj.framework.spi.iot.NetworkConfigImpl;
-import com.iteaj.framework.spi.iot.ProtocolModelApiInvokeParam;
-import com.iteaj.framework.spi.iot.StaticServerProtocolSupplier;
+import com.iteaj.framework.spi.iot.*;
 import com.iteaj.framework.spi.iot.consts.*;
 import com.iteaj.framework.spi.iot.protocol.*;
 import com.iteaj.iboot.plugin.protocol.dtu.rtu.ModbusRtuForDtuFuncProtocolModelApi;
@@ -25,9 +22,12 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderServerComponent> extends StaticServerProtocolSupplier<AbstractDtuForModbusProtocolSupplier.DtuNetworkConfig, C> {
+public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderServerComponent>
+        extends StaticServerProtocolSupplier<AbstractDtuForModbusProtocolSupplier.DtuNetworkConfig, C> implements BatchProtocolSupplier {
 
     private DefaultProtocolModel protocolModel;
+    private AbstractModbusEventProtocolModelApi batchEventModelApi;
+
     public static final String dataType = "dataType";
     private static final String numRemark = "String和Hex类型必填(一个寄存器两个字节)";
     private static List<ProtocolModelApiConfigOption> readOptions = new ArrayList<>();
@@ -104,11 +104,19 @@ public abstract class AbstractDtuForModbusProtocolSupplier<C extends DtuDecoderS
                         .addDownConfig(ProtocolModelApiConfig.downBuild(dataType, "写入值的数据类型").setOptions(writeOptions))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_ADDRESS, ModbusProtocolConsts.MODBUS_POSITION))
                         .addDownConfig(ProtocolModelApiConfig.downBuild(PointProtocolConfig.POINT_VALUE, "要写的值")));
+
+        batchEventModelApi = createEventApi("batch", "批量读取", "");
+        batchEventModelApi.setProtocolModel(getProtocol());
     }
 
     protected abstract AbstractModbusFuncProtocolModelApi createFuncApi(String code, String name, String remark);
 
     protected abstract AbstractModbusEventProtocolModelApi createEventApi(String code, String name, String remark);
+
+    @Override
+    public BatchEventModelApi getBatchEventModelApi() {
+        return this.batchEventModelApi;
+    }
 
     @Override
     public DataSupplier getDataSupplier(Protocol protocol, ProtocolModelApiInvokeParam param, Object value) {

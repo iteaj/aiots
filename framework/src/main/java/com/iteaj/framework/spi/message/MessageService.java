@@ -1,6 +1,6 @@
 package com.iteaj.framework.spi.message;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.ParamMeta;
 
 import java.util.List;

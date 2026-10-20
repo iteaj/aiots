@@ -1,7 +1,6 @@
 package com.iteaj.framework.spi.message;
 
-import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.Data;
 
 @Data

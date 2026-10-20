@@ -1,5 +1,6 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseServiceImpl;
@@ -30,6 +31,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -54,8 +56,11 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Override
     @Transactional
     public BooleanResult save(ModelApi entity) {
-        entity.setCreateTime(new Date());
+        entity.setCreateTime(new Date()).putConfig("attrBind", false);
         this.getByCode(entity.getCode()).ifPresentThrow("接口码已存在["+entity.getCode()+"]");
+        if(entity.getDebug() == null) {
+            entity.setDebug(true); // 默认开启调试
+        }
 
         if(!CollectionUtils.isEmpty(entity.getDownConfig())) {
             entity.getDownConfig().forEach(item -> resolverModelApiConfig(entity, item));
@@ -80,6 +85,8 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
             throw new ServiceException("协议属性[protocolAttrField]不能为空");
         }
 
+        config.setProductId(entity.getProductId());
+
         // 如果是点位协议, 同一款产品下面上/下行的点位地址必须唯一
         if(config.getProtocolAttrField().equals(PointProtocolConfig.POINT_ADDRESS)) {
             CtrlMode ctrlMode = this.getProtocolCtrlModelByProductId(entity.getProductId());
@@ -101,10 +108,15 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
                     if(config.getModelAttrId() == null || StrUtil.isBlank(config.getAttrField())) {
                         throw new ServiceException("未指定模型属性[modelAttrId或attrField]");
                     }
+
+                    entity.getConfig().put("attrBind", true);
                 } else {
+                    entity.putConfig("attrBind", false);
                     config.setModelAttrId(null).setAttrField(null).setAttrName(null);
                 }
             }
+        } else {
+            entity.putConfig("attrBind", false);
         }
     }
 
@@ -139,7 +151,7 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     @Override
     @Transactional
     public BooleanResult removeByIds(Collection<? extends Serializable> idList) {
-        listByIds(idList).stream().filter(item -> item != null).forEach(item -> {
+        listByIds(idList).stream().filter(Objects::nonNull).forEach(item -> {
             if(this.getBaseMapper().isEnabled(item.getProductId())) {
                 throw new ServiceException("请先停用产品后删除");
             }
@@ -177,9 +189,16 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
     }
 
     @Override
-    public BooleanResult updateAsStatus(Long productId, String code) {
-        if(productId == null || StrUtil.isBlank(code)) {
+    public BooleanResult updateAsStatus(Long productId, String code, Boolean status) {
+        if(productId == null || StrUtil.isBlank(code) || status == null) {
             return BooleanResult.buildFalse("参数错误[productId="+productId+", code="+code+"]");
+        }
+
+        if(status) {
+            Long asStatusNum = this.count(Wrappers.<ModelApi>lambdaQuery().eq(ModelApi::getProductId, productId).eq(ModelApi::getAsStatus, true)).getData();
+            if(asStatusNum > 3) {
+                return BooleanResult.buildFalse("一个产品最多只能设置4个状态接口");
+            }
         }
 
         this.getByCode(code).ifNotPresentThrow("协议不存在["+code+"]").ifPresent(api -> {
@@ -187,16 +206,13 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
                 this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
                 this.getAsStatusModelApi(productId).ifPresent(modelApi -> {
                     if(this.getBaseMapper().isEnabledOfProduct(productId)) { // 如果产品启用则放到设备状态采集管理里面
-                        DeviceStatusModelApiManager.getInstance().update(modelApi);
+                        DeviceStatusModelApiManager.update(modelApi);
                     }
                 });
             } else {
-                // 如果包含有控制状态的属性
-                if(this.getBaseMapper().hasCtrlStatus(productId, code)) {
-                    this.getBaseMapper().updateAsStatus(productId, code, api.getFuncType());
-                } else {
-                    throw new ServiceException("没有包含控制属性");
-                }
+                this.getBaseMapper().update(Wrappers.<ModelApi>lambdaUpdate()
+                        .eq(ModelApi::getCode, code)
+                        .set(ModelApi::getAsStatus, status));
             }
         });
         return BooleanResult.buildTrue("设置状态成功");
@@ -240,4 +256,19 @@ public class ModelApiServiceImpl extends BaseServiceImpl<ModelApiMapper, ModelAp
             cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API).evict(code);
         }
     }
+
+    @Override
+    public void cleanCache(String productCode) {
+        List<ModelApi> list = this.getBaseMapper().listByProductCode(productCode);
+        if(CollectionUtil.isNotEmpty(list)) {
+            Cache cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API);
+            list.forEach(item -> cache.evict(item.getCode()));
+        }
+    }
+
+    @Override
+    public ModelApi getCtrlStatusByProductId(Long productId) {
+        return getBaseMapper().getCtrlStatusByProductId(productId);
+    }
+
 }

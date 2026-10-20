@@ -1,0 +1,1 @@
+import '@/plugin/le5le/le5le_plugin.js'

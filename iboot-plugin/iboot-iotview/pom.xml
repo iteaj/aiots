@@ -13,4 +13,15 @@
     <artifactId>iboot-iotview</artifactId>
     <description>基于go-view开源大屏的后端实现插件</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+    </dependencies>
 </project>

@@ -1,6 +1,8 @@
 package com.iteaj.iboot.module.iot.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,8 +11,12 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.*;
 import com.iteaj.framework.spi.iot.ClientProtocolSupplier;
 import com.iteaj.framework.spi.iot.DeviceProtocolSupplier;
+import com.iteaj.framework.spi.iot.IotUtil;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.consts.*;
+import com.iteaj.framework.spi.iot.data.ModelApiMeta;
+import com.iteaj.framework.spi.iot.data.ModelDirectMeta;
+import com.iteaj.framework.spi.iot.data.ProductMeta;
 import com.iteaj.framework.spi.iot.listener.EntityPayload;
 import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
 import com.iteaj.framework.spi.iot.listener.IotEventType;
@@ -24,7 +30,6 @@ import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.mapper.ProductMapper;
 import com.iteaj.iboot.module.iot.service.*;
 import com.iteaj.iboot.module.iot.utils.IotNetworkUtil;
-import com.iteaj.iboot.module.iot.utils.IotUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -46,7 +51,7 @@ import java.util.stream.Collectors;
  * @since 2022-07-22
  */
 @Service
-@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_PRODUCT})
+@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_PRODUCT, CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL})
 public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> implements IProductService {
 
     private final CacheManager cacheManager;
@@ -79,7 +84,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 .ifNotPresentThrow("协议不存在")
                 .ifPresent(item -> entity.setProtocolCode(item.getCode()));
 
-        BooleanResult save = super.save(entity);
+        BooleanResult save = super.save(entity.buildCalc());
         // 保存协议对应的指令到物模型
         saveProtocolToModel(entity);
 
@@ -108,9 +113,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         // 如果修改了协议需要删除所有物模型数据
         this.getById(entity.getId()).ifPresent(product -> {
             if(!product.getProtocolId().equals(entity.getProtocolId())) {
-                // 移除缓存里面的无模型信息
+                // 移除缓存里面的物模型信息
+                Cache cache = Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API));
                 modelApiService.list(Wrappers.<ModelApi>lambdaQuery().eq(ModelApi::getProductId, product.getId()))
-                        .forEach(modelApi -> Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API)).evict(modelApi.getCode()));
+                        .forEach(modelApi -> cache.evict(modelApi.getCode()));
 
                 // 移除所有物模型信息
                 this.removeModel(entity.getId());
@@ -127,12 +133,14 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             throw new ServiceException("网关子设备产品需绑定父产品");
         }
 
-        return super.updateById(entity).ifPresentAndTrue(item -> cacheManager
-                .getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT).evict(entity.getId()));
+        return super.updateById(entity).ifPresentAndTrue(item -> {
+            Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT)).evict(entity.getId());
+            Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL)).evict(entity.getCode());
+        });
     }
 
     private void saveProtocolToModel(Product entity) {
-        ProtocolToProductModel productModel = protocolToProductModel(entity.getProtocolId());
+        ProtocolToProductModel productModel = protocolToProductModel(entity);
         // 批量保存物模型属性
         if(!CollectionUtils.isEmpty(productModel.getAttrs())) {
             productModel.getAttrs().forEach(item -> item.setProductId(entity.getId()));
@@ -140,37 +148,22 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         }
 
         // 批量保存事件接口
-//        List<ModelApi> apis = new ArrayList<>();
-//        if(!CollectionUtils.isEmpty(productModel.getEventApis())) {
-//            apis.addAll(productModel.getEventApis());
-//        }
-//
-//        if(!CollectionUtils.isEmpty(productModel.getFuncApis())) {
-//            productModel.getFuncApis().forEach(item -> item.setProductId(entity.getId()));
-//            apis.addAll(productModel.getFuncApis());
-//        }
-//
-//        if(!CollectionUtils.isEmpty(apis)) {
-//            apis.forEach(item -> {
-//                item.setProductId(entity.getId());
-//                modelApiService.save(item);
-//                List<ModelApiConfig> apiConfigs = new ArrayList<>();
-//
-//                if(!CollectionUtils.isEmpty(item.getUpConfig())) {
-//                    apiConfigs.addAll(item.getUpConfig());
-//                }
-//
-//                if(!CollectionUtils.isEmpty(item.getDownConfig())) {
-//                    apiConfigs.addAll(item.getDownConfig());
-//                }
-//
-//                // 批量保存api配置
-//                if(!CollectionUtils.isEmpty(apiConfigs)) {
-//                    apiConfigs.forEach(config -> config.setProductId(entity.getId()));
-//                    modelApiConfigService.saveBatch(apiConfigs);
-//                }
-//            });
-//        }
+        List<ModelApi> apis = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(productModel.getEventApis())) {
+            apis.addAll(productModel.getEventApis());
+        }
+
+        if(!CollectionUtils.isEmpty(productModel.getFuncApis())) {
+            productModel.getFuncApis().forEach(item -> item.setProductId(entity.getId()));
+            apis.addAll(productModel.getFuncApis());
+        }
+
+        if(!CollectionUtils.isEmpty(apis)) {
+            apis.forEach(item -> {
+                item.setProductId(entity.getId());
+                modelApiService.save(item);
+            });
+        }
     }
 
     @Override
@@ -187,8 +180,8 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         // 是否已经有绑定设备
         this.hasBind(idList).ifPresentAndTrueThrow("此产品已被设备绑定");
 
-        this.getOne(Wrappers.<Product>lambdaQuery().in(Product::getId, idList).last("limit 1"))
-                .ifPresent(item -> {
+        DetailResult<Product> result = this.getOne(Wrappers.<Product>lambdaQuery().in(Product::getId, idList).last("limit 1"));
+        result.ifPresent(item -> {
             if(item.getStatus() == FuncStatus.enabled) {
                 throw new ServiceException("请先停用产品");
             }
@@ -198,6 +191,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
             // 先移除缓存
             modelApiService.list(Wrappers.<ModelApi>lambdaQuery().eq(ModelApi::getProductId, id))
                     .forEach(modelApi -> Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_MODEL_API)).evict(modelApi.getCode()));
+
+            result.ifPresent(product -> {
+                Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT)).evict(product.getId());
+                Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL)).evict(product.getCode());
+            });
 
             // 移除所有物模型配置
             this.removeModel((Long) id);
@@ -215,16 +213,18 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     }
 
     @Override
-    public ProtocolToProductModel protocolToProductModel(Long protocolId) {
+    public ProtocolToProductModel protocolToProductModel(Product entity) {
         ProtocolToProductModel model = new ProtocolToProductModel();
-        this.protocolService.getByDetail(protocolId).ifPresent(item -> {
+        this.protocolService.getByDetail(entity.getProtocolId()).ifPresent(item -> {
             if(item.getImplMode() != ProtocolImplMode.Custom) {
                 DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getCode());
                 if(supplier != null) {
                     ProtocolModel protocol = supplier.getProtocol();
 
                     // 协议接口
-                    protocol.getApis().values().stream().forEach(api -> {
+                    protocol.getApis().values().stream()
+                            .filter(AbstractProtocolModelApi::isProtocol)
+                            .forEach(api -> {
                         // 协议接口
                         ModelApi modelApi = new ModelApi();
                         BeanUtils.copyProperties(api, modelApi);
@@ -245,10 +245,13 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                                     return convertProtocolApiConfig(modelApi, config, attr);
                                 }).collect(Collectors.toList());
 
-                        modelApi.setProtocol(true); //协议指令为null
+                        modelApi.setProtocol(true).setDirect(api.getCode()).setDebug(true); //协议指令为null
+                        String modelCodePrefix = IotUtil.getModelCodePrefix(entity.getCode());
                         if(api.getType() == ProtocolApiType.event) {
+                            modelApi.setCode(modelCodePrefix + "get_" + api.getCode()).setName(api.getName());
                             model.getEventApis().add(modelApi.setUpConfig(upConfig).setDownConfig(downConfig));
                         } else if(api.getType() == ProtocolApiType.func) {
+                            modelApi.setCode(modelCodePrefix + "set_" + api.getCode()).setName(api.getName());
                             model.getFuncApis().add(modelApi.setUpConfig(upConfig).setDownConfig(downConfig));
                         }
                     });
@@ -276,10 +279,10 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 }).collect(Collectors.toList());
 
                 List<ModelApi> funcApis = item.getFuncApis().stream()
-                        .map(api -> convertProtocolApiToModelApi(api))
+                        .map(this::convertProtocolApiToModelApi)
                         .collect(Collectors.toList());
                 List<ModelApi> eventApis = item.getEventApis().stream()
-                        .map(api -> convertProtocolApiToModelApi(api))
+                        .map(this::convertProtocolApiToModelApi)
                         .collect(Collectors.toList());
 
                 model.setFuncApis(funcApis).setEventApis(eventApis).setAttrs(attrList);
@@ -303,7 +306,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         }
 
         ProductDto productDto = getBaseMapper().detailById(id);
-        if(productDto == null) {
+        if(productDto != null) {
             cache.put(id, productDto);
         }
 
@@ -323,6 +326,19 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     @Override
     public DetailResult<ProductDto> joinDetailById(Long productId) {
         ProductDto productDto = getBaseMapper().joinDetailById(productId);
+        return new DetailResult<>(productDto);
+    }
+
+    @Override
+    public DetailResult<ProductDto> joinDetailByCode(String productCode) {
+        Cache cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL);
+        Cache.ValueWrapper valueWrapper = cache.get(productCode);
+        if(valueWrapper != null) {
+            return new DetailResult<>((ProductDto) valueWrapper.get());
+        }
+
+        ProductDto productDto = getBaseMapper().joinDetailByCode(productCode);
+        cache.put(productCode, productDto);
         return new DetailResult<>(productDto);
     }
 
@@ -368,13 +384,23 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
     @Override
     @Transactional
     public void switchStatus(Long id, FuncStatus status) {
-        this.detailById(id).ifNotPresentThrow("查找不到此产品")
+        // fix: 不能直接使用this.detailById(id), 由于缓存原因导致网关状态会校验失败问题
+        new DetailResult<>(getBaseMapper().detailById(id)).ifNotPresentThrow("查找不到此产品")
             .ifPresent(item -> {
                 // 被启用的事件源绑定后产品不能被禁用
                 if(status == FuncStatus.disabled) {
                     if(this.hasBindEnabledEventSource(id)) {
                         throw new ServiceException("此产品正被事件源使用中, 请先禁用对应事件源");
                     }
+                } else {
+                    if(item.getGatewayStatus() == GatewayStatus.stop) {
+                        throw new ServiceException("请先启用网关["+item.getGatewayName()+"]");
+                    }
+                }
+
+                DeviceProtocolSupplier<?, ?> supplier = ProtocolSupplierManager.get(item.getProtocolCode());
+                if(supplier == null && status == FuncStatus.enabled) { // 启动某个产品做驱动校验
+                    throw new ServiceException("查找不到对应的协议驱动[code="+item.getProtocolCode()+"]");
                 }
 
                 // 网关子设备的父产品是边缘网关产品
@@ -387,31 +413,9 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 //                                }
                             });
                     }
-                } else if(item.getDeviceType() == DeviceType.Gateway) { // 启用边缘网关下面所有的设备
-                    DeviceProtocolSupplier supplier = ProtocolSupplierManager.get(item.getProtocolCode());
-                    if(supplier == null) {
-                        throw new ServiceException("查找不到对应的协议提供[code="+item.getProtocolCode()+"]");
-                    }
-
-                    // 校验此网关产品下面有没有已启用的子产品
-                    if(status == FuncStatus.disabled) {
-//                        this.getOne(Wrappers.<Product>lambdaQuery()
-//                                .eq(Product::getParentId, item.getId())
-//                                .eq(Product::getStatus, FuncStatus.enabled)
-//                                .last("limit 1")).ifPresent(child -> {
-//                            throw new ServiceException("请先停用子产品["+child.getName()+"]");
-//                        });
-                    }
-
+                } else { // 连接此产品下的所有客户端设备
                     if(supplier instanceof ClientProtocolSupplier) {
-                        // 先校验产品绑定的网关是否启用
-                        if(status == FuncStatus.enabled) {
-                            if(item.getGatewayStatus() == GatewayStatus.stop) {
-                                throw new ServiceException("请先启用网关["+item.getGatewayName()+"]");
-                            }
-                        }
-
-                        // 获取此网关产品下面的所有网关设备
+                        // 获取此产品下面的所有设备并连接
                         this.getBaseMapper().listDeviceByProductId(item.getId()).forEach(device -> {
                             try {
                                 IotNetworkUtil.networkCtrl(supplier, device, status);
@@ -425,13 +429,14 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 this.update(Wrappers.<Product>lambdaUpdate().eq(Product::getId, item.getId()).set(Product::getStatus, status));
                 if(item.getDeviceType() == DeviceType.Child) {
                     if(status == FuncStatus.enabled) {
-                        // 启用的时候加入到状态定时任务
-                        this.modelApiService.getAsStatusModelApi(id).ifPresent(modelApi -> {
-                            DeviceStatusModelApiManager.getInstance().register(modelApi);
-                        });
+                        // 点位控制的子产品获取状态接口
+                        if(supplier.getProtocol().getCtrlMode() == CtrlMode.POINT) {
+                            // 启用的时候加入到状态定时任务
+                            this.modelApiService.getAsStatusModelApi(id).ifPresent(DeviceStatusModelApiManager::register);
+                        }
                     } else {
                         // 禁用的时候移除掉此产品的状态接口
-                        DeviceStatusModelApiManager.getInstance().remove(id);
+                        DeviceStatusModelApiManager.remove(id);
 
                          // 产品禁用关闭所有此产品下的设备
                         iotCacheManager.listByProductCode(item.getCode()).forEach(device -> {
@@ -448,10 +453,15 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                     }
                 }
 
-                /**
-                 * 发布产品状态切换事件
-                 */
-                IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload(item.setStatus(status)));
+                // 清除缓存
+                Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT)).evict(id); // 移除缓存
+                Objects.requireNonNull(cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_PRODUCT_MODEL)).evict(item.getCode()); // 移除缓存
+                if(item.getDeviceType() != DeviceType.Gateway && status == FuncStatus.disabled) {
+                    modelApiService.cleanCache(item.getCode()); // 禁用的时候移除所有接口缓存
+                }
+
+                // 发布状态切换事件
+                IotEvenPublisher.publish(IotEventType.ProductSwitch, new EntityPayload<>(item.setStatus(status)));
             });
     }
 
@@ -463,6 +473,8 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
 
     @Override
     public List<ProductDto> listCtrlStatusModelAttrs(List<Long> productIds) {
+        if(CollectionUtil.isEmpty(productIds))
+            return Collections.emptyList();
         return this.getBaseMapper().listCtrlStatusModelAttrs(productIds);
     }
 
@@ -553,6 +565,11 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         return BooleanResult.buildTrue("删除成功");
     }
 
+    @Override
+    public DetailResult<ProductDto> joinModelAttrById(Long productId) {
+        return new DetailResult<>(this.getBaseMapper().joinModelAttrById(productId));
+    }
+
     private void resolverModelApi(ModelApi modelApi, BatchModelDto entity, DeviceProtocolSupplier supplier, Product product) {
         final ProtocolModel protocol = supplier.getProtocol();
         final AbstractProtocolModelApi protocolApi = protocol.getApi(entity.getDirect());
@@ -562,7 +579,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         modelApi.setAsStatus(false).setProductId(entity.getProductId())
                 .setTriggerMode(protocolApi.getTriggerMode()).setProtocol(false).setDebug(true)
                 .setDirect(entity.getDirect()).setFuncType(FuncType.R).setType(protocolApi.getType())
-                .setName("获取"+entity.getName()).setCode(apiCode);
+                .setName("获取"+entity.getName()).setCode(apiCode).setCollectTag(entity.getCollectTag());
         List<ModelApiConfig> upConfigs = new ArrayList<>();
         protocolApi.getUpConfig().forEach((direct, config) -> {
             final ProtocolModelAttr modelAttr = protocol.getAttr(config.getProtocolModelAttrField());
@@ -570,7 +587,7 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                     .setAttrField(entity.getField()).setProductId(entity.getProductId()).setApiCode(apiCode).setDataType(entity.getDataType())
                     .setDirection(ApiConfigDirection.UP).setFieldType(ApiFieldType.field).setProtocolAttrName(modelAttr.getName())
                     .setProtocolAttrField(config.getProtocolModelAttrField()).setProtocolDataType(modelAttr.getDataType().getValue())
-                    .setValue("@"+entity.getField()).setSort(config.getSort()).setRemark(config.getRemark());
+                    .setValue(entity.getField()).setSort(config.getSort()).setRemark(config.getRemark());
             upConfigs.add(apiConfig);
         });
 
@@ -597,9 +614,6 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
         ModelApi modelApi = new ModelApi();
         BeanUtils.copyProperties(api, modelApi);
 
-        // 协议的功能转成协议指令
-        modelApi.setProtocol(true);
-
         List<ModelApiConfig> upConfigs = api.getUpConfigs().stream().map(config -> {
             ModelApiConfig apiConfig = new ModelApiConfig();
             BeanUtils.copyProperties(config, apiConfig);
@@ -622,6 +636,82 @@ public class ProductServiceImpl extends BaseServiceImpl<ProductMapper, Product> 
                 .setAttrField(attr.getField())
                 .setApiCode(protocolApi.getCode())
                 .setFieldType(config.getFieldType())
-                .setDirection(config.getDirection());
+                .setProtocolAttrName(attr.getName())
+                .setProtocolAttrField(attr.getField())
+                .setDirection(config.getDirection())
+                .setDataType(attr.getDataType().getValue())
+                .setProtocolDataType(attr.getDataType().getValue());
+    }
+
+    @Override
+    public ProductMeta getProductByCache(Long productId) {
+        return this.detailById(productId).getData();
+    }
+
+    @Override
+    public List<? extends ProductMeta> listProducts(ProductMeta product) {
+        Product entity = new Product();
+        BeanUtils.copyProperties(product, entity);
+        return this.list(Wrappers.lambdaQuery(entity)
+                .ne(product.getDeviceType() == null, Product::getDeviceType, DeviceType.Gateway))
+                .getData();
+    }
+
+    @Override
+    public ProductModel getProductModel(String productCode) {
+        return joinDetailByCode(productCode).ofNullable().map(productDto -> {
+            List<ModelApiMeta> apiMetas = new ArrayList<>();
+            List<ModelDirectMeta> directMetas = new ArrayList<>();
+            if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                apiMetas.addAll(productDto.getFuncApis());
+                productDto.getFuncApis().stream()
+                        .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                        .forEach(api -> directMetas.addAll(api.resolverCommand(null, productDto.getAttrs())));
+            }
+
+            if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                apiMetas.addAll(productDto.getEventApis());
+                productDto.getEventApis().stream()
+                        .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                        .forEach(api -> directMetas.addAll(api.resolverCommand(null, productDto.getAttrs())));
+            }
+
+            return new ProductModel(productDto.getName(), productDto.getCode(), productDto.getRemark()
+                    , productDto.getStatus().getDesc(), directMetas, apiMetas);
+        }).orElse(null);
+    }
+
+    @Override
+    public List<? extends ModelDirectMeta> listDirectMeta(String productCode) {
+        List<ModelDirectMeta> result = new ArrayList<>();
+        this.joinDetailByCode(productCode).ifPresent(productDto -> {
+            if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                productDto.getFuncApis().stream()
+                        .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                        .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+            }
+
+            if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                productDto.getEventApis().stream()
+                        .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                        .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+            }
+        });
+
+        return result;
+    }
+
+    @Override
+    public List<? extends ModelApiMeta> listModelApiMeta(String productCode) {
+        List<ModelApiMeta> results = new ArrayList<>();
+        joinDetailByCode(productCode).ifPresent(productDto -> {
+            List<ModelApi> funcApis = productDto.getFuncApis();
+            List<ModelApi> eventApis = productDto.getEventApis();
+
+            if(funcApis != null) results.addAll(funcApis);
+            if(eventApis != null) results.addAll(eventApis);
+        });
+
+        return results;
     }
 }

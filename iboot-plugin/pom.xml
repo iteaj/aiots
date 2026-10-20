@@ -14,12 +14,6 @@
     <artifactId>iboot-plugin</artifactId>
 
     <modules>
-        <!--代码生成器插件-->
-        <module>iboot-code</module>
-        <!--shiro权限校验插件-->
-        <module>iboot-shiro</module>
-        <!--knife4j api文档插件-->
-        <module>iboot-knife4j</module>
         <!--SaToken权限校验插件-->
         <module>iboot-SaToken</module>
         <!--SaToken Oauth2插件-->
@@ -28,11 +22,16 @@
         <module>iboot-quartz</module>
         <!--消息插件(Sms、Email、[...])-->
         <module>iboot-message</module>
-        <!--文件管理插件-->
-        <module>iboot-file</module>
         <!--物模型协议模块-->
         <module>iboot-protocol</module>
+        <!--多数据源-->
+        <module>iboot-datasource</module>
+        <!--大屏/组态插件-->
         <module>iboot-iotview</module>
+        <!--ai模块-->
+        <module>iboot-ai</module>
+        <!--社交登录插件（微信、支付宝等）-->
+        <module>iboot-social</module>
     </modules>
 
     <dependencies>

@@ -16,6 +16,7 @@ import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -28,9 +29,9 @@ import java.util.List;
 @RequestMapping("/iot/plc")
 public class DevicePlcController extends BaseController {
 
+    private static String[] plcCodes;
     private final IDeviceService deviceService;
     private final IProductService productService;
-    private final static String[] plcCodes = {ProtocolCodes.PLC_SIEMENS_S7.getValue(), ProtocolCodes.PLC_OMRON_TCP.getValue()};
 
     public DevicePlcController(IDeviceService deviceService, IProductService productService) {
         this.deviceService = deviceService;
@@ -45,6 +46,7 @@ public class DevicePlcController extends BaseController {
     @GetMapping("/view")
     @CheckPermission({"iot:plc:view"})
     public Result<IPage<DeviceDto>> list(Page<Device> page, DeviceDto entity) {
+        initPlcCodes();
         entity.setProtocolCodes(plcCodes);
         return this.deviceService.pageOfDetail(page, entity);
     }
@@ -102,13 +104,23 @@ public class DevicePlcController extends BaseController {
     }
 
     /**
-     * 获取Dtu产品列表
+     * 获取Plc产品列表
      * @param deviceType 设备类型
      * @return
      */
     @GetMapping("/products")
     public Result<List<Product>> products(DeviceType deviceType) {
+        initPlcCodes();
         return this.productService.listOfProtocolCodes(deviceType, plcCodes, null);
+    }
+
+    private void initPlcCodes() {
+        if(plcCodes == null) {
+            plcCodes = Arrays.stream(ProtocolCodes.values())
+                    .map(ProtocolCodes::getValue)
+                    .filter(ProtocolCodes::isPLC)
+                    .toArray(String[]::new);
+        }
     }
 }
 

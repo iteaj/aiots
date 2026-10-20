@@ -36,6 +36,11 @@ public class BatchModelDto {
     private String name;
 
     /**
+     * 排序
+     */
+    private Integer sort;
+
+    /**
      * 数据类型
      */
     private String dataType;
@@ -96,6 +101,11 @@ public class BatchModelDto {
      * 产品码
      */
     private String productCode;
+
+    /**
+     * 频率标签（如：默认、低频、中频、高频）
+     */
+    private String collectTag;
 
     @Transient
     private String apiDownConfig;

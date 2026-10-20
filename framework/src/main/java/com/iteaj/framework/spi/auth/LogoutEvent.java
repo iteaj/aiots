@@ -2,8 +2,8 @@ package com.iteaj.framework.spi.auth;
 
 import com.iteaj.framework.spi.event.FrameworkEvent;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * create time: 2021/3/31

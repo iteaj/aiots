@@ -7,6 +7,7 @@ import org.springframework.util.Assert;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class HashRedisCacheWriter implements RedisCacheWriter {
@@ -47,8 +48,18 @@ public class HashRedisCacheWriter implements RedisCacheWriter {
     }
 
     @Override
+    public CompletableFuture<Void> store(String name, byte[] key, byte[] value, Duration ttl) {
+        return null;
+    }
+
+    @Override
     public byte[] get(String name, byte[] key) {
         return execute(name, connection -> connection.hGet(name.getBytes(StandardCharsets.UTF_8), key));
+    }
+
+    @Override
+    public CompletableFuture<byte[]> retrieve(String name, byte[] key, Duration ttl) {
+        return null;
     }
 
     @Override

@@ -1,14 +1,31 @@
 package com.iteaj.framework.spi.iot.data;
 
+import com.alibaba.fastjson2.JSONObject;
+import com.iteaj.framework.spi.iot.DeviceKey;
+import com.iteaj.framework.spi.iot.consts.DeviceStatusEnum;
+import com.iteaj.framework.spi.iot.consts.DeviceTypeEnum;
+import com.iteaj.framework.spi.iot.listener.IotEventPayload;
+
 import java.util.Date;
 
-public interface RealtimeDeviceStatus {
+public interface RealtimeDeviceStatus extends IotEventPayload {
 
     /**
      * 获取设备唯一标识
      * @return
      */
     String getUid();
+
+    /**
+     * 父设备uid
+     */
+    String getPuid();
+
+    /**
+     * 获取设备类型
+     * @return 设备类型
+     */
+    DeviceTypeEnum getType();
 
     /**
      * 获取设备编号
@@ -23,8 +40,20 @@ public interface RealtimeDeviceStatus {
     String getDeviceName();
 
     /**
-     * 获取设备状态(online、offline)
+     * 切换设备状态
      * @return
+     */
+    String triggerStatus();
+
+    /**
+     * 获取设备状态
+     * @return 设备状态
+     */
+    DeviceStatusEnum getStatus();
+
+    /**
+     * 获取设备状态(online、offline)
+     * @return 设备状态值
      */
     String getDeviceStatus();
 
@@ -47,6 +76,12 @@ public interface RealtimeDeviceStatus {
     String getProtocolCode();
 
     /**
+     * 获取产品id
+     * @return
+     */
+    Long getProductId();
+
+    /**
      * 获取产品码
      * @return
      */
@@ -63,4 +98,14 @@ public interface RealtimeDeviceStatus {
      * @return
      */
     String getParentDeviceSn();
+
+    /**
+     * 设备配置
+     * @return
+     */
+    JSONObject getConfig();
+
+    default DeviceKey buildKey() {
+        return DeviceKey.build(getDeviceSn(), getParentDeviceSn());
+    }
 }

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iteaj.iboot.module.iot.mapper.LinkageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.Linkage">
+        <result column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="create_time" property="createTime" />
+        <result column="event_source_id" property="eventSourceId" />
+        <result column="event_source_name" property="eventSourceName" />
+        <result column="event_source_status" property="eventSourceStatus" />
+    </resultMap>
+
+    <resultMap id="DtoResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="BaseResultMap">
+        <result column="device_group_name" property="deviceGroupName" />
+        <result column="event_source_type" property="eventSourceType" />
+        <result column="source_device_group_ids" property="sourceDeviceGroupIds" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"/>
+        <result column="product_ids" property="productIds"  typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"/>
+        <result property="productNames" column="product_names" />
+    </resultMap>
+
+    <resultMap id="ItemResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageItem">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="remark" column="remark" />
+        <result property="linkageId" column="linkage_id" />
+        <result property="deviceGroupIds" column="device_group_ids" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
+        <collection property="actions" select="com.iteaj.iboot.module.iot.mapper.LinkageActionMapper.listByLinkageItemId" column="{linkageItemId=id}" />
+        <collection property="conditions" select="com.iteaj.iboot.module.iot.mapper.LinkageConditionMapper.listByLinkageItemId" column="{linkageItemId=id}"/>
+    </resultMap>
+
+    <resultMap id="ExecItemResultMap" type="com.iteaj.iboot.module.iot.entity.LinkageItem">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="remark" column="remark" />
+        <result property="linkageId" column="linkage_id" />
+        <result property="deviceGroupIds" column="device_group_ids" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
+        <collection property="actions" select="com.iteaj.iboot.module.iot.mapper.LinkageActionMapper.listExecByLinkageItemId" column="{linkageItemId=id}" />
+        <collection property="conditions" select="com.iteaj.iboot.module.iot.mapper.LinkageConditionMapper.listByLinkageItemId" column="{linkageItemId=id}"/>
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="DtoResultMap">
+        <collection property="items" select="com.iteaj.iboot.module.iot.mapper.LinkageMapper.listItemById" column="{linkageId=id}" />
+    </resultMap>
+
+    <resultMap id="ExecDetailResultMap" type="com.iteaj.iboot.module.iot.dto.LinkageDto" extends="DtoResultMap">
+        <collection property="items" select="com.iteaj.iboot.module.iot.mapper.LinkageMapper.listExecItemById" column="{linkageId=id}" />
+    </resultMap>
+
+    <delete id="removeByItemIds">
+        delete a,b,c,e from iot_linkage_item a
+            left join iot_linkage_condition b on a.id=b.linkage_item_id
+            left join iot_linkage_action c on a.id=c.linkage_item_id
+            left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where a.id in (
+        <foreach collection="list" item="itemId" separator=",">
+            #{itemId}
+        </foreach>);
+    </delete>
+    <delete id="removeAllByIds">
+        delete a,b,c,d,e from iot_linkage a
+            left join iot_linkage_condition b on a.id=b.linkage_id
+            left join iot_linkage_action c on a.id=c.linkage_id
+            left join iot_linkage_item d on a.id=d.linkage_id
+            left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where a.id in (
+        <foreach collection="list" item="linkageId" separator=",">
+            #{linkageId}
+        </foreach>);
+
+    </delete>
+    <delete id="removeJoinByItemId">
+        delete b,c,e from iot_linkage_item a
+              left join iot_linkage_condition b on a.id=b.linkage_item_id
+              left join iot_linkage_action c on a.id=c.linkage_item_id
+              left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where a.id = #{itemId}
+    </delete>
+    <delete id="removeAllItemById">
+        delete a,b,c,e from iot_linkage_item a
+            left join iot_linkage_condition b on a.id=b.linkage_item_id
+            left join iot_linkage_action c on a.id=c.linkage_item_id
+            left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
+        where a.linkage_id=#{id}
+    </delete>
+
+    <select id="listItemById" resultMap="ItemResultMap">
+        select * from iot_linkage_item where linkage_id=#{linkageId}
+    </select>
+
+    <select id="listExecItemById" resultMap="ExecItemResultMap">
+        select * from iot_linkage_item where linkage_id=#{linkageId}
+    </select>
+
+    <select id="detailById" resultMap="DetailResultMap">
+        select a.*, es.name event_source_name, es.product_ids, es.status event_source_status, es.device_group_ids source_device_group_ids from iot_linkage a
+            left join iot_event_source es on a.event_source_id = es.id
+        where a.id=#{id}
+    </select>
+
+    <select id="joinProductById" resultMap="DtoResultMap">
+        select a.*, es.product_ids, group_concat(p.name), es.device_group_ids source_device_group_ids, es.name event_source_name from iot_linkage a
+           left join iot_event_source es on a.event_source_id = es.id
+           left join iot_product p on json_contains(es.product_ids, concat('', p.id))
+        where a.id=#{id} group by a.id
+    </select>
+
+    <select id="detailItemById" resultMap="ItemResultMap">
+        select * from iot_linkage_item where id=#{id}
+    </select>
+    <select id="detailPage" resultMap="BaseResultMap">
+        select a.*, es.name event_source_name, es.status event_source_status from iot_linkage a
+            left join iot_event_source es on a.event_source_id = es.id
+        <where>
+            <if test="entity.status != null">
+                and a.status = #{entity.status}
+            </if>
+            <if test="entity.productId != null">
+                and json_contains(es.product_ids, concat('', #{entity.productId}))
+            </if>
+            <if test="entity.eventSourceId != null">
+                and a.event_source_id=#{entity.eventSourceId}
+            </if>
+            <if test="entity.name != null and entity.name != ''">
+                and a.name like '%${entity.name}%'
+            </if>
+        </where>
+        order by a.create_time desc
+    </select>
+    <select id="listDetailExecOfEnabled" resultMap="ExecDetailResultMap">
+        select a.*, es.name event_source_name, es.product_ids, es.status event_source_status, es.device_group_ids source_device_group_ids from iot_linkage a
+            left join iot_event_source es on a.event_source_id = es.id
+        where a.status = 'enabled'
+    </select>
+    <select id="joinEventSourceById" resultMap="DtoResultMap">
+        select a.*, es.name event_source_name, es.product_ids, es.status event_source_status
+             , es.device_group_ids source_device_group_ids, es.type event_source_type from iot_linkage a
+           left join iot_event_source es on a.event_source_id = es.id
+        where a.id=#{id}
+    </select>
+    <select id="detailExecById" resultMap="ExecDetailResultMap">
+        select a.*, es.name event_source_name, es.product_ids, es.status event_source_status, es.device_group_ids source_device_group_ids from iot_linkage a
+           left join iot_event_source es on a.event_source_id = es.id
+        where a.id=#{id}
+    </select>
+    <select id="countStatusProfile" resultType="com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto">
+        select count(1) totalNum, count(if(a.status='enabled', 1, null)) enabledNum from iot_linkage a
+            left join iot_event_source e on a.event_source_id = e.id
+        <where>
+            <if test="groupId!=null">
+                and json_contains(e.device_group_ids, concat('', #{groupId}))
+            </if>
+            <if test="productId!=null">
+                and json_contains(e.product_ids, concat('', #{productId}))
+            </if>
+        </where>
+    </select>
+
+</mapper>

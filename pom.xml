@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <version>2.7.2</version>
+        <version>3.5.10</version>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
     </parent>
@@ -20,55 +20,57 @@
         <module>bootstrap</module>
         <!--iboot插件模块-->
         <module>iboot-plugin</module>
-        <!--依赖的第三方开源项目-->
-        <module>iboot-tos</module>
     </modules>
     <properties>
-        <reversion>3.0.0</reversion>
+        <reversion>3.2.0</reversion>
         <p6spy.version>3.8.6</p6spy.version>
         <kaptcha.version>2.3.2</kaptcha.version>
-        <servlet.version>3.1.0</servlet.version>
 
-        <iot.version>3.1.8</iot.version>
-        <sms4j.version>3.2.1</sms4j.version>
-        <shiro.version>1.7.1</shiro.version>
-        <hutool.version>5.7.18</hutool.version>
+        <iot.version>3.4.1</iot.version>
+        <sms4j.version>3.3.4</sms4j.version>
+        <hutool.version>5.8.37</hutool.version>
         <okhttp3.version>4.5.0</okhttp3.version>
         <excelpoi.version>4.3.0</excelpoi.version>
-        <fastjson.version>1.2.78</fastjson.version>
+        <fastjson.version>2.0.57</fastjson.version>
         <JustAuth.version>1.16.5</JustAuth.version>
         <izone.boot.version>1.2.1</izone.boot.version>
-        <springboot.version>2.7.2</springboot.version>
-        <mybatis.plus.version>3.4.1</mybatis.plus.version>
-        <mybatis.plus.ds.version>3.6.1</mybatis.plus.ds.version>
+        <springboot.version>3.5.10</springboot.version>
+        <mybatis.plus.version>3.5.7</mybatis.plus.version>
+        <mybatis.plus.ds.version>4.3.0</mybatis.plus.ds.version>
 
         <!--插件依赖版本-->
-        <knife4j.version>4.3.0</knife4j.version>
-        <SaToken.version>1.35.0.RC</SaToken.version>
+        <SaToken.version>1.39.0</SaToken.version>
+        <weixin.java.version>4.8.0</weixin.java.version>
 
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+
+        <skip.frontend.build>false</skip.frontend.build>
+        <exec.maven.version>3.1.0</exec.maven.version>
+        <antrun.plugin.version>3.1.0</antrun.plugin.version>
+        <jsch.version>0.1.55</jsch.version>
+        <ant.version>1.10.14</ant.version>
     </properties>
 
     <scm>
-        <url>https://gitee.com/iteaj/izone-sboot.git</url>
-        <connection>scm:git:https://gitee.com/iteaj/izone-sboot.git</connection>
-        <developerConnection>scm:git:https://gitee.com/iteaj/izone-sboot.git</developerConnection>
+        <url>https://gitee.com/iteaj/iboot.git</url>
+        <connection>scm:git:https://gitee.com/iteaj/iboot.git</connection>
+        <developerConnection>scm:git:https://gitee.com/iteaj/iboot.git</developerConnection>
   </scm>
     <developers>
         <developer>
             <name>iteaj</name>
             <email>iteaj@outlook.com</email>
-            <url>http://www.iteaj.com</url>
+            <url>https://www.iteaj.com</url>
         </developer>
     </developers>
 
     <dependencies>
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-jwt</artifactId>
-            <version>${hutool.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>cn.hutool</groupId>-->
+<!--            <artifactId>hutool-jwt</artifactId>-->
+<!--            <version>${hutool.version}</version>-->
+<!--        </dependency>-->
         <!--spring boot-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -82,28 +84,18 @@
             <artifactId>mybatis-plus-extension</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-json</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-web</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <artifactId>kaptcha</artifactId>
-            <version>${kaptcha.version}</version>
-            <groupId>com.github.penggle</groupId>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus</artifactId>
+            <version>${mybatis.plus.version}</version>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
             <version>${mybatis.plus.version}</version>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
@@ -119,6 +111,11 @@
                 <groupId>com.iteaj</groupId>
                 <artifactId>iot-boot-starter</artifactId>
                 <version>${iot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.iteaj</groupId>
+                <version>${iot.version}</version>
+                <artifactId>iot-core</artifactId>
             </dependency>
             <dependency>
                 <groupId>com.iteaj</groupId>
@@ -142,31 +139,19 @@
             </dependency>
             <dependency>
                 <groupId>com.iteaj</groupId>
-                <artifactId>iot-plc</artifactId>
                 <version>${iot.version}</version>
+                <artifactId>iot-serial</artifactId>
             </dependency>
             <dependency>
                 <groupId>com.iteaj</groupId>
                 <version>${iot.version}</version>
-                <artifactId>iot-serial</artifactId>
+                <artifactId>iot-taos</artifactId>
             </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <version>${mybatis.plus.version}</version>
                 <artifactId>mybatis-plus-generator</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.shiro</groupId>
-                <version>${shiro.version}</version>
-                <artifactId>shiro-spring</artifactId>
-            </dependency>
-
-            <dependency>
-                <version>${knife4j.version}</version>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-aggregation-spring-boot-starter</artifactId>
             </dependency>
 
             <!-- SaToken 认证授权框架 -->
@@ -178,13 +163,23 @@
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <version>${SaToken.version}</version>
-                <artifactId>sa-token-spring-boot-starter</artifactId>
+                <artifactId>sa-token-spring-boot3-starter</artifactId>
             </dependency>
             <!-- Sa-Token 整合 Redis （使用 jackson 序列化方式） -->
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <version>${SaToken.version}</version>
-                <artifactId>sa-token-redis-jackson</artifactId>
+                <artifactId>sa-token-redis-fastjson2</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-data-redis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.alibaba.fastjson2</groupId>
+                        <artifactId>fastjson2</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>me.zhyd.oauth</groupId>
@@ -196,6 +191,12 @@
                 <version>${sms4j.version}</version>
                 <groupId>org.dromara.sms4j</groupId>
                 <artifactId>sms4j-core</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>cn.hutool</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -210,6 +211,14 @@
                     <exclusion>
                         <groupId>cn.hutool</groupId>
                         <artifactId>hutool-cron</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.mail</groupId>
+                        <artifactId>javax.mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.activation</groupId>
+                        <artifactId>javax.activation</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -229,6 +238,51 @@
                         <artifactId>log4j-to-slf4j</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <version>${springboot.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-json</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <version>${springboot.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-webflux</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-json</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <artifactId>kaptcha</artifactId>
+                <version>${kaptcha.version}</version>
+                <groupId>com.github.penggle</groupId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>javax.servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- 微信开发SDK -->
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>weixin-java-mp</artifactId>
+                <version>${weixin.java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>weixin-java-miniapp</artifactId>
+                <version>${weixin.java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -301,5 +355,27 @@
                 </executions>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec.maven.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>${antrun.plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.ant</groupId>
+                            <artifactId>ant-jsch</artifactId>
+                            <version>${ant.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
+
 </project>

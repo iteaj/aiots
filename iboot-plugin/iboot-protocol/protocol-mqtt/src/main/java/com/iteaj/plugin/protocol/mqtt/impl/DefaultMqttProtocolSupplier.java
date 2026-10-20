@@ -29,12 +29,15 @@ public class DefaultMqttProtocolSupplier extends StaticClientProtocolSupplier<Ne
         modelAttrs.put("will", new ProtocolModelAttr("will", "遗嘱", DataType.t_boolean, AttrType.IGNORE, "是否为遗嘱消息"));
         modelAttrs.put("topic", new ProtocolModelAttr("topic", "主题", DataType.t_any, AttrType.IGNORE, "支持使用占位符{deviceSn}{gatewaySn}"));
         modelAttrs.put("payload", new ProtocolModelAttr("payload", "负载", DataType.t_json, AttrType.IGNORE));
+        modelAttrs.put("collectTime", new ProtocolModelAttr("collectTime", "采集时间", DataType.t_any, AttrType.IGNORE));
+        modelAttrs.put("PublicPayload", new ProtocolModelAttr("PublicPayload", "发布的负载", DataType.t_any, AttrType.IGNORE));
         modelApis.put("publish", new DefaultMqttPublishProtocolModelApi("publish", "发布")
                 .addDownConfig(ProtocolModelApiConfig.downBuild("topic", "发布的主题, 支持占位符{clientId}{deviceSn}{gatewaySn}", 1))
-                .addDownConfig(ProtocolModelApiConfig.downBuild("payload", "发布的数据", 2)));
+                .addDownConfig(ProtocolModelApiConfig.downBuild("PublicPayload", "发布的数据", 2)));
         modelApis.put("subscribe", new DefaultMqttSubscribeProtocolModelApi("subscribe", "订阅")
                 .addUpConfig(ProtocolModelApiConfig.upBuild("topic", "以网关子设备的产品编码开头且需包含设备编号占位符, 支持占位符{clientId}{deviceSn}{gatewaySn}", 1))
                 .addUpConfig(ProtocolModelApiConfig.upBuild("will", "是否为遗嘱消息").addOption("是", "true").addOption("否", "false"))
+                .addUpConfig(ProtocolModelApiConfig.upBuild("collectTime", "如: $.collectTime或{now}"))
                 .addUpConfig(ProtocolModelApiConfig.upBuild("payload", "订阅的数据", 2)));
     }
 
@@ -43,16 +46,15 @@ public class DefaultMqttProtocolSupplier extends StaticClientProtocolSupplier<Ne
         Integer qos = config.getQos();
         String[] split = config.getTopics().split(",");
         List<MqttTopicSubscription> subscriptions = new ArrayList<>();
-        if(split != null) {
-            MqttQoS mqttQoS = MqttQoS.valueOf(qos);
-            for (int i = 0; i < split.length; i++) {
-                subscriptions.add(new MqttTopicSubscription(split[i], mqttQoS));
-            }
+        MqttQoS mqttQoS = MqttQoS.valueOf(qos);
+        for (String s : split) {
+            subscriptions.add(new MqttTopicSubscription(s, mqttQoS));
         }
 
         DefaultMqttConnectProperties connectProperties = new DefaultMqttConnectProperties(config.getHost(), config.getPort(), config.getClientId(), subscriptions, null);
         connectProperties.setUsername(config.getUsername());
         connectProperties.setPassword(config.getPassword());
+        connectProperties.setWriterIdleTime(60 * 10); // 10分钟没写发一次心跳
         connectProperties.setConnectKey(config.getDeviceSn()); // 使用设备编号作为唯一标识
         if(config.getKeepalive() > 0) {
             connectProperties.setKeepAlive(config.getKeepalive());

@@ -1,2 +1,40 @@
 /view/view.iml
 /service/service.iml
+.DS_Store
+app/node_modules/
+app/unpackage/
+app/dist/
+admin-ui/node/
+admin-ui/node_modules/
+admin-ui/unpackage/
+admin-ui/dist/
+# Temp files
+tmp/
+*.timestamp-*.mjs
+.playwright-cli
+.cc-connect
+# Log files
+npm-debug.log*
+
+# Editor directories and files
+.project
+.idea
+.hbuilderx
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+
+# Maven build targets
+target/
+.flattened-pom.xml
+*.iml
+
+# ai-dev project config (track settings.json, ignore local overrides and worktrees)
+.claude
+.cursor
+.qoder
+.codex
+.trae
+

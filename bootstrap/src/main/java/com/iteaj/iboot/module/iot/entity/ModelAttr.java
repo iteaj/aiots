@@ -1,21 +1,27 @@
 package com.iteaj.iboot.module.iot.entity;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.data.ModelAttrDictMeta;
+import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
 import com.iteaj.framework.validate.AllGroup;
 import com.iteaj.iboot.module.iot.consts.AttrOrigin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.beans.Transient;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -29,7 +35,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_model_attr")
-public class ModelAttr extends BaseEntity {
+public class ModelAttr extends BaseEntity implements ModelAttrMeta {
 
     private static final long serialVersionUID = 1L;
 
@@ -52,6 +58,17 @@ public class ModelAttr extends BaseEntity {
     @TableField(condition = SqlCondition.LIKE)
     @NotBlank(message = "属性名称必填")
     private String name;
+
+    /**
+     * 排序
+     */
+    private Integer sort;
+
+    /**
+     * 配置
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
 
     /**
      * 数据类型
@@ -131,16 +148,9 @@ public class ModelAttr extends BaseEntity {
     @TableField(exist = false)
     private List<ModelAttrDict> dicts;
 
-    public ModelAttrDict resolveValueToDict(String value) {
-        if(CollectionUtil.isNotEmpty(dicts)) {
-            for (int i = 0; i < dicts.size(); i++) {
-                ModelAttrDict attrDict = dicts.get(i);
-                if(attrDict.getDictValue().equals(value)) {
-                    return attrDict;
-                }
-            }
-        }
-
-        return null;
+    @Override
+    @Transient
+    public List<? extends ModelAttrDictMeta> getDictMetas() {
+        return dicts;
     }
 }

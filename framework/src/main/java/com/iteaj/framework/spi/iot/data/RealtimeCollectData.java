@@ -4,6 +4,8 @@ import java.util.Date;
 
 public interface RealtimeCollectData {
 
+    String COLLECT_TABLE_NAME = "iot_collect_data";
+
     /**
      * 设备uid
      * @return
@@ -59,6 +61,21 @@ public interface RealtimeCollectData {
     String getAddress();
 
     /**
+     * 告警等级(可空)
+     */
+    String getGrade();
+
+    /**
+     * 父设备uid(可空)
+     */
+    String getPuid();
+
+    /**
+     * 指标(可空)
+     */
+    String getIndicator();
+
+    /**
      * 采集方式(model、signal)
      * @return
      */
@@ -87,6 +104,14 @@ public interface RealtimeCollectData {
      * @return
      */
     Date getCollectTime();
+
+    /**
+     * 原值对象
+     * @return
+     */
+    default Object getOriValue() {
+        return getValue();
+    }
 
     default String getFieldName() {
         return null;

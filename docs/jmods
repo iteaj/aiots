@@ -1,0 +1,1 @@
+jlink --module-path "../jmods" --add-modules java.se,jdk.unsupported,jdk.scripting.nashorn --compress=2 --no-header-files --no-man-pages --output H:\软件\jdk\minial

@@ -5,6 +5,7 @@ import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
+import com.iteaj.framework.spi.iot.data.RealtimeDataExtra;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.framework.utils.RedisUtils;
 
@@ -123,12 +124,37 @@ public class RedisRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
+    public void updateRealtimeDataExtra(String uid, String signalOrField, RealtimeDataExtra extra) {
+
+    }
+
+    @Override
     public ModelAttrRealtimeData getRealtimeData(String uid, String signalOrField) {
         return null;
     }
 
     @Override
     public RealtimeDeviceStatus getDeviceStatus(String uid) {
+        return null;
+    }
+
+    @Override
+    public Collection<? extends RealtimeDeviceStatus> listByGroupId(Long groupId) {
+        return List.of();
+    }
+
+    @Override
+    public Collection<RealtimeDeviceStatus> listByProductCode(String productCode) {
+        return List.of();
+    }
+
+    @Override
+    public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn) {
+        return null;
+    }
+
+    @Override
+    public RealtimeDeviceStatus getDeviceStatus(String protocolCode, String deviceSn, String parentDeviceSn) {
         return null;
     }
 }

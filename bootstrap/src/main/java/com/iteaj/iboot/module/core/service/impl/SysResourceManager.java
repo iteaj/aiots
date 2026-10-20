@@ -1,12 +1,17 @@
 package com.iteaj.iboot.module.core.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.iteaj.framework.IVOption;
 import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.spi.admin.*;
 import com.iteaj.framework.utils.TreeUtils;
+import com.iteaj.iboot.module.core.entity.Config;
 import com.iteaj.iboot.module.core.entity.Menu;
+import com.iteaj.iboot.module.core.service.IConfigService;
+import com.iteaj.iboot.module.core.service.IDictDataService;
 import com.iteaj.iboot.module.core.service.IDictTypeService;
 import com.iteaj.iboot.module.core.service.IMenuService;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -22,10 +27,23 @@ import java.util.stream.Collectors;
  */
 public class SysResourceManager implements ResourceManager{
 
-    @Autowired
+    @Resource
     private IMenuService menuService;
-    @Autowired
+    @Resource
+    private IConfigService configService;
+    @Resource
     private IDictTypeService dictTypeService;
+    @Resource
+    private IDictDataService dictDataService;
+
+
+    @Override
+    public List<IVOption> getConfig(List<String> labels) {
+        return configService.list(Wrappers.<Config>lambdaQuery().in(Config::getLabel, labels))
+                .stream()
+                .map(item -> new IVOption(item.getLabel(), item))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public String getMsnByMenuId(Long menuId) {
@@ -44,6 +62,13 @@ public class SysResourceManager implements ResourceManager{
     public List<DictResource> getDictResources() {
         return dictTypeService.list().stream().map(item ->
                 (DictResource) item).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<IVOption> getDictData(String dictType) {
+        return dictDataService.selectByType(dictType).stream()
+                .map(item -> new IVOption(item.getLabel(), item.getValue()))
+                .toList();
     }
 
     @Override

@@ -20,6 +20,12 @@ public class UploadResult {
     private String fileName;
 
     /**
+     * 文件基础访问地址
+     * @see com.iteaj.framework.autoconfigure.FrameworkProperties#getFileServerDomain()
+     */
+    private String fileBasicUrl;
+
+    /**
      * 原文件名
      */
     private String originalFilename;
@@ -62,6 +68,15 @@ public class UploadResult {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getFileBasicUrl() {
+        return fileBasicUrl;
+    }
+
+    public UploadResult setFileBasicUrl(String fileBasicUrl) {
+        this.fileBasicUrl = fileBasicUrl;
+        return this;
     }
 
     public String getOriginalFilename() {

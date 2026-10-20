@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.IBaseService;
 import com.iteaj.framework.result.*;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
+import com.iteaj.framework.spi.iot.data.ProductModelService;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
+import com.iteaj.iboot.module.iot.dto.FuncStatusProfileDto;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
 import com.iteaj.iboot.module.iot.entity.Product;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -23,7 +26,7 @@ import java.util.List;
  * @author iteaj
  * @since 2022-07-22
  */
-public interface IProductService extends IBaseService<Product> {
+public interface IProductService extends IBaseService<Product>, ProductModelService {
 
     PageResult<IPage<ProductDto>> pageOfDetail(Page page, Product entity);
 
@@ -39,10 +42,11 @@ public interface IProductService extends IBaseService<Product> {
 
     /**
      * 协议模型转产品模型
-     * @param protocolId 协议id
+     *
+     * @param entity 协议id
      * @return
      */
-    ProtocolToProductModel protocolToProductModel(Long protocolId);
+    ProtocolToProductModel protocolToProductModel(Product entity);
 
     /***
      * 根据产品代码获取产品
@@ -63,6 +67,8 @@ public interface IProductService extends IBaseService<Product> {
     ListResult<ProductDto> listOfDetail(Product entity);
 
     DetailResult<ProductDto> joinDetailById(Long productId);
+
+    DetailResult<ProductDto> joinDetailByCode(String productCode);
 
     DetailResult<ProductDto> debugById(Long productId);
 
@@ -137,4 +143,6 @@ public interface IProductService extends IBaseService<Product> {
     BooleanResult batchModelSaveOrUpdate(BatchModelDto entity);
 
     Result<Boolean> delBatchModel(Long id, String apiCode);
+
+    DetailResult<ProductDto> joinModelAttrById(Long productId);
 }

@@ -1,0 +1,59 @@
+/*功能按钮样式*/
+.u-func {
+    cursor: pointer;
+    margin: 0 3px;
+}
+
+.u-page-view .ant-drawer-open .ant-drawer-section {
+    /*border-top: var(--iv-theme-split);*/
+    /*border-left: 1px solid var(--ant-layout-color-bg-body);*/
+}
+.u-task-bar .ant-tabs-card.ant-tabs-small >.ant-tabs-nav .ant-tabs-tab {
+    padding: 4px 16px 4px 8px;
+}
+/* ant-vue style */
+.ant-modal .ant-modal-footer {
+    text-align: center;
+    justify-content: center;
+}
+.iv-view-search {
+    margin-bottom: 8px;
+}
+.iv-view-border {
+    padding: 8px;
+    border-radius: 8px;
+    background-color: var(--iv-color-bg-container);
+}
+.iv-table-drag {
+    cursor: move;
+}
+.iv-font-text-tertiary {
+    font-size: 12px;
+    font-weight: unset;
+}
+.iv-color-text-tertiary {
+    color: var(--ant-color-text-tertiary);
+}
+.iv-text-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.iv-grade-fatal {
+    color: var(--ant-red-6);
+}
+.iv-grade-urgent {
+    color: var(--ant-magenta-6);
+}
+.iv-grade-notice {
+    color: var(--ant-cyan-6)
+}
+.iv-grade-warn {
+    color: var(--ant-yellow-6);
+}
+.iv-grade-normal {
+    color: var(--ant-green-6);
+}
+.iv-grade-indicator {
+
+}

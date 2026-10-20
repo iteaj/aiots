@@ -32,6 +32,7 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -76,7 +77,7 @@ public class GatewayServiceImpl extends BaseServiceImpl<GatewayMapper, Gateway> 
             }
 
             Gateway byPort = this.getBaseMapper().getByPort(port);
-            if(byPort != null && byPort.getId() != entity.getId()) {
+            if(byPort != null && !Objects.equals(byPort.getId(), entity.getId())) {
                 throw new ServiceException("端口["+port+"]已被使用");
             }
         }
