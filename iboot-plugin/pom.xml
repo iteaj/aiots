@@ -24,9 +24,6 @@
         <module>iboot-message</module>
         <!--物模型协议模块-->
         <module>iboot-protocol</module>
-        <!--国标gb28181模块-->
-        <module>iboot-gb28181</module>
-        <module>iboot-amqp</module>
         <!--多数据源-->
         <module>iboot-datasource</module>
         <!--大屏/组态插件-->
