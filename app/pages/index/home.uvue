@@ -1,0 +1,208 @@
+<template>
+	<cl-page>
+		<cl-topbar fixed :show-back="false" safe-area-top :title="t('首页')"></cl-topbar>
+
+		<view class="p-3">
+			<!-- 1. 设备运行总览 -->
+			<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
+				<cl-row>
+					<cl-col :span="6">
+						<view class="flex flex-col items-center justify-center" @tap="toDeviceList">
+							<cl-text :size="22" color="primary" :pt="{ className: 'font-bold' }">{{ statistics.deviceTotal }}</cl-text>
+							<cl-text :size="11" color="info" :pt="{ className: 'mt-1' }">{{ t("总设备") }}</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="flex flex-col items-center justify-center">
+							<cl-text :size="22" color="success" :pt="{ className: 'font-bold' }">{{ statistics.deviceOnline }}</cl-text>
+							<cl-text :size="11" color="success" :pt="{ className: 'mt-1' }">{{ t("在线") }}</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="flex flex-col items-center justify-center">
+							<cl-text :size="22" color="info" :pt="{ className: 'font-bold' }">{{ statistics.deviceOffline }}</cl-text>
+							<cl-text :size="11" color="info" :pt="{ className: 'mt-1' }">{{ t("离线") }}</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="flex flex-col items-center justify-center" @tap="toAlarmList">
+							<cl-text :size="22" color="danger" :pt="{ className: 'font-bold' }">{{ statistics.alarmToday }}</cl-text>
+							<cl-text :size="11" color="danger" :pt="{ className: 'mt-1' }">{{ t("告警中") }}</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+			</view>
+
+			<!-- 2. 告警概览 -->
+			<view v-if="alarmGradeList.length > 0"
+				class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
+				<cl-text :size="14" :pt="{ className: 'mb-3 font-bold' }">{{ t("告警概览") }}</cl-text>
+				<cl-row>
+					<cl-col :span="6" v-for="item in alarmGradeList" :key="item.name">
+						<view class="flex flex-col items-center justify-center">
+							<cl-text :size="20" :color="item.color" :pt="{ className: 'font-bold' }">{{ item.count }}</cl-text>
+							<cl-text :size="11" :color="item.color" :pt="{ className: 'mt-1' }">{{ item.name }}</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+			</view>
+
+			<!-- 3. 告警列表 -->
+			<view class="bg-white dark:bg-surface-800 rounded-2xl p-4 mb-3">
+				<view class="flex flex-row items-center justify-between mb-3">
+					<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ t("最新告警") }}</cl-text>
+					<cl-text :size="12" color="primary" @tap="toAlarmList">{{ t("查看全部") }} ></cl-text>
+				</view>
+
+				<view v-if="!statistics.latestWarns || statistics.latestWarns.length === 0"
+					class="flex flex-col items-center justify-center py-4">
+					<cl-icon name="check-circle-line" :size="36" color="success"></cl-icon>
+					<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("系统运行正常") }}</cl-text>
+				</view>
+
+				<view v-for="(item, index) in statistics.latestWarns" :key="index"
+					class="flex flex-row items-start py-2 border-divider" @tap="toDeviceDetail(item)">
+					<view class="w-2 h-2 rounded-full mt-1.5 mr-2"
+						:style="{ backgroundColor: gradeColor(item.gradeName) }">
+					</view>
+					<view class="flex-1">
+						<view class="flex flex-row items-center justify-between">
+							<cl-text :size="13" :pt="{ className: 'flex-1' }">{{ item.content }}</cl-text>
+							<cl-text :size="11" color="info">{{ formatTime(item.warnTime) }}</cl-text>
+						</view>
+						<cl-text :size="11" color="info" :pt="{ className: 'mt-0.5' }">{{ item.deviceSn || "" }} · {{ item.gradeName }}</cl-text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 4. 快捷操作 -->
+			<view class="bg-white dark:bg-surface-800 rounded-2xl px-4 py-3 mb-3">
+				<cl-row>
+					<cl-col :span="8" v-for="fn in quickFunctions" :key="fn.key">
+						<view class="flex flex-col items-center justify-center py-2" @tap="onQuickClick(fn.key)">
+							<cl-icon :name="fn.icon" :size="24"></cl-icon>
+							<cl-text :size="11" :pt="{ className: 'mt-1 text-center' }" color="info">{{ fn.label }}</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+			</view>
+		</view>
+
+		<!-- 自定义底部导航栏 -->
+		<custom-tabbar></custom-tabbar>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { reactive, computed, onMounted } from "vue";
+import { request, t, router } from "@/.cool";
+import { useUi } from "@/uni_modules/cool-ui";
+import { HomeApi, type HomeStatistics, type WarnItem } from "./home";
+import CustomTabbar from "./components/tabbar.uvue";
+
+const ui = useUi();
+
+const statistics = reactive<HomeStatistics>({
+	deviceTotal: 0,
+	deviceOnline: 0,
+	deviceOffline: 0,
+	alarmToday: 0,
+	productTotal: 0
+});
+
+/** 告警等级对应颜色 */
+function gradeColor(name: string): string {
+	if (name == "严重") return "#f56c6c";
+	if (name == "紧急") return "#e6a23c";
+	if (name == "告警") return "#f7b731";
+	return "#909399";
+}
+
+/** 告警等级列表（含颜色） */
+const alarmGradeList = computed(() => {
+	const map: { [key: string]: number } = {};
+	if (statistics.alarmGradeCounts) {
+		for (const item of statistics.alarmGradeCounts) {
+			map[item.gradeName] = item.count;
+		}
+	}
+	const order = ["严重", "紧急", "告警", "通知"];
+	const result: { name: string; count: number; color: string }[] = [];
+	for (const name of order) {
+		result.push({
+			name,
+			count: map[name] || 0,
+			color: gradeColor(name)
+		});
+	}
+	return result;
+});
+
+/** 快捷功能列表 */
+const quickFunctions = [
+	{ key: "realtime", label: t("实时数据"), icon: "dashboard-line" },
+	{ key: "command", label: t("指令下发"), icon: "terminal-line" },
+	{ key: "deviceBoard", label: t("设备看板"), icon: "grid-line" },
+];
+
+function formatTime(time?: string): string {
+	if (!time) return "";
+	const d = new Date(time);
+	const now = new Date();
+	const diff = now.getTime() - d.getTime();
+	const minutes = Math.floor(diff / 60000);
+	if (minutes < 1) return t("刚刚");
+	if (minutes < 60) return minutes + t("分钟前");
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return hours + t("小时前");
+	const days = Math.floor(hours / 24);
+	return days + t("天前");
+}
+
+function toDeviceList() {
+	router.to("/pages/index/device");
+}
+
+function toAlarmList() {
+	ui.showToast({ message: t("开发中，敬请期待") });
+}
+
+function toDeviceDetail(item: WarnItem) {
+	if (item.deviceSn) {
+		router.to("/pages/device/detail?sn=" + item.deviceSn);
+	} else {
+		ui.showToast({ message: t("无法跳转") });
+	}
+}
+
+function onQuickClick(key: string) {
+	switch (key) {
+		case "deviceBoard":
+			router.to("/pages/index/device");
+			break;
+		default:
+			ui.showToast({ message: t("开发中，敬请期待") });
+			break;
+	}
+}
+
+function loadStatistics() {
+	request<HomeStatistics>({
+		url: HomeApi.STATISTICS
+	}).then((data) => {
+		if (data) {
+			Object.assign(statistics, data);
+		}
+	});
+}
+
+onMounted(() => {
+	loadStatistics();
+});
+</script>
+
+<style lang="scss" scoped>
+.border-divider {
+	border-bottom: 1px solid #e5e7eb;
+}
+</style>

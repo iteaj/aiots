@@ -1,90 +1,140 @@
-# 2025-5-27
-INSERT INTO `sys_menu` VALUES (1480,'产品数据',1421,88,'/iot/collectData/product','iot','V','enabled','iot:collectData:product','iz-icon-container-default','','_self','2025-05-26 00:00:00',NULL);
+-- 2026-04-27 添加频率标签字段
 
-# 2025-06-04
-create table isv_project (
-    id char(36),
-    project_name varchar(64) null comment '项目名称',
-    state int null comment '状态',
-    index_image varchar(256) null comment '项目封面',
-    remarks varchar(256) null comment '项目说明',
-    is_delete int null comment '是否删除',
-    content json null comment '项目内容',
-    create_time datetime default now() not null comment '创建时间',
-    constraint isv_project_pk primary key (id)
-) comment '大屏项目';
+-- 新增字段
+ALTER TABLE iot_model_api ADD COLUMN collect_tag VARCHAR(50) COMMENT '频率标签（默认、低频、中频、高频）' DEFAULT 'DEFAULT';
+ALTER TABLE iot_event_source ADD COLUMN frequency_tags JSON COMMENT '频率标签范围（多选）' DEFAULT ('["DEFAULT"]');
 
-alter table iot_collect_data
-    add product_code varchar(64) null comment '产品编码';
+-- 初始化现有数据默认值
+UPDATE iot_model_api SET collect_tag = 'DEFAULT' WHERE collect_tag IS NULL;
+UPDATE iot_event_source SET frequency_tags = CAST('["DEFAULT"]' AS JSON) WHERE frequency_tags IS NULL;
 
-alter table iot_collect_data
-    add protocol_code varchar(64) null comment '协议编码';
 
-alter table iot_collect_data
-    add device_group_id bigint null comment '所属组';
+-- 2026-05-05 新增产品config字段配置
 
-create index iot_collect_data_device_group_id_index
-    on iot_collect_data (device_group_id);
+-- 初始化现有产品的calcScript和calcStatus配置
+UPDATE iot_product
+SET config = JSON_SET(IFNULL(config, JSON_OBJECT()), '$.calcScript', '', '$.calcLanguage', 'disabled')
+WHERE config IS NULL OR JSON_EXTRACT(config, '$.calcScript') IS NULL OR JSON_EXTRACT(config, '$.calcLanguage') IS NULL;
 
-create index iot_collect_data_protocol_code_index
-    on iot_collect_data (protocol_code);
 
-create index iot_collect_data_product_code_index
-    on iot_collect_data (product_code);
--- 添加缺失字段
-ALTER TABLE iot_event_source
-    ADD COLUMN period_type VARCHAR(20) NOT NULL DEFAULT 'cron' COMMENT '采集类型(cron:定时,millisecond:周期)',
-    ADD COLUMN period_ms BIGINT COMMENT '采集周期毫秒数',
-    ADD COLUMN rate_type TINYINT(1)  COMMENT '速率类型(1:固定速率, 0:固定延迟)';
-# 2025-11-29
-alter table iot_collect_data
-    change signal_id field_id bigint not null comment '字段id';
+-- 2026-05-22 创建第三方社交用户绑定表
+CREATE TABLE `m_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `platform` varchar(20) NOT NULL COMMENT '平台标识：WECHAT_MA-微信小程序 WECHAT_MP-微信公众号 ALIPAY-支付宝',
+  `open_id` varchar(100) NOT NULL COMMENT '平台用户唯一标识',
+  `union_id` varchar(100) DEFAULT NULL COMMENT '平台统一标识（微信unionId等）',
+  `session_key` varchar(200) DEFAULT NULL COMMENT '会话密钥',
+  `system_user_id` bigint DEFAULT NULL COMMENT '关联系统用户ID',
+  `nickname` varchar(100) DEFAULT NULL COMMENT '昵称',
+  `avatar` varchar(500) DEFAULT NULL COMMENT '头像',
+  `phone` varchar(20) DEFAULT NULL COMMENT '手机号',
+  `gender` tinyint DEFAULT NULL COMMENT '性别：0-未知 1-男 2-女',
+  `subscribe` tinyint DEFAULT '0' COMMENT '是否关注公众号：0-否 1-是',
+  `subscribe_time` datetime DEFAULT NULL COMMENT '关注时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_platform_openid` (`platform`, `open_id`),
+  KEY `idx_system_user` (`system_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='第三方社交用户绑定表';
 
-alter table iot_collect_data
-    change collect_task_id task_id bigint null comment '任务id';
+-- 2026-05-25 系统用户头像字段长度改为500
+ALTER TABLE sys_admin MODIFY COLUMN `avatar` varchar(500) DEFAULT '' COMMENT '头像路径';
 
-drop index iot_collect_data_signal_id_index on iot_collect_data;
+-- 2026-05-26 创建设备指令下发日志表
+CREATE TABLE `iot_device_cmd_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `uid` varchar(36) DEFAULT NULL COMMENT '设备标识',
+  `device_name` varchar(64) DEFAULT NULL COMMENT '设备名称',
+  `config` json DEFAULT NULL COMMENT '指令配置（含指令名称/编码/参数等）',
+  `status` varchar(20) DEFAULT NULL COMMENT '执行状态：SUCCESS-成功 FAILURE-失败',
+  `result_msg` varchar(128) DEFAULT NULL COMMENT '结果描述',
+  `result_data` json DEFAULT NULL COMMENT '响应数据',
+  `elapsed` bigint(20) DEFAULT NULL COMMENT '执行时间(毫秒)',
+  `method` varchar(20) DEFAULT NULL COMMENT '下发方式：大屏/调试/脚本/场景联动/移动端',
+  `cmd_type` varchar(20) DEFAULT NULL COMMENT '指令类型：控制指令/事件指令',
+  `operator` varchar(100) DEFAULT NULL COMMENT '操作人',
+  `operator_id` bigint(20) DEFAULT NULL COMMENT '操作人ID',
+  `create_time` datetime DEFAULT NULL COMMENT '下发时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_uid` (`uid`) USING BTREE,
+  KEY `idx_create_time` (`create_time`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备指令下发日志';
 
-create index iot_collect_data_field_id_index
-    on iot_collect_data (field_id);
+-- 2026-05-26 设备指令日志菜单权限
 
-alter table iot_collect_data
-    add device_sn varchar(36) null comment '设备编号';
+-- 设备指令日志菜单（父菜单ID 1406 是"设备维护"）
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time)
+VALUES ('指令日志', 1406, 310, '/iot/deviceCmdLog', 'iot', 'V', 'enabled', 'iot:deviceCmdLog:view', 'iz-icon-log', '设备指令下发日志', '_self', now(), now());
 
-alter table iot_collect_data
-    add device_name varchar(64) null comment '设备名称';
-
-alter table iot_collect_data
-    add field_name varchar(36) null comment '字段名称';
-
-create table isv_resource
-(
-    id          char(36)                           not null,
-    name        varchar(64)                        null comment '名称',
-    url         varchar(256)                       null comment '路径',
-    type        char(16)                           null comment '资源类型',
-    create_time datetime default CURRENT_TIMESTAMP null comment '创建时间'
-) comment '大屏资源';
-
-alter table isv_resource add primary key (id);
-alter table isv_resource add constraint isv_resource_id_uindex unique (id);
-
-create table isv_resource_type
-(
-    id   bigint auto_increment
-        primary key,
-    name char(24)    not null comment '名称',
-    type varchar(36) not null comment '类型',
-    sort int         null comment '排序'
-) comment '资源类型';
-INSERT INTO isv_project (id, project_name, state, index_image, remarks, is_delete, content, create_time) VALUES ('2791493f813c48d614ed2c8d7a3554d4', '精简测试', -1, '/file/isv/2791493f813c48d614ed2c8d7a3554d4.png', null, null, '{"componentList": [{"id": "id_5646dvgyxrs000", "iot": {"uid": null, "bind": {"vars": {}, "attrs": {"key": null, "configs": []}, "direct": {"uid": null, "code": null, "type": "config", "value": null, "remark": null, "target": null, "productCode": null}}, "fetch": "async () => {\\n          const res = await customizeHttp(toRaw(targetComponent.request), toRaw(chartEditStore.getRequestGlobalConfig));\\n          if (res) {\\n            try {\\n              const filter = targetComponent.filter;\\n              const { data } = res;\\n              if (filter && (chartFrame == ChartFrameEnum.ECHARTS || chartFrame == ChartFrameEnum.VCHART || chartFrame == ChartFrameEnum.COMMON)) {\\n                res[\\"doFilter\\"] = doFilter;\\n                res[\\"chartFrame\\"] = chartFrame;\\n                res[\\"targetComponent\\"] = targetComponent;\\n              }\\n              echartsUpdateHandle(newFunctionHandle(data, res, filter));\\n              if (updateCallback) {\\n                updateCallback(newFunctionHandle(data, res, filter));\\n              }\\n            } catch (error) {\\n              console.error(error);\\n            }\\n          }\\n        }", "valueMaps": [], "chartConfig": {"ranges": ["all"], "timeType": "last", "component": "", "dataItems": [{"key": 1, "item": "湿度", "name": "测试modbus rtu子产品 / 湿度 / 数量统计", "value": "MODEL:test_child_modbus_rtu:shiduRtu:count"}, {"key": 2, "item": "温度", "name": "测试modbus rtu子产品 / 温度(写随机脚本) / 数量统计", "value": "MODEL:test_child_modbus_rtu:tempRtu:count"}], "rangeName": ["按所有"], "rangeType": "daterange", "timestamps": null, "viewStatus": "动", "productType": "time", "lastTimeType": "month", "isEChartsAble": true, "isVChartsAble": false, "lastTimeValue": 7, "lastIncludeCurrent": "true"}, "eventConfig": {"click": {"mode": "simple", "configs": []}, "dblclick": {"mode": "simple", "configs": []}, "mouseenter": {"mode": "simple", "configs": []}, "mouseleave": {"mode": "simple", "configs": []}, "update:value": {"mode": "simple", "configs": []}}, "tableConfig": null}, "key": "BarCommon", "attr": {"h": 300, "w": 500, "x": 141, "y": 247, "zIndex": -1, "offsetX": 0, "offsetY": 0}, "events": {"baseEvent": {"click": null, "dblclick": null, "mouseenter": null, "mouseleave": null}, "advancedEvents": {"vnodeMounted": null, "vnodeBeforeMount": null}, "interactEvents": []}, "filter": "\\tlet formatter = (value, type) => value;\\r\\treturn res.doFilter(data, res, formatter);", "option": {"grid": {"top": "60", "left": "10%", "show": false, "right": "10%", "bottom": "60"}, "xAxis": {"name": "", "show": true, "type": "category", "inverse": false, "nameGap": 15, "axisLine": {"show": true, "onZero": true, "lineStyle": {"color": "#B9B8CE", "width": 1}}, "axisTick": {"show": true, "length": 5}, "position": "bottom", "axisLabel": {"show": true, "color": "#B9B8CE", "rotate": 0, "fontSize": 12}, "splitLine": {"show": false, "lineStyle": {"type": "solid", "color": "#484753", "width": 1}}, "nameTextStyle": {"color": "#B9B8CE", "fontSize": 12}}, "yAxis": {"name": "", "show": true, "type": "value", "inverse": false, "nameGap": 15, "axisLine": {"show": true, "onZero": true, "lineStyle": {"color": "#B9B8CE", "width": 1}}, "axisTick": {"show": true, "length": 5}, "position": "left", "axisLabel": {"show": true, "color": "#B9B8CE", "rotate": 0, "fontSize": 12}, "splitLine": {"show": true, "lineStyle": {"type": "solid", "color": "#484753", "width": 1}}, "nameTextStyle": {"color": "#B9B8CE", "fontSize": 12}}, "legend": {"x": "center", "y": "top", "icon": "circle", "show": true, "type": "scroll", "orient": "horizontal", "itemWidth": 15, "textStyle": {"color": "#B9B8CE", "fontSize": 18}, "itemHeight": 15, "pageTextStyle": {"color": "#B9B8CE"}}, "series": [{"type": "bar", "label": {"show": true, "color": "#fff", "fontSize": 12, "position": "top"}, "barWidth": 15, "itemStyle": {"color": null, "borderRadius": 2}}, {"type": "bar", "label": {"show": true, "color": "#fff", "fontSize": 12, "position": "top"}, "barWidth": 15, "itemStyle": {"color": null, "borderRadius": 2}}], "dataset": {"source": [{"温度": 85, "湿度": 85, "product": "2025-05"}, {"温度": 583, "湿度": 583, "product": "2025-06"}, {"温度": 3687, "湿度": 3687, "product": "2025-07"}, {"温度": 0, "湿度": 0, "product": "2025-08"}, {"温度": 0, "湿度": 0, "product": "2025-09"}, {"温度": 0, "湿度": 0, "product": "2025-10"}, {"温度": 0, "湿度": 0, "product": "2025-11"}], "dimensions": ["product", "湿度", "温度"]}, "tooltip": {"show": true, "trigger": "axis", "axisPointer": {"show": true, "type": "shadow"}}, "backgroundColor": "rgba(0,0,0,0)"}, "status": {"hide": false, "lock": false}, "styles": {"skewX": 0, "skewY": 0, "opacity": 1, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "contrast": 1, "saturate": 1, "blendMode": "normal", "hueRotate": 0, "animations": [], "brightness": 1, "filterShow": false}, "isGroup": false, "preview": {"overFlowHidden": false}, "request": {"requestUrl": "/isv/data/fetch", "requestParams": {"Body": {"xml": "", "json": {"chart": "BarCommon", "values": [{"key": 1, "item": "湿度", "name": "测试modbus rtu子产品 / 湿度 / 数量统计", "value": "MODEL:test_child_modbus_rtu:shiduRtu:count"}, {"key": 2, "item": "温度", "name": "测试modbus rtu子产品 / 温度(写随机脚本) / 数量统计", "value": "MODEL:test_child_modbus_rtu:tempRtu:count"}], "category": "time", "timeType": "month", "timeRange": ["now-6", "now"], "rangeValue": "all"}, "form-data": {}, "x-www-form-urlencoded": {}}, "Header": {}, "Params": {}}, "requestDataType": 1, "requestHttpType": "post", "requestInterval": 30, "requestSQLContent": {"sql": "select * from  where"}, "requestContentType": 0, "requestIntervalUnit": "second", "requestParamsBodyType": "json"}, "chartConfig": {"key": "BarCommon", "image": "bar_x.png", "title": "温湿度", "conKey": "VCBarCommon", "package": "Charts", "category": "Bars", "chartKey": "VBarCommon", "chartFrame": "echarts", "categoryName": "??援?九??"}}, {"id": "id_42kfjvzxgfs000", "iot": {"uid": null, "bind": {"vars": {}, "attrs": {"key": null, "configs": []}, "direct": {"uid": null, "code": null, "type": "config", "value": null, "remark": null, "target": null, "productCode": null}}, "fetch": "async () => {\\n          const res = await customizeHttp(toRaw(targetComponent.request), toRaw(chartEditStore.getRequestGlobalConfig));\\n          if (res) {\\n            try {\\n              const filter = targetComponent.filter;\\n              const { data } = res;\\n              if (filter && (chartFrame == ChartFrameEnum.ECHARTS || chartFrame == ChartFrameEnum.VCHART || chartFrame == ChartFrameEnum.COMMON)) {\\n                res[\\"doFilter\\"] = doFilter;\\n                res[\\"chartFrame\\"] = chartFrame;\\n                res[\\"targetComponent\\"] = targetComponent;\\n              }\\n              echartsUpdateHandle(newFunctionHandle(data, res, filter));\\n              if (updateCallback) {\\n                updateCallback(newFunctionHandle(data, res, filter));\\n              }\\n            } catch (error) {\\n              console.error(error);\\n            }\\n          }\\n        }", "valueMaps": [], "chartConfig": {"ranges": ["group:15", "group:14", "group:13"], "timeType": "time", "component": "", "dataItems": [{"key": 1, "item": "在线", "name": "设备状态 / 在线 / 统计", "value": "DSS:online:count"}, {"key": 2, "item": "离线", "name": "设备状态 / 离线 / 统计", "value": "DSS:offline:count"}], "rangeName": ["园区3#号组", "园区2#号组", "园区1#号组"], "rangeType": "daterange", "timestamps": [1759420800000, 1759593600000], "viewStatus": "动", "productType": "range", "lastTimeType": "quarter", "isEChartsAble": true, "isVChartsAble": false, "lastTimeValue": 7, "lastIncludeCurrent": "true"}, "eventConfig": {"click": {"mode": "simple", "configs": []}, "dblclick": {"mode": "simple", "configs": []}, "mouseenter": {"mode": "simple", "configs": []}, "mouseleave": {"mode": "simple", "configs": []}, "update:value": {"mode": "simple", "configs": []}}, "tableConfig": null}, "key": "BarCrossrange", "attr": {"h": 300, "w": 745, "x": 24, "y": 582, "zIndex": -1, "offsetX": 0, "offsetY": 0}, "events": {"baseEvent": {"click": null, "dblclick": null, "mouseenter": null, "mouseleave": null}, "advancedEvents": {"vnodeMounted": null, "vnodeBeforeMount": null}, "interactEvents": []}, "filter": "\\tlet formatter = (value, type) => value;\\r\\treturn res.doFilter(data, res, formatter);", "option": {"grid": {"top": "60", "left": "10%", "show": false, "right": "10%", "bottom": "60"}, "xAxis": {"name": "", "show": true, "type": "value", "inverse": false, "nameGap": 15, "axisLine": {"show": true, "onZero": true, "lineStyle": {"color": "#B9B8CE", "width": 1}}, "axisTick": {"show": true, "length": 5}, "position": "bottom", "axisLabel": {"show": true, "color": "#B9B8CE", "rotate": 0, "fontSize": 12}, "splitLine": {"show": false, "lineStyle": {"type": "solid", "color": "#484753", "width": 1}}, "nameTextStyle": {"color": "#B9B8CE", "fontSize": 12}}, "yAxis": {"name": "", "show": true, "type": "category", "inverse": false, "nameGap": 15, "axisLine": {"show": true, "onZero": true, "lineStyle": {"color": "#B9B8CE", "width": 1}}, "axisTick": {"show": true, "length": 5}, "position": "left", "axisLabel": {"show": true, "color": "#B9B8CE", "rotate": 0, "fontSize": 12}, "splitLine": {"show": true, "lineStyle": {"type": "solid", "color": "#484753", "width": 1}}, "nameTextStyle": {"color": "#B9B8CE", "fontSize": 12}}, "legend": {"x": "center", "y": "top", "icon": "circle", "show": true, "type": "scroll", "orient": "horizontal", "itemWidth": 15, "textStyle": {"color": "#B9B8CE", "fontSize": 18}, "itemHeight": 15, "pageTextStyle": {"color": "#B9B8CE"}}, "series": [{"type": "bar", "label": {"show": true, "color": "#fff", "fontSize": 12, "position": "right"}, "barWidth": null, "itemStyle": {"color": null, "borderRadius": 0}}, {"type": "bar", "label": {"show": true, "color": "#fff", "fontSize": 12, "position": "right"}, "barWidth": null, "itemStyle": {"color": null, "borderRadius": 0}}], "dataset": {"source": [{"在线": 3, "离线": 19, "product": "园区1#号组"}, {"在线": 0, "离线": 0, "product": "园区2#号组"}, {"在线": 0, "离线": 2, "product": "园区3#号组"}], "dimensions": ["product", "在线", "离线"]}, "tooltip": {"show": true, "trigger": "axis", "axisPointer": {"show": true, "type": "shadow"}}, "backgroundColor": "rgba(0,0,0,0)"}, "status": {"hide": false, "lock": false}, "styles": {"skewX": 0, "skewY": 0, "opacity": 1, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "contrast": 1, "saturate": 1, "blendMode": "normal", "hueRotate": 0, "animations": [], "brightness": 1, "filterShow": false}, "isGroup": false, "preview": {"overFlowHidden": false}, "request": {"requestUrl": "/isv/data/fetch", "requestParams": {"Body": {"xml": "", "json": {"chart": "BarCrossrange", "values": [{"key": 1, "item": "在线", "name": "设备状态 / 在线 / 统计", "value": "DSS:online:count"}, {"key": 2, "item": "离线", "name": "设备状态 / 离线 / 统计", "value": "DSS:offline:count"}], "category": "range", "timeType": "quarter", "timeRange": ["2025-10-03 00:00:00", "2025-10-05 00:00:00"], "rangeValue": "group:15,14,13"}, "form-data": {}, "x-www-form-urlencoded": {}}, "Header": {}, "Params": {}}, "requestDataType": 1, "requestHttpType": "post", "requestInterval": 30, "requestSQLContent": {"sql": "select * from  where"}, "requestContentType": 0, "requestIntervalUnit": "second", "requestParamsBodyType": "json"}, "chartConfig": {"key": "BarCrossrange", "image": "bar_y.png", "title": "横向测试", "conKey": "VCBarCrossrange", "package": "Charts", "category": "Bars", "chartKey": "VBarCrossrange", "chartFrame": "echarts", "categoryName": "??援?九??"}}, {"id": "id_1gztyehwt7r400", "iot": {"uid": null, "bind": {"vars": {}, "attrs": {"key": null, "configs": []}, "direct": {"uid": null, "code": null, "type": "config", "value": null, "remark": null, "productCode": null}}, "fetch": "async () => {\\n          const res = await customizeHttp(toRaw(targetComponent.request), toRaw(chartEditStore.getRequestGlobalConfig));\\n          if (res) {\\n            try {\\n              const filter = targetComponent.filter;\\n              const { data } = res;\\n              if (filter && (chartFrame == ChartFrameEnum.ECHARTS || chartFrame == ChartFrameEnum.VCHART || chartFrame == ChartFrameEnum.COMMON)) {\\n                res[\\"doFilter\\"] = doFilter;\\n                res[\\"chartFrame\\"] = chartFrame;\\n                res[\\"targetComponent\\"] = targetComponent;\\n              }\\n              echartsUpdateHandle(newFunctionHandle(data, res, filter));\\n              if (updateCallback) {\\n                updateCallback(newFunctionHandle(data, res, filter));\\n              }\\n            } catch (error) {\\n              console.error(error);\\n            }\\n          }\\n        }", "valueMaps": [], "chartConfig": null, "eventConfig": {"click": {"mode": "simple", "configs": []}, "dblclick": {"mode": "simple", "configs": []}, "mouseenter": {"mode": "simple", "configs": []}, "mouseleave": {"mode": "simple", "configs": []}, "update:value": {"mode": "simple", "configs": []}}, "tableConfig": {"key": "BITA:product", "heads": ["name", "deviceType", "code", "status", "deviceNum", "onlineNum"], "params": {"size": 30, "current": 1}, "component": null}}, "key": "TableScrollBoard", "attr": {"h": 300, "w": 749, "x": 972, "y": 514, "zIndex": -1, "offsetX": 0, "offsetY": 0}, "events": {"baseEvent": {"click": null, "dblclick": null, "mouseenter": null, "mouseleave": null}, "advancedEvents": {"vnodeMounted": null, "vnodeBeforeMount": null}, "interactEvents": []}, "filter": "\\tlet formatter = (value, type) => value;\\r\\treturn res.doFilter(data, res, formatter);", "option": {"align": ["left", "center", "center", "center", "center", "center", "center"], "index": true, "header": ["产品名称", "设备类型", "产品编号", "产品状态", "设备数量", "在线数量"], "rowNum": 5, "dataset": [["默认欧姆龙PLC产品", "边缘网关", "omron_finder", "disabled", "", ""], ["默认西门子PLC产品", "边缘网关", "siemens_s7", "disabled", "", ""], ["创源断路器", "网关子设备", "pc_breaker_cy", "disabled", "", ""], ["默认Modbus Tcp产品", "边缘网关", "gw_modbus_tcp_default", "enabled", "", ""], ["默认Modbus Rtu产品", "边缘网关", "gw_modbus_rtu_default", "enabled", "", ""], ["默认Dtu+Modbus Tcp产品", "边缘网关", "gw_dtu_modbus_tcp_default", "enabled", "", ""], ["默认Dtu+Modbus Rtu产品", "边缘网关", "gw_dtu_modbus_rtu_default", "enabled", "", ""], ["默认Mqtt产品", "边缘网关", "gw_mqtt_default", "enabled", "", ""], ["测试modbus tcp子产品", "网关子设备", "test_child_modbus_tcp", "enabled", "", ""], ["测试modbusRtuForDtu子产品", "网关子设备", "test_child_dtu_modbus_rtu", "disabled", "", ""], ["测试mqtt子产品", "网关子设备", "test_child_mqtt", "disabled", "", ""], ["测试modbus rtu子产品", "网关子设备", "test_child_modbus_rtu", "disabled", "", ""], ["安科瑞电力产品", "网关子设备", "report", "disabled", "", ""], ["阜民里液位仪", "网关子设备", "ND", "disabled", "", ""], ["默认Modbus Over Mqtt网关", "边缘网关", "default_gw_modbus_over_mqtt", "enabled", "", ""], ["测试ModbusOverMqtt子产品", "网关子设备", "test_child_modbus_over_mqtt", "enabled", "", ""], ["测试ARCM300T产品", "直连设备", "test_arcm_300t", "enabled", "", ""]], "carousel": "single", "pageSize": 30, "waitTime": 2, "headerBGC": "#00BAFF", "oddRowBGC": "#003B51", "evenRowBGC": "#0A2732", "columnWidth": ["30", "100", "100", "180", "80", "100", "100"], "headerHeight": 35}, "status": {"hide": false, "lock": false}, "styles": {"skewX": 0, "skewY": 0, "opacity": 1, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "contrast": 1, "saturate": 1, "blendMode": "normal", "hueRotate": 0, "animations": [], "brightness": 1, "filterShow": false}, "isGroup": false, "preview": {"overFlowHidden": false}, "request": {"requestUrl": "/isv/data/table/fetch", "requestParams": {"Body": {"xml": "", "json": {"key": "BITA:product", "params": {"size": 30, "current": 1}}, "form-data": {}, "x-www-form-urlencoded": {}}, "Header": {}, "Params": {}}, "requestDataType": 1, "requestHttpType": "post", "requestInterval": 30, "requestSQLContent": {"sql": "select * from  where"}, "requestContentType": 0, "requestIntervalUnit": "second", "requestParamsBodyType": "json"}, "chartConfig": {"key": "TableScrollBoard", "image": "table_scrollboard.png", "title": "轮播列表", "conKey": "VCTableScrollBoard", "package": "Tables", "category": "Tables", "chartKey": "VTableScrollBoard", "chartFrame": "common", "categoryName": "表格"}}, {"id": "id_5qyvkuhrbb0000", "iot": {"uid": null, "bind": {"vars": {}, "attrs": {"key": null, "configs": []}, "direct": {"uid": null, "code": null, "type": "config", "value": null, "remark": null, "productCode": null}}, "fetch": null, "valueMaps": [], "chartConfig": null, "eventConfig": {"click": {"mode": "simple", "configs": []}, "dblclick": {"mode": "simple", "configs": []}, "mouseenter": {"mode": "simple", "configs": []}, "mouseleave": {"mode": "simple", "configs": []}, "update:value": {"mode": "simple", "configs": []}}, "tableConfig": {"key": "PDTA:test_child_modbus_tcp", "reqs": [{"label": "设备UID", "value": "uid", "placeholder": ""}, {"label": "所属分组", "value": "groupId", "placeholder": "设备所属分组id"}, {"label": "开始时间", "value": "startTime", "placeholder": "yyyy-MM-dd HH:mm:ss"}, {"label": "结束时间", "value": "endTime", "placeholder": "yyyy-MM-dd HH:mm:ss"}], "heads": ["collectTime", "deviceName", "deviceSn", "fsBit", "sevenBit", "twoBit", "oneBit", "zhishiStatus", "co2", "status", "shidu", "temp"], "params": {"size": 5, "current": 1, "endTime": "2025-10-16 00:00:00", "groupId": "1", "startTime": ""}, "component": null}}, "key": "TablesBasic", "attr": {"h": 300, "w": 888, "x": 813, "y": 419, "zIndex": -1, "offsetX": 0, "offsetY": 0}, "events": {"baseEvent": {"click": null, "dblclick": null, "mouseenter": null, "mouseleave": null}, "advancedEvents": {"vnodeMounted": null, "vnodeBeforeMount": null}, "interactEvents": []}, "filter": "\\tlet formatter = (value, type) => value;\\r\\treturn res.doFilter(data, res, formatter);", "option": {"align": "center", "style": {"border": "on", "striped": "on", "fontSize": 16, "singleLine": "off", "borderColor": "black", "borderStyle": "solid", "borderWidth": 0, "singleColumn": "off", "bottomBordered": "on"}, "dataset": {"total": 0, "source": [], "dimensions": [{"key": "collectTime", "align": "center", "label": "采集时间", "title": "采集时间", "value": "collectTime", "width": 140, "ellipsis": true, "resizable": false, "placeholder": null}, {"key": "deviceName", "align": "center", "label": "设备名称", "title": "设备名称", "value": "deviceName", "width": 120, "ellipsis": true, "resizable": true, "placeholder": null}, {"key": "deviceSn", "align": "center", "label": "设备编号", "title": "设备编号", "value": "deviceSn", "width": 120, "ellipsis": true, "resizable": true, "placeholder": null}, {"key": "fsBit", "align": "center", "label": "4-6位值", "title": "4-6位值", "value": "fsBit", "width": 100, "ellipsis": true, "resizable": false, "placeholder": null}, {"key": "sevenBit", "align": "center", "label": "7位状态", "title": "7位状态", "value": "sevenBit", "width": 100, "ellipsis": true, "resizable": false, "placeholder": null}, {"key": "twoBit", "align": "center", "label": "2位状态", "title": "2位状态", "value": "twoBit", "width": 100, "ellipsis": true, "resizable": false, "placeholder": null}, {"key": "oneBit", "align": "center", "label": "1位状态", "title": "1位状态", "value": "oneBit", "width": 100, "ellipsis": true, "resizable": false, "placeholder": null}, {"key": "zhishiStatus", "align": "center", "label": "指示灯状态", "title": "指示灯状态", "value": "zhishiStatus", "width": 100, "ellipsis": true, "resizable": false, "placeholder": null}, {"key": "co2", "align": "center", "label": "二氧化碳溶度", "title": "二氧化碳溶度", "value": "co2", "width": 100, "ellipsis": true, "resizable": false, "placeholder": null}, {"key": "status", "align": "center", "label": "状态", "title": "状态", "value": "status", "width": 100, "ellipsis": true, "resizable": false, "placeholder": null}, {"key": "shidu", "align": "center", "label": "湿度", "title": "湿度", "value": "shidu", "width": 100, "ellipsis": true, "resizable": false, "placeholder": null}, {"key": "temp", "align": "center", "label": "温度(脚本测试)", "title": "温度(脚本测试)", "value": "temp", "width": 100, "ellipsis": true, "resizable": false, "placeholder": null}]}, "inputShow": "none", "pagination": {"page": 1, "onChange": "(d,h)=>{s.value.page=d;let f=go(),v=e.chartConfig.request.requestParams.Body;v.json&&v.json?.params&&(v.json.params.current=d,v.json.params.size=s.value.pageSize,f.executeFetchTask(e.chartConfig?.id))}", "pageSize": 5, "itemCount": 0}}, "status": {"hide": false, "lock": false}, "styles": {"skewX": 0, "skewY": 0, "opacity": 1, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "contrast": 1, "saturate": 1, "blendMode": "normal", "hueRotate": 0, "animations": [], "brightness": 1, "filterShow": false}, "isGroup": false, "preview": {"overFlowHidden": false}, "request": {"requestUrl": "/isv/data/table/fetch", "requestParams": {"Body": {"xml": "", "json": {"key": "PDTA:test_child_modbus_tcp", "params": {"size": 5, "current": 1, "endTime": "2025-10-16 00:00:00", "groupId": "1", "startTime": ""}}, "form-data": {}, "x-www-form-urlencoded": {}}, "Header": {}, "Params": {}}, "requestDataType": 1, "requestHttpType": "post", "requestInterval": 0, "requestSQLContent": {"sql": "select * from  where"}, "requestContentType": 0, "requestIntervalUnit": "second", "requestParamsBodyType": "json"}, "chartConfig": {"key": "TablesBasic", "image": "tables_basic.png", "title": "基础分页表格", "conKey": "VCTablesBasic", "package": "Tables", "category": "Tables", "chartKey": "VTablesBasic", "chartFrame": "common", "categoryName": "表格"}}, {"id": "id_2qzzr4pugi8000", "iot": {"uid": null, "bind": {"vars": {}, "attrs": {"key": null, "configs": []}, "direct": {"uid": "1900831644373278721", "code": "api->tcmt_get_zhichi_status", "type": "config", "value": null, "remark": "读保持寄存器", "productCode": "test_child_modbus_tcp"}}, "fetch": null, "valueMaps": [{"target": "id_isvgfmpb5hc00", "cdnOpera": "void", "cdnValue": null, "actionItem": "animate", "actionType": "animate", "actionValue": "@bounce "}], "chartConfig": null, "eventConfig": {"click": {"mode": "simple", "configs": []}, "dblclick": {"mode": "simple", "configs": []}, "mouseenter": {"mode": "simple", "configs": []}, "mouseleave": {"mode": "simple", "configs": []}, "update:value": {"mode": "simple", "configs": []}}, "tableConfig": {"key": null, "heads": [], "params": {"size": 10, "current": 1}, "component": null}}, "key": "Button", "attr": {"h": 32, "w": 180, "x": 763, "y": 940, "zIndex": -1, "offsetX": 0, "offsetY": 0}, "events": {"baseEvent": {"click": "const component = components[\'id_2qzzr4pugi8000\'];\\r\\n if(component) window[\'$iotOnEmit\'](\'click\', component, components, mouseEvent)", "dblclick": null, "mouseenter": null, "mouseleave": null}, "advancedEvents": {"vnodeMounted": null, "vnodeBeforeMount": null}, "interactEvents": []}, "filter": null, "option": {"type": "success", "circle": false, "dashed": false, "direct": true, "dataset": "采集指示灯状态", "loading": false, "secondary": false}, "status": {"hide": false, "lock": false}, "styles": {"skewX": 0, "skewY": 0, "opacity": 1, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "contrast": 1, "saturate": 1, "blendMode": "normal", "hueRotate": 0, "animations": [], "brightness": 1, "filterShow": false}, "isGroup": false, "preview": {"overFlowHidden": false}, "request": {"requestUrl": "", "requestParams": {"Body": {"xml": "", "json": "", "form-data": {}, "x-www-form-urlencoded": {}}, "Header": {}, "Params": {}}, "requestDataType": 0, "requestHttpType": "get", "requestInterval": 30, "requestSQLContent": {"sql": "select * from  where"}, "requestContentType": 0, "requestIntervalUnit": "second", "requestParamsBodyType": "none"}, "chartConfig": {"key": "Button", "image": "button.png", "title": "按钮", "conKey": "VCButton", "package": "Informations", "category": "Direct", "chartKey": "VButton", "chartFrame": "static", "categoryName": "指令"}}, {"id": "id_isvgfmpb5hc00", "iot": {"uid": null, "bind": {"vars": {}, "attrs": {"key": "a:test_child_modbus_tcp:zhishiStatus", "uid": "1900831644373278721", "name": "指示灯状态", "configs": []}, "direct": {"uid": null, "code": null, "type": "config", "value": null, "remark": null, "productCode": null}}, "fetch": null, "valueMaps": [], "chartConfig": null, "eventConfig": {"click": {"mode": "simple", "configs": []}, "dblclick": {"mode": "simple", "configs": []}, "mouseenter": {"mode": "simple", "configs": []}, "mouseleave": {"mode": "simple", "configs": []}, "update:value": {"mode": "simple", "configs": []}}, "tableConfig": {"key": null, "heads": [], "params": {"size": 10, "current": 1}, "component": null}}, "key": "TextCommon", "attr": {"h": 120, "w": 461, "x": 158, "y": 876, "zIndex": -1, "offsetX": 0, "offsetY": 0}, "events": {"baseEvent": {"click": null, "dblclick": null, "mouseenter": null, "mouseleave": null}, "advancedEvents": {"vnodeMounted": null, "vnodeBeforeMount": null}, "interactEvents": []}, "filter": null, "option": {"link": "", "dataset": "", "fontSize": 20, "linkHead": "http://", "paddingX": 10, "paddingY": 10, "fontColor": "#ffffff", "textAlign": "center", "fontWeight": "normal", "borderColor": "#6A6464FF", "borderWidth": 4, "writingMode": "horizontal-tb", "borderRadius": 4, "letterSpacing": 5, "backgroundColor": "#00000000"}, "status": {"hide": false, "lock": false}, "styles": {"skewX": 0, "skewY": 0, "opacity": 1, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "contrast": 1, "saturate": 1, "blendMode": "normal", "hueRotate": 0, "animations": [], "brightness": 1, "filterShow": false}, "isGroup": false, "preview": {"overFlowHidden": false}, "request": {"requestUrl": "", "requestParams": {"Body": {"xml": "", "json": "", "form-data": {}, "x-www-form-urlencoded": {}}, "Header": {}, "Params": {}}, "requestDataType": 0, "requestHttpType": "get", "requestInterval": 30, "requestSQLContent": {"sql": "select * from  where"}, "requestContentType": 0, "requestIntervalUnit": "second", "requestParamsBodyType": "none"}, "chartConfig": {"key": "TextCommon", "image": "text_static.png", "title": "文字", "conKey": "VCTextCommon", "package": "Informations", "category": "Texts", "chartKey": "VTextCommon", "chartFrame": "common", "categoryName": "文本"}}, {"id": "id_1po12hphfsao00", "iot": {"uid": null, "bind": {"vars": {}, "attrs": {"key": null, "configs": []}, "direct": {"uid": null, "code": null, "type": "config", "value": null, "remark": null, "productCode": null}}, "fetch": null, "valueMaps": [], "chartConfig": null, "eventConfig": {"click": {"mode": "simple", "configs": []}, "dblclick": {"mode": "simple", "configs": []}, "mouseenter": {"mode": "simple", "configs": []}, "mouseleave": {"mode": "simple", "configs": []}, "update:value": {"mode": "simple", "configs": []}}, "tableConfig": {"key": null, "heads": [], "params": {"size": 10, "current": 1}, "component": null}}, "key": "Image", "attr": {"h": 123, "w": 1920, "x": 0, "y": 0, "zIndex": -1, "offsetX": 0, "offsetY": 0}, "events": {"baseEvent": {"click": null, "dblclick": null, "mouseenter": null, "mouseleave": null}, "advancedEvents": {"vnodeMounted": null, "vnodeBeforeMount": null}, "interactEvents": []}, "filter": null, "option": {"fit": "contain", "cursor": "default", "dataset": "/usv/imgs/chart/decorates/bigpalne21.png", "borderRadius": 10}, "status": {"hide": false, "lock": false}, "styles": {"skewX": 0, "skewY": 0, "opacity": 1, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "contrast": 1, "saturate": 1, "blendMode": "normal", "hueRotate": 0, "animations": [], "brightness": 1, "filterShow": false}, "isGroup": false, "preview": {"overFlowHidden": false}, "request": {"requestUrl": "", "requestParams": {"Body": {"xml": "", "json": "", "form-data": {}, "x-www-form-urlencoded": {}}, "Header": {}, "Params": {}}, "requestDataType": 0, "requestHttpType": "get", "requestInterval": 30, "requestSQLContent": {"sql": "select * from  where"}, "requestContentType": 0, "requestIntervalUnit": "second", "requestParamsBodyType": "none"}, "chartConfig": {"key": "Image", "image": "photo.png", "title": "大标题7", "conKey": "VCImage", "package": "Informations", "category": "Mores", "chartKey": "VImage", "chartFrame": "static", "categoryName": "更多"}}], "iotGlobalConfig": {"apis": [], "funs": {"event": [], "convert": []}, "vars": [], "wsOriginUrl": "ws://localhost:8087"}, "editCanvasConfig": {"skewX": 0, "skewY": 0, "width": 1920, "height": 1080, "opacity": 1, "rotateX": 0, "rotateY": 0, "rotateZ": 0, "contrast": 1, "saturate": 1, "blendMode": "normal", "hueRotate": 0, "background": null, "brightness": 1, "filterShow": false, "projectName": "精简测试", "selectColor": false, "backgroundImage": "/usv/imgs/bg/earth.png", "chartThemeColor": "dark", "vChartThemeName": "vScreenVolcanoBlue", "previewScaleType": "fit", "chartThemeSetting": {"grid": {"top": "60", "left": "10%", "show": false, "right": "10%", "bottom": "60"}, "title": {"show": true, "textStyle": {"color": "#BFBFBF", "fontSize": 18}, "subtextStyle": {"color": "#A2A2A2", "fontSize": 14}}, "xAxis": {"name": "", "show": true, "inverse": false, "nameGap": 15, "axisLine": {"show": true, "onZero": true, "lineStyle": {"color": "#B9B8CE", "width": 1}}, "axisTick": {"show": true, "length": 5}, "position": "bottom", "axisLabel": {"show": true, "color": "#B9B8CE", "rotate": 0, "fontSize": 12}, "splitLine": {"show": false, "lineStyle": {"type": "solid", "color": "#484753", "width": 1}}, "nameTextStyle": {"color": "#B9B8CE", "fontSize": 12}}, "yAxis": {"name": "", "show": true, "inverse": false, "nameGap": 15, "axisLine": {"show": true, "onZero": true, "lineStyle": {"color": "#B9B8CE", "width": 1}}, "axisTick": {"show": true, "length": 5}, "position": "left", "axisLabel": {"show": true, "color": "#B9B8CE", "rotate": 0, "fontSize": 12}, "splitLine": {"show": true, "lineStyle": {"type": "solid", "color": "#484753", "width": 1}}, "nameTextStyle": {"color": "#B9B8CE", "fontSize": 12}}, "legend": {"x": "center", "y": "top", "icon": "circle", "show": true, "type": "scroll", "orient": "horizontal", "itemWidth": 15, "textStyle": {"color": "#B9B8CE", "fontSize": 18}, "itemHeight": 15, "pageTextStyle": {"color": "#B9B8CE"}}, "dataset": null, "renderer": "svg"}, "chartCustomThemeColorInfo": null}, "requestGlobalConfig": {"requestParams": {"Body": {"xml": "", "json": "", "form-data": {}, "x-www-form-urlencoded": {}}, "Header": {}, "Params": {}}, "requestDataPond": [], "requestInterval": 30, "requestOriginUrl": "", "requestIntervalUnit": "second"}}', '2025-09-11 09:12:50');
-
-INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('数据可视化', 0, 38, '#', 'iot', 'M', 'enabled', null, 'iz-icon-big-screen', '', '_self', '2024-06-20 00:00:00', '2025-09-11 16:47:54');
+-- 获取刚插入的菜单ID
 set @pid = (select last_insert_id());
-INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('大屏素材', @pid, 8, '/iotview/resource', 'iot', 'V', 'enabled', null, 'iz-icon-upload', '', '_self', '2025-11-17 00:00:00', '2025-11-18 15:28:21');
-INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ( '官方大屏', @pid, 18, '/iotview/project', 'iot', 'V', 'enabled', 'isv:project:view', 'iz-icon-tongji', '', '_self', '2025-07-17 00:00:00', '2025-09-11 16:47:17');
-set @pid = (select last_insert_id());
-INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('查询', @pid, 5, '/iotview/project/view', 'iot', 'A', 'enabled', 'isv:project:view', '#', '', '_self', '2025-07-17 16:21:54', null);
-INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('新增', @pid, 10, '/iotview/project/add', 'iot', 'A', 'enabled', 'isv:project:add', '#', '', '_self', '2025-07-17 16:21:54', null);
-INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ('修改', @pid, 15, '/iotview/project/edit', 'iot', 'A', 'enabled', 'isv:project:edit', '#', '', '_self', '2025-07-17 16:21:54', null);
-INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time) VALUES ( '删除', @pid, 20, '/iotview/project/del', 'iot', 'A', 'enabled', 'isv:project:del', '#', '', '_self', '2025-07-17 16:21:54', null);
+
+-- 查询权限
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time)
+VALUES ('查询', @pid, 5, '/iot/deviceCmdLog/view', 'iot', 'A', 'enabled', 'iot:deviceCmdLog:view', '#', '查询设备指令日志', '_self', now(), now());
+
+-- 删除权限
+INSERT INTO sys_menu (name, pid, sort, url, msn, type, status, perms, icon, remark, target, create_time, update_time)
+VALUES ('删除', @pid, 10, '/iot/deviceCmdLog/del', 'iot', 'A', 'enabled', 'iot:deviceCmdLog:del', '#', '删除设备指令日志', '_self', now(), now());
+
+-- 2026-06-03
+alter table iot_model_api
+    add sort int default 0 null comment '序号' after id;
+
+alter table iot_model_api
+    add config json null comment '配置' after sort;
+
+alter table iot_model_attr
+    add sort int default 0 null comment '排序' after name;
+
+alter table iot_model_attr
+    add config json null comment '配置' after unit;
+
+create index iot_model_api_product_id_index
+    on iot_model_api (product_id);
+create index iot_model_api_sort_index
+    on iot_model_api (sort);
+create index iot_model_attr_sort_index
+    on iot_model_attr (sort);
+
+create table iot_realtime_cache
+(
+    id           bigint auto_increment,
+    uid          bigint       not null comment '设备uid',
+    field_id     bigint       not null comment '模型属性id',
+    field        varchar(36)  not null comment '模型属性字段',
+    value        varchar(256) null comment '值',
+    collect_time datetime     null comment '采集时间',
+    primary key (uid, field_id),
+    constraint iot_realtime_cache_pk
+        unique (id)
+)
+    comment '实时数据缓存';
+
+-- 2026-06-13 告警配置新增操作符、阈值、状态指标、扩展配置字段
+ALTER TABLE iot_warn_config
+    ADD COLUMN `operator` varchar(32) DEFAULT NULL COMMENT '操作符(gt/gte/lt/lte/eq/neq/contain/in/between)',
+    ADD COLUMN `threshold` varchar(255) DEFAULT NULL COMMENT '阈值',
+    ADD COLUMN `indicator` varchar(16) DEFAULT NULL COMMENT '状态指标',
+    ADD COLUMN `config` json DEFAULT NULL COMMENT '扩展配置';
+
+-- 2026-06-16 采集数据表增加告警等级和指标标记字段
+-- 2026-06-16 采集数据表增加puid/告警等级/指标标记字段
+ALTER TABLE iot_collect_data
+    ADD COLUMN `puid` varchar(36) DEFAULT NULL COMMENT '父设备uid' AFTER uid,
+    ADD COLUMN `grade` enum('fatal','urgent', 'warn', 'notice', 'indicator', 'normal', 'status') DEFAULT NULL COMMENT '告警等级' AFTER protocol_code,
+    ADD COLUMN `indicator` varchar(32) DEFAULT NULL COMMENT '指标' AFTER grade;
+
+-- 2026-06-21 告警记录增加处理状态/处理时间/处理原因
+ALTER TABLE iot_warn_record
+    ADD COLUMN `process_status` tinyint(4) DEFAULT 0 COMMENT '处理状态：0-未处理 1-处理中 2-已处理 3-已忽略',
+    ADD COLUMN `process_time` datetime DEFAULT NULL COMMENT '处理时间',
+    ADD COLUMN `process_reason` varchar(255) DEFAULT NULL COMMENT '处理原因';
+drop index iot_warn_record_uid_index on iot_warn_record;
+create index iot_warn_record_uid_field_index
+    on iot_warn_record (uid, field);
+
+alter table oauth2_client_user
+    change user_id account varchar(64) null comment '关联的用户/会员';
+

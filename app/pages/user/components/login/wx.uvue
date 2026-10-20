@@ -1,0 +1,187 @@
+<template>
+	<!-- 管理端绑定弹窗 -->
+	<cl-popup
+		v-model="bindVisible"
+		direction="center"
+		:title="t('绑定管理端账号')"
+		size="80%"
+	>
+		<view class="p-4 pt-0">
+			<cl-text color="info">{{ t("请绑定管理端账号以完成登录") }}</cl-text>
+
+			<cl-input
+				v-model="bindForm.account"
+				:placeholder="t('请输入账号')"
+				class="mt-3"
+			></cl-input>
+
+			<cl-input
+				v-model="bindForm.password"
+				:password="true"
+				:placeholder="t('请输入密码')"
+				class="mt-3"
+			></cl-input>
+
+			<view class="flex flex-row mt-4">
+				<cl-button size="large" text border type="light" fluid @tap="bindVisible = false">{{
+					t("取消")
+				}}</cl-button>
+				<cl-button size="large" fluid :loading="bindLoading" @tap="bindSave">{{
+					t("绑定")
+				}}</cl-button>
+			</view>
+		</view>
+	</cl-popup>
+</template>
+
+<script setup lang="ts">
+import {
+	parse,
+	Platform,
+	request,
+	router,
+	useStore,
+	useWx,
+	type Response,
+	type Token,
+	type UserCategory,
+	t
+} from "@/.cool";
+import { UserApi } from "@/pages/user/user";
+
+import { reactive, ref } from "vue";
+import {useUi} from "@/uni_modules/cool-ui/hooks";
+
+const emit = defineEmits(["success"]);
+
+const { user } = useStore();
+const ui = useUi();
+const wx = useWx();
+
+// 是否显示绑定弹窗
+const bindVisible = ref(false);
+
+// 是否绑定中
+const bindLoading = ref(false);
+
+// 待绑定的openId
+const bindOpenId = ref("");
+
+// 绑定表单
+type BindForm = {
+	account: string;
+	password: string;
+};
+const bindForm = reactive<BindForm>({
+	account: "",
+	password: ""
+});
+
+// 微信授权登录响应
+type WechatAuthVo = {
+	token?: string;
+	openId?: string;
+	nickname?: string;
+	avatar?: string;
+};
+
+// 绑定保存
+async function bindSave() {
+	if (bindForm.account == "") {
+		ui.showToast({ message: t("请输入账号") });
+		return;
+	}
+	if (bindForm.password == "") {
+		ui.showToast({ message: t("请输入密码") });
+		return;
+	}
+
+	bindLoading.value = true;
+
+	await request({
+		url: UserApi.WX_MA_BIND,
+		method: "POST",
+		data: {
+			platform: Platform.WECHAT_MA,
+			openId: bindOpenId.value,
+			account: bindForm.account,
+			password: bindForm.password
+		}
+	})
+		.then(async (res) => {
+			user.setToken(parse<Token>(res)!);
+			await user.get();
+			bindVisible.value = false;
+			router.nextLogin();
+		})
+		.catch((err) => {
+			ui.showToast({
+				message: (err as Response).message!
+			});
+		});
+
+	bindLoading.value = false;
+}
+
+// 微信小程序登录
+async function miniLogin() {
+	// #ifdef MP
+	ui.showLoading(t("登录中"));
+
+	await wx.miniLogin().then(async (data) => {
+		await request({
+			url: UserApi.WX_MA_AUTHORIZE,
+			method: "POST",
+			data: {
+				code: data.code,
+				iv: data.iv,
+				encryptedData: data.encryptedData,
+				userCategory: "ADMIN" as UserCategory
+			}
+		}).then(async (res) => {
+            const authVo = res as WechatAuthVo;
+
+            if (authVo.token) {
+                // 已绑定/会员端：设置token并登录
+                user.setToken(parse<Token>(res)!);
+                await user.get();
+
+                router.nextLogin();
+            } else {
+                // 管理端未绑定：记录openId并显示绑定弹窗
+                bindOpenId.value = authVo.openId;
+                ui.showToast({ title: t("请先绑定管理端账号") });
+                bindVisible.value = true;
+            }
+        })
+        .catch((err) => {
+            ui.showToast({
+                message: (err as Response).message!
+            });
+        });
+	});
+
+	ui.hideLoading();
+	// #endif
+}
+
+// 微信APP登录
+function appLogin() {
+	// 开发中
+}
+
+// 微信登录
+async function login() {
+	// #ifdef MP
+	miniLogin();
+	// #endif
+
+	// #ifdef APP
+	appLogin();
+	// #endif
+}
+
+defineExpose({
+	login
+});
+</script>

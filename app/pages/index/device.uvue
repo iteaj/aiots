@@ -1,0 +1,700 @@
+<template>
+	<cl-page>
+        <cl-topbar fixed :show-back="false" safe-area-top :title="t('设备列表')">
+<!--            <template #append>-->
+<!--                <view class="pr-3" @tap="toggleSearch">-->
+<!--                    <cl-icon name="search-line" :size="20"></cl-icon>-->
+<!--                </view>-->
+<!--            </template>-->
+        </cl-topbar>
+		<view class="flex" :style="{height: getContentHeight(104) + 'px'}">
+            <!-- 搜索 + 筛选 -->
+            <view class="bg-white dark:!bg-surface-800 px-3">
+                <!-- 搜索栏 -->
+                <view v-if="showSearch" class="mb-3">
+                    <view class="flex flex-row items-center">
+                        <cl-icon name="search-line" :size="16" color="info"></cl-icon>
+                        <input class="ml-2 flex-1" :placeholder="t('搜索设备名称')"
+                               v-model="keyword" @confirm="onSearch" @input="onSearchInput" />
+                        <view v-if="keyword" @tap="clearSearch">
+                            <cl-icon name="close-circle-fill" :size="16" color="info"></cl-icon>
+                        </view>
+                    </view>
+                </view>
+
+                <!-- 设备分组 -->
+                <cl-tabs :show-line="false" showSlider
+                         :list="groupTabs"
+                         v-model="activeGroupTab"
+                         @change="onGroupTabChange"
+                ></cl-tabs>
+
+                <!-- 设备统计 -->
+                <view class="flex flex-row items-center mt-3 pb-2">
+                    <view class="flex flex-col items-center justify-center flex-1" @tap="onStatusChange(null)">
+                        <cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == null ? 'primary' : 'info'">{{ statistics.online + statistics.offline }}</cl-text>
+                        <cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == null ? 'primary' : 'info'">{{ t("全部") }}</cl-text>
+                    </view>
+                    <view class="flex flex-col items-center justify-center flex-1" @tap="onStatusChange('online')">
+                        <cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == 'online' ? 'primary' : 'info'">{{ statistics.online }}</cl-text>
+                        <cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == 'online' ? 'primary' : 'info'">{{ t("在线") }}</cl-text>
+                    </view>
+                    <view class="flex flex-col items-center justify-center flex-1" @tap="onStatusChange('offline')">
+                        <cl-text :size="16" :pt="{ className: 'font-bold' }" :color="statusFilter == 'offline' ? 'primary' : 'info'">{{ statistics.offline }}</cl-text>
+                        <cl-text :size="11" :pt="{ className: 'mt-0.5' }" :color="statusFilter == 'offline' ? 'primary' : 'info'">{{ t("离线") }}</cl-text>
+                    </view>
+                </view>
+            </view>
+		    <cl-list-view class="flex-1"
+			ref="listViewRef"
+			:data="listData"
+			:virtual="false"
+			:item-height="1"
+			refresher-enabled
+			@refresher-refresh="onRefresh"
+			@bottom="onLoadMore">
+			<template #top>
+			<view class="p-3">
+                <view v-if="cards.length === 0" class="flex flex-col items-center justify-center py-10">
+                    <cl-icon name="computer-line" :size="48" color="info"></cl-icon>
+                    <cl-text :size="14" color="info" :pt="{ className: 'mt-2' }">{{ t("暂无设备") }}</cl-text>
+                </view>
+
+                <view v-for="(card, idx) in cards" :key="idx"
+                    class="bg-white dark:bg-surface-800 rounded-2xl pt-2 px-2 pb-2 mb-3">
+                    <!-- 第一层：状态 + 名称 | 采集时间 -->
+                    <view class="flex flex-row items-center pb-2 mb-2 layer1-border">
+                        <view class="flex flex-row items-center flex-1">
+                            <view class="w-[8px] h-[8px] rounded-full mr-2"
+                                :class="card.online ? 'bg-primary-500' : 'bg-yellow-500'"></view>
+                            <cl-text :size="14">{{ card.deviceName }}</cl-text>
+                        </view>
+                        <cl-text :size="11" color="info">{{ card.collectTime ? formatTime(card.collectTime) : t("暂未采集") }}</cl-text>
+                    </view>
+
+                    <!-- 第二层：属性值 -->
+                    <view class="mt-1 mb-1">
+                        <view class="flex flex-row items-center" v-if="card.values && card.values.length > 0">
+                            <view v-for="(attr, attrIdx) in card.values" :key="attrIdx" class="flex flex-col items-center justify-center flex-1">
+                                <cl-text :size="14" :pt="{ className: 'font-bold' }">{{ attr.label || attr.value }}</cl-text>
+                                <cl-text :size="10" color="info">{{ attr.name }}</cl-text>
+                            </view>
+                        </view>
+                        <view v-else class="flex flex-row items-center justify-center py-2">
+                            <cl-text :size="12" color="info">{{ t("暂无模型属性") }}</cl-text>
+                        </view>
+                    </view>
+
+
+                    <!-- 阴影扩散 -->
+                    <view class="shadow-up" v-if="card.ctrlCmds && card.ctrlCmds.length > 0"></view>
+                    <!-- 第三层：控制指令按钮组 -->
+                    <view class="py-1.5 rounded-lg border border-gray-100 dark:border-surface-600" v-if="card.ctrlCmds && card.ctrlCmds.length > 0">
+                        <scroll-view scroll-x :show-scrollbar="false">
+                            <view class="flex flex-row justify-center" style="gap:12rpx;">
+                                <view v-for="(cmd, cmdIdx) in card.ctrlCmds" :key="cmdIdx" class="flex flex-row items-center px-1 py-0.5 rounded bg-gray-50 dark:bg-surface-700/30">
+                                    <!-- 绑定属性：子选项组合按钮 -->
+                                    <view v-if="cmd.attrField" class="flex flex-row border dark:!border-surface-600 !border-gray-300" style="border-radius:6rpx;">
+                                        <view v-for="(opt, optIdx) in cmd.options" :key="optIdx"
+                                            class="px-5 py-2 dark:!border-r-surface-600"
+                                            :class="getAttrBtnClass(card, cmd, opt, optIdx)"
+                                            @tap="onCtrlCmdClick(card, cmd, opt)">
+                                            <cl-text :size="14" :color="card.ctrlValue[cmd.attrField] == opt.value ? 'white' : 'info'">{{ opt.commandName }}</cl-text>
+                                        </view>
+                                    </view>
+                                    <!-- 无绑定：单个按钮 -->
+                                    <view v-else class="px-5 py-2 border dark:!border-surface-600 !border-gray-300" style="border-radius:6rpx;" @tap="onCtrlCmdClick(card, cmd, cmd.options[0])">
+                                        <cl-text :size="14" color="info">{{ cmd.apiName }}</cl-text>
+                                    </view>
+                                </view>
+                            </view>
+                        </scroll-view>
+                    </view>
+
+                    <!-- 阴影扩散 -->
+                    <view class="shadow-down" v-if="card.ctrlCmds && card.ctrlCmds.length > 0"></view>
+
+                    <!-- 第四层：操作按钮 -->
+                    <view class="flex flex-row items-center pt-1 pb-1">
+                        <view class="flex flex-row items-center flex-1 justify-center" @tap="onOpenCtrlCmd(card)">
+                            <cl-icon name="arrow-right-circle-line" :size="20" color="primary"></cl-icon>
+                            <cl-text :size="14" :pt="{ className: 'ml-1' }">{{ t("控制指令") }}</cl-text>
+                        </view>
+
+                        <view class="flex flex-row items-center flex-1 justify-center" @tap="onOpenRealtime(card)">
+                            <cl-icon name="dashboard-horizontal-line" :size="18" color="success"></cl-icon>
+                            <cl-text :size="14" :pt="{ className: 'ml-1' }">{{ t("实时数据") }}</cl-text>
+                        </view>
+
+                        <view class="flex flex-row items-center flex-1 justify-center" @tap="onOpenAlarm(card)">
+                            <cl-icon name="error-warning-line" :size="18" color="warn"></cl-icon>
+                            <cl-text :size="14" :pt="{ className: 'ml-1' }">{{ t("今日告警") }}</cl-text>
+                        </view>
+
+                        <view class="flex flex-row items-center justify-center" style="width: auto; padding-left: 12rpx;" @tap="onMore(card)">
+                            <cl-text :size="12" color="primary">{{ t("详情") }}››</cl-text>
+                        </view>
+                    </view>
+                </view>
+
+                <!-- 加载更多状态 -->
+                <view class="flex flex-row items-center justify-center">
+                    <template v-if="loadingMore">
+                    	<cl-loading :size="14"></cl-loading>
+                    	<cl-text :size="12" color="info" :pt="{ className: 'ml-1' }">{{ t("加载中...") }}</cl-text>
+                    </template>
+                    <template v-else-if="cards.length > 0 && !hasMore">
+                    	<cl-text :size="12" color="info">{{ t("没有更多了") }}</cl-text>
+                    </template>
+                    <template v-else-if="cards.length > 0 && hasMore">
+                    	<cl-text :size="12" color="info">{{ t("上拉加载更多") }}</cl-text>
+                    </template>
+                </view>
+            </view>
+			</template>
+		</cl-list-view>
+
+            <!-- 底部抽屉 -->
+            <cl-popup v-model="drawerVisible" direction="bottom" :title="drawerTitle" size="520px" :pt="{ container: { className: 'flex flex-col' }, header: { className: 'justify-center' } }" @open="onDrawerOpened(true)" @closed="onDrawerOpened(false)">
+			<cl-tabs :list="drawerTabs" v-model="drawerTabActive" @change="onDrawerTabChange" fill></cl-tabs>
+			<scroll-view class="px-3 pb-3" scroll-y @touchmove.stop style="flex:1;">
+
+				<!-- 控制指令 Tab -->
+                <view v-show="drawerTabActive == 0" class="mt-3">
+						<view v-if="commandsLoading" class="flex flex-col items-center py-6">
+							<cl-loading></cl-loading>
+							<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("加载中...") }}</cl-text>
+						</view>
+
+						<view v-else-if="deviceCommands.length > 0">
+							<view v-for="(cmd, idx) in deviceCommands" :key="idx"
+								class="flex flex-row items-center bg-white dark:bg-surface-800 rounded-xl px-3 py-3 mb-2 border border-gray-200 dark:border-surface-600">
+								<view class="flex flex-col flex-1 mr-2">
+									<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ cmd.apiName }}</cl-text>
+									<cl-text v-if="cmd.remark" :size="11" color="info" :pt="{ className: 'mt-1' }">{{ cmd.remark }}</cl-text>
+								</view>
+								<cl-button size="large" :loading="loadingCmdIdx == idx" @tap="onExecuteCmd(cmd, idx)">{{ t("下发指令") }}</cl-button>
+							</view>
+						</view>
+
+						<view v-else class="flex flex-col items-center py-6">
+							<cl-icon name="todo-line" :size="36" color="info"></cl-icon>
+							<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("暂无指令") }}</cl-text>
+						</view>
+					</view>
+
+				<!-- 实时数据 Tab -->
+				<view v-show="drawerTabActive == 1" class="px-3 py-3">
+					<template v-if="realtimeLoading">
+						<view class="flex flex-col items-center py-6">
+							<cl-loading></cl-loading>
+							<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("加载中...") }}</cl-text>
+						</view>
+					</template>
+					<template v-else-if="realtimeData.length > 0">
+						<view class="flex flex-row flex-wrap" style="margin: -6px;">
+							<view v-for="(item, idx) in realtimeData" :key="idx"
+								class="bg-white dark:bg-surface-800 rounded-xl px-3 py-2 flex flex-col items-center justify-center"
+								style="width: calc(33.33% - 12px); margin: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
+								<cl-text :size="14" :pt="{ className: 'font-bold' }">{{ item.label || item.value || '-' }}</cl-text>
+								<cl-text :size="10" color="info" :pt="{ className: 'mt-0.5' }">{{ item.name }}</cl-text>
+								<cl-text :size="9" color="info" :pt="{ className: 'mt-0.5' }">{{ item.collectTime ? formatTime(item.collectTime) : t("暂未采集") }}</cl-text>
+							</view>
+						</view>
+					</template>
+					<template v-else>
+						<view class="flex flex-col items-center py-6">
+							<cl-icon name="dashboard-horizontal-line" :size="36" color="warning"></cl-icon>
+							<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("暂无实时数据") }}</cl-text>
+						</view>
+					</template>
+				</view>
+
+				<!-- 告警 Tab -->
+				<view v-show="drawerTabActive == 2" class="mt-3">
+					<view
+						v-for="(warn, idx) in currentAlarms"
+						:key="idx"
+						class="py-2 border-b border-solid dark:!border-surface-700 !border-gray-200"
+					>
+						<view class="flex flex-row items-center justify-between">
+							<view class="flex flex-row items-center" style="flex: 1;">
+								<cl-text
+									:size="12"
+									:color="warn.gradeName == '严重' ? 'danger' : warn.gradeName == '紧急' ? 'warning' : warn.gradeName == '告警' ? 'warning' : 'success'"
+									class="mr-1"
+								>{{ warn.gradeName }}</cl-text>
+								<cl-text :size="14" class="ml-1">{{ warn.content }}</cl-text>
+							</view>
+							<cl-text :size="11" color="info">{{ formatTime(warn.warnTime) }}</cl-text>
+						</view>
+					</view>
+					<view v-if="!currentAlarms || currentAlarms.length === 0" class="flex flex-col items-center py-6">
+						<cl-icon name="shield-check-line" :size="36" color="success"></cl-icon>
+						<cl-text :size="12" color="info" :pt="{ className: 'mt-2' }">{{ t("今日暂无告警") }}</cl-text>
+					</view>
+				</view>
+			</scroll-view>
+		</cl-popup>
+		</view>
+
+        <!-- 自定义底部导航栏 -->
+        <custom-tabbar></custom-tabbar>
+    </cl-page>
+</template>
+
+<script lang="ts" setup>
+import { request, t, dayUts, router, getContentHeight } from "@/.cool";
+import {computed, reactive, ref} from "vue";
+import { useUi } from "@/uni_modules/cool-ui";
+import CustomTabbar from "./components/tabbar.uvue";
+
+const ui = useUi();
+
+// 类型定义
+
+type AttrValueVo = {
+	field: string;
+	name: string;
+	unit: string;
+	value: string;
+	label: string | null;
+};
+
+type CmdItem = {
+    value: string;
+    commandName: string;
+    commandValue: string;
+}
+type CtrlCmdVo = {
+    apiName: string;
+    attrField: string;
+    options: CmdItem[];
+}
+type CardVo = {
+	deviceId: number;
+	uid: string;
+	deviceSn: string;
+	deviceName: string;
+	online: boolean;
+	collectTime: string | null;
+	values: AttrValueVo[];
+	ctrlCmds: CtrlCmdVo[];
+	ctrlValue: Record<string, string>;
+};
+
+	type DeviceCommandDto = {
+		apiName: string;
+		commandValue: string;
+		remark: string;
+		apiType: string;
+	};
+
+type WarnRecord = {
+	content: string;
+	warnTime: string;
+	deviceSn: string;
+	gradeName: string;
+};
+
+// 搜索
+const showSearch = ref(false);
+const keyword = ref("");
+
+function toggleSearch() {
+	showSearch.value = !showSearch.value;
+}
+
+function clearSearch() {
+	keyword.value = "";
+	loadCards();
+}
+
+function onSearchInput() {
+	loadCards();
+}
+
+function onSearch() {
+	loadCards();
+}
+
+// 设备分组 - Tabs
+const groupTabs = reactive<any[]>([{ label: t("全部"), value: 0 }]);
+const activeGroupTab = ref(0);
+const activeGroupId = ref<number | null>(null);
+const statusFilter = ref<string | null>(null);
+
+function onGroupTabChange(val: number) {
+	activeGroupTab.value = val;
+	activeGroupId.value = val == 0 ? null : val;
+	loadCards();
+	loadStatistics();
+}
+
+function onStatusChange(status: string | null) {
+	statusFilter.value = status;
+	loadCards();
+}
+
+function loadGroups() {
+	request<any[]>({
+		url: "/app/device/groups"
+	}).then((data) => {
+		if (data) {
+			groupTabs.splice(1);
+			for (let i = 0; i < data.length; i++) {
+				groupTabs.push({ label: data[i].name, value: data[i].id });
+			}
+		}
+	});
+}
+
+// 设备统计
+const statistics = reactive({
+	online: 0,
+	offline: 0
+});
+
+function loadStatistics() {
+	const params: Record<string, any> = {};
+	if (activeGroupId.value != null) {
+		params.deviceGroupId = activeGroupId.value;
+	}
+	request<any>({
+		url: "/app/device/statistics",
+		data: params
+	}).then((data) => {
+		if (data) {
+			statistics.online = data.online || 0;
+			statistics.offline = data.offline || 0;
+		}
+	});
+}
+
+// 设备列表
+const cards = reactive<CardVo[]>([]);
+const pageCurrent = ref(1);
+const pageSize = 10;
+const hasMore = ref(true);
+
+const refreshing = ref(false);
+const loadingMore = ref(false);
+const listData = reactive<any[]>([{ value: null }]);
+const listViewRef = ref<any>(null);
+
+// 下拉刷新
+function onRefresh() {
+	refreshing.value = true;
+	pageCurrent.value = 1;
+	loadGroups();
+	loadStatistics();
+	fetchDevices(false).finally(() => {
+		refreshing.value = false;
+		listViewRef.value?.stopRefresh();
+	});
+}
+
+// 上拉加载更多
+function onLoadMore() {
+	if (loadingMore.value || !hasMore.value) return;
+	loadingMore.value = true;
+	fetchDevices(true).finally(() => {
+		loadingMore.value = false;
+	});
+}
+
+function fetchDevices(append: boolean): Promise<void> {
+	const params: Record<string, any> = {
+		current: pageCurrent.value,
+		size: pageSize
+	};
+	if (activeGroupId.value != null) {
+		params.deviceGroupId = activeGroupId.value;
+	}
+	if (keyword.value) {
+		params.keyword = keyword.value;
+	}
+
+	if (statusFilter.value != null) {
+		params.status = statusFilter.value;
+	}
+
+	return new Promise((resolve) => {
+		request<any>({
+			url: "/app/device/list",
+			data: params
+		}).then((res) => {
+			if (res == null) {
+				hasMore.value = false;
+				resolve();
+				return;
+			}
+			if (res.records) {
+				if (!append) {
+					cards.length = 0;
+				}
+				res.records.forEach((item: any) => cards.push(item));
+				const totalPages = res.pages || 0;
+				hasMore.value = pageCurrent.value < totalPages;
+				if (hasMore.value) {
+					pageCurrent.value++;
+				}
+			} else {
+				if (!append) {
+					cards.length = 0;
+				}
+				hasMore.value = false;
+			}
+			resolve();
+		}).catch(() => {
+			hasMore.value = false;
+			resolve();
+		});
+	});
+}
+
+function loadCards() {
+	pageCurrent.value = 1;
+	hasMore.value = true;
+	loadingMore.value = false;
+	fetchDevices(false);
+}
+
+// 获取控制指令按钮样式
+function getAttrBtnClass(card: CardVo, cmd: CtrlCmdVo, opt: CmdItem, optIdx: number): string[] {
+	const classes: string[] = [];
+	if (card.ctrlValue[cmd.attrField] == opt.value) {
+		classes.push("bg-primary-500");
+	}
+	if (optIdx < cmd.options.length - 1) {
+		classes.push("border-r");
+		classes.push("!border-r-gray-300");
+	}
+	return classes;
+}
+
+// 控制指令点击
+function onCtrlCmdClick(card: CardVo, cmd: CtrlCmdVo, opt: CmdItem) {
+	let name = cmd.attrField ? (cmd.apiName + "->" + opt.commandName) : cmd.apiName;
+	ui.showConfirm({
+		title: t("确认执行"),
+		message: t("执行") + "「" + name + "」命令吗",
+		callback(action) {
+			if (action != "confirm") return;
+			let scenario = "小程序";
+			// #ifdef APP
+			scenario = "app";
+			// #endif
+			request({
+				url: "/app/device/command/invoke/update",
+				method: "POST",
+				data: {
+					name: name,
+					uid: card.uid,
+					code: opt.commandValue,
+					field: cmd.attrField,
+					value: opt.value,
+					scenario: scenario
+				}
+			}).then(() => {
+				ui.showToast({
+					message: t("指令执行成功")
+				});
+				loadCards();
+			}).catch(() => {
+			});
+		}
+	});
+}
+
+// 抽屉
+const drawerVisible = ref(false);
+const drawerTitle = ref("");
+const drawerTabActive = ref(0);
+const drawerTabs = reactive([
+	{ label: t("控制指令"), value: 0 },
+    { label: t("实时数据"), value: 1 },
+    { label: t("告警列表"), value: 2 }
+]);
+	const deviceCommands = reactive<DeviceCommandDto[]>([]);
+	const commandsLoading = ref(false);
+	const loadingCmdIdx = ref(-1);
+
+const currentDevice = ref<CardVo | null>(null);
+const currentAlarms = reactive<WarnRecord[]>([]);
+
+type RealtimeItem = {
+	field: string;
+	name: string;
+	value: string;
+	unit: string;
+	collectTime: string;
+};
+const realtimeData = reactive<RealtimeItem[]>([]);
+const realtimeLoading = ref(false);
+
+function onDrawerOpened(opened: boolean) {
+    // #ifdef H5
+    if (opened) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+    // #endif
+}
+
+function onOpenCtrlCmd(card: CardVo) {
+	currentDevice.value = card;
+	drawerTitle.value = card.deviceName || "";
+	drawerTabActive.value = 0;
+		loadDeviceCommands(card.uid);
+	drawerVisible.value = true;
+}
+
+function onOpenAlarm(card: CardVo) {
+	currentDevice.value = card;
+	drawerTitle.value = card.deviceName || "";
+	drawerTabActive.value = 2;
+	currentAlarms.length = 0;
+	loadDeviceAlarms(card.uid);
+	drawerVisible.value = true;
+}
+
+	function onDrawerTabChange(index: number) {
+		drawerTabActive.value = index;
+		if (index == 0 && currentDevice.value) {
+			loadDeviceCommands(currentDevice.value.uid);
+		}
+		if (index == 1 && currentDevice.value) {
+			loadRealtimeData(currentDevice.value.uid);
+		}
+		if (index == 2 && currentDevice.value) {
+			loadDeviceAlarms(currentDevice.value.uid);
+		}
+	}
+	function loadDeviceCommands(uid: string) {
+		deviceCommands.length = 0;
+		commandsLoading.value = true;
+		request<any[]>({
+			url: "/app/device/commands",
+			data: { uid: uid, apiType: 'func' }
+		}).then((data) => {
+			if (data) {
+				data.forEach((item: any) => deviceCommands.push(item));
+			}
+		}).finally(() => {
+			commandsLoading.value = false;
+		});
+	}
+
+	function onExecuteCmd(cmd: DeviceCommandDto, idx: number) {
+		if (currentDevice.value == null) return;
+		ui.showConfirm({
+			title: t("确认执行"),
+			message: t("执行") + "「" + cmd.apiName + "」命令吗",
+			callback(action) {
+				if (action != "confirm") return;
+				let scenario = "小程序";
+				// #ifdef APP
+				scenario = "app";
+				// #endif
+				loadingCmdIdx.value = idx;
+				request({
+					url: "/app/device/command/invoke/update",
+					method: "POST",
+					data: {
+						uid: currentDevice!.value!.uid,
+						code: cmd.commandValue,
+						name: cmd.apiName,
+						scenario: scenario
+					}
+				}).then(() => {
+					ui.showToast({
+						message: t("指令执行成功")
+					});
+				}).finally(() => {
+					loadingCmdIdx.value = -1;
+				});
+			}
+		});
+	}
+
+function onOpenRealtime(card: CardVo) {
+		currentDevice.value = card;
+		drawerTitle.value = card.deviceName || "";
+		drawerTabActive.value = 1;
+		drawerVisible.value = true;
+		loadRealtimeData(card.uid);
+	}
+
+	function loadRealtimeData(uid: string) {
+		realtimeLoading.value = true;
+		realtimeData.length = 0;
+		request<any[]>({
+			url: "/app/device/realtime",
+			data: { uid: uid }
+		}).then((data) => {
+			if (data) {
+				data.forEach((item: any) => realtimeData.push(item));
+			}
+		}).finally(() => {
+			realtimeLoading.value = false;
+		});
+	}
+
+	function loadDeviceAlarms(uid: string) {
+	request<any[]>({
+		url: "/app/warnRecord/today",
+		data: { uid: uid }
+	}).then((data) => {
+		currentAlarms.length = 0;
+		if (data) {
+			data.forEach((item: any) => currentAlarms.push(item));
+		}
+	});
+}
+
+function onMore(card: CardVo) {
+	router.to("/pages/device/detail?uid=" + card.uid);
+}
+
+// 工具函数
+function formatTime(timeStr: string | null): string {
+	if (!timeStr) return "";
+	return dayUts(timeStr).format("YYYY-MM-DD HH:mm");
+}
+// 初始化加载
+loadGroups();
+loadStatistics();
+loadCards();
+</script>
+
+<style lang="scss" scoped>
+/* 第一层分隔线 */
+.layer1-border {
+	border-bottom: 1px solid #f3f4f6;
+}
+
+/* 第三层阴影扩散 */
+.shadow-up {
+	background: linear-gradient(to top, rgba(0,0,0,0.05), transparent);
+	height: 12px;
+}
+
+.shadow-down {
+	background: linear-gradient(to bottom, rgba(0,0,0,0.05), transparent);
+	height: 12px;
+}
+
+.is-dark .layer1-border {
+	border-bottom: 1px solid #334155;
+}
+
+.is-dark .shadow-up {
+	background: linear-gradient(to top, rgba(0,0,0,0.18), transparent);
+}
+
+.is-dark .shadow-down {
+	background: linear-gradient(to bottom, rgba(0,0,0,0.18), transparent);
+}
+</style>
