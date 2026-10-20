@@ -44,4 +44,11 @@ public interface EventSourceMapper extends BaseMapper<EventSource> {
      * @return
      */
     FuncStatusProfileDto countStatusProfile(GroupAndProductParamDto param);
+
+    /**
+     * 是否有绑定联动项
+     * @param id
+     * @return
+     */
+    boolean hasBindEnabledLinkage(Long id);
 }

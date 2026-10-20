@@ -16,6 +16,12 @@ public interface CoreConst {
 
     String WEB_LOGIN_USER = "WEB_LOGIN_USER";
 
+    /**
+     * WebSocket会话属性key: 握手鉴权后写入的登录用户标识
+     * (见security包WebSocketAuthInterceptor, 业务处理器在连接建立后从session attributes读取)
+     */
+    String WEB_SOCKET_USER_ID = "userId";
+
     String SESSION_AUTH_CONTEXT = "SESSION_AUTH_CONTEXT";
 
     String WEB_SESSION_CACHE = "WEB_SESSION_CACHE";

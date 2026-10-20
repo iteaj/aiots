@@ -11,13 +11,14 @@ public enum EventSourceType {
     /**
      * 事件源
      */
-    event("设备触发"),
+    event("采集器"),
 
     /**
      * 定时源
      */
-//    period("定时触发")
+    period("执行器")
     ;
+
 
     private String desc;
 

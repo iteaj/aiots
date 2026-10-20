@@ -1,7 +1,9 @@
 package com.iteaj.framework.spi.iot.data;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.spi.iot.DeviceKey;
+import com.iteaj.framework.spi.iot.consts.DeviceStatusEnum;
+import com.iteaj.framework.spi.iot.consts.DeviceTypeEnum;
 import com.iteaj.framework.spi.iot.listener.IotEventPayload;
 
 import java.util.Date;
@@ -13,6 +15,17 @@ public interface RealtimeDeviceStatus extends IotEventPayload {
      * @return
      */
     String getUid();
+
+    /**
+     * 父设备uid
+     */
+    String getPuid();
+
+    /**
+     * 获取设备类型
+     * @return 设备类型
+     */
+    DeviceTypeEnum getType();
 
     /**
      * 获取设备编号
@@ -33,8 +46,14 @@ public interface RealtimeDeviceStatus extends IotEventPayload {
     String triggerStatus();
 
     /**
+     * 获取设备状态
+     * @return 设备状态
+     */
+    DeviceStatusEnum getStatus();
+
+    /**
      * 获取设备状态(online、offline)
-     * @return
+     * @return 设备状态值
      */
     String getDeviceStatus();
 
@@ -55,6 +74,12 @@ public interface RealtimeDeviceStatus extends IotEventPayload {
      * @return
      */
     String getProtocolCode();
+
+    /**
+     * 获取产品id
+     * @return
+     */
+    Long getProductId();
 
     /**
      * 获取产品码

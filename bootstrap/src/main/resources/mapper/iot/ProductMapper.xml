@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="com.iteaj.iboot.module.iot.entity.Product">
         <result column="id" property="id" />
         <result column="name" property="name" />
+        <result column="code" property="code" />
         <result column="status" property="status" />
         <result column="remark" property="remark" />
         <result column="type_name" property="typeName" />
@@ -41,6 +42,15 @@
         <collection property="attrs" column="{productId=id}" ofType="ModelAttr"
                     select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listDetailByProductId" />
     </resultMap>
+    <resultMap id="JoinAttrLimitMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
+        <collection property="funcApis" columnPrefix="b_" ofType="ModelApi">
+            <id property="id" column="id" />
+            <result property="code" column="code" />
+            <result property="name" column="name" />
+        </collection>
+        <collection property="attrs" column="{productId=id}" ofType="ModelAttr"
+                    select="com.iteaj.iboot.module.iot.mapper.ModelAttrMapper.listLimitDetailByProductId" />
+    </resultMap>
     <resultMap id="JoinCtrlStatusApiMap" type="com.iteaj.iboot.module.iot.dto.ProductDto" extends="BaseResultDtoMap">
         <collection property="funcApis" column="{productId=id}" ofType="ModelApi"
                     select="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.getCtrlStatusByProductId" />
@@ -75,6 +85,11 @@
             </if>
             <if test="entity.code != null and entity.code != ''">
                 and a.code like '%${entity.code}%'
+            </if>
+            <if test="entity.deviceTypes != null and entity.deviceTypes.size() > 0">
+                and a.device_type in (<foreach collection="entity.deviceTypes" item="deviceType" separator=",">
+                #{deviceType}
+            </foreach>)
             </if>
         </where>
         order by a.device_type desc, a.create_time desc
@@ -151,12 +166,13 @@
     <select id="listDeviceByProductId" resultMap="com.iteaj.iboot.module.iot.mapper.DeviceMapper.BasicMap">
         select * from iot_device where product_id = #{id}
     </select>
-    <select id="listCtrlStatusModelAttrs" resultMap="JoinAttrMap">
-        select a.* from iot_product a
-#             left join iot_model_api ma on a.id=ma.product_id and ma.as_status = true and ma.func_type='W'
-        where a.id in (<foreach collection="list" item="id" separator=",">
-        #{id}
-    </foreach>)
+    <select id="listCtrlStatusModelAttrs" resultMap="JoinAttrLimitMap">
+        select a.*, b.code b_code, b.name b_name, b.id b_id from iot_product a
+           left join iot_model_api b on b.product_id=a.id and b.as_status=true and b.func_type='W'
+            where a.id in (<foreach collection="productIds" item="id" separator=",">
+                #{id}
+            </foreach>)
+        order by b.sort
     </select>
     <select id="getCtrlStatusModelApi" resultMap="JoinCtrlStatusApiMap">
         select a.* from iot_product a where a.id = #{productId}
@@ -200,13 +216,17 @@
         group by a.type;
     </select>
     <select id="listBatchModel" resultType="com.iteaj.iboot.module.iot.dto.BatchModelDto">
-        select a.*, b.direct, b.name apiName, b.code apiCode, group_concat(concat(cc.protocol_attr_field, '->', cc.value) separator ':::') apiDownConfig from iot_model_attr a
+        select a.*, b.direct, b.name apiName, b.code apiCode, b.collect_tag collectTag
+             , group_concat(concat(cc.protocol_attr_field, '->', cc.value) separator ':::') apiDownConfig from iot_model_attr a
             left join iot_product p on a.product_id = p.id
             left join iot_model_api_config c on a.product_id = c.product_id and a.id = c.model_attr_id and c.direction='UP'
             left join iot_model_api_config cc on cc.api_code = c.api_code and cc.id != c.id
             left join iot_model_api b on cc.api_code = b.code and b.type = 'event'
         <where>
             p.code=#{productCode}
+            <if test="collectTag != null and collectTag != ''">
+                and b.collect_tag = #{collectTag}
+            </if>
             <if test="name != null and name != ''">
                 and a.name like '%${name}%'
             </if>
@@ -214,7 +234,23 @@
                 and a.field like '%${field}%'
             </if>
         </where>
-        group by a.id order by a.create_time
+        group by a.id order by a.sort
+    </select>
+    <select id="joinDetailByCode" resultMap="JoinDetailMap">
+        select a.*, ig.id gateway_id, ig.name gateway_name, ip.ctrl_mode, ip.name protocol_name, ip.type transport_protocol
+             , ip.code protocol_code, ig.status gateway_status, ig.type gateway_type from iot_product a
+            left join iot_gateway ig on a.gateway_id=ig.id
+            left join iot_protocol ip on ip.id = a.protocol_id
+        where a.code=#{productCode}
+    </select>
+    <select id="joinModelAttrById" resultMap="JoinAttrMap">
+        select a.*, idt.name type_name, ig.name gateway_name, ig.type gateway_type, ip.code protocol_code
+             , ip.name protocol_name, ip.ctrl_mode, ip.type transport_protocol, ig.connect_type, ig.status gateway_status
+        from iot_product a
+             left join iot_product_type idt on a.product_type_id=idt.id
+             left join iot_gateway ig on a.gateway_id=ig.id
+             left join iot_protocol ip on ip.id = a.protocol_id
+        where a.id=#{productId}
     </select>
 
     <delete id="removeModel">

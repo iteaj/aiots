@@ -1,21 +1,33 @@
 package com.iteaj.framework.mybatis.handler;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import com.baomidou.mybatisplus.extension.handlers.AbstractJsonTypeHandler;
 import org.apache.ibatis.type.MappedTypes;
 
-@MappedTypes({JSONObject.class, JSONArray.class})
-public class FastjsonTypeHandler extends AbstractJsonTypeHandler<JSON> {
+import java.lang.reflect.Field;
 
-    @Override
-    protected JSON parse(String json) {
-        return (JSON) JSON.parse(json);
+@MappedTypes({JSONObject.class, JSONArray.class})
+public class FastjsonTypeHandler extends AbstractJsonTypeHandler<Object> {
+
+    public FastjsonTypeHandler(Class<?> type) {
+        super(type);
+    }
+
+    public FastjsonTypeHandler(Class<?> type, Field field) {
+        super(type, field);
     }
 
     @Override
-    protected String toJson(JSON obj) {
-        return obj.toJSONString();
+    public Object parse(String json) {
+        return JSON.parseObject(json, this.getFieldType());
+    }
+
+    @Override
+    public String toJson(Object obj) {
+        return JSON.toJSONString(obj, JSONWriter.Feature.WriteMapNullValue,
+                JSONWriter.Feature.WriteNullListAsEmpty, JSONWriter.Feature.WriteNullStringAsEmpty);
     }
 }

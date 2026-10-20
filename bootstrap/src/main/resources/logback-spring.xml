@@ -81,6 +81,10 @@ debug: 当此属性设置为true时，将打印出logback内部日志信息，�
         <logger level="debug" name="com.iteaj.iboot" additivity="false">
             <appender-ref ref="STDOUT" />
         </logger>
+        <!-- AI会话mapper的SQL日志含大JSON, 调至info屏蔽 -->
+        <logger level="info" name="com.iteaj.iboot.plugin.ai.agent.mapper" additivity="false">
+            <appender-ref ref="STDOUT" />
+        </logger>
         <!--    打印下线事件日志    -->
         <logger level="debug" name="com.iteaj.iot.server.handle.EventManagerHandler" additivity="false">
             <appender-ref ref="STDOUT" />

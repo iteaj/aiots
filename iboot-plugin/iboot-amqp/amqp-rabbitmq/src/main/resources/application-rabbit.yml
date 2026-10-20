@@ -1,0 +1,33 @@
+#############################                rabbitmq环境配置               ################################
+spring:
+  config:
+    activate:
+      on-profile: dev #开发环境
+  rabbitmq:
+    host: 124.222.187.121
+    port: 5672
+    username: iteaj
+    password: iteazer888
+    virtual-host: /iteaj
+---
+spring:
+  config:
+    activate:
+      on-profile: test #测试环境
+  rabbitmq:
+    host: 124.222.187.121
+    port: 5672
+    username: iteaj
+    password: iteazer888
+    virtual-host: /iteaj
+---
+spring:
+  config:
+    activate:
+      on-profile: prod #生成环境
+  rabbitmq:
+    host: 124.222.187.121
+    port: 5672
+    username: iteaj
+    password: iteazer888
+    virtual-host: /iteaj

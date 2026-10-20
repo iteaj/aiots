@@ -23,8 +23,8 @@
         </dependency>
 
         <dependency>
+            <optional>true</optional>
             <artifactId>kaptcha</artifactId>
-            <version>${kaptcha.version}</version>
             <groupId>com.github.penggle</groupId>
         </dependency>
         <dependency>
@@ -44,7 +44,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>
-
+        <!-- 前端页面长连接(WebSocket) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
         <dependency>
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
@@ -56,29 +60,16 @@
             <groupId>com.squareup.okhttp3</groupId>
         </dependency>
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2-extension-spring6</artifactId>
         </dependency>
 
         <!-- 缓存相关 -->
         <dependency>
-            <optional>true</optional>
+            <scope>provided</scope>
             <artifactId>spring-data-redis</artifactId>
             <groupId>org.springframework.data</groupId>
-        </dependency>
-
-        <!--ehcache3.x版本-->
-        <dependency>
-            <optional>true</optional>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-        </dependency>
-
-        <!--使用ehcache3.x版本必须的依赖-->
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
@@ -89,6 +80,33 @@
             <groupId>cn.afterturn</groupId>
             <artifactId>easypoi-base</artifactId>
             <version>${excelpoi.version}</version>
+        </dependency>
+
+        <dependency>
+            <version>33.5.0-jre</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-crypto</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+        <!-- Sa-Token 权限认证 -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-spring-boot3-starter</artifactId>
         </dependency>
     </dependencies>
 

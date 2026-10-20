@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.BooleanResult;
@@ -83,6 +84,17 @@ public class WarnRecordServiceImpl extends BaseServiceImpl<WarnRecordMapper, War
     @Override
     public List<WarnRecord> listByDeviceGroupId(Long groupId, Integer size) {
         return this.getBaseMapper().listByDeviceGroupId(groupId, size);
+    }
+
+    @Override
+    public List<WarnRecord> listByUidAndTimeRange(String uid, Date startTime, Date endTime) {
+        return this.getBaseMapper().listByUidAndTimeRange(uid, startTime, endTime);
+    }
+
+    @Override
+    public PageResult<IPage<WarnRecord>> pageByUid(Page<WarnRecord> page, String uid) {
+        IPage<WarnRecord> result = this.getBaseMapper().pageByUid(page, uid);
+        return new PageResult<>(result);
     }
 
     @Override

@@ -1,17 +1,20 @@
 package com.iteaj.iboot.module.iot.dto;
 
 import cn.hutool.core.util.StrUtil;
+import com.iteaj.framework.spi.iot.data.ModelDirectMeta;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class DeviceCommandDto {
+public class DeviceCommandDto implements ModelDirectMeta {
 
     private String uid;
 
     private String code;
+
+    private String direct;
 
     private String apiName;
 

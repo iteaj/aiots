@@ -1,11 +1,8 @@
 package com.iteaj.framework.spi.iot;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.json.JacksonUtils;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
-
-import java.io.IOException;
 
 public interface NetworkConfig {
 

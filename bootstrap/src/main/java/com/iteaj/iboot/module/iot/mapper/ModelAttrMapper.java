@@ -3,6 +3,7 @@ package com.iteaj.iboot.module.iot.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iteaj.iboot.module.iot.entity.ModelAttr;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
+import jakarta.validation.constraints.NotBlank;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -56,4 +57,8 @@ public interface ModelAttrMapper extends BaseMapper<ModelAttr> {
      * @return
      */
     boolean isEnabledOfProduct(Serializable id);
+
+    List<ModelAttr> listDetailByProductCode(Serializable productCode);
+
+    void updateWarnConfig(Long id, String field);
 }

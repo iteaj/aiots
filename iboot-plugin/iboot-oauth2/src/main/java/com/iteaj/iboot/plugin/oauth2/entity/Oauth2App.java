@@ -1,7 +1,6 @@
 package com.iteaj.iboot.plugin.oauth2.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.Entity;
 import lombok.Data;

@@ -84,7 +84,7 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
             }
 
             // 转成树结构
-            List<Menu> menus = (List<Menu>) TreeUtils.toTrees(allMenus, 0l);
+            List<Menu> menus = (List<Menu>) TreeUtils.toAdminMenuTrees(allMenus, null);
             return new ListResult<>(menus);
         } else { // 普通管理员的菜单列表
             List<Menu> allMenus = this.getBaseMapper()
@@ -112,7 +112,7 @@ public class MenuServiceImpl extends BaseServiceImpl<IMenuDao, Menu> implements 
                         .orderByAsc(Menu::getSort));
 
         // 转成树结构
-        List<Menu> menus = (List<Menu>) TreeUtils.toTrees(status, 0l);
+        List<Menu> menus = (List<Menu>) TreeUtils.toAdminMenuTrees(status, null);
         return new ListResult(menus);
     }
 

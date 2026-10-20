@@ -1,7 +1,6 @@
 package com.iteaj.framework.spi.iot.view;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -19,15 +18,12 @@ public class ViewRealtimeData {
 
     private String key;
 
-    @JsonIgnore
     @JSONField(serialize = false)
     private String uid;
 
-    @JsonIgnore
     @JSONField(serialize = false)
     private String attr;
 
-    @JsonIgnore
     @JSONField(serialize = false)
     private String productCode;
 

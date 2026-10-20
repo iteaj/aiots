@@ -15,6 +15,11 @@
         <result column="model_attr_id" property="modelAttrId" />
         <result column="create_time" property="createTime" />
         <result column="message_template_id" property="messageTemplateId" />
+        <result column="operator" property="operator" />
+        <result column="threshold" property="threshold" />
+        <result column="indicator" property="indicator" />
+        <result column="config" property="config"
+            typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
     </resultMap>
 
     <select id="pageDetail" resultMap="BaseResultMap">
@@ -22,9 +27,15 @@
             left join iot_product p on a.product_id = p.id
             left join iot_product_type pt on p.product_type_id=pt.id
         <where>
-            <if test="entity.grade != null">
-                and a.grade = #{entity.grade}
-            </if>
+            <choose>
+                <when test="entity.grade != null">
+                    and a.grade = #{entity.grade}
+                </when>
+                <otherwise>
+                    and a.grade != 'indicator'
+                </otherwise>
+            </choose>
+
             <if test="entity.productId!=null">
                 and a.product_id = #{entity.productId}
             </if>

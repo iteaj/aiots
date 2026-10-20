@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
@@ -26,8 +27,11 @@ import com.iteaj.iboot.module.iot.service.IEventSourceService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -112,6 +116,10 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
            if(item.getStatus() == FuncStatus.enabled) {
                throw new ServiceException("请先停用事件源["+item.getName()+"]");
            }
+
+           if(this.getBaseMapper().hasBindEnabledLinkage(item.getId())) {
+               throw new ServiceException("请先停用已绑定的场景联动");
+           }
         });
 
         int result = this.getBaseMapper().removeAllByIds(idList);
@@ -127,6 +135,13 @@ public class EventSourceServiceImpl extends BaseServiceImpl<EventSourceMapper, E
     @Override
     public DetailResult<EventSourceDto> collectDetailById(Long id) {
         EventSourceDto eventSourceDto = this.getBaseMapper().collectDetailById(id);
+        if(eventSourceDto != null && eventSourceDto.getDeviceGroupIds() != null) {
+            List<Serializable> list = eventSourceDto.getDeviceGroupIds()
+                    .stream().map(item -> (Serializable) item).toList();
+            List<DeviceGroup> deviceGroups = deviceGroupService.listByIds(list).getData();
+            eventSourceDto.setGroups(deviceGroups == null ? Collections.emptyList() : deviceGroups);
+        }
+
         return new DetailResult<>(eventSourceDto);
     }
 

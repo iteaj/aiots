@@ -40,4 +40,8 @@ public class DeviceLogger {
         System.arraycopy(args, 0, newArgs, 3, args.length);
         return newArgs;
     }
+
+    public static boolean isTraceEnabled() {
+        return logger.isTraceEnabled();
+    }
 }

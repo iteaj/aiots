@@ -2,6 +2,7 @@ package com.iteaj.framework.spring;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -24,5 +25,9 @@ public class SpringUtils implements ApplicationContextAware {
 
     public static  <T> T getBean(Class<T> requiredType) {
         return applicationContext.getBean(requiredType);
+    }
+
+    public static <T> ObjectProvider<T> getBeanByProvider(Class<T> tClass) {
+        return applicationContext.getBeanProvider(tClass);
     }
 }

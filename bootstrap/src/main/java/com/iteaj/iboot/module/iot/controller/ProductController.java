@@ -5,21 +5,33 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.IVOption;
+import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.logger.Logger;
 import com.iteaj.framework.result.Result;
+import com.iteaj.framework.script.CalcAttrScriptMethodProvide;
+import com.iteaj.framework.script.FunctionScript;
+import com.iteaj.framework.script.ScriptComplete;
+import com.iteaj.framework.script.ScriptConfigService;
 import com.iteaj.framework.security.CheckPermission;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.*;
+import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.iboot.module.iot.consts.DeviceType;
 import com.iteaj.iboot.module.iot.consts.FuncStatus;
 import com.iteaj.iboot.module.iot.dto.BatchModelDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
+import com.iteaj.iboot.module.iot.dto.DeviceCommandViewDto;
 import com.iteaj.iboot.module.iot.dto.ProductDto;
 import com.iteaj.iboot.module.iot.entity.Product;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import com.iteaj.iboot.module.iot.service.IProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,10 +47,13 @@ public class ProductController extends BaseController {
 
     private final IDeviceService deviceService;
     private final IProductService productService;
+    private final ScriptConfigService scriptConfigService;
 
-    public ProductController(IDeviceService deviceService, IProductService productService) {
+    public ProductController(IDeviceService deviceService, IProductService productService
+            , @Autowired(required = false) ScriptConfigService scriptConfigService) {
         this.deviceService = deviceService;
         this.productService = productService;
+        this.scriptConfigService = scriptConfigService;
     }
 
     /**
@@ -59,7 +74,9 @@ public class ProductController extends BaseController {
      */
     @GetMapping("/list")
     public Result<List<IVOption>> list(Product entity) {
-        List<IVOption> options = this.productService.list(entity).stream()
+        List<IVOption> options = this.productService.list(Wrappers.lambdaQuery(entity)
+                        .in(entity.getDeviceTypes() != null, Product::getDeviceType, entity.getDeviceTypes()))
+                .stream()
                 .map(item -> new IVOption(item.getName(), item.getId()))
                 .collect(Collectors.toList());
         return success(options);
@@ -202,6 +219,107 @@ public class ProductController extends BaseController {
     @PostMapping("batchModelDel")
     public Result<Boolean> batchModelDel(@RequestBody BatchModelDto entity) {
         return this.productService.delBatchModel(entity.getId(), entity.getApiCode());
+    }
+    /**
+     * 新增或者更新批量模型记录
+     * @return
+     */
+    @GetMapping("scripts")
+    public Result<List<IVOption>> scripts() {
+        final List<FunctionScript> modelApiScripts = scriptConfigService.getScriptByType("model_api");
+        if(modelApiScripts != null) {
+            final List<IVOption> ivOptions = modelApiScripts.stream()
+                    .map(item -> new IVOption(item.getName(), item.getKey()))
+                    .collect(Collectors.toList());
+            return success(ivOptions);
+        }
+
+        return success(Collections.EMPTY_LIST);
+    }
+
+    /**
+     * 更新产品计算脚本
+     * @param entity 产品计算脚本
+     * @return 更新状态
+     */
+    @Logger("更新产品计算脚本")
+    @PostMapping("updateCalcScript")
+    public Result<Boolean> updateCalcScript(@RequestBody Product entity) {
+        this.productService.getById(entity.getId()).ifNotPresentThrow("产品不存在")
+                .ifPresent(product -> {
+            if(product.getStatus() == FuncStatus.enabled) {
+                throw new ServiceException("请先停用产品");
+            }
+        });
+
+        return this.productService.update(Wrappers.<Product>lambdaUpdate()
+                .set(Product::getConfig, entity.getConfig())
+                .eq(Product::getId, entity.getId())).setMessage("更新成功");
+    }
+
+    /**
+     * 计算脚本方法列表
+     * @return 计算脚本方法列表
+     */
+    @GetMapping("calcScriptMethods")
+    public Result<List<ScriptComplete>> calcScriptMethods() {
+        return success(CalcAttrScriptMethodProvide.getCompletions());
+    }
+
+    /**
+     * 指令列表
+     * @param productId
+     * @return
+     */
+    @GetMapping("commands")
+    public Result<List<DeviceCommandDto>> commands(Long productId) {
+
+        List<DeviceCommandDto> result = new ArrayList<>();
+        productService.joinDetailById(productId)
+            .ifNotPresentThrow("产品不存在")
+            .ifPresent(productDto -> {
+                if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                    productDto.getFuncApis().stream()
+                            .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                            .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+                }
+
+                if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                    productDto.getEventApis().stream()
+                            .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                            .forEach(api -> result.addAll(api.resolverCommand(null, productDto.getAttrs())));
+                }
+            });
+
+        return success(result);
+    }
+    /**
+     * 指令集列表(大屏专用)
+     * @param productCode
+     * @return
+     */
+    @GetMapping("commands/view")
+    public Result<List<DeviceCommandViewDto>> commands(String productCode) {
+        List<DeviceCommandViewDto> result = new ArrayList<>();
+        productService.getByCode(productCode).ifNotPresentThrow("产品不存在").ifPresent(product -> {
+            productService.joinDetailById(product.getId())
+                .ifPresent(productDto -> {
+                    if(!CollectionUtils.isEmpty(productDto.getFuncApis())) {
+                        productDto.getFuncApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.add(api.resolverCommandOfView(productDto.getAttrs())));
+                    }
+
+                    if(!CollectionUtils.isEmpty(productDto.getEventApis())) {
+                        productDto.getEventApis().stream()
+                                .filter(api -> api.getTriggerMode() == TriggerMode.passive)
+                                .forEach(api -> result.add(api.resolverCommandOfView(productDto.getAttrs())));
+                    }
+                });
+        });
+
+
+        return success(result);
     }
 }
 

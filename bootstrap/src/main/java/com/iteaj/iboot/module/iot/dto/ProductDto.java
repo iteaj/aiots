@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.iteaj.framework.spi.iot.consts.ConnectionType;
 import com.iteaj.framework.spi.iot.consts.CtrlMode;
 import com.iteaj.framework.spi.iot.consts.TransportProtocol;
@@ -55,7 +55,7 @@ public class ProductDto extends Product {
     /**
      * 协议码列表
      */
-    @JsonIgnore
+    @JSONField(serialize = false)
     private String[] protocolCodes;
 
     /**

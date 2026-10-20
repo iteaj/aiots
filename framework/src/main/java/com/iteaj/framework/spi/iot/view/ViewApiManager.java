@@ -7,8 +7,10 @@ import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.iot.view.chart.ChartApiItem;
 import com.iteaj.framework.spi.iot.view.chart.ChartApiParams;
 import com.iteaj.framework.spi.iot.view.chart.ChartFetchResult;
-import com.iteaj.framework.spi.iot.view.global.GlobalApiItem;
+import com.iteaj.framework.spi.iot.view.global.GlobalApi;
 import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.global.GlobalFuncApi;
+import com.iteaj.framework.spi.iot.view.global.GlobalFuncApiParams;
 import com.iteaj.framework.spi.iot.view.table.TableApiItem;
 import com.iteaj.framework.spi.iot.view.table.TableApiParams;
 import com.iteaj.framework.spi.iot.view.table.TableApiResult;
@@ -48,6 +50,12 @@ public final class ViewApiManager {
                 .collect(Collectors.toList());
     }
 
+    public static List<DataItemOption> globalFuncApiOptions() {
+        return itemMap.values().stream()
+                .filter(item -> item.getApiType() == ViewApiType.GLOBAL_FUNC_API)
+                .flatMap(item -> item.basicOptions().stream())
+                .collect(Collectors.toList());
+    }
 
     public static List<DataItemOption> tableApiOptions() {
         return itemMap.values().stream()
@@ -89,12 +97,26 @@ public final class ViewApiManager {
         }
 
         final String func = params.resolveKeyItem(0);
-        final GlobalApiItem viewApi = (GlobalApiItem) itemMap.get(func);
+        final GlobalApi viewApi = (GlobalApi) itemMap.get(func);
         if(viewApi == null) {
             throw new ServiceException("未找到数据项处理器");
         }
 
         return viewApi.fetch(params);
+    }
+
+    public static void invoke(GlobalFuncApiParams params) {
+        if(StrUtil.isBlank(params.getApiKey())) {
+            throw new ServiceException("请求参数异常");
+        }
+
+        final String func = params.resolveKeyItem(0);
+        final GlobalFuncApi viewApi = (GlobalFuncApi) itemMap.get(func);
+        if(viewApi == null) {
+            throw new ServiceException("未找到数据项处理器");
+        }
+
+        viewApi.invoke(params);
     }
 
     public static List<ChartFetchResult> fetch(ChartApiParams params) {

@@ -31,6 +31,10 @@ public class RealtimePayload extends EntityPayload<Collection> {
         this.type = type;
     }
 
+    public boolean isWarn() {
+        return Objects.equals(getType(), "warn");
+    }
+
     public boolean isData() {
         return Objects.equals(getType(), "data");
     }

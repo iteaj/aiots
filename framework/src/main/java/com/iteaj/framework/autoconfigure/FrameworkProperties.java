@@ -20,6 +20,12 @@ public class FrameworkProperties {
      */
     private String domain;
 
+
+    /**
+     * 文件服务器地址
+     */
+    private String fileServerDomain;
+
     /**
      * 是否启用集群模式
      */
@@ -57,6 +63,15 @@ public class FrameworkProperties {
      * 校验码配置
      */
     private CaptchaConfig captcha = new CaptchaConfig();
+
+    public String getFileUrl(String uri) {
+        String fileBaseUrl = getFileServerDomain();
+        if(fileBaseUrl.endsWith("/")) {
+            fileBaseUrl = fileBaseUrl.substring(0, fileBaseUrl.length() - 1);
+        }
+
+        return String.format("%s%s", fileBaseUrl, uri);
+    }
 
     @Data
     public static class Web {
@@ -159,6 +174,16 @@ public class FrameworkProperties {
          * 线程池前缀
          */
         private String threadNamePrefix = "ICT-";
+
+        /**
+         * 是否启用虚拟线程(true)
+         */
+        private boolean virtualThread = true;
+
+        /**
+         * 并发限制
+         */
+        private Integer concurrencyLimit;
     }
 
     /**

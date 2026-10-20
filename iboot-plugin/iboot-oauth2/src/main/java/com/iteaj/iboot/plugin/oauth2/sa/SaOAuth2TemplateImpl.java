@@ -1,12 +1,10 @@
 package com.iteaj.iboot.plugin.oauth2.sa;
 
-import cn.dev33.satoken.oauth2.logic.SaOAuth2Template;
-import cn.dev33.satoken.oauth2.model.SaClientModel;
-import cn.hutool.core.bean.BeanUtil;
+import cn.dev33.satoken.oauth2.data.model.loader.SaClientModel;
 import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
 import com.iteaj.iboot.plugin.oauth2.service.Oauth2UserService;
 
-public class SaOAuth2TemplateImpl extends SaOAuth2Template {
+public class SaOAuth2TemplateImpl {
 
     private final Oauth2AppService oauth2AppService;
     private final Oauth2UserService oauth2UserService;
@@ -18,21 +16,12 @@ public class SaOAuth2TemplateImpl extends SaOAuth2Template {
     }
 
     // 根据 id 获取 Client 信息
-    @Override
     public SaClientModel getClientModel(String clientId) {
-        return oauth2AppService.getByClientId(clientId).ofNullable().map(item -> {
-            SaClientModel clientModel = new SaClientModel();
-            BeanUtil.copyProperties(item, clientModel);
-            return clientModel.setIsAutoMode(true);
-        }).orElse(null);
+        return null;
     }
 
     // 根据ClientId 和 LoginId 获取openid
-    @Override
     public String getOpenid(String clientId, Object loginId) {
-        return oauth2UserService.getByClientIdAndLoginId(clientId, loginId)
-                .ofNullable()
-                .map(item -> item.getOpenid())
-                .orElse(null);
+        return null;
     }
 }

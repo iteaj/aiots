@@ -1,23 +1,24 @@
 package com.iteaj.iboot.module.iot;
 
 import com.iteaj.framework.spi.admin.Module;
+import com.iteaj.framework.spi.iot.IotCoreApiService;
+import com.iteaj.framework.spi.iot.data.ModelAttrMetaService;
 import com.iteaj.framework.spring.condition.ConditionalOnCluster;
 import com.iteaj.framework.spring.condition.ConditionalOnRedis;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.IotLocalCacheManager;
-import com.iteaj.iboot.module.iot.cache.data.HashMapRealtimeDataService;
-import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
-import com.iteaj.iboot.module.iot.cache.data.RedisRealtimeDataService;
+import com.iteaj.iboot.module.iot.cache.data.*;
 import com.iteaj.iboot.module.iot.collect.CollectDataListener;
 import com.iteaj.iboot.module.iot.collect.CollectListenerManager;
-import com.iteaj.iboot.module.iot.collect.model.DataPersistenceListener;
 import com.iteaj.iboot.module.iot.collect.model.DeviceStatusModelApiManager;
-import com.iteaj.iboot.module.iot.collect.model.RDBMSPersistenceListener;
-import com.iteaj.iboot.module.iot.cache.data.RealtimeDataCacheListener;
-import com.iteaj.iboot.module.iot.collect.store.RDBMStoreAction;
 import com.iteaj.iboot.module.iot.collect.store.StoreActionFactory;
 import com.iteaj.iboot.module.iot.collect.websocket.RealtimePushListener;
-import com.iteaj.iot.tools.db.rdbms.DefaultRdbmsSqlManager;
+import com.iteaj.iboot.module.iot.linkage.*;
+import com.iteaj.iboot.module.iot.linkage.warn.RealtimeWarnListener;
+import com.iteaj.iboot.module.iot.listener.PluginRealtimeInfoListenerPublisher;
+import com.iteaj.iboot.module.iot.service.IWarnConfigService;
+import com.iteaj.iboot.module.iot.service.IWarnRecordService;
+import com.iteaj.iboot.module.iot.service.impl.WarnInvokeService;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -25,12 +26,10 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 @Profile("iot")
@@ -50,14 +49,12 @@ public class IotAutoConfiguration {
         return Module.module("iot", "物联网模块", 55555);
     }
 
+    /**
+     * iot核心接口服务
+     */
     @Bean
-    public RDBMStoreAction rdbmStoreAction() {
-        return new RDBMStoreAction();
-    }
-
-    @Bean
-    public DefaultRdbmsSqlManager rdbmsManager(DataSource dataSource) {
-        return new DefaultRdbmsSqlManager(dataSource);
+    public IotCoreApiService iotCoreApiService() {
+        return IotCoreApiService.newInstance();
     }
 
     @Bean
@@ -70,15 +67,19 @@ public class IotAutoConfiguration {
         return new IotLocalCacheManager();
     }
 
+    @Bean
+    public RealtimeDataPrevListener realtimeDataPrevListener(IWarnConfigService warnConfigService, WarnInvokeService warnInvokeService) {
+        return new RealtimeDataPrevListener(warnConfigService, warnInvokeService);
+    }
+
     /**
-     * 数据持久化处理
-     * @param rdbmsSqlManager
+     * 告警数据实时入库
+     * @param warnRecordService
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean(DataPersistenceListener.class)
-    public RDBMSPersistenceListener rdbmsPersistenceListener(DefaultRdbmsSqlManager rdbmsSqlManager) {
-        return new RDBMSPersistenceListener(rdbmsSqlManager);
+    public RealtimeWarnListener realtimeWarnListener(IWarnRecordService warnRecordService) {
+        return new RealtimeWarnListener(warnRecordService);
     }
 
     /**
@@ -89,6 +90,15 @@ public class IotAutoConfiguration {
     @Bean
     public RealtimeDataCacheListener realtimeDataStoreListener(RealtimeDataService realtimeDataService) {
         return new RealtimeDataCacheListener(realtimeDataService);
+    }
+
+    /**
+     * 将系统的协议实时数据(采集数据、设备上下线、告警)向各个插件模块发布
+     * @return
+     */
+    @Bean
+    public PluginRealtimeInfoListenerPublisher pluginRealtimeInfoListenerPublisher(ModelAttrMetaService modelAttrMetaService) {
+        return new PluginRealtimeInfoListenerPublisher(modelAttrMetaService);
     }
 
     @Bean
@@ -135,11 +145,32 @@ public class IotAutoConfiguration {
         return new RealtimePushListener(realtimeDataService);
     }
 
+    /**
+     * 本地实现的联动项缓存服务
+     * @return
+     */
     @Bean
-    public IBootThreadManger iBootThreadManger(IotMsnProperties properties) {
-        Integer poolSize = properties.getTask().getPoolSize();
-        TaskSchedulerBuilder builder = new TaskSchedulerBuilder(poolSize, false
-                , null, properties.getTask().getThreadNamePrefix(), null);
-        return new IBootThreadManger(builder.build());
+    public LinkageCacheService localLinkageCacheService() {
+        return new LocalLinkageCacheService();
     }
+
+    /**
+     * 场景联动触发服务
+     */
+    @Bean
+    public LinkageTriggerService linkageTriggerService(IotCacheManager cacheManager, WarnInvokeService warnInvokeService
+            , RealtimeDataService realtimeDataService, LinkageCacheService linkageCacheService) {
+        return new LinkageTriggerService(cacheManager, warnInvokeService, realtimeDataService, linkageCacheService);
+    }
+
+    /**
+     * 条件表达式运算符管理
+     * @param calcs
+     * @return
+     */
+    @Bean
+    public ConditionalsManager conditionalsManager(@Autowired(required = false) List<ConditionCalc> calcs) {
+        return ConditionalsManager.build(calcs);
+    }
+
 }

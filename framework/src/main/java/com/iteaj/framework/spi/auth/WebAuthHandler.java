@@ -3,8 +3,8 @@ package com.iteaj.framework.spi.auth;
 import com.iteaj.framework.autoconfigure.FrameworkProperties;
 import com.iteaj.framework.consts.CoreConst;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static com.iteaj.framework.consts.CoreConst.EXEC_EXCEPTION_STATUS;

@@ -44,6 +44,7 @@ public enum DataType {
             case "double": return t_double;
             case "date": return t_date;
             case "time": return t_time;
+            case "json": return t_json;
             case "timestamp": return t_timestamp;
             case "group": return t_group;
             case "string": return t_string;

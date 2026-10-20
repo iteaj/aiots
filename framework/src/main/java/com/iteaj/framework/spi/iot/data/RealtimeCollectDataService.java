@@ -48,4 +48,41 @@ public interface RealtimeCollectDataService {
     PageResult productOfPage(Page page, RealtimeCollectData entity);
 
     List<BaseEchartsCount> countOfView(ChartSqlCondition condition);
+
+    /**
+     * 获取点位在指定时间范围内的聚合统计
+     */
+    IndicatorStats statsOfField(String uid, Long fieldId, String start, String end);
+
+    /**
+     * 获取点位在时间范围内的采集数据列表
+     */
+    List<RealtimeCollectData> listOfData(String uid, Long fieldId, String start, String end);
+
+    /**
+     * 获取设备其他点位在同一采集时间的数据
+     */
+    List<RealtimeCollectData> associatedPoints(String uid, Long excludeFieldId, String collectTime);
+
+    /**
+     * 获取同产品下其他设备同点位数据
+     */
+    List<RealtimeCollectData> crossDevicePoints(String productCode, Long fieldId, String collectTime, String excludeUid);
+
+    /**
+     * 查源点位信息（用于关联查询）
+     */
+    RealtimeCollectData getSourcePoint(String uid, Long fieldId, String collectTime);
+
+    /**
+     * 按采集器(cid)查询同一采集批次的其他点位
+     */
+    List<RealtimeCollectData> listByCid(String cid, String excludeUid, Long excludeFieldId, String grade);
+
+    /**
+     * 按网关(puid)或设备组查询关联点位
+     */
+    List<RealtimeCollectData> listByPuidOrGroup(String puid, Long deviceGroupId, Date startTime, Date endTime, String excludeUid, Long excludeFieldId, String grade);
+
+    Page<?> listIndicatorOfPage(Page<?> page, RealtimeDataParam param);
 }

@@ -3,16 +3,15 @@ package com.iteaj.iboot.module.iot.controller;
 import java.util.Collections;
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.logger.Logger;
-import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.Logical;
 import com.iteaj.framework.spi.iot.consts.AttrType;
+import com.iteaj.framework.spi.iot.consts.DataType;
 import com.iteaj.iboot.module.iot.dto.StatusSwitchDto;
-import com.iteaj.iboot.module.iot.entity.ModelApiConfig;
 import com.iteaj.iboot.module.iot.entity.ModelAttrDict;
-import com.iteaj.iboot.module.iot.service.IModelApiConfigService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.iteaj.framework.security.CheckPermission;
@@ -32,12 +31,10 @@ import com.iteaj.framework.BaseController;
 public class ModelAttrController extends BaseController {
 
     private final IModelAttrService modelAttrService;
-    private final IModelApiConfigService  modelApiConfigService;
-    public ModelAttrController(IModelAttrService modelAttrService, IModelApiConfigService modelApiConfigService) {
-        this.modelAttrService = modelAttrService;
-        this.modelApiConfigService = modelApiConfigService;
-    }
 
+    public ModelAttrController(IModelAttrService modelAttrService) {
+        this.modelAttrService = modelAttrService;
+    }
 
     /**
     * 列表查询
@@ -47,7 +44,7 @@ public class ModelAttrController extends BaseController {
     @GetMapping("/view")
     @Logger("浏览物模型属性功能")
     public Result<IPage<ModelAttr>> view(Page<ModelAttr> page, ModelAttr entity) {
-        return this.modelAttrService.page(page, entity);
+        return this.modelAttrService.page(page.addOrder(OrderItem.asc("sort")), entity);
     }
 
     /**
@@ -66,7 +63,7 @@ public class ModelAttrController extends BaseController {
      */
     @GetMapping("/list")
     public Result<List<ModelAttr>> list(ModelAttr entity) {
-        return this.modelAttrService.list(Wrappers.lambdaQuery(entity));
+        return this.modelAttrService.list(Wrappers.lambdaQuery(entity).orderByAsc(ModelAttr::getSort));
     }
 
     /**
@@ -88,13 +85,6 @@ public class ModelAttrController extends BaseController {
     @CheckPermission(value = {"iot:modelAttr:edit", "iot:modelAttr:add"}, logical = Logical.OR)
     public Result<Long> saveOrUpdate(@Validated @RequestBody ModelAttr entity) {
         this.modelAttrService.saveOrUpdate(entity);
-        ListResult<ModelApiConfig> list = modelApiConfigService.list(Wrappers.<ModelApiConfig>lambdaQuery().eq(ModelApiConfig::getModelAttrId, entity.getId()));
-        if(!list.isEmpty())
-        {
-            modelApiConfigService.saveOrUpdate(null,Wrappers.<ModelApiConfig>lambdaUpdate()
-                    .eq(ModelApiConfig::getModelAttrId,entity.getId()).
-                    set(ModelApiConfig::getDataType,entity.getDataType()));
-        }
         return success(entity.getId());
     }
 
@@ -142,7 +132,7 @@ public class ModelAttrController extends BaseController {
     }
 
     /**
-     * 获取指定产品下面的物模型属性
+     * 获取指定产品下面的物模型属性(不包含bit和json以及group类型)
      * @param productId
      * @return
      */
@@ -154,7 +144,8 @@ public class ModelAttrController extends BaseController {
 
         return this.modelAttrService.list(Wrappers.<ModelAttr>lambdaQuery()
                 .eq(ModelAttr::getProductId, productId)
-                .in(ModelAttr::getAttrType, AttrType.R, AttrType.RW));
+                .notIn(ModelAttr::getDataType, DataType.t_bit.getValue(), DataType.t_json.getValue(), DataType.t_group.getValue())
+                .ne(ModelAttr::getAttrType, AttrType.W));
     }
 }
 

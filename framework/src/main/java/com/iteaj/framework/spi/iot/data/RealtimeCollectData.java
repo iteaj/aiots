@@ -61,6 +61,21 @@ public interface RealtimeCollectData {
     String getAddress();
 
     /**
+     * 告警等级(可空)
+     */
+    String getGrade();
+
+    /**
+     * 父设备uid(可空)
+     */
+    String getPuid();
+
+    /**
+     * 指标(可空)
+     */
+    String getIndicator();
+
+    /**
      * 采集方式(model、signal)
      * @return
      */

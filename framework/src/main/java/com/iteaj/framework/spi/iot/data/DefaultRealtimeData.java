@@ -1,5 +1,6 @@
 package com.iteaj.framework.spi.iot.data;
 
+import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.iot.tools.annotation.IotField;
 import com.iteaj.iot.tools.annotation.IotTable;
@@ -123,9 +124,40 @@ public class DefaultRealtimeData implements RealtimeCollectData {
     @IotField("product_code")
     private String productCode;
 
-    public DefaultRealtimeData buildFromStatus(CollectStatus status) {
-        this.status = status == CollectStatus.Success;
-        this.reason = status.getReason();
-        return this;
+    /**
+     * 父设备uid
+     */
+    @IotField
+    private String puid;
+
+    /**
+     * 告警等级
+     */
+    @IotField
+    private String grade;
+
+    /**
+     * 指标
+     */
+    @IotField
+    private String indicator;
+
+    public static DefaultRealtimeData of(SignalOrFieldValue item, RealtimeDeviceStatus device
+            , Long taskId, String cid, Date createTime, String fieldName) {
+        return new DefaultRealtimeData()
+                .setFieldId(item.getId())
+                .setField(item.getSignalOrField())
+                .setCollectTime(item.getCollectTime())
+                .setAddress(item.getAddress())
+                .setCollectMode("model").setTaskId(taskId)
+                .setDeviceGroupId(device.getDeviceGroupId())
+                .setProductCode(device.getProductCode())
+                .setProtocolCode(device.getProtocolCode())
+                .setStatus(item.getStatus() == CollectStatus.Success)
+                .setUid(device.getUid()).setPuid(device.getPuid()).setCid(cid)
+                .setDeviceSn(device.getDeviceSn()).setReason(item.getStatus().reason)
+                .setDeviceName(device.getDeviceName()).setFieldName(fieldName)
+                .setCreateTime(item.getCollectTime()).setGrade(item.getGrade())
+                .setValue(item.getValue()).setIndicator(item.getIndicator()).setCreateTime(createTime);
     }
 }

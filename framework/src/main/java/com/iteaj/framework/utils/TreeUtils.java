@@ -44,20 +44,25 @@ public class TreeUtils {
     }
 
     public static <T extends TreeEntity> Collection<T> toAdminMenuTrees(List<T> allMenus, List<String> adminMenuIds) {
-        Map<String, T> menuMap = allMenus.stream().collect(Collectors
-                .toMap(item -> item.getId().toString(), item -> item));
+        boolean isTopMenu = allMenus.stream().anyMatch(item -> item.getPid() == -1L);
 
         Map<String, T> adminMenus = new HashMap<>(); // 存放管理员菜单的列表
-        adminMenuIds.forEach(item -> {
-            T t = menuMap.get(item);
-            if(t != null) {
-                if(!adminMenus.containsKey(item)) {
-                    adminMenus.put(item, t);
-                }
+        if(CollectionUtils.isEmpty(adminMenuIds)) {
+            return toTrees(allMenus, isTopMenu ? -1L : 0L);
+        } else {
+            Map<String, T> menuMap = allMenus.stream().collect(Collectors
+                    .toMap(item -> item.getId().toString(), item -> item));
+            adminMenuIds.forEach(item -> {
+                T t = menuMap.get(item);
+                if(t != null) {
+                    if(!adminMenus.containsKey(item)) {
+                        adminMenus.put(item, t);
+                    }
 
-                getParentMenu(t.getPid(), menuMap, adminMenus);
-            }
-        });
+                    getParentMenu(t.getPid(), menuMap, adminMenus);
+                }
+            });
+        }
 
         // 过滤出非功能的菜单并且排序
         List<T> collect = adminMenus.values().stream().filter(item -> {
@@ -67,7 +72,7 @@ public class TreeUtils {
 
             return true;
         }).sorted().collect(Collectors.toList());
-        return toTrees(collect, 0l);
+        return toTrees(collect, isTopMenu ? -1L : 0L);
     }
 
     private static <T extends TreeEntity> void getParentMenu(Long pid, Map<String, T> menuMap, Map<String, T> adminMenus) {

@@ -1,8 +1,8 @@
 package com.iteaj.iboot.plugin.iotview.listener;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.iteaj.framework.spi.iot.data.*;
 import com.iteaj.framework.spi.iot.listener.*;
 import com.iteaj.framework.spi.iot.view.DataItemOption;
@@ -126,6 +126,28 @@ public class ViewRealtimePushListener implements WebSocketServerListener, IotLis
                                             .append(item.getProductCode()).append(DataItemOption.SPLIT).append(item.getUid());
                                     return isMatcher(binds, item, key);
                                 }).collect(Collectors.toList());
+                            } else if(type.equals(ViewRealtimeData.WARN_PREFIX)) {
+                                final String allKey = ViewRealtimeData.WARN_PREFIX + "all";
+                                if(binds.contains(allKey)) {
+                                    result = data.stream().map(item -> item.setKey(allKey)).collect(Collectors.toList());
+                                } else {
+                                    result = data.stream().filter(item -> {
+                                        StringBuilder key = new StringBuilder(ViewRealtimeData.WARN_PREFIX).append(item.getProductCode());
+                                        String keyValue = key.toString();
+                                        if(binds.contains(keyValue)) {
+                                            item.setKey(keyValue);
+                                            return true;
+                                        }
+
+                                        keyValue = key.append(DataItemOption.SPLIT).append(item.getUid()).toString();
+                                        if(binds.contains(keyValue)) {
+                                            item.setKey(keyValue);
+                                            return true;
+                                        }
+
+                                        return false;
+                                    }).collect(Collectors.toList());
+                                }
                             }
 
                             if(result != null && result.size() > 0) {
@@ -161,6 +183,16 @@ public class ViewRealtimePushListener implements WebSocketServerListener, IotLis
                                     .setCollectTime(data.getCollectTime());
                         }).collect(Collectors.toList());
                 this.push(datas, ViewRealtimeData.Attr_PREFIX);
+            } else if(value.isWarn()) {
+                final List<ViewRealtimeData> datas = (List<ViewRealtimeData>) value.getPayload().stream()
+                        .filter(item -> item != null)
+                        .map(item -> {
+                            WarnData data = (WarnData) item;
+                            return ViewRealtimeData.buildWarn(data.getProductCode(), data.getUid(), data.getField(), data.getContent())
+                                    .setCollectTime(data.getWarnTime());
+                        }).collect(Collectors.toList());
+
+                this.push(datas, ViewRealtimeData.WARN_PREFIX);
             } else if(value.isStatus()) {
                 final List<ViewRealtimeData> datas = (List<ViewRealtimeData>) value.getPayload().stream()
                         .filter(item -> item != null)
@@ -172,11 +204,20 @@ public class ViewRealtimePushListener implements WebSocketServerListener, IotLis
                         }).collect(Collectors.toList());
                 this.push(datas, ViewRealtimeData.STATUS_PREFIX);
             }
+        } else if(eventType == IotEventType.ScriptInvoke) {
+            ScriptInvokePayload value = (ScriptInvokePayload) payload;
+            if(value.isWarn()) {
+                WarnData data = value.getData();
+                final ViewRealtimeData viewRealtimeData = ViewRealtimeData.buildWarn(data.getProductCode(), data.getUid(), data.getField(), data.getContent())
+                        .setCollectTime(data.getWarnTime());
+
+                this.push(Arrays.asList(viewRealtimeData), ViewRealtimeData.WARN_PREFIX);
+            }
         }
     }
 
     @Override
     public boolean isEventMatcher(IotEventType eventType) {
-        return eventType == IotEventType.Realtime;
+        return eventType == IotEventType.ScriptInvoke || eventType == IotEventType.Realtime;
     }
 }

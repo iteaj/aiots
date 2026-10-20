@@ -28,6 +28,21 @@ public class WarnRecord extends BaseEntity implements WarnData {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 处理状态：0-未处理 1-处理中 2-已处理 3-已忽略
+     */
+    private Integer processStatus;
+
+    /**
+     * 处理时间
+     */
+    private Date processTime;
+
+    /**
+     * 处理原因
+     */
+    private String processReason;
+
+    /**
      * 告警设备
      */
     private String uid;

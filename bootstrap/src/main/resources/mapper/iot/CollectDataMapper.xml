@@ -20,18 +20,24 @@
         <result column="create_time" property="createTime" />
         <result column="collect_time" property="collectTime" />
         <result column="task_id" property="taskId" />
+        <result column="puid" property="puid" />
+        <result column="grade" property="grade" />
+        <result column="indicator" property="indicator" />
     </resultMap>
     <resultMap id="DtoResultMap" type="com.iteaj.iboot.module.iot.dto.CollectDataDto" extends="BaseResultMap">
         <result property="productId" column="product_id" />
     </resultMap>
 
     <select id="detailOfPage" resultMap="BaseResultMap">
-        select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value
+        select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value, a.grade, a.indicator
             , a.status, a.reason, a.collect_time, a.create_time, a.device_name, a.device_sn, a.field_name
         from iot_collect_data a
         <where>
             <if test="entity.uid != null and entity.uid != ''">
                 and a.uid=#{entity.uid}
+            </if>
+            <if test="entity.field != null and entity.field != ''">
+                and a.field=#{entity.field}
             </if>
             <if test="entity.cid != null">
                 and a.cid=#{entity.cid}
@@ -53,6 +59,9 @@
             </if>
             <if test="entity.status != null">
                 and a.status=#{entity.status}
+            </if>
+            <if test="entity.hasGrade != null and entity.hasGrade != false">
+                and a.grade is not null
             </if>
             <choose>
                 <when test="entity.startTimestamp != null and entity.endTimestamp != null">
@@ -353,4 +362,149 @@
         </if>
     </select>
 
+    <select id="statsOfField" resultType="com.iteaj.framework.spi.iot.data.IndicatorStats">
+        SELECT MAX(value + 0) AS `max`, MIN(value + 0) AS `min`,
+               AVG(value + 0) AS `avg`, COUNT(*)       AS `count`,
+               (SELECT collect_time
+                FROM iot_collect_data
+                WHERE uid = #{uid}
+                  AND collect_time BETWEEN #{start} AND #{end}
+                  AND value IS NOT NULL AND field_id = #{fieldId} AND status = 1
+                ORDER BY value + 0 DESC LIMIT 1)      AS `maxTime`,
+               (SELECT collect_time
+                FROM iot_collect_data
+                WHERE uid = #{uid}
+                  AND collect_time BETWEEN #{start} AND #{end}
+                  AND value IS NOT NULL AND field_id = #{fieldId} AND status = 1
+                ORDER BY value + 0 LIMIT 1)      AS `minTime`
+        FROM iot_collect_data
+        WHERE uid = #{uid}
+          AND field_id = #{fieldId} AND collect_time BETWEEN #{start} AND #{end}
+          AND value IS NOT NULL AND status = 1
+    </select>
+
+    <select id="listOfData" resultMap="BaseResultMap">
+        SELECT id, uid, field, field_id, value, collect_time, status, reason, device_group_Id, address
+        FROM iot_collect_data
+        WHERE uid = #{uid} AND field_id = #{fieldId}
+          AND value IS NOT NULL AND status = 1
+          AND collect_time BETWEEN #{start} AND #{end}
+        ORDER BY collect_time
+    </select>
+
+    <select id="associatedPoints" resultMap="BaseResultMap">
+        SELECT id, uid, field, field_name, field_id, value, collect_time, status, device_group_Id, indicator, grade, address
+        FROM iot_collect_data
+        WHERE uid = #{uid} AND collect_time = #{collectTime} AND field_id != #{excludeFieldId}
+          AND value IS NOT NULL AND status = 1 AND grade is not null
+    </select>
+
+    <select id="crossDevicePoints" resultMap="BaseResultMap">
+        SELECT a.id, a.uid, a.field, a.field_name, a.field_id, a.value, a.collect_time, a.grade, a.indicator
+             , a.status, device_name, a.device_group_Id, address
+        FROM iot_collect_data a
+        WHERE a.field_id = #{fieldId}
+          AND a.collect_time = #{collectTime} AND a.uid != #{excludeUid}
+          AND a.value IS NOT NULL AND a.status = 1 and a.grade is not null
+    </select>
+
+    <select id="listByPuidOrGroup" resultMap="BaseResultMap">
+        SELECT uid, field, field_id, field_name, value, collect_time, grade, indicator,
+               device_name, device_sn, device_group_id, puid, cid, status, address
+        FROM (
+            SELECT uid, field, field_id, field_name, value, collect_time, grade, indicator,
+                   device_name, device_sn, device_group_id, puid, cid, status, address,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY uid, field_id
+                       ORDER BY grade
+                   ) AS rn
+            FROM iot_collect_data
+            WHERE collect_time BETWEEN #{startTime} AND #{endTime}
+              AND status = 1 AND value IS NOT NULL
+              AND uid != #{excludeUid} AND field_id != #{excludeFieldId}
+              AND (<choose>
+                    <when test="puid != null and puid != '' and deviceGroupId != null">
+                        puid = #{puid} OR device_group_id = #{deviceGroupId}
+                    </when>
+                    <when test="puid != null and puid != ''">
+                        puid = #{puid}
+                    </when>
+                    <otherwise>
+                        device_group_id = #{deviceGroupId}
+                    </otherwise>
+                  </choose>)
+            <choose>
+                <when test="grade != null and grade != ''">
+                    AND grade = #{grade}
+                </when>
+                <otherwise>
+                    AND grade IS NOT NULL
+                </otherwise>
+            </choose>
+        ) t WHERE rn = 1
+        ORDER BY grade LIMIT 200
+    </select>
+
+    <select id="listByCid" resultMap="BaseResultMap">
+        SELECT uid, field, field_id, field_name, value, collect_time, grade, indicator,
+               device_name, device_sn, device_group_id, puid, cid, status, address
+        FROM (
+            SELECT uid, field, field_id, field_name, value, collect_time, grade, indicator,
+                   device_name, device_sn, device_group_id, puid, cid, status, address,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY uid, field_id
+                       ORDER BY grade
+                   ) AS rn
+            FROM iot_collect_data
+            WHERE cid = #{cid}
+              AND status = 1 AND value IS NOT NULL
+              AND uid != #{excludeUid} AND field_id != #{excludeFieldId}
+            <choose>
+                <when test="grade != null and grade != ''">
+                    AND grade = #{grade}
+                </when>
+                <otherwise>
+                    AND grade IS NOT NULL
+                </otherwise>
+            </choose>
+        ) t WHERE rn = 1
+        ORDER BY grade LIMIT 200
+    </select>
+    <select id="listIndicatorOfPage" resultType="com.iteaj.iboot.module.iot.entity.CollectData">
+        <choose>
+            <when test="entity.fieldId != null">
+                select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value, a.grade, a.indicator
+                    , a.status, a.collect_time, a.device_name, a.field_name, a.device_group_Id
+                from iot_collect_data a
+                <where>
+                    a.field_id = #{entity.fieldId} and status = true AND grade IS NOT NULL and grade != 'status'
+                    <if test="entity.uid != null and entity.uid != ''">
+                        and uid=#{entity.uid}
+                    </if>
+                    and collect_time between #{entity.startTime} and #{entity.endTime}
+                </where>
+                order by a.grade
+            </when>
+            <otherwise>
+                WITH ranked AS (
+                    select a.id, a.cid, a.uid, a.field_id, a.field, a.task_id, a.address, a.value, a.grade, a.indicator
+                        , a.status, a.collect_time, a.device_name, a.field_name, a.device_group_Id
+                        , ROW_NUMBER() OVER (PARTITION BY uid, field_id ORDER BY grade) AS rn
+                    FROM iot_collect_data a
+                    <where>
+                        status = true AND grade IS NOT NULL and grade != 'status'
+                        <if test="entity.productCode != null and entity.productCode != ''">
+                            AND product_code = #{entity.productCode}
+                        </if>
+                        <if test="entity.uid != null and entity.uid != ''">
+                            and uid=#{entity.uid}
+                        </if>
+                        and collect_time between #{entity.startTime} and #{entity.endTime}
+                    </where>
+                ) SELECT * FROM ranked WHERE rn = 1 order by grade
+            </otherwise>
+        </choose>
+
+
+    </select>
 </mapper>

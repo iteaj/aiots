@@ -4,6 +4,7 @@ import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
 import com.iteaj.framework.spi.iot.data.ModelAttrRealtimeData;
+import com.iteaj.framework.spi.iot.data.RealtimeDataExtra;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.iboot.module.iot.cache.IotCacheManager;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
@@ -66,20 +67,14 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
         Map<String, Map<String, RealtimeData>> productMap = realtimeMap.get(protocolCode);
         if(productMap == null) {
             synchronized (this) {
-                productMap = realtimeMap.get(protocolCode);
-                if(productMap == null) {
-                    realtimeMap.put(protocolCode, productMap = new ConcurrentHashMap<>());
-                }
+                productMap = realtimeMap.computeIfAbsent(protocolCode, k -> new ConcurrentHashMap<>());
             }
         }
 
         Map<String, RealtimeData> deviceMap = productMap.get(key.getKey());
         if(deviceMap == null) {
             synchronized (this) {
-                deviceMap = productMap.get(key.getKey());
-                if(deviceMap == null) {
-                    productMap.put(key.getKey(), deviceMap = new ConcurrentHashMap<>());
-                }
+                deviceMap = productMap.computeIfAbsent(key.getKey(), k -> new ConcurrentHashMap<>());
             }
         }
 
@@ -100,9 +95,7 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
 
     @Override
     public void put(List<DataSupplier> suppliers) {
-        suppliers.forEach(item -> {
-            this.put(item);
-        });
+        suppliers.forEach(this::put);
     }
 
     @Override
@@ -115,7 +108,7 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
             }
         }
 
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     @Override
@@ -139,6 +132,14 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     }
 
     @Override
+    public void updateRealtimeDataExtra(String uid, String signalOrField, RealtimeDataExtra extra) {
+        ModelAttrRealtimeData realtimeData = this.getRealtimeData(uid, signalOrField);
+        if(realtimeData != null) {
+            ((RealtimeData) realtimeData).setExtra(extra);
+        }
+    }
+
+    @Override
     public ModelAttrRealtimeData getRealtimeData(String uid, String signalOrField) {
         RealtimeStatus byUid = cacheManager.getByUid(uid);
         if(byUid != null) {
@@ -151,6 +152,11 @@ public class HashMapRealtimeDataService implements RealtimeDataService{
     @Override
     public RealtimeDeviceStatus getDeviceStatus(String uid) {
         return cacheManager.getByUid(uid);
+    }
+
+    @Override
+    public Collection<? extends RealtimeDeviceStatus> listByGroupId(Long groupId) {
+        return cacheManager.listByGroupId(groupId);
     }
 
     @Override

@@ -1,12 +1,11 @@
 package com.iteaj.iboot.module.core.entity;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.spi.admin.auth.AuthenticationUser;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.consts.UseStatus;
@@ -81,7 +80,7 @@ public class Admin extends BaseEntity implements AuthenticationUser {
     /**
      * 密码
      */
-    @JsonIgnore
+    @JSONField(serialize = false)
     private String password;
 
     /**
@@ -95,7 +94,6 @@ public class Admin extends BaseEntity implements AuthenticationUser {
      */
     @Excel(name = "创建时间", orderNum = "90", exportFormat = "yyyy-MM-dd", width = 15)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date createTime;
 
     /**
@@ -105,7 +103,6 @@ public class Admin extends BaseEntity implements AuthenticationUser {
 
     /**更新时间*/
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateTime;
 
     /**
@@ -113,7 +110,7 @@ public class Admin extends BaseEntity implements AuthenticationUser {
      */
     private String updateBy;
 
-    @JsonIgnore
+    @JSONField(serialize = false)
     public boolean isSuperUser() {
         return this.getId() == 1l;
     }

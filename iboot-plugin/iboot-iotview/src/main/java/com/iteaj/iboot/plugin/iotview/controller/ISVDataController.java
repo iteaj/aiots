@@ -2,25 +2,38 @@ package com.iteaj.iboot.plugin.iotview.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.exception.ServiceException;
+import com.iteaj.framework.result.ListResult;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.security.SecurityUtil;
+import com.iteaj.framework.spi.iot.ProtocolInvokeException;
+import com.iteaj.framework.spi.iot.listener.CmdInvokePayload;
+import com.iteaj.framework.spi.iot.listener.IotEvenPublisher;
+import com.iteaj.framework.spi.iot.listener.IotEventType;
+import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.framework.spi.iot.view.*;
 import com.iteaj.framework.spi.iot.view.chart.ChartApiParams;
 import com.iteaj.framework.spi.iot.view.chart.ChartFetchResult;
 import com.iteaj.framework.spi.iot.view.global.GlobalApiParams;
+import com.iteaj.framework.spi.iot.view.global.GlobalFuncApiParams;
 import com.iteaj.framework.spi.iot.view.table.TableApiParams;
 import com.iteaj.framework.spi.iot.view.table.TableApiResult;
+import com.iteaj.framework.spi.open.OpenApiUtil;
 import com.iteaj.iboot.plugin.iotview.FetchResult;
 import com.iteaj.iboot.plugin.iotview.IotViewResult;
 import com.iteaj.iboot.plugin.iotview.entity.Resource;
 import com.iteaj.iboot.plugin.iotview.entity.ResourceType;
 import com.iteaj.iboot.plugin.iotview.service.IResourceService;
 import com.iteaj.iboot.plugin.iotview.service.ISVDataService;
+import com.iteaj.iot.consts.ExecStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
+import jakarta.servlet.http.HttpServletRequest;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,6 +72,16 @@ public class ISVDataController extends BaseController {
     @GetMapping("global/options")
     public Result<List<DataItemOption>> globalOptions() {
         return IotViewResult.Success(ViewApiManager.globalApiOptions());
+    }
+
+    /**
+     * 全局功能接口数据项配置
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("global/func/options")
+    public Result<List<DataItemOption>> globalFuncOptions() {
+        return IotViewResult.Success(ViewApiManager.globalFuncApiOptions());
     }
 
     /**
@@ -244,6 +267,25 @@ public class ISVDataController extends BaseController {
     }
 
     /**
+     * 调用全局功能接口
+     * @param params
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("global/func")
+    public Result<Boolean> globalFunc(@RequestBody GlobalFuncApiParams params) {
+        try {
+            ViewApiManager.invoke(params);
+            return IotViewResult.Success(true, "调用成功");
+        } catch (ServiceException e) {
+            return FetchResult.FailNotJump(e.getMessage());
+        } catch (Exception e) {
+            logger.error("fetch接口未知异常", e);
+            return FetchResult.FailNotJump("获取数据异常");
+        }
+    }
+
+    /**
      * 获取列表接口数据
      * @param params
      * @return
@@ -271,6 +313,51 @@ public class ISVDataController extends BaseController {
     @GetMapping("products")
     public Result<List<DataItemOption>> products(Boolean gateway) {
         return IotViewResult.Success(isvDataService.listProductOption(gateway));
+    }
+
+    /**
+     * 获取指令集列表
+     * @param request
+     * @return
+     */
+    @GetMapping("directs")
+    public String directs(HttpServletRequest request) {
+        OpenApiUtil.buildOpenRequest(request);
+        return "forward:/iot/product/commands/view";
+    }
+
+    /**
+     * 执行设备指令
+     * @param cmd
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("cmd")
+    public Mono<Result<?>> cmd(@RequestBody CmdInvokePayload cmd) {
+        return Mono.<InvokeResult>create(item -> {
+            try {
+                IotEvenPublisher.publish(IotEventType.CmdInvoke, cmd.setScenario(CmdInvokePayload.SCENARIO_SCREEN).build(item::success));
+            } catch (ProtocolInvokeException e) {
+                item.success(InvokeResult.fail(e.getMessage(), null));
+            }
+        }).timeout(Duration.ofMillis(cmd.getTimeout()), Mono.just(InvokeResult.fail("执行超时", null))).map(item -> {
+            if(item.getStatus() == ExecStatus.success) {
+                return success(item.getValue(), "执行指令成功");
+            } else {
+                return fail(item.getReason());
+            }
+        });
+    }
+
+    /**
+     * 监控视频通道列表
+     * @param request
+     * @return
+     */
+    @GetMapping("channels")
+    public String channels(HttpServletRequest request) {
+        OpenApiUtil.buildOpenRequest(request);
+        return "forward:/gbs/device/view/channels";
     }
 
     /**

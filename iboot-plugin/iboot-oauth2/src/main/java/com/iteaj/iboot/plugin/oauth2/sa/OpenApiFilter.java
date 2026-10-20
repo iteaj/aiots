@@ -5,7 +5,7 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.iteaj.framework.result.HttpResult;
 import com.iteaj.framework.security.OpenToken;
 import com.iteaj.framework.security.SecurityException;
@@ -14,13 +14,13 @@ import com.iteaj.framework.spi.open.OpenApiUtil;
 import com.iteaj.framework.web.WebUtils;
 import com.iteaj.iboot.plugin.oauth2.entity.Oauth2App;
 import com.iteaj.iboot.plugin.oauth2.service.Oauth2AppService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 

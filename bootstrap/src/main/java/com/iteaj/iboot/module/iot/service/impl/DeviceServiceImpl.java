@@ -2,7 +2,7 @@ package com.iteaj.iboot.module.iot.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -130,12 +130,13 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
         validate(entity, null);
         entity.setUid(String.valueOf(IdWorker.getId()));
 
-        // 将uid写入配置, 作为设备的唯一键
-        if(entity.getConfig() != null) {
-            entity.getConfig().put("uid", entity.getUid());
+        if(entity.getConfig() == null) {
+            entity.setConfig(new JSONObject());
         }
 
-        return super.save(entity).ifPresentAndTrue(item -> {
+        // 将uid写入配置, 作为设备的唯一键
+        entity.getConfig().put("uid", entity.getUid());
+        return super.save(entity.build()).ifPresentAndTrue(item -> {
             RealtimeStatus status = this.getDeviceStatusFromCache(entity.getId());
             iotCacheManager.cache(status);
         });
@@ -351,6 +352,11 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
     }
 
     @Override
+    public DeviceDto getDetailByUid(String uid) {
+        return this.getBaseMapper().getDetailByUid(uid);
+    }
+
+    @Override
     public DeviceStatusDto countCommonDeviceStatus(GroupAndProductParamDto param) {
         return getBaseMapper().countDeviceStatus(param);
     }
@@ -392,6 +398,11 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceMapper, Device> imp
             List<DeviceStatusData> dataList = this.getBaseMapper().listCommonByStatus(condition);
             return CollectValueItem.build(null, dataList);
         }
+    }
+
+    @Override
+    public PageResult<IPage<DeviceDto>> listByApp(Page page, DeviceDto device) {
+        return new PageResult<>(this.getBaseMapper().listByApp(page, device));
     }
 
     @Override

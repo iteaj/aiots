@@ -147,6 +147,13 @@ public interface IDeviceService extends IBaseService<Device> {
     DetailResult<Device> getByUid(String uid);
 
     /**
+     * 通过uid获取设备详情（含产品信息）
+     * @param uid
+     * @return
+     */
+    DeviceDto getDetailByUid(String uid);
+
+    /**
      * 统计设备的在线离线状态
      * @param param
      * @return
@@ -174,4 +181,12 @@ public interface IDeviceService extends IBaseService<Device> {
      * @return
      */
     CollectValueItem listCommonByStatus(StatusDataCondition condition);
+
+    /**
+     * 用于移动端分页查询设备列表
+     * @param page
+     * @param device
+     * @return
+     */
+    PageResult<IPage<DeviceDto>> listByApp(Page page, DeviceDto device);
 }

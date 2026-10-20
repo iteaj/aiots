@@ -1,6 +1,5 @@
 package com.iteaj.framework.spi.iot;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.ParamMeta;
 import com.iteaj.framework.spi.iot.consts.ConstConfig;
@@ -92,7 +91,6 @@ public abstract class NetworkConfigImpl implements NetworkConfig {
          */
         private Long writeIdle;
 
-        @JsonIgnore
         public static ParamMeta[] tcpMetas = new ParamMeta[]{
             ParamMeta.buildRequired("host", "主机", "客户端不校验(跟随设备)", "0.0.0.0"),
             ParamMeta.buildRequiredNumber("port", "端口", 8168, "必须是[1-65535]的整数"),

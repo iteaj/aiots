@@ -47,7 +47,12 @@
             left join sys_admin sa on json_contains(a.accepts, concat(sa.id, ''))
         where type = 'iot:warn' and wc.id=#{warnConfigId}
     </select>
-
+    <select id="getWarnTemplateByWarnTempId" resultMap="WarnTemplateMap">
+        select a.*, d.name device_name, a.template_name wc_template_title, sa.phone, sa.email from sys_message_template a
+               left join iot_device d on d.uid=#{uid}
+               left join sys_admin sa on json_contains(a.accepts, concat(sa.id, ''))
+        where type = 'iot:warn' and a.id=#{warnTempId}
+    </select>
     <select id="listAccepts" resultType="com.iteaj.framework.IVOption">
         select name label, id value from sys_admin order by create_time desc
     </select>

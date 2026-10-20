@@ -7,7 +7,7 @@
         <result column="id" property="id" />
         <result column="name" property="name" />
         <result column="product_ids" property="productIds"
-                typeHandler="com.iteaj.framework.mybatis.handler.JacksonTypeHandler"/>
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"/>
         <result column="product_names" property="productNames" />
         <result column="create_time" property="createTime" />
     </resultMap>

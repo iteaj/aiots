@@ -1,16 +1,20 @@
 package com.iteaj.iboot.module.iot.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.data.BaseEchartsCount;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
 import com.iteaj.iboot.module.iot.consts.NameValueDto;
 import com.iteaj.iboot.module.iot.dto.*;
+import com.iteaj.iboot.module.iot.entity.WarnRecord;
 import com.iteaj.iboot.module.iot.service.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,15 +27,17 @@ public class IotIndexController extends BaseController {
     private final IDeviceService deviceService;
     private final IProductService productService;
     private final IProtocolService protocolService;
+    private final IWarnRecordService warnRecordService;
     private final IEventSourceService eventSourceService;
     private final RealtimeCollectDataService collectDataService;
 
     public IotIndexController(IDeviceService deviceService, IProductService productService
-            , IProtocolService protocolService, RealtimeCollectDataService collectDataService
-            , IEventSourceService eventSourceService) {
+            , IProtocolService protocolService, IWarnRecordService warnRecordService
+            , RealtimeCollectDataService collectDataService, IEventSourceService eventSourceService) {
         this.deviceService = deviceService;
         this.productService = productService;
         this.protocolService = protocolService;
+        this.warnRecordService = warnRecordService;
         this.collectDataService = collectDataService;
         this.eventSourceService = eventSourceService;
     }
@@ -49,7 +55,7 @@ public class IotIndexController extends BaseController {
         indexCountDto.setOnlineNum(deviceDto.getOnline());
 
         // 协议数量
-        protocolService.count().ifPresent(item -> indexCountDto.setProtocolNum(item));
+        protocolService.count().ifPresent(item -> indexCountDto.setProtocolNum(item.intValue()));
         // 产品数量
         FuncStatusProfileDto profileDto = productService.countStatusProfile();
         indexCountDto.setProductNum(profileDto.getTotalNum());
@@ -90,5 +96,20 @@ public class IotIndexController extends BaseController {
     public Result<List<BaseEchartsCount>> countDataWithLastMonth() {
         List<BaseEchartsCount> countLastTimeDtos = collectDataService.countLastMonth();
         return success(countLastTimeDtos);
+    }
+
+    /**
+     * 最新告警列表
+     * @return
+     */
+    @GetMapping("latestWarns")
+    public Result<List<WarnRecord>> latestWarns() {
+        Page page = new Page(1, 7);
+        IPage<WarnRecord> data = warnRecordService.detailPage(page, new WarnRecord()).getData();
+        if(data.getTotal() > 0) {
+            return success(data.getRecords());
+        }
+
+        return success(Collections.EMPTY_LIST);
     }
 }

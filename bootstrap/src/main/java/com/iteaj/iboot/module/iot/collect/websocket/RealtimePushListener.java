@@ -1,8 +1,7 @@
 package com.iteaj.iboot.module.iot.collect.websocket;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.spi.iot.DataSupplier;
 import com.iteaj.framework.spi.iot.ProtocolSupplierManager;
 import com.iteaj.framework.spi.iot.SignalOrFieldValue;
@@ -10,19 +9,14 @@ import com.iteaj.framework.spi.iot.consts.FuncType;
 import com.iteaj.framework.spi.iot.protocol.InvokeResult;
 import com.iteaj.iboot.module.iot.cache.data.RealtimeDataService;
 import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
-import com.iteaj.iboot.module.iot.collect.CollectDevice;
 import com.iteaj.iboot.module.iot.collect.DeviceStatusListener;
-import com.iteaj.iboot.module.iot.collect.SignalCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.CollectInfo;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
+import com.iteaj.iboot.module.iot.entity.*;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
-import com.iteaj.iboot.module.iot.entity.CollectData;
-import com.iteaj.iboot.module.iot.entity.DeviceGroup;
-import com.iteaj.iboot.module.iot.entity.EventSource;
-import com.iteaj.iboot.module.iot.entity.ModelApi;
+import com.iteaj.iboot.module.iot.linkage.LinkageActionListener;
 import com.iteaj.iboot.module.iot.utils.IotLogger;
-import com.iteaj.iot.IotThreadManager;
 import com.iteaj.iot.server.websocket.WebSocketChannelMatcher;
 import com.iteaj.iot.server.websocket.WebSocketServerListener;
 import com.iteaj.iot.server.websocket.impl.DefaultWebSocketServerProtocol;
@@ -36,7 +30,7 @@ import java.util.stream.Collectors;
  * 将采集的数据实时推送到前端
  */
 public class RealtimePushListener implements WebSocketServerListener, EventGroupCollectListener
-        , SignalCollectListener, DeviceStatusListener, ModelAttrListener {
+        , LinkageActionListener, DeviceStatusListener, ModelAttrListener {
 
     private static final String URI = "/ws/iot/realtime";
     private final RealtimeDataService realtimeDataService;
@@ -66,8 +60,13 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     }
 
     @Override
+    public void onClose(DefaultWebSocketServerProtocol protocol) {
+        WebSocketServerListener.super.onClose(protocol);
+    }
+
+    @Override
     public void supplier(EventSource source, DeviceGroup group, CollectInfo.DeviceInfo info) {
-        IotThreadManager.instance().getDeviceManageEventExecutor().execute(() -> this.push(info));
+        this.supplier(info.getSupplier(), info.getDevice());
     }
 
     @Override
@@ -98,14 +97,14 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     public void push(CollectInfo.DeviceInfo device) {
         try {
             if(CollectionUtil.isNotEmpty(device.getSupplier().getValues())) {
-                Map<String, SignalOrFieldValue> valueMap = device.getSupplier().getValues().stream()
-                        .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+                Map<String, PushData.ModelAttrData> valueMap = device.getSupplier().getValues().stream()
+                        .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, PushData::of));
 
                 String jsonString = JSONObject.toJSONString(PushData.buildModel(device.getDevice().getUid(), valueMap));
                 doPush(device.getDevice().getUid(), jsonString, TYPE_DATA);
             }
         } catch (Exception e) {
-            logger.error("实时推送模型数据异常 {} - 设备: {}", e.getMessage(), device.getDevice().buildDeviceKey(), e);
+            logger.error("实时推送模型数据异常 模型属性重复 - 设备: {}", e.getMessage(), device.getDevice().buildDeviceKey(), e);
         }
     }
 
@@ -113,8 +112,8 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
         if(api.getFuncType() == FuncType.R) { // 读指令才需要更新数据
             ProtocolSupplierManager.getDataSupplier(result.getProtocol()).ifPresent(supplier -> {
                 if(CollectionUtil.isNotEmpty(supplier.getValues())) {
-                    Map<String, SignalOrFieldValue> valueMap = supplier.getValues().stream()
-                            .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+                    Map<String, PushData.ModelAttrData> valueMap = supplier.getValues().stream()
+                            .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, PushData::of));
                     realtimeDataService.put(supplier); // 加入实时数据缓存
 
                     // websocket方式写数据到前端
@@ -126,25 +125,16 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
     }
 
     @Override
-    public void supplier(CollectDevice device, CollectData data) {
-        try {
-            Map<String, SignalOrFieldValue> valueMap = new HashMap<>();
-            valueMap.put(data.getAddress(), SignalOrFieldValue.build(data.getFieldId()
-                    , data.getAddress(), data.getCollectTime(), data.getValue()).builder(data.getCollectStatus()));
-            String deviceUid = device.getUid().toString();
-            String jsonString = JSONObject.toJSONString(PushData.buildSignal(deviceUid, valueMap));
-
-            doPush(deviceUid, jsonString, TYPE_DATA);
-        } catch (Exception e) {
-            logger.error("实时推送点位数据异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
-        }
-    }
-
-    @Override
     public void supplier(DataSupplier supplier, RealtimeStatus device) {
         if(CollectionUtil.isNotEmpty(supplier.getValues())) {
-            Map<String, SignalOrFieldValue> valueMap = supplier.getValues().stream()
-                    .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> item));
+            Map<String, PushData.ModelAttrData> valueMap = supplier.getValues().stream()
+                    .collect(Collectors.toMap(SignalOrFieldValue::getSignalOrField, item -> {
+                        PushData.ModelAttrData modelAttrData = PushData.of(item);
+                            modelAttrData.setGrade(item.getGrade());
+                            modelAttrData.setIndicator(item.getIndicator());
+
+                        return modelAttrData;
+                    }));
 
             // websocket方式写数据到前端
             String jsonString = JSONObject.toJSONString(PushData.buildModel(device.getUid(), valueMap));
@@ -158,5 +148,26 @@ public class RealtimePushListener implements WebSocketServerListener, EventGroup
             String uid = httpRequestWrapper.getQueryParam("uid").orElse("");
             return (DEVICE_ALL.equals(uid) || (Objects.equals(uid, deviceUid))) && type.contains(typeData);
         }));
+    }
+
+    @Override
+    public void warnTrigger(WarnConfig config, WarnRecord record, RealtimeStatus device) {
+        try {
+            PushData warn = PushData.build(record.getUid(), "warn", record);
+            String jsonString = JSONObject.toJSONString(warn);
+            doPush(record.getUid(), jsonString, TYPE_WARN);
+        } catch (Exception e) {
+            logger.error("实时推送点位数据异常 {} - 设备: {}", e.getMessage(), device.buildKey(), e);
+        }
+    }
+
+    @Override
+    public void apiInvoke(ModelApi api, RealtimeStatus status, InvokeResult result) {
+        this.push(status.getUid(), api, result);
+    }
+
+    @Override
+    public int getOrder() {
+        return EventGroupCollectListener.super.getOrder() - 2300;
     }
 }

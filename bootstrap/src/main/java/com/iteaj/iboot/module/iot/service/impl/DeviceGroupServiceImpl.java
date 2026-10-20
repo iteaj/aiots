@@ -8,10 +8,14 @@ import com.iteaj.framework.BaseServiceImpl;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.result.*;
 import com.iteaj.framework.utils.TreeUtils;
+import com.iteaj.iboot.common.CacheKeys;
 import com.iteaj.iboot.module.iot.entity.DeviceGroup;
 import com.iteaj.iboot.module.iot.entity.ProductType;
 import com.iteaj.iboot.module.iot.mapper.DeviceGroupMapper;
 import com.iteaj.iboot.module.iot.service.IDeviceGroupService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +34,14 @@ import java.util.stream.Collectors;
  * @author iteaj
  */
 @Service
+@CacheConfig(cacheNames = {CacheKeys.IBOOT_CACHE_KEY_DEVICE_GROUP})
 public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, DeviceGroup> implements IDeviceGroupService {
+
+    private final Cache cache;
+
+    public DeviceGroupServiceImpl(CacheManager cacheManager) {
+        this.cache = cacheManager.getCache(CacheKeys.IBOOT_CACHE_KEY_DEVICE_GROUP);
+    }
 
     @Override
     @Transactional
@@ -93,6 +104,7 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
         }
 
         getBaseMapper().updateGroupProductId(entity.getId(), entity.getGroupProductId(), oldGroupProductId);
+        cache.put(entity.getId(), entity);
         return booleanResult;
     }
 
@@ -117,6 +129,16 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
     @Override
     public DetailResult<DeviceGroup> detailById(Long id) {
         return new DetailResult<>(getBaseMapper().detailById(id));
+    }
+
+    @Override
+    public DeviceGroup getCacheById(Long id) {
+        Cache.ValueWrapper valueWrapper = cache.get(id);
+        if(valueWrapper != null) {
+            return (DeviceGroup) valueWrapper.get();
+        } else {
+            return this.getById(id).ifPresent(item -> cache.put(id, item)).getData();
+        }
     }
 
     @Override
@@ -162,6 +184,6 @@ public class DeviceGroupServiceImpl extends BaseServiceImpl<DeviceGroupMapper, D
             throw new ServiceException("请先解绑此分组下的事件源");
         }
 
-        return super.removeByIds(idList);
+        return super.removeByIds(idList).ifPresent(item -> idList.forEach(cache::evict));
     }
 }

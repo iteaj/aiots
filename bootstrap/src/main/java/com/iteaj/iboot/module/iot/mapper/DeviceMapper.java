@@ -74,6 +74,13 @@ public interface DeviceMapper extends BaseMapper<Device> {
     Device getByUid(String uid);
 
     /**
+     * 通过uid获取设备详情(含产品信息)
+     * @param uid
+     * @return
+     */
+    DeviceDto getDetailByUid(String uid);
+
+    /**
      * 统计设备的在线离线状态
      * @param param
      * @return
@@ -98,4 +105,6 @@ public interface DeviceMapper extends BaseMapper<Device> {
     Page pageCommonByStatus(Page page, StatusDataCondition condition);
 
     List<DeviceStatusData> listCommonByStatus(StatusDataCondition condition);
+
+    IPage<DeviceDto> listByApp(Page page, DeviceDto entity);
 }

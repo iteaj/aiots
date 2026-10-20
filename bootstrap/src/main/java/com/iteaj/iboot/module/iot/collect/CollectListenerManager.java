@@ -1,6 +1,10 @@
 package com.iteaj.iboot.module.iot.collect;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.iteaj.framework.spi.iot.DataSupplier;
+import com.iteaj.framework.spi.iot.data.DataCollectPublishService;
+import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
+import com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus;
 import com.iteaj.iboot.module.iot.collect.model.EventGroupCollectListener;
 import com.iteaj.iboot.module.iot.collect.model.ModelAttrListener;
 
@@ -8,10 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class CollectListenerManager {
+public class CollectListenerManager implements DataCollectPublishService {
 
     private List<CollectDataListener> listeners = new ArrayList<>();
-    private List<SignalCollectListener> signalCollectListeners = new ArrayList<>();
     private List<EventGroupCollectListener> groupCollectListeners = new ArrayList<>();
 
     private static CollectListenerManager instance = new CollectListenerManager();
@@ -33,19 +36,11 @@ public class CollectListenerManager {
             instance.register((EventGroupCollectListener) listener);
         }
 
-        if(listener instanceof SignalCollectListener) {
-            instance.register((SignalCollectListener) listener);
-        }
-
         listeners.add(listener);
     }
 
     public void register(EventGroupCollectListener listener) {
         groupCollectListeners.add(listener);
-    }
-
-    public void register(SignalCollectListener listener) {
-        signalCollectListeners.add(listener);
     }
 
     /**
@@ -104,19 +99,17 @@ public class CollectListenerManager {
         }
     }
 
-    /**
-     * 点位数据采集发布
-     * @param consumer
-     */
-    public void signalPublish(Consumer<SignalCollectListener> consumer) {
-        try {
-            signalCollectListeners.forEach(consumer);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static CollectListenerManager getInstance() {
         return instance;
+    }
+
+    @Override
+    public void publish(DataSupplier supplier, RealtimeDeviceStatus device) {
+        this.modelAttrPublish(item -> item.supplier(supplier, (RealtimeStatus) device));
+    }
+
+    @Override
+    public void publish(DataSupplier supplier, RealtimeDeviceStatus device, String type) {
+        this.modelAttrPublish(item -> item.supplier(supplier, (RealtimeStatus) device, type));
     }
 }

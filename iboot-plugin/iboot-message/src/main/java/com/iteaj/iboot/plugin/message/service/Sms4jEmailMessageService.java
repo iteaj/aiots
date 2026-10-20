@@ -1,7 +1,7 @@
 package com.iteaj.iboot.plugin.message.service;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.exception.ServiceException;
 import com.iteaj.framework.spi.message.MessageConfig;
 import com.iteaj.framework.spi.message.MessageService;
@@ -29,7 +29,7 @@ public class Sms4jEmailMessageService extends EmailMessageService {
         MailMessage mailMessage = MailMessage.Builder()
                 .mailAddress(model.getAccept())
                 .title(model.getTitle())
-                .htmlContent(model.getContent().toString())
+                .body(model.getContent().toString())
                 .build();
         client.send(mailMessage);
         return Optional.of(client);

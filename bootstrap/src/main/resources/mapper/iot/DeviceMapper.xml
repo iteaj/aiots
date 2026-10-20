@@ -12,7 +12,8 @@
         <result column="name" property="name" />
         <result column="port" property="port" />
         <result column="product_id" property="productId" />
-        <result column="extend" property="extend" />
+        <result column="extend" property="extend"
+            typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"  />
         <result column="status" property="status" />
         <result column="address" property="address" />
         <result column="account" property="account" />
@@ -39,6 +40,7 @@
     <resultMap id="DeviceStatusMap" type="com.iteaj.iboot.module.iot.cache.entity.RealtimeStatus">
         <result property="id" column="id" />
         <result property="uid" column="uid" />
+        <result property="puid" column="puid" />
         <result property="deviceSn" column="deviceSn" />
         <result property="deviceName" column="name" />
         <result property="parentDeviceSn" column="parentDeviceSn" />
@@ -99,6 +101,11 @@
             <if test="entity.name!=null and entity.name!=''">
                 and a.name like '%${entity.name}%'
             </if>
+            <if test="entity.extend!=null">
+                <if test="entity.extend.containsKey('alias')">
+                    and a.extend -> '$.alias' = #{entity.extend.alias}
+                </if>
+            </if>
         </where>
         order by a.status, a.create_time desc
     </select>
@@ -110,6 +117,17 @@
     <select id="getByUid" resultMap="BasicMap">
         select a.*, pd.device_sn parent_device_sn from iot_device a
             left join iot_device pd on a.pid = pd.id
+        where a.uid=#{uid}
+    </select>
+    <select id="getDetailByUid" resultMap="DeviceDtoMap">
+        select a.*, pd.device_sn parent_device_sn, idm.name product_name, idt.name product_type_name
+             , idm.code product_code, idm.gateway_id, idm.device_type, idm.protocol_code
+             , ig.name gateway_name, ig.connect_type, dg.name device_group_name from iot_device a
+            left join iot_device pd on a.pid = pd.id
+            left join iot_product idm on a.product_id=idm.id
+            left join iot_product_type idt on idm.product_type_id=idt.id
+            left join iot_gateway ig on idm.gateway_id=ig.id
+            left join iot_device_group dg on a.device_group_id=dg.id
         where a.uid=#{uid}
     </select>
     <select id="detailById" resultMap="DeviceDtoMap">
@@ -149,7 +167,7 @@
     </select>
 
     <select id="getDeviceCacheById" resultMap="DeviceStatusMap">
-        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
+        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config, pd.uid puid
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
             left join iot_device pd on a.pid = pd.id
@@ -157,7 +175,7 @@
         where a.id=#{id}
     </select>
     <select id="listDeviceStatusById" resultMap="DeviceStatusMap">
-        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
+        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config, pd.uid puid
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
             left join iot_device pd on a.pid = pd.id
@@ -170,7 +188,7 @@
     </select>
 
     <select id="listDeviceCache" resultMap="DeviceStatusMap">
-        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config
+        select a.id, a.uid, a.device_group_id groupId, p.device_type type, a.status, a.device_sn deviceSn, a.config, pd.uid puid
              , pd.device_sn parentDeviceSn, p.code productCode, p.id productId, p.protocol_code protocolCode, a.status, a.name
         from iot_device a
              left join iot_device pd on a.pid = pd.id
@@ -270,5 +288,29 @@
             </if>
         </where>
         order by a.status desc, a.product_id
+    </select>
+    <select id="listByApp" resultMap="DeviceDtoMap">
+        select a.*, b.device_type, pd.device_sn parent_device_sn from iot_device a
+            left join iot_product b on a.product_id = b.id
+            left join iot_device pd on a.pid = pd.id
+        <where>
+           b.id is not null
+            <if test="entity.status!=null">
+                and a.status = #{entity.status}
+            </if>
+            <if test="entity.productId!=null">
+                and a.product_id = #{entity.productId}
+            </if>
+            <if test="entity.deviceType!=null">
+                and b.device_type = #{entity.deviceType}
+            </if>
+            <if test="entity.deviceTypes!=null">
+                and (<foreach collection="entity.deviceTypes" item="deviceType" separator=" or ">b.device_type=#{deviceType}</foreach>)
+            </if>
+            <if test="entity.deviceGroupId!=null">
+                and a.device_group_id = #{entity.deviceGroupId}
+            </if>
+        </where>
+        order by a.status
     </select>
 </mapper>

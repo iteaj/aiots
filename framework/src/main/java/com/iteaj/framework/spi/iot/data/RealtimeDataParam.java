@@ -22,6 +22,11 @@ public class RealtimeDataParam extends DefaultRealtimeData {
 
     private Long endTimestamp;
 
+    /**
+     * 是否只查有告警等级的数据(grade非空)
+     */
+    private Boolean hasGrade;
+
     public RealtimeDataParam setStartTime(String startTime) {
         this.startTime = startTime;
         if(StrUtil.isNotEmpty(startTime)){

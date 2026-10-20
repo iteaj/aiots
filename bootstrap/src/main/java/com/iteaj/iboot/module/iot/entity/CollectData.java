@@ -2,7 +2,6 @@ package com.iteaj.iboot.module.iot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iteaj.framework.BaseEntity;
 import com.iteaj.framework.spi.iot.consts.CollectStatus;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectData;
@@ -87,13 +86,11 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
     /**
      * 采集时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date collectTime;
 
     /**
      * 创建时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
     /**
@@ -117,6 +114,27 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
      */
     private String productCode;
 
+    /**
+     * 父设备uid
+     */
+    private String puid;
+
+    /**
+     * 告警等级
+     */
+    private String grade;
+
+    /**
+     * 指标
+     */
+    private String indicator;
+
+    /**
+     * 设备组名称
+     */
+    @TableField(exist = false)
+    private String deviceGroupName;
+
     public CollectData() { }
 
     public CollectData(CollectMode collectMode) {
@@ -134,5 +152,4 @@ public class CollectData extends BaseEntity implements RealtimeCollectData {
 
         return this;
     }
-
 }

@@ -35,19 +35,6 @@ public class CollectDataController extends BaseController {
     }
 
     /**
-     * 获取点位数据
-     * @param page
-     * @param entity
-     * @return
-     */
-    @Logger("访问点位数据页面")
-    @GetMapping("/signal")
-    public Result<Page<RealtimeCollectData>> signal(Page page, CollectDataDto entity) {
-        entity.setCollectMode("signal");
-        return collectDataService.detailOfPage(page, entity);
-    }
-
-    /**
      * 获取模型数据
      * @param page
      * @param entity
@@ -56,7 +43,6 @@ public class CollectDataController extends BaseController {
     @Logger("访问模型数据页面")
     @GetMapping("/model")
     public Result<Page<RealtimeCollectData>> model(Page page, RealtimeDataParam entity) {
-        entity.setCollectMode("model");
         return collectDataService.detailOfPage(page, entity);
     }
 
@@ -69,7 +55,6 @@ public class CollectDataController extends BaseController {
     @Logger("访问产品数据页面")
     @GetMapping("/product")
     public Result<Page<CollectDataDto>> product(Page page, RealtimeDataParam entity) {
-        entity.setCollectMode("model");
         if(entity.getProductId() == null) {
             return success(page);
         } else {

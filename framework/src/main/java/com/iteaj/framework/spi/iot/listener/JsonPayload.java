@@ -1,25 +1,25 @@
 package com.iteaj.framework.spi.iot.listener;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONPath;
 
 /**
  * json格式的负载
  */
 public class JsonPayload implements IotEventPayload{
 
-    private JSON json;
+    private final JSONObject json;
 
     public JsonPayload() {
         this.json = new JSONObject();
     }
 
     public JsonPayload(Object value) {
-        this.json = (JSON) JSON.toJSON(value);
+        this.json = (JSONObject) JSON.toJSON(value);
     }
 
-    public JSON getJson() {
+    public JSONObject getJson() {
         return json;
     }
 

@@ -8,6 +8,8 @@
         <result column="product_id" property="productId" />
         <result column="field" property="field" />
         <result column="name" property="name" />
+        <result column="sort" property="sort" />
+        <result column="config" property="config" typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
         <result column="data_type" property="dataType" />
         <result column="unit" property="unit" />
         <result column="gain" property="gain" />
@@ -38,6 +40,9 @@
             update iot_model_attr set ctrl_status = true where id=#{id};
         </if>
     </update>
+    <update id="updateWarnConfig">
+        update iot_warn_config set model_attr_field=#{field} where model_attr_id=#{id};
+    </update>
     <delete id="deleteByJoin">
         delete a, ad from iot_model_attr a left join iot_model_attr_dict ad on ad.model_attr_id=a.id where a.id=#{id};
         delete a from iot_model_attr_dict a left join iot_model_attr ad on ad.id=a.model_attr_id where a.dict_value='${id}' and ad.data_type='json';
@@ -50,13 +55,27 @@
     </select>
 
     <select id="listByProductId" resultMap="BaseResultMap">
-        select * from iot_model_attr where product_id=#{productId}
+        select * from iot_model_attr where product_id=#{productId} order by sort
+    </select>
+
+    <select id="listDetailByProductCode" resultMap="DetailResultMap">
+        select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path from iot_model_attr a
+            left join iot_product p on a.product_id = p.id
+            left join iot_model_attr_dict d on a.id = d.model_attr_id
+        where p.code=#{productCode} order by a.sort
     </select>
 
     <select id="listDetailByProductId" resultMap="DetailResultMap">
         select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path from iot_model_attr a
             left join iot_model_attr_dict d on a.id = d.model_attr_id
         where a.product_id=#{productId} order by d.id
+    </select>
+
+    <select id="listLimitDetailByProductId" resultMap="DetailResultMap">
+        select a.*, d.id dict_id, d.dict_name, dict_value, d.model_attr_id, d.path
+            from (select * from iot_model_attr where product_id=#{productId} order by sort limit 4) a
+            left join iot_model_attr_dict d on a.id = d.model_attr_id
+        where a.product_id=#{productId} order by a.sort
     </select>
 
     <select id="hasBinded" resultType="java.lang.Boolean">
@@ -69,7 +88,7 @@
     <select id="listDetailDict" resultType="com.iteaj.iboot.module.iot.entity.ModelAttrDict">
         select a.*, jma.data_type dataType, jma.field attrField from iot_model_attr_dict a
             left join iot_model_attr ma on ma.id=a.model_attr_id
-            left join iot_model_attr jma on jma.id=a.dict_value and ma.data_type='json'
+            left join iot_model_attr jma on jma.id=a.dict_value and (ma.data_type='json' or ma.data_type = 'bit' or ma.data_type = 'group')
         where a.model_attr_id=#{modelAttrId}
         <if test="dictName != null">and a.dict_name like '%${dictName}%'</if>
     </select>

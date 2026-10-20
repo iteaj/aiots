@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.iteaj</groupId>
+        <artifactId>iboot-ai</artifactId>
+        <version>${reversion}</version>
+    </parent>
+
+    <name>iboot:ai:mcp</name>
+    <artifactId>ai-mcp</artifactId>
+    <description>AI大模型MCP工具插件, 向外提供MCP服务(包括iot等)</description>
+
+    <dependencies>
+        <dependency>
+            <version>1.1.2</version> <!-- 使用最新稳定版 -->
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springaicommunity</groupId>
+                    <artifactId>mcp-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.iteaj</groupId>
+            <artifactId>iot-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+    </dependencies>
+</project>

@@ -29,8 +29,7 @@
     </resultMap>
 
     <resultMap id="JoinModelAttrDictMap" type="com.iteaj.iboot.module.iot.entity.ModelApiConfig" extends="BaseResultMap">
-        <collection property="dicts" foreignColumn="{dict_model_attr_id=model_attr_id}"
-                    ofType="com.iteaj.iboot.module.iot.entity.ModelAttrDict" columnPrefix="ad_">
+        <collection property="dicts" foreignColumn="{dict_model_attr_id=model_attr_id}" columnPrefix="ad_" ofType="com.iteaj.iboot.module.iot.entity.ModelAttrDict">
             <result property="path" column="path" />
             <result property="attrField" column="attr_field" />
             <result property="dataType" column="data_type" />
@@ -50,7 +49,7 @@
              , jpa.script ad_script, ad.path ad_path from iot_model_api_config a
             left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
             left join iot_model_attr pa on a.model_attr_id=pa.id
-            left join iot_model_attr jpa on a.protocol_data_type = 'json' and jpa.id=ad.dict_value
+            left join iot_model_attr jpa on (a.data_type = 'json' or a.data_type = 'bit' or a.data_type = 'group') and jpa.id=ad.dict_value
         where api_code=#{apiCode} and a.direction='UP' order by sort
     </select>
 
@@ -60,7 +59,7 @@
                   , jpa.script ad_script, ad.path ad_path from iot_model_api_config a
             left join iot_model_attr_dict ad on a.model_attr_id=ad.model_attr_id
             left join iot_model_attr pa on a.model_attr_id=pa.id
-            left join iot_model_attr jpa on a.protocol_data_type = 'json' and jpa.id=ad.dict_value
+            left join iot_model_attr jpa on a.data_type = 'json' and jpa.id=ad.dict_value
         where api_code=#{apiCode} and a.direction='DOWN' order by sort
     </select>
 

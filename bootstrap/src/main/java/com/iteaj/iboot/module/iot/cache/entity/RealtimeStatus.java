@@ -1,6 +1,6 @@
 package com.iteaj.iboot.module.iot.cache.entity;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.iteaj.framework.spi.iot.DeviceKey;
 import com.iteaj.framework.spi.iot.data.RealtimeDeviceStatus;
 import com.iteaj.iboot.module.iot.consts.DeviceStatus;
@@ -29,8 +29,12 @@ public class RealtimeStatus implements RealtimeDeviceStatus {
     private String uid;
 
     /**
+     * 父设备uid
+     */
+    private String puid;
+
+    /**
      * 设备编号
-     * @see com.sun.istack.internal.NotNull
      */
     private String deviceSn;
 

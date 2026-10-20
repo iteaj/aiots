@@ -7,16 +7,16 @@
         <result column="id" property="id" />
         <result column="type" property="type" />
         <result column="cron" property="cron" />
-        <result column="period_type" property="periodType" />
-        <result column="period_ms" property="periodMs" />
-        <result column="rate_type" property="rateType" />
         <result column="name" property="name" />
         <result column="status" property="status" />
+        <result column="hasBindLinkage" property="hasBindLinkage" />
         <result column="has_passive" property="hasPassive" />
         <result column="create_time" property="createTime" />
         <result column="product_ids" property="productIds"
-                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler"/>
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonLongTypeHandler"/>
         <result column="device_group_ids" property="deviceGroupIds"
+                typeHandler="com.iteaj.framework.mybatis.handler.FastjsonLongTypeHandler" />
+        <result column="frequency_tags" property="frequencyTags"
                 typeHandler="com.iteaj.framework.mybatis.handler.FastjsonTypeHandler" />
     </resultMap>
     <resultMap id="DetailResultMap" type="com.iteaj.iboot.module.iot.entity.EventSource" extends="BaseResultMap">
@@ -27,10 +27,15 @@
     <resultMap id="DetailCollectResultMap" type="com.iteaj.iboot.module.iot.dto.EventSourceDto" extends="BaseResultMap">
         <collection property="apis" resultMap="com.iteaj.iboot.module.iot.mapper.ModelApiMapper.DetailResultMap"
                     columnPrefix="ma_" foreignColumn="id"/>
-        <collection property="groups" resultMap="com.iteaj.iboot.module.iot.mapper.DeviceGroupMapper.BaseResultMap" columnPrefix="dg_" />
+<!--        <collection property="groups" resultMap="com.iteaj.iboot.module.iot.mapper.DeviceGroupMapper.BaseResultMap" columnPrefix="dg_" />-->
     </resultMap>
     <delete id="removeAllByIds">
-        delete f from iot_event_source f
+        delete f,b,c,d,e from iot_event_source f
+            left join iot_linkage a on f.id=a.event_source_id
+            left join iot_linkage_item d on a.id=d.linkage_id and json_length(d.device_group_ids)!=0
+            left join iot_linkage_condition b on a.id=b.linkage_id and b.linkage_item_id=d.id
+            left join iot_linkage_action c on a.id=c.linkage_id and c.linkage_item_id = d.id
+            left join iot_linkage_condition_item e on e.linkage_condition_id=b.id
         where f.id in (
         <foreach collection="list" item="eventSourceId" separator=",">
             #{eventSourceId}
@@ -49,14 +54,14 @@
     </select>
     <select id="detailPage" resultMap="BaseResultMap">
         select a.* from iot_event_source a
-        left join iot_product p on json_contains(a.product_ids, concat('', p.id))
+            left join iot_product p on json_contains(a.product_ids, concat('', p.id))
         <where>
             <if test="entity.type != null">
                 and a.type = #{entity.type}
             </if>
-            <if test="entity.productId != null">
+           <if test="entity.productId != null">
                 and json_contains(a.product_ids, concat('', #{entity.productId}))
-            </if>
+           </if>
             <if test="entity.deviceGroupId != null">
                 and json_contains(a.device_group_ids, concat('', #{entity.deviceGroupId}))
             </if>
@@ -68,34 +73,44 @@
     </select>
 
     <select id="detailById" resultMap="DetailResultMap">
-        select a.*, esd.model_api_id from iot_event_source a
-                                              left join iot_event_source_detail esd on a.id = esd.event_source_id
-        where a.id=#{id}
+        select a.*, esd.model_api_id, count(l.id) > 0 hasBindLinkage from iot_event_source a
+            left join iot_linkage l on a.id = l.event_source_id
+            left join iot_event_source_detail esd on a.id = esd.event_source_id
+        where a.id=#{id} group by a.id
     </select>
 
     <select id="availableSources" resultType="com.iteaj.framework.IVOption">
         select a.name label, a.id value, count(l.event_source_id) extra from iot_event_source a
-            left join iot_linkage l on a.id=l.event_source_id
+            left join iot_linkage l on a.id=l.event_source_id group by a.id
     </select>
 
     <select id="collectDetailById" resultMap="DetailCollectResultMap">
         select a.*, ma.id ma_id, ma.type ma_type, ma.code ma_code, ma.direct ma_direct, ma.product_id ma_product_id
              , ma.name ma_name, ma.status ma_status, ma.func_type ma_func_type, ma.trigger_mode ma_trigger_mode
-             , dg.id dg_id, dg.name dg_name, dg.pid dg_pid
+             , ma.collect_tag ma_collect_tag
         from iot_event_source a
-                 left join iot_device_group dg on json_contains(a.device_group_ids, concat('', dg.id))
-                 left join iot_model_api ma on ma.func_type='R' and ma.trigger_mode='passive' and json_contains(a.product_ids, concat('', ma.product_id))
+            left join iot_model_api ma on ma.func_type='R' and ma.trigger_mode='passive'
+                and json_contains(a.product_ids, concat('', ma.product_id))
+                and (
+                  /* 频率标签过滤：频率范围为空或包含该标签 */
+                  ma.collect_tag is not null and a.frequency_tags is not null and json_contains(a.frequency_tags, json_quote(ma.collect_tag))
+                )
         where a.id=#{id}
     </select>
 
     <select id="listProductById" resultType="com.iteaj.iboot.module.iot.entity.Product">
         select p.* from iot_event_source a
-        left join iot_product p on json_contains(a.product_ids, concat('', p.id))
+            left join iot_product p on json_contains(a.product_ids, concat('', p.id))
         where a.id=#{id} <if test="status != null">and p.status = #{status}</if>
     </select>
     <select id="listDeviceGroupById" resultType="com.iteaj.iboot.module.iot.entity.DeviceGroup">
         select dg.* from iot_event_source a
-                             inner join iot_device_group dg on json_contains(a.device_group_ids, concat('', dg.id))
+            inner join iot_device_group dg on json_contains(a.device_group_ids, concat('', dg.id))
         where a.id = #{id}
+    </select>
+    <select id="hasBindEnabledLinkage" resultType="java.lang.Boolean">
+        select count(l.id) > 0 from iot_event_source a
+            left join iot_linkage l on a.id=l.event_source_id
+        where a.id=#{id} and l.status = 'enabled'
     </select>
 </mapper>

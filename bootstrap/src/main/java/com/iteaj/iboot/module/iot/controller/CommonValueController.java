@@ -4,7 +4,9 @@ import com.iteaj.framework.BaseController;
 import com.iteaj.framework.result.Result;
 import com.iteaj.framework.spi.iot.data.CollectDataCondition;
 import com.iteaj.framework.spi.iot.data.CollectValueItem;
+import com.iteaj.framework.spi.iot.data.CollectWarnDataService;
 import com.iteaj.framework.spi.iot.data.RealtimeCollectDataService;
+import com.iteaj.iboot.module.iot.dto.DeviceStatusData;
 import com.iteaj.iboot.module.iot.dto.StatusDataCondition;
 import com.iteaj.iboot.module.iot.service.IDeviceService;
 import lombok.AllArgsConstructor;
@@ -24,6 +26,7 @@ import java.util.List;
 public class CommonValueController extends BaseController {
 
     private final IDeviceService deviceService;
+    private final CollectWarnDataService collectWarnDataService;
     private final RealtimeCollectDataService collectDataService;
 
     /**
@@ -35,6 +38,17 @@ public class CommonValueController extends BaseController {
     public Result<List<CollectValueItem>> data(@RequestBody CollectDataCondition condition) {
         List<CollectValueItem> valueItems = collectDataService.listOfCommonByTime(condition);
         return success(valueItems);
+    }
+
+    /**
+     * 获取告警数据列表
+     * @param condition
+     * @return
+     */
+    @PostMapping("warn")
+    public Result<List<CollectValueItem>> warn(@RequestBody CollectDataCondition condition) {
+        List<CollectValueItem> values = collectWarnDataService.listOfCommonByTime(condition);
+        return success(values);
     }
 
     /**

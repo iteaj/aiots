@@ -2,10 +2,9 @@ package com.iteaj.iboot.module.iot.entity;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iteaj.framework.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -14,19 +13,22 @@ import java.util.stream.Collectors;
 
 import com.iteaj.framework.IVOption;
 import com.iteaj.framework.exception.ServiceException;
-import com.iteaj.framework.mybatis.handler.JacksonTypeHandler;
+import com.iteaj.framework.mybatis.handler.FastjsonTypeHandler;
 import com.iteaj.framework.spi.iot.consts.TriggerMode;
 import com.iteaj.framework.spi.iot.consts.FuncType;
+import com.iteaj.framework.spi.iot.data.ModelApiMeta;
+import com.iteaj.framework.spi.iot.data.ModelAttrMeta;
 import com.iteaj.framework.spi.iot.protocol.ProtocolApiType;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandDto;
+import com.iteaj.iboot.module.iot.dto.CtrlCommandDto;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import com.iteaj.iboot.module.iot.dto.DeviceCommandViewDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.springframework.util.CollectionUtils;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * <p>
@@ -40,7 +42,7 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("iot_model_api")
-public class ModelApi extends BaseEntity {
+public class ModelApi extends BaseEntity implements ModelApiMeta {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,6 +68,17 @@ public class ModelApi extends BaseEntity {
      * 显示到调试
      */
     private Boolean debug;
+
+    /**
+     * 排序
+     */
+    private Integer sort;
+
+    /**
+     * 配置
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject config;
 
     /**
      * 是否为协议接口
@@ -118,10 +131,15 @@ public class ModelApi extends BaseEntity {
     private TriggerMode triggerMode;
 
     /**
+     * 频率标签（如：默认、低频、中频、高频）
+     */
+    private String collectTag;
+
+    /**
      * 指令参数
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private ObjectNode directParams;
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private JSONObject directParams;
 
     /**
      * 上行接口配置
@@ -134,6 +152,42 @@ public class ModelApi extends BaseEntity {
      */
     @TableField(exist = false)
     private List<ModelApiConfig> downConfig;
+
+    public ModelApi putConfig(String key, Object value) {
+        if(this.config == null) {
+            this.config = new JSONObject();
+        }
+
+        this.config.put(key, value);
+        return this;
+    }
+
+    public JSONObject resolveStrValue(String value) {
+        Map<String, String> attrValueMap = new HashMap<>();
+        if(StrUtil.isNotBlank(value) && value.contains("::")) {
+            String[] split = value.split(",");
+            for (String s : split) {
+                String[] fieldValueMap = s.split("::");
+                if (fieldValueMap.length == 2) {
+                    attrValueMap.put(fieldValueMap[0], fieldValueMap[1]);
+                }
+            }
+        }
+
+        JSONObject param = new JSONObject();
+        if(CollectionUtil.isNotEmpty(downConfig)) {
+            downConfig.forEach(config -> {
+                String configValue = config.getValue();
+                if(config.getModelAttrId() != null && configValue.startsWith("@")) { // 对提及的物模型属性赋值
+                    String attrField = configValue.substring(1);
+                    configValue = attrValueMap.get(attrField);
+                }
+
+                param.put(config.getProtocolAttrField(), configValue);
+            });
+        }
+        return param;
+    }
 
     /**
      * 解析接口字典配置
@@ -152,7 +206,7 @@ public class ModelApi extends BaseEntity {
 
                 Map<Long, ModelAttr> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttr::getId, item -> item));
                 List<List<ModelAttrDict>> collect = configs.stream()
-                        .map(item -> item.getDicts())
+                        .map(ModelApiConfig::getDicts)
                         .collect(Collectors.toList());
 
                 // 计算笛卡尔积
@@ -180,7 +234,7 @@ public class ModelApi extends BaseEntity {
         return Collections.EMPTY_LIST;
     }
 
-    public List<DeviceCommandDto> resolverCommand(String uid, List<ModelAttr> attrs) {
+    public List<DeviceCommandDto> resolverCommand(String uid, List<? extends ModelAttrMeta> attrs) {
         if(!CollectionUtils.isEmpty(downConfig)) {
             List<ModelApiConfig> configs = downConfig.stream()
                     .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
@@ -191,9 +245,9 @@ public class ModelApi extends BaseEntity {
                     throw new ServiceException("参数错误[物模型属性为空]");
                 }
 
-                Map<Long, ModelAttr> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttr::getId, item -> item));
+                Map<Long, ? extends ModelAttrMeta> attrMap = attrs.stream().collect(Collectors.toMap(ModelAttrMeta::getId, item -> item));
                 List<List<ModelAttrDict>> collect = configs.stream()
-                        .map(item -> item.getDicts())
+                        .map(ModelApiConfig::getDicts)
                         .collect(Collectors.toList());
 
                 StringBuilder configValue = new StringBuilder(), configName = new StringBuilder();
@@ -207,7 +261,7 @@ public class ModelApi extends BaseEntity {
                     StringBuilder sb = new StringBuilder(configName.toString());
                     StringBuilder valueSb = new StringBuilder(configValue.toString());
                     item.forEach(dict -> {
-                        ModelAttr modelAttr = attrMap.get(dict.getModelAttrId());
+                        ModelAttrMeta modelAttr = attrMap.get(dict.getModelAttrId());
                         if(modelAttr != null) {
                             sb.append(modelAttr.getName()).append("->").append(dict.getDictName()).append(";");
                             downConfig.forEach(config -> {
@@ -223,7 +277,7 @@ public class ModelApi extends BaseEntity {
 
                     String dict = item.isEmpty() ? null : item.get(0).getDictName();
                     String apiName = dict == null ? getName() : getName() + "->" + dict;
-                    return new DeviceCommandDto().setApiName(apiName).setApiType(getType()).setUid(uid)
+                    return new DeviceCommandDto().setApiName(apiName).setApiType(getType()).setUid(uid).setDirect(getDirect())
                             .setCommandValue(valueSb.toString()).setRemark(getRemark()).setCommandName(sb.toString()).setCode(getCode());
                 }).collect(Collectors.toList());
             } else {
@@ -237,13 +291,43 @@ public class ModelApi extends BaseEntity {
                 sb.deleteCharAt(sb.length() - 1);
                 valueSb.deleteCharAt(valueSb.length() - 1);
 
-                return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                return Collections.singletonList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid).setDirect(getDirect())
                         .setCommandValue(valueSb.toString()).setCommandName(sb.toString()).setRemark(getRemark()).setCode(getCode()));
             }
         } else {
-            return Arrays.asList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
-                    .setCommandValue(null).setCommandName("-").setRemark(getRemark()).setCode(getCode()));
+            return Collections.singletonList(new DeviceCommandDto().setApiName(getName()).setApiType(getType()).setUid(uid)
+                    .setCommandValue(null).setCommandName("-").setRemark(getRemark()).setCode(getCode()).setDirect(getDirect()));
         }
+    }
+
+    public CtrlCommandDto resolverSimpleCommand() {
+        CtrlCommandDto ctrlCommandDto = new CtrlCommandDto(getName());
+        if(!CollectionUtils.isEmpty(downConfig)) {
+            List<ModelApiConfig> configs = downConfig.stream()
+                    .filter(item -> !CollectionUtils.isEmpty(item.getDicts()))
+                    .collect(Collectors.toList());
+
+            if(!CollectionUtils.isEmpty(configs)) {
+                StringBuilder configValue = new StringBuilder("api->").append(getCode()).append('&');
+                downConfig.stream().filter(item -> item.getModelAttrId() == null).forEach(item -> {
+                    configValue.append(item.getProtocolAttrField()).append("->").append(item.getValue()).append('&');
+                });
+
+                ModelApiConfig modelApiConfig = configs.get(0);
+                ctrlCommandDto.setAttrField(modelApiConfig.getAttrField());
+                modelApiConfig.getDicts().forEach(dict -> ctrlCommandDto.addOption(dict.getDictName()
+                        , configValue + modelApiConfig.getProtocolAttrField() + "->" + dict.getDictValue(), dict.getDictValue()));
+            } else {
+                StringBuilder valueSb = new StringBuilder("api->").append(getCode()).append('&');
+                downConfig.forEach(config -> valueSb.append(config.getProtocolAttrField()).append("->").append(config.getValue()).append('&'));
+                valueSb.deleteCharAt(valueSb.length() - 1);
+                ctrlCommandDto.addOption(getName(), valueSb.toString(), null);
+            }
+        } else {
+            ctrlCommandDto.addOption(getName(), "api->" + getCode(), null);
+        }
+
+        return ctrlCommandDto;
     }
 
     public DeviceCommandViewDto resolverCommandOfView(List<ModelAttr> attrs) {
@@ -262,24 +346,23 @@ public class ModelApi extends BaseEntity {
                 final List<DeviceCommandViewDto.ViewConfig> dictList = dicts.stream()
                         .map(item -> new DeviceCommandViewDto.ViewConfig(item.getDictName(), item.getDictValue()))
                         .collect(Collectors.toList());
-                StringBuilder configValue = new StringBuilder();
 
-                configValue.append(apiConfig.getProtocolAttrField()).append("->#{}");
-                return new DeviceCommandViewDto(getName(), configValue.toString(), getCode()).setLeaf(true).setRemark(getRemark()).setConfigs(dictList);
+                return new DeviceCommandViewDto(getName(), apiConfig.getProtocolAttrField() + "->#{}"
+                        , getCode()).setLeaf(true).setRemark(getRemark()).setConfigs(dictList);
             }
         }
 
         return new DeviceCommandViewDto(getName(), null, getCode()).setLeaf(true).setRemark(getRemark());
     }
 
-    private List<List<ModelAttrDict>> cartesianProduct(List<List<ModelAttrDict>> lists, Map<Long, ModelAttr> attrMap) {
+    private List<List<ModelAttrDict>> cartesianProduct(List<List<ModelAttrDict>> lists, Map<Long, ? extends ModelAttrMeta> attrMap) {
         List<List<ModelAttrDict>> result = new ArrayList<>();
         cartesianProductHelper(lists, 0, new ArrayList<>(), result, attrMap);
         return result;
     }
 
     private void cartesianProductHelper(List<List<ModelAttrDict>> lists, int index, List<ModelAttrDict> current
-            , List<List<ModelAttrDict>> result, Map<Long, ModelAttr> attrMap) {
+            , List<List<ModelAttrDict>> result, Map<Long, ? extends ModelAttrMeta> attrMap) {
         if (index == lists.size()) {
             result.add(new ArrayList<>(current));
             return;
@@ -287,7 +370,7 @@ public class ModelApi extends BaseEntity {
 
         List<ModelAttrDict> list = lists.get(index);
         for (ModelAttrDict value : list) {
-            ModelAttr modelAttr = attrMap.get(value.getModelAttrId());
+            ModelAttrMeta modelAttr = attrMap.get(value.getModelAttrId());
             if(modelAttr != null) {
                 current.add(value);
             }
