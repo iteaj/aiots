@@ -55,15 +55,15 @@
     </properties>
 
     <scm>
-        <url>https://gitee.com/iteaj/izone-sboot.git</url>
-        <connection>scm:git:https://gitee.com/iteaj/izone-sboot.git</connection>
-        <developerConnection>scm:git:https://gitee.com/iteaj/izone-sboot.git</developerConnection>
+        <url>https://gitee.com/iteaj/iboot.git</url>
+        <connection>scm:git:https://gitee.com/iteaj/iboot.git</connection>
+        <developerConnection>scm:git:https://gitee.com/iteaj/iboot.git</developerConnection>
   </scm>
     <developers>
         <developer>
             <name>iteaj</name>
             <email>iteaj@outlook.com</email>
-            <url>http://www.iteaj.com</url>
+            <url>https://www.iteaj.com</url>
         </developer>
     </developers>
 
