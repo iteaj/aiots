@@ -1,8 +1,6 @@
-### iboot(物联网网关)
-iboot是基于java1.8、springboot2.7、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc、dlt645-2007、opcua，实现的plc包括西门子、欧姆龙、三菱、松下、汇川、罗克韦尔
+### aiots(物联网网关)
+aiots是基于java21+、springboot3.5.x.、netty等框架开发的物联网网关，支持的网络协议包括tcp、udp、mqtt、http、串口等，工业协议包括modbus、plc、dlt645-2007、opcua，实现的plc包括西门子、欧姆龙、三菱、松下、汇川、罗克韦尔
 - [开发文档](http://doc.iteaj.com)
-- [ai技能仓库](https://gitee.com/iteaj/aiots-skills)
-- [项目前端仓库(vue3+antdv3+vite2)](https://gitee.com/iteaj/ivzone)
 - [商业版演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://vip.iteaj.com/#/login)
 ### 加入社区
 > 加群申请请备注: iot
@@ -64,10 +62,10 @@ iboot是一个springboot单体架构，只需要一台云服务器；安装java�
 
 
 #### 语言和框架
-1. 后端：java1.8、spring boot2.7、、mybatis、mybatis-plus、shiro、satoken、thymeleaf、hikaricp
-2. 前端：vue3、antd、axios、qs、moment、validate
+1. 后端：java21+、spring boot3.5.x、、mybatis、mybatis-plus、satoken、thymeleaf、hikaricp
+2. 前端：vue3、antdv-next、axios、qs、moment、validate
 3. 数据： mysql8.0+
-4. 开发工具：idea
+4. 开发工具：idea、qoder、ai
 
 #### 参与贡献
 
