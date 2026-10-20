@@ -4,8 +4,8 @@ aiots是基于java21+、springboot3.5.x.、netty等框架开发的物联网网�
 - [商业版演示地址(支持DTU、PLC、MODBUS、串口等调试)](https://vip.iteaj.com/#/login)
 ### 加入社区
 > 加群申请请备注: iot
-
-QQ3群 - 272518000 <br>
+QQ4群 - 696454214
+QQ3群 - 272518000 (已满)<br>
 QQ2群 - 616124620 (已满)<br>
 QQ1群 - 552167793 (已满)<br>
 ### 商务合作(qq号：97235681)
