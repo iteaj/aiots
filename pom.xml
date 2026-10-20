@@ -36,11 +36,9 @@
         <izone.boot.version>1.2.1</izone.boot.version>
         <springboot.version>3.5.10</springboot.version>
         <mybatis.plus.version>3.5.7</mybatis.plus.version>
-        <langchain4j.version>1.0.0-beta3</langchain4j.version>
         <mybatis.plus.ds.version>4.3.0</mybatis.plus.ds.version>
 
         <!--插件依赖版本-->
-        <knife4j.version>4.5.0</knife4j.version>
         <SaToken.version>1.39.0</SaToken.version>
         <weixin.java.version>4.8.0</weixin.java.version>
 
