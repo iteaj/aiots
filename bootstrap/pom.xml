@@ -262,6 +262,9 @@
     <profiles>
         <profile>
             <id>deploy</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <properties>
                 <!-- 后端服务器配置（从 settings.xml deploy profile 读取） -->
                 <!-- true: 仅发布前端(不传jar、不重启后端); false: 全量发布 -->
