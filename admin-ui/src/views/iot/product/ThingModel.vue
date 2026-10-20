@@ -277,29 +277,6 @@
           </template>
         </UViewTable>
       </u-tab-pane>
-      <u-tab-pane key="attrCalc" tab="计算属性">
-        <ARow>
-        <ACol span="16">
-          <UScript style="min-height: 320px;" label="计算脚本" v-model:value="modelDetailModel.config.calcScript"  :completions="calcAttrCompletions"></UScript>
-        </ACol>
-        <ACol span="8" style="position: relative">
-          <div style="padding: 8px; font-size: 12px; color: #8e8e8e;">
-            <div>适用场景：有些属性可以通过对采集的值进行计算后得到</div>
-            <div style="color: #1c79f4">使用方法：通过methods对象提供如下方法：</div>
-            <div style="height: 220px; overflow-y: auto;">
-              <div class="method-item" v-for="(item, index) in calcAttrCompletions" :key="index">
-                <span class="method-value">{{item.value}}</span><span class="method-label">{{item.meta}}</span>
-              </div>
-            </div>
-          </div>
-          <div style="position: absolute; bottom: 8px; text-align: center; width: 100%;">
-            <URadioGroup button-style="solid" v-model:value="modelDetailModel.config['calcLanguage']"
-                         @change="updateCalcScript" option-type="button" :options="calcScriptStatus" />
-            <UButton func="submit" type="primary" style="margin-left: 8px;" @click="updateCalcScript">保存</UButton>
-          </div>
-        </ACol>
-      </ARow>
-      </u-tab-pane>
       <UTabPane key="commands" tab="指令集">
         <UTable uid="cmdTable" :columns="cmdColumns" :pagination="false" ref="cmdTable" size="small" :scroll="{y: 360}">
           <template #title>
