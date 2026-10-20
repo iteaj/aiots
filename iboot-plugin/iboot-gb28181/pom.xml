@@ -3,27 +3,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>iboot-plugin</artifactId>
         <groupId>com.iteaj</groupId>
         <version>${reversion}</version>
+        <artifactId>iboot-plugin</artifactId>
     </parent>
 
-<<<<<<<< HEAD:iboot-plugin/iboot-datasource/pom.xml
-    <packaging>pom</packaging>
-    <modules>
-        <module>iboot-tdengine</module>
-        <module>iboot-rdbms</module>
-    </modules>
-    <modelVersion>4.0.0</modelVersion>
-    <name>iboot:plugin:datasource</name>
-    <artifactId>iboot-datasource</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <version>${mybatis.plus.ds.version}</version>
-            <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
-========
     <name>iboot:plugin:gb28181</name>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>iboot-gb28181</artifactId>
@@ -39,7 +23,6 @@
             <optional>true</optional>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
->>>>>>>> aiots-open-dev:iboot-plugin/iboot-gb28181/pom.xml
         </dependency>
     </dependencies>
 </project>
