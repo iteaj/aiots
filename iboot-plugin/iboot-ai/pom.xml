@@ -9,13 +9,16 @@
         <artifactId>iboot-plugin</artifactId>
     </parent>
     <modules>
+        <!--大模型MCP工具插件-->
         <module>ai-mcp</module>
+        <!--工业AI插件(视频分析、图像识别)-->
+        <module>ai-ilm</module>
     </modules>
 
     <packaging>pom</packaging>
     <name>iboot:plugin:ai</name>
     <artifactId>iboot-ai</artifactId>
-    <description>AI大模型插件</description>
+    <description>AI大模型及工业AI插件</description>
 
     <dependencies>
 

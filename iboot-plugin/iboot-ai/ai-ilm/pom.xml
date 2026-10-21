@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>iboot-ai</artifactId>
+        <groupId>com.iteaj</groupId>
+        <version>${reversion}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>iboot:ai:ilm</name>
+    <artifactId>ai-ilm</artifactId>
+    <description>工业AI插件, 面向工业场景提供视频分析、图像识别等视觉AI能力</description>
+</project>
